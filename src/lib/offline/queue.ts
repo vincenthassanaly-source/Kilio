@@ -15,6 +15,7 @@ import {
   ajouterArticlesCourses,
 } from "@/app/actions/courses";
 import { enregistrerEntreeHabitude, supprimerHabitude } from "@/app/actions/habitudes";
+import { isNetworkError } from "@/lib/network";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ActionFn = (...args: any[]) => Promise<unknown>;
@@ -37,17 +38,9 @@ const ACTIONS: Record<string, Record<string, ActionFn>> = {
   habitudes: { enregistrerEntreeHabitude, supprimerHabitude },
 };
 
-// Une erreur réseau (offline réel, ou fetch qui échoue avant même
-// d'atteindre le serveur) déclenche la mise en file plutôt que de
-// propager l'erreur — à distinguer d'une erreur métier renvoyée par le
-// serveur (ex. validation), qui doit continuer à s'afficher normalement.
-export function isNetworkError(error: unknown): boolean {
-  if (typeof navigator !== "undefined" && navigator.onLine === false) return true;
-  if (error instanceof Error) {
-    return /failed to fetch|fetch failed|networkerror|load failed/i.test(error.message);
-  }
-  return false;
-}
+// Ré-exportée pour compat : tous les appelants existants importent
+// `isNetworkError` depuis ce fichier (`@/lib/offline/queue`).
+export { isNetworkError };
 
 export async function enqueueAction(module: string, actionName: string, payload: unknown[]) {
   await db.pending_actions.add({
