@@ -1,11 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig } from "framer-motion";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ToastHost } from "@/components/toast/ToastHost";
 import { useOnlineSync } from "@/lib/offline/useOnlineSync";
+
+// Import dynamique plutôt que statique : `process.env.NODE_ENV` est figé au
+// build, donc en production cette branche devient `null` et le bundler élimine
+// l'appel `import()` avec elle — @tanstack/react-query-devtools ne fait plus
+// partie d'aucun chunk client de prod, sans dépendre du tree-shaking du
+// bundler sur ce package (contrairement à un simple rendu conditionnel d'un
+// import statique).
+const ReactQueryDevtools =
+  process.env.NODE_ENV === "development"
+    ? dynamic(() => import("@tanstack/react-query-devtools").then((m) => m.ReactQueryDevtools), { ssr: false })
+    : null;
 
 // App mono-utilisateur, données modifiées uniquement via ce client : pas
 // besoin de refetch agressif au focus/reconnect. `staleTime` évite un
@@ -54,7 +65,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       {children}
       <ToastHost />
-      {process.env.NODE_ENV === "development" && <ReactQueryDevtools initialIsOpen={false} />}
+      {ReactQueryDevtools && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
     </MotionConfig>
   );
