@@ -131,8 +131,8 @@ self.addEventListener("fetch", (event) => {
 // /api/taches/[id]/reporter-rappel.
 const ACTIONS_REPORT_RAPPEL = [
   { action: "reporter-1h", title: "+1h" },
-  { action: "reporter-1j", title: "+1 jour" },
-  { action: "reporter-1sem", title: "+1 semaine" },
+  { action: "reporter-1j", title: "Demain" },
+  { action: "reporter-1sem", title: "La semaine prochaine" },
 ];
 
 self.addEventListener("push", (event) => {
