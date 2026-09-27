@@ -125,6 +125,16 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
+// Actions "reporter" : uniquement proposées sur les rappels de tâche
+// (data.tacheId présent), pas sur les rappels de document. Les valeurs de
+// `action` correspondent aux clés attendues par
+// /api/taches/[id]/reporter-rappel.
+const ACTIONS_REPORT_RAPPEL = [
+  { action: "reporter-1h", title: "+1h" },
+  { action: "reporter-1j", title: "+1 jour" },
+  { action: "reporter-1sem", title: "+1 semaine" },
+];
+
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
   event.waitUntil(
@@ -132,14 +142,36 @@ self.addEventListener("push", (event) => {
       body: data.body || "",
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-badge.png",
-      data: { url: data.url || "/agenda" },
+      data: { url: data.url || "/agenda", tacheId: data.tacheId || null },
+      actions: data.tacheId ? ACTIONS_REPORT_RAPPEL : [],
     })
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-  const url = event.notification.data?.url || "/agenda";
+  const { action, notification } = event;
+  const url = notification.data?.url || "/agenda";
+  const tacheId = notification.data?.tacheId;
+
+  if (action.startsWith("reporter-") && tacheId) {
+    notification.close();
+    const delai = action.slice("reporter-".length);
+    event.waitUntil(
+      fetch(`/api/taches/${tacheId}/reporter-rappel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ delai }),
+      }).catch(() => {
+        // Hors-ligne ou requête échouée : rien de plus à faire ici, la
+        // tâche garde son rappel normal (rappel_envoye_le déjà posé, donc
+        // pas de nouvelle notification tant que rappel_reporte_jusqua
+        // n'est pas posé côté serveur).
+      })
+    );
+    return;
+  }
+
+  notification.close();
   // Comparaison sur le pathname (pas l'URL complète) : une fenêtre déjà
   // ouverte sur /agenda est réutilisée même si son ?tache= diffère (ou est
   // absent) de celui de la notification cliquée, plutôt que d'ouvrir une

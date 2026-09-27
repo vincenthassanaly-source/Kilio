@@ -1263,6 +1263,7 @@ export type Database = {
           programme_jour: boolean
           rappel_envoye_le: string | null
           rappel_minutes: number | null
+          rappel_reporte_jusqua: string | null
           recurrence_fin: string | null
           recurrence_frequence:
             | Database["public"]["Enums"]["frequence_recurrence"]
@@ -1286,6 +1287,7 @@ export type Database = {
           programme_jour?: boolean
           rappel_envoye_le?: string | null
           rappel_minutes?: number | null
+          rappel_reporte_jusqua?: string | null
           recurrence_fin?: string | null
           recurrence_frequence?:
             | Database["public"]["Enums"]["frequence_recurrence"]
@@ -1309,6 +1311,7 @@ export type Database = {
           programme_jour?: boolean
           rappel_envoye_le?: string | null
           rappel_minutes?: number | null
+          rappel_reporte_jusqua?: string | null
           recurrence_fin?: string | null
           recurrence_frequence?:
             | Database["public"]["Enums"]["frequence_recurrence"]
