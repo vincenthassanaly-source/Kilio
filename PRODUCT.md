@@ -37,15 +37,22 @@ Kilio existe plutôt qu'un outil generique (MyFitnessPal, Cronometer, Yazio...) 
 
 ## Brand Commitments
 
-- Nom : **Kilio**. Ancien nom "Nutricio" encore présent par endroits (header) — à harmoniser si demandé, hors scope sauf demande explicite.
+- Nom : **Kilio**. Renommage depuis l'ancien nom "Nutricio" terminé (voir `reports/2026-08-29-renommage-kilio.md`) — plus aucune occurrence dans le code (`src/`, `public/`) au 2026-09-27.
 - Identité visuelle actuelle du logo : squircle avec effet "chrome"/métal sur la lettre "K", dégradé vert olive foncé (`#111C10` → `#5A7A4E`/`#3D5A32`/`#2B4023` → `#111C10`), fond vignette très sombre (`#011a10`). Couleur d'accent nutrition existante : `--accent-kcal` (vert), déjà utilisée pour la nav active et les boutons.
-- `theme_color` du manifest PWA (`#166534`, vert Tailwind) ne correspond plus exactement au nouveau vert olive du logo — signalé comme désaccord non résolu dans un rapport antérieur, à considérer lors d'une revue de cohérence de marque si pertinent.
+- `theme_color` du manifest PWA harmonisé avec le fond réel de l'app (`#f7f5ec` clair / `#071212` sombre) depuis le correctif T16 (`reports/2026-09-25-vague-2-audit-impeccable.md`) : la meta `theme-color` suit désormais dynamiquement le thème choisi (`src/lib/theme.ts`, `src/app/layout.tsx`) au lieu d'une valeur figée déconnectée du logo. Ancien désaccord (`#166534`) résolu.
 
 ## Evidence on Hand
 
 - Code source complet du module Nutrition (`src/app/(app)/nutrition/`, `src/lib/nutrition/compute.ts`).
-- Rapports d'itérations précédentes dans le repo (fichiers `RAPPORT-*.md`) documentant l'historique des changements sur le Journal, les Recettes, les objectifs nutritionnels, et le logo — utiles comme contexte mais pas comme vérité produit à jour (peuvent être obsolètes).
-- Pas de maquettes, captures d'écran de référence ou design system documenté (DESIGN.md) à ce stade — à produire via `impeccable document`.
+- Design system documenté et généré via `impeccable` : `DESIGN.md` (tokens couleurs/typo/rounded/composants), tenu à jour par l'outillage `.impeccable/` — à régénérer via `impeccable document` plutôt qu'à éditer à la main.
+
+### Statut des rapports (`RAPPORT-*.md` à la racine, `reports/*.md`)
+
+Ce sont des **journaux de bord d'itérations passées**, pas une documentation de référence : chaque fichier capture le contexte et les décisions d'un chantier ponctuel à sa date, et peut devenir obsolète dès qu'un chantier ultérieur revient dessus (ex. le renommage Kilio et le correctif `theme_color` ci-dessus, décrits comme "non résolus" dans d'anciens rapports, sont en réalité déjà réglés dans le code actuel). Deux séries coexistent :
+- `RAPPORT-*.md` (racine) : convention la plus ancienne (27–29 août 2026), centrée sur le module Nutrition/Recettes/Courses.
+- `reports/*.md` : convention retenue depuis fin août 2026, un fichier par chantier daté, couvrant tous les modules — c'est la série active.
+
+**Règle** : `PRODUCT.md` et `DESIGN.md` sont les seules sources de vérité produit/design à jour. Un rapport ne remplace jamais ces docs — toute décision produit ou design encore valide issue d'un rapport doit être répercutée ici (ou dans `DESIGN.md` via `impeccable`) au moment où elle est prise ; sinon elle reste une trace historique sans garantie d'exactitude actuelle. En cas de doute entre un rapport et le code, **le code fait foi**.
 
 ## Product Principles
 
