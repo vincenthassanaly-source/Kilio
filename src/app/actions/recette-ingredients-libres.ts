@@ -86,16 +86,3 @@ export async function removeIngredientLibre(id: string, recette_id: string) {
   revalidateRecette(recette_id);
 }
 
-export async function reorderIngredientsLibres(
-  recette_id: string,
-  orderedIds: string[]
-) {
-  const supabase = createAdminClient();
-  await Promise.all(
-    orderedIds.map((id, index) =>
-      supabase.from("recette_ingredients_libres").update({ ordre: index }).eq("id", id)
-    )
-  );
-
-  revalidateRecette(recette_id);
-}

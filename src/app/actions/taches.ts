@@ -534,18 +534,6 @@ export async function setTacheFait(id: string, fait: boolean) {
 // Conservée pour les appelants qui basculent l'état sans le connaître à
 // l'avance (UI en ligne). Hors ligne, préférer `setTacheFait` avec l'état
 // cible déjà décidé par l'appelant (voir TasksList.tsx / DashboardTaskItem.tsx).
-export async function toggleTache(id: string) {
-  const supabase = createAdminClient();
-  const { data, error: fetchError } = await supabase
-    .from("taches")
-    .select("fait")
-    .eq("id", id)
-    .single();
-  if (fetchError) throw new Error(fetchError.message);
-
-  await setTacheFait(id, !data.fait);
-}
-
 export async function deleteTache(id: string) {
   const supabase = createAdminClient();
   const { error } = await supabase.from("taches").delete().eq("id", id);
@@ -884,28 +872,6 @@ export async function deleteTag(id: string) {
   revalidateTachesPaths();
 }
 
-export async function associerTag(tacheId: string, tagId: string) {
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("taches_tags").insert({ tache_id: tacheId, tag_id: tagId });
-
-  if (error) throw new Error(error.message);
-
-  revalidateTachesPaths();
-}
-
-export async function dissocierTag(tacheId: string, tagId: string) {
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("taches_tags")
-    .delete()
-    .eq("tache_id", tacheId)
-    .eq("tag_id", tagId);
-
-  if (error) throw new Error(error.message);
-
-  revalidateTachesPaths();
-}
-
 export async function getTags(): Promise<Tables<"tags">[]> {
   const supabase = createAdminClient();
   const { data, error } = await supabase.from("tags").select("*").order("nom", { ascending: true });
@@ -951,19 +917,6 @@ export async function toggleSousTache(id: string, fait: boolean): Promise<Action
   const { error } = await supabase.from("sous_taches").update({ fait }).eq("id", id);
 
   if (error) return fail("La sous-tâche n'a pas pu être mise à jour. Réessaie.");
-
-  revalidateTachesPaths();
-  return ok();
-}
-
-export async function updateSousTache(id: string, titre: string): Promise<ActionResult> {
-  const trimmed = titre.trim();
-  if (!trimmed) return fail("Le titre de la sous-tâche est requis.");
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("sous_taches").update({ titre: trimmed }).eq("id", id);
-
-  if (error) return fail("La sous-tâche n'a pas pu être renommée. Réessaie.");
 
   revalidateTachesPaths();
   return ok();

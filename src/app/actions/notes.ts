@@ -288,28 +288,6 @@ export async function reorderNoteItems(noteId: string, id: string, direction: "h
 // createNote/updateNote : utiles pour ajouter/retirer un tag sur une note
 // existante sans repasser par tout le formulaire.
 
-export async function attachTagToNote(noteId: string, tagId: string) {
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("notes_tags").insert({ note_id: noteId, tag_id: tagId });
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath("/notes");
-}
-
-export async function detachTagFromNote(noteId: string, tagId: string) {
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("notes_tags")
-    .delete()
-    .eq("note_id", noteId)
-    .eq("tag_id", tagId);
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath("/notes");
-}
-
 // --- Lecture avec relations ---
 
 export type NoteAvecRelations = Tables<"notes"> & {

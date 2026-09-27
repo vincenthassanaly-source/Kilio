@@ -48,67 +48,6 @@ export async function creerCategorie(
   return { error: null };
 }
 
-export async function modifierCategorie(
-  _prevState: CategorieFormState,
-  formData: FormData
-): Promise<CategorieFormState> {
-  const id = String(formData.get("id") ?? "");
-  if (!id) return { error: "Catégorie introuvable." };
-
-  const parsed = parseCategorieInput(formData);
-  if (!parsed.ok) return { error: parsed.error };
-
-  const supabase = createAdminClient();
-
-  const { data: existante, error: fetchError } = await supabase
-    .from("categories_budget")
-    .select("type, categorie_parent_id")
-    .eq("id", id)
-    .maybeSingle();
-  if (fetchError) return { error: fetchError.message };
-  if (!existante) return { error: "Catégorie introuvable." };
-
-  const changeDeType = parsed.value.type !== existante.type;
-
-  // Une sous-catégorie hérite toujours du type de sa catégorie parente
-  // (cf. creerSousCategorie) : le formulaire ne peut pas le contredire.
-  if (changeDeType && existante.categorie_parent_id) {
-    return { error: "Le type d'une sous-catégorie suit celui de sa catégorie parente." };
-  }
-
-  // Changer le type casserait l'invariant transaction.type === categorie.type
-  // (déjà utilisées) et les sous-catégories resteraient de l'ancien type :
-  // on ne l'autorise que si la catégorie n'est encore utilisée nulle part.
-  if (changeDeType) {
-    const [{ count: transactionsCount, error: txError }, { count: sousCategoriesCount, error: sousError }] =
-      await Promise.all([
-        supabase
-          .from("transactions")
-          .select("id", { count: "exact", head: true })
-          .eq("categorie_id", id),
-        supabase
-          .from("categories_budget")
-          .select("id", { count: "exact", head: true })
-          .eq("categorie_parent_id", id),
-      ]);
-    if (txError || sousError) {
-      return { error: "Impossible de vérifier l'utilisation de la catégorie. Réessaie." };
-    }
-    if ((transactionsCount ?? 0) > 0 || (sousCategoriesCount ?? 0) > 0) {
-      return {
-        error:
-          "Impossible de changer le type : cette catégorie a déjà des transactions ou des sous-catégories.",
-      };
-    }
-  }
-
-  const { error } = await supabase.from("categories_budget").update(parsed.value).eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath("/budget/categories");
-  return { error: null };
-}
-
 // Les catégories prédéfinies (is_predefinie = true) ne sont pas supprimables,
 // seulement celles ajoutées par l'utilisateur — cf. prompt Phase 3.
 // Contrat `ActionResult` (T1) : une catégorie encore utilisée par des
