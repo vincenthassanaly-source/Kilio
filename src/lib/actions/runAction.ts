@@ -2,16 +2,15 @@
 
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { showErrorToast } from "@/components/toast/toast-store";
+import { isNetworkError } from "@/lib/network";
 import { isActionFailure, type ActionResult } from "./result";
 
 // Message affiché quand la requête n'a même pas atteint le serveur.
 export const MESSAGE_HORS_LIGNE = "Pas de connexion : rien n'a été enregistré. Réessaie une fois en ligne.";
 const MESSAGE_GENERIQUE = "L'enregistrement a échoué. Réessaie.";
 
-export function estErreurReseau(err: unknown): boolean {
-  if (typeof navigator !== "undefined" && navigator.onLine === false) return true;
-  return err instanceof Error && /failed to fetch|fetch failed|networkerror|load failed/i.test(err.message);
-}
+// Alias : appelants existants de ce fichier (DocumentForm, AddPhotoButton).
+export const estErreurReseau = isNetworkError;
 
 export type RunActionOptions = {
   /** Message de repli quand l'action lève (message masqué en production). */
