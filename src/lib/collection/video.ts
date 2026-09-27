@@ -13,7 +13,7 @@ export function estTypeVideo(type: string): type is TypeVideo {
 }
 
 /** Détecte la plateforme d'un lien vidéo par son hostname. */
-export function detecterTypeVideo(url: string): TypeVideo | null {
+function detecterTypeVideo(url: string): TypeVideo | null {
   let hostname: string;
   try {
     hostname = new URL(url).hostname;

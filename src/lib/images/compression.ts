@@ -10,11 +10,11 @@
 // `createImageBitmap` (qui applique l'orientation EXIF) + canvas.
 
 /** Plus grand côté conservé : large pour un document à relire (recto/verso). */
-export const DIMENSION_MAX_PX = 2048;
+const DIMENSION_MAX_PX = 2048;
 /** Qualité JPEG : visuellement sans perte à cette taille. */
-export const QUALITE_JPEG = 0.82;
+const QUALITE_JPEG = 0.82;
 /** En dessous, l'image part telle quelle (déjà légère). */
-export const SEUIL_COMPRESSION_OCTETS = 800 * 1024;
+const SEUIL_COMPRESSION_OCTETS = 800 * 1024;
 /**
  * Budget d'une requête (marge sous `bodySizeLimit: "4mb"` pour l'enveloppe
  * multipart et les autres champs du formulaire).
@@ -60,7 +60,7 @@ async function encoder(bitmap: ImageBitmap, largeur: number, hauteur: number, qu
  * compressible (PDF…), s'il est déjà léger, si le navigateur ne sait pas le
  * décoder (HEIC sur certains navigateurs) ou si le résultat serait plus lourd.
  */
-export async function compresserImage(fichier: File, options: OptionsCompression = {}): Promise<File> {
+async function compresserImage(fichier: File, options: OptionsCompression = {}): Promise<File> {
   const { dimensionMax = DIMENSION_MAX_PX, qualite = QUALITE_JPEG, seuil = SEUIL_COMPRESSION_OCTETS } = options;
   if (!estImageCompressible(fichier) || fichier.size <= seuil) return fichier;
   if (typeof createImageBitmap === "undefined") return fichier;

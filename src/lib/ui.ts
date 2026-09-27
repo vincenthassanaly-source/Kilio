@@ -12,7 +12,6 @@ export const card = "rounded-[22px] border border-line bg-surface p-4 shadow-car
 // sur un champ ou un bouton interne, pas seulement l'élément pressé — non
 // modifié ici pour cette raison (voir reports/2026-09-13-fluidite-4-chantiers.md).
 export const cardTight = "rounded-[20px] border border-line bg-surface p-3.5 shadow-card transition active:scale-[0.97]";
-export const heroCard = "rounded-3xl border border-line bg-surface p-[18px] shadow-card";
 
 // `text-balance` (T-polish) : titres courts (1-3 lignes) répartis plus
 // régulièrement entre les lignes, pour éviter une dernière ligne orpheline
@@ -48,8 +47,6 @@ export const addCardIcon =
 // fait ≈ 32 px). Les lignes de liste qui les accueillent ont toutes au moins
 // 12 px d'espace vertical, donc pas de chevauchement.
 const zoneTap44 = "relative after:absolute after:inset-x-0 after:-inset-y-1.5";
-// Pour les éléments de 36 px (iconButton) : 4 px de chaque côté.
-const zoneTap44Icone = "relative after:absolute after:-inset-1";
 
 export const ghostButton =
   `${zoneTap44} rounded-xl border border-line px-2.5 py-1.5 text-sm font-medium text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
@@ -63,9 +60,6 @@ export const navArrowButton =
 export const dangerButton =
   `${zoneTap44} rounded-xl border border-alert/30 px-2.5 py-1.5 text-sm font-medium text-alert transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 export const linkButton = `relative after:absolute after:-inset-x-2 after:-inset-y-3 text-sm font-semibold text-kcal ${focusRing}`;
-
-export const iconButton =
-  `${zoneTap44Icone} flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-surface text-ink ${focusRing}`;
 
 export const pillTag =
   "shrink-0 rounded-full bg-surface-alt px-2.5 py-1 text-[11px] font-semibold text-ink-2";

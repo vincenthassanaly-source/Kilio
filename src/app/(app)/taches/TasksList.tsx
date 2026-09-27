@@ -41,7 +41,7 @@ import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 
 const AddTaskForm = dynamic(() => import("./AddTaskForm").then((m) => m.AddTaskForm), { ssr: false });
 
-export function formatEcheance(iso: string) {
+function formatEcheance(iso: string) {
   return new Date(`${iso}T00:00:00`).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "long",

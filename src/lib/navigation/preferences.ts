@@ -11,7 +11,7 @@ export const PREFERENCES_ID = 1;
 // (src/app/actions/preferences-navigation.ts) via updateTag.
 export const PREFERENCES_NAVIGATION_TAG = "preferences-navigation";
 
-export type PreferencesNavigation = Tables<"preferences_navigation">;
+type PreferencesNavigation = Tables<"preferences_navigation">;
 
 // La grille "Plus" liste TOUJOURS tous les items du registre (y compris les
 // 4 modules primaires épinglables en barre du bas) : un module reste

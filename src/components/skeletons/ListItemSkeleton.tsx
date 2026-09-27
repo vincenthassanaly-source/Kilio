@@ -5,7 +5,7 @@ import { listCard } from "@/lib/ui";
  * habitude...) : une puce ronde à cocher + une ou deux lignes de texte.
  * `count` permet d'afficher une pile réaliste sans que chaque appelant
  * ré-écrive la boucle. */
-export function ListItemSkeleton({ withSubtitle = false }: { withSubtitle?: boolean }) {
+function ListItemSkeleton({ withSubtitle = false }: { withSubtitle?: boolean }) {
   return (
     <div className={`${listCard} flex-row items-center gap-3`}>
       <Skeleton className="h-[22px] w-[22px] shrink-0 rounded-full" />

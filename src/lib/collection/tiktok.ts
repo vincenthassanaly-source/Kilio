@@ -69,9 +69,3 @@ export async function recupererMetadonneesTiktok(url: string): Promise<Metadonne
     return null;
   }
 }
-
-/** Repère un lien TikTok au milieu d'un texte libre (le champ `text` d'un
- * partage natif Android peut contenir d'autres mots autour du lien). */
-export function extraireLienTiktokDuTexte(texte: string): string | null {
-  return texte.match(TIKTOK_URL_IN_TEXT_PATTERN)?.[0] ?? null;
-}

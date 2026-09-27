@@ -5,7 +5,7 @@
 // `label` : texte visible du bouton (« Annuler », « Voir »…) ; `ariaLabel` :
 // libellé complet annoncé aux lecteurs d'écran, avec le contexte (« Annuler
 // la suppression de « Lait » »). Sans `ariaLabel`, le `label` seul est lu.
-export type ToastAction = { label: string; ariaLabel?: string; onAction: () => void };
+type ToastAction = { label: string; ariaLabel?: string; onAction: () => void };
 // `tone: "error"` : toast d'échec, rendu avec `role="alert"` (annonce
 // immédiate) au lieu du flux poli `role="status"` du conteneur.
 export type ToastMessage = { id: number; text: string; action?: ToastAction; tone?: "error" };

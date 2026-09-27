@@ -4,11 +4,11 @@ import { useRef } from "react";
 
 // Distance horizontale minimum pour qu'un geste soit considéré comme un
 // swipe intentionnel (plutôt qu'un tap ou un léger tremblement du doigt).
-export const SEUIL_SWIPE_HORIZONTAL_PX = 50;
+const SEUIL_SWIPE_HORIZONTAL_PX = 50;
 // Tolérance verticale : au-delà, le geste est un scroll de page, pas un
 // swipe de période — on n'interfère pas (pas de preventDefault) et on
 // annule la détection pour ce geste.
-export const TOLERANCE_SWIPE_VERTICAL_PX = 60;
+const TOLERANCE_SWIPE_VERTICAL_PX = 60;
 
 export type SensSwipe = "suivant" | "precedent";
 

@@ -10,7 +10,7 @@ export function formatEcheance(iso: string) {
   });
 }
 
-export function joursAvantEcheance(dateEcheance: string): number {
+function joursAvantEcheance(dateEcheance: string): number {
   const aujourdhui = new Date(`${aujourdhuiParis()}T00:00:00`);
   const echeance = new Date(`${dateEcheance}T00:00:00`);
   return Math.round((echeance.getTime() - aujourdhui.getTime()) / (1000 * 60 * 60 * 24));

@@ -371,7 +371,7 @@ function extraireCheminStorage(url: string): string | null {
 // formData, puis insère une ligne tache_images par fichier. Ne fait rien si
 // aucun fichier n'est fourni (cas normal : la plupart des soumissions du
 // formulaire n'ajoutent pas d'image).
-export async function uploadTacheImages(tacheId: string, formData: FormData) {
+async function uploadTacheImages(tacheId: string, formData: FormData) {
   const fichiers = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
   if (fichiers.length === 0) return;
 

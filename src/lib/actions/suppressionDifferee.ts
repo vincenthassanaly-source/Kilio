@@ -5,7 +5,7 @@ import { runAction } from "./runAction";
 import type { ActionResult } from "./result";
 
 // Délai pendant lequel la suppression reste annulable : celui du toast.
-export const DELAI_ANNULATION_MS = 6000;
+const DELAI_ANNULATION_MS = 6000;
 
 /**
  * Suppression « annulable » pour les données qu'on ne sait pas restaurer
