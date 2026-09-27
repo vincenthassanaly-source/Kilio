@@ -137,7 +137,27 @@ Deno.serve(async () => {
 
   const dues = candidates.filter((t): t is TacheCandidate => isDue(t as TacheCandidate, nowMs));
 
-  if (dues.length === 0) {
+  // Rappels reportés depuis la notification (actions +1h/+1 jour/+1 semaine,
+  // cf. public/sw.js et /api/taches/[id]/reporter-rappel) : indépendants du
+  // calcul echeance/heure/rappel_minutes ci-dessus, qui ne les resélectionne
+  // pas puisque rappel_envoye_le est déjà posé pour elles.
+  const { data: candidatesReportees, error: fetchErrorReportees } = await supabase
+    .from("taches")
+    .select("id, titre")
+    .eq("fait", false)
+    .not("rappel_reporte_jusqua", "is", null)
+    .lte("rappel_reporte_jusqua", new Date(nowMs).toISOString());
+
+  if (fetchErrorReportees) {
+    return new Response(JSON.stringify({ error: fetchErrorReportees.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const reportees = candidatesReportees ?? [];
+
+  if (dues.length === 0 && reportees.length === 0) {
     return new Response(JSON.stringify({ sent: 0 }), {
       headers: { "Content-Type": "application/json" },
     });
@@ -157,19 +177,7 @@ Deno.serve(async () => {
   let sent = 0;
   let expired = 0;
 
-  for (const tache of dues) {
-    const body =
-      tache.rappel_minutes === 1440
-        ? "demain"
-        : tache.rappel_minutes === 60
-          ? "dans 1h"
-          : `dans ${tache.rappel_minutes} min`;
-    const payload = JSON.stringify({
-      title: tache.titre,
-      body,
-      url: `/agenda?tache=${tache.id}`,
-    });
-
+  async function envoyerEtMarquer(payload: string, marquer: () => Promise<unknown>) {
     for (const sub of subscriptions ?? []) {
       try {
         await webpush.sendNotification(
@@ -187,18 +195,51 @@ Deno.serve(async () => {
           expired++;
         }
         // Autres erreurs (timeout, 5xx du service push, ...) : ignorées
-        // pour ne pas bloquer les autres abonnements/tâches. rappel_envoye_le
-        // est quand même marqué ci-dessous pour ne pas spammer en boucle.
+        // pour ne pas bloquer les autres abonnements/tâches. Le marquage
+        // ci-dessous a quand même lieu pour ne pas spammer en boucle.
       }
     }
 
-    await supabase
-      .from("taches")
-      .update({ rappel_envoye_le: new Date().toISOString() })
-      .eq("id", tache.id);
+    await marquer();
   }
 
-  return new Response(JSON.stringify({ taches: dues.length, sent, expired }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  for (const tache of dues) {
+    const body =
+      tache.rappel_minutes === 1440
+        ? "demain"
+        : tache.rappel_minutes === 60
+          ? "dans 1h"
+          : `dans ${tache.rappel_minutes} min`;
+    const payload = JSON.stringify({
+      title: tache.titre,
+      body,
+      url: `/agenda?tache=${tache.id}`,
+      tacheId: tache.id,
+    });
+
+    await envoyerEtMarquer(payload, () =>
+      supabase
+        .from("taches")
+        .update({ rappel_envoye_le: new Date().toISOString() })
+        .eq("id", tache.id)
+    );
+  }
+
+  for (const tache of reportees) {
+    const payload = JSON.stringify({
+      title: tache.titre,
+      body: "Rappel reporté",
+      url: `/agenda?tache=${tache.id}`,
+      tacheId: tache.id,
+    });
+
+    await envoyerEtMarquer(payload, () =>
+      supabase.from("taches").update({ rappel_reporte_jusqua: null }).eq("id", tache.id)
+    );
+  }
+
+  return new Response(
+    JSON.stringify({ taches: dues.length, reportees: reportees.length, sent, expired }),
+    { headers: { "Content-Type": "application/json" } }
+  );
 });
