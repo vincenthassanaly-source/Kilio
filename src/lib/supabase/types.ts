@@ -565,6 +565,27 @@ export type Database = {
         }
         Relationships: []
       }
+      journal_jours: {
+        Row: {
+          created_at: string
+          date: string
+          jour_type: Database["public"]["Enums"]["jour_type_ppl"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       journal_repas: {
         Row: {
           aliment_id: string | null
@@ -609,27 +630,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      journal_jours: {
-        Row: {
-          created_at: string
-          date: string
-          jour_type: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          date: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at?: string
-        }
-        Relationships: []
       }
       listes_taches: {
         Row: {
@@ -1178,6 +1178,36 @@ export type Database = {
         }
         Relationships: []
       }
+      skills_catalogue: {
+        Row: {
+          categorie: Database["public"]["Enums"]["categorie_skill"]
+          created_at: string
+          description: string
+          exemples: string[]
+          id: string
+          nom: string
+          ordre: number
+        }
+        Insert: {
+          categorie: Database["public"]["Enums"]["categorie_skill"]
+          created_at?: string
+          description: string
+          exemples?: string[]
+          id?: string
+          nom: string
+          ordre?: number
+        }
+        Update: {
+          categorie?: Database["public"]["Enums"]["categorie_skill"]
+          created_at?: string
+          description?: string
+          exemples?: string[]
+          id?: string
+          nom?: string
+          ordre?: number
+        }
+        Relationships: []
+      }
       sous_taches: {
         Row: {
           created_at: string
@@ -1535,6 +1565,7 @@ export type Database = {
     }
     Enums: {
       categorie_objectif: "perso" | "pro"
+      categorie_skill: "dev" | "design" | "produit" | "livraison" | "contenu"
       frequence_recurrence: "quotidien" | "hebdomadaire" | "mensuel" | "annuel"
       habitude_type: "boolean" | "streak" | "quantifiee"
       jour_type_ppl: "entrainement" | "repos"
@@ -1676,6 +1707,7 @@ export const Constants = {
   public: {
     Enums: {
       categorie_objectif: ["perso", "pro"],
+      categorie_skill: ["dev", "design", "produit", "livraison", "contenu"],
       frequence_recurrence: ["quotidien", "hebdomadaire", "mensuel", "annuel"],
       habitude_type: ["boolean", "streak", "quantifiee"],
       jour_type_ppl: ["entrainement", "repos"],
