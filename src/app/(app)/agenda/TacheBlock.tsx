@@ -14,7 +14,7 @@ import { getTacheBlockStyle } from "./TimeGrid";
 // 3,8:1. Elle passe par une barre latérale de 3px (`border`) plus, pour
 // moyenne/haute, un marqueur non chromatique (glyphe) qui reste lisible en
 // cas de daltonisme ou de rendu en niveaux de gris.
-export const PRIORITE_STYLE: Record<
+const PRIORITE_STYLE: Record<
   Tables<"taches">["priorite"],
   { bg: string; border: string; marker: string | null; label: string }
 > = {

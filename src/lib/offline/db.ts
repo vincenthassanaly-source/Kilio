@@ -3,7 +3,7 @@ import Dexie, { type Table } from "dexie";
 // File d'attente d'écriture offline : une action = un appel de Server
 // Action différé (module + nom de fonction + arguments), rejoué dans
 // l'ordre à la reconnexion par flushQueue() (voir queue.ts).
-export type PendingAction = {
+type PendingAction = {
   id?: number;
   module: string;
   action_name: string;

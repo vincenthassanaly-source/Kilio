@@ -17,7 +17,7 @@ export type CreneauDuJour = {
 // parité avec sa semaine de référence : on compare le lundi de la semaine
 // de `date` à celui de la semaine de référence (weekStartsOn: 1, cohérent
 // avec le reste de l'Agenda), un écart pair signifiant "même parité".
-export function estSemaineTravaillee(date: Date, semaineReference: Date): boolean {
+function estSemaineTravaillee(date: Date, semaineReference: Date): boolean {
   const diff = differenceInCalendarWeeks(date, semaineReference, { weekStartsOn: 1 });
   return Math.abs(diff) % 2 === 0;
 }

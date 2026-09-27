@@ -1,6 +1,6 @@
-export const THEME_STORAGE_KEY = "kilio-theme";
-export const THEME_COOKIE_KEY = "kilio-theme";
-export const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 an
+const THEME_STORAGE_KEY = "kilio-theme";
+const THEME_COOKIE_KEY = "kilio-theme";
+const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 an
 
 // Couleur de la barre d'état / du navigateur (meta theme-color) : le fond
 // réel de l'app (--background de globals.css converti en hex), T16. L'ancien

@@ -21,7 +21,7 @@ export type ActionEnAttente = {
  * forwarded from Server Components show a generic message with an
  * identifier"), donc son texte ne permet pas de distinguer une erreur
  * permanente d'un incident transitoire. */
-export const SEUIL_ABANDON_TENTATIVES = 3;
+const SEUIL_ABANDON_TENTATIVES = 3;
 
 export type DecisionAvantExecution = { type: "purger_immediat" } | { type: "executer" };
 

@@ -92,7 +92,6 @@ export function nutritionFromOverride(
 // ---------------------------------------------------------------------------
 
 export type MomentRepas = "petit_dej" | "dejeuner" | "diner" | "collation";
-export type JourType = "repos" | "entrainement";
 
 export const MOMENTS_REPAS: readonly MomentRepas[] = ["petit_dej", "dejeuner", "diner", "collation"];
 

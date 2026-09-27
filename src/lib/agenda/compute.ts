@@ -8,7 +8,7 @@ import { heureToMinutes } from "@/app/(app)/agenda/date-utils";
 // Un bloc avec heure de fin manquante ou incohérente (<= heure de début, ex.
 // saisie invalide) dure 30 min par défaut — cohérent avec les pas de rappel
 // existants (5/15/30 min).
-export const DEFAULT_TASK_DURATION_MINUTES = 30;
+const DEFAULT_TASK_DURATION_MINUTES = 30;
 
 export type PlageHoraire = {
   heure: string | null;

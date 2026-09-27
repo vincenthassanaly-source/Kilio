@@ -13,7 +13,7 @@ const DOCUMENT_IMAGE_MAX_DIMENSION = 1600;
 const DOCUMENT_IMAGE_JPEG_QUALITY = 75;
 
 const CATEGORIES = ["Identité", "Véhicule", "Logement", "Santé", "Assurance", "Autre"] as const;
-export type DocumentCategorie = (typeof CATEGORIES)[number];
+type DocumentCategorie = (typeof CATEGORIES)[number];
 
 function revalidateDocumentsPaths(id?: string) {
   revalidatePath("/documents");
@@ -94,7 +94,7 @@ async function uploaderFichier(supabase: SupabaseClient, fichier: File): Promise
 //   `role` pour que l'affichage puisse les distinguer.
 // Ne fait rien si aucun fichier n'est fourni (cas normal en édition, la
 // plupart des soumissions n'ajoutent pas de fichier).
-export async function uploadDocumentFichiers(documentId: string, formData: FormData) {
+async function uploadDocumentFichiers(documentId: string, formData: FormData) {
   const fichiers = formData.getAll("fichiers").filter((f): f is File => f instanceof File && f.size > 0);
 
   const rectoVerso: { role: "recto" | "verso"; fichier: File }[] = [];

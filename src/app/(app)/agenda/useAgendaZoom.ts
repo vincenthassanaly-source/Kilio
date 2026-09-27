@@ -14,16 +14,16 @@ import {
 // BASE_HOUR_HEIGHT pour dériver hourHeight(zoom)/gridHeight(zoom).
 export const BASE_HOUR_HEIGHT = 56;
 export const BASE_DAY_COLUMN_WIDTH = 96;
-export const DEFAULT_ZOOM = 1;
+const DEFAULT_ZOOM = 1;
 // Largeur fixe de la gouttière d'heures (non affectée par le zoom), et
 // nombre de colonnes de la vue Semaine — utilisés pour calculer le zoom
 // minimal qui fait tenir exactement les 7 jours sur la largeur de l'écran.
 export const GUTTER_WIDTH = 34;
-export const WEEK_DAYS_COUNT = 7;
+const WEEK_DAYS_COUNT = 7;
 // Plancher/plafond absolus de sécurité (cas d'un écran extrêmement étroit,
 // ou avant la toute première mesure de largeur du conteneur Semaine).
 export const MIN_ZOOM_FALLBACK = 0.35;
-export const MAX_ZOOM = 2;
+const MAX_ZOOM = 2;
 
 const STORAGE_KEY = "kilio-agenda-zoom";
 

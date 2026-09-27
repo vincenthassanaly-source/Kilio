@@ -4,7 +4,7 @@
 // 1 h (hiver) ou 2 h (été), heure de Paris. Un seul helper, utilisable côté
 // serveur comme côté client (Intl, sans dépendance).
 
-export const FUSEAU_KILIO = "Europe/Paris";
+const FUSEAU_KILIO = "Europe/Paris";
 
 // `en-CA` formate en AAAA-MM-JJ, exactement le format ISO attendu partout.
 const formatDate = new Intl.DateTimeFormat("en-CA", {

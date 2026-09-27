@@ -15,8 +15,8 @@ import { BASE_HOUR_HEIGHT, GUTTER_WIDTH } from "./useAgendaZoom";
 // plutôt qu'un simple repère ponctuel : 30 min par défaut (cf.
 // getBlocInterval dans src/lib/agenda/compute.ts, seule source de vérité
 // pour ces bornes — aussi utilisée par layoutChevauchements).
-export const MIN_BLOCK_HEIGHT = 18;
-export const GRID_START_HOUR = 6;
+const MIN_BLOCK_HEIGHT = 18;
+const GRID_START_HOUR = 6;
 // Hauteur réservée, identique pour toutes les colonnes (y compris la
 // gouttière), pour la bande "tâches sans heure" de WeekView — qu'il y ait ou
 // non des tâches ce jour-là. Sans cette réservation constante, un jour avec
@@ -32,7 +32,7 @@ const GRID_LEAD_HOURS = 1;
 
 const HOURS = Array.from({ length: GRID_HOURS_COUNT }, (_, i) => i + GRID_START_HOUR);
 
-export function hourHeight(zoom: number): number {
+function hourHeight(zoom: number): number {
   return BASE_HOUR_HEIGHT * zoom;
 }
 
@@ -42,7 +42,7 @@ export function gridHeight(zoom: number): number {
 
 // Convertit une DURÉE (pas un instant) en hauteur px : à ne jamais utiliser
 // pour un instant absolu (heure de la journée), voir minutesToPx ci-dessous.
-export function durationToPx(durationMinutes: number, zoom: number): number {
+function durationToPx(durationMinutes: number, zoom: number): number {
   return (durationMinutes / 60) * hourHeight(zoom);
 }
 
@@ -53,7 +53,7 @@ export function durationToPx(durationMinutes: number, zoom: number): number {
 // plage n'est jamais utilisée en pratique. Pour une DURÉE (pas un instant),
 // utiliser durationToPx — soustraire GRID_START_MINUTES n'aurait aucun sens
 // sur un écart entre deux heures.
-export function minutesToPx(minutes: number, zoom: number): number {
+function minutesToPx(minutes: number, zoom: number): number {
   return durationToPx(minutes - GRID_START_MINUTES, zoom) + hourHeight(zoom) * GRID_LEAD_HOURS;
 }
 
