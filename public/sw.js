@@ -125,12 +125,12 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-// Actions "reporter" : uniquement proposées sur les rappels de tâche
-// (data.tacheId présent), pas sur les rappels de document. Les valeurs de
-// `action` correspondent aux clés attendues par
-// /api/taches/[id]/reporter-rappel.
+// Actions proposées sur les rappels de tâche (data.tacheId présent),
+// pas sur les rappels de document. Les valeurs "reporter-*" correspondent
+// aux clés attendues par /api/taches/[id]/reporter-rappel ; "marquer-fait"
+// appelle /api/taches/[id]/marquer-fait.
 const ACTIONS_REPORT_RAPPEL = [
-  { action: "reporter-1h", title: "+1h" },
+  { action: "marquer-fait", title: "✓ Fait" },
   { action: "reporter-1j", title: "Demain" },
   { action: "reporter-1sem", title: "Semaine prochaine" },
 ];
@@ -152,6 +152,17 @@ self.addEventListener("notificationclick", (event) => {
   const { action, notification } = event;
   const url = notification.data?.url || "/agenda";
   const tacheId = notification.data?.tacheId;
+
+  if (action === "marquer-fait" && tacheId) {
+    notification.close();
+    event.waitUntil(
+      fetch(`/api/taches/${tacheId}/marquer-fait`, { method: "POST" }).catch(() => {
+        // Hors-ligne ou requête échouée : la tâche reste non cochée, elle
+        // sera à cocher depuis l'app comme d'habitude.
+      })
+    );
+    return;
+  }
 
   if (action.startsWith("reporter-") && tacheId) {
     notification.close();
