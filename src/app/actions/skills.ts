@@ -3,6 +3,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types";
 import { CATEGORIE_LABELS, ORDRE_CATEGORIES, type CategorieSkill } from "@/lib/skills/constants";
+import { suggererSkillsParGemini, suggererSkillsParMotsCles } from "@/lib/skills/matching";
 
 export type Skill = Tables<"skills_catalogue">;
 
@@ -67,31 +68,18 @@ export async function rechercherSkills(query: string): Promise<Skill[]> {
   return data ?? [];
 }
 
-// Mode « je ne sais pas quoi choisir » : pas de matching sémantique en V1,
-// un score simple par mots communs entre le besoin décrit et
-// nom/description/exemples suffit sur un catalogue de ~25 fiches curées.
+// Mode « je ne sais pas quoi choisir » : matching sémantique via Gemini
+// (gemini-2.5-flash-lite, voir lib/skills/matching.ts) sur le catalogue
+// complet, avec repli automatique et transparent sur le matching par
+// mots-clés (suggererSkillsParMotsCles, l'ancienne logique V1) si l'appel
+// échoue ou renvoie une réponse invalide — jamais d'erreur visible ici.
 export async function suggererSkills(besoin: string): Promise<Skill[]> {
-  const mots = besoin
-    .toLowerCase()
-    .split(/[^a-zàâäéèêëïîôöùûüç0-9]+/)
-    .filter((mot) => mot.length >= 3);
-
-  if (mots.length === 0) return [];
-
   const supabase = createAdminClient();
   const { data, error } = await supabase.from("skills_catalogue").select("*");
 
   if (error) throw new Error(error.message);
 
-  const scores = (data ?? []).map((skill) => {
-    const texte = `${skill.nom} ${skill.description} ${skill.exemples.join(" ")}`.toLowerCase();
-    const score = mots.reduce((acc, mot) => acc + (texte.includes(mot) ? 1 : 0), 0);
-    return { skill, score };
-  });
-
-  return scores
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
-    .map((s) => s.skill);
+  const skills = data ?? [];
+  const parGemini = await suggererSkillsParGemini(besoin, skills);
+  return parGemini ?? suggererSkillsParMotsCles(besoin, skills);
 }

@@ -9,9 +9,8 @@ import { input, primaryButton, secondaryButton } from "@/lib/ui";
 import { SkillCard } from "./SkillCard";
 
 // Mode « je ne sais pas quoi choisir » : champ libre décrivant le besoin,
-// scoring simple côté serveur (suggererSkills) sur le catalogue V1 curé —
-// pas de matching sémantique tant que le format des fiches n'est pas
-// validé à l'usage (voir brief /impeccable shape).
+// matching sémantique côté serveur (suggererSkills, via Gemini avec repli
+// par mots-clés — voir lib/skills/matching.ts).
 export function SuggestionModal({ onClose }: { onClose: () => void }) {
   const [besoin, setBesoin] = useState("");
   const [suggestions, setSuggestions] = useState<Skill[] | null>(null);
