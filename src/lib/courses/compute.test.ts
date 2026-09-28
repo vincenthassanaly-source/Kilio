@@ -3,11 +3,14 @@ import type { Tables } from "@/lib/supabase/types";
 import {
   LONGUEUR_MAX_LIBELLE_COURSE,
   PLAFOND_ARTICLES_COURSES,
+  RAYON_AUTRES,
+  classerParRayon,
   cleDoublon,
   compterProgression,
   decouperLibellesMultiples,
   estIdTemporaire,
   grouperItemsCourses,
+  grouperParRayon,
   planifierAjoutCourses,
   suggererArticles,
   trierCommeServeur,
@@ -188,6 +191,61 @@ describe("suggererArticles", () => {
       { libelle: "Laitue", coche: true, termine_le: "2026-09-01" },
     ];
     expect(suggererArticles("la", large, 2)).toHaveLength(2);
+  });
+});
+
+describe("classerParRayon", () => {
+  it("classe un libellé simple par mot-clé", () => {
+    expect(classerParRayon("Lait")).toBe("Crémerie/Fromage");
+    expect(classerParRayon("Bananes")).toBe("Fruits & légumes");
+    expect(classerParRayon("Pain")).toBe("Boulangerie");
+  });
+
+  it("ignore casse et accents", () => {
+    expect(classerParRayon("BEURRE")).toBe(classerParRayon("beurre"));
+    expect(classerParRayon("Pêches")).toBe("Fruits & légumes");
+  });
+
+  it("ne matche pas une sous-chaîne à l'intérieur d'un autre mot", () => {
+    // "riz" ne doit pas matcher "chorizo" (mot-clé Boucherie), qui doit
+    // rester dans son propre rayon, pas glisser vers Épicerie salée.
+    expect(classerParRayon("Chorizo")).toBe("Boucherie/Poisson/Traiteur");
+  });
+
+  it("matche un mot-clé à plusieurs mots comme sous-chaîne", () => {
+    expect(classerParRayon("Papier toilette")).toBe("Hygiène/Beauté");
+    expect(classerParRayon("2 kg de pommes de terre")).toBe("Fruits & légumes");
+  });
+
+  it("renvoie 'Autres' pour un libellé sans mot-clé connu", () => {
+    expect(classerParRayon("Truc introuvable xyz")).toBe(RAYON_AUTRES);
+  });
+});
+
+describe("grouperParRayon", () => {
+  it("regroupe dans l'ordre du magasin, en conservant l'ordre d'entrée au sein d'un rayon", () => {
+    const items = [
+      item({ id: "a", libelle: "Yaourt" }),
+      item({ id: "b", libelle: "Pain" }),
+      item({ id: "c", libelle: "Lait" }),
+      item({ id: "d", libelle: "Bananes" }),
+    ];
+    const sections = grouperParRayon(items);
+    expect(sections.map((s) => s.rayon)).toEqual(["Fruits & légumes", "Boulangerie", "Crémerie/Fromage"]);
+    expect(sections.find((s) => s.rayon === "Crémerie/Fromage")?.items.map((i) => i.id)).toEqual(["a", "c"]);
+  });
+
+  it("place le rayon Autres toujours en dernier", () => {
+    const items = [
+      item({ id: "a", libelle: "Truc mystère" }),
+      item({ id: "b", libelle: "Lait" }),
+    ];
+    const sections = grouperParRayon(items);
+    expect(sections.map((s) => s.rayon)).toEqual(["Crémerie/Fromage", RAYON_AUTRES]);
+  });
+
+  it("ne renvoie aucune section vide", () => {
+    expect(grouperParRayon([])).toEqual([]);
   });
 });
 

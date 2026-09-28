@@ -250,6 +250,160 @@ export function suggererArticles(
   return correspondances.slice(0, max).map((agrege) => agrege.libelle);
 }
 
+/** Rayon fourre-tout pour tout article dont aucun mot-clé ne correspond —
+ * toujours en dernier dans `grouperParRayon`, jamais une erreur. */
+export const RAYON_AUTRES = "Autres";
+
+/** Dictionnaire de classification par rayon, dans l'ordre de parcours d'un
+ * supermarché type. Brouillon de départ validé avec Vincent (voir le
+ * `shape` de cette fonctionnalité dans la conversation) : à affiner au fil
+ * de l'usage réel plutôt qu'à considérer comme figé. Chaque mot-clé est
+ * comparé à `cleDoublon(libelle)` (accents/casse/espaces déjà normalisés) :
+ * un mot-clé sans espace doit correspondre à un mot ENTIER du libellé
+ * (jamais une sous-chaîne, pour éviter par exemple qu'« huile » matche un
+ * libellé contenant seulement « huileux ») ; un mot-clé à plusieurs mots
+ * (ex. « papier toilette ») est cherché comme sous-chaîne du libellé
+ * normalisé en entier. Le premier rayon dont un mot-clé correspond
+ * l'emporte — l'ordre du tableau ci-dessous ne fixe donc pas seulement
+ * l'ordre d'affichage, mais aussi la priorité en cas d'ambiguïté. */
+export const RAYONS: { nom: string; motsCles: string[] }[] = [
+  {
+    nom: "Fruits & légumes",
+    motsCles: [
+      "pomme", "pommes", "poire", "poires", "banane", "bananes", "orange", "oranges",
+      "clementine", "clementines", "mandarine", "mandarines", "citron", "citrons",
+      "raisin", "raisins", "fraise", "fraises", "framboise", "framboises",
+      "abricot", "abricots", "peche", "peches", "prune", "prunes", "kiwi", "kiwis",
+      "ananas", "mangue", "mangues", "avocat", "avocats", "tomate", "tomates",
+      "salade", "salades", "laitue", "carotte", "carottes", "pomme de terre",
+      "pommes de terre", "patate", "patates", "oignon", "oignons", "ail", "echalote", "echalotes",
+      "poireau", "poireaux", "courgette", "courgettes", "aubergine", "aubergines",
+      "poivron", "poivrons", "concombre", "concombres", "champignon", "champignons",
+      "brocoli", "brocolis", "chou", "choux", "epinard", "epinards", "haricot",
+      "haricots", "radis", "betterave", "betteraves", "persil", "basilic",
+      "coriandre", "menthe",
+    ],
+  },
+  {
+    nom: "Boulangerie",
+    motsCles: ["pain", "baguette", "baguettes", "croissant", "croissants", "brioche", "biscotte", "biscottes", "viennoiserie", "viennoiseries", "pain de mie"],
+  },
+  {
+    nom: "Boucherie/Poisson/Traiteur",
+    motsCles: [
+      "poulet", "boeuf", "bœuf", "porc", "veau", "agneau", "steak", "steaks",
+      "saucisse", "saucisses", "saucisson", "jambon", "lardons", "chorizo",
+      "merguez", "poisson", "saumon", "thon", "crevette", "crevettes",
+      "cabillaud", "truite", "sole", "rillettes", "terrine",
+    ],
+  },
+  {
+    nom: "Crémerie/Fromage",
+    motsCles: [
+      "lait", "yaourt", "yaourts", "fromage", "fromages", "beurre", "creme",
+      "oeuf", "oeufs", "mozzarella", "gruyere", "comte", "camembert", "chevre",
+      "faisselle", "skyr", "margarine",
+    ],
+  },
+  {
+    nom: "Épicerie salée",
+    motsCles: [
+      "pates", "riz", "quinoa", "semoule", "lentilles", "farine", "huile",
+      "vinaigre", "sel", "poivre", "epices", "sauce", "sauces", "bouillon",
+      "conserve", "conserves", "cafe", "the", "tisane", "chips", "olives",
+      "cornichons", "moutarde", "mayonnaise", "ketchup",
+    ],
+  },
+  {
+    nom: "Épicerie sucrée",
+    motsCles: [
+      "sucre", "chocolat", "confiture", "miel", "biscuits", "gateau", "gateaux",
+      "cereales", "compote", "compotes", "bonbons",
+    ],
+  },
+  {
+    nom: "Surgelés",
+    motsCles: ["surgele", "surgeles", "glace", "glaces", "sorbet", "sorbets", "nuggets"],
+  },
+  {
+    nom: "Boissons",
+    motsCles: ["eau", "jus", "soda", "coca", "limonade", "vin", "biere", "bieres", "champagne"],
+  },
+  {
+    nom: "Hygiène/Beauté",
+    motsCles: [
+      "savon", "gel douche", "shampoing", "dentifrice", "brosse a dents",
+      "deodorant", "papier toilette", "mouchoirs", "coton", "rasoir",
+      "tampons", "serviettes hygieniques",
+    ],
+  },
+  {
+    nom: "Entretien/Maison",
+    motsCles: [
+      "lessive", "adoucissant", "eponge", "eponges", "sac poubelle",
+      "sacs poubelle", "liquide vaisselle", "javel", "nettoyant", "sopalin",
+      "essuie tout", "allumettes", "piles", "ampoule", "ampoules",
+    ],
+  },
+  {
+    nom: "Bébé",
+    motsCles: ["couches", "couche", "lait infantile", "petit pot", "petits pots", "lingettes bebe"],
+  },
+  {
+    nom: "Animaux",
+    motsCles: ["croquettes", "patee", "litiere"],
+  },
+];
+
+/** Classe un libellé d'article dans un rayon selon `RAYONS` (premier
+ * mot-clé qui correspond, dans l'ordre du tableau), ou `RAYON_AUTRES` si
+ * aucun ne correspond. Fonction pure, aucune saisie de rayon requise côté
+ * utilisateur — respecte la décision produit « libellé texte libre
+ * uniquement ». */
+export function classerParRayon(libelle: string): string {
+  const normalise = cleDoublon(libelle);
+  const mots = normalise.split(" ").filter(Boolean);
+
+  for (const { nom, motsCles } of RAYONS) {
+    for (const motCle of motsCles) {
+      const motCleNormalise = cleDoublon(motCle);
+      const correspond = motCleNormalise.includes(" ")
+        ? normalise.includes(motCleNormalise)
+        : mots.includes(motCleNormalise);
+      if (correspond) return nom;
+    }
+  }
+
+  return RAYON_AUTRES;
+}
+
+export type SectionRayon = { rayon: string; items: Tables<"courses_items">[] };
+
+/** Regroupe des articles (déjà filtrés sur les actifs, dans l'ordre
+ * existant — voir `grouperItemsCourses`) par rayon, dans l'ordre du
+ * magasin défini par `RAYONS`, `RAYON_AUTRES` toujours en dernier. L'ordre
+ * interne à chaque rayon est celui de `items` en entrée, non retrié. Une
+ * section vide n'est jamais renvoyée. */
+export function grouperParRayon(items: Tables<"courses_items">[]): SectionRayon[] {
+  const parRayon = new Map<string, Tables<"courses_items">[]>();
+  for (const item of items) {
+    const rayon = classerParRayon(item.libelle);
+    const liste = parRayon.get(rayon);
+    if (liste) liste.push(item);
+    else parRayon.set(rayon, [item]);
+  }
+
+  const sections: SectionRayon[] = [];
+  for (const { nom } of RAYONS) {
+    const liste = parRayon.get(nom);
+    if (liste) sections.push({ rayon: nom, items: liste });
+  }
+  const autres = parRayon.get(RAYON_AUTRES);
+  if (autres) sections.push({ rayon: RAYON_AUTRES, items: autres });
+
+  return sections;
+}
+
 export type ProgressionCourses = {
   actifs: number;
   total: number;
