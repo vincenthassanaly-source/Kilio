@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { getCoursesItems } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";
-import { errorText } from "@/lib/ui";
+import { errorText, eyebrow } from "@/lib/ui";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
-import { compterProgression, grouperItemsCourses } from "@/lib/courses/compute";
+import { compterProgression, grouperItemsCourses, grouperParRayon } from "@/lib/courses/compute";
 import { CourseItemRow } from "./CourseItemRow";
 import { ArchivedCoursesSection } from "./ArchivedCoursesSection";
 
@@ -24,6 +24,7 @@ export function CoursesList() {
 
   const { actifs, archives } = grouperItemsCourses(items);
   const progression = compterProgression(items);
+  const sectionsRayon = grouperParRayon(actifs);
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -32,13 +33,20 @@ export function CoursesList() {
           <p className="px-1 text-xs text-ink-2">
             {progression.actifs} article{progression.actifs > 1 ? "s" : ""} à prendre
           </p>
-          <ul className="flex flex-col gap-2.5">
-            <AnimatePresence initial={false}>
-              {actifs.map((item) => (
-                <CourseItemRow key={item.id} item={item} />
-              ))}
-            </AnimatePresence>
-          </ul>
+          <div className="flex flex-col gap-4">
+            {sectionsRayon.map((section) => (
+              <div key={section.rayon} className="flex flex-col gap-2.5">
+                <p className={`px-1 ${eyebrow}`}>{section.rayon}</p>
+                <ul className="flex flex-col gap-2.5">
+                  <AnimatePresence initial={false}>
+                    {section.items.map((item) => (
+                      <CourseItemRow key={item.id} item={item} />
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              </div>
+            ))}
+          </div>
         </>
       )}
       {progression.tousCoches && <p className="px-1 text-ink-2">Tout est dans le chariot !</p>}
