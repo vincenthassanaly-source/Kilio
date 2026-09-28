@@ -1575,6 +1575,10 @@ export type Database = {
         | "orchestration"
         | "projet"
         | "automatisation"
+        | "patterns"
+        | "infra"
+        | "securite"
+        | "tests"
       frequence_recurrence: "quotidien" | "hebdomadaire" | "mensuel" | "annuel"
       habitude_type: "boolean" | "streak" | "quantifiee"
       jour_type_ppl: "entrainement" | "repos"
@@ -1726,6 +1730,10 @@ export const Constants = {
         "orchestration",
         "projet",
         "automatisation",
+        "patterns",
+        "infra",
+        "securite",
+        "tests",
       ],
       frequence_recurrence: ["quotidien", "hebdomadaire", "mensuel", "annuel"],
       habitude_type: ["boolean", "streak", "quantifiee"],
