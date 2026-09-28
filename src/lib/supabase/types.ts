@@ -1565,7 +1565,16 @@ export type Database = {
     }
     Enums: {
       categorie_objectif: "perso" | "pro"
-      categorie_skill: "dev" | "design" | "produit" | "livraison" | "contenu"
+      categorie_skill:
+        | "dev"
+        | "design"
+        | "produit"
+        | "livraison"
+        | "contenu"
+        | "langages"
+        | "orchestration"
+        | "projet"
+        | "automatisation"
       frequence_recurrence: "quotidien" | "hebdomadaire" | "mensuel" | "annuel"
       habitude_type: "boolean" | "streak" | "quantifiee"
       jour_type_ppl: "entrainement" | "repos"
@@ -1707,7 +1716,17 @@ export const Constants = {
   public: {
     Enums: {
       categorie_objectif: ["perso", "pro"],
-      categorie_skill: ["dev", "design", "produit", "livraison", "contenu"],
+      categorie_skill: [
+        "dev",
+        "design",
+        "produit",
+        "livraison",
+        "contenu",
+        "langages",
+        "orchestration",
+        "projet",
+        "automatisation",
+      ],
       frequence_recurrence: ["quotidien", "hebdomadaire", "mensuel", "annuel"],
       habitude_type: ["boolean", "streak", "quantifiee"],
       jour_type_ppl: ["entrainement", "repos"],
