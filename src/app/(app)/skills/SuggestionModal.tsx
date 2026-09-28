@@ -37,6 +37,7 @@ export function SuggestionModal({ onClose }: { onClose: () => void }) {
             placeholder="Ex. : je veux nettoyer du code mort"
             rows={3}
             className={`${input} resize-none`}
+            autoFocus
           />
           <div className="flex gap-2">
             <button type="button" onClick={suggerer} disabled={chargement || besoin.trim().length < 3} className={primaryButton}>
