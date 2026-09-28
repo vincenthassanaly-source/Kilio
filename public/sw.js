@@ -190,7 +190,14 @@ self.addEventListener("notificationclick", (event) => {
   const path = new URL(url, self.location.origin).pathname;
   event.waitUntil(
     self.clients.matchAll({ type: "window" }).then(async (clients) => {
-      const existing = clients.find((c) => new URL(c.url).pathname === path);
+      // Ne réutiliser focus() que si la fenêtre est déjà au premier plan :
+      // sur Android, appeler focus() sur une fenêtre PWA en arrière-plan ou
+      // minimisée ne la ramène pas fiablement au premier plan (limite
+      // Chromium connue) — elle est bien navigate()-ée en silence, mais
+      // reste invisible tant que l'utilisateur ne relance pas l'app
+      // lui-même. openWindow() est le seul chemin fiable pour ramener une
+      // instance PWA existante au premier plan dans ce cas.
+      const existing = clients.find((c) => c.focused && new URL(c.url).pathname === path);
       if (existing) {
         if ("navigate" in existing) {
           try {
