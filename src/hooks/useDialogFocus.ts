@@ -24,7 +24,13 @@ export function useDialogFocus(ref: RefObject<HTMLElement | null>, onClose: () =
     const conteneur = ref.current;
     if (!conteneur) return;
     const precedent = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    conteneur.focus({ preventScroll: true });
+    // Un enfant avec `autoFocus` (ex. le champ de SuggestionModal, dont le
+    // seul but est de taper immédiatement) a déjà le focus à ce stade :
+    // React l'applique pendant le commit, avant cet effet. Ne pas le
+    // reprendre pour le conteneur dans ce cas.
+    if (!conteneur.contains(document.activeElement)) {
+      conteneur.focus({ preventScroll: true });
+    }
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
