@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { isModuleRootPath } from "@/lib/navigation/registry";
-import { showErrorToast } from "@/components/toast/toast-store";
 
 export type NavDirection = "avance" | "recule";
 
@@ -44,10 +43,6 @@ const SEUIL_INDICATEUR_MS = 180;
 // couper l'indicateur à ce moment-là — alors que la navigation réelle est
 // toujours en vol — donnait l'impression au tap de n'avoir rien fait,
 // poussant à retaper (voir rapport 2026-09-11).
-//
-// Signalement 2026-09-28 : le chargement s'arrêtait bien ici, mais sans
-// aucun retour — l'utilisateur ne pouvait pas distinguer « ça a marché » de
-// « ça a échoué, retape ». D'où le toast ci-dessous à l'abandon.
 const TIMEOUT_ABANDON_MS = 12000;
 
 type Listener = () => void;
@@ -223,7 +218,6 @@ export function useViewTransitionNavigate() {
                 if (enAttenteRef.current !== enAttente) return;
                 enAttenteRef.current = null;
                 setNavigationEnCours(false);
-                showErrorToast("Le changement d'onglet a échoué, réessaie.");
                 resolve();
               }, TIMEOUT_ABANDON_MS),
             };
