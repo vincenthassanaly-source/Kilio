@@ -2,7 +2,7 @@ import type { Tables } from "@/lib/supabase/types";
 
 export type Skill = Tables<"skills_catalogue">;
 
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
+const GEMINI_MODEL = "gemini-3.1-flash-lite";
 const GEMINI_TIMEOUT_MS = 6000;
 
 // Mode « je ne sais pas quoi choisir » — matching par mots communs entre le
@@ -33,7 +33,7 @@ export function suggererSkillsParMotsCles(besoin: string, skills: Skill[]): Skil
 type FicheCompacte = { id: string; nom: string; description: string; exemples: string[]; categorie: string };
 
 /**
- * Matching sémantique via l'API Gemini (gemini-2.5-flash-lite, tier gratuit).
+ * Matching sémantique via l'API Gemini (gemini-3.1-flash-lite, tier gratuit).
  * Renvoie `null` quand l'appel doit être considéré en échec — clé absente,
  * requête réseau en erreur ou trop lente (timeout court, on est sur Vercel
  * Hobby), réponse HTTP non-2xx, ou JSON structuré invalide/inattendu — pour
