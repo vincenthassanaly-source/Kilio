@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { showToast } from "@/components/toast/toast-store";
-import { card, pillTag } from "@/lib/ui";
+import { card } from "@/lib/ui";
 import type { Skill } from "@/app/actions/skills";
 
 // Fiche compacte d'un skill : nom, une phrase, 2-3 exemples de situations,
@@ -39,7 +39,10 @@ export function SkillCard({ skill }: { skill: Skill }) {
       {skill.exemples.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {skill.exemples.map((exemple) => (
-            <span key={exemple} className={pillTag}>
+            <span
+              key={exemple}
+              className="min-w-0 max-w-full rounded-full bg-surface-alt px-2.5 py-1 text-[11px] font-semibold text-ink-2 text-pretty"
+            >
               {exemple}
             </span>
           ))}

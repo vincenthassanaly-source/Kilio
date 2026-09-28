@@ -57,7 +57,7 @@ export function SkillsView() {
           />
         </div>
         <button type="button" onClick={() => setModalOuverte(true)} className={`${secondaryButton} self-start`}>
-          Je ne sais pas quoi choisir
+          Aide-moi à choisir
         </button>
       </div>
 
