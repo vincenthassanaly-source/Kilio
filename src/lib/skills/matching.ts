@@ -43,7 +43,10 @@ type FicheCompacte = { id: string; nom: string; description: string; exemples: s
  */
 export async function suggererSkillsParGemini(besoin: string, skills: Skill[]): Promise<Skill[] | null> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.warn("[skills/matching] GEMINI_API_KEY absente : repli sur le matching par mots-clés.");
+    return null;
+  }
   if (skills.length === 0) return [];
 
   const fiches: FicheCompacte[] = skills.map((skill) => ({
@@ -86,28 +89,41 @@ export async function suggererSkillsParGemini(besoin: string, skills: Skill[]): 
       }
     );
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[skills/matching] Gemini a répondu ${res.status} : repli sur le matching par mots-clés.`);
+      return null;
+    }
 
     const data = (await res.json()) as {
       candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
     };
     const texte = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (typeof texte !== "string") return null;
+    if (typeof texte !== "string") {
+      console.error("[skills/matching] Réponse Gemini sans texte structuré : repli sur le matching par mots-clés.");
+      return null;
+    }
 
     const parsed = JSON.parse(texte) as { suggestions?: unknown };
-    if (!Array.isArray(parsed.suggestions)) return null;
+    if (!Array.isArray(parsed.suggestions)) {
+      console.error("[skills/matching] JSON Gemini sans champ suggestions[] : repli sur le matching par mots-clés.");
+      return null;
+    }
 
     const parId = new Map(skills.map((skill) => [skill.id, skill]));
 
-    return parsed.suggestions
+    const resultats = parsed.suggestions
       .filter((id): id is string => typeof id === "string")
       .map((id) => parId.get(id))
       .filter((skill): skill is Skill => skill !== undefined)
       .slice(0, 3);
-  } catch {
+
+    console.log(`[skills/matching] Gemini OK : ${resultats.length} suggestion(s) pour "${besoin}".`);
+    return resultats;
+  } catch (err) {
     // Réseau, timeout (AbortSignal.timeout déclenche une AbortError) ou
     // JSON.parse invalide : dans tous les cas, l'appelant retombe sur le
     // matching par mots-clés.
+    console.error("[skills/matching] Appel Gemini en échec : repli sur le matching par mots-clés.", err);
     return null;
   }
 }
