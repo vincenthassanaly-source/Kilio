@@ -36,7 +36,7 @@ test("Journal : rechercher un aliment, doser, ajouter", async ({ page }) => {
   await feuille.getByRole("button", { name: /Blanc de poulet/ }).click();
 
   await feuille.getByRole("button", { name: "150" }).click();
-  await feuille.getByRole("button", { name: "Dîner" }).click();
+  await feuille.getByRole("button", { name: "Dîner", exact: true }).click();
   await feuille.getByRole("button", { name: "Ajouter au dîner" }).click();
 
   await expect(page.getByText("« Blanc de poulet » ajouté au dîner")).toBeVisible();
