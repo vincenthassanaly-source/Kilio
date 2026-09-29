@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { deleteDocument, type DocumentAvecFichiers } from "@/app/actions/documents";
+import { deleteDocument, enregistrerApercuPdf, type DocumentAvecFichiers } from "@/app/actions/documents";
+import { genererApercuPdf } from "@/lib/pdf/apercuPdf";
 import { formatEcheance, niveauAlerte } from "./echeance";
 import { formatMois } from "./champs";
 import { ImageLightbox } from "@/components/ImageLightbox";
@@ -15,6 +16,21 @@ import { confirmDelete } from "@/lib/confirm";
 import { runAction } from "@/lib/actions/runAction";
 
 const DocumentForm = dynamic(() => import("./DocumentForm").then((m) => m.DocumentForm), { ssr: false });
+
+// Une tentative par fichier et par chargement de page : un PDF dont le rendu
+// échoue ne relance pas de calcul à chaque re-rendu de la liste.
+const apercusTentes = new Set<string>();
+
+async function rattraperApercu(fichierId: string, url: string) {
+  if (apercusTentes.has(fichierId)) return;
+  apercusTentes.add(fichierId);
+  const apercu = await genererApercuPdf(url);
+  if (!apercu) return;
+  const formData = new FormData();
+  formData.append("apercu", apercu, "apercu.jpg");
+  // Silencieux : l'utilisateur n'a rien demandé, un échec garde l'icône PDF.
+  await runAction(() => enregistrerApercuPdf(fichierId, formData), { silencieux: true });
+}
 
 function PdfIcon() {
   return (
@@ -35,6 +51,15 @@ export function DocumentCard({
   const [editing, setEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
+  // Rattrapage : un PDF ajouté avant les aperçus (ou dont le rendu avait
+  // échoué) reçoit le sien à l'affichage de la liste.
+  const premier = document.fichiers[0] ?? null;
+  const rattrapageId = premier?.fichier_type === "pdf" && !premier.apercu_url ? premier.id : null;
+  const rattrapageUrl = rattrapageId ? premier!.url : null;
+  useEffect(() => {
+    if (rattrapageId && rattrapageUrl) void rattraperApercu(rattrapageId, rattrapageUrl);
+  }, [rattrapageId, rattrapageUrl]);
 
   if (editing) {
     return (
@@ -96,10 +121,20 @@ export function DocumentCard({
             href={apercu.url}
             target="_blank"
             rel="noreferrer"
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-line bg-surface-alt text-ink-2"
+            className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-surface-alt text-ink-2"
             aria-label="Ouvrir le PDF"
           >
-            <PdfIcon />
+            {apercu.apercu_url ? (
+              <Image
+                src={apercu.apercu_url}
+                alt=""
+                width={56}
+                height={56}
+                className="h-full w-full object-cover object-top"
+              />
+            ) : (
+              <PdfIcon />
+            )}
           </a>
         ) : null}
 
