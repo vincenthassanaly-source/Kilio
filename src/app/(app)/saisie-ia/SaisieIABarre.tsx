@@ -160,7 +160,13 @@ export function SaisieIABarre() {
     }
     const analyse = resultat.data;
     if (analyse.statut === "elements") {
-      setLignes(analyse.elements.map((element, cle) => ({ cle, element, retenue: true })));
+      setLignes(
+        analyse.elements.map((element, cle) => ({
+          cle,
+          element,
+          retenue: moduleClient(element.type).retenueParDefaut?.(element) ?? true,
+        }))
+      );
       setEtape("apercu");
     } else if (analyse.statut === "question") {
       setQuestion({ texte: analyse.question, choix: analyse.choix });
@@ -195,11 +201,18 @@ export function SaisieIABarre() {
   // la date d'une tâche, ne sont pas conservés).
   function changerType(cle: number, type: TypeElement) {
     setLignes((courantes) =>
-      courantes.map((l) =>
-        l.cle === cle && l.element.type !== type
-          ? { cle, retenue: l.retenue, element: moduleClient(type).depuisTitre(moduleClient(l.element.type).titre(l.element)) }
-          : l
-      )
+      courantes.map((l) => {
+        if (l.cle !== cle || l.element.type === type) return l;
+        const ancien = moduleClient(l.element.type);
+        const moduleIA = moduleClient(type);
+        const element = moduleIA.depuisTitre(ancien.titre(l.element));
+        // Le choix de l'utilisateur est gardé, sauf quand il ne venait que de
+        // l'état de départ : une proposition incomplète (repas sans aliment)
+        // est décochée d'office, et repart cochée dès qu'elle devient complète.
+        const completeAvant = ancien.retenueParDefaut?.(l.element) ?? true;
+        const completeApres = moduleIA.retenueParDefaut?.(element) ?? true;
+        return { cle, element, retenue: completeApres ? (completeAvant ? l.retenue : true) : false };
+      })
     );
   }
 

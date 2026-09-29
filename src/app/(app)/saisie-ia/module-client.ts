@@ -43,6 +43,12 @@ export type ModuleIAClient<E extends ElementPropose = ElementPropose> = {
   /** Textes de la saisie quand ce module est seul branché. */
   saisie: { invite: string; label: string; placeholder: string };
   titre: (element: E) => string;
+  /**
+   * La ligne est-elle cochée au départ ? Faux pour une proposition
+   * incomplète (rien n'est créé tant que l'utilisateur ne l'a pas précisée) ;
+   * vrai par défaut.
+   */
+  retenueParDefaut?: (element: E) => boolean;
   /** Ce que le serveur reçoit à la validation. */
   versCreation: (element: E) => ElementACreer;
   /** Détails d'une ligne de l'aperçu (moment, pastilles, avertissements). */

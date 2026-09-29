@@ -22,6 +22,12 @@ import {
   interpreterNotes,
   lignesContexteNotes,
 } from "@/lib/notes/saisie-naturelle";
+import {
+  CAS_QUESTION_REPAS,
+  REGLES_REPAS,
+  interpreterRepas,
+  lignesContexteRepas,
+} from "@/lib/nutrition/saisie-naturelle";
 import { MAX_ELEMENTS, MAX_QUESTIONS } from "./types";
 
 // Jeudi 1er octobre 2026 : le calendrier du prompt part de cette date.
@@ -175,26 +181,51 @@ const moduleNotes: ModuleIAServeur = {
   creer: async () => [],
 };
 
+const catalogueRepas = [
+  { type: "aliment" as const, id: "a-oeuf", nom: "Œuf", categorie: null, unite: "piece" as const, poidsUniteG: 60, par100: { kcal: 140, proteines: 12, glucides: 1, lipides: 10 } },
+];
+
+const moduleRepas: ModuleIAServeur = {
+  type: "repas",
+  cle: "repas",
+  libelle: "repas",
+  max: 12,
+  schemaElement: { type: "object", properties: { aliment: { type: "string" } }, required: ["aliment"] },
+  regles: REGLES_REPAS,
+  casQuestion: CAS_QUESTION_REPAS,
+  preparer: async () => ({
+    lignesContexte: lignesContexteRepas(catalogueRepas),
+    interpreter: (bruts) =>
+      interpreterRepas(bruts, { catalogue: catalogueRepas, aujourdhui: AUJOURDHUI, heure: 8 }).map((donnees) => ({
+        type: "repas" as const,
+        donnees,
+      })),
+  }),
+  creer: async () => [],
+};
+
 describe("moteur — plusieurs modules", () => {
-  const modules = [moduleTaches, moduleCourses, moduleNotes];
+  const modules = [moduleTaches, moduleCourses, moduleNotes, moduleRepas];
   const contextes = () => Promise.all(modules.map((m) => m.preparer(AUJOURDHUI)));
 
   it("construit un schéma avec un tableau obligatoire par module", () => {
     const schema = construireSchema(modules);
-    expect(Object.keys(schema.properties)).toEqual(["question", "taches", "courses", "notes"]);
-    expect(schema.required).toEqual(["question", "taches", "courses", "notes"]);
+    expect(Object.keys(schema.properties)).toEqual(["question", "taches", "courses", "notes", "repas"]);
+    expect(schema.required).toEqual(["question", "taches", "courses", "notes", "repas"]);
     expect(schema.properties.courses).toMatchObject({ type: "array", maxItems: 30 });
     expect(JSON.stringify(schema)).not.toContain("nullable");
   });
 
   it("compose le prompt : introduction, contextes, règles de répartition et question", async () => {
     const p = construirePrompt({ texte: "x", precisions: [], aujourdhui: AUJOURDHUI, modules, contextes: await contextes() });
-    expect(p).toContain("en tâches, articles de courses et notes pour son app");
+    expect(p).toContain("en tâches, articles de courses, notes et repas pour son app");
+    expect(p).toContain('Aliments du catalogue (JSON) : ["Œuf"]');
+    expect(p).toContain("N'invente jamais un nom qui n'est pas dans les listes.");
     expect(p).toContain('Articles déjà sur la liste de courses (JSON) : ["Lait"]');
     expect(p).toContain('Tags de notes existants (JSON) : ["idées"]');
     expect(p).toContain("UN SEUL tableau");
     expect(p).toContain("jamais dans `taches`, sauf si un jour ou une heure est cité");
-    expect(p).toContain("laisse `taches`, `courses`, `notes` vides");
+    expect(p).toContain("laisse `taches`, `courses`, `notes`, `repas` vides");
   });
 
   it("n'ajoute la règle de répartition qu'à partir de deux modules", async () => {
@@ -209,13 +240,14 @@ describe("moteur — plusieurs modules", () => {
         taches: [{ titre: "Appeler le dentiste" }],
         courses: [{ libelle: "Œufs" }, "x"],
         notes: [{ titre: "Idée cadeau", type: "texte", contenu: "Un livre", items: [], tags: ["idées"] }],
+        repas: [{ aliment: "œufs", correspondance: "Œuf", quantite: 2, unite: "piece", moment: "petit_dej", date: "" }],
       },
       modules,
       await contextes(),
       MAX_QUESTIONS
     );
     expect(r.statut).toBe("elements");
-    if (r.statut === "elements") expect(r.elements.map((e) => e.type)).toEqual(["tache", "course", "note"]);
+    if (r.statut === "elements") expect(r.elements.map((e) => e.type)).toEqual(["tache", "course", "note", "repas"]);
   });
 
   it("ignore un tableau absent ou mal formé d'un module", async () => {
