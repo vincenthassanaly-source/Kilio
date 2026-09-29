@@ -7,7 +7,7 @@ import { DashboardNutritionCard } from "./DashboardNutritionCard";
 import { DashboardTachesCard } from "./DashboardTachesCard";
 import { DashboardHabitudesCard } from "./DashboardHabitudesCard";
 import { DashboardProgrammeCard } from "./DashboardProgrammeCard";
-import { DashboardSaisieIACard } from "./DashboardSaisieIACard";
+import { SaisieIABarre } from "./saisie-ia/SaisieIABarre";
 import { QuickAddFab } from "./QuickAddFab";
 
 // Silhouette des cartes "Aujourd'hui" + "Prochain événement", identique au
@@ -57,7 +57,7 @@ export function DashboardView() {
   return (
     <>
       <ViewTransition enter="dashboard-reveal-enter" default="none">
-        <DashboardSaisieIACard />
+        <SaisieIABarre />
       </ViewTransition>
 
       <ViewTransition enter="dashboard-reveal-enter" default="none">

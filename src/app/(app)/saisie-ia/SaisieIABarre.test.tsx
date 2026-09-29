@@ -2,13 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { ElementPropose } from "@/lib/saisie-ia/types";
 import type { TachePropose } from "@/lib/taches/saisie-naturelle";
 
-vi.mock("@/app/actions/saisie-taches", () => ({
-  analyserSaisieTaches: vi.fn(),
-  creerTachesProposees: vi.fn(),
-  preparerListe: vi.fn(),
+vi.mock("@/app/actions/saisie-ia", () => ({
+  analyserSaisie: vi.fn(),
+  creerElementsProposes: vi.fn(),
 }));
+vi.mock("@/app/actions/saisie-taches", () => ({ preparerListe: vi.fn() }));
 vi.mock("@/app/actions/taches", () => ({
   getListes: vi.fn().mockResolvedValue([]),
   getTags: vi.fn().mockResolvedValue([]),
@@ -20,12 +21,12 @@ vi.mock("@/components/toast/toast-store", async (importOriginal) => {
   return { ...actual, showToast: vi.fn(), showErrorToast: vi.fn() };
 });
 
-import { analyserSaisieTaches, creerTachesProposees } from "@/app/actions/saisie-taches";
+import { analyserSaisie, creerElementsProposes } from "@/app/actions/saisie-ia";
 import { showToast } from "@/components/toast/toast-store";
-import { DashboardSaisieIACard } from "./DashboardSaisieIACard";
+import { SaisieIABarre } from "./SaisieIABarre";
 
-const analyser = vi.mocked(analyserSaisieTaches);
-const creer = vi.mocked(creerTachesProposees);
+const analyser = vi.mocked(analyserSaisie);
+const creer = vi.mocked(creerElementsProposes);
 
 function tache(surcharge: Partial<TachePropose> = {}): TachePropose {
   return {
@@ -49,11 +50,15 @@ function tache(surcharge: Partial<TachePropose> = {}): TachePropose {
   };
 }
 
+function element(surcharge: Partial<TachePropose> = {}): ElementPropose {
+  return { type: "tache", donnees: tache(surcharge) };
+}
+
 function afficher() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
-      <DashboardSaisieIACard />
+      <SaisieIABarre />
     </QueryClientProvider>
   );
   return userEvent.setup();
@@ -74,13 +79,13 @@ afterEach(() => {
   cleanup();
 });
 
-describe("DashboardSaisieIACard", () => {
+describe("SaisieIABarre", () => {
   it("affiche l'aperçu, crée seulement les tâches retenues puis se referme", async () => {
     analyser.mockResolvedValue({
       ok: true,
       data: {
-        statut: "taches",
-        taches: [tache(), tache({ titre: "Acheter du pain", heure: null, rappel_minutes: null, priorite: "aucune" })],
+        statut: "elements",
+        elements: [element(), element({ titre: "Acheter du pain", heure: null, rappel_minutes: null, priorite: "aucune" })],
       },
     });
     creer.mockResolvedValue({ ok: true, data: [{ index: 0, ok: true, id: "t1" }] });
@@ -97,7 +102,8 @@ describe("DashboardSaisieIACard", () => {
     await waitFor(() => expect(creer).toHaveBeenCalledTimes(1));
     const envoyees = creer.mock.calls[0][0];
     expect(envoyees).toHaveLength(1);
-    expect(envoyees[0]).toMatchObject({
+    expect(envoyees[0]).toMatchObject({ type: "tache" });
+    expect(envoyees[0].donnees).toMatchObject({
       titre: "Rendez-vous dentiste",
       echeance: "2026-10-08",
       heure: "14:00",
@@ -106,8 +112,8 @@ describe("DashboardSaisieIACard", () => {
       listeId: "l-perso",
     });
     // Rien d'autre que les champs de création ne transite vers le serveur.
-    expect(envoyees[0]).not.toHaveProperty("avertissements");
-    expect(envoyees[0]).not.toHaveProperty("listeNom");
+    expect(envoyees[0].donnees).not.toHaveProperty("avertissements");
+    expect(envoyees[0].donnees).not.toHaveProperty("listeNom");
 
     await waitFor(() => expect(showToast).toHaveBeenCalledWith("Tâche créée"));
     expect(screen.getByRole("button", { name: /Ajouter avec l'IA/ })).toHaveAttribute("aria-expanded", "false");
@@ -116,7 +122,7 @@ describe("DashboardSaisieIACard", () => {
   it("pose la question de précision puis renvoie la réponse avec le texte d'origine", async () => {
     analyser
       .mockResolvedValueOnce({ ok: true, data: { statut: "question", question: "Quel jeudi ?", choix: ["Aujourd'hui", "Jeudi prochain"] } })
-      .mockResolvedValueOnce({ ok: true, data: { statut: "taches", taches: [tache({ titre: "Réunion" })] } });
+      .mockResolvedValueOnce({ ok: true, data: { statut: "elements", elements: [element({ titre: "Réunion" })] } });
     const user = afficher();
 
     await saisir(user, "réunion jeudi 10h");
@@ -133,7 +139,7 @@ describe("DashboardSaisieIACard", () => {
   it("accepte une réponse libre à la question", async () => {
     analyser
       .mockResolvedValueOnce({ ok: true, data: { statut: "question", question: "Quel titre ?", choix: [] } })
-      .mockResolvedValueOnce({ ok: true, data: { statut: "taches", taches: [tache()] } });
+      .mockResolvedValueOnce({ ok: true, data: { statut: "elements", elements: [element()] } });
     const user = afficher();
 
     await saisir(user, "demain 9h");
@@ -214,7 +220,7 @@ describe("DashboardSaisieIACard", () => {
   it("échec partiel : la tâche en échec reste dans l'aperçu avec sa raison", async () => {
     analyser.mockResolvedValue({
       ok: true,
-      data: { statut: "taches", taches: [tache(), tache({ titre: "Acheter du pain" })] },
+      data: { statut: "elements", elements: [element(), element({ titre: "Acheter du pain" })] },
     });
     creer.mockResolvedValue({
       ok: true,
