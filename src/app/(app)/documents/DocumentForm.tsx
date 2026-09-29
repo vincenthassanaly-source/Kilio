@@ -13,7 +13,7 @@ import type { Tables } from "@/lib/supabase/types";
 import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { MESSAGE_HORS_LIGNE, estErreurReseau } from "@/lib/actions/runAction";
-import { TAILLE_MAX_REQUETE_OCTETS, compresserFormData, formatTaille } from "@/lib/images/compression";
+import { ErreurLectureFichier, TAILLE_MAX_REQUETE_OCTETS, compresserFormData, formatTaille } from "@/lib/images/compression";
 
 const initialState: DocumentFormState = { error: null };
 
@@ -182,6 +182,7 @@ export function DocumentForm({
       // « Failed to fetch » / « Load failed » surviennent aussi en ligne
       // (requête rejetée ou coupée, souvent à cause du poids des photos) :
       // on n'annonce « hors ligne » que si le navigateur l'est vraiment.
+      if (err instanceof ErreurLectureFichier) return { error: err.message };
       const horsLigne = typeof navigator !== "undefined" && navigator.onLine === false;
       // Détail technique ajouté au message : sans accès à la console du
       // téléphone, c'est le seul moyen de connaître la vraie cause.
