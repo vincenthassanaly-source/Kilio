@@ -1,8 +1,9 @@
 // Génération du "programme du jour" via l'API Gemini (gemini-3.1-flash-lite,
 // tier gratuit) : requête structurée (responseSchema), timeout court, jamais
 // d'exception. Il n'existe pas de repli local (rien à générer sans Gemini) :
-// un échec renvoie `null` et l'appelant (app/actions/programme.ts) affiche un
-// message d'échec plutôt qu'une proposition inventée.
+// un échec est renvoyé avec sa cause (statut HTTP, délai dépassé…) et
+// l'appelant (app/actions/programme.ts) l'affiche plutôt que de fabriquer une
+// proposition.
 //
 // Gemini connaît la journée réelle : l'heure, les horaires de travail et les
 // plages libres, calculées par l'app (./disponibilites) et non déduites par le
@@ -10,6 +11,7 @@
 // plages libres (donc qui chevaucherait le travail ou un rendez-vous) est
 // retiré, la suggestion est conservée sans créneau.
 
+import { appelerGemini } from "@/lib/gemini/appel";
 import {
   dureeTotale,
   enMinutes,
@@ -20,7 +22,6 @@ import {
   type Plage,
 } from "./disponibilites";
 
-export const GEMINI_MODEL = "gemini-3.1-flash-lite";
 const GEMINI_TIMEOUT_MS = 8000;
 
 export type TacheSnapshot = {
@@ -71,6 +72,10 @@ export type EntreeProgramme = {
   habitudes: HabitudeSnapshot[];
   contexte: ContexteJour;
 };
+
+export type ResultatProgramme =
+  | { ok: true; programme: ProgrammeGenere }
+  | { ok: false; code: "quota" | "echec"; detail: string };
 
 const SOURCES_VALIDES: readonly SourceProposition[] = ["tache", "note", "habitude", "general"];
 
@@ -171,56 +176,22 @@ export function interpreterProgramme(brut: unknown, contexte: ContexteJour): Pro
   };
 }
 
-export async function genererProgrammeParGemini(input: EntreeProgramme): Promise<ProgrammeGenere | null> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn("[programme/generation] GEMINI_API_KEY absente : génération impossible.");
-    return null;
+export async function genererProgrammeParGemini(input: EntreeProgramme): Promise<ResultatProgramme> {
+  const reponse = await appelerGemini({
+    prompt: construirePrompt(input),
+    schema: SCHEMA_PROPOSITION(input.contexte.plafond),
+    timeoutMs: GEMINI_TIMEOUT_MS,
+    etiquette: "programme/generation",
+  });
+  if (!reponse.ok) return reponse;
+
+  const programme = interpreterProgramme(reponse.brut, input.contexte);
+  if (!programme) {
+    const detail = "Réponse Gemini invalide (intro ou propositions manquants).";
+    console.error(`[programme/generation] ${detail}`);
+    return { ok: false, code: "echec", detail };
   }
 
-  const prompt = construirePrompt(input);
-
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: SCHEMA_PROPOSITION(input.contexte.plafond),
-          },
-        }),
-        signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
-      }
-    );
-
-    if (!res.ok) {
-      console.error(`[programme/generation] Gemini a répondu ${res.status}.`);
-      return null;
-    }
-
-    const data = (await res.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    };
-    const texte = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (typeof texte !== "string") {
-      console.error("[programme/generation] Réponse Gemini sans texte structuré.");
-      return null;
-    }
-
-    const programme = interpreterProgramme(JSON.parse(texte), input.contexte);
-    if (!programme) {
-      console.error("[programme/generation] JSON Gemini invalide (intro/propositions manquants).");
-      return null;
-    }
-
-    console.log(`[programme/generation] Gemini OK : ${programme.propositions.length} proposition(s).`);
-    return programme;
-  } catch (err) {
-    console.error("[programme/generation] Appel Gemini en échec.", err);
-    return null;
-  }
+  console.log(`[programme/generation] Gemini OK : ${programme.propositions.length} proposition(s).`);
+  return { ok: true, programme };
 }

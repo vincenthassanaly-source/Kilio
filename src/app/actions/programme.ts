@@ -41,7 +41,23 @@ async function avecRepliVide<T>(lecture: Promise<T[]>, message: string): Promise
   }
 }
 
+const MESSAGE_ECHEC = "La génération du programme a échoué. Réessaie.";
+const MESSAGE_QUOTA = "Le quota gratuit de Gemini est atteint pour le moment. Réessaie plus tard.";
+
 export async function genererProgrammeDuJour(): Promise<ActionResult<ProgrammeGenere>> {
+  // Toute exception inattendue (lecture en base, bug) est rattrapée ici : une
+  // exception levée par une Server Function arrive masquée en production, et
+  // le client n'afficherait qu'un message générique sans cause.
+  try {
+    return await programmeDuJour();
+  } catch (err) {
+    console.error("[programme] Exception inattendue pendant la génération.", err);
+    const message = err instanceof Error ? err.message : "erreur inconnue";
+    return fail(`${MESSAGE_ECHEC} (Erreur serveur : ${message.slice(0, 150)})`);
+  }
+}
+
+async function programmeDuJour(): Promise<ActionResult<ProgrammeGenere>> {
   const today = aujourdhuiISO();
 
   const [taches, notes, habitudes, creneaux, exceptions] = await Promise.all([
@@ -121,6 +137,14 @@ export async function genererProgrammeDuJour(): Promise<ActionResult<ProgrammeGe
     },
   });
 
-  if (!resultat) return fail("La génération du programme a échoué. Réessaie.");
-  return ok(resultat);
+  if (!resultat.ok) {
+    // La cause exacte (statut HTTP et message de Google, délai dépassé…) suit
+    // le message : sans elle, tous les échecs se ressemblent à l'écran.
+    return fail(
+      resultat.code === "quota"
+        ? MESSAGE_QUOTA
+        : `${MESSAGE_ECHEC} (${resultat.detail})`
+    );
+  }
+  return ok(resultat.programme);
 }

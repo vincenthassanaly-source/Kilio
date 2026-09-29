@@ -210,32 +210,82 @@ describe("genererProgrammeParGemini", () => {
     const r = await genererProgrammeParGemini(entree);
 
     expect(r).toEqual({
-      intro: "Ce soir, du calme.",
-      propositions: [
-        { texte: "Appeler la banque", source: "tache", creneau: "17:15–17:45" },
-        { texte: "Lecture", source: "habitude", creneau: null },
-      ],
+      ok: true,
+      programme: {
+        intro: "Ce soir, du calme.",
+        propositions: [
+          { texte: "Appeler la banque", source: "tache", creneau: "17:15–17:45" },
+          { texte: "Lecture", source: "habitude", creneau: null },
+        ],
+      },
     });
   });
 
-  it("null sur erreur HTTP, réponse invalide, JSON illisible ou clé absente", async () => {
-    fetchMock.mockResolvedValueOnce(reponse({}, 500));
-    expect(await genererProgrammeParGemini(entree)).toBeNull();
+  it("n'expose jamais la clé dans l'URL", async () => {
+    fetchMock.mockResolvedValue(
+      reponse({ candidates: [{ content: { parts: [{ text: JSON.stringify({ intro: "Ok", propositions: [] }) }] } }] })
+    );
 
-    fetchMock.mockResolvedValueOnce(reponse({ candidates: [{}] }));
-    expect(await genererProgrammeParGemini(entree)).toBeNull();
+    await genererProgrammeParGemini(entree);
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).not.toContain("cle-de-test");
+    expect((init.headers as Record<string, string>)["x-goog-api-key"]).toBe("cle-de-test");
+  });
+
+  it("rapporte la cause d'un refus de Google (clé invalide, par exemple)", async () => {
+    fetchMock.mockResolvedValue(reponse({ error: { message: "API key not valid. Please pass a valid API key." } }, 400));
+
+    const r = await genererProgrammeParGemini(entree);
+
+    expect(r).toEqual({
+      ok: false,
+      code: "echec",
+      detail: "Gemini a répondu 400 : API key not valid. Please pass a valid API key.",
+    });
+  });
+
+  it("distingue le quota", async () => {
+    fetchMock.mockResolvedValue(reponse({ error: { message: "quota" } }, 429));
+
+    expect(await genererProgrammeParGemini(entree)).toMatchObject({ ok: false, code: "quota" });
+  });
+
+  it("rapporte un modèle introuvable (404) avec le message de Google", async () => {
+    fetchMock.mockResolvedValue(reponse({ error: { message: "models/xyz is not found for API version v1beta" } }, 404));
+
+    const r = await genererProgrammeParGemini(entree);
+
+    expect(!r.ok && r.detail).toBe("Gemini a répondu 404 : models/xyz is not found for API version v1beta");
+  });
+
+  it("rapporte une réponse sans texte, un JSON illisible et une structure invalide", async () => {
+    fetchMock.mockResolvedValueOnce(reponse({ candidates: [{ finishReason: "SAFETY" }] }));
+    const sansTexte = await genererProgrammeParGemini(entree);
+    expect(!sansTexte.ok && sansTexte.detail).toBe("Réponse Gemini sans texte (SAFETY).");
 
     fetchMock.mockResolvedValueOnce(reponse({ candidates: [{ content: { parts: [{ text: "{pas du json" }] } }] }));
-    expect(await genererProgrammeParGemini(entree)).toBeNull();
+    const illisible = await genererProgrammeParGemini(entree);
+    expect(!illisible.ok && illisible.detail).toBe("Réponse Gemini illisible.");
 
     fetchMock.mockResolvedValueOnce(
       reponse({ candidates: [{ content: { parts: [{ text: JSON.stringify({ intro: 1 }) }] } }] })
     );
-    expect(await genererProgrammeParGemini(entree)).toBeNull();
+    const invalide = await genererProgrammeParGemini(entree);
+    expect(!invalide.ok && invalide.detail).toMatch(/Réponse Gemini invalide/);
+  });
+
+  it("nomme le délai dépassé et la clé absente (sans appeler Google)", async () => {
+    const delai = new Error("timeout");
+    delai.name = "TimeoutError";
+    fetchMock.mockRejectedValueOnce(delai);
+    const r = await genererProgrammeParGemini(entree);
+    expect(!r.ok && r.detail).toMatch(/Délai dépassé \(8 s\)/);
 
     vi.stubEnv("GEMINI_API_KEY", "");
     fetchMock.mockClear();
-    expect(await genererProgrammeParGemini(entree)).toBeNull();
+    const sansCle = await genererProgrammeParGemini(entree);
+    expect(!sansCle.ok && sansCle.detail).toMatch(/GEMINI_API_KEY absente/);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });

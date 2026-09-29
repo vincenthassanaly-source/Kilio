@@ -42,6 +42,20 @@ describe("DashboardProgrammeCard", () => {
     expect(screen.getAllByText(/^\d{2}:\d{2}–\d{2}:\d{2}$/)).toHaveLength(1);
   });
 
+  it("échec : affiche la cause technique et propose de réessayer", async () => {
+    generer.mockResolvedValue({
+      ok: false,
+      error: "La génération du programme a échoué. Réessaie. (Gemini a répondu 403 : API key not valid.)",
+    });
+    const user = userEvent.setup();
+    render(<DashboardProgrammeCard />);
+
+    await user.click(screen.getByRole("button", { name: /Programme du jour/ }));
+
+    expect(await screen.findByText(/Gemini a répondu 403 : API key not valid\./)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Réessayer" })).toBeInTheDocument();
+  });
+
   it("message calme sans suggestion", async () => {
     generer.mockResolvedValue({
       ok: true,
