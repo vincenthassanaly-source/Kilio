@@ -9,9 +9,18 @@ import {
   type ProgrammeGenere,
   type TacheSnapshot,
 } from "@/lib/programme/generation";
+import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
+import { dateDuJourParis, heureParis } from "@/lib/date/paris";
+import {
+  dureeTotale,
+  occupationsDuJour,
+  plafondPropositions,
+  plagesLibres,
+} from "@/lib/programme/disponibilites";
 import { getTachesAvecRelations } from "./taches";
 import { getNotesAvecRelations } from "./notes";
 import { getHabitudesDuJour } from "./habitudes";
+import { getPlanningTravail, getPlanningTravailExceptions } from "./planning-travail";
 
 // Nombre maximum d'éléments envoyés à Gemini par catégorie : un instantané
 // pertinent (tâches dues/en retard, notes récentes) plutôt que l'historique
@@ -21,25 +30,44 @@ const MAX_TACHES = 15;
 const MAX_NOTES = 10;
 const EXTRAIT_NOTE_LONGUEUR = 140;
 
+// Les horaires de travail enrichissent le programme sans le conditionner :
+// s'ils ne se lisent pas, on génère quand même (comme un jour sans créneau).
+async function avecRepliVide<T>(lecture: Promise<T[]>, message: string): Promise<T[]> {
+  try {
+    return await lecture;
+  } catch (err) {
+    console.warn(`[programme] ${message}, génération sans cette information.`, err);
+    return [];
+  }
+}
+
 export async function genererProgrammeDuJour(): Promise<ActionResult<ProgrammeGenere>> {
   const today = aujourdhuiISO();
 
-  const [taches, notes, habitudes] = await Promise.all([
+  const [taches, notes, habitudes, creneaux, exceptions] = await Promise.all([
     getTachesAvecRelations(),
     getNotesAvecRelations(),
     getHabitudesDuJour(today),
+    avecRepliVide(getPlanningTravail(), "Horaires de travail illisibles"),
+    avecRepliVide(getPlanningTravailExceptions(), "Exceptions d'horaires illisibles"),
   ]);
 
   const tachesPertinentes: TacheSnapshot[] = taches
     .filter((t) => !t.fait && t.echeance !== null && t.echeance <= today)
     .sort((a, b) => (a.echeance ?? "").localeCompare(b.echeance ?? ""))
     .slice(0, MAX_TACHES)
-    .map((t) => ({
-      titre: t.titre,
-      heure: t.heure,
-      priorite: t.priorite,
-      enRetard: (t.echeance ?? today) < today,
-    }));
+    .map((t) => {
+      const enRetard = (t.echeance ?? today) < today;
+      // L'heure d'une tâche en retard date d'un autre jour : elle n'occupe pas
+      // aujourd'hui et ne doit pas laisser croire à un rendez-vous.
+      return {
+        titre: t.titre,
+        heure: enRetard || t.toute_la_journee ? null : (t.heure?.slice(0, 5) ?? null),
+        heureFin: enRetard || t.toute_la_journee ? null : (t.heure_fin?.slice(0, 5) ?? null),
+        priorite: t.priorite,
+        enRetard,
+      };
+    });
 
   const notesRecentes: NoteSnapshot[] = notes.slice(0, MAX_NOTES).map((n) => ({
     titre: n.titre,
@@ -55,10 +83,42 @@ export async function genererProgrammeDuJour(): Promise<ActionResult<ProgrammeGe
     return ok({ intro: "Rien de particulier n'attend aujourd'hui — profite du calme.", propositions: [] });
   }
 
+  // La journée réelle : horaires de travail d'aujourd'hui, tâches datées qui
+  // ont une heure (rendez-vous), puis plages libres à partir de maintenant.
+  const creneauxTravail = getCreneauxDuJour(creneaux, dateDuJourParis(), exceptions).map((c) => ({
+    debut: c.heure_debut.slice(0, 5),
+    fin: c.heure_fin.slice(0, 5),
+  }));
+  const tachesDuJourAvecHeure = taches.flatMap((t) =>
+    !t.fait && t.echeance === today && t.heure && !t.toute_la_journee
+      ? [{ heure: t.heure, heure_fin: t.heure_fin }]
+      : []
+  );
+  const maintenant = heureParis();
+  const libres = plagesLibres({
+    maintenant,
+    occupations: occupationsDuJour({ creneauxTravail, taches: tachesDuJourAvecHeure }),
+  });
+
+  // Aucune plage libre (journée pleine ou finie) : inutile d'interroger Gemini
+  // pour lui faire placer des suggestions nulle part.
+  if (libres.length === 0) {
+    return ok({
+      intro: "Il ne reste plus de plage libre aujourd'hui : la journée est pleine ou terminée.",
+      propositions: [],
+    });
+  }
+
   const resultat = await genererProgrammeParGemini({
     taches: tachesPertinentes,
     notes: notesRecentes,
     habitudes: habitudesAFaire,
+    contexte: {
+      maintenant,
+      creneauxTravail,
+      plagesLibres: libres,
+      plafond: plafondPropositions(dureeTotale(libres)),
+    },
   });
 
   if (!resultat) return fail("La génération du programme a échoué. Réessaie.");

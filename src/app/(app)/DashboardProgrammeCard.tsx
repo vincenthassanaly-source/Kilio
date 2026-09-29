@@ -119,7 +119,7 @@ export function DashboardProgrammeCard() {
             <div className="mt-3 flex flex-col gap-2.5 border-t border-line pt-3">
               {etat === "chargement" && (
                 <div className="flex flex-col gap-2 py-1">
-                  <p className="text-[12.5px] text-ink-2">Analyse de tes tâches, notes et habitudes…</p>
+                  <p className="text-[12.5px] text-ink-2">Analyse de ta journée, tes tâches, notes et habitudes…</p>
                   <Skeleton className="h-[14px] w-[92%]" />
                   <Skeleton className="h-[14px] w-[78%]" />
                   <Skeleton className="h-[14px] w-[85%]" />
@@ -143,7 +143,12 @@ export function DashboardProgrammeCard() {
                     <div className="flex flex-col divide-y divide-line">
                       {programme.propositions.map((p, i) => (
                         <div key={i} className="flex items-center gap-2.5 py-2.5 first:pt-0 last:pb-0">
-                          <p className="flex-1 text-[13.5px] text-ink">{p.texte}</p>
+                          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                            {p.creneau && (
+                              <span className="text-[12.5px] font-semibold tabular-nums text-ink-2">{p.creneau}</span>
+                            )}
+                            <p className="text-[13.5px] text-ink">{p.texte}</p>
+                          </div>
                           {p.source !== "general" && <span className={pillTag}>{LABEL_SOURCE[p.source]}</span>}
                         </div>
                       ))}
