@@ -8,14 +8,14 @@ import { ErrorState } from "@/components/ErrorState";
 // le layout parent, restent visibles même quand cette page plante.
 export default function AppError({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
   }, [error]);
 
-  return <ErrorState reset={reset} />;
+  return <ErrorState retry={retry} />;
 }
