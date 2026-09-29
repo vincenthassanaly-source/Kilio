@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  actualisationEchouee,
   appliquerCochage,
   champsAvancesRenseignes,
+  cochageDejaApplique,
   echeanceParDefaut,
+  etatListeTaches,
   libelleNombreTaches,
   messageAvertissementCreation,
   messageHorsLigne,
@@ -215,5 +218,59 @@ describe("champsAvancesRenseignes", () => {
 
   it("une récurrence renseignée compte", () => {
     expect(champsAvancesRenseignes(champs({ recurrence_frequence: "mensuel" }))).toBe(true);
+  });
+});
+
+describe("cochageDejaApplique", () => {
+  const recurrente = { echeance: "2026-09-30", recurrence_frequence: "quotidien", recurrence_fin: null } as const;
+
+  it("ne garde rien sans échéance observée (ancienne action en file)", () => {
+    expect(cochageDejaApplique(recurrente, true, undefined)).toBe(false);
+  });
+
+  it("laisse passer la coche quand l'échéance vue est celle du serveur", () => {
+    expect(cochageDejaApplique(recurrente, true, "2026-09-30")).toBe(false);
+  });
+
+  it("bloque une coche périmée : l'occurrence a déjà été avancée", () => {
+    expect(cochageDejaApplique({ ...recurrente, echeance: "2026-10-01" }, true, "2026-09-30")).toBe(true);
+  });
+
+  it("compare aussi une échéance absente", () => {
+    expect(cochageDejaApplique({ ...recurrente, echeance: null }, true, null)).toBe(false);
+    expect(cochageDejaApplique({ ...recurrente, echeance: "2026-10-01" }, true, null)).toBe(true);
+  });
+
+  it("ne garde jamais un décochage ni une tâche non récurrente", () => {
+    expect(cochageDejaApplique({ ...recurrente, echeance: "2026-10-01" }, false, "2026-09-30")).toBe(false);
+    expect(
+      cochageDejaApplique(
+        { echeance: "2026-10-01", recurrence_frequence: null, recurrence_fin: null },
+        true,
+        "2026-09-30"
+      )
+    ).toBe(false);
+  });
+});
+
+describe("etatListeTaches / actualisationEchouee", () => {
+  it("affiche le chargement tant que la première requête n'a rien rendu", () => {
+    expect(etatListeTaches({ isLoading: true, isError: false, aDesDonnees: false })).toBe("chargement");
+  });
+
+  it("n'affiche l'erreur que s'il n'y a aucune donnée à montrer", () => {
+    expect(etatListeTaches({ isLoading: false, isError: true, aDesDonnees: false })).toBe("erreur");
+  });
+
+  it("garde la liste quand une actualisation échoue alors que le cache est rempli", () => {
+    const requete = { isLoading: false, isError: true, aDesDonnees: true };
+    expect(etatListeTaches(requete)).toBe("liste");
+    expect(actualisationEchouee(requete)).toBe(true);
+  });
+
+  it("ne signale rien quand tout va bien", () => {
+    const requete = { isLoading: false, isError: false, aDesDonnees: true };
+    expect(etatListeTaches(requete)).toBe("liste");
+    expect(actualisationEchouee(requete)).toBe(false);
   });
 });

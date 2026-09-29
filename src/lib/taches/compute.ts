@@ -174,6 +174,50 @@ export function appliquerCochage(
   return { fait: false, echeance: prochaine, occurrenceAvancee: true };
 }
 
+/**
+ * Garde d'idempotence de `setTacheFait` pour les tâches récurrentes : cocher
+ * une récurrente AVANCE l'échéance d'une occurrence, donc rejouer deux fois
+ * la même coche (file hors ligne rejouée après une coche faite en ligne, double
+ * envoi…) sauterait une occurrence. L'appelant transmet l'échéance qu'il voyait
+ * à l'écran ; si le serveur en a déjà une autre, la coche a déjà été appliquée
+ * (ou la tâche modifiée entre-temps) et ne doit pas être rejouée.
+ *
+ * Sans échéance observée (`undefined` : ancien appelant, action mise en file
+ * avant ce correctif), aucune garde : comportement historique.
+ */
+export function cochageDejaApplique(
+  tache: EtatRecurrence,
+  fait: boolean,
+  echeanceObservee: string | null | undefined
+): boolean {
+  if (!fait || !tache.recurrence_frequence || echeanceObservee === undefined) return false;
+  return tache.echeance !== echeanceObservee;
+}
+
+export type EtatListeTaches = "chargement" | "erreur" | "liste";
+
+/**
+ * Ce que /taches et /agenda affichent selon l'état de la requête `taches`.
+ * Une actualisation qui échoue (connexion faible, incident serveur) laisse les
+ * données déjà en cache tout en passant la requête en erreur : l'erreur ne
+ * doit remplacer la liste que s'il n'y a rien à montrer.
+ */
+export function etatListeTaches(requete: {
+  isLoading: boolean;
+  isError: boolean;
+  aDesDonnees: boolean;
+}): EtatListeTaches {
+  if (requete.isLoading) return "chargement";
+  if (!requete.aDesDonnees) return "erreur";
+  return "liste";
+}
+
+/** Vrai quand la liste affichée est celle du cache alors que la dernière
+ * actualisation a échoué : à signaler discrètement, sans masquer la liste. */
+export function actualisationEchouee(requete: { isError: boolean; aDesDonnees: boolean }): boolean {
+  return requete.isError && requete.aDesDonnees;
+}
+
 export function champsAvancesRenseignes(tache: ChampsAvancesTache): boolean {
   return (
     tache.heure !== null ||

@@ -19,7 +19,7 @@ import { getListes, getTachesAvecRelations, getTags } from "@/app/actions/taches
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
 import { queryKeys } from "@/lib/query/keys";
 import { showToast } from "@/components/toast/toast-store";
-import { DUREE_TOAST_AVERTISSEMENT_MS } from "@/lib/taches/compute";
+import { DUREE_TOAST_AVERTISSEMENT_MS, actualisationEchouee, etatListeTaches } from "@/lib/taches/compute";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import { DayView } from "./DayView";
@@ -102,6 +102,15 @@ export function AgendaView() {
     queryFn: getPlanningTravailExceptions,
     staleTime: 0,
   });
+
+  // Une actualisation ratée laisse les données en cache : on garde l'agenda
+  // et on prévient, plutôt que de le remplacer par un message d'erreur.
+  const etatListe = etatListeTaches({
+    isLoading: tachesLoading,
+    isError: tachesError,
+    aDesDonnees: taches !== undefined,
+  });
+  const actualisationKo = actualisationEchouee({ isError: tachesError, aDesDonnees: taches !== undefined });
 
   const reduceMotion = useReducedMotion() ?? false;
   const [view, setView] = useState<ViewKey>("jour");
@@ -319,12 +328,17 @@ export function AgendaView() {
         </div>
       </div>
 
-      {tachesLoading ? (
+      {actualisationKo && (
+        <p role="status" className={errorText}>
+          Actualisation impossible : dernières données affichées.
+        </p>
+      )}
+      {etatListe === "chargement" ? (
         <div className="flex flex-col gap-4">
           <Skeleton className="h-10 w-full rounded-2xl" />
           <ListItemSkeletonGroup count={5} withSubtitle />
         </div>
-      ) : tachesError || !taches ? (
+      ) : etatListe === "erreur" || !taches ? (
         <div className="flex flex-col items-center gap-3 py-4 text-center" role="alert">
           <p className={errorText}>Erreur de chargement de l&apos;agenda. Réessaie.</p>
           <button type="button" onClick={() => refetchTaches()} className={secondaryButton}>

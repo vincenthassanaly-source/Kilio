@@ -9,6 +9,7 @@ import type { Enums, Tables } from "@/lib/supabase/types";
 import {
   RAPPEL_MINUTES_VALEURS,
   appliquerCochage,
+  cochageDejaApplique,
   messageAvertissementCreation,
 } from "@/lib/taches/compute";
 
@@ -500,7 +501,13 @@ async function supprimerImagesDeTache(supabase: SupabaseClient, tacheId: string,
 // l'action à utiliser pour toute mutation rejouable (file hors ligne), pour
 // qu'un rejeu en double ou un changement fait ailleurs entre-temps ne
 // bascule pas la tâche dans l'état inverse de celui voulu.
-export async function setTacheFait(id: string, fait: boolean) {
+// `echeanceObservee` : échéance que l'appelant voyait au moment de cocher.
+// Cocher une récurrente avance l'échéance, l'action n'est donc pas
+// idempotente : une coche rejouée (file hors ligne) alors que l'occurrence a
+// déjà été avancée doit être ignorée, sinon elle en sauterait une seconde
+// (voir `cochageDejaApplique`). `undefined` = pas de garde (route de
+// notification, actions mises en file avant ce paramètre).
+export async function setTacheFait(id: string, fait: boolean, echeanceObservee?: string | null) {
   const supabase = createAdminClient();
 
   const { data, error: fetchError } = await supabase
@@ -510,6 +517,11 @@ export async function setTacheFait(id: string, fait: boolean) {
     .single();
 
   if (fetchError) throw new Error(fetchError.message);
+
+  if (cochageDejaApplique(data, fait, echeanceObservee)) {
+    revalidateTachesPaths();
+    return;
+  }
 
   const resultat = appliquerCochage(data, fait, aujourdhuiISO());
 

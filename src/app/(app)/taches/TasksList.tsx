@@ -345,15 +345,22 @@ export const TaskCard = memo(function TaskCard({
   // file (enqueueAction), rejouée au retour du réseau par useOnlineSync.
   const toggleMutation = useMutation({
     networkMode: "always",
-    mutationFn: async () => {
+    // `enfile` : l'action est partie en file hors ligne au lieu du serveur. Dans
+    // ce cas on NE réactualise PAS depuis le serveur (voir onSettled) : il
+    // n'a pas encore l'écriture et rétablirait l'ancien état à l'écran.
+    // L'échéance vue est transmise au serveur : cocher une récurrente avance
+    // l'échéance, la garde évite qu'une coche rejouée en avance une seconde fois.
+    mutationFn: async (): Promise<{ enfile: boolean }> => {
       vibrate();
       const nextFait = !tache.fait;
       try {
-        await setTacheFait(tache.id, nextFait);
+        await setTacheFait(tache.id, nextFait, tache.echeance);
+        return { enfile: false };
       } catch (err) {
         if (!isNetworkError(err)) throw err;
-        await enqueueAction("taches", "setTacheFait", [tache.id, nextFait]);
+        await enqueueAction("taches", "setTacheFait", [tache.id, nextFait, tache.echeance]);
         showToast("Enregistré, sera synchronisé à la reconnexion");
+        return { enfile: true };
       }
     },
     onMutate: async () => {
@@ -368,18 +375,24 @@ export const TaskCard = memo(function TaskCard({
       if (context?.previous) queryClient.setQueryData(queryKeys.taches, context.previous);
       showToast("Impossible de mettre à jour la tâche.");
     },
-    onSettled: invalidateTaches,
+    // Action en file : l'état optimiste reste affiché jusqu'au rejeu, qui
+    // invalide tout (Providers, useOnlineSync).
+    onSettled: (resultat) => {
+      if (!resultat?.enfile) invalidateTaches();
+    },
   });
 
   const deleteMutation = useMutation({
     networkMode: "always",
-    mutationFn: async () => {
+    mutationFn: async (): Promise<{ enfile: boolean }> => {
       try {
         await deleteTache(tache.id);
+        return { enfile: false };
       } catch (err) {
         if (!isNetworkError(err)) throw err;
         await enqueueAction("taches", "deleteTache", [tache.id]);
         showToast("Enregistré, sera synchronisé à la reconnexion");
+        return { enfile: true };
       }
     },
     onMutate: async () => {
@@ -394,7 +407,9 @@ export const TaskCard = memo(function TaskCard({
       if (context?.previous) queryClient.setQueryData(queryKeys.taches, context.previous);
       showToast("Impossible de supprimer la tâche.");
     },
-    onSettled: invalidateTaches,
+    onSettled: (resultat) => {
+      if (!resultat?.enfile) invalidateTaches();
+    },
   });
 
   if (editing) {

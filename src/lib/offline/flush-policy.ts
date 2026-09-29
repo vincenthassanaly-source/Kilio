@@ -70,3 +70,28 @@ export function decisionApresEchec(action: ActionEnAttente, estErreurReseau: boo
   }
   return { type: "reessayer_plus_tard", tentatives };
 }
+
+/** Actions qui posent un état absolu sur une cible (premier argument) : seule
+ * la dernière intention de l'utilisateur compte. Les garder toutes en file les
+ * rejouerait dans l'ordre, ce qui n'est pas neutre pour une tâche récurrente
+ * (cocher avance l'échéance) : coche puis décoche hors ligne devait laisser la
+ * tâche intacte, pas avancée d'une occurrence. */
+const ACTIONS_ETAT_ABSOLU = new Set(["taches.setTacheFait"]);
+
+/** Ids des actions déjà en file rendues caduques par `nouvelle` (même action,
+ * même cible) : à retirer avant d'ajouter `nouvelle`. */
+export function idsActionsRemplacees(
+  enAttente: readonly (ActionEnAttente & { id?: number })[],
+  nouvelle: Pick<ActionEnAttente, "module" | "action_name" | "payload">
+): number[] {
+  if (!ACTIONS_ETAT_ABSOLU.has(`${nouvelle.module}.${nouvelle.action_name}`)) return [];
+  return enAttente
+    .filter(
+      (a) =>
+        a.id !== undefined &&
+        a.module === nouvelle.module &&
+        a.action_name === nouvelle.action_name &&
+        a.payload[0] === nouvelle.payload[0]
+    )
+    .map((a) => a.id as number);
+}
