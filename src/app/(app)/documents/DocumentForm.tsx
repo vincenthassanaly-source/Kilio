@@ -183,16 +183,20 @@ export function DocumentForm({
       // (requête rejetée ou coupée, souvent à cause du poids des photos) :
       // on n'annonce « hors ligne » que si le navigateur l'est vraiment.
       const horsLigne = typeof navigator !== "undefined" && navigator.onLine === false;
+      // Détail technique ajouté au message : sans accès à la console du
+      // téléphone, c'est le seul moyen de connaître la vraie cause.
+      const detail = err instanceof Error ? ` (${err.name} : ${err.message})` : "";
       return {
         error: horsLigne
           ? MESSAGE_HORS_LIGNE
           : estErreurReseau(err)
-            ? "L'envoi a échoué alors que tu es en ligne : fichiers trop lourds ou connexion instable. Réessaie avec des photos plus légères."
-            : "L'enregistrement du document a échoué. Réessaie.",
+            ? `L'envoi a échoué alors que tu es en ligne : fichiers trop lourds ou connexion instable. Réessaie avec des photos plus légères.${detail}`
+            : `L'enregistrement du document a échoué. Réessaie.${detail}`,
       };
     }
   }, initialState);
   const prevPending = useRef(pending);
+  const erreurRef = useRef<HTMLParagraphElement>(null);
 
   const [etiquetteId, setEtiquetteId] = useState(document?.etiquette?.id ?? "");
   const typeChamps = etiquettes.find((e) => e.id === etiquetteId)?.type_champs ?? "standard";
@@ -211,6 +215,12 @@ export function DocumentForm({
     }
     prevPending.current = pending;
   }, [pending, state.error, onDone]);
+
+  // Le message d'erreur apparaît au-dessus du bouton, sous la barre de
+  // navigation fixe : on le ramène dans la zone visible.
+  useEffect(() => {
+    if (state.error) erreurRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [state]);
 
   useEffect(() => {
     return () => previews.forEach((url) => URL.revokeObjectURL(url));
@@ -438,7 +448,7 @@ export function DocumentForm({
       </div>
 
       {state.error && (
-        <p className={errorText} role="alert">
+        <p ref={erreurRef} className={errorText} role="alert">
           {state.error}
         </p>
       )}
