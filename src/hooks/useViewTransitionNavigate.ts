@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { isModuleRootPath } from "@/lib/navigation/registry";
@@ -18,7 +18,7 @@ const NAV_DIRECTION_ATTR = "navDirection";
 // cible, pour ne jamais laisser la View Transition elle-même bloquée
 // indéfiniment. En pratique ce filet ne joue quasiment jamais de rôle actif
 // : `SEUIL_INDICATEUR_MS` (largement plus court) a déjà résolu la promesse
-// bien avant. Ne pilote ni l'indicateur de chargement ni `enAttenteRef` —
+// bien avant. Ne pilote ni l'indicateur de chargement ni `enAttente` —
 // voir `TIMEOUT_ABANDON_MS` pour ça.
 const TIMEOUT_NAVIGATION_MS = 3000;
 
@@ -82,6 +82,17 @@ type NavigationEnAttente = {
   abandonId: ReturnType<typeof setTimeout>;
 };
 
+// Au niveau du module (pas d'une instance du hook) : le composant qui lance
+// la navigation (ex. une tuile de /plus, une carte de liste, un bouton
+// retour) se démonte justement quand `usePathname()` change, donc son propre
+// `useEffect([pathname])` ne s'exécute jamais et ne pourrait pas libérer la
+// promesse en attente. Seul un état partagé permet à n'importe quelle
+// instance restée montée (BottomNav, TabSwipeWrapper dans le layout) de la
+// résoudre à l'arrivée, sans attendre `SEUIL_INDICATEUR_MS` ni laisser
+// l'indicateur allumé jusqu'à `TIMEOUT_ABANDON_MS`. Toujours au plus une
+// navigation en attente, y compris entre instances différentes.
+let enAttente: NavigationEnAttente | null = null;
+
 // Déduit le sens avance/recule à partir de la hiérarchie des deux chemins
 // (ex. /objectifs -> /objectifs/abc = avance, l'inverse = recule) quand
 // l'appelant ne précise pas explicitement de direction (cas des onglets de
@@ -125,21 +136,15 @@ export function useViewTransitionNavigate() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Toujours au plus une navigation en attente : un `useCallback` recréé à
-  // chaque changement de pathname (deps `[router, pathname]`) ne peut de
-  // toute façon pas en avoir plusieurs en vol vers des pathnames différents
-  // sans qu'un re-render (et donc cet effet) ne survienne entre les deux.
-  const enAttenteRef = useRef<NavigationEnAttente | null>(null);
-
   useEffect(() => {
-    const enAttente = enAttenteRef.current;
-    if (enAttente && enAttente.target === pathname) {
-      clearTimeout(enAttente.seuilId);
-      clearTimeout(enAttente.timeoutId);
-      clearTimeout(enAttente.abandonId);
-      enAttenteRef.current = null;
+    const courante = enAttente;
+    if (courante && courante.target === pathname) {
+      clearTimeout(courante.seuilId);
+      clearTimeout(courante.timeoutId);
+      clearTimeout(courante.abandonId);
+      enAttente = null;
       setNavigationEnCours(false);
-      enAttente.resolve();
+      courante.resolve();
     }
   }, [pathname]);
 
@@ -158,7 +163,7 @@ export function useViewTransitionNavigate() {
       // ce qui explique qu'il fallait parfois plusieurs tentatives.
       // L'indicateur de chargement (déjà affiché, voir SEUIL_INDICATEUR_MS)
       // reste le seul retour visuel nécessaire pendant l'attente.
-      if (enAttenteRef.current?.target === target) return;
+      if (enAttente?.target === target) return;
 
       // Transition entre deux routes racine de module (ex. /nutrition ->
       // /taches, ou /plus -> /agenda) : `replace` au lieu de `push`, pour ne
@@ -194,11 +199,11 @@ export function useViewTransitionNavigate() {
           if (target === pathname) return;
 
           return new Promise<void>((resolve) => {
-            const enAttente: NavigationEnAttente = {
+            const courante: NavigationEnAttente = {
               target,
               resolve,
               seuilId: setTimeout(() => {
-                if (enAttenteRef.current !== enAttente) return;
+                if (enAttente !== courante) return;
                 // `flushSync` garantit que l'indicateur est bien peint avant
                 // que `resolve()` ne fasse capturer l'état "new" par la View
                 // Transition : sans ça, la mise à jour (planifiée via un
@@ -209,19 +214,29 @@ export function useViewTransitionNavigate() {
               }, SEUIL_INDICATEUR_MS),
               // N'abandonne que l'animation (la promesse de la View
               // Transition) : ne touche ni à l'indicateur ni à
-              // `enAttenteRef`, qui doivent rester tant que la navigation
+              // `enAttente`, qui doivent rester tant que la navigation
               // réelle n'a pas abouti (voir TIMEOUT_ABANDON_MS) ou échoué.
               timeoutId: setTimeout(() => {
                 resolve();
               }, TIMEOUT_NAVIGATION_MS),
               abandonId: setTimeout(() => {
-                if (enAttenteRef.current !== enAttente) return;
-                enAttenteRef.current = null;
+                if (enAttente !== courante) return;
+                enAttente = null;
                 setNavigationEnCours(false);
                 resolve();
               }, TIMEOUT_ABANDON_MS),
             };
-            enAttenteRef.current = enAttente;
+            // Une navigation vers une autre cible remplace celle en attente
+            // (l'App Router abandonne de toute façon la première) : on libère
+            // sa View Transition tout de suite plutôt que de la laisser
+            // figée jusqu'à son propre timeout.
+            if (enAttente) {
+              clearTimeout(enAttente.seuilId);
+              clearTimeout(enAttente.timeoutId);
+              clearTimeout(enAttente.abandonId);
+              enAttente.resolve();
+            }
+            enAttente = courante;
           });
         });
 

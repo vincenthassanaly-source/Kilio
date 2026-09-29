@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { Tables } from "@/lib/supabase/types";
 import { TransitionLink } from "@/components/TransitionLink";
 import { normalizeSearch } from "@/lib/normalize";
-import { input, kcalPillTag, listCard, metaText, nameText, pillTag } from "@/lib/ui";
+import { input, kcalPillTag, listCard, metaText, nameText, pillTag, zoneTapPill } from "@/lib/ui";
 
 const SOURCE_LABEL: Record<string, string> = {
   manuel: "Manuel",
@@ -76,7 +76,7 @@ export function RecettesList({
         onChange={(e) => setSearch(e.target.value)}
         className={input}
       />
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-x-2 gap-y-4">
         {TEMPS_CHIPS.map((chip) => (
           <button
             key={chip.value}
@@ -84,8 +84,8 @@ export function RecettesList({
             onClick={() => setTempsFilter((prev) => (prev === chip.value ? null : chip.value))}
             className={
               tempsFilter === chip.value
-                ? `${pillTag} bg-kcal-soft text-kcal font-bold`
-                : pillTag
+                ? `${pillTag} ${zoneTapPill} bg-kcal-soft text-kcal font-bold`
+                : `${pillTag} ${zoneTapPill}`
             }
           >
             {chip.label}
@@ -98,8 +98,8 @@ export function RecettesList({
             onClick={() => setKcalFilter((prev) => (prev === chip.value ? null : chip.value))}
             className={
               kcalFilter === chip.value
-                ? `${pillTag} bg-kcal-soft text-kcal font-bold`
-                : pillTag
+                ? `${pillTag} ${zoneTapPill} bg-kcal-soft text-kcal font-bold`
+                : `${pillTag} ${zoneTapPill}`
             }
           >
             {chip.label}

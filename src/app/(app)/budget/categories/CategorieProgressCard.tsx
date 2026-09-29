@@ -5,7 +5,7 @@ import { upsertBudget, type BudgetFormState, type SuiviCategorie } from "@/app/a
 import { supprimerCategorie } from "@/app/actions/categories-budget";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { formatMontant } from "@/lib/budget/compute";
-import { card, dangerButton, errorText, input } from "@/lib/ui";
+import { card, dangerButton, errorText, input, linkButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import type { StatutBudget } from "@/lib/budget/compute";
 import { AddSousCategorieToggle } from "./AddSousCategorieToggle";
@@ -108,7 +108,7 @@ export function CategorieProgressCard({
           }
           className={`${input} flex-1 py-1.5 text-[13px]`}
         />
-        <button type="submit" disabled={pending} className="shrink-0 text-sm font-semibold text-kcal">
+        <button type="submit" disabled={pending} className={`${linkButton} shrink-0 disabled:opacity-60`}>
           {pending ? "…" : "Définir"}
         </button>
       </form>

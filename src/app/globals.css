@@ -307,6 +307,23 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Éléments fixes hors de la transition "root" (view-transition-name posé sur
+   la barre du bas, le bouton de thème et le bouton flottant) : sans ça, ils
+   sont capturés dans l'instantané de la page, donc glissent avec elle et
+   apparaissent en double (ancienne copie qui sort + nouvelle qui entre).
+   Barre du bas et thème : on masque l'ancienne image et on ne joue aucun
+   fondu sur la nouvelle, qui reste l'élément vivant (la pastille active de
+   la barre s'anime alors normalement, en direct). Bouton flottant : fondu
+   par défaut, utile quand il n'existe que sur l'une des deux pages. */
+::view-transition-old(bottom-nav),
+::view-transition-old(theme-toggle) {
+  display: none;
+}
+::view-transition-new(bottom-nav),
+::view-transition-new(theme-toggle) {
+  animation: none;
+}
+
 /* Cross-fade skeleton -> contenu réel des <Suspense> du dashboard (voir
    DashboardView.tsx, composant <ViewTransition> de React). Fondu simple,
    sans slide : la sortie est plus rapide que l'entrée (même asymétrie que
@@ -443,6 +460,8 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
     animation-delay: 0s !important;
   }
 
+  ::view-transition-old(fab),
+  ::view-transition-new(fab),
   ::view-transition-old(.dashboard-reveal-exit),
   ::view-transition-new(.dashboard-reveal-enter) {
     animation-duration: 0.01ms !important;

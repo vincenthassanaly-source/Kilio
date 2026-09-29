@@ -28,7 +28,7 @@ import {
 import { queryKeys } from "@/lib/query/keys";
 import { showToast } from "@/components/toast/toast-store";
 import type { Enums, Tables } from "@/lib/supabase/types";
-import { card, dangerButton, ghostButton, input, kcalPillTag, listCard, metaText, pillTag } from "@/lib/ui";
+import { card, dangerButton, ghostButton, input, kcalPillTag, listCard, metaText, pillTag, zoneTapPill } from "@/lib/ui";
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import type { ActionResult } from "@/lib/actions/result";
@@ -478,7 +478,7 @@ export const TaskCard = memo(function TaskCard({
                 #{tag.nom}
               </span>
             ))}
-            <button type="button" onClick={() => setExpanded((v) => !v)} className={pillTag}>
+            <button type="button" onClick={() => setExpanded((v) => !v)} className={`${pillTag} ${zoneTapPill}`}>
               {tache.sous_taches.length > 0
                 ? `${sousTachesFaites}/${tache.sous_taches.length}`
                 : "+ sous-tâches"}

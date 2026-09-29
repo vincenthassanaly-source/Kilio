@@ -157,7 +157,13 @@ export function BottomNav() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+14px)]">
-      <nav className="flex items-center gap-0.5 rounded-[26px] border border-line bg-nav p-[7px] shadow-card backdrop-blur-xl">
+      {/* `view-transition-name` : sort la barre de la transition "root" (sinon elle
+          glisse et se dédouble avec la page, voir globals.css) — elle reste
+          fixe pendant que seule la page change. */}
+      <nav
+        className="flex items-center gap-0.5 rounded-[26px] border border-line bg-nav p-[7px] shadow-card backdrop-blur-xl"
+        style={{ viewTransitionName: "bottom-nav" }}
+      >
         {modulesBarreBasse.map((href, index) => (
           <BottomNavSlot
             key={`${href}-${index}`}

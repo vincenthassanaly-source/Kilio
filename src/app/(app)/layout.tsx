@@ -25,7 +25,10 @@ export default async function AppLayout({
   return (
     <Providers>
       <div className="relative flex h-full flex-1 flex-col bg-background">
-        <div className="fixed right-4 z-40" style={{ top: "calc(env(safe-area-inset-top) + 14px)" }}>
+        <div
+          className="fixed right-4 z-40"
+          style={{ top: "calc(env(safe-area-inset-top) + 14px)", viewTransitionName: "theme-toggle" }}
+        >
           <ThemeToggle />
         </div>
         {/* NavigationEditProvider, TabSwipeWrapper et BottomNav lisent
