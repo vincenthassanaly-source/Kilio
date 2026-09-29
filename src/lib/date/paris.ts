@@ -27,6 +27,11 @@ export function aujourdhuiParis(maintenant: Date = new Date()): string {
   return formatDate.format(maintenant);
 }
 
+/** Heure courante à Paris, au format `HH:MM` (24 h). */
+export function heureParis(maintenant: Date = new Date()): string {
+  return formatHeure.format(maintenant).slice(0, 5);
+}
+
 /** Millisecondes restant avant le prochain minuit, heure de Paris. */
 export function msAvantMinuitParis(maintenant: Date = new Date()): number {
   const [h, m, s] = formatHeure.format(maintenant).split(":").map(Number);
