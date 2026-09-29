@@ -150,10 +150,27 @@ export function DocumentDetail({
                   href={fichier.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex aspect-square w-full flex-col items-center justify-center gap-1.5 rounded-2xl border border-line text-ink-2"
+                  className="relative flex aspect-square w-full flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border border-line text-ink-2"
                 >
-                  <PdfIcon />
-                  <span className="text-xs font-semibold">Ouvrir le PDF</span>
+                  {fichier.apercu_url ? (
+                    <>
+                      <Image
+                        src={fichier.apercu_url}
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 45vw, 300px"
+                        className="object-cover object-top"
+                      />
+                      <span className="absolute inset-x-0 bottom-0 bg-background/80 py-1 text-center text-xs font-semibold text-ink">
+                        Ouvrir le PDF
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <PdfIcon />
+                      <span className="text-xs font-semibold">Ouvrir le PDF</span>
+                    </>
+                  )}
                 </a>
                 {caption && <span className="text-center text-xs text-ink-3">{caption}</span>}
               </li>

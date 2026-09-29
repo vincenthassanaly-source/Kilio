@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
+import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { detecterFormat } from "@/lib/documents/detecterFormat";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types";
@@ -33,13 +34,48 @@ function extraireCheminStorage(url: string): string | null {
   return url.slice(index + marqueur.length);
 }
 
-type FichierUploade = { url: string; fichier_type: "image" | "pdf" };
+type FichierUploade = { url: string; fichier_type: "image" | "pdf"; apercu_url: string | null };
+
+const DOCUMENT_APERCU_MAX_DIMENSION = 640;
+
+// Enregistre l'image d'aperçu (1re page d'un PDF, générée côté client) dans
+// le bucket. Un aperçu est un plus : s'il est illisible ou si l'envoi échoue,
+// on renvoie null et le PDF reste ajouté avec son icône, sans faire échouer
+// toute l'opération.
+async function uploaderApercu(supabase: SupabaseClient, apercu: File | null): Promise<string | null> {
+  if (!apercu || apercu.size === 0) return null;
+  try {
+    const jpeg = await sharp(Buffer.from(await apercu.arrayBuffer()))
+      .resize(DOCUMENT_APERCU_MAX_DIMENSION, DOCUMENT_APERCU_MAX_DIMENSION, {
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({ quality: DOCUMENT_IMAGE_JPEG_QUALITY })
+      .toBuffer();
+    const chemin = `${crypto.randomUUID()}.jpg`;
+    const { error } = await supabase.storage
+      .from(DOCUMENTS_FICHIERS_BUCKET)
+      .upload(chemin, jpeg, { contentType: "image/jpeg" });
+    if (error) return null;
+    return supabase.storage.from(DOCUMENTS_FICHIERS_BUCKET).getPublicUrl(chemin).data.publicUrl;
+  } catch {
+    return null;
+  }
+}
+
+function fichierOuNull(valeur: FormDataEntryValue | null): File | null {
+  return valeur instanceof File && valeur.size > 0 ? valeur : null;
+}
 
 // Compresse les images (même pattern que compresserEtUploaderPhoto dans
 // collections.ts) ; les PDF sont uploadés tels quels, sharp ne les
 // supportant pas. Le format est reconnu d'après le contenu si le type MIME
-// est vide (voir detecterFormat).
-async function uploaderFichier(supabase: SupabaseClient, fichier: File): Promise<FichierUploade> {
+// est vide (voir detecterFormat). `apercu` : image de la 1re page d'un PDF.
+async function uploaderFichier(
+  supabase: SupabaseClient,
+  fichier: File,
+  apercu: File | null = null
+): Promise<FichierUploade> {
   const buffer = Buffer.from(await fichier.arrayBuffer());
   const format = detecterFormat(fichier, buffer);
 
@@ -64,7 +100,7 @@ async function uploaderFichier(supabase: SupabaseClient, fichier: File): Promise
       data: { publicUrl },
     } = supabase.storage.from(DOCUMENTS_FICHIERS_BUCKET).getPublicUrl(chemin);
 
-    return { url: publicUrl, fichier_type: "image" };
+    return { url: publicUrl, fichier_type: "image", apercu_url: null };
   }
 
   if (format !== "pdf") {
@@ -82,7 +118,7 @@ async function uploaderFichier(supabase: SupabaseClient, fichier: File): Promise
     data: { publicUrl },
   } = supabase.storage.from(DOCUMENTS_FICHIERS_BUCKET).getPublicUrl(chemin);
 
-  return { url: publicUrl, fichier_type: "pdf" };
+  return { url: publicUrl, fichier_type: "pdf", apercu_url: await uploaderApercu(supabase, apercu) };
 }
 
 // Upload un ou plusieurs fichiers et insère une ligne document_fichiers par
@@ -122,9 +158,14 @@ async function uploadDocumentFichiers(documentId: string, formData: FormData) {
 
   const ordreDepart = (derniere?.ordre ?? -1) + 1;
 
+  // Aperçus des PDF, générés côté client (voir DocumentForm) : un champ
+  // `apercu:<champ>` par fichier recto/verso, `apercu:fichiers:<n>` pour le
+  // n-ième fichier (hors fichiers vides) du sélecteur générique.
   if (rectoVerso.length > 0) {
     const uploades = await Promise.all(
-      rectoVerso.map(({ fichier }) => uploaderFichier(supabase, fichier))
+      rectoVerso.map(({ role, fichier }) =>
+        uploaderFichier(supabase, fichier, fichierOuNull(formData.get(`apercu:fichier_${role}`)))
+      )
     );
 
     const { error: insertError } = await supabase.from("document_fichiers").insert(
@@ -132,6 +173,7 @@ async function uploadDocumentFichiers(documentId: string, formData: FormData) {
         document_id: documentId,
         url: uploade.url,
         fichier_type: uploade.fichier_type,
+        apercu_url: uploade.apercu_url,
         ordre: ordreDepart + index,
         role: rectoVerso[index].role,
       }))
@@ -142,13 +184,18 @@ async function uploadDocumentFichiers(documentId: string, formData: FormData) {
   const ordreFichiersDepart = ordreDepart + rectoVerso.length;
 
   if (fichiers.length > 0) {
-    const uploades = await Promise.all(fichiers.map((fichier) => uploaderFichier(supabase, fichier)));
+    const uploades = await Promise.all(
+      fichiers.map((fichier, index) =>
+        uploaderFichier(supabase, fichier, fichierOuNull(formData.get(`apercu:fichiers:${index}`)))
+      )
+    );
 
     const { error: insertError } = await supabase.from("document_fichiers").insert(
       uploades.map((uploade, index) => ({
         document_id: documentId,
         url: uploade.url,
         fichier_type: uploade.fichier_type,
+        apercu_url: uploade.apercu_url,
         ordre: ordreFichiersDepart + index,
       }))
     );
@@ -163,16 +210,18 @@ export async function deleteDocumentFichier(fichierId: string) {
 
   const { data: fichier, error: fetchError } = await supabase
     .from("document_fichiers")
-    .select("url, document_id")
+    .select("url, apercu_url, document_id")
     .eq("id", fichierId)
     .single();
   if (fetchError) throw new Error(fetchError.message);
 
-  const chemin = extraireCheminStorage(fichier.url);
-  if (chemin) {
+  const chemins = [fichier.url, fichier.apercu_url]
+    .map((u) => (u ? extraireCheminStorage(u) : null))
+    .filter((c): c is string => c !== null);
+  if (chemins.length > 0) {
     const { error: removeError } = await supabase.storage
       .from(DOCUMENTS_FICHIERS_BUCKET)
-      .remove([chemin]);
+      .remove(chemins);
     if (removeError) throw new Error(removeError.message);
   }
 
@@ -180,6 +229,37 @@ export async function deleteDocumentFichier(fichierId: string) {
   if (error) throw new Error(error.message);
 
   revalidateDocumentsPaths(fichier.document_id);
+}
+
+// Rattrapage : enregistre l'aperçu d'un PDF déjà stocké (ajouté avant la
+// colonne `apercu_url`, ou dont le rendu avait échoué). Appelée depuis la
+// liste, qui génère l'image côté client. Ne remplace jamais un aperçu
+// existant (deux onglets ouverts : le second ne fait rien).
+export async function enregistrerApercuPdf(fichierId: string, formData: FormData): Promise<ActionResult> {
+  const apercu = fichierOuNull(formData.get("apercu"));
+  if (!apercu) return fail("Aperçu manquant.");
+
+  const supabase = createAdminClient();
+  const { data: fichier, error: fetchError } = await supabase
+    .from("document_fichiers")
+    .select("fichier_type, apercu_url, document_id")
+    .eq("id", fichierId)
+    .maybeSingle();
+  if (fetchError) return fail(fetchError.message);
+  if (!fichier || fichier.fichier_type !== "pdf" || fichier.apercu_url) return ok();
+
+  const apercuUrl = await uploaderApercu(supabase, apercu);
+  if (!apercuUrl) return fail("Impossible d'enregistrer l'aperçu.");
+
+  const { error } = await supabase
+    .from("document_fichiers")
+    .update({ apercu_url: apercuUrl })
+    .eq("id", fichierId)
+    .is("apercu_url", null);
+  if (error) return fail(error.message);
+
+  revalidateDocumentsPaths(fichier.document_id);
+  return ok();
 }
 
 // --- Étiquettes ---
@@ -387,12 +467,13 @@ export async function deleteDocument(id: string) {
 
   const { data: fichiers, error: fetchError } = await supabase
     .from("document_fichiers")
-    .select("url")
+    .select("url, apercu_url")
     .eq("document_id", id);
   if (fetchError) throw new Error(fetchError.message);
 
   const chemins = (fichiers ?? [])
-    .map((f) => extraireCheminStorage(f.url))
+    .flatMap((f) => [f.url, f.apercu_url])
+    .map((u) => (u ? extraireCheminStorage(u) : null))
     .filter((c): c is string => c !== null);
   if (chemins.length > 0) {
     const { error: removeError } = await supabase.storage.from(DOCUMENTS_FICHIERS_BUCKET).remove(chemins);

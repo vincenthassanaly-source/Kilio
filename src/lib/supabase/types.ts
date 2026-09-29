@@ -271,6 +271,7 @@ export type Database = {
       }
       document_fichiers: {
         Row: {
+          apercu_url: string | null
           created_at: string
           document_id: string
           fichier_type: string
@@ -280,6 +281,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          apercu_url?: string | null
           created_at?: string
           document_id: string
           fichier_type: string
@@ -289,6 +291,7 @@ export type Database = {
           url: string
         }
         Update: {
+          apercu_url?: string | null
           created_at?: string
           document_id?: string
           fichier_type?: string

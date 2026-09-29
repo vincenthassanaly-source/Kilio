@@ -13,9 +13,28 @@ import type { Tables } from "@/lib/supabase/types";
 import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { MESSAGE_HORS_LIGNE, estErreurReseau } from "@/lib/actions/runAction";
+import { estPdf, genererApercuPdf } from "@/lib/pdf/apercuPdf";
 import { ErreurLectureFichier, TAILLE_MAX_REQUETE_OCTETS, compresserFormData, formatTaille } from "@/lib/images/compression";
 
 const initialState: DocumentFormState = { error: null };
+
+// Ajoute au FormData l'aperçu (1re page, JPEG) de chaque PDF, sous les noms
+// lus par uploadDocumentFichiers : `apercu:fichier_recto|verso`, et
+// `apercu:fichiers:<n>` pour le n-ième fichier non vide de « fichiers ». Un
+// rendu impossible n'ajoute rien : le PDF part quand même, avec son icône.
+async function ajouterApercusPdf(formData: FormData) {
+  async function ajouter(fichier: File, nom: string) {
+    if (!(await estPdf(fichier))) return;
+    const apercu = await genererApercuPdf(fichier);
+    if (apercu) formData.append(nom, apercu, "apercu.jpg");
+  }
+  for (const champ of ["fichier_recto", "fichier_verso"]) {
+    const fichier = formData.get(champ);
+    if (fichier instanceof File && fichier.size > 0) await ajouter(fichier, `apercu:${champ}`);
+  }
+  const fichiers = formData.getAll("fichiers").filter((f): f is File => f instanceof File && f.size > 0);
+  for (const [index, fichier] of fichiers.entries()) await ajouter(fichier, `apercu:fichiers:${index}`);
+}
 
 const CATEGORIES = ["Identité", "Véhicule", "Logement", "Santé", "Assurance", "Autre"] as const;
 
@@ -176,6 +195,7 @@ export function DocumentForm({
           error: `Fichiers trop lourds (${formatTaille(taille)}, maximum ${formatTaille(TAILLE_MAX_REQUETE_OCTETS)} par envoi) : ajoute-les en plusieurs fois, ou réduis la taille des PDF.`,
         };
       }
+      await ajouterApercusPdf(formData);
       return await action(precedent, formData);
     } catch (err) {
       console.error("Échec de l'enregistrement du document", err);
