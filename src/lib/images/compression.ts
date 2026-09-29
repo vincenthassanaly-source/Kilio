@@ -124,6 +124,41 @@ export function formatTaille(octets: number): string {
   return `${(octets / (1024 * 1024)).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} Mo`;
 }
 
+/** Fichier choisi mais illisible : le message est prêt à être affiché tel quel. */
+export class ErreurLectureFichier extends Error {}
+
+const TYPES_PAR_EXTENSION: Record<string, string> = {
+  pdf: "application/pdf",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif",
+};
+
+/**
+ * Lit le fichier en mémoire avant l'envoi. Un `File` choisi sur Android reste
+ * une simple référence vers le fichier du téléphone : s'il n'est plus lisible
+ * au moment où `fetch` le lit (Drive non téléchargé, accès révoqué), la
+ * requête est coupée avec un obscur « TypeError : Failed to fetch » alors que
+ * le réseau va bien. Les photos y échappaient (recopiées par la compression),
+ * pas les PDF. Lire ici transforme cet échec en erreur claire, avant l'envoi.
+ * Complète aussi un type MIME vide d'après l'extension.
+ */
+async function copierEnMemoire(fichier: File): Promise<File> {
+  let contenu: ArrayBuffer;
+  try {
+    contenu = await fichier.arrayBuffer();
+  } catch {
+    throw new ErreurLectureFichier(
+      `Impossible de lire « ${fichier.name} » : le fichier n'est plus accessible. Choisis-le de nouveau, ou enregistre-le d'abord sur le téléphone.`
+    );
+  }
+  const extension = fichier.name.split(".").pop()?.toLowerCase() ?? "";
+  const type = fichier.type || TYPES_PAR_EXTENSION[extension] || "";
+  return new File([contenu], fichier.name, { type, lastModified: fichier.lastModified });
+}
+
 /**
  * Remplace, dans un FormData prêt à partir vers une Server Action, les
  * photos des champs `champs` par leur version compressée, et renvoie la
@@ -138,7 +173,7 @@ export async function compresserFormData(formData: FormData, champs: string[]): 
     formData.delete(champ);
     for (const valeur of valeurs) {
       if (valeur instanceof File && valeur.size > 0) {
-        const compresse = await compresserImage(valeur);
+        const compresse = await compresserImage(await copierEnMemoire(valeur));
         total += compresse.size;
         formData.append(champ, compresse);
       } else {
