@@ -238,6 +238,61 @@ describe("interpreterReponse — tâches", () => {
   });
 });
 
+describe("interpreterReponse — valeurs vides (schéma sans `nullable`)", () => {
+  const vide = {
+    titre: "Envoyer mon colis SFR",
+    date: "",
+    heure: "",
+    heure_fin: "",
+    toute_la_journee: false,
+    priorite: "aucune",
+    rappel_minutes: 0,
+    recurrence_frequence: "",
+    recurrence_non_supportee: "",
+    recurrence_fin: "",
+    liste: "",
+    tags: [],
+  };
+
+  it("traite chaînes vides et 0 comme des valeurs absentes, sans avertissement", () => {
+    const r = interpreter({ question: { texte: "", choix: [] }, taches: [vide] });
+
+    expect(r.statut).toBe("taches");
+    if (r.statut !== "taches") return;
+    expect(r.taches[0]).toMatchObject({
+      titre: "Envoyer mon colis SFR",
+      echeance: null,
+      heure: null,
+      heure_fin: null,
+      rappel_minutes: null,
+      recurrence_frequence: null,
+      recurrence_fin: null,
+      listeId: "l-perso",
+      nouvelleListe: null,
+      tagIds: [],
+      nouveauxTags: [],
+      avertissements: [],
+    });
+  });
+
+  it("garde le défaut de rappel (5 min) quand une heure est donnée et rappel_minutes vaut 0", () => {
+    const r = interpreter({
+      question: { texte: "", choix: [] },
+      taches: [{ ...vide, date: "2026-10-02", heure: "10:00" }],
+    });
+
+    expect(r.statut === "taches" && r.taches[0]).toMatchObject({
+      echeance: "2026-10-02",
+      heure: "10:00",
+      rappel_minutes: 5,
+    });
+  });
+
+  it("une question à texte vide n'est pas une question", () => {
+    expect(interpreter({ question: { texte: "", choix: [] }, taches: [] })).toEqual({ statut: "vide" });
+  });
+});
+
 describe("interpreterReponse — questions", () => {
   const question = { texte: "Quel jeudi ?", choix: ["Aujourd'hui", "Jeudi prochain", "", "x".repeat(80)] };
 

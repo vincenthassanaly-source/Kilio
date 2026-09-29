@@ -385,23 +385,24 @@ export function construirePrompt(input: {
     "",
     "Règles :",
     "- Une tâche par action distincte ; le titre est court, à l'infinitif ou nominal, sans la date ni l'heure.",
-    "- `date` : AAAA-MM-JJ, tirée du calendrier ci-dessus. Sans jour cité, null. Pour une répétition, `date` est la première occurrence.",
-    "- `heure` et `heure_fin` : HH:MM en 24 h. Une durée (« 1h ») donne `heure_fin`. Sans heure citée, null. `toute_la_journee` vaut true seulement si Vincent le dit.",
-    "- `rappel_minutes` : minutes avant l'heure (« la veille » = 1440, « 2 h avant » = 120). Sans rappel demandé, null.",
+    "- Toutes les propriétés sont obligatoires : quand une information est absente du texte, mets une chaîne vide (0 pour `rappel_minutes`, une liste vide pour `tags`), jamais null.",
+    "- `date` : AAAA-MM-JJ, tirée du calendrier ci-dessus. Sans jour cité, chaîne vide. Pour une répétition, `date` est la première occurrence.",
+    "- `heure` et `heure_fin` : HH:MM en 24 h. Une durée (« 1h ») donne `heure_fin`. Sans heure citée, chaîne vide. `toute_la_journee` vaut true seulement si Vincent le dit.",
+    "- `rappel_minutes` : minutes avant l'heure (« la veille » = 1440, « 2 h avant » = 120). Sans rappel demandé, 0.",
     "- `priorite` : aucune, basse, moyenne ou haute (« urgent » = haute). Sans indice, aucune.",
-    "- Répétition : `recurrence_frequence` seulement pour quotidien, hebdomadaire, mensuel, annuel. Tout autre rythme (« tous les 15 jours ») : `recurrence_frequence` null et `recurrence_non_supportee` reprend l'expression citée.",
-    "- `liste` : nom cité par Vincent (reprends l'orthographe d'une liste existante si elle correspond), sinon null. `tags` : seulement ceux cités.",
+    "- Répétition : `recurrence_frequence` vaut quotidien, hebdomadaire, mensuel ou annuel, sinon chaîne vide. Tout autre rythme (« tous les 15 jours ») : `recurrence_frequence` vide et `recurrence_non_supportee` reprend l'expression citée (sinon vide). `recurrence_fin` : AAAA-MM-JJ si une fin est citée, sinon chaîne vide.",
+    "- `liste` : nom cité par Vincent (reprends l'orthographe d'une liste existante si elle correspond), sinon chaîne vide. `tags` : seulement ceux cités.",
     "- N'invente aucune information absente du texte."
   );
 
   if (questionsRestantes > 0) {
     lignes.push(
       `- Tu peux poser UNE question de précision (il te reste ${questionsRestantes} question(s)), uniquement dans ces cas : (1) un jour de la semaine cité qui est aujourd'hui (« jeudi » un jeudi) ; (2) un rappel demandé sans heure ; (3) une heure ambiguë matin/soir (« 8h ») ; (4) aucun titre reconnaissable. Dans tous les autres cas, tranche sans demander.`,
-      "- Pour poser une question : remplis `question` (`texte` court, `choix` de 2 à 4 réponses courtes) et laisse `taches` vide. Sinon `question` vaut null."
+      "- Pour poser une question : remplis `question` (`texte` court, `choix` de 2 à 4 réponses courtes) et laisse `taches` vide. Sinon `question.texte` est une chaîne vide et `question.choix` une liste vide."
     );
   } else {
     lignes.push(
-      "- Tu ne peux plus poser de question : choisis l'interprétation la plus probable. `question` vaut null."
+      "- Tu ne peux plus poser de question : choisis l'interprétation la plus probable. `question.texte` reste une chaîne vide et `question.choix` une liste vide."
     );
   }
 

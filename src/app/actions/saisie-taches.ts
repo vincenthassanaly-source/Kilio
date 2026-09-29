@@ -20,7 +20,9 @@ import { createTache, getListes, getTags } from "./taches";
 export type AnalyseSaisie =
   | { statut: "taches"; taches: TachePropose[] }
   | { statut: "question"; question: string; choix: string[] }
-  | { statut: "erreur"; code: "quota" | "echec" | "incomprehensible"; message: string };
+  // `detail` : cause technique courte (statut HTTP, délai dépassé…), affichée
+  // sous le message pour qu'un échec ne reste pas un mystère.
+  | { statut: "erreur"; code: "quota" | "echec" | "incomprehensible"; message: string; detail?: string };
 
 const MESSAGE_QUOTA = "Le quota gratuit de Gemini est atteint pour le moment. Réessaie plus tard.";
 const MESSAGE_ECHEC = "L'analyse a échoué. Réessaie.";
@@ -52,12 +54,35 @@ export async function analyserSaisieTaches(
   const precisionsOk = precisionsValides(precisions);
   if (!precisionsOk) return fail("Requête invalide.");
 
+  // Toute exception inattendue est rattrapée ici : une exception levée par une
+  // Server Function arrive masquée en production, et le client n'afficherait
+  // qu'un message générique sans cause.
+  try {
+    return ok(await analyser(propre, precisionsOk));
+  } catch (err) {
+    console.error("[saisie-taches] Exception inattendue pendant l'analyse.", err);
+    const message = err instanceof Error ? err.message : "erreur inconnue";
+    return ok({
+      statut: "erreur",
+      code: "echec",
+      message: MESSAGE_ECHEC,
+      detail: `Erreur serveur inattendue : ${message}`.slice(0, 200),
+    });
+  }
+}
+
+async function analyser(propre: string, precisions: PrecisionDonnee[]): Promise<AnalyseSaisie> {
   let listes, tags;
   try {
     [listes, tags] = await Promise.all([getListes(), getTags()]);
   } catch (err) {
     console.error("[saisie-taches] Lecture des listes/tags impossible.", err);
-    return fail(MESSAGE_ECHEC);
+    return {
+      statut: "erreur",
+      code: "echec",
+      message: MESSAGE_ECHEC,
+      detail: "Lecture des listes et des tags impossible.",
+    };
   }
 
   const ctx = {
@@ -66,22 +91,21 @@ export async function analyserSaisieTaches(
     tags: tags.map((t) => ({ id: t.id, nom: t.nom })),
   };
 
-  const reponse = await appelerGeminiSaisie(
-    construirePrompt({ texte: propre, precisions: precisionsOk, ctx })
-  );
+  const reponse = await appelerGeminiSaisie(construirePrompt({ texte: propre, precisions, ctx }));
   if (!reponse.ok) {
-    return ok(
-      reponse.code === "quota"
-        ? { statut: "erreur", code: "quota", message: MESSAGE_QUOTA }
-        : { statut: "erreur", code: "echec", message: MESSAGE_ECHEC }
-    );
+    return {
+      statut: "erreur",
+      code: reponse.code,
+      message: reponse.code === "quota" ? MESSAGE_QUOTA : MESSAGE_ECHEC,
+      detail: reponse.detail,
+    };
   }
 
-  const resultat = interpreterReponse(reponse.brut, ctx, MAX_QUESTIONS - precisionsOk.length);
+  const resultat = interpreterReponse(reponse.brut, ctx, MAX_QUESTIONS - precisions.length);
   if (resultat.statut === "vide") {
-    return ok({ statut: "erreur", code: "incomprehensible", message: MESSAGE_INCOMPRIS });
+    return { statut: "erreur", code: "incomprehensible", message: MESSAGE_INCOMPRIS };
   }
-  return ok(resultat);
+  return resultat;
 }
 
 // --- Création ---
