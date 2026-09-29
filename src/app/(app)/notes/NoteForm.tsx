@@ -296,7 +296,7 @@ export function NoteForm({
           <textarea
             id={`${uid}-contenu`}
             name="contenu"
-            rows={5}
+            rows={note ? 12 : 5}
             defaultValue={note?.contenu}
             className={input}
           />

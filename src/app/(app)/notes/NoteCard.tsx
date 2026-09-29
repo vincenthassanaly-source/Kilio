@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteNote, toggleEpingle, toggleNoteItem, type NoteAvecRelations } from "@/app/actions/notes";
 import { queryKeys } from "@/lib/query/keys";
 import { showToast } from "@/components/toast/toast-store";
 import { noteBackgroundStyle } from "@/lib/notes/palette";
 import { CheckToggle } from "@/components/CheckToggle";
+import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, ghostButton, nameText, pillTag } from "@/lib/ui";
+import { card, dangerButton, ghostButton, nameText, pillTag, primaryButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -43,10 +44,12 @@ function PinIcon({ filled }: { filled: boolean }) {
 }
 
 export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables<"tags">[] }) {
-  const [editing, setEditing] = useState(false);
+  // Lecture et édition s'ouvrent dans une feuille plein largeur (Modal) : la
+  // tuile est une colonne de ~half-écran, trop étroite pour lire ou éditer.
+  const [mode, setMode] = useState<"closed" | "view" | "edit">("closed");
   const reduceMotion = useReducedMotion() ?? false;
   const queryClient = useQueryClient();
-  useBackClose(editing, () => setEditing(false));
+  useBackClose(mode !== "closed", () => setMode("closed"));
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: queryKeys.notes });
@@ -151,26 +154,10 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
     onSettled: invalidate,
   });
 
-  if (editing) {
-    return (
-      <li className={`${card} mb-3 break-inside-avoid`}>
-        <NoteForm
-          note={note}
-          tags={tags}
-          onDone={() => {
-            setEditing(false);
-            invalidate();
-          }}
-        />
-        <button
-          type="button"
-          onClick={() => setEditing(false)}
-          className="mt-2 text-sm text-ink-2 underline"
-        >
-          Annuler
-        </button>
-      </li>
-    );
+  function supprimer() {
+    if (!confirmDelete(`Supprimer la note « ${note.titre} » ?`)) return;
+    setMode("closed");
+    deleteMutation.mutate();
   }
 
   const itemsCoches = note.items.filter((i) => i.coche).length;
@@ -192,7 +179,14 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
       style={noteBackgroundStyle(note.couleur)}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className={nameText}>{note.titre}</p>
+        <button
+          type="button"
+          onClick={() => setMode("view")}
+          aria-label={`Ouvrir la note ${note.titre}`}
+          className={`${nameText} min-w-0 flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal rounded-md`}
+        >
+          {note.titre}
+        </button>
         <button
           type="button"
           disabled={pinMutation.isPending}
@@ -206,7 +200,17 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
       </div>
 
       {note.type === "texte" ? (
-        note.contenu && <p className="line-clamp-6 whitespace-pre-wrap text-sm text-ink-2">{note.contenu}</p>
+        note.contenu && (
+          <button
+            type="button"
+            onClick={() => setMode("view")}
+            tabIndex={-1}
+            aria-hidden="true"
+            className="text-left"
+          >
+            <p className="line-clamp-6 whitespace-pre-wrap text-sm text-ink-2">{note.contenu}</p>
+          </button>
+        )
       ) : (
         <div className="flex flex-col gap-1.5">
           {note.items.length > 0 && (
@@ -230,7 +234,11 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
               </span>
             </div>
           ))}
-          {itemsRestants > 0 && <p className="text-xs text-ink-3">+{itemsRestants} autres</p>}
+          {itemsRestants > 0 && (
+            <button type="button" onClick={() => setMode("view")} className="self-start text-xs text-ink-3">
+              +{itemsRestants} autres
+            </button>
+          )}
         </div>
       )}
 
@@ -245,21 +253,88 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
       )}
 
       <div className="flex justify-end gap-2">
-        <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
+        <button type="button" onClick={() => setMode("edit")} className={ghostButton}>
           Modifier
         </button>
         <button
           type="button"
           disabled={deleteMutation.isPending}
-          onClick={() => {
-            if (!confirmDelete(`Supprimer la note « ${note.titre} » ?`)) return;
-            deleteMutation.mutate();
-          }}
+          onClick={supprimer}
           className={dangerButton}
         >
           Suppr.
         </button>
       </div>
+
+      <AnimatePresence>
+        {mode === "view" && (
+          <Modal key="lecture" title={note.titre} onClose={() => setMode("closed")}>
+            <div className="flex flex-col gap-4">
+              {note.type === "texte" ? (
+                note.contenu ? (
+                  <p className="whitespace-pre-wrap break-words text-base leading-relaxed text-ink">{note.contenu}</p>
+                ) : (
+                  <p className="text-sm text-ink-3">Note vide.</p>
+                )
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {note.items.length > 0 && (
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-alt">
+                      <div className="h-full rounded-full bg-kcal" style={{ width: `${progression}%` }} />
+                    </div>
+                  )}
+                  {note.items.map((item) => (
+                    <div key={item.id} className="flex items-start gap-3">
+                      <CheckToggle
+                        checked={item.coche}
+                        onToggle={() => itemMutation.mutate({ itemId: item.id, coche: !item.coche })}
+                        label={item.coche ? "Décocher l'item" : "Cocher l'item"}
+                        size={22}
+                        hitSlop={6}
+                      />
+                      <span className={`text-base ${item.coche ? "text-ink-3 line-through" : "text-ink"}`}>
+                        {item.libelle}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {note.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {note.tags.map((tag) => (
+                    <span key={tag.id} className={pillTag} style={couleurTagStyle(tag.couleur)}>
+                      #{tag.nom}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setMode("edit")} className={`${primaryButton} flex-1`}>
+                  Modifier
+                </button>
+                <button type="button" onClick={supprimer} className={dangerButton}>
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+        {mode === "edit" && (
+          <Modal key="edition" title="Modifier la note" onClose={() => setMode("closed")}>
+            <NoteForm
+              note={note}
+              tags={tags}
+              onDone={() => {
+                setMode("closed");
+                invalidate();
+              }}
+            />
+            <button type="button" onClick={() => setMode("closed")} className="mt-2 text-sm text-ink-2 underline">
+              Annuler
+            </button>
+          </Modal>
+        )}
+      </AnimatePresence>
     </motion.li>
   );
 }
