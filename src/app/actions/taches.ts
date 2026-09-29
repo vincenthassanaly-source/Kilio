@@ -6,7 +6,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiISO } from "@/lib/budget/compute";
 import type { Enums, Tables } from "@/lib/supabase/types";
-import { appliquerCochage, messageAvertissementCreation } from "@/lib/taches/compute";
+import {
+  RAPPEL_MINUTES_VALEURS,
+  appliquerCochage,
+  messageAvertissementCreation,
+} from "@/lib/taches/compute";
 
 // `id` : renseigné par createTache en cas de succès (id de la tâche créée,
 // pour que l'UI puisse la mettre en évidence) ; absent pour updateTache et
@@ -27,7 +31,6 @@ const FREQUENCES: readonly Enums<"frequence_recurrence">[] = [
 ];
 
 const HEURE_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
-const RAPPEL_MINUTES_VALEURS = [5, 15, 30, 60, 1440] as const;
 
 function revalidateTachesPaths() {
   revalidatePath("/taches");

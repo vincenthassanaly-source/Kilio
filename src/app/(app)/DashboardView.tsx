@@ -7,6 +7,7 @@ import { DashboardNutritionCard } from "./DashboardNutritionCard";
 import { DashboardTachesCard } from "./DashboardTachesCard";
 import { DashboardHabitudesCard } from "./DashboardHabitudesCard";
 import { DashboardProgrammeCard } from "./DashboardProgrammeCard";
+import { DashboardSaisieIACard } from "./DashboardSaisieIACard";
 import { QuickAddFab } from "./QuickAddFab";
 
 // Silhouette des cartes "Aujourd'hui" + "Prochain événement", identique au
@@ -55,6 +56,10 @@ function HabitudesSkeleton() {
 export function DashboardView() {
   return (
     <>
+      <ViewTransition enter="dashboard-reveal-enter" default="none">
+        <DashboardSaisieIACard />
+      </ViewTransition>
+
       <ViewTransition enter="dashboard-reveal-enter" default="none">
         <DashboardProgrammeCard />
       </ViewTransition>

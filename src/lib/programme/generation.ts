@@ -4,7 +4,7 @@
 // un échec renvoie `null` et l'appelant (app/actions/programme.ts) affiche un
 // message d'échec plutôt qu'une proposition inventée.
 
-const GEMINI_MODEL = "gemini-3.1-flash-lite";
+export const GEMINI_MODEL = "gemini-3.1-flash-lite";
 const GEMINI_TIMEOUT_MS = 8000;
 const MAX_PROPOSITIONS = 5;
 

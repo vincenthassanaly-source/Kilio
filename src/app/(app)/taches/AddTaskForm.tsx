@@ -10,7 +10,7 @@ import {
 } from "@/app/actions/taches";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { FREQUENCE_LABELS, aujourdhuiISO } from "@/lib/budget/compute";
-import { champsAvancesRenseignes, messageHorsLigne } from "@/lib/taches/compute";
+import { champsAvancesRenseignes, messageHorsLigne, type TacheInitiale } from "@/lib/taches/compute";
 import { isNetworkError } from "@/lib/offline/queue";
 import { errorText, input, label as labelClass, primaryButton, secondaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
@@ -91,6 +91,7 @@ export function AddTaskForm({
   defaultListeId,
   defaultEcheance,
   defaultHeure,
+  initial,
   onDone,
 }: {
   tache?: TacheAvecRelations;
@@ -99,6 +100,9 @@ export function AddTaskForm({
   defaultListeId?: string;
   defaultEcheance?: string;
   defaultHeure?: string;
+  // Valeurs de départ en création (saisie en langage naturel) ; ignorées
+  // dès que `tache` est fourni.
+  initial?: TacheInitiale;
   // `id` : id de la tâche créée (création réussie uniquement, cf.
   // TacheFormState). `avertissement` : la tâche est créée mais une étape
   // secondaire (tags, images) a échoué. Les appelants qui n'en ont pas
@@ -128,7 +132,7 @@ export function AddTaskForm({
   const [state, formAction, pending] = useActionState(action, initialState);
   const prevPending = useRef(pending);
 
-  const [titre, setTitre] = useState(tache?.titre ?? "");
+  const [titre, setTitre] = useState(tache?.titre ?? initial?.titre ?? "");
   const titreRef = useRef<HTMLTextAreaElement>(null);
   const echeanceRef = useRef<HTMLInputElement>(null);
   // Suivent l'état d'envoi hors rendu, pour que l'envoi par la touche Entrée
@@ -142,18 +146,39 @@ export function AddTaskForm({
   // sont déjà renseignés : en édition, ou en création avec une heure
   // pré-remplie (créneau choisi dans l'Agenda) qu'on ne doit pas cacher.
   const [optionsOuvertes, setOptionsOuvertes] = useState(() =>
-    tache ? champsAvancesRenseignes(tache) : Boolean(defaultHeure)
+    tache
+      ? champsAvancesRenseignes(tache)
+      : Boolean(
+          defaultHeure ||
+            initial?.heure_fin ||
+            initial?.rappel_minutes != null ||
+            initial?.recurrence_frequence ||
+            initial?.toute_la_journee ||
+            initial?.tagIds?.length ||
+            initial?.nouveauxTags?.length ||
+            (initial?.priorite && initial.priorite !== "aucune")
+        )
   );
 
-  const [priorite, setPriorite] = useState<Enums<"priorite_tache">>(tache?.priorite ?? "aucune");
+  const [priorite, setPriorite] = useState<Enums<"priorite_tache">>(
+    tache?.priorite ?? initial?.priorite ?? "aucune"
+  );
   const [programmeJour, setProgrammeJour] = useState(tache?.programme_jour ?? false);
-  const [frequence, setFrequence] = useState<string>(tache?.recurrence_frequence ?? "");
-  const [tagIds, setTagIds] = useState<string[]>(tache?.tags.map((t) => t.id) ?? []);
-  const [touteLaJournee, setTouteLaJournee] = useState(tache?.toute_la_journee ?? false);
+  const [frequence, setFrequence] = useState<string>(
+    tache?.recurrence_frequence ?? initial?.recurrence_frequence ?? ""
+  );
+  const [tagIds, setTagIds] = useState<string[]>(tache?.tags.map((t) => t.id) ?? initial?.tagIds ?? []);
+  const [touteLaJournee, setTouteLaJournee] = useState(
+    tache?.toute_la_journee ?? initial?.toute_la_journee ?? false
+  );
   const [heure, setHeure] = useState(tache?.heure?.slice(0, 5) ?? defaultHeure ?? "");
-  const [heureFin, setHeureFin] = useState(tache?.heure_fin?.slice(0, 5) ?? "");
+  const [heureFin, setHeureFin] = useState(tache?.heure_fin?.slice(0, 5) ?? initial?.heure_fin ?? "");
   const [rappelMinutes, setRappelMinutes] = useState(
-    tache?.rappel_minutes != null ? String(tache.rappel_minutes) : ""
+    tache?.rappel_minutes != null
+      ? String(tache.rappel_minutes)
+      : initial?.rappel_minutes != null
+        ? String(initial.rappel_minutes)
+        : ""
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -617,7 +642,13 @@ export function AddTaskForm({
             <label htmlFor={`${uid}-nouveaux_tags`} className={labelClass}>
               Nouveaux tags (optionnel, séparés par une virgule)
             </label>
-            <input id={`${uid}-nouveaux_tags`} name="nouveaux_tags" placeholder="urgent, maison" className={input} />
+            <input
+              id={`${uid}-nouveaux_tags`}
+              name="nouveaux_tags"
+              defaultValue={initial?.nouveauxTags?.join(", ") ?? ""}
+              placeholder="urgent, maison"
+              className={input}
+            />
           </div>
 
           <div className="flex flex-col gap-1">
@@ -649,7 +680,7 @@ export function AddTaskForm({
                 id={`${uid}-recurrence_fin`}
                 name="recurrence_fin"
                 type="date"
-                defaultValue={tache?.recurrence_fin ?? ""}
+                defaultValue={tache?.recurrence_fin ?? initial?.recurrence_fin ?? ""}
                 className={input}
               />
             </div>

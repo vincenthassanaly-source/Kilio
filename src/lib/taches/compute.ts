@@ -85,6 +85,26 @@ export function libelleNombreTaches(total: number): string {
   return total === 1 ? "1 tâche" : `${total} tâches`;
 }
 
+// Valeurs de rappel acceptées par le serveur (parseTacheInput) et proposées
+// par le formulaire. Ici plutôt que dans actions/taches.ts : un fichier
+// "use server" ne peut exporter que des fonctions asynchrones.
+export const RAPPEL_MINUTES_VALEURS = [5, 15, 30, 60, 1440] as const;
+
+// Valeurs de départ d'un formulaire de création pré-rempli (saisie en langage
+// naturel : « Modifier » une tâche proposée, ou création simple depuis un
+// texte). Sans effet en édition, où `tache` fait foi.
+export type TacheInitiale = {
+  titre?: string;
+  priorite?: Enums<"priorite_tache">;
+  toute_la_journee?: boolean;
+  heure_fin?: string | null;
+  rappel_minutes?: number | null;
+  recurrence_frequence?: Enums<"frequence_recurrence"> | null;
+  recurrence_fin?: string | null;
+  tagIds?: string[];
+  nouveauxTags?: string[];
+};
+
 export type ChampsAvancesTache = Pick<
   Tables<"taches">,
   | "heure"
