@@ -1,6 +1,5 @@
 "use client";
 
-import { db } from "./db";
 import { decisionApresEchec, decisionAvantExecution } from "./flush-policy";
 import { showToast } from "@/components/toast/toast-store";
 import { setTacheFait, deleteTache } from "@/app/actions/taches";
@@ -38,11 +37,21 @@ const ACTIONS: Record<string, Record<string, ActionFn>> = {
   habitudes: { enregistrerEntreeHabitude, supprimerHabitude },
 };
 
+// Dexie (~100 Ko) est chargé à la demande : `db.ts` ne fait plus partie du JS
+// initial des routes. `preloadOfflineDb` (appelé au démarrage, voir
+// useOnlineSync.ts) le télécharge une fois en ligne, ce qui le place dans le
+// cache du service worker pour qu'`enqueueAction` fonctionne ensuite hors
+// ligne.
+export async function preloadOfflineDb() {
+  return (await import("./db")).db;
+}
+
 // Ré-exportée pour compat : tous les appelants existants importent
 // `isNetworkError` depuis ce fichier (`@/lib/offline/queue`).
 export { isNetworkError };
 
 export async function enqueueAction(module: string, actionName: string, payload: unknown[]) {
+  const db = await preloadOfflineDb();
   await db.pending_actions.add({
     module,
     action_name: actionName,
@@ -78,6 +87,7 @@ export async function flushQueue(): Promise<ResultatFlush> {
   if (flushing) return { synced: 0, abandoned: 0 };
   flushing = true;
   try {
+    const db = await preloadOfflineDb();
     const pending = await db.pending_actions.orderBy("created_at").toArray();
     if (pending.length === 0) return { synced: 0, abandoned: 0 };
 
