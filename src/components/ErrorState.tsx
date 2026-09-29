@@ -22,9 +22,10 @@ function AlertIcon() {
 
 /** Contenu visuel commun aux deux error.tsx (racine et groupe `(app)`) :
  * un fallback rassurant plutôt que l'écran blanc par défaut de Next.js.
- * `reset` relance le rendu du segment ; le lien vers l'accueil sert de
+ * `retry` relance le rendu du segment (y compris côté serveur, contrairement
+ * à `reset`) ; le lien vers l'accueil sert de
  * secours si l'erreur persiste après le retry. */
-export function ErrorState({ reset }: { reset: () => void }) {
+export function ErrorState({ retry }: { retry: () => void }) {
   return (
     <div className="flex flex-col items-center gap-4 py-10 text-center">
       <div className={`${card} flex w-full max-w-sm flex-col items-center gap-3`}>
@@ -41,7 +42,7 @@ export function ErrorState({ reset }: { reset: () => void }) {
           </p>
         </div>
         <div className="flex w-full flex-col items-center gap-2 pt-1">
-          <button type="button" onClick={reset} className={`${primaryButton} w-full`}>
+          <button type="button" onClick={retry} className={`${primaryButton} w-full`}>
             Réessayer
           </button>
           <Link href="/" className={linkButton}>

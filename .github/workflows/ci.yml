@@ -1,0 +1,52 @@
+name: CI
+
+# Garde-fous avant fusion vers kiliomain (déploiement Vercel immédiat) :
+# lint, types, tests unitaires, puis le rig e2e (build de production contre un
+# faux Supabase, voir instant-nav.rig.md) qui garde les coquilles instantanées.
+on:
+  pull_request:
+    branches: [kiliomain]
+  push:
+    branches: [kiliomain]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      # LayoutProps & co. sont générés par Next (.next/types) : absents d'un
+      # dépôt fraîchement cloné, donc tsc échouerait sans cette étape.
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: npx vitest run
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:instant
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/

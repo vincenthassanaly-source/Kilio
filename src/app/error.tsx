@@ -7,10 +7,10 @@ import { ErrorState } from "@/components/ErrorState";
 // notamment le flux de partage natif Android (/collection/partage/*).
 export default function RootError({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -24,7 +24,7 @@ export default function RootError({
         paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)",
       }}
     >
-      <ErrorState reset={reset} />
+      <ErrorState retry={retry} />
     </div>
   );
 }
