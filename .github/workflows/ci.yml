@@ -25,6 +25,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      # LayoutProps & co. sont générés par Next (.next/types) : absents d'un
+      # dépôt fraîchement cloné, donc tsc échouerait sans cette étape.
+      - run: npx next typegen
       - run: npx tsc --noEmit
       - run: npx vitest run
 
