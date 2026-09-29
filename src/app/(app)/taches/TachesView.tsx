@@ -7,7 +7,13 @@ import { addDays, format } from "date-fns";
 import { aujourdhuiISO } from "@/lib/budget/compute";
 import { getListes, getTachesAvecRelations, getTags } from "@/app/actions/taches";
 import { normalizeSearch } from "@/lib/normalize";
-import { DUREE_TOAST_AVERTISSEMENT_MS, echeanceParDefaut, type VueTache } from "@/lib/taches/compute";
+import {
+  DUREE_TOAST_AVERTISSEMENT_MS,
+  actualisationEchouee,
+  echeanceParDefaut,
+  etatListeTaches,
+  type VueTache,
+} from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
 import { AddTaskToggle } from "./AddTaskToggle";
 import { TasksList } from "./TasksList";
@@ -73,6 +79,16 @@ export function TachesView() {
   });
   const { data: listes = [] } = useQuery({ queryKey: queryKeys.listes, queryFn: getListes });
   const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
+
+  // Une actualisation ratée (connexion faible, incident serveur) laisse les
+  // données en cache : on garde la liste et on prévient, plutôt que de la
+  // remplacer par un message d'erreur.
+  const etatListe = etatListeTaches({
+    isLoading: tachesLoading,
+    isError: tachesError,
+    aDesDonnees: taches !== undefined,
+  });
+  const actualisationKo = actualisationEchouee({ isError: tachesError, aDesDonnees: taches !== undefined });
 
   const filtered = useMemo(() => {
     if (!taches) return [];
@@ -228,12 +244,17 @@ export function TachesView() {
         onSaved={handleCreated}
         onOpenChange={setAjoutInlineOuvert}
       />
-      {tachesLoading ? (
+      {actualisationKo && (
+        <p role="status" className={errorText}>
+          Actualisation impossible : dernières données affichées.
+        </p>
+      )}
+      {etatListe === "chargement" ? (
         <div className="flex flex-col gap-2.5">
           <Skeleton className="h-3 w-24" />
           <ListItemSkeletonGroup count={5} />
         </div>
-      ) : tachesError ? (
+      ) : etatListe === "erreur" ? (
         <p className={errorText}>Erreur de chargement des tâches. Réessaie.</p>
       ) : recherche.trim() && filtered.length === 0 ? (
         <p className="py-6 text-center text-[13.5px] text-ink-2">

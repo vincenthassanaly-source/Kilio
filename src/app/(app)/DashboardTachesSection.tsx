@@ -78,7 +78,7 @@ export function DashboardTachesSection({ today }: { today: string }) {
                   exit={{ opacity: 0, x: -8 }}
                   transition={{ duration: 0.35 }}
                 >
-                  <DashboardTaskItem id={t.id} titre={t.titre} heure={t.heure} fait={t.fait} />
+                  <DashboardTaskItem id={t.id} titre={t.titre} heure={t.heure} fait={t.fait} echeance={t.echeance} />
                 </motion.div>
               ))}
             </AnimatePresence>

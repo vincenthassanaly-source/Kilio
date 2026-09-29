@@ -1,6 +1,6 @@
 "use client";
 
-import { decisionApresEchec, decisionAvantExecution } from "./flush-policy";
+import { decisionApresEchec, decisionAvantExecution, idsActionsRemplacees } from "./flush-policy";
 import { showToast } from "@/components/toast/toast-store";
 import { setTacheFait, deleteTache } from "@/app/actions/taches";
 import { toggleNoteItem, deleteNote } from "@/app/actions/notes";
@@ -50,19 +50,27 @@ export async function preloadOfflineDb() {
 // `isNetworkError` depuis ce fichier (`@/lib/offline/queue`).
 export { isNetworkError };
 
+// Évènement émis à chaque mise en file : useOnlineSync planifie alors des
+// rejeux à intervalles croissants (une erreur réseau peut survenir alors que le
+// navigateur se croit en ligne, auquel cas aucun évènement `online` ne viendra).
+export const EVENEMENT_FILE_AJOUT = "kilio:offline-enqueued";
+
 export async function enqueueAction(module: string, actionName: string, payload: unknown[]) {
   const db = await preloadOfflineDb();
-  await db.pending_actions.add({
-    module,
-    action_name: actionName,
-    payload,
-    created_at: new Date().toISOString(),
+  const nouvelle = { module, action_name: actionName, payload };
+  // Un état absolu posé deux fois sur la même cible (coche puis décoche) ne
+  // garde que la dernière intention : voir `idsActionsRemplacees`.
+  await db.transaction("rw", db.pending_actions, async () => {
+    const remplacees = idsActionsRemplacees(await db.pending_actions.toArray(), nouvelle);
+    if (remplacees.length > 0) await db.pending_actions.bulkDelete(remplacees);
+    await db.pending_actions.add({ ...nouvelle, created_at: new Date().toISOString() });
   });
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(EVENEMENT_FILE_AJOUT));
 }
 
 let flushing = false;
 
-export type ResultatFlush = { synced: number; abandoned: number };
+export type ResultatFlush = { synced: number; abandoned: number; restantes: number };
 
 // Rejoue les actions en attente dans l'ordre d'ajout, en vidant la file au
 // fur et à mesure. La décision après chaque échec vient de `flush-policy.ts`
@@ -84,12 +92,14 @@ export type ResultatFlush = { synced: number; abandoned: number };
 // l'écran, tout comme un refetch parti à la reconnexion peut avoir lu l'état
 // serveur AVANT le rejeu).
 export async function flushQueue(): Promise<ResultatFlush> {
-  if (flushing) return { synced: 0, abandoned: 0 };
+  // Un rejeu est déjà en cours : on ne sait pas encore ce qu'il restera, on
+  // suppose qu'il reste des actions pour que l'appelant retente plus tard.
+  if (flushing) return { synced: 0, abandoned: 0, restantes: 1 };
   flushing = true;
   try {
     const db = await preloadOfflineDb();
     const pending = await db.pending_actions.orderBy("created_at").toArray();
-    if (pending.length === 0) return { synced: 0, abandoned: 0 };
+    if (pending.length === 0) return { synced: 0, abandoned: 0, restantes: 0 };
 
     let synced = 0;
     let abandoned = 0;
@@ -145,7 +155,7 @@ export async function flushQueue(): Promise<ResultatFlush> {
       );
     }
 
-    return { synced, abandoned };
+    return { synced, abandoned, restantes: await db.pending_actions.count() };
   } finally {
     flushing = false;
   }

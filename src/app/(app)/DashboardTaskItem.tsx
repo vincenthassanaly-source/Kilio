@@ -14,11 +14,15 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
   titre,
   heure,
   fait,
+  echeance,
 }: {
   id: string;
   titre: string;
   heure: string | null;
   fait: boolean;
+  // Échéance vue à l'écran, transmise à setTacheFait (garde d'idempotence
+  // des tâches récurrentes, voir TasksList.tsx).
+  echeance: string | null;
 }) {
   const queryClient = useQueryClient();
 
@@ -31,15 +35,17 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
     // le repli hors ligne ci-dessous n'est jamais atteint (voir TaskCard,
     // TasksList.tsx, pour le même correctif).
     networkMode: "always",
-    mutationFn: async () => {
+    mutationFn: async (): Promise<{ enfile: boolean }> => {
       vibrate();
       const nextFait = !fait;
       try {
-        await setTacheFait(id, nextFait);
+        await setTacheFait(id, nextFait, echeance);
+        return { enfile: false };
       } catch (err) {
         if (!isNetworkError(err)) throw err;
-        await enqueueAction("taches", "setTacheFait", [id, nextFait]);
+        await enqueueAction("taches", "setTacheFait", [id, nextFait, echeance]);
         showToast("Enregistré, sera synchronisé à la reconnexion");
+        return { enfile: true };
       }
     },
     onMutate: async () => {
@@ -54,7 +60,10 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
       if (context?.previous) queryClient.setQueryData(queryKeys.taches, context.previous);
       showToast("Impossible de mettre à jour la tâche.");
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.taches }),
+    // Action en file : on garde l'état optimiste jusqu'au rejeu (voir TaskCard).
+    onSettled: (resultat) => {
+      if (!resultat?.enfile) queryClient.invalidateQueries({ queryKey: queryKeys.taches });
+    },
   });
 
   return (
