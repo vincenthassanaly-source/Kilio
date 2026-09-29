@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { deleteDocument, type DocumentAvecFichiers } from "@/app/actions/documents";
@@ -10,8 +10,19 @@ import { formatMois } from "../champs";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { TransitionLink } from "@/components/TransitionLink";
 import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, errorText, ghostButton, kcalPillTag, linkButton, pillTag } from "@/lib/ui";
+import {
+  card,
+  dangerButton,
+  errorText,
+  ghostButton,
+  kcalPillTag,
+  linkButton,
+  pillTag,
+  primaryButton,
+  secondaryButton,
+} from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
+import { chargerFichiers, nomDeFichier, partager, peutPartager, telecharger } from "@/lib/documents/partage";
 
 function PdfIcon() {
   return (
@@ -34,6 +45,50 @@ export function DocumentDetail({
   const [error, setError] = useState<string | null>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [lightboxAlt, setLightboxAlt] = useState<string>("Photo agrandie");
+  const [diffusion, setDiffusion] = useState<"partage" | "telechargement" | null>(null);
+  // Fichiers gardés en mémoire après le 1er chargement : le partage natif
+  // exige d'être lancé peu après le tap, un 2e essai part donc instantanément.
+  // Liés au nom et à la liste des fichiers : une modification les invalide.
+  const fichiersCharges = useRef<{ cle: string; fichiers: File[] } | null>(null);
+
+  async function diffuser(mode: "partage" | "telechargement") {
+    setError(null);
+    setDiffusion(mode);
+    try {
+      const cle = `${document.nom}|${document.fichiers.map((f) => f.id).join(",")}`;
+      if (fichiersCharges.current?.cle !== cle) {
+        fichiersCharges.current = {
+          cle,
+          fichiers: await chargerFichiers(
+            document.fichiers.map((fichier, index) => ({
+              url: fichier.url,
+              nom: nomDeFichier(
+                document.nom,
+                fichier.role ?? (document.fichiers.length > 1 ? String(index + 1) : null),
+                fichier.url
+              ),
+            }))
+          ),
+        };
+      }
+      const { fichiers } = fichiersCharges.current;
+      if (mode === "partage" && peutPartager(fichiers)) {
+        await partager(fichiers, document.nom);
+      } else {
+        // Téléchargement demandé, ou partage natif indisponible (ordinateur).
+        fichiers.forEach(telecharger);
+      }
+    } catch (e) {
+      console.error("Partage / téléchargement du document impossible", e);
+      setError(
+        e instanceof DOMException && e.name === "NotAllowedError"
+          ? "Le partage a expiré : appuie de nouveau sur Partager."
+          : "Impossible de récupérer le fichier. Vérifie ta connexion et réessaie."
+      );
+    } finally {
+      setDiffusion(null);
+    }
+  }
 
   if (editing) {
     return (
@@ -177,6 +232,27 @@ export function DocumentDetail({
             );
           })}
         </ul>
+      )}
+
+      {document.fichiers.length > 0 && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={diffusion !== null}
+            onClick={() => void diffuser("partage")}
+            className={`${primaryButton} flex-1`}
+          >
+            {diffusion === "partage" ? "Préparation…" : "Partager"}
+          </button>
+          <button
+            type="button"
+            disabled={diffusion !== null}
+            onClick={() => void diffuser("telechargement")}
+            className={`${secondaryButton} flex-1`}
+          >
+            {diffusion === "telechargement" ? "Préparation…" : "Télécharger"}
+          </button>
+        </div>
       )}
 
       {error && <p className={errorText}>{error}</p>}
