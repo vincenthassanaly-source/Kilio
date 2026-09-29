@@ -78,7 +78,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
 
       <div
         className="fixed right-4 z-40 flex flex-col-reverse items-center gap-3"
-        style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)", viewTransitionName: "fab" }}
       >
         <button
           type="button"

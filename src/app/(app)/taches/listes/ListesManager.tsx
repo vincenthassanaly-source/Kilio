@@ -5,6 +5,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { deleteListe, reordonnerListes } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, ghostButton, listCard, nameText } from "@/lib/ui";
+
+// Flèches d'ordre : cible réelle de 36×44 px (même gabarit que `sousTacheBouton`
+// de TasksList) au lieu du glyphe nu de 13×23 px.
+const flecheOrdre =
+  "flex h-11 w-9 shrink-0 items-center justify-center rounded-lg text-base text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 import { confirmDelete } from "@/lib/confirm";
 import { libelleNombreTaches, messageSuppressionListe } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
@@ -104,12 +109,12 @@ function ListeRow({
             <span className="text-xs text-ink-2">{libelleNombreTaches(compte.total)}</span>
           </div>
         </div>
-        <div className="flex gap-1">
+        <div className="flex">
           <button
             type="button"
             disabled={isPending || index === 0}
             onClick={() => startTransition(async () => void (await runAction(() => reordonnerListes(liste.id, "haut"))))}
-            className="text-ink-2 disabled:opacity-30"
+            className={flecheOrdre}
             aria-label="Monter"
           >
             ↑
@@ -118,7 +123,7 @@ function ListeRow({
             type="button"
             disabled={isPending || index === total - 1}
             onClick={() => startTransition(async () => void (await runAction(() => reordonnerListes(liste.id, "bas"))))}
-            className="text-ink-2 disabled:opacity-30"
+            className={flecheOrdre}
             aria-label="Descendre"
           >
             ↓

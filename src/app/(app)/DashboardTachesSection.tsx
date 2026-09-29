@@ -45,7 +45,7 @@ export function DashboardTachesSection({ today }: { today: string }) {
             dessous contient déjà un <button> (CheckToggle) par tâche, imbriquer
             toute la carte dans un <Link> casserait ce tap (bouton dans <a>). */}
         <motion.div whileTap={{ scale: 0.98 }}>
-          <Link href="/taches" className="flex items-center justify-between">
+          <Link href="/taches" className="relative flex items-center justify-between after:absolute after:inset-x-0 after:-inset-y-2.5">
             <span
               className="text-[14px] font-semibold text-ink"
               style={{ viewTransitionName: "taches-titre-dashboard" }}

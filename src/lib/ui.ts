@@ -61,6 +61,13 @@ export const dangerButton =
   `${zoneTap44} rounded-xl border border-alert/30 px-2.5 py-1.5 text-sm font-medium text-alert transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 export const linkButton = `relative after:absolute after:-inset-x-2 after:-inset-y-3 text-sm font-semibold text-kcal ${focusRing}`;
 
+// Zone de tap étendue des pills compacts cliquables (chips de filtre,
+// « + sous-tâches » : ≈ 25 px de haut) à ≈ 41 px, sans grossir le pill visible.
+// Le pseudo-élément déborde de 8 px en haut et en bas ; les conteneurs qui
+// l'utilisent gardent donc au moins 16 px entre deux rangées de pills pour ne
+// jamais chevaucher la zone du voisin.
+export const zoneTapPill = "relative after:absolute after:inset-x-0 after:-inset-y-2";
+
 export const pillTag =
   "shrink-0 rounded-full bg-surface-alt px-2.5 py-1 text-[11px] font-semibold text-ink-2";
 export const kcalPillTag =
