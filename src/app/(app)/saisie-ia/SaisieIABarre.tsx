@@ -1,45 +1,27 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { runAction } from "@/lib/actions/runAction";
-import {
-  analyserSaisieTaches,
-  creerTachesProposees,
-  preparerListe,
-  type TacheACreer,
-} from "@/app/actions/saisie-taches";
-import { getListes, getTags } from "@/app/actions/taches";
-import { queryKeys } from "@/lib/query/keys";
+import { analyserSaisie, creerElementsProposes } from "@/app/actions/saisie-ia";
 import { goBackSteps, useBackClose } from "@/hooks/useBackClose";
 import { Modal } from "@/components/Modal";
 import { CheckToggle } from "@/components/CheckToggle";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showToast } from "@/components/toast/toast-store";
 import { DUREE_TOAST_AVERTISSEMENT_MS } from "@/lib/taches/compute";
-import { addCardIcon, card, ghostButton, input, kcalPillTag, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
-import {
-  MAX_TEXTE,
-  libelleQuand,
-  libelleRappel,
-  libelleRepetition,
-  type PrecisionDonnee,
-  type TachePropose,
-} from "@/lib/taches/saisie-naturelle";
-import { preloadAddTaskForm } from "./taches/preloadAddTaskForm";
-
-const AddTaskForm = dynamic(() => import("./taches/AddTaskForm").then((m) => m.AddTaskForm), {
-  ssr: false,
-});
+import { addCardIcon, card, ghostButton, input, primaryButton, secondaryButton } from "@/lib/ui";
+import { MAX_TEXTE, type ElementPropose, type PrecisionDonnee } from "@/lib/saisie-ia/types";
+import type { ModuleIAClient } from "./module-client";
+import { MODULES_CLIENT, MODULE_PAR_DEFAUT, TEXTES_SAISIE } from "./modules-client";
 
 type Etape = "saisie" | "analyse" | "question" | "apercu" | "erreur";
-type Ligne = { cle: number; tache: TachePropose; retenue: boolean; echec?: string };
+type Ligne = { cle: number; element: ElementPropose; retenue: boolean; echec?: string };
 type Erreur = { code: "quota" | "echec" | "incomprehensible"; message: string; detail?: string };
 // `cle` : ligne de l'aperçu à retirer une fois le formulaire validé ; null
 // pour la création simple depuis le texte brut (repli sans IA).
-type Edition = { cle: number | null; titre: string; tache?: TachePropose; listeId?: string };
+type Edition = { cle: number | null; moduleIA: ModuleIAClient; element: ElementPropose | null; titre: string };
 
 const MESSAGE_ANALYSE = "L'analyse a échoué. Réessaie.";
 
@@ -73,60 +55,26 @@ function IconeChevron({ ouvert, reduit }: { ouvert: boolean; reduit: boolean }) 
   );
 }
 
-function IconeAttention() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-warning)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="mt-[3px] shrink-0">
-      <path d="M12 4l9 16H3L12 4z" />
-      <path d="M12 10v4M12 17.5v.01" />
-    </svg>
-  );
-}
-
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
-function versCreation(t: TachePropose): TacheACreer {
-  return {
-    titre: t.titre,
-    echeance: t.echeance,
-    heure: t.heure,
-    heure_fin: t.heure_fin,
-    toute_la_journee: t.toute_la_journee,
-    priorite: t.priorite,
-    rappel_minutes: t.rappel_minutes,
-    recurrence_frequence: t.recurrence_frequence,
-    recurrence_fin: t.recurrence_fin,
-    listeId: t.listeId,
-    nouvelleListe: t.nouvelleListe,
-    tagIds: t.tagIds,
-    nouveauxTags: t.nouveauxTags,
-  };
+// Libellés d'un lot : ceux du module quand toutes les lignes en viennent, des
+// termes neutres quand plusieurs modules sont mêlés.
+function moduleDuLot(elements: ElementPropose[]): ModuleIAClient | null {
+  const types = new Set(elements.map((e) => e.type));
+  return types.size === 1 ? MODULES_CLIENT[elements[0].type] : null;
 }
 
-function pastilles(t: TachePropose): { texte: string; accent?: boolean }[] {
-  const liste: { texte: string; accent?: boolean }[] = [];
-  if (t.priorite !== "aucune") liste.push({ texte: `Priorité ${t.priorite}` });
-  if (t.rappel_minutes !== null) liste.push({ texte: `Rappel : ${libelleRappel(t.rappel_minutes)}` });
-  if (t.recurrence_frequence) liste.push({ texte: libelleRepetition(t.recurrence_frequence) });
-  liste.push(
-    t.nouvelleListe
-      ? { texte: `Nouvelle liste : ${t.listeNom}`, accent: true }
-      : { texte: t.listeNom }
-  );
-  for (const nom of t.tagNoms) liste.push({ texte: `#${nom}` });
-  return liste;
-}
+const pluriel = (n: number, un: string, plusieurs: string) => (n === 1 ? un : plusieurs.replace("{n}", String(n)));
 
-// Saisie de tâches en langage naturel : la carte s'étend sur place (comme
-// « Programme du jour », jamais de navigation). Gemini propose, l'aperçu
-// montre ce qui serait créé, et rien n'existe avant le tap de validation.
-// Le formulaire de tâche habituel sert de sortie de secours : « Modifier »
-// une proposition, ou création simple quand l'IA est indisponible.
-export function DashboardSaisieIACard() {
+// « Ajouter avec l'IA » : la carte s'étend sur place (comme « Programme du
+// jour », jamais de navigation). Gemini propose, l'aperçu montre ce qui serait
+// créé dans chaque module branché (MODULES_CLIENT), et rien n'existe avant le
+// tap de validation. Le formulaire manuel du module sert de sortie de secours :
+// « Modifier » une proposition, ou création simple quand l'IA est indisponible.
+export function SaisieIABarre() {
   const reduit = useReducedMotion() ?? false;
   const queryClient = useQueryClient();
-  const { data: listes = [] } = useQuery({ queryKey: queryKeys.listes, queryFn: getListes });
-  const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
 
   const panneauId = useId();
   const champId = useId();
@@ -179,7 +127,7 @@ export function DashboardSaisieIACard() {
     setAutreReponse("");
     setEtape("analyse");
 
-    const resultat = await runAction(() => analyserSaisieTaches(texteAnalyse, precisionsAnalyse), {
+    const resultat = await runAction(() => analyserSaisie(texteAnalyse, precisionsAnalyse), {
       erreur: MESSAGE_ANALYSE,
       silencieux: true,
     });
@@ -201,8 +149,8 @@ export function DashboardSaisieIACard() {
       return;
     }
     const analyse = resultat.data;
-    if (analyse.statut === "taches") {
-      setLignes(analyse.taches.map((tache, cle) => ({ cle, tache, retenue: true })));
+    if (analyse.statut === "elements") {
+      setLignes(analyse.elements.map((element, cle) => ({ cle, element, retenue: true })));
       setEtape("apercu");
     } else if (analyse.statut === "question") {
       setQuestion({ texte: analyse.question, choix: analyse.choix });
@@ -241,9 +189,10 @@ export function DashboardSaisieIACard() {
     if (retenues.length === 0 || creation) return;
     setCreation(true);
 
-    const resultat = await runAction(() => creerTachesProposees(retenues.map((l) => versCreation(l.tache))), {
-      erreur: "La création a échoué. Réessaie.",
-    });
+    const resultat = await runAction(
+      () => creerElementsProposes(retenues.map((l) => MODULES_CLIENT[l.element.type].versCreation(l.element))),
+      { erreur: "La création a échoué. Réessaie." }
+    );
     setCreation(false);
     if (!resultat.ok) return; // toast déjà affiché par runAction, l'aperçu reste intact
 
@@ -259,16 +208,20 @@ export function DashboardSaisieIACard() {
       }
     }
 
-    void queryClient.invalidateQueries({ queryKey: queryKeys.taches });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.listes });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.tags });
-    if (reussies.size > 0) showToast(reussies.size === 1 ? "Tâche créée" : `${reussies.size} tâches créées`);
+    for (const moduleIA of new Set(retenues.map((l) => MODULES_CLIENT[l.element.type]))) {
+      moduleIA.invalider(queryClient);
+    }
+    if (reussies.size > 0) {
+      const creees = retenues.filter((l) => reussies.has(l.cle)).map((l) => l.element);
+      const moduleIA = moduleDuLot(creees);
+      showToast(moduleIA ? moduleIA.libelles.creee(creees.length) : pluriel(creees.length, "Élément créé", "{n} éléments créés"));
+    }
 
     if (echecs.size === 0) {
       reinitialiser();
       return;
     }
-    // Seules les tâches en échec restent, avec la raison ; état courant
+    // Seuls les éléments en échec restent, avec la raison ; état courant
     // plutôt que la copie d'avant l'attente serveur.
     setLignes((courantes) =>
       courantes.filter((l) => echecs.has(l.cle)).map((l) => ({ ...l, retenue: true, echec: echecs.get(l.cle) }))
@@ -276,36 +229,31 @@ export function DashboardSaisieIACard() {
   }
 
   async function modifier(ligne: Ligne) {
-    const t = ligne.tache;
-    let listeId = t.listeId ?? undefined;
-    if (!listeId && t.nouvelleListe) {
-      // Le formulaire ne sait choisir qu'une liste existante : elle est créée
-      // au moment où Vincent choisit de poursuivre avec cette tâche.
+    const moduleIA = MODULES_CLIENT[ligne.element.type];
+    let element = ligne.element;
+    if (moduleIA.preparerEdition) {
       setPreparation(ligne.cle);
-      const nom = t.nouvelleListe;
-      const resultat = await runAction(() => preparerListe(nom), {
-        erreur: "La liste n'a pas pu être créée. Réessaie.",
-      });
+      const resultat = await moduleIA.preparerEdition(element);
       setPreparation(null);
       if (!resultat.ok) return;
-      listeId = resultat.data.id;
-      await queryClient.invalidateQueries({ queryKey: queryKeys.listes });
+      element = resultat.data;
     }
-    setEdition({ cle: ligne.cle, titre: t.titre, tache: t, listeId });
+    setEdition({ cle: ligne.cle, moduleIA, element, titre: moduleIA.titre(element) });
   }
 
   function creerSimple() {
-    setEdition({ cle: null, titre: texte.trim() });
+    setEdition({ cle: null, moduleIA: MODULE_PAR_DEFAUT, element: null, titre: texte.trim() });
   }
 
   function formulaireTermine(avertissement?: string) {
     const courante = edition;
-    void queryClient.invalidateQueries({ queryKey: queryKeys.taches });
+    if (!courante) return;
+    courante.moduleIA.invalider(queryClient);
     if (avertissement) showToast(avertissement, DUREE_TOAST_AVERTISSEMENT_MS);
-    showToast("Tâche créée");
+    showToast(courante.moduleIA.libelles.creee(1));
     goBackSteps(1);
 
-    if (courante?.cle == null) {
+    if (courante.cle == null) {
       reinitialiser();
       return;
     }
@@ -316,13 +264,22 @@ export function DashboardSaisieIACard() {
   }
 
   const retenues = lignes.filter((l) => l.retenue).length;
-  const sousTitre = !ouvert
-    ? "Décris ta tâche en une phrase"
+  const moduleApercu = moduleDuLot(lignes.map((l) => l.element));
+  const nomElements = moduleApercu
+    ? moduleApercu.libelles
     : {
-        saisie: "Décris ta tâche en une phrase",
+        verifier: "Vérifie ce qui est proposé, puis valide.",
+        aValider: (n: number) => pluriel(n, "1 élément à valider", "{n} éléments à valider"),
+        creer: (n: number) => pluriel(n, "Créer l'élément", "Créer {n} éléments"),
+        aucuneRetenue: "Rien de retenu",
+      };
+  const sousTitre = !ouvert
+    ? TEXTES_SAISIE.invite
+    : {
+        saisie: TEXTES_SAISIE.invite,
         analyse: "Analyse en cours…",
         question: "Une précision est nécessaire",
-        apercu: lignes.length === 1 ? "1 tâche à valider" : `${lignes.length} tâches à valider`,
+        apercu: nomElements.aValider(lignes.length),
         erreur: "L'analyse n'a pas abouti",
       }[etape];
 
@@ -372,7 +329,7 @@ export function DashboardSaisieIACard() {
                   className="flex flex-col gap-3"
                 >
                   <label htmlFor={champId} className="sr-only">
-                    Décris la ou les tâches à ajouter
+                    {TEXTES_SAISIE.label}
                   </label>
                   <textarea
                     id={champId}
@@ -381,7 +338,7 @@ export function DashboardSaisieIACard() {
                     value={texte}
                     maxLength={MAX_TEXTE}
                     enterKeyHint="send"
-                    placeholder="Ex. : dentiste jeudi 14h, rappel la veille"
+                    placeholder={TEXTES_SAISIE.placeholder}
                     onChange={(e) => setTexte(e.target.value)}
                     onKeyDown={(e) => {
                       // Entrée envoie (un seul geste au clavier mobile),
@@ -467,59 +424,48 @@ export function DashboardSaisieIACard() {
               {etape === "apercu" && (
                 <div className="flex flex-col gap-3">
                   <p role="status" className="text-pretty text-[12.5px] text-ink-2">
-                    {lignes.length === 1
-                      ? "Vérifie la tâche proposée, puis valide."
-                      : "Décoche ce que tu ne veux pas, puis valide."}
+                    {lignes.length === 1 ? nomElements.verifier : "Décoche ce que tu ne veux pas, puis valide."}
                   </p>
                   <ul className="flex flex-col divide-y divide-line">
-                    {lignes.map((ligne) => (
-                      <li key={ligne.cle} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                        <CheckToggle
-                          checked={ligne.retenue}
-                          onToggle={() => basculerLigne(ligne.cle)}
-                          label={`Créer « ${ligne.tache.titre} »`}
-                          hitSlop={8}
-                          className="mt-0.5"
-                        />
-                        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                          <div className="flex items-start justify-between gap-3">
-                            <p className={`min-w-0 flex-1 text-balance text-[14px] font-semibold ${ligne.retenue ? "text-ink" : "text-ink-2 line-through"}`}>
-                              {ligne.tache.titre}
-                            </p>
-                            <button
-                              type="button"
-                              disabled={preparation !== null}
-                              onClick={() => void modifier(ligne)}
-                              onPointerDown={preloadAddTaskForm}
-                              onFocus={preloadAddTaskForm}
-                              aria-label={`Modifier « ${ligne.tache.titre} »`}
-                              className={`${ghostButton} -mt-1.5 shrink-0 disabled:opacity-60`}
-                            >
-                              {preparation === ligne.cle ? "…" : "Modifier"}
-                            </button>
+                    {lignes.map((ligne) => {
+                      const moduleIA = MODULES_CLIENT[ligne.element.type];
+                      const titre = moduleIA.titre(ligne.element);
+                      return (
+                        <li key={ligne.cle} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                          <CheckToggle
+                            checked={ligne.retenue}
+                            onToggle={() => basculerLigne(ligne.cle)}
+                            label={`Créer « ${titre} »`}
+                            hitSlop={8}
+                            className="mt-0.5"
+                          />
+                          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                            <div className="flex items-start justify-between gap-3">
+                              <p className={`min-w-0 flex-1 text-balance text-[14px] font-semibold ${ligne.retenue ? "text-ink" : "text-ink-2 line-through"}`}>
+                                {titre}
+                              </p>
+                              <button
+                                type="button"
+                                disabled={preparation !== null}
+                                onClick={() => void modifier(ligne)}
+                                onPointerDown={moduleIA.precharger}
+                                onFocus={moduleIA.precharger}
+                                aria-label={`Modifier « ${titre} »`}
+                                className={`${ghostButton} -mt-1.5 shrink-0 disabled:opacity-60`}
+                              >
+                                {preparation === ligne.cle ? "…" : "Modifier"}
+                              </button>
+                            </div>
+                            <moduleIA.Detail element={ligne.element} />
+                            {ligne.echec && (
+                              <p role="alert" className="text-[12.5px] font-medium text-alert">
+                                {ligne.echec}
+                              </p>
+                            )}
                           </div>
-                          <p className="text-[12.5px] tabular-nums text-ink-2">{libelleQuand(ligne.tache)}</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {pastilles(ligne.tache).map((p) => (
-                              <span key={p.texte} className={p.accent ? kcalPillTag : pillTag}>
-                                {p.texte}
-                              </span>
-                            ))}
-                          </div>
-                          {ligne.tache.avertissements.map((avertissement) => (
-                            <p key={avertissement} className="flex items-start gap-1.5 text-[12.5px] text-ink-2">
-                              <IconeAttention />
-                              <span>{avertissement}</span>
-                            </p>
-                          ))}
-                          {ligne.echec && (
-                            <p role="alert" className="text-[12.5px] font-medium text-alert">
-                              {ligne.echec}
-                            </p>
-                          )}
-                        </div>
-                      </li>
-                    ))}
+                        </li>
+                      );
+                    })}
                   </ul>
                   <div className="flex flex-col gap-2">
                     <button
@@ -528,13 +474,7 @@ export function DashboardSaisieIACard() {
                       disabled={retenues === 0 || creation}
                       className={`${primaryButton} min-h-11 w-full`}
                     >
-                      {creation
-                        ? "Création…"
-                        : retenues === 0
-                          ? "Aucune tâche retenue"
-                          : retenues === 1
-                            ? "Créer la tâche"
-                            : `Créer ${retenues} tâches`}
+                      {creation ? "Création…" : retenues === 0 ? nomElements.aucuneRetenue : nomElements.creer(retenues)}
                     </button>
                     <button type="button" onClick={modifierLeTexte} disabled={creation} className={`${secondaryButton} min-h-11 w-full`}>
                       Modifier mon texte
@@ -565,11 +505,11 @@ export function DashboardSaisieIACard() {
                     <button
                       type="button"
                       onClick={creerSimple}
-                      onPointerDown={preloadAddTaskForm}
-                      onFocus={preloadAddTaskForm}
+                      onPointerDown={MODULE_PAR_DEFAUT.precharger}
+                      onFocus={MODULE_PAR_DEFAUT.precharger}
                       className={`${erreur.code === "quota" ? primaryButton : secondaryButton} min-h-11 w-full`}
                     >
-                      Créer une tâche simple avec ce texte
+                      {MODULE_PAR_DEFAUT.libelles.creationSimple}
                     </button>
                     <button type="button" onClick={modifierLeTexte} className={`${ghostButton} self-start`}>
                       Modifier mon texte
@@ -584,30 +524,8 @@ export function DashboardSaisieIACard() {
 
       <AnimatePresence>
         {edition && (
-          <Modal key="edition" title="Nouvelle tâche" onClose={() => history.back()}>
-            <AddTaskForm
-              listes={listes}
-              tags={tags}
-              defaultListeId={edition.listeId}
-              defaultEcheance={edition.tache?.echeance ?? undefined}
-              defaultHeure={edition.tache?.heure ?? undefined}
-              initial={
-                edition.tache
-                  ? {
-                      titre: edition.tache.titre,
-                      priorite: edition.tache.priorite,
-                      toute_la_journee: edition.tache.toute_la_journee,
-                      heure_fin: edition.tache.heure_fin,
-                      rappel_minutes: edition.tache.rappel_minutes,
-                      recurrence_frequence: edition.tache.recurrence_frequence,
-                      recurrence_fin: edition.tache.recurrence_fin,
-                      tagIds: edition.tache.tagIds,
-                      nouveauxTags: edition.tache.nouveauxTags,
-                    }
-                  : { titre: edition.titre }
-              }
-              onDone={(_id, avertissement) => formulaireTermine(avertissement)}
-            />
+          <Modal key="edition" title={edition.moduleIA.libelles.titreFormulaire} onClose={() => history.back()}>
+            <edition.moduleIA.Formulaire edition={edition} onDone={formulaireTermine} />
           </Modal>
         )}
       </AnimatePresence>

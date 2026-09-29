@@ -1,19 +1,18 @@
 import type { Enums } from "@/lib/supabase/types";
+import { normaliserTexte, texteOuNull } from "@/lib/saisie-ia/outils";
 import { RAPPEL_MINUTES_VALEURS } from "./compute";
 
 // Saisie de tâches en langage naturel : logique pure (aucun réseau, aucune
-// base) partagée par l'action serveur et testée seule. Gemini propose, ce
-// module vérifie : rien de ce qu'il renvoie n'atteint la base ni l'aperçu
-// sans être revalidé ici (dates, heures, énumérations, rappels permis).
+// base) du module Tâches de « Ajouter avec l'IA », testée seule. Gemini
+// propose, ce module vérifie : rien de ce qu'il renvoie n'atteint la base ni
+// l'aperçu sans être revalidé ici (dates, heures, énumérations, rappels
+// permis). Le moteur commun (lib/saisie-ia) compose prompt, schéma et
+// questions de précision.
 
-export const MAX_QUESTIONS = 2;
-export const MAX_TEXTE = 500;
 export const MAX_TACHES = 8;
 const MAX_TITRE = 200;
 const MAX_TAGS = 5;
 const MAX_NOM = 40;
-const MAX_CHOIX = 4;
-const MAX_CHOIX_LONGUEUR = 40;
 
 const PRIORITES: readonly Enums<"priorite_tache">[] = ["aucune", "basse", "moyenne", "haute"];
 const FREQUENCES: readonly Enums<"frequence_recurrence">[] = ["quotidien", "hebdomadaire", "mensuel", "annuel"];
@@ -26,14 +25,10 @@ const RAPPEL_PAR_DEFAUT_MINUTES = 5;
 export type ListeConnue = { id: string; nom: string };
 export type TagConnu = { id: string; nom: string };
 
-export type ContexteSaisie = {
-  /** Date du jour à Paris, `AAAA-MM-JJ`. */
-  aujourdhui: string;
+export type ContexteTaches = {
   listes: ListeConnue[];
   tags: TagConnu[];
 };
-
-export type PrecisionDonnee = { question: string; reponse: string };
 
 // Une tâche proposée, telle qu'affichée dans l'aperçu puis envoyée à la
 // création. `listeId` OU `nouvelleListe` est renseigné (jamais les deux) ;
@@ -57,30 +52,31 @@ export type TachePropose = {
   avertissements: string[];
 };
 
-export type ResultatInterpretation =
-  | { statut: "taches"; taches: TachePropose[] }
-  | { statut: "question"; question: string; choix: string[] }
-  | { statut: "vide" };
-
-export function normaliserTexte(valeur: string): string {
-  return valeur
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
-}
+// Champs réellement lus à la création : le reste de `TachePropose` (noms
+// d'affichage, avertissements) n'a pas à transiter. Tout est revalidé par
+// parseTacheInput (createTache) : une Server Function est joignable par un
+// POST direct, on ne fait pas confiance à ce que le client renvoie.
+export type TacheACreer = Pick<
+  TachePropose,
+  | "titre"
+  | "echeance"
+  | "heure"
+  | "heure_fin"
+  | "toute_la_journee"
+  | "priorite"
+  | "rappel_minutes"
+  | "recurrence_frequence"
+  | "recurrence_fin"
+  | "listeId"
+  | "nouvelleListe"
+  | "tagIds"
+  | "nouveauxTags"
+>;
 
 function estDateValide(valeur: string): boolean {
   if (!DATE_REGEX.test(valeur)) return false;
   const date = new Date(`${valeur}T12:00:00Z`);
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === valeur;
-}
-
-function texteOuNull(valeur: unknown, max: number): string | null {
-  if (typeof valeur !== "string") return null;
-  const propre = valeur.replace(/\s+/g, " ").trim();
-  return propre ? propre.slice(0, max) : null;
 }
 
 /** « 1 h avant », « 15 min avant », « la veille ». */
@@ -174,7 +170,7 @@ export function arrondirRappel(
 
 type BrutTache = Record<string, unknown>;
 
-function interpreterTache(brut: BrutTache, ctx: ContexteSaisie): TachePropose | null {
+function interpreterTache(brut: BrutTache, ctx: ContexteTaches): TachePropose | null {
   const titre = texteOuNull(brut.titre, MAX_TITRE);
   if (!titre) return null;
 
@@ -295,116 +291,32 @@ function interpreterTache(brut: BrutTache, ctx: ContexteSaisie): TachePropose | 
   };
 }
 
-/**
- * Transforme la réponse JSON de Gemini en résultat fiable. Une question n'est
- * retenue que si le quota de questions n'est pas épuisé (`questionsRestantes`)
- * ; sinon Gemini est censé avoir tranché, et seules les tâches comptent.
- */
-export function interpreterReponse(
-  brut: unknown,
-  ctx: ContexteSaisie,
-  questionsRestantes: number
-): ResultatInterpretation {
-  if (typeof brut !== "object" || brut === null) return { statut: "vide" };
-  const { question, taches } = brut as { question?: unknown; taches?: unknown };
-
-  const listeTaches = Array.isArray(taches)
-    ? taches
-        .filter((t): t is BrutTache => typeof t === "object" && t !== null)
-        .slice(0, MAX_TACHES)
-        .map((t) => interpreterTache(t, ctx))
-        .filter((t): t is TachePropose => t !== null)
-    : [];
-
-  if (questionsRestantes > 0 && typeof question === "object" && question !== null) {
-    const { texte, choix } = question as { texte?: unknown; choix?: unknown };
-    const texteQuestion = texteOuNull(texte, 200);
-    if (texteQuestion) {
-      const choixValides = Array.isArray(choix)
-        ? choix
-            .map((c) => texteOuNull(c, MAX_CHOIX_LONGUEUR))
-            .filter((c): c is string => c !== null)
-            .slice(0, MAX_CHOIX)
-        : [];
-      return { statut: "question", question: texteQuestion, choix: choixValides };
-    }
-  }
-
-  if (listeTaches.length === 0) return { statut: "vide" };
-  return { statut: "taches", taches: listeTaches };
+/** Revalide les tâches brutes de Gemini ; écarte celles sans titre. */
+export function interpreterTaches(bruts: BrutTache[], ctx: ContexteTaches): TachePropose[] {
+  return bruts.map((t) => interpreterTache(t, ctx)).filter((t): t is TachePropose => t !== null);
 }
 
-const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
-
-function nomDuJour(dateIso: string): string {
-  return JOURS[new Date(`${dateIso}T12:00:00Z`).getUTCDay()];
-}
-
-function ajouterJours(dateIso: string, jours: number): string {
-  const date = new Date(`${dateIso}T12:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + jours);
-  return date.toISOString().slice(0, 10);
-}
-
-/**
- * Prompt de la saisie naturelle. Le calendrier des 14 prochains jours est
- * fourni tel quel : un petit modèle se trompe souvent sur « jeudi prochain »
- * quand on lui demande de calculer, jamais quand on lui donne la table.
- */
-export function construirePrompt(input: {
-  texte: string;
-  precisions: PrecisionDonnee[];
-  ctx: ContexteSaisie;
-}): string {
-  const { texte, precisions, ctx } = input;
-  const questionsRestantes = Math.max(0, MAX_QUESTIONS - precisions.length);
-
-  const calendrier = Array.from({ length: 14 }, (_, i) => {
-    const date = ajouterJours(ctx.aujourdhui, i);
-    return `${nomDuJour(date)} ${date}${i === 0 ? " (aujourd'hui)" : i === 1 ? " (demain)" : ""}`;
-  }).join(", ");
-
-  const lignes = [
-    "Tu transformes une phrase de Vincent en tâches pour son app personnelle Kilio (fuseau Europe/Paris).",
-    "",
-    `Calendrier : ${calendrier}.`,
+export function lignesContexteTaches(ctx: ContexteTaches): string[] {
+  return [
     `Listes existantes (JSON) : ${JSON.stringify(ctx.listes.map((l) => l.nom))}`,
     `Tags existants (JSON) : ${JSON.stringify(ctx.tags.map((t) => t.nom))}`,
-    "",
-    `Texte de Vincent : ${JSON.stringify(texte)}`,
   ];
-
-  if (precisions.length > 0) {
-    lignes.push("", "Précisions déjà obtenues (ne repose jamais ces questions) :");
-    for (const p of precisions) {
-      lignes.push(`- Question : ${JSON.stringify(p.question)} → Réponse : ${JSON.stringify(p.reponse)}`);
-    }
-  }
-
-  lignes.push(
-    "",
-    "Règles :",
-    "- Une tâche par action distincte ; le titre est court, à l'infinitif ou nominal, sans la date ni l'heure.",
-    "- Toutes les propriétés sont obligatoires : quand une information est absente du texte, mets une chaîne vide (0 pour `rappel_minutes`, une liste vide pour `tags`), jamais null.",
-    "- `date` : AAAA-MM-JJ, tirée du calendrier ci-dessus. Sans jour cité, chaîne vide. Pour une répétition, `date` est la première occurrence.",
-    "- `heure` et `heure_fin` : HH:MM en 24 h. Une durée (« 1h ») donne `heure_fin`. Sans heure citée, chaîne vide. `toute_la_journee` vaut true seulement si Vincent le dit.",
-    "- `rappel_minutes` : minutes avant l'heure (« la veille » = 1440, « 2 h avant » = 120). Sans rappel demandé, 0.",
-    "- `priorite` : aucune, basse, moyenne ou haute (« urgent » = haute). Sans indice, aucune.",
-    "- Répétition : `recurrence_frequence` vaut quotidien, hebdomadaire, mensuel ou annuel, sinon chaîne vide. Tout autre rythme (« tous les 15 jours ») : `recurrence_frequence` vide et `recurrence_non_supportee` reprend l'expression citée (sinon vide). `recurrence_fin` : AAAA-MM-JJ si une fin est citée, sinon chaîne vide.",
-    "- `liste` : nom cité par Vincent (reprends l'orthographe d'une liste existante si elle correspond), sinon chaîne vide. `tags` : seulement ceux cités.",
-    "- N'invente aucune information absente du texte."
-  );
-
-  if (questionsRestantes > 0) {
-    lignes.push(
-      `- Tu peux poser UNE question de précision (il te reste ${questionsRestantes} question(s)), uniquement dans ces cas : (1) un jour de la semaine cité qui est aujourd'hui (« jeudi » un jeudi) ; (2) un rappel demandé sans heure ; (3) une heure ambiguë matin/soir (« 8h ») ; (4) aucun titre reconnaissable. Dans tous les autres cas, tranche sans demander.`,
-      "- Pour poser une question : remplis `question` (`texte` court, `choix` de 2 à 4 réponses courtes) et laisse `taches` vide. Sinon `question.texte` est une chaîne vide et `question.choix` une liste vide."
-    );
-  } else {
-    lignes.push(
-      "- Tu ne peux plus poser de question : choisis l'interprétation la plus probable. `question.texte` reste une chaîne vide et `question.choix` une liste vide."
-    );
-  }
-
-  return lignes.join("\n");
 }
+
+export const REGLES_TACHES = [
+  "- Une tâche par action distincte ; le titre est court, à l'infinitif ou nominal, sans la date ni l'heure.",
+  "- Toutes les propriétés sont obligatoires : quand une information est absente du texte, mets une chaîne vide (0 pour `rappel_minutes`, une liste vide pour `tags`), jamais null.",
+  "- `date` : AAAA-MM-JJ, tirée du calendrier ci-dessus. Sans jour cité, chaîne vide. Pour une répétition, `date` est la première occurrence.",
+  "- `heure` et `heure_fin` : HH:MM en 24 h. Une durée (« 1h ») donne `heure_fin`. Sans heure citée, chaîne vide. `toute_la_journee` vaut true seulement si Vincent le dit.",
+  "- `rappel_minutes` : minutes avant l'heure (« la veille » = 1440, « 2 h avant » = 120). Sans rappel demandé, 0.",
+  "- `priorite` : aucune, basse, moyenne ou haute (« urgent » = haute). Sans indice, aucune.",
+  "- Répétition : `recurrence_frequence` vaut quotidien, hebdomadaire, mensuel ou annuel, sinon chaîne vide. Tout autre rythme (« tous les 15 jours ») : `recurrence_frequence` vide et `recurrence_non_supportee` reprend l'expression citée (sinon vide). `recurrence_fin` : AAAA-MM-JJ si une fin est citée, sinon chaîne vide.",
+  "- `liste` : nom cité par Vincent (reprends l'orthographe d'une liste existante si elle correspond), sinon chaîne vide. `tags` : seulement ceux cités.",
+] as const;
+
+export const CAS_QUESTION_TACHES = [
+  "un jour de la semaine cité qui est aujourd'hui (« jeudi » un jeudi)",
+  "un rappel demandé sans heure",
+  "une heure ambiguë matin/soir (« 8h »)",
+  "aucun titre reconnaissable",
+] as const;

@@ -2,6 +2,7 @@
 
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiISO } from "@/lib/budget/compute";
+import { MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import {
   genererProgrammeParGemini,
   type HabitudeSnapshot,
@@ -42,7 +43,6 @@ async function avecRepliVide<T>(lecture: Promise<T[]>, message: string): Promise
 }
 
 const MESSAGE_ECHEC = "La génération du programme a échoué. Réessaie.";
-const MESSAGE_QUOTA = "Le quota gratuit de Gemini est atteint pour le moment. Réessaie plus tard.";
 
 export async function genererProgrammeDuJour(): Promise<ActionResult<ProgrammeGenere>> {
   // Toute exception inattendue (lecture en base, bug) est rattrapée ici : une
@@ -142,7 +142,7 @@ async function programmeDuJour(): Promise<ActionResult<ProgrammeGenere>> {
     // le message : sans elle, tous les échecs se ressemblent à l'écran.
     return fail(
       resultat.code === "quota"
-        ? MESSAGE_QUOTA
+        ? MESSAGE_QUOTA_GEMINI
         : `${MESSAGE_ECHEC} (${resultat.detail})`
     );
   }
