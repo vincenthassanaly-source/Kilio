@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { useId, useActionState, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import Image from "next/image";
 import {
   createDocument,
@@ -178,10 +178,17 @@ export function DocumentForm({
       }
       return await action(precedent, formData);
     } catch (err) {
+      console.error("Échec de l'enregistrement du document", err);
+      // « Failed to fetch » / « Load failed » surviennent aussi en ligne
+      // (requête rejetée ou coupée, souvent à cause du poids des photos) :
+      // on n'annonce « hors ligne » que si le navigateur l'est vraiment.
+      const horsLigne = typeof navigator !== "undefined" && navigator.onLine === false;
       return {
-        error: estErreurReseau(err)
+        error: horsLigne
           ? MESSAGE_HORS_LIGNE
-          : "L'enregistrement du document a échoué. Réessaie.",
+          : estErreurReseau(err)
+            ? "L'envoi a échoué alors que tu es en ligne : fichiers trop lourds ou connexion instable. Réessaie avec des photos plus légères."
+            : "L'enregistrement du document a échoué. Réessaie.",
       };
     }
   }, initialState);
@@ -257,7 +264,18 @@ export function DocumentForm({
     !document && fichiersVisibles.length === 0 && selectedFiles.length === 0 && !existingRecto && !existingVerso;
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
+    <form
+      // Pas de `action={formAction}` : React 19 remet à zéro un formulaire à
+      // action après CHAQUE soumission, erreur comprise, ce qui effaçait la
+      // saisie et les fichiers après un échec. Le `onSubmit` conserve les
+      // champs ; la validation native (`required`) s'applique toujours.
+      onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        startTransition(() => formAction(formData));
+      }}
+      className="flex flex-col gap-3"
+    >
       {document && <input type="hidden" name="id" value={document.id} />}
 
       <div className="flex flex-col gap-1">
