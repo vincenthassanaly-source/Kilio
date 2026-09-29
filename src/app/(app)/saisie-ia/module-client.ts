@@ -27,21 +27,31 @@ export type LibellesModule = {
   titreFormulaire: string;
 };
 
-export type ModuleIAClient = {
-  type: TypeElement;
+/** L'élément proposé d'un type donné. */
+export type ElementDe<T extends TypeElement> = Extract<ElementPropose, { type: T }>;
+
+export type ModuleIAClient<E extends ElementPropose = ElementPropose> = {
+  type: E["type"];
   libelles: LibellesModule;
+  /** Nom du type dans le sélecteur de chaque ligne (« Tâche », « Course »…). */
+  nomType: string;
+  /**
+   * Convertit une proposition d'un autre type en proposition de ce type, à
+   * partir de son seul titre (sélecteur de type d'une ligne de l'aperçu).
+   */
+  depuisTitre: (titre: string) => E;
   /** Textes de la saisie quand ce module est seul branché. */
   saisie: { invite: string; label: string; placeholder: string };
-  titre: (element: ElementPropose) => string;
+  titre: (element: E) => string;
   /** Ce que le serveur reçoit à la validation. */
-  versCreation: (element: ElementPropose) => ElementACreer;
+  versCreation: (element: E) => ElementACreer;
   /** Détails d'une ligne de l'aperçu (moment, pastilles, avertissements). */
-  Detail: ComponentType<{ element: ElementPropose }>;
+  Detail: ComponentType<{ element: E }>;
   /**
    * Rend la proposition éditable dans le formulaire manuel quand elle
    * dépend d'une ressource encore à créer (ex. une nouvelle liste).
    */
-  preparerEdition?: (element: ElementPropose) => Promise<ActionResult<ElementPropose>>;
+  preparerEdition?: (element: E) => Promise<ActionResult<E>>;
   precharger?: () => void;
   Formulaire: ComponentType<{ edition: EditionFormulaire; onDone: (avertissement?: string) => void }>;
   /** Rafraîchit les données du module après création. */

@@ -41,6 +41,14 @@ export async function assurerListe(supabase: Supabase, nom: string, cache: Map<s
   return data.id;
 }
 
+// Première liste (celle que le formulaire présélectionne) ; « Tâches » est
+// créée quand l'app n'en a encore aucune.
+async function premiereListe(supabase: Supabase, cache: Map<string, string>): Promise<string> {
+  const { data, error } = await supabase.from("listes_taches").select("id").order("ordre", { ascending: true }).limit(1);
+  if (error) throw new Error(error.message);
+  return data?.[0]?.id ?? (await assurerListe(supabase, "Tâches", cache));
+}
+
 // Crée les tâches validées, une à une (l'ordre dans la liste dépend de la
 // précédente). Un échec n'arrête pas le lot : chaque tâche a son résultat,
 // l'UI garde celles qui ont échoué dans l'aperçu.
@@ -51,9 +59,11 @@ export async function creerTaches(taches: TacheACreer[]): Promise<IssueCreation[
 
   for (const t of taches) {
     try {
+      // Sans liste (tâche issue d'un changement de type dans l'aperçu) : la
+      // première, comme le formulaire manuel.
       const listeId = t.nouvelleListe
         ? await assurerListe(supabase, t.nouvelleListe, cacheListes)
-        : t.listeId;
+        : (t.listeId ?? (await premiereListe(supabase, cacheListes)));
       if (!listeId) {
         resultats.push({ ok: false, message: "Liste introuvable." });
         continue;
@@ -83,7 +93,6 @@ export async function creerTaches(taches: TacheACreer[]): Promise<IssueCreation[
       } else {
         resultats.push({
           ok: true,
-          id: etat.id,
           ...(etat.avertissement ? { avertissement: etat.avertissement } : {}),
         });
       }

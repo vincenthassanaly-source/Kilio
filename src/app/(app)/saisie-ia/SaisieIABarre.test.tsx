@@ -66,7 +66,7 @@ function afficher() {
 
 async function saisir(user: ReturnType<typeof userEvent.setup>, texte: string) {
   await user.click(screen.getByRole("button", { name: /Ajouter avec l'IA/ }));
-  await user.type(screen.getByLabelText("Décris la ou les tâches à ajouter"), texte);
+  await user.type(screen.getByLabelText("Décris ce que tu veux ajouter"), texte);
   await user.click(screen.getByRole("button", { name: "Analyser" }));
 }
 
@@ -88,7 +88,7 @@ describe("SaisieIABarre", () => {
         elements: [element(), element({ titre: "Acheter du pain", heure: null, rappel_minutes: null, priorite: "aucune" })],
       },
     });
-    creer.mockResolvedValue({ ok: true, data: [{ index: 0, ok: true, id: "t1" }] });
+    creer.mockResolvedValue({ ok: true, data: [{ index: 0, ok: true }] });
     const user = afficher();
 
     await saisir(user, "dentiste et pain");
@@ -165,7 +165,7 @@ describe("SaisieIABarre", () => {
     expect(screen.getByRole("button", { name: "Réessayer" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Modifier mon texte" }));
-    expect(screen.getByLabelText("Décris la ou les tâches à ajouter")).toHaveValue("dentiste jeudi");
+    expect(screen.getByLabelText("Décris ce que tu veux ajouter")).toHaveValue("dentiste jeudi");
   });
 
   it("échec de Gemini : affiche la cause technique sous le message", async () => {
@@ -225,7 +225,7 @@ describe("SaisieIABarre", () => {
     creer.mockResolvedValue({
       ok: true,
       data: [
-        { index: 0, ok: true, id: "t1" },
+        { index: 0, ok: true },
         { index: 1, ok: false, message: "Liste introuvable." },
       ],
     });
@@ -239,5 +239,103 @@ describe("SaisieIABarre", () => {
     expect(screen.queryByText("Rendez-vous dentiste")).not.toBeInTheDocument();
     expect(showToast).toHaveBeenCalledWith("Tâche créée");
     expect(screen.getByRole("button", { name: /Ajouter avec l'IA/ })).toHaveAttribute("aria-expanded", "true");
+  });
+
+  describe("plusieurs modules", () => {
+    const course = (libelle: string, avertissements: string[] = []): ElementPropose => ({
+      type: "course",
+      donnees: { libelle, avertissements },
+    });
+    const note = (titre: string): ElementPropose => ({
+      type: "note",
+      donnees: {
+        titre,
+        type: "texte",
+        contenu: "Un livre de cuisine",
+        items: [],
+        tagIds: [],
+        nouveauxTags: [],
+        tagNoms: ["idées"],
+        avertissements: [],
+      },
+    });
+
+    it("mêle tâches, courses et notes : libellés neutres, un type par ligne, envoi typé", async () => {
+      analyser.mockResolvedValue({
+        ok: true,
+        data: {
+          statut: "elements",
+          elements: [element(), course("Lait", ["Déjà dans la liste : ne sera pas ajouté une seconde fois."]), note("Idée cadeau")],
+        },
+      });
+      creer.mockResolvedValue({ ok: true, data: [{ index: 0, ok: true }, { index: 1, ok: true }, { index: 2, ok: true }] });
+      const user = afficher();
+
+      await saisir(user, "dentiste, lait, idée cadeau");
+      await user.click(await screen.findByRole("button", { name: "Créer 3 éléments" }));
+
+      await waitFor(() => expect(creer).toHaveBeenCalledTimes(1));
+      expect(creer.mock.calls[0][0].map((e) => e.type)).toEqual(["tache", "course", "note"]);
+      expect(creer.mock.calls[0][0][1]).toEqual({
+        type: "course",
+        donnees: { libelle: "Lait", avertissements: ["Déjà dans la liste : ne sera pas ajouté une seconde fois."] },
+      });
+      await waitFor(() => expect(showToast).toHaveBeenCalledWith("3 éléments créés"));
+    });
+
+    it("affiche le détail propre à chaque type (avertissement de course, pastilles de note)", async () => {
+      analyser.mockResolvedValue({
+        ok: true,
+        data: {
+          statut: "elements",
+          elements: [course("Lait", ["Déjà dans la liste : ne sera pas ajouté une seconde fois."]), note("Idée cadeau")],
+        },
+      });
+      const user = afficher();
+
+      await saisir(user, "lait, idée cadeau");
+
+      expect(await screen.findByText("Déjà dans la liste : ne sera pas ajouté une seconde fois.")).toBeInTheDocument();
+      expect(screen.getByText("Un livre de cuisine")).toBeInTheDocument();
+      expect(screen.getByText("#idées")).toBeInTheDocument();
+    });
+
+    it("changer le type d'une ligne refait la proposition à partir de son titre", async () => {
+      analyser.mockResolvedValue({
+        ok: true,
+        data: { statut: "elements", elements: [element({ titre: "Acheter du lait" })] },
+      });
+      creer.mockResolvedValue({ ok: true, data: [{ index: 0, ok: true }] });
+      const user = afficher();
+
+      await saisir(user, "acheter du lait");
+      const selecteur = await screen.findByRole("combobox", { name: "Type de « Acheter du lait »" });
+      expect(selecteur).toHaveValue("tache");
+      expect(screen.getByText("Priorité haute")).toBeInTheDocument();
+
+      await user.selectOptions(selecteur, "course");
+
+      expect(screen.getByRole("combobox", { name: "Type de « Acheter du lait »" })).toHaveValue("course");
+      expect(screen.queryByText("Priorité haute")).not.toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Ajouter l'article" }));
+      await waitFor(() => expect(creer).toHaveBeenCalledTimes(1));
+      expect(creer.mock.calls[0][0]).toEqual([
+        { type: "course", donnees: { libelle: "Acheter du lait", avertissements: [] } },
+      ]);
+    });
+
+    it("garde le choix de retenir ou non une ligne quand son type change", async () => {
+      analyser.mockResolvedValue({
+        ok: true,
+        data: { statut: "elements", elements: [element({ titre: "Idée" }), element({ titre: "Pain" })] },
+      });
+      const user = afficher();
+
+      await saisir(user, "idée, pain");
+      await user.click(await screen.findByRole("button", { name: "Créer « Idée »" }));
+      await user.selectOptions(screen.getByRole("combobox", { name: "Type de « Idée »" }), "note");
+
+      expect(screen.getByRole("button", { name: "Créer la tâche" })).toBeInTheDocument();
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { MAX_QUESTIONS, type PrecisionDonnee, type ResultatInterpretation } from "./types";
+import { MAX_ELEMENTS, MAX_QUESTIONS, type PrecisionDonnee, type ResultatInterpretation } from "./types";
 import type { ModuleIAServeur, ModulePrepare } from "./module";
 import { ajouterJours, nomDuJour, texteOuNull } from "./outils";
 
@@ -82,11 +82,21 @@ export function construirePrompt(input: {
     }
   }
 
-  lignes.push("", "Règles :", ...modules.flatMap((m) => m.regles), "- N'invente aucune information absente du texte.");
+  lignes.push(
+    "",
+    "Règles :",
+    ...(modules.length > 1
+      ? [
+          `- Chaque chose à ajouter va dans UN SEUL tableau, celui du bon module (${modules.map((m) => `\`${m.cle}\``).join(", ")}), jamais dans plusieurs. Une phrase peut alimenter plusieurs tableaux.`,
+        ]
+      : []),
+    ...modules.flatMap((m) => m.regles),
+    "- N'invente aucune information absente du texte."
+  );
 
   const tableaux = modules.map((m) => `\`${m.cle}\``);
   const cas = modules.flatMap((m) => m.casQuestion).map((c, i) => `(${i + 1}) ${c}`);
-  if (questionsRestantes > 0) {
+  if (questionsRestantes > 0 && cas.length > 0) {
     lignes.push(
       `- Tu peux poser UNE question de précision (il te reste ${questionsRestantes} question(s)), uniquement dans ces cas : ${cas.join(" ; ")}. Dans tous les autres cas, tranche sans demander.`,
       `- Pour poser une question : remplis \`question\` (\`texte\` court, \`choix\` de 2 à 4 réponses courtes) et laisse ${tableaux.join(", ")} ${tableaux.length > 1 ? "vides" : "vide"}. Sinon \`question.texte\` est une chaîne vide et \`question.choix\` une liste vide.`
@@ -114,14 +124,16 @@ export function interpreterReponse(
   if (typeof brut !== "object" || brut === null) return { statut: "vide" };
   const reponse = brut as Record<string, unknown>;
 
-  const elements = modules.flatMap((m, i) => {
+  const elements = modules
+    .flatMap((m, i) => {
     const entrees = reponse[m.cle];
     if (!Array.isArray(entrees)) return [];
     const bruts = entrees
       .filter((e): e is Record<string, unknown> => typeof e === "object" && e !== null)
       .slice(0, m.max);
     return contextes[i].interpreter(bruts);
-  });
+    })
+    .slice(0, MAX_ELEMENTS);
 
   const { question } = reponse;
   if (questionsRestantes > 0 && typeof question === "object" && question !== null) {

@@ -12,9 +12,10 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showToast } from "@/components/toast/toast-store";
 import { DUREE_TOAST_AVERTISSEMENT_MS } from "@/lib/taches/compute";
 import { addCardIcon, card, ghostButton, input, primaryButton, secondaryButton } from "@/lib/ui";
-import { MAX_TEXTE, type ElementPropose, type PrecisionDonnee } from "@/lib/saisie-ia/types";
+import { MAX_TEXTE, type ElementPropose, type PrecisionDonnee, type TypeElement } from "@/lib/saisie-ia/types";
 import type { ModuleIAClient } from "./module-client";
-import { MODULES_CLIENT, MODULE_PAR_DEFAUT, TEXTES_SAISIE } from "./modules-client";
+import { pluriel } from "./communs";
+import { MODULE_PAR_DEFAUT, TEXTES_SAISIE, TYPES_ELEMENT, moduleClient } from "./modules-client";
 
 type Etape = "saisie" | "analyse" | "question" | "apercu" | "erreur";
 type Ligne = { cle: number; element: ElementPropose; retenue: boolean; echec?: string };
@@ -62,14 +63,23 @@ const focusRing =
 // termes neutres quand plusieurs modules sont mêlés.
 function moduleDuLot(elements: ElementPropose[]): ModuleIAClient | null {
   const types = new Set(elements.map((e) => e.type));
-  return types.size === 1 ? MODULES_CLIENT[elements[0].type] : null;
+  return types.size === 1 ? moduleClient(elements[0].type) : null;
 }
 
-const pluriel = (n: number, un: string, plusieurs: string) => (n === 1 ? un : plusieurs.replace("{n}", String(n)));
+const LIBELLES_NEUTRES = {
+  verifier: "Vérifie ce qui est proposé, puis valide.",
+  aValider: (n: number) => pluriel(n, "1 élément à valider", "{n} éléments à valider"),
+  creer: (n: number) => pluriel(n, "Créer l'élément", "Créer {n} éléments"),
+  aucuneRetenue: "Rien de retenu",
+};
+
+function libellesLot(moduleIA: ModuleIAClient | null) {
+  return moduleIA ? moduleIA.libelles : LIBELLES_NEUTRES;
+}
 
 // « Ajouter avec l'IA » : la carte s'étend sur place (comme « Programme du
 // jour », jamais de navigation). Gemini propose, l'aperçu montre ce qui serait
-// créé dans chaque module branché (MODULES_CLIENT), et rien n'existe avant le
+// créé dans chaque module branché (modules-client.ts), et rien n'existe avant le
 // tap de validation. Le formulaire manuel du module sert de sortie de secours :
 // « Modifier » une proposition, ou création simple quand l'IA est indisponible.
 export function SaisieIABarre() {
@@ -180,6 +190,19 @@ export function SaisieIABarre() {
     setEtape("saisie");
   }
 
+  // Sélecteur de type d'une ligne : la proposition est refaite dans l'autre
+  // module à partir de son titre (les détails propres à l'ancien type, comme
+  // la date d'une tâche, ne sont pas conservés).
+  function changerType(cle: number, type: TypeElement) {
+    setLignes((courantes) =>
+      courantes.map((l) =>
+        l.cle === cle && l.element.type !== type
+          ? { cle, retenue: l.retenue, element: moduleClient(type).depuisTitre(moduleClient(l.element.type).titre(l.element)) }
+          : l
+      )
+    );
+  }
+
   function basculerLigne(cle: number) {
     setLignes((courantes) => courantes.map((l) => (l.cle === cle ? { ...l, retenue: !l.retenue } : l)));
   }
@@ -190,7 +213,7 @@ export function SaisieIABarre() {
     setCreation(true);
 
     const resultat = await runAction(
-      () => creerElementsProposes(retenues.map((l) => MODULES_CLIENT[l.element.type].versCreation(l.element))),
+      () => creerElementsProposes(retenues.map((l) => moduleClient(l.element.type).versCreation(l.element))),
       { erreur: "La création a échoué. Réessaie." }
     );
     setCreation(false);
@@ -208,7 +231,7 @@ export function SaisieIABarre() {
       }
     }
 
-    for (const moduleIA of new Set(retenues.map((l) => MODULES_CLIENT[l.element.type]))) {
+    for (const moduleIA of new Set(retenues.map((l) => moduleClient(l.element.type)))) {
       moduleIA.invalider(queryClient);
     }
     if (reussies.size > 0) {
@@ -229,7 +252,7 @@ export function SaisieIABarre() {
   }
 
   async function modifier(ligne: Ligne) {
-    const moduleIA = MODULES_CLIENT[ligne.element.type];
+    const moduleIA = moduleClient(ligne.element.type);
     let element = ligne.element;
     if (moduleIA.preparerEdition) {
       setPreparation(ligne.cle);
@@ -264,15 +287,13 @@ export function SaisieIABarre() {
   }
 
   const retenues = lignes.filter((l) => l.retenue).length;
-  const moduleApercu = moduleDuLot(lignes.map((l) => l.element));
-  const nomElements = moduleApercu
-    ? moduleApercu.libelles
-    : {
-        verifier: "Vérifie ce qui est proposé, puis valide.",
-        aValider: (n: number) => pluriel(n, "1 élément à valider", "{n} éléments à valider"),
-        creer: (n: number) => pluriel(n, "Créer l'élément", "Créer {n} éléments"),
-        aucuneRetenue: "Rien de retenu",
-      };
+  // Libellés de l'aperçu : ceux du module quand toutes les lignes en viennent,
+  // neutres sinon. Le bouton de validation suit les lignes retenues (ce qui
+  // sera créé), le reste suit toutes les lignes affichées.
+  const elementsApercu = lignes.map((l) => l.element);
+  const elementsRetenus = lignes.filter((l) => l.retenue).map((l) => l.element);
+  const nomElements = libellesLot(moduleDuLot(elementsApercu));
+  const nomRetenus = libellesLot(moduleDuLot(elementsRetenus.length > 0 ? elementsRetenus : elementsApercu));
   const sousTitre = !ouvert
     ? TEXTES_SAISIE.invite
     : {
@@ -428,7 +449,7 @@ export function SaisieIABarre() {
                   </p>
                   <ul className="flex flex-col divide-y divide-line">
                     {lignes.map((ligne) => {
-                      const moduleIA = MODULES_CLIENT[ligne.element.type];
+                      const moduleIA = moduleClient(ligne.element.type);
                       const titre = moduleIA.titre(ligne.element);
                       return (
                         <li key={ligne.cle} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
@@ -456,6 +477,21 @@ export function SaisieIABarre() {
                                 {preparation === ligne.cle ? "…" : "Modifier"}
                               </button>
                             </div>
+                            {TYPES_ELEMENT.length > 1 && (
+                              <select
+                                aria-label={`Type de « ${titre} »`}
+                                value={ligne.element.type}
+                                disabled={creation}
+                                onChange={(e) => changerType(ligne.cle, e.target.value as TypeElement)}
+                                className={`min-h-9 w-fit rounded-full border border-line bg-surface-alt px-3 text-[12.5px] font-semibold text-ink disabled:opacity-60 ${focusRing}`}
+                              >
+                                {TYPES_ELEMENT.map((type) => (
+                                  <option key={type} value={type}>
+                                    {moduleClient(type).nomType}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
                             <moduleIA.Detail element={ligne.element} />
                             {ligne.echec && (
                               <p role="alert" className="text-[12.5px] font-medium text-alert">
@@ -474,7 +510,7 @@ export function SaisieIABarre() {
                       disabled={retenues === 0 || creation}
                       className={`${primaryButton} min-h-11 w-full`}
                     >
-                      {creation ? "Création…" : retenues === 0 ? nomElements.aucuneRetenue : nomElements.creer(retenues)}
+                      {creation ? "Création…" : retenues === 0 ? nomRetenus.aucuneRetenue : nomRetenus.creer(retenues)}
                     </button>
                     <button type="button" onClick={modifierLeTexte} disabled={creation} className={`${secondaryButton} min-h-11 w-full`}>
                       Modifier mon texte

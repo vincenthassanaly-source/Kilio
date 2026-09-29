@@ -9,7 +9,20 @@ import {
 } from "@/lib/taches/saisie-naturelle";
 import type { ModuleIAServeur } from "./module";
 import { construirePrompt, construireSchema, interpreterReponse } from "./moteur";
-import { MAX_QUESTIONS } from "./types";
+import {
+  CAS_QUESTION_COURSES,
+  REGLES_COURSES,
+  interpreterCourses,
+  lignesContexteCourses,
+  type ArticleConnu,
+} from "@/lib/courses/saisie-naturelle";
+import {
+  CAS_QUESTION_NOTES,
+  REGLES_NOTES,
+  interpreterNotes,
+  lignesContexteNotes,
+} from "@/lib/notes/saisie-naturelle";
+import { MAX_ELEMENTS, MAX_QUESTIONS } from "./types";
 
 // Jeudi 1er octobre 2026 : le calendrier du prompt part de cette date.
 const AUJOURDHUI = "2026-10-01";
@@ -123,62 +136,106 @@ describe("construirePrompt", () => {
   });
 });
 
-// Un second module factice suffit à vérifier que le moteur compose : un seul
-// appel, un tableau par module, des éléments typés dans l'ordre des modules.
+// Trois modules réels (logique pure, contexte fourni par le test) : le moteur
+// compose un seul appel avec un tableau par module, et distribue les éléments
+// typés dans l'ordre des modules.
+const articles: ArticleConnu[] = [
+  { id: "a1", libelle: "Lait", coche: false },
+  { id: "a2", libelle: "Pain", coche: true },
+];
+const tagsNotes = [{ id: "t-idees", nom: "idées" }];
+
+const moduleCourses: ModuleIAServeur = {
+  type: "course",
+  cle: "courses",
+  libelle: "articles de courses",
+  max: 30,
+  schemaElement: { type: "object", properties: { libelle: { type: "string" } }, required: ["libelle"] },
+  regles: REGLES_COURSES,
+  casQuestion: CAS_QUESTION_COURSES,
+  preparer: async () => ({
+    lignesContexte: lignesContexteCourses(articles),
+    interpreter: (bruts) => interpreterCourses(bruts, articles).map((donnees) => ({ type: "course" as const, donnees })),
+  }),
+  creer: async () => [],
+};
+
+const moduleNotes: ModuleIAServeur = {
+  type: "note",
+  cle: "notes",
+  libelle: "notes",
+  max: 3,
+  schemaElement: { type: "object", properties: { titre: { type: "string" } }, required: ["titre"] },
+  regles: REGLES_NOTES,
+  casQuestion: CAS_QUESTION_NOTES,
+  preparer: async () => ({
+    lignesContexte: lignesContexteNotes(tagsNotes),
+    interpreter: (bruts) => interpreterNotes(bruts, tagsNotes).map((donnees) => ({ type: "note" as const, donnees })),
+  }),
+  creer: async () => [],
+};
+
 describe("moteur — plusieurs modules", () => {
-  const moduleCourses: ModuleIAServeur = {
-    type: "tache", // le type réel n'importe pas pour ces vérifications de composition
-    cle: "courses",
-    libelle: "courses",
-    max: 20,
-    schemaElement: { type: "object", properties: { libelle: { type: "string" } }, required: ["libelle"] },
-    regles: ["- Une course par article à acheter."],
-    casQuestion: ["un article sans quantité claire"],
-    preparer: async () => ({
-      lignesContexte: ["Articles déjà sur la liste (JSON) : []"],
-      interpreter: (bruts) =>
-        bruts.map((b) => ({
-          type: "tache" as const,
-          donnees: { ...interpreterTaches([{ titre: String(b.libelle) }], ctxTaches)[0] },
-        })),
-    }),
-    creer: async () => [],
-  };
-  const modules = [moduleTaches, moduleCourses];
+  const modules = [moduleTaches, moduleCourses, moduleNotes];
+  const contextes = () => Promise.all(modules.map((m) => m.preparer(AUJOURDHUI)));
 
   it("construit un schéma avec un tableau obligatoire par module", () => {
     const schema = construireSchema(modules);
-    expect(Object.keys(schema.properties)).toEqual(["question", "taches", "courses"]);
-    expect(schema.required).toEqual(["question", "taches", "courses"]);
-    expect(schema.properties.courses).toMatchObject({ type: "array", maxItems: 20 });
+    expect(Object.keys(schema.properties)).toEqual(["question", "taches", "courses", "notes"]);
+    expect(schema.required).toEqual(["question", "taches", "courses", "notes"]);
+    expect(schema.properties.courses).toMatchObject({ type: "array", maxItems: 30 });
     expect(JSON.stringify(schema)).not.toContain("nullable");
   });
 
-  it("compose le prompt : introduction, contextes, règles et cas de question numérotés", async () => {
-    const contextes = await Promise.all(modules.map((m) => m.preparer(AUJOURDHUI)));
-    const p = construirePrompt({ texte: "x", precisions: [], aujourdhui: AUJOURDHUI, modules, contextes });
-    expect(p).toContain("en tâches et courses pour son app");
-    expect(p).toContain("Articles déjà sur la liste");
-    expect(p).toContain("Une course par article à acheter.");
-    expect(p).toContain("(5) un article sans quantité claire");
-    expect(p).toContain("laisse `taches`, `courses` vides");
+  it("compose le prompt : introduction, contextes, règles de répartition et question", async () => {
+    const p = construirePrompt({ texte: "x", precisions: [], aujourdhui: AUJOURDHUI, modules, contextes: await contextes() });
+    expect(p).toContain("en tâches, articles de courses et notes pour son app");
+    expect(p).toContain('Articles déjà sur la liste de courses (JSON) : ["Lait"]');
+    expect(p).toContain('Tags de notes existants (JSON) : ["idées"]');
+    expect(p).toContain("UN SEUL tableau");
+    expect(p).toContain("jamais dans `taches`, sauf si un jour ou une heure est cité");
+    expect(p).toContain("laisse `taches`, `courses`, `notes` vides");
+  });
+
+  it("n'ajoute la règle de répartition qu'à partir de deux modules", async () => {
+    const p = await prompt("x");
+    expect(p).not.toContain("UN SEUL tableau");
   });
 
   it("interprète chaque tableau avec son module et concatène dans l'ordre", async () => {
-    const contextes = await Promise.all(modules.map((m) => m.preparer(AUJOURDHUI)));
     const r = interpreterReponse(
-      { question: { texte: "", choix: [] }, taches: [{ titre: "Appeler" }], courses: [{ libelle: "Lait" }, "x"] },
+      {
+        question: { texte: "", choix: [] },
+        taches: [{ titre: "Appeler le dentiste" }],
+        courses: [{ libelle: "Œufs" }, "x"],
+        notes: [{ titre: "Idée cadeau", type: "texte", contenu: "Un livre", items: [], tags: ["idées"] }],
+      },
       modules,
-      contextes,
+      await contextes(),
       MAX_QUESTIONS
     );
     expect(r.statut).toBe("elements");
-    if (r.statut === "elements") expect(r.elements.map((e) => e.donnees.titre)).toEqual(["Appeler", "Lait"]);
+    if (r.statut === "elements") expect(r.elements.map((e) => e.type)).toEqual(["tache", "course", "note"]);
   });
 
   it("ignore un tableau absent ou mal formé d'un module", async () => {
-    const contextes = await Promise.all(modules.map((m) => m.preparer(AUJOURDHUI)));
-    const r = interpreterReponse({ question: null, taches: [{ titre: "Appeler" }], courses: "oups" }, modules, contextes, 0);
+    const r = interpreterReponse(
+      { question: null, taches: [{ titre: "Appeler" }], courses: "oups" },
+      modules,
+      await contextes(),
+      0
+    );
     expect(r.statut === "elements" && r.elements.length).toBe(1);
+  });
+
+  it("plafonne le total d'éléments à MAX_ELEMENTS", async () => {
+    const courses = Array.from({ length: 30 }, (_, i) => ({ libelle: `Article ${i}` }));
+    const r = interpreterReponse(
+      { question: null, taches: [{ titre: "T1" }, { titre: "T2" }], courses },
+      modules,
+      await contextes(),
+      0
+    );
+    expect(r.statut === "elements" && r.elements.length).toBe(MAX_ELEMENTS);
   });
 });
