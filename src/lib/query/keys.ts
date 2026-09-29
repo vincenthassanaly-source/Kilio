@@ -26,6 +26,4 @@ export const queryKeys = {
   // skill kilio-planning-travail) : voir AgendaView pour le staleTime dédié.
   planningTravail: ["planning-travail"] as const,
   planningTravailExceptions: ["planning-travail-exceptions"] as const,
-  skillsCategories: ["skills-categories"] as const,
-  skillsParCategorie: (categorie: string) => ["skills-categorie", categorie] as const,
 };

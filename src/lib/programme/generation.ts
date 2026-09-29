@@ -1,10 +1,8 @@
 // Génération du "programme du jour" via l'API Gemini (gemini-3.1-flash-lite,
-// tier gratuit) — même pattern que suggererSkillsParGemini
-// (lib/skills/matching.ts) : requête structurée (responseSchema), timeout
-// court, jamais d'exception. Contrairement au matching Skills, il n'existe
-// pas de repli local équivalent (rien à générer sans Gemini) : un échec
-// renvoie `null` et l'appelant (app/actions/programme.ts) affiche un message
-// d'échec plutôt qu'une proposition inventée.
+// tier gratuit) : requête structurée (responseSchema), timeout court, jamais
+// d'exception. Il n'existe pas de repli local (rien à générer sans Gemini) :
+// un échec renvoie `null` et l'appelant (app/actions/programme.ts) affiche un
+// message d'échec plutôt qu'une proposition inventée.
 
 const GEMINI_MODEL = "gemini-3.1-flash-lite";
 const GEMINI_TIMEOUT_MS = 8000;
