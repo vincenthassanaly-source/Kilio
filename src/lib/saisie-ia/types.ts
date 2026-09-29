@@ -1,4 +1,5 @@
 import type { CoursePropose } from "@/lib/courses/saisie-naturelle";
+import type { RepasACreer, RepasPropose } from "@/lib/nutrition/saisie-naturelle";
 import type { NotePropose } from "@/lib/notes/saisie-naturelle";
 import type { TacheACreer, TachePropose } from "@/lib/taches/saisie-naturelle";
 
@@ -19,14 +20,16 @@ export type PrecisionDonnee = { question: string; reponse: string };
 export type ElementPropose =
   | { type: "tache"; donnees: TachePropose }
   | { type: "course"; donnees: CoursePropose }
-  | { type: "note"; donnees: NotePropose };
+  | { type: "note"; donnees: NotePropose }
+  | { type: "repas"; donnees: RepasPropose };
 
 // Ce qui est renvoyé au serveur à la validation : seulement les champs lus à
 // la création, tous revalidés côté serveur.
 export type ElementACreer =
   | { type: "tache"; donnees: TacheACreer }
   | { type: "course"; donnees: CoursePropose }
-  | { type: "note"; donnees: NotePropose };
+  | { type: "note"; donnees: NotePropose }
+  | { type: "repas"; donnees: RepasACreer };
 
 export type TypeElement = ElementPropose["type"];
 

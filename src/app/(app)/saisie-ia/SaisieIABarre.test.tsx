@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ElementPropose } from "@/lib/saisie-ia/types";
+import type { RepasPropose } from "@/lib/nutrition/saisie-naturelle";
 import type { TachePropose } from "@/lib/taches/saisie-naturelle";
 
 vi.mock("@/app/actions/saisie-ia", () => ({
@@ -10,6 +11,7 @@ vi.mock("@/app/actions/saisie-ia", () => ({
   creerElementsProposes: vi.fn(),
 }));
 vi.mock("@/app/actions/saisie-taches", () => ({ preparerListe: vi.fn() }));
+vi.mock("@/app/actions/journal", () => ({ getCatalogueJournal: vi.fn().mockResolvedValue({ items: [], recents: [] }) }));
 vi.mock("@/app/actions/taches", () => ({
   getListes: vi.fn().mockResolvedValue([]),
   getTags: vi.fn().mockResolvedValue([]),
@@ -336,6 +338,94 @@ describe("SaisieIABarre", () => {
       await user.selectOptions(screen.getByRole("combobox", { name: "Type de « Idée »" }), "note");
 
       expect(screen.getByRole("button", { name: "Créer la tâche" })).toBeInTheDocument();
+    });
+
+    describe("repas", () => {
+      const repas = (surcharge: Partial<RepasPropose> = {}): ElementPropose => ({
+        type: "repas",
+        donnees: {
+          nom: "Œuf",
+          cible: { type: "aliment", id: "a-oeuf" },
+          quantite: 120,
+          quantiteLibelle: "2 pièces",
+          moment: "petit_dej",
+          date: "2026-10-01",
+          kcal: 168,
+          avertissements: [],
+          ...surcharge,
+        },
+      });
+      const aPreciser = () =>
+        repas({
+          nom: "œufs brouillés",
+          cible: null,
+          quantite: null,
+          quantiteLibelle: null,
+          kcal: null,
+          avertissements: ["Aucun aliment du catalogue ne correspond : choisis-le dans « Modifier »."],
+        });
+
+      it("affiche quantité, moment et kcal du catalogue d'un repas complet, coché d'office", async () => {
+        analyser.mockResolvedValue({ ok: true, data: { statut: "elements", elements: [repas()] } });
+        creer.mockResolvedValue({ ok: true, data: [{ index: 0, ok: true }] });
+        const user = afficher();
+
+        await saisir(user, "2 œufs ce matin");
+
+        expect(await screen.findByText("2 pièces")).toBeInTheDocument();
+        expect(screen.getByText("168 kcal")).toBeInTheDocument();
+        expect(screen.getByText(/Petit-déj/)).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "Ajouter le repas" }));
+        await waitFor(() => expect(creer).toHaveBeenCalledTimes(1));
+        expect(creer.mock.calls[0][0]).toEqual([
+          {
+            type: "repas",
+            donnees: { cible: { type: "aliment", id: "a-oeuf" }, quantite: 120, moment: "petit_dej", date: "2026-10-01" },
+          },
+        ]);
+        await waitFor(() => expect(showToast).toHaveBeenCalledWith("Repas ajouté"));
+      });
+
+      it("un repas à préciser part décoché : rien à créer tant qu'il n'est pas complété", async () => {
+        analyser.mockResolvedValue({ ok: true, data: { statut: "elements", elements: [aPreciser()] } });
+        const user = afficher();
+
+        await saisir(user, "œufs brouillés");
+
+        expect(await screen.findByText("Aliment à préciser")).toBeInTheDocument();
+        expect(screen.getByText("Quantité à préciser")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Aucun repas retenu" })).toBeDisabled();
+        expect(screen.getByRole("button", { name: "Modifier « œufs brouillés »" })).toBeInTheDocument();
+      });
+
+      it("le repas à préciser ne bloque pas le reste du lot, et une conversion en tâche le recoche", async () => {
+        analyser.mockResolvedValue({
+          ok: true,
+          data: { statut: "elements", elements: [element({ titre: "Appeler" }), aPreciser()] },
+        });
+        const user = afficher();
+
+        await saisir(user, "appeler, œufs brouillés");
+        expect(await screen.findByRole("button", { name: "Créer la tâche" })).toBeInTheDocument();
+
+        await user.selectOptions(screen.getByRole("combobox", { name: "Type de « œufs brouillés »" }), "tache");
+
+        expect(screen.getByRole("button", { name: "Créer 2 tâches" })).toBeInTheDocument();
+      });
+
+      it("convertir une ligne en repas la laisse décochée avec un avertissement", async () => {
+        analyser.mockResolvedValue({
+          ok: true,
+          data: { statut: "elements", elements: [element({ titre: "Banane" })] },
+        });
+        const user = afficher();
+
+        await saisir(user, "banane");
+        await user.selectOptions(await screen.findByRole("combobox", { name: "Type de « Banane »" }), "repas");
+
+        expect(screen.getByRole("button", { name: "Aucun repas retenu" })).toBeDisabled();
+        expect(screen.getByText("Aliment à préciser")).toBeInTheDocument();
+      });
     });
   });
 });

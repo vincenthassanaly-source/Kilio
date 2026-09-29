@@ -2,6 +2,7 @@ import type { TypeElement } from "@/lib/saisie-ia/types";
 import type { ElementDe, ModuleIAClient } from "./module-client";
 import { moduleCoursesClient } from "./module-courses";
 import { moduleNotesClient } from "./module-notes";
+import { moduleRepasClient } from "./module-repas";
 import { moduleTachesClient } from "./module-taches";
 
 // Modules branchés sur « Ajouter avec l'IA » côté client, dans l'ordre du
@@ -11,6 +12,7 @@ export const MODULES_CLIENT: { [K in TypeElement]: ModuleIAClient<ElementDe<K>> 
   tache: moduleTachesClient,
   course: moduleCoursesClient,
   note: moduleNotesClient,
+  repas: moduleRepasClient,
 };
 
 /**

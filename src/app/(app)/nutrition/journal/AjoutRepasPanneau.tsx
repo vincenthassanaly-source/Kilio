@@ -100,15 +100,17 @@ function LigneCatalogue({
 
 function EtapeChoix({
   moment,
+  requeteInitiale,
   onMoment,
   onChoisir,
 }: {
   moment: MomentRepas;
+  requeteInitiale: string;
   onMoment: (m: MomentRepas) => void;
   onChoisir: (item: CatalogueItem, recent?: SaisieRecente) => void;
 }) {
   const champId = useId();
-  const [requete, setRequete] = useState("");
+  const [requete, setRequete] = useState(requeteInitiale);
   // La liste filtrée suit la frappe sans la ralentir (rerender-use-deferred-value).
   const requeteDifferee = useDeferredValue(requete);
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
@@ -397,16 +399,26 @@ function EtapeQuantite({
  */
 export function AjoutRepasPanneau({
   date,
+  depart,
   onAjoute,
 }: {
   date?: string;
+  /**
+   * Point de départ (proposition de « Ajouter avec l'IA » à corriger) :
+   * un aliment ou une recette déjà choisi, avec sa quantité, ou une recherche
+   * pré-remplie quand rien ne correspond.
+   */
+  depart?: { moment?: MomentRepas; requete?: string; item?: CatalogueItem; recent?: SaisieRecente };
   onAjoute: (item: CatalogueItem, moment: MomentRepas) => void;
 }) {
   const [moment, setMoment] = useState<MomentRepas>(() => {
+    if (depart?.moment) return depart.moment;
     const maintenant = new Date();
     return momentParDefaut(maintenant.getHours() + maintenant.getMinutes() / 60);
   });
-  const [choix, setChoix] = useState<{ item: CatalogueItem; recent?: SaisieRecente } | null>(null);
+  const [choix, setChoix] = useState<{ item: CatalogueItem; recent?: SaisieRecente } | null>(
+    depart?.item ? { item: depart.item, recent: depart.recent } : null
+  );
 
   return choix ? (
     <EtapeQuantite
@@ -420,6 +432,11 @@ export function AjoutRepasPanneau({
       onAjoute={onAjoute}
     />
   ) : (
-    <EtapeChoix moment={moment} onMoment={setMoment} onChoisir={(item, recent) => setChoix({ item, recent })} />
+    <EtapeChoix
+      moment={moment}
+      requeteInitiale={depart?.requete ?? ""}
+      onMoment={setMoment}
+      onChoisir={(item, recent) => setChoix({ item, recent })}
+    />
   );
 }

@@ -1,5 +1,5 @@
 import type { Enums } from "@/lib/supabase/types";
-import { normaliserTexte, texteOuNull } from "@/lib/saisie-ia/outils";
+import { estDateValide, normaliserTexte, texteOuNull } from "@/lib/saisie-ia/outils";
 import { RAPPEL_MINUTES_VALEURS } from "./compute";
 
 // Saisie de tâches en langage naturel : logique pure (aucun réseau, aucune
@@ -16,7 +16,6 @@ const MAX_NOM = 40;
 
 const PRIORITES: readonly Enums<"priorite_tache">[] = ["aucune", "basse", "moyenne", "haute"];
 const FREQUENCES: readonly Enums<"frequence_recurrence">[] = ["quotidien", "hebdomadaire", "mensuel", "annuel"];
-const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const HEURE_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
 // Le formulaire propose 5 min dès qu'une heure est saisie : la saisie
 // naturelle applique le même défaut, visible et modifiable dans l'aperçu.
@@ -72,12 +71,6 @@ export type TacheACreer = Pick<
   | "tagIds"
   | "nouveauxTags"
 >;
-
-function estDateValide(valeur: string): boolean {
-  if (!DATE_REGEX.test(valeur)) return false;
-  const date = new Date(`${valeur}T12:00:00Z`);
-  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === valeur;
-}
 
 /** « 1 h avant », « 15 min avant », « la veille ». */
 export function libelleRappel(minutes: number): string {

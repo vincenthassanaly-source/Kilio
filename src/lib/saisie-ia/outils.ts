@@ -5,8 +5,20 @@ export function normaliserTexte(valeur: string): string {
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
+    // NFD ne décompose pas les ligatures : « Œuf » doit valoir « oeuf ».
+    .replace(/œ/g, "oe")
+    .replace(/æ/g, "ae")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+/** `AAAA-MM-JJ` qui existe vraiment au calendrier (pas de 31 février). */
+export function estDateValide(valeur: string): boolean {
+  if (!DATE_REGEX.test(valeur)) return false;
+  const date = new Date(`${valeur}T12:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === valeur;
 }
 
 export function texteOuNull(valeur: unknown, max: number): string | null {
