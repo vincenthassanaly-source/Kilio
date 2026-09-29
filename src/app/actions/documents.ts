@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
+import { detecterFormat } from "@/lib/documents/detecterFormat";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types";
 
@@ -36,12 +37,13 @@ type FichierUploade = { url: string; fichier_type: "image" | "pdf" };
 
 // Compresse les images (même pattern que compresserEtUploaderPhoto dans
 // collections.ts) ; les PDF sont uploadés tels quels, sharp ne les
-// supportant pas.
+// supportant pas. Le format est reconnu d'après le contenu si le type MIME
+// est vide (voir detecterFormat).
 async function uploaderFichier(supabase: SupabaseClient, fichier: File): Promise<FichierUploade> {
-  const estImage = fichier.type.startsWith("image/");
+  const buffer = Buffer.from(await fichier.arrayBuffer());
+  const format = detecterFormat(fichier, buffer);
 
-  if (estImage) {
-    const buffer = Buffer.from(await fichier.arrayBuffer());
+  if (format === "image") {
     const compresse = await sharp(buffer)
       .rotate()
       .resize(DOCUMENT_IMAGE_MAX_DIMENSION, DOCUMENT_IMAGE_MAX_DIMENSION, {
@@ -65,11 +67,10 @@ async function uploaderFichier(supabase: SupabaseClient, fichier: File): Promise
     return { url: publicUrl, fichier_type: "image" };
   }
 
-  if (fichier.type !== "application/pdf") {
+  if (format !== "pdf") {
     throw new Error("Format de fichier non supporté (image ou PDF uniquement).");
   }
 
-  const buffer = Buffer.from(await fichier.arrayBuffer());
   const chemin = `${crypto.randomUUID()}.pdf`;
 
   const { error: uploadError } = await supabase.storage
