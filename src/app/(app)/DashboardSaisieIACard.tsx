@@ -36,7 +36,7 @@ const AddTaskForm = dynamic(() => import("./taches/AddTaskForm").then((m) => m.A
 
 type Etape = "saisie" | "analyse" | "question" | "apercu" | "erreur";
 type Ligne = { cle: number; tache: TachePropose; retenue: boolean; echec?: string };
-type Erreur = { code: "quota" | "echec" | "incomprehensible"; message: string };
+type Erreur = { code: "quota" | "echec" | "incomprehensible"; message: string; detail?: string };
 // `cle` : ligne de l'aperçu à retirer une fois le formulaire validé ; null
 // pour la création simple depuis le texte brut (repli sans IA).
 type Edition = { cle: number | null; titre: string; tache?: TachePropose; listeId?: string };
@@ -186,7 +186,17 @@ export function DashboardSaisieIACard() {
     if (numero !== requete.current) return;
 
     if (!resultat.ok) {
-      setErreur({ code: "echec", message: resultat.error });
+      // Le message de repli de runAction (exception côté appel) sans cause
+      // plus précise : le serveur n'a pas répondu correctement (plantage ou
+      // délai de la fonction), ce que l'action ne peut pas rattraper elle-même.
+      setErreur({
+        code: "echec",
+        message: resultat.error,
+        detail:
+          resultat.error === MESSAGE_ANALYSE
+            ? "Le serveur n'a pas répondu correctement (erreur ou délai de la fonction)."
+            : undefined,
+      });
       setEtape("erreur");
       return;
     }
@@ -198,7 +208,7 @@ export function DashboardSaisieIACard() {
       setQuestion({ texte: analyse.question, choix: analyse.choix });
       setEtape("question");
     } else {
-      setErreur({ code: analyse.code, message: analyse.message });
+      setErreur({ code: analyse.code, message: analyse.message, detail: analyse.detail });
       setEtape("erreur");
     }
   }
@@ -537,6 +547,9 @@ export function DashboardSaisieIACard() {
                 <div className="flex flex-col gap-3">
                   <div role="alert" className="flex flex-col gap-1">
                     <p className="text-pretty text-[13.5px] text-ink">{erreur.message}</p>
+                    {erreur.detail && (
+                      <p className="break-words text-[12.5px] text-ink-2">Détail : {erreur.detail}</p>
+                    )}
                     <p className="line-clamp-2 text-[12.5px] text-ink-2">Ton texte est conservé : « {texte} »</p>
                   </div>
                   <div className="flex flex-col gap-2">

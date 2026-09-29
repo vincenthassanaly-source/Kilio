@@ -6,19 +6,28 @@ import { MAX_TACHES } from "./saisie-naturelle";
 // autres échecs : l'UI n'y propose pas « Réessayer » de la même façon. Aucun
 // compteur d'appels de notre côté : c'est Google qui renvoie 429 quand le
 // quota gratuit (partagé avec le programme du jour) est atteint.
+//
+// Chaque échec porte un `detail` court, affiché sous le message d'erreur : la
+// cause exacte (statut HTTP, message de Google, délai dépassé…) ne se perd plus
+// derrière un « L'analyse a échoué » identique pour tous les cas.
 
 const GEMINI_TIMEOUT_MS = 10_000;
+const DETAIL_MAX = 200;
 
 export type ResultatGemini =
   | { ok: true; brut: unknown }
-  | { ok: false; code: "quota" | "echec" };
+  | { ok: false; code: "quota" | "echec"; detail: string };
 
-const SCHEMA_REPONSE = {
+// Schéma volontairement sans `nullable` : aucune valeur n'est optionnelle,
+// « pas de valeur » s'écrit par une chaîne vide (ou 0 pour le rappel). Le
+// mot-clé `nullable` du sous-ensemble OpenAPI de Gemini n'est pas garanti
+// selon les modèles ; une chaîne vide, elle, l'est toujours. La revalidation
+// côté serveur (saisie-naturelle.ts) traite ces valeurs vides comme absentes.
+export const SCHEMA_REPONSE = {
   type: "object",
   properties: {
     question: {
       type: "object",
-      nullable: true,
       properties: {
         texte: { type: "string" },
         choix: { type: "array", maxItems: 4, items: { type: "string" } },
@@ -32,31 +41,58 @@ const SCHEMA_REPONSE = {
         type: "object",
         properties: {
           titre: { type: "string" },
-          date: { type: "string", nullable: true },
-          heure: { type: "string", nullable: true },
-          heure_fin: { type: "string", nullable: true },
+          date: { type: "string" },
+          heure: { type: "string" },
+          heure_fin: { type: "string" },
           toute_la_journee: { type: "boolean" },
           priorite: { type: "string", enum: ["aucune", "basse", "moyenne", "haute"] },
-          rappel_minutes: { type: "integer", nullable: true },
-          recurrence_frequence: { type: "string", nullable: true },
-          recurrence_non_supportee: { type: "string", nullable: true },
-          recurrence_fin: { type: "string", nullable: true },
-          liste: { type: "string", nullable: true },
+          rappel_minutes: { type: "integer" },
+          recurrence_frequence: { type: "string" },
+          recurrence_non_supportee: { type: "string" },
+          recurrence_fin: { type: "string" },
+          liste: { type: "string" },
           tags: { type: "array", items: { type: "string" } },
         },
-        required: ["titre", "toute_la_journee", "priorite", "tags"],
+        required: [
+          "titre",
+          "date",
+          "heure",
+          "heure_fin",
+          "toute_la_journee",
+          "priorite",
+          "rappel_minutes",
+          "recurrence_frequence",
+          "recurrence_non_supportee",
+          "recurrence_fin",
+          "liste",
+          "tags",
+        ],
       },
     },
   },
   required: ["question", "taches"],
 };
 
+function echec(detail: string): ResultatGemini {
+  console.error(`[saisie-taches] ${detail}`);
+  return { ok: false, code: "echec", detail: detail.slice(0, DETAIL_MAX) };
+}
+
+// Message d'erreur renvoyé par Google (`{ error: { message } }`), s'il y en a
+// un : c'est lui qui dit, par exemple, quel champ du schéma est refusé.
+async function messageGoogle(res: Response): Promise<string> {
+  try {
+    const corps = (await res.json()) as { error?: { message?: unknown } };
+    const message = corps.error?.message;
+    return typeof message === "string" ? message.replace(/\s+/g, " ").trim() : "";
+  } catch {
+    return "";
+  }
+}
+
 export async function appelerGeminiSaisie(prompt: string): Promise<ResultatGemini> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn("[saisie-taches] GEMINI_API_KEY absente : analyse impossible.");
-    return { ok: false, code: "echec" };
-  }
+  if (!apiKey) return echec("Clé GEMINI_API_KEY absente sur le serveur.");
 
   try {
     const res = await fetch(
@@ -80,25 +116,35 @@ export async function appelerGeminiSaisie(prompt: string): Promise<ResultatGemin
 
     if (res.status === 429) {
       console.warn("[saisie-taches] Quota Gemini atteint (429).");
-      return { ok: false, code: "quota" };
+      return { ok: false, code: "quota", detail: "Gemini a répondu 429." };
     }
     if (!res.ok) {
-      console.error(`[saisie-taches] Gemini a répondu ${res.status}.`);
-      return { ok: false, code: "echec" };
+      const message = await messageGoogle(res);
+      return echec(`Gemini a répondu ${res.status}${message ? ` : ${message}` : "."}`);
     }
 
     const data = (await res.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> }; finishReason?: string }>;
+      promptFeedback?: { blockReason?: string };
     };
-    const texte = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const candidat = data.candidates?.[0];
+    const texte = candidat?.content?.parts?.[0]?.text;
     if (typeof texte !== "string") {
-      console.error("[saisie-taches] Réponse Gemini sans texte structuré.");
-      return { ok: false, code: "echec" };
+      const motif = data.promptFeedback?.blockReason ?? candidat?.finishReason;
+      return echec(`Réponse Gemini sans texte${motif ? ` (${motif})` : ""}.`);
     }
 
-    return { ok: true, brut: JSON.parse(texte) };
+    try {
+      return { ok: true, brut: JSON.parse(texte) };
+    } catch {
+      return echec(`Réponse Gemini illisible${candidat?.finishReason ? ` (${candidat.finishReason})` : ""}.`);
+    }
   } catch (err) {
-    console.error("[saisie-taches] Appel Gemini en échec.", err);
-    return { ok: false, code: "echec" };
+    const delaiDepasse = err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError");
+    return echec(
+      delaiDepasse
+        ? `Délai dépassé (${GEMINI_TIMEOUT_MS / 1000} s) : Gemini n'a pas répondu à temps.`
+        : `Appel à Gemini impossible : ${err instanceof Error ? err.message : "erreur inconnue"}.`
+    );
   }
 }

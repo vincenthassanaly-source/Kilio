@@ -162,6 +162,33 @@ describe("DashboardSaisieIACard", () => {
     expect(screen.getByLabelText("Décris la ou les tâches à ajouter")).toHaveValue("dentiste jeudi");
   });
 
+  it("échec de Gemini : affiche la cause technique sous le message", async () => {
+    analyser.mockResolvedValue({
+      ok: true,
+      data: {
+        statut: "erreur",
+        code: "echec",
+        message: "L'analyse a échoué. Réessaie.",
+        detail: "Gemini a répondu 400 : Unknown name \"nullable\"",
+      },
+    });
+    const user = afficher();
+
+    await saisir(user, "colis demain");
+    expect(await screen.findByText("L'analyse a échoué. Réessaie.")).toBeInTheDocument();
+    expect(screen.getByText(/Détail : Gemini a répondu 400/)).toBeInTheDocument();
+  });
+
+  it("le serveur ne répond pas correctement : le dit au lieu d'un message muet", async () => {
+    // runAction renvoie son message de repli quand l'appel lui-même lève.
+    analyser.mockRejectedValue(new Error("An unexpected response was received from the server."));
+    const user = afficher();
+
+    await saisir(user, "colis demain");
+    expect(await screen.findByText("L'analyse a échoué. Réessaie.")).toBeInTheDocument();
+    expect(screen.getByText(/Le serveur n'a pas répondu correctement/)).toBeInTheDocument();
+  });
+
   it("texte incompris : pas de « Réessayer » inutile", async () => {
     analyser.mockResolvedValue({
       ok: true,
