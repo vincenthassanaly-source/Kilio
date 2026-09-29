@@ -136,14 +136,6 @@ const DOCUMENTS_ICON = (c: string) =>
     createElement("rect", { x: 9.2, y: 14.5, width: 5.6, height: 4, rx: 1 })
   );
 
-const SKILLS_ICON = (c: string) =>
-  createElement(
-    "svg",
-    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
-    createElement("path", { d: "M12 3.5l7.5 4.3v8.4L12 20.5l-7.5-4.3V7.8z" }),
-    createElement("path", { d: "M12 3.5v8.5M12 12l7.5-4.2M12 12l-7.5-4.2M12 12v8.5" })
-  );
-
 // Ordre canonique : les 4 modules primaires (épinglés en barre du bas par
 // défaut) puis les 7 modules secondaires. La grille "Plus" liste TOUJOURS
 // les 11 items (voir resolveOrdreGrillePlus dans
@@ -244,13 +236,6 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Papiers importants et échéances",
     accentVar: "var(--accent-documents)",
     icon: DOCUMENTS_ICON,
-  },
-  {
-    href: "/skills",
-    label: "Skills",
-    description: "Quel skill Claude utiliser, et quand",
-    accentVar: "var(--accent-skills)",
-    icon: SKILLS_ICON,
   },
 ];
 
