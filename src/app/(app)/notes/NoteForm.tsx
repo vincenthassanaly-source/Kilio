@@ -226,14 +226,27 @@ function NoteItemsDraft({
   );
 }
 
+// Valeurs de départ d'une nouvelle note (ex. proposition de « Ajouter avec
+// l'IA ») ; ignorées en édition, où la note existante fait foi.
+export type NoteInitiale = {
+  titre: string;
+  type: Enums<"note_type">;
+  contenu: string;
+  items: string[];
+  tagIds: string[];
+  nouveauxTags: string[];
+};
+
 export function NoteForm({
   note,
   tags,
   onDone,
+  initial,
 }: {
   note?: NoteAvecRelations;
   tags: Tables<"tags">[];
   onDone?: () => void;
+  initial?: NoteInitiale;
 }) {
   // Ids uniques par instance (T11) : formulaire rendu en ajout et en édition.
   const uid = useId();
@@ -241,12 +254,12 @@ export function NoteForm({
   const [state, formAction, pending] = useActionState(action, initialState);
   const prevPending = useRef(pending);
 
-  const [type, setType] = useState<Enums<"note_type">>(note?.type ?? "texte");
+  const [type, setType] = useState<Enums<"note_type">>(note?.type ?? initial?.type ?? "texte");
   const [couleur, setCouleur] = useState<NoteCouleur | null>(
     note?.couleur && estCouleurValide(note.couleur) ? note.couleur : null
   );
-  const [tagIds, setTagIds] = useState<string[]>(note?.tags.map((t) => t.id) ?? []);
-  const [draftItems, setDraftItems] = useState<string[]>([]);
+  const [tagIds, setTagIds] = useState<string[]>(note?.tags.map((t) => t.id) ?? initial?.tagIds ?? []);
+  const [draftItems, setDraftItems] = useState<string[]>(initial?.items ?? []);
 
   useEffect(() => {
     if (prevPending.current && !pending && !state.error) {
@@ -285,7 +298,7 @@ export function NoteForm({
         <label htmlFor={`${uid}-titre`} className={labelClass}>
           Titre
         </label>
-        <input id={`${uid}-titre`} name="titre" required defaultValue={note?.titre} className={input} />
+        <input id={`${uid}-titre`} name="titre" required defaultValue={note?.titre ?? initial?.titre} className={input} />
       </div>
 
       {type === "texte" ? (
@@ -297,7 +310,7 @@ export function NoteForm({
             id={`${uid}-contenu`}
             name="contenu"
             rows={note ? 12 : 5}
-            defaultValue={note?.contenu}
+            defaultValue={note?.contenu ?? initial?.contenu}
             className={input}
           />
         </div>
@@ -362,7 +375,13 @@ export function NoteForm({
         <label htmlFor={`${uid}-nouveaux_tags`} className={labelClass}>
           Nouveaux tags (optionnel, séparés par une virgule)
         </label>
-        <input id={`${uid}-nouveaux_tags`} name="nouveaux_tags" placeholder="perso, idées" className={input} />
+        <input
+          id={`${uid}-nouveaux_tags`}
+          name="nouveaux_tags"
+          defaultValue={initial?.nouveauxTags.join(", ")}
+          placeholder="perso, idées"
+          className={input}
+        />
       </div>
 
       {state.error && (

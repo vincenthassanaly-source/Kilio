@@ -13,24 +13,17 @@ import {
   libelleRepetition,
   type TachePropose,
 } from "@/lib/taches/saisie-naturelle";
-import type { ElementPropose } from "@/lib/saisie-ia/types";
 import { preloadAddTaskForm } from "../taches/preloadAddTaskForm";
-import type { EditionFormulaire, ModuleIAClient } from "./module-client";
+import { Avertissements, pluriel } from "./communs";
+import type { EditionFormulaire, ElementDe, ModuleIAClient } from "./module-client";
+
+type ElementTache = ElementDe<"tache">;
 
 const AddTaskForm = dynamic(() => import("../taches/AddTaskForm").then((m) => m.AddTaskForm), {
   ssr: false,
 });
 
 // Module « Tâches » de « Ajouter avec l'IA » (facette client).
-
-function IconeAttention() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-warning)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="mt-[3px] shrink-0">
-      <path d="M12 4l9 16H3L12 4z" />
-      <path d="M12 10v4M12 17.5v.01" />
-    </svg>
-  );
-}
 
 function pastilles(t: TachePropose): { texte: string; accent?: boolean }[] {
   const liste: { texte: string; accent?: boolean }[] = [];
@@ -46,7 +39,7 @@ function pastilles(t: TachePropose): { texte: string; accent?: boolean }[] {
   return liste;
 }
 
-function Detail({ element }: { element: ElementPropose }) {
+function Detail({ element }: { element: ElementTache }) {
   const t = element.donnees;
   return (
     <>
@@ -58,12 +51,7 @@ function Detail({ element }: { element: ElementPropose }) {
           </span>
         ))}
       </div>
-      {t.avertissements.map((avertissement) => (
-        <p key={avertissement} className="flex items-start gap-1.5 text-[12.5px] text-ink-2">
-          <IconeAttention />
-          <span>{avertissement}</span>
-        </p>
-      ))}
+      <Avertissements textes={t.avertissements} />
     </>
   );
 }
@@ -77,7 +65,7 @@ function Formulaire({
 }) {
   const { data: listes = [] } = useQuery({ queryKey: queryKeys.listes, queryFn: getListes });
   const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
-  const t = edition.element?.donnees;
+  const t = edition.element?.type === "tache" ? edition.element.donnees : undefined;
 
   return (
     <AddTaskForm
@@ -106,10 +94,35 @@ function Formulaire({
   );
 }
 
-const pluriel = (n: number, un: string, plusieurs: string) => (n === 1 ? un : plusieurs.replace("{n}", String(n)));
+function tacheDepuisTitre(titre: string): ElementTache {
+  return {
+    type: "tache",
+    donnees: {
+      titre: titre.slice(0, 200),
+      echeance: null,
+      heure: null,
+      heure_fin: null,
+      toute_la_journee: false,
+      priorite: "aucune",
+      rappel_minutes: null,
+      recurrence_frequence: null,
+      recurrence_fin: null,
+      // Sans liste : le serveur prend la première, comme le formulaire.
+      listeId: null,
+      nouvelleListe: null,
+      listeNom: "Liste par défaut",
+      tagIds: [],
+      nouveauxTags: [],
+      tagNoms: [],
+      avertissements: [],
+    },
+  };
+}
 
-export const moduleTachesClient: ModuleIAClient = {
+export const moduleTachesClient: ModuleIAClient<ElementTache> = {
   type: "tache",
+  nomType: "Tâche",
+  depuisTitre: tacheDepuisTitre,
   libelles: {
     verifier: "Vérifie la tâche proposée, puis valide.",
     aValider: (n) => pluriel(n, "1 tâche à valider", "{n} tâches à valider"),

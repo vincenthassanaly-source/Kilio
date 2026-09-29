@@ -50,7 +50,9 @@ async function interpreter(brut: unknown, questionsRestantes = MAX_QUESTIONS) {
 async function premiereTache(brut: Record<string, unknown>) {
   const r = await interpreter({ question: null, taches: [{ titre: "Test", ...brut }] });
   if (r.statut !== "elements") throw new Error(`attendu elements, reçu ${r.statut}`);
-  return r.elements[0].donnees;
+  const element = r.elements[0];
+  if (element.type !== "tache") throw new Error(`attendu tache, reçu ${element.type}`);
+  return element.donnees;
 }
 
 describe("normaliserTexte", () => {
