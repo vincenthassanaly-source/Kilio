@@ -128,7 +128,7 @@ export function DashboardProgrammeCard() {
 
               {etat === "erreur" && (
                 <div className="flex flex-col items-start gap-2 py-1">
-                  <p className="text-[13.5px] text-ink-2">{erreur}</p>
+                  <p className="break-words text-[13.5px] text-ink-2">{erreur}</p>
                   <button type="button" onClick={generer} className={ghostButton}>
                     Réessayer
                   </button>

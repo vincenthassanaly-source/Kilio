@@ -39,7 +39,7 @@ function preparer(opts: { taches?: ReturnType<typeof makeTache>[]; creneaux?: un
   vi.mocked(getHabitudesDuJour).mockResolvedValue([]);
   vi.mocked(getPlanningTravail).mockResolvedValue((opts.creneaux ?? [travailMercredi]) as never);
   vi.mocked(getPlanningTravailExceptions).mockResolvedValue((opts.exceptions ?? []) as never);
-  gemini.mockResolvedValue({ intro: "Ok", propositions: [] });
+  gemini.mockResolvedValue({ ok: true, programme: { intro: "Ok", propositions: [] } });
 }
 
 beforeEach(() => {
@@ -175,12 +175,52 @@ describe("genererProgrammeDuJour", () => {
     expect(r).toMatchObject({ ok: true, data: { intro: expect.stringContaining("Rien de particulier") } });
   });
 
-  it("échec de Gemini : renvoie l'erreur habituelle", async () => {
+  it("renvoie le programme de Gemini", async () => {
     preparer();
-    gemini.mockResolvedValue(null);
+    const programme = {
+      intro: "Soirée calme.",
+      propositions: [{ texte: "Lire", source: "habitude" as const, creneau: "17:30–18:00" }],
+    };
+    gemini.mockResolvedValue({ ok: true, programme });
+
+    expect(await genererProgrammeDuJour()).toEqual({ ok: true, data: programme });
+  });
+
+  it("échec de Gemini : le message d'erreur donne la cause exacte", async () => {
+    preparer();
+    gemini.mockResolvedValue({ ok: false, code: "echec", detail: "Gemini a répondu 403 : API key not valid." });
 
     const r = await genererProgrammeDuJour();
 
-    expect(r).toEqual({ ok: false, error: "La génération du programme a échoué. Réessaie." });
+    expect(r).toEqual({
+      ok: false,
+      error: "La génération du programme a échoué. Réessaie. (Gemini a répondu 403 : API key not valid.)",
+    });
+  });
+
+  it("quota atteint : message dédié", async () => {
+    preparer();
+    gemini.mockResolvedValue({ ok: false, code: "quota", detail: "Gemini a répondu 429." });
+
+    const r = await genererProgrammeDuJour();
+
+    expect(r).toEqual({
+      ok: false,
+      error: "Le quota gratuit de Gemini est atteint pour le moment. Réessaie plus tard.",
+    });
+  });
+
+  it("exception inattendue (lecture en base) : rattrapée avec sa cause", async () => {
+    preparer();
+    vi.mocked(getTachesAvecRelations).mockRejectedValue(new Error("connexion refusée"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const r = await genererProgrammeDuJour();
+
+    expect(r).toEqual({
+      ok: false,
+      error: "La génération du programme a échoué. Réessaie. (Erreur serveur : connexion refusée)",
+    });
+    expect(gemini).not.toHaveBeenCalled();
   });
 });
