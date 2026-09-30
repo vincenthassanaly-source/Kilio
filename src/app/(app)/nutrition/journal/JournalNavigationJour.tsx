@@ -25,6 +25,7 @@ export function JourNavigation({ jour }: { jour?: JourJournal }) {
     <div className="flex gap-1.5">
       <Link
         href={`/nutrition/journal?date=${shiftDate(jour.date, -1)}`}
+        replace
         aria-label="Jour précédent"
         className={`${boutonJour} text-ink`}
       >
@@ -32,6 +33,7 @@ export function JourNavigation({ jour }: { jour?: JourJournal }) {
       </Link>
       <Link
         href={`/nutrition/journal?date=${shiftDate(jour.date, 1)}`}
+        replace
         aria-label="Jour suivant"
         className={`${boutonJour} text-ink`}
       >

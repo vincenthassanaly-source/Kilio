@@ -21,11 +21,11 @@ export function PeriodeNavigation({ route, periode }: { route: string; periode?:
 
   return (
     <div className="flex items-center justify-between gap-2">
-      <Link href={`${route}?periode=${periodeAdjacente(periode, "mensuel", -1)}`} className={ghostButton}>
+      <Link href={`${route}?periode=${periodeAdjacente(periode, "mensuel", -1)}`} replace className={ghostButton}>
         ← Précédent
       </Link>
       <p className="text-[13px] font-semibold text-ink">{formatPeriode(periode)}</p>
-      <Link href={`${route}?periode=${periodeAdjacente(periode, "mensuel", 1)}`} className={ghostButton}>
+      <Link href={`${route}?periode=${periodeAdjacente(periode, "mensuel", 1)}`} replace className={ghostButton}>
         Suivant →
       </Link>
     </div>
