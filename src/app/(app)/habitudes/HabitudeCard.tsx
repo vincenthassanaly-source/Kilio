@@ -24,6 +24,8 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: queryKeys.habitudes(date) });
+    // La progression des objectifs liés dépend de ces check.
+    queryClient.invalidateQueries({ queryKey: ["objectif"] });
   }
 
   // Cocher/décocher une habitude booléenne ou série est l'action la plus
@@ -166,10 +168,24 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
               {habitude.icone && <span className="mr-1.5">{habitude.icone}</span>}
               {habitude.nom}
             </p>
-            {habitude.type === "streak" && habitude.streak > 0 && (
-              <span className={`${pillTag} tabular-nums`}>🔥 {habitude.streak}j</span>
+            {habitude.streak > 0 && (habitude.type === "streak" || habitude.frequence_hebdo != null) && (
+              <span className={`${pillTag} tabular-nums`}>
+                🔥 {habitude.streak}
+                {habitude.frequence_hebdo != null ? " sem." : "j"}
+              </span>
             )}
           </div>
+
+          {habitude.frequence_hebdo != null && (
+            <p className={`${metaText} tabular-nums`}>
+              {habitude.faitsCetteSemaine} / {habitude.frequence_hebdo} cette semaine
+            </p>
+          )}
+          {habitude.objectifs.length > 0 && (
+            <p className={metaText}>
+              Objectif : {habitude.objectifs.map((o) => o.titre).join(", ")}
+            </p>
+          )}
 
           {habitude.type === "quantifiee" && (
             <div className="flex items-center gap-2">

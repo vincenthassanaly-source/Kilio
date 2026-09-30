@@ -61,7 +61,10 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
       if (context?.previous) queryClient.setQueryData(queryKeys.habitudes(date), context.previous);
       showToast("Impossible de mettre à jour l'habitude.");
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.habitudes(date) }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.habitudes(date) });
+      queryClient.invalidateQueries({ queryKey: ["objectif"] });
+    },
   });
 
   function toggle() {
@@ -80,7 +83,7 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
         <span className="text-base leading-none">{habitude.icone || "✓"}</span>
       </ProgressRing>
       <span className="truncate text-[11px] font-semibold text-ink-2">{habitude.nom}</span>
-      {habitude.type === "streak" && habitude.streak > 0 && (
+      {(habitude.type === "streak" || habitude.frequence_hebdo != null) && habitude.streak > 0 && (
         <span className="text-[11px] font-bold text-habitudes">🔥{habitude.streak}</span>
       )}
     </button>

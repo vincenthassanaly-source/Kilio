@@ -1,7 +1,15 @@
 "use client";
 
 import { useId, useActionState, useEffect, useRef, useState } from "react";
-import { creerObjectif, modifierObjectif, type ObjectifFormState } from "@/app/actions/objectifs";
+import { useQuery } from "@tanstack/react-query";
+import {
+  creerObjectif,
+  getHabitudeIdsDeLObjectif,
+  getHabitudesActives,
+  modifierObjectif,
+  type ObjectifFormState,
+} from "@/app/actions/objectifs";
+import { queryKeys } from "@/lib/query/keys";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
@@ -18,12 +26,14 @@ const TYPE_SUIVI_COURT: Record<Enums<"type_suivi_objectif">, string> = {
   valeur: "Valeur",
   etapes: "Étapes",
   binaire: "Oui / non",
+  habitudes: "Habitudes",
 };
 
 const TYPE_SUIVI_LABELS: Record<Enums<"type_suivi_objectif">, string> = {
   valeur: "Valeur cible + courbe",
   etapes: "Checklist d'étapes",
   binaire: "Fait / pas fait",
+  habitudes: "Alimenté par des habitudes",
 };
 
 export function ObjectifForm({
@@ -42,6 +52,17 @@ export function ObjectifForm({
   const [typeSuivi, setTypeSuivi] = useState<Enums<"type_suivi_objectif">>(
     objectif?.type_suivi ?? "binaire"
   );
+
+  const { data: habitudesActives } = useQuery({
+    queryKey: queryKeys.habitudesActives,
+    queryFn: getHabitudesActives,
+    enabled: typeSuivi === "habitudes",
+  });
+  const { data: idsLies } = useQuery({
+    queryKey: queryKeys.habitudesDeLObjectif(objectif?.id ?? ""),
+    queryFn: () => getHabitudeIdsDeLObjectif(objectif!.id),
+    enabled: typeSuivi === "habitudes" && !!objectif,
+  });
 
   useEffect(() => {
     if (prevPending.current && !pending && !state.error) {
@@ -148,6 +169,39 @@ export function ObjectifForm({
             />
           </div>
         </div>
+      )}
+
+      {typeSuivi === "habitudes" && (
+        <fieldset className="flex flex-col gap-2">
+          <legend className={labelClass}>Habitudes rattachées</legend>
+          {!habitudesActives ? (
+            <p className="text-sm text-ink-2">Chargement…</p>
+          ) : habitudesActives.length === 0 ? (
+            <p className="text-sm text-ink-2">
+              Aucune habitude pour l&apos;instant : crée-en d&apos;abord dans le module Habitudes.
+            </p>
+          ) : (
+            habitudesActives.map((h) => (
+              // key change quand les liens existants arrivent : remonte la case
+              // avec le bon defaultChecked (champ non contrôlé).
+              <label key={`${h.id}-${idsLies ? "l" : "n"}`} className="flex items-center gap-2 text-[15px] text-ink">
+                <input
+                  type="checkbox"
+                  name="habitude_ids"
+                  value={h.id}
+                  defaultChecked={idsLies?.includes(h.id) ?? false}
+                />
+                <span>
+                  {h.icone && <span className="mr-1">{h.icone}</span>}
+                  {h.nom}
+                  {h.frequence_hebdo != null && (
+                    <span className="text-ink-2"> · {h.frequence_hebdo}×/sem.</span>
+                  )}
+                </span>
+              </label>
+            ))
+          )}
+        </fieldset>
       )}
 
       {state.error && (

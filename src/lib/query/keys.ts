@@ -20,6 +20,9 @@ export const queryKeys = {
   catalogueJournal: ["catalogue-journal"] as const,
   objectifs: ["objectifs"] as const,
   objectif: (id: string) => ["objectif", id] as const,
+  // Habitudes proposées au rattachement + habitudes déjà liées à un objectif.
+  habitudesActives: ["habitudes-actives"] as const,
+  habitudesDeLObjectif: (id: string) => ["habitudes-de-l-objectif", id] as const,
   collections: ["collections"] as const,
   collection: (id: string) => ["collection", id] as const,
   // Sans mutation côté app (écrites uniquement hors Server Action, cf.
