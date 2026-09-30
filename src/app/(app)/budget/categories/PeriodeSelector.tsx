@@ -35,7 +35,7 @@ export function PeriodeSelector({ selection }: { selection?: Selection }) {
     const params = new URLSearchParams(selection?.parametres);
     params.set("type_periode", nouveauTypePeriode);
     params.set("periode", nouvellePeriode);
-    router.push(`/budget/categories?${params.toString()}`);
+    router.replace(`/budget/categories?${params.toString()}`);
   }
 
   return (
