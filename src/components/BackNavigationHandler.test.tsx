@@ -74,6 +74,15 @@ describe("BackNavigationHandler", () => {
     expect(showToast).not.toHaveBeenCalled();
   });
 
+  it("sur la garde déjà affichée comme parent, remet une entrée au-dessus d'elle", () => {
+    pathnameMock = "/plus";
+    render(<BackNavigationHandler />);
+    const longueur = window.history.length;
+    retourVers("/", { kilioGarde: true });
+    expect(window.history.length).toBe(longueur + 1);
+    expect(push).not.toHaveBeenCalled();
+  });
+
   it("remplace une entrée précédente qui n'est pas le parent logique", () => {
     pathnameMock = "/nutrition/recettes/abc";
     render(<BackNavigationHandler />);

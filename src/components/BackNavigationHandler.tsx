@@ -15,6 +15,27 @@ type EtatGarde = { kilioGarde?: boolean } | null;
 // double montage de StrictMode).
 let gardeInstallee = false;
 
+// Next réécrit le `history.state` de l'entrée vers laquelle on revient, ce
+// qui efface un drapeau posé dessus : la garde est donc identifiée par la clé
+// de son entrée (API Navigation, stable aux remplacements d'état), avec le
+// drapeau dans le state en repli sur les navigateurs sans cette API.
+type NavigationApi = {
+  currentEntry: { key: string } | null;
+  entries: () => { key: string }[];
+};
+const CLE_GARDE_STOCKAGE = "kilio:garde-retour";
+let cleGarde: string | null = null;
+
+function apiNavigation(): NavigationApi | null {
+  return (window as unknown as { navigation?: NavigationApi }).navigation ?? null;
+}
+
+function estSurGarde(): boolean {
+  const cle = apiNavigation()?.currentEntry?.key;
+  if (cle && cleGarde) return cle === cleGarde;
+  return (window.history.state as EtatGarde)?.kilioGarde === true;
+}
+
 /**
  * Rend le bouton/geste « retour » du téléphone prévisible :
  * - depuis une page, il mène toujours à son parent logique (voir
@@ -24,13 +45,20 @@ let gardeInstallee = false;
  *
  * Les couches qui gèrent déjà leur propre retour (`useBackClose`, mode
  * édition de la navigation) poussent des entrées d'historique sur la MÊME
- * URL : un popstate qui n'a pas changé de chemin n'est donc jamais intercepté.
+ * URL : un popstate qui n'a pas changé de chemin n'est donc jamais corrigé.
  *
- * Mécanisme : au chargement, l'entrée courante devient une « garde »
- * (entrée de base) et on repousse une entrée identique au-dessus. Arriver
- * sur la garde = retour depuis la toute première page : on l'intercepte
- * avant le routeur de Next (phase de capture) au lieu de quitter l'app.
- * Sur l'accueil, on reste volontairement sur la garde : le retour suivant
+ * Le routeur de Next enregistre son propre écouteur `popstate` avant le
+ * nôtre et le traite en premier ; React commit même le nouveau chemin
+ * avant que notre écouteur ne s'exécute. On ne peut donc pas lire « la
+ * page d'où l'on vient » dans `usePathname()` au moment du popstate :
+ * `changement` garde la dernière transition de chemin (et son horodatage)
+ * pour la retrouver. Notre correction (`router.replace(parent)`) s'applique
+ * ensuite par-dessus la navigation de Next.
+ *
+ * Mécanisme de sortie : au chargement, l'entrée courante devient une
+ * « garde » (entrée de base) et on repousse une entrée identique au-dessus.
+ * Arriver sur la garde = retour depuis la toute première page. Sur
+ * l'accueil, on reste volontairement sur la garde : le retour suivant
  * quitte alors nativement l'app (aucune entrée avant elle).
  */
 export function BackNavigationHandler() {
@@ -39,18 +67,38 @@ export function BackNavigationHandler() {
   const { modulesBarreBasse } = useNavigationEdit();
 
   const pathnameRef = useRef(pathname);
+  const changementRef = useRef<{ de: string; vers: string; instant: number } | null>(null);
   const modulesRef = useRef(modulesBarreBasse);
   useEffect(() => {
-    pathnameRef.current = pathname;
+    if (pathnameRef.current !== pathname) {
+      changementRef.current = { de: pathnameRef.current, vers: pathname, instant: performance.now() };
+      pathnameRef.current = pathname;
+    }
     modulesRef.current = modulesBarreBasse;
   });
 
   useEffect(() => {
     if (!gardeInstallee) {
       gardeInstallee = true;
-      const etat = (window.history.state ?? {}) as Record<string, unknown>;
-      window.history.replaceState({ ...etat, kilioGarde: true }, "");
-      window.history.pushState({}, "", window.location.href);
+      const nav = apiNavigation();
+      let gardeExistante: string | null = null;
+      try {
+        // Rechargement du document : la garde posée avant existe encore
+        // dans l'historique, inutile d'en empiler une seconde.
+        const cle = sessionStorage.getItem(CLE_GARDE_STOCKAGE);
+        if (cle && nav?.entries().some((entree) => entree.key === cle)) gardeExistante = cle;
+      } catch {}
+      if (gardeExistante) {
+        cleGarde = gardeExistante;
+      } else {
+        const etat = (window.history.state ?? {}) as Record<string, unknown>;
+        window.history.replaceState({ ...etat, kilioGarde: true }, "");
+        cleGarde = nav?.currentEntry?.key ?? null;
+        try {
+          if (cleGarde) sessionStorage.setItem(CLE_GARDE_STOCKAGE, cleGarde);
+        } catch {}
+        window.history.pushState({}, "", window.location.href);
+      }
     }
 
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -58,37 +106,48 @@ export function BackNavigationHandler() {
     let armeSur: string | null = null;
 
     function handlePopState(event: PopStateEvent) {
-      const etat = window.history.state as EtatGarde;
-      const surGarde = etat?.kilioGarde === true;
-      const courant = pathnameRef.current;
+      const surGarde = estSurGarde();
+      const arrivee = window.location.pathname;
+
+      // Page d'où l'on vient : si Next a déjà fait commit le nouveau chemin
+      // pendant cet événement, c'est l'origine de cette transition.
+      const changement = changementRef.current;
+      const dejaCommite = changement !== null && changement.vers === arrivee && changement.instant >= event.timeStamp;
+      const courant = dejaCommite ? changement.de : pathnameRef.current;
 
       // Même chemin, pas la garde : couche (modale, menu, mode édition) ou
       // changement de query, géré par son propre code.
-      if (!surGarde && window.location.pathname === courant) return;
+      if (!surGarde && arrivee === courant) return;
 
       const parent = parentRoute(courant, modulesRef.current);
 
-      // Déjà en attente du second retour sur cette page : un second retour
-      // réel quitte nativement (aucun popstate). Une arrivée sur la garde ne
-      // vient donc que d'une couche (modale) ouverte puis refermée pendant
-      // le délai : on la laisse à son propre code.
-      if (surGarde && armeSur === courant) return;
-
       if (surGarde) {
-        event.stopImmediatePropagation();
+        // Déjà en attente du second retour sur cette page : un second retour
+        // réel quitte nativement (aucun popstate). Une arrivée sur la garde
+        // ne vient donc que d'une couche (modale) ouverte puis refermée
+        // pendant le délai : on la laisse à son propre code.
+        if (armeSur === courant) return;
+
         if (parent === null) {
           showToast("Appuie encore pour quitter", DELAI_DOUBLE_RETOUR_MS);
           armeSur = courant;
+          // Next a pu afficher la page de lancement (URL de la garde) :
+          // remettre l'accueil, en remplaçant la garde.
+          if (arrivee !== "/") router.replace("/");
           if (timer) clearTimeout(timer);
           timer = setTimeout(() => {
             timer = null;
             armeSur = null;
             // Toujours sur la garde (pas de navigation entre-temps) :
             // restaurer l'entrée de l'accueil au-dessus d'elle.
-            if ((window.history.state as EtatGarde)?.kilioGarde) {
+            if (estSurGarde()) {
               window.history.pushState({}, "", "/");
             }
           }, DELAI_DOUBLE_RETOUR_MS);
+        } else if (arrivee === parent) {
+          // Next affiche déjà la page de la garde, qui est le parent : il
+          // suffit de remettre une entrée au-dessus d'elle.
+          window.history.pushState({}, "", parent);
         } else {
           router.push(parent);
         }
@@ -96,17 +155,13 @@ export function BackNavigationHandler() {
       }
 
       // Retour vers une entrée qui n'est pas le parent logique : on la
-      // remplace par le parent, sans laisser le routeur de Next afficher
-      // l'écran intermédiaire.
-      if (parent !== null && window.location.pathname !== parent) {
-        event.stopImmediatePropagation();
-        router.replace(parent);
-      }
+      // remplace par le parent.
+      if (parent !== null && arrivee !== parent) router.replace(parent);
     }
 
-    window.addEventListener("popstate", handlePopState, true);
+    window.addEventListener("popstate", handlePopState);
     return () => {
-      window.removeEventListener("popstate", handlePopState, true);
+      window.removeEventListener("popstate", handlePopState);
       if (timer) clearTimeout(timer);
     };
   }, [router]);
