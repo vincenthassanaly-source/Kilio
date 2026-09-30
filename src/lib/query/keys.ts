@@ -8,6 +8,7 @@ export const queryKeys = {
   tags: ["tags"] as const,
   notes: ["notes"] as const,
   pharmacie: ["pharmacie"] as const,
+  pharmacieReferentiel: ["pharmacie-referentiel"] as const,
   courses: ["courses"] as const,
   habitudes: (date: string) => ["habitudes", date] as const,
   // Historique mensuel d'une habitude (vue calendrier) : clé par habitude +
