@@ -478,7 +478,9 @@ export type Database = {
       habitudes: {
         Row: {
           actif: boolean
+          archivee_le: string | null
           created_at: string
+          frequence_hebdo: number | null
           icone: string | null
           id: string
           nom: string
@@ -490,7 +492,9 @@ export type Database = {
         }
         Insert: {
           actif?: boolean
+          archivee_le?: string | null
           created_at?: string
+          frequence_hebdo?: number | null
           icone?: string | null
           id?: string
           nom: string
@@ -502,7 +506,9 @@ export type Database = {
         }
         Update: {
           actif?: boolean
+          archivee_le?: string | null
           created_at?: string
+          frequence_hebdo?: number | null
           icone?: string | null
           id?: string
           nom?: string
@@ -761,6 +767,39 @@ export type Database = {
             columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      objectif_habitudes: {
+        Row: {
+          created_at: string
+          habitude_id: string
+          objectif_id: string
+        }
+        Insert: {
+          created_at?: string
+          habitude_id: string
+          objectif_id: string
+        }
+        Update: {
+          created_at?: string
+          habitude_id?: string
+          objectif_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "objectif_habitudes_habitude_id_fkey"
+            columns: ["habitude_id"]
+            isOneToOne: false
+            referencedRelation: "habitudes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "objectif_habitudes_objectif_id_fkey"
+            columns: ["objectif_id"]
+            isOneToOne: false
+            referencedRelation: "objectifs"
             referencedColumns: ["id"]
           },
         ]
@@ -1593,7 +1632,7 @@ export type Database = {
       type_compte: "courant" | "epargne" | "autre"
       type_mouvement: "depense" | "revenu" | "virement"
       type_periode_budget: "hebdomadaire" | "mensuel" | "annuel"
-      type_suivi_objectif: "valeur" | "etapes" | "binaire"
+      type_suivi_objectif: "valeur" | "etapes" | "binaire" | "habitudes"
       unite_mesure: "g" | "ml" | "piece"
     }
     CompositeTypes: {
@@ -1749,7 +1788,7 @@ export const Constants = {
       type_compte: ["courant", "epargne", "autre"],
       type_mouvement: ["depense", "revenu", "virement"],
       type_periode_budget: ["hebdomadaire", "mensuel", "annuel"],
-      type_suivi_objectif: ["valeur", "etapes", "binaire"],
+      type_suivi_objectif: ["valeur", "etapes", "binaire", "habitudes"],
       unite_mesure: ["g", "ml", "piece"],
     },
   },

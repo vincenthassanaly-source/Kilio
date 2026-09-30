@@ -34,6 +34,9 @@ export function HabitudeForm({
   const [state, formAction, pending] = useActionState(action, initialState);
   const prevPending = useRef(pending);
   const [type, setType] = useState<Enums<"habitude_type">>(habitude?.type ?? "boolean");
+  const [rythme, setRythme] = useState<"quotidien" | "hebdo">(
+    habitude?.frequence_hebdo != null ? "hebdo" : "quotidien"
+  );
 
   useEffect(() => {
     if (prevPending.current && !pending && !state.error) {
@@ -68,6 +71,39 @@ export function HabitudeForm({
           onChange={setType}
         />
       </div>
+
+      <div className="flex flex-col gap-1">
+        <span className={labelClass}>Rythme</span>
+        <SegmentedControl
+          ariaLabel="Rythme de l'habitude"
+          taille="sm"
+          options={[
+            { value: "quotidien" as const, label: "Chaque jour" },
+            { value: "hebdo" as const, label: "X fois / semaine" },
+          ]}
+          value={rythme}
+          onChange={setRythme}
+        />
+      </div>
+
+      {rythme === "hebdo" && (
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${uid}-frequence_hebdo`} className={labelClass}>
+            Fois par semaine
+          </label>
+          <input
+            id={`${uid}-frequence_hebdo`}
+            name="frequence_hebdo"
+            type="number"
+            min="1"
+            max="6"
+            step="1"
+            required
+            defaultValue={habitude?.frequence_hebdo ?? 3}
+            className={input}
+          />
+        </div>
+      )}
 
       {type === "quantifiee" && (
         <div className="flex gap-3">

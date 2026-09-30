@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
+import { aujourdhuiParis } from "@/lib/date/paris";
+import { progressionObjectif, type HabitudeLiee } from "@/lib/habitudes/compute";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 export type ObjectifFormState = { error: string | null };
 
 const CATEGORIES: readonly Enums<"categorie_objectif">[] = ["perso", "pro"];
-const TYPES_SUIVI: readonly Enums<"type_suivi_objectif">[] = ["valeur", "etapes", "binaire"];
+const TYPES_SUIVI: readonly Enums<"type_suivi_objectif">[] = ["valeur", "etapes", "binaire", "habitudes"];
 const STATUTS: readonly Enums<"statut_objectif">[] = ["en_cours", "atteint", "abandonne"];
 
 type ObjectifInput = {
@@ -20,6 +22,7 @@ type ObjectifInput = {
   date_echeance: string | null;
   valeur_cible: number | null;
   unite: string | null;
+  habitude_ids: string[];
 };
 
 type ParseResult =
@@ -45,6 +48,14 @@ function parseObjectifInput(formData: FormData): ParseResult {
 
   const estValeur = type_suivi === "valeur";
 
+  const habitude_ids =
+    type_suivi === "habitudes"
+      ? [...new Set(formData.getAll("habitude_ids").map(String).filter(Boolean))]
+      : [];
+  if (type_suivi === "habitudes" && habitude_ids.length === 0) {
+    return { ok: false, error: "Choisis au moins une habitude à rattacher." };
+  }
+
   let valeur_cible: number | null = null;
   if (estValeur && valeurCibleRaw) {
     valeur_cible = Number(valeurCibleRaw);
@@ -63,8 +74,53 @@ function parseObjectifInput(formData: FormData): ParseResult {
       date_echeance: date_echeance || null,
       valeur_cible,
       unite: estValeur && unite ? unite : null,
+      habitude_ids,
     },
   };
+}
+
+// Remplace l'ensemble des habitudes rattachées à un objectif. Liste vide
+// (objectif qui n'est plus en mode "habitudes") = plus aucun lien.
+async function remplacerHabitudesLiees(objectifId: string, habitudeIds: string[]): Promise<string | null> {
+  const supabase = createAdminClient();
+
+  const { error: suppression } = await supabase
+    .from("objectif_habitudes")
+    .delete()
+    .eq("objectif_id", objectifId);
+  if (suppression) return suppression.message;
+
+  if (habitudeIds.length === 0) return null;
+
+  const { error: insertion } = await supabase
+    .from("objectif_habitudes")
+    .insert(habitudeIds.map((habitude_id) => ({ objectif_id: objectifId, habitude_id })));
+  return insertion ? insertion.message : null;
+}
+
+// Habitudes proposées au rattachement dans le formulaire d'objectif.
+export async function getHabitudesActives(): Promise<Pick<Tables<"habitudes">, "id" | "nom" | "icone" | "frequence_hebdo">[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("habitudes")
+    .select("id, nom, icone, frequence_hebdo")
+    .eq("actif", true)
+    .order("ordre", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+// Habitudes rattachées à un objectif, pour préremplir le formulaire d'édition.
+export async function getHabitudeIdsDeLObjectif(objectifId: string): Promise<string[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("objectif_habitudes")
+    .select("habitude_id")
+    .eq("objectif_id", objectifId);
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((l) => l.habitude_id);
 }
 
 export async function creerObjectif(
@@ -83,14 +139,20 @@ export async function creerObjectif(
     .limit(1)
     .maybeSingle();
 
-  const { error } = await supabase.from("objectifs").insert({
-    ...parsed.value,
-    ordre: (dernier?.ordre ?? -1) + 1,
-  });
+  const { habitude_ids, ...champs } = parsed.value;
+  const { data: cree, error } = await supabase
+    .from("objectifs")
+    .insert({ ...champs, ordre: (dernier?.ordre ?? -1) + 1 })
+    .select("id")
+    .single();
 
   if (error) return { error: error.message };
 
+  const lien = await remplacerHabitudesLiees(cree.id, habitude_ids);
+  if (lien) return { error: lien };
+
   revalidatePath("/objectifs");
+  revalidatePath("/habitudes");
   return { error: null };
 }
 
@@ -105,12 +167,17 @@ export async function modifierObjectif(
   if (!parsed.ok) return { error: parsed.error };
 
   const supabase = createAdminClient();
-  const { error } = await supabase.from("objectifs").update(parsed.value).eq("id", id);
+  const { habitude_ids, ...champs } = parsed.value;
+  const { error } = await supabase.from("objectifs").update(champs).eq("id", id);
 
   if (error) return { error: error.message };
 
+  const lien = await remplacerHabitudesLiees(id, habitude_ids);
+  if (lien) return { error: lien };
+
   revalidatePath("/objectifs");
   revalidatePath(`/objectifs/${id}`);
+  revalidatePath("/habitudes");
   return { error: null };
 }
 
@@ -153,6 +220,9 @@ export type ObjectifDetail = {
   objectif: Tables<"objectifs">;
   etapes: Tables<"objectif_etapes">[];
   entries: Tables<"objectif_entries">[];
+  // Mode "habitudes" : habitudes rattachées et progression (0 à 1).
+  habitudes: { id: string; nom: string; icone: string | null; frequence_hebdo: number | null; actif: boolean; taux: number }[];
+  progression: number | null;
 };
 
 export async function getObjectif(id: string): Promise<ObjectifDetail | null> {
@@ -184,7 +254,63 @@ export async function getObjectif(id: string): Promise<ObjectifDetail | null> {
   if (etapesError) throw new Error(etapesError.message);
   if (entriesError) throw new Error(entriesError.message);
 
-  return { objectif, etapes: etapes ?? [], entries: entries ?? [] };
+  if (objectif.type_suivi !== "habitudes") {
+    return { objectif, etapes: etapes ?? [], entries: entries ?? [], habitudes: [], progression: null };
+  }
+
+  const { habitudes, progression } = await calculerProgressionHabitudes(objectif);
+  return { objectif, etapes: etapes ?? [], entries: entries ?? [], habitudes, progression };
+}
+
+async function calculerProgressionHabitudes(
+  objectif: Tables<"objectifs">
+): Promise<Pick<ObjectifDetail, "habitudes" | "progression">> {
+  const supabase = createAdminClient();
+
+  const { data: liens, error } = await supabase
+    .from("objectif_habitudes")
+    .select("habitudes(*)")
+    .eq("objectif_id", objectif.id);
+  if (error) throw new Error(error.message);
+
+  const habitudes = (liens ?? []).flatMap((l) => (l.habitudes ? [l.habitudes] : []));
+  if (habitudes.length === 0) return { habitudes: [], progression: 0 };
+
+  const debutObjectif = objectif.created_at.slice(0, 10);
+  const { data: entries, error: entriesError } = await supabase
+    .from("habitude_entries")
+    .select("habitude_id, date, valeur")
+    .in("habitude_id", habitudes.map((h) => h.id))
+    .gte("date", debutObjectif);
+  if (entriesError) throw new Error(entriesError.message);
+
+  const parHabitude = new Map<string, Map<string, number>>();
+  for (const e of entries ?? []) {
+    if (!parHabitude.has(e.habitude_id)) parHabitude.set(e.habitude_id, new Map());
+    parHabitude.get(e.habitude_id)!.set(e.date, e.valeur);
+  }
+
+  const aujourdhui = aujourdhuiParis();
+  const lies: HabitudeLiee[] = habitudes.map((h) => ({
+    type: h.type,
+    valeur_cible: h.valeur_cible,
+    frequence_hebdo: h.frequence_hebdo,
+    created_at: h.created_at,
+    archivee_le: h.archivee_le,
+    entriesParDate: parHabitude.get(h.id) ?? new Map(),
+  }));
+
+  return {
+    habitudes: habitudes.map((h, i) => ({
+      id: h.id,
+      nom: h.nom,
+      icone: h.icone,
+      frequence_hebdo: h.frequence_hebdo,
+      actif: h.actif,
+      taux: progressionObjectif([lies[i]], debutObjectif, objectif.date_echeance, aujourdhui),
+    })),
+    progression: progressionObjectif(lies, debutObjectif, objectif.date_echeance, aujourdhui),
+  };
 }
 
 // --- Étapes (type de suivi "etapes") ---

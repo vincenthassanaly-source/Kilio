@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { calculerStreak } from "@/lib/habitudes/compute";
+import { calculerStreak, calculerStreakHebdo, estFait, lundiDe } from "@/lib/habitudes/compute";
+import { aujourdhuiParis } from "@/lib/date/paris";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
@@ -15,6 +16,7 @@ type HabitudeInput = {
   unite: string | null;
   valeur_cible: number | null;
   icone: string | null;
+  frequence_hebdo: number | null;
 };
 
 type ParseResult =
@@ -27,6 +29,7 @@ function parseHabitudeInput(formData: FormData): ParseResult {
   const unite = String(formData.get("unite") ?? "").trim();
   const valeurCibleRaw = String(formData.get("valeur_cible") ?? "").trim();
   const icone = String(formData.get("icone") ?? "").trim();
+  const frequenceRaw = String(formData.get("frequence_hebdo") ?? "").trim();
 
   if (!nom) return { ok: false, error: "Le nom est requis." };
   if (!TYPES.includes(type as Enums<"habitude_type">)) {
@@ -43,11 +46,21 @@ function parseHabitudeInput(formData: FormData): ParseResult {
     }
   }
 
+  // Vide = quotidienne ; sinon "X fois par semaine" (1 à 6).
+  let frequence_hebdo: number | null = null;
+  if (frequenceRaw) {
+    frequence_hebdo = Number(frequenceRaw);
+    if (!Number.isInteger(frequence_hebdo) || frequence_hebdo < 1 || frequence_hebdo > 6) {
+      return { ok: false, error: "La fréquence doit être un nombre de 1 à 6 fois par semaine." };
+    }
+  }
+
   return {
     ok: true,
     value: {
       nom,
       type: type as Enums<"habitude_type">,
+      frequence_hebdo,
       unite: estQuantifiee && unite ? unite : null,
       valeur_cible,
       icone: icone || null,
@@ -103,15 +116,19 @@ export async function modifierHabitude(
 
 // Archivage plutôt que suppression : `actif = false` retire l'habitude de la
 // vue "Aujourd'hui" tout en conservant habitude_entries (ON DELETE CASCADE
-// sinon détruirait l'historique/heatmap). Cohérent avec le rôle de la colonne
-// `actif`, prévue explicitement à cet effet dans le schéma demandé.
+// sinon détruirait l'historique/heatmap). `archivee_le` borne la période
+// comptée dans les objectifs liés (l'habitude cesse de peser dessus).
 export async function supprimerHabitude(id: string) {
   const supabase = createAdminClient();
-  const { error } = await supabase.from("habitudes").update({ actif: false }).eq("id", id);
+  const { error } = await supabase
+    .from("habitudes")
+    .update({ actif: false, archivee_le: aujourdhuiParis() })
+    .eq("id", id);
 
   if (error) throw new Error(error.message);
 
   revalidatePath("/habitudes");
+  revalidatePath("/objectifs");
 }
 
 export async function enregistrerEntreeHabitude(
@@ -135,7 +152,12 @@ export async function enregistrerEntreeHabitude(
 
 export type HabitudeDuJour = Tables<"habitudes"> & {
   entreeDuJour: Tables<"habitude_entries"> | null;
+  // Jours (quotidienne/série) ou semaines (fréquence hebdo) consécutifs.
   streak: number;
+  // Fréquence hebdo uniquement : check faits cette semaine (lundi-dimanche).
+  faitsCetteSemaine: number;
+  // Objectifs auxquels l'habitude contribue.
+  objectifs: { id: string; titre: string }[];
 };
 
 export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]> {
@@ -150,7 +172,9 @@ export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]
   if (habitudesError) throw new Error(habitudesError.message);
   if (!habitudes || habitudes.length === 0) return [];
 
-  const streakIds = habitudes.filter((h) => h.type === "streak").map((h) => h.id);
+  const streakIds = habitudes
+    .filter((h) => h.type === "streak" || h.frequence_hebdo != null)
+    .map((h) => h.id);
 
   // Historique large (1 an) pour les habitudes de type streak, sinon
   // uniquement l'entrée du jour demandé.
@@ -178,14 +202,47 @@ export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]
     if (entry.date === date) entreeDuJourParHabitude.set(entry.habitude_id, entry);
   }
 
-  return habitudes.map((habitude) => ({
-    ...habitude,
-    entreeDuJour: entreeDuJourParHabitude.get(habitude.id) ?? null,
-    streak:
-      habitude.type === "streak"
-        ? calculerStreak(entriesParHabitude.get(habitude.id) ?? new Map(), date)
-        : 0,
-  }));
+  const { data: liens, error: liensError } = await supabase
+    .from("objectif_habitudes")
+    .select("habitude_id, objectifs(id, titre, statut)")
+    .in("habitude_id", idsAJour);
+
+  if (liensError) throw new Error(liensError.message);
+
+  const objectifsParHabitude = new Map<string, { id: string; titre: string }[]>();
+  for (const lien of liens ?? []) {
+    const objectif = lien.objectifs;
+    if (!objectif || objectif.statut !== "en_cours") continue;
+    const liste = objectifsParHabitude.get(lien.habitude_id) ?? [];
+    liste.push({ id: objectif.id, titre: objectif.titre });
+    objectifsParHabitude.set(lien.habitude_id, liste);
+  }
+
+  const lundi = lundiDe(date);
+
+  return habitudes.map((habitude) => {
+    const entriesDeLHabitude = entriesParHabitude.get(habitude.id) ?? new Map<string, number>();
+    const hebdo = habitude.frequence_hebdo != null;
+
+    let faitsCetteSemaine = 0;
+    if (hebdo) {
+      for (const [jour, valeur] of entriesDeLHabitude) {
+        if (jour >= lundi && jour <= date && estFait(habitude, valeur)) faitsCetteSemaine += 1;
+      }
+    }
+
+    return {
+      ...habitude,
+      entreeDuJour: entreeDuJourParHabitude.get(habitude.id) ?? null,
+      streak: hebdo
+        ? calculerStreakHebdo(habitude, entriesDeLHabitude, date)
+        : habitude.type === "streak"
+          ? calculerStreak(entriesDeLHabitude, date)
+          : 0,
+      faitsCetteSemaine,
+      objectifs: objectifsParHabitude.get(habitude.id) ?? [],
+    };
+  });
 }
 
 // `debutMois`/`finMois` au format ISO (yyyy-MM-dd), bornes incluses.
