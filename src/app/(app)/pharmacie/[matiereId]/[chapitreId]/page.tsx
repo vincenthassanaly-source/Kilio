@@ -9,6 +9,7 @@ import { notionsDeChapitre } from "@/lib/pharmacie/selecteurs";
 import { pluriel } from "@/lib/pharmacie/format";
 import type { PharmaNotion, PharmaSnapshot } from "@/lib/pharmacie/types";
 import { AvecSnapshot, IntrouvableCarte } from "../../EtatSnapshot";
+import { ContenuColore } from "../../ContenuColore";
 import { NotionEditeur } from "./NotionEditeur";
 
 export default function ChapitrePage({ params }: { params: Promise<{ matiereId: string; chapitreId: string }> }) {
@@ -97,7 +98,9 @@ function Chapitre({
                   Modifier
                 </button>
               </div>
-              <p className="mt-1.5 whitespace-pre-line text-[14.5px] leading-[1.55] text-ink">{notion.contenu}</p>
+              <div className="mt-1.5">
+                <ContenuColore contenu={notion.contenu} />
+              </div>
               {notion.tags.length > 0 && (
                 <p className="mt-2.5 flex flex-wrap gap-1.5">
                   {notion.tags.map((tag) => (

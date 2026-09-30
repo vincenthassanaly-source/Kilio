@@ -2,6 +2,7 @@
 
 import { TransitionLink } from "@/components/TransitionLink";
 import { cardTight, pillTag } from "@/lib/ui";
+import { enTexteBrut } from "@/lib/pharmacie/contenu";
 import { cheminDeNotion, rechercherNotions } from "@/lib/pharmacie/selecteurs";
 import type { PharmaSnapshot } from "@/lib/pharmacie/types";
 
@@ -31,7 +32,7 @@ export function ResultatsRecherche({ snapshot, requete }: { snapshot: PharmaSnap
                 {chemin.matiere.nom} › {chemin.chapitre.nom}
               </span>
               <span className="text-[14.5px] font-semibold text-ink">{notion.titre}</span>
-              <span className="line-clamp-2 text-[13px] text-ink-2">{notion.contenu}</span>
+              <span className="line-clamp-2 text-[13px] text-ink-2">{enTexteBrut(notion.contenu)}</span>
               {notion.tags.length > 0 && (
                 <span className="mt-1 flex flex-wrap gap-1.5">
                   {notion.tags.map((tag) => (

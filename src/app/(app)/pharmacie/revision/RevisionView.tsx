@@ -13,6 +13,7 @@ import { NOTES_REVISION, prochainEtatCarte, type NoteRevision } from "@/lib/phar
 import { modifierSnapshot } from "@/lib/pharmacie/useSnapshotPharmacie";
 import type { PharmaSnapshot } from "@/lib/pharmacie/types";
 import { AvecSnapshot } from "../EtatSnapshot";
+import { ContenuColore } from "../ContenuColore";
 
 // Taille d'une séance : assez pour être utile, assez court pour se faire en
 // pause. Les cartes « À revoir » repassent en fin de séance.
@@ -129,13 +130,17 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
       </div>
 
       <div className={`${card} flex min-h-[220px] flex-col justify-center gap-4 rounded-[24px] p-6`}>
-        <p className="whitespace-pre-line text-[17px] font-semibold leading-snug text-ink text-balance">
-          {carteCourante.question}
-        </p>
+        <ContenuColore
+          contenu={carteCourante.question}
+          className="whitespace-pre-line text-[17px] font-semibold leading-snug text-ink text-balance"
+        />
         {revele && (
-          <p className="whitespace-pre-line border-t border-line pt-4 text-[15px] leading-[1.55] text-ink">
-            {carteCourante.reponse}
-          </p>
+          <div className="border-t border-line pt-4">
+            <ContenuColore
+              contenu={carteCourante.reponse}
+              className="whitespace-pre-line text-[15px] leading-[1.55] text-ink"
+            />
+          </div>
         )}
       </div>
 

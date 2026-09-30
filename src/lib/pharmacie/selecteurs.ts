@@ -1,3 +1,4 @@
+import { enTexteBrut } from "./contenu";
 import { estAcquise } from "./srs";
 import { normalizeSearch } from "@/lib/normalize";
 import type { PharmaCarte, PharmaChapitre, PharmaMatiere, PharmaNotion, PharmaSnapshot } from "./types";
@@ -89,7 +90,7 @@ export function rechercherNotions(snap: PharmaSnapshot, requete: string): Result
   for (const notion of snap.notions) {
     const titre = normalizeSearch(notion.titre);
     const tags = normalizeSearch(notion.tags.join(" "));
-    const contenu = normalizeSearch(notion.contenu);
+    const contenu = normalizeSearch(enTexteBrut(notion.contenu));
     const motsTexte = `${titre} ${tags} ${contenu}`.split(/[^a-z0-9]+/).filter(Boolean);
 
     let total = 0;
