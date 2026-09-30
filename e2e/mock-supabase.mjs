@@ -40,6 +40,31 @@ const fixtures = {
   ],
 };
 
+// Module Pharmacie : un cours minimal (2 matières, 3 chapitres, 4 notions) et
+// des cartes dont deux sont échues, pour rendre l'accueil, un chapitre et la
+// révision avec des données plausibles.
+fixtures.pharma_matieres = [
+  { id: "00000000-0000-4000-8000-0000000000a1", nom: "Pharmacologie", ordre: 0, created_at: "2026-09-20T08:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000a2", nom: "Conseil officinal", ordre: 1, created_at: "2026-09-21T08:00:00+00:00" },
+];
+fixtures.pharma_chapitres = [
+  { id: "00000000-0000-4000-8000-0000000000b1", matiere_id: "00000000-0000-4000-8000-0000000000a1", nom: "Antihypertenseurs", ordre: 0, created_at: "2026-09-20T08:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000b2", matiere_id: "00000000-0000-4000-8000-0000000000a1", nom: "Antibiotiques", ordre: 1, created_at: "2026-09-22T08:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000b3", matiere_id: "00000000-0000-4000-8000-0000000000a2", nom: "Douleur et fièvre", ordre: 0, created_at: "2026-09-21T08:00:00+00:00" },
+];
+fixtures.pharma_notions = [
+  { id: "00000000-0000-4000-8000-0000000000c1", chapitre_id: "00000000-0000-4000-8000-0000000000b1", titre: "IEC : mécanisme", contenu: "Les inhibiteurs de l'enzyme de conversion bloquent la formation d'angiotensine II et baissent la tension artérielle.", tags: ["iec", "hypertension"], ordre: 0, created_at: "2026-09-20T08:00:00+00:00", updated_at: "2026-09-20T08:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000c2", chapitre_id: "00000000-0000-4000-8000-0000000000b1", titre: "IEC : toux sèche", contenu: "Effet indésirable fréquent des IEC : une toux sèche, liée à l'accumulation de bradykinine.", tags: ["iec", "effet indésirable"], ordre: 1, created_at: "2026-09-20T09:00:00+00:00", updated_at: "2026-09-20T09:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000c3", chapitre_id: "00000000-0000-4000-8000-0000000000b2", titre: "Amoxicilline", contenu: "Antibiotique de la famille des pénicillines, actif sur de nombreuses bactéries à Gram positif.", tags: ["antibiotique", "pénicilline"], ordre: 0, created_at: "2026-09-22T08:00:00+00:00", updated_at: "2026-09-22T08:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000c4", chapitre_id: "00000000-0000-4000-8000-0000000000b3", titre: "Paracétamol : dose max", contenu: "Ne pas dépasser 3 g par jour chez l'adulte sans avis médical.", tags: ["paracétamol", "posologie"], ordre: 0, created_at: "2026-09-21T08:00:00+00:00", updated_at: "2026-09-21T08:00:00+00:00" },
+];
+fixtures.pharma_cartes = [
+  { id: "00000000-0000-4000-8000-0000000000d1", notion_id: "00000000-0000-4000-8000-0000000000c1", question: "Quel est le mécanisme d'action des IEC ?", reponse: "Ils bloquent la formation d'angiotensine II.", echeance: "2026-09-25T00:00:00+00:00", intervalle_jours: 3, facilite: 2.5, repetitions: 2, dernier_passage: "2026-09-22T00:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000d2", notion_id: "00000000-0000-4000-8000-0000000000c2", question: "Quel effet indésirable fréquent pour les IEC ?", reponse: "Une toux sèche (bradykinine).", echeance: "2026-09-26T00:00:00+00:00", intervalle_jours: 1, facilite: 2.5, repetitions: 1, dernier_passage: "2026-09-25T00:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000d3", notion_id: "00000000-0000-4000-8000-0000000000c3", question: "Amoxicilline : à quelle famille appartient-elle ?", reponse: "Les pénicillines.", echeance: "2030-01-01T00:00:00+00:00", intervalle_jours: 20, facilite: 2.6, repetitions: 4, dernier_passage: "2026-09-25T00:00:00+00:00" },
+  { id: "00000000-0000-4000-8000-0000000000d4", notion_id: "00000000-0000-4000-8000-0000000000c4", question: "Dose maximale de paracétamol par jour chez l'adulte ?", reponse: "3 g sans avis médical.", echeance: "2030-01-01T00:00:00+00:00", intervalle_jours: 9, facilite: 2.5, repetitions: 3, dernier_passage: "2026-09-25T00:00:00+00:00" },
+];
+
 // Une tâche due aujourd'hui (date UTC, comme aujourdhuiISO côté serveur) pour
 // vérifier que la cocher depuis le Dashboard met à jour /taches (parité des
 // mutations optimistes TanStack Query, e2e/parite.spec.ts).

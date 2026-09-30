@@ -8,11 +8,13 @@ web
 
 ## Users
 
-Utilisateur unique : Vincent, propriétaire et seul utilisateur de l'application. Kilio est une app personnelle mono-utilisateur (pas de multi-tenant, l'authentification multi-utilisateurs a été retirée) qu'il utilise au quotidien depuis son téléphone pour gérer sa vie personnelle : nutrition, budget, agenda, courses, tâches, habitudes, documents, carburant, notes.
+Utilisateur unique : Vincent, propriétaire et seul utilisateur de l'application. Kilio est une app personnelle mono-utilisateur (pas de multi-tenant, l'authentification multi-utilisateurs a été retirée) qu'il utilise au quotidien depuis son téléphone pour gérer sa vie personnelle : nutrition, budget, agenda, courses, tâches, habitudes, documents, carburant, notes, pharmacie (cours personnels).
 
 ## Product Purpose
 
-Kilio est le "système d'exploitation personnel" de Vincent : une app unique qui centralise plusieurs domaines de vie (nutrition, budget, agenda, courses, habitudes, tâches, documents, carburant, notes, collection) plutôt que de jongler entre outils spécialisés indépendants. Le module Nutrition permet de suivre les repas du jour, calculer les macros (kcal, protéines, glucides, lipides) consommées vs. un objectif cible, et gérer une bibliothèque de recettes/aliments personnelle.
+Kilio est le "système d'exploitation personnel" de Vincent : une app unique qui centralise plusieurs domaines de vie (nutrition, budget, agenda, courses, habitudes, tâches, documents, carburant, notes, collection, pharmacie) plutôt que de jongler entre outils spécialisés indépendants. Le module Nutrition permet de suivre les repas du jour, calculer les macros (kcal, protéines, glucides, lipides) consommées vs. un objectif cible, et gérer une bibliothèque de recettes/aliments personnelle.
+
+Le module **Pharmacie** est le cahier de cours personnel de Vincent (connaissances de pharmacie apprises au fil du temps) : cours structurés matière → chapitre → notion atomique (texte + tags), consultation rapide par sommaire et recherche plein texte (hors ligne compris), révision par cartes mémoire à répétition espacée (SM-2 simplifié). L'ajout se fait **uniquement par le chat** (skill `kilio-pharmacie-ajout` : Claude reformule, classe, crée les cartes et gère l'arborescence seul, en prévenant après coup) ; l'app sert à consulter, réviser, corriger ou supprimer une notion. Pas de journal brut ni de suivi de source : seule la version reformulée est conservée.
 
 Pour le Journal Nutrition en particulier : l'objectif motivant le suivi est la **perte de poids / recomposition corporelle**. Le "succès" sur cet écran se mesure à la capacité de rester proche de l'objectif calorique et macro du jour (avec deux cibles distinctes : jour "repos" vs jour "entraînement").
 

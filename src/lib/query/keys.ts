@@ -7,6 +7,7 @@ export const queryKeys = {
   listes: ["listes"] as const,
   tags: ["tags"] as const,
   notes: ["notes"] as const,
+  pharmacie: ["pharmacie"] as const,
   courses: ["courses"] as const,
   habitudes: (date: string) => ["habitudes", date] as const,
   // Historique mensuel d'une habitude (vue calendrier) : clé par habitude +

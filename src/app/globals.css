@@ -46,6 +46,7 @@
   --accent-collection: oklch(0.55 0.14 280);
   --accent-carburants: oklch(0.55 0.14 120);
   --accent-documents: oklch(0.55 0.14 25);
+  --accent-pharmacie: oklch(0.55 0.14 355);
   --nav-bg: oklch(0.995 0.006 95 / 0.78);
   --shadow-card: 0 10px 24px oklch(0.35 0.03 150 / 0.09);
   --note-sauge: oklch(0.93 0.035 150);
@@ -88,6 +89,7 @@
   --accent-collection: oklch(0.72 0.13 280);
   --accent-carburants: oklch(0.72 0.13 120);
   --accent-documents: oklch(0.72 0.13 25);
+  --accent-pharmacie: oklch(0.72 0.13 355);
   --nav-bg: oklch(0.22 0.018 195 / 0.72);
   --shadow-card: 0 10px 26px rgba(0, 0, 0, 0.42);
   --note-sauge: oklch(0.32 0.045 150);
@@ -131,6 +133,7 @@
   --color-collection: var(--accent-collection);
   --color-carburants: var(--accent-carburants);
   --color-documents: var(--accent-documents);
+  --color-pharmacie: var(--accent-pharmacie);
   --color-nav: var(--nav-bg);
   --shadow-card: var(--shadow-card);
   --font-display: var(--font-sora);

@@ -14,6 +14,7 @@ import {
   ajouterArticlesCourses,
 } from "@/app/actions/courses";
 import { enregistrerEntreeHabitude, supprimerHabitude } from "@/app/actions/habitudes";
+import { noterCarte } from "@/app/actions/pharmacie";
 import { isNetworkError } from "@/lib/network";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,6 +36,7 @@ const ACTIONS: Record<string, Record<string, ActionFn>> = {
     ajouterArticlesCourses,
   },
   habitudes: { enregistrerEntreeHabitude, supprimerHabitude },
+  pharmacie: { noterCarte },
 };
 
 // Dexie (~100 Ko) est chargé à la demande : `db.ts` ne fait plus partie du JS

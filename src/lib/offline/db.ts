@@ -17,13 +17,22 @@ type PendingAction = {
   tentatives?: number;
 };
 
+// Copie locale en lecture du module Pharmacie (un seul enregistrement, clé
+// "snapshot") : permet de consulter et de réviser sans réseau.
+type CacheLecture = { cle: string; valeur: unknown; enregistre_le: string };
+
 class OfflineDB extends Dexie {
   pending_actions!: Table<PendingAction, number>;
+  cache_lecture!: Table<CacheLecture, string>;
 
   constructor() {
     super("kilio-offline");
     this.version(1).stores({
       pending_actions: "++id, created_at",
+    });
+    this.version(2).stores({
+      pending_actions: "++id, created_at",
+      cache_lecture: "cle",
     });
   }
 }

@@ -952,6 +952,171 @@ export type Database = {
         }
         Relationships: []
       }
+      pharma_chapitres: {
+        Row: {
+          created_at: string
+          id: string
+          matiere_id: string
+          nom: string
+          ordre: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          matiere_id: string
+          nom: string
+          ordre?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          matiere_id?: string
+          nom?: string
+          ordre?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_chapitres_matiere_id_fkey"
+            columns: ["matiere_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_matieres"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_cartes: {
+        Row: {
+          created_at: string
+          dernier_passage: string | null
+          echeance: string
+          facilite: number
+          id: string
+          intervalle_jours: number
+          notion_id: string
+          question: string
+          repetitions: number
+          reponse: string
+        }
+        Insert: {
+          created_at?: string
+          dernier_passage?: string | null
+          echeance?: string
+          facilite?: number
+          id?: string
+          intervalle_jours?: number
+          notion_id: string
+          question: string
+          repetitions?: number
+          reponse: string
+        }
+        Update: {
+          created_at?: string
+          dernier_passage?: string | null
+          echeance?: string
+          facilite?: number
+          id?: string
+          intervalle_jours?: number
+          notion_id?: string
+          question?: string
+          repetitions?: number
+          reponse?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_cartes_notion_id_fkey"
+            columns: ["notion_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_notions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_historique: {
+        Row: {
+          action: string
+          cible: string
+          created_at: string
+          details: Json | null
+          id: string
+        }
+        Insert: {
+          action: string
+          cible: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          cible?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+        }
+        Relationships: []
+      }
+      pharma_matieres: {
+        Row: {
+          created_at: string
+          id: string
+          nom: string
+          ordre: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nom: string
+          ordre?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nom?: string
+          ordre?: number
+        }
+        Relationships: []
+      }
+      pharma_notions: {
+        Row: {
+          chapitre_id: string
+          contenu: string
+          created_at: string
+          id: string
+          ordre: number
+          tags: string[]
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          chapitre_id: string
+          contenu: string
+          created_at?: string
+          id?: string
+          ordre?: number
+          tags?: string[]
+          titre: string
+          updated_at?: string
+        }
+        Update: {
+          chapitre_id?: string
+          contenu?: string
+          created_at?: string
+          id?: string
+          ordre?: number
+          tags?: string[]
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_notions_chapitre_id_fkey"
+            columns: ["chapitre_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_chapitres"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       preferences_navigation: {
         Row: {
           id: number
@@ -1603,7 +1768,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      pharma_rechercher: {
+        Args: { q: string }
+        Returns: {
+          chapitre_id: string
+          chapitre_nom: string
+          contenu: string
+          matiere_id: string
+          matiere_nom: string
+          notion_id: string
+          score: number
+          tags: string[]
+          titre: string
+        }[]
+      }
     }
     Enums: {
       categorie_objectif: "perso" | "pro"
