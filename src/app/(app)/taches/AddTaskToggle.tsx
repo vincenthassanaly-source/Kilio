@@ -55,7 +55,7 @@ export function AddTaskToggle({
         +
       </div>
       <div className="flex flex-col gap-[1px]">
-        <span className="font-display text-[14.5px] font-bold tracking-tight text-ink">
+        <span className="font-display text-[15px] font-semibold tracking-[-0.01em] text-ink">
           {label.replace(/^\+\s*/, "")}
         </span>
         <span className="text-xs font-medium text-ink-3">Nouvelle entrée dans ta liste</span>

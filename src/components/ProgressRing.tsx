@@ -31,6 +31,8 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={offset}
+          className="kl-ring-anim"
+          style={{ "--kl-c": c } as React.CSSProperties}
         />
       </svg>
       {children && (

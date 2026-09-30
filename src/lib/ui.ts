@@ -11,14 +11,14 @@ export const card = "rounded-[22px] border border-line bg-surface p-4 shadow-car
 // `active:scale` ferait "trembler" tout le groupe/formulaire au moindre tap
 // sur un champ ou un bouton interne, pas seulement l'élément pressé — non
 // modifié ici pour cette raison (voir reports/2026-09-13-fluidite-4-chantiers.md).
-export const cardTight = "rounded-[20px] border border-line bg-surface p-3.5 shadow-card transition active:scale-[0.97]";
+export const cardTight = "rounded-[20px] border border-line bg-surface p-3.5 shadow-card transition active:scale-[0.985] duration-150 ease-out";
 
 // `text-balance` (T-polish) : titres courts (1-3 lignes) répartis plus
 // régulièrement entre les lignes, pour éviter une dernière ligne orpheline
 // d'un seul mot sur les libellés longs (ex. noms de catégories/objectifs).
-export const screenTitle = "font-display text-2xl font-bold text-ink tracking-tight text-balance";
-export const sectionTitle = "text-[15px] font-bold text-ink text-balance";
-export const eyebrow = "text-[12.5px] font-semibold text-ink-3";
+export const screenTitle = "font-display text-[28px] leading-[1.1] font-semibold text-ink tracking-[-0.03em] text-balance";
+export const sectionTitle = "text-[15px] font-semibold tracking-[-0.01em] text-ink text-balance";
+export const eyebrow = "text-[13px] font-medium text-ink-3";
 
 // `focus-visible:ring-*` (jamais `focus:`, pour ne pas afficher l'anneau au
 // clic souris/tap) : anneau détaché du fond (`ring-offset-2`) donc visible
@@ -77,10 +77,10 @@ export const kcalPillTag =
 // objectif, une transaction...), jamais un groupe : même raisonnement que
 // `cardTight` ci-dessus.
 export const listCard =
-  "flex flex-col gap-1.5 rounded-[20px] border border-line bg-surface p-3.5 shadow-card transition active:scale-[0.97]";
+  "flex flex-col gap-1.5 rounded-[20px] border border-line bg-surface p-3.5 shadow-card transition active:scale-[0.985] duration-150 ease-out";
 
 export const checkCircle =
   "flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-2";
 
-export const nameText = "text-[14.5px] font-semibold text-ink truncate";
-export const metaText = "text-xs text-ink-2 font-mono";
+export const nameText = "text-[15px] font-medium text-ink truncate";
+export const metaText = "text-[12.5px] text-ink-2 tabular-nums";

@@ -47,7 +47,7 @@ function MacroBar({
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between">
         <span className="text-xs font-semibold text-ink">{label}</span>
-        <span className={`flex items-center gap-1 text-[11.5px] font-mono ${texteClass}`}>
+        <span className={`flex items-center gap-1 text-[11.5px] tabular-nums ${texteClass}`}>
           {sev !== "ok" && (
             // Marqueur non-couleur du dépassement (en plus de la teinte) : un
             // lecteur daltonien ou en faible luminosité doit pouvoir repérer
@@ -121,7 +121,7 @@ export function ResumeJour({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-            <div className="font-display text-2xl font-semibold tabular-nums text-ink">
+            <div className="font-display text-[28px] font-semibold tabular-nums text-ink">
               {Math.round(consomme.kcal)}
             </div>
             <div className="text-[11px] tabular-nums text-ink-3">/ {Math.round(cible.kcal)} kcal</div>

@@ -182,7 +182,7 @@ async function BudgetResume() {
                       {suivi.categorie.nom}
                     </p>
                     <span
-                      className={`text-[12.5px] font-mono ${suivi.statut === "depasse" ? "text-alert" : "text-ink-2"}`}
+                      className={`text-[12.5px] tabular-nums ${suivi.statut === "depasse" ? "text-alert" : "text-ink-2"}`}
                     >
                       {formatMontant(suivi.consomme)} / {formatMontant(suivi.cible)}
                     </span>

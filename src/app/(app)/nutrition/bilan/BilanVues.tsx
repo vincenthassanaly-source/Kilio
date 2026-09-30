@@ -217,7 +217,7 @@ export function DetailJours({ jours }: { jours: JourBilan[] }) {
               {jour.nbRepas === 0 ? (
                 <p className="text-xs text-ink-3">Aucun repas saisi</p>
               ) : (
-                <div className="flex flex-col items-end gap-0.5 font-mono text-[11.5px] tabular-nums">
+                <div className="flex flex-col items-end gap-0.5 text-[11.5px] tabular-nums">
                   <p className={`flex items-center gap-1 ${classeKcal}`}>
                     {kcalDepassees && <AlerteIcone />}
                     {nombre.format(kcal)}

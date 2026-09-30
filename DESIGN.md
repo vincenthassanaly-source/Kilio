@@ -168,14 +168,14 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 **Character:** Sora est géométrique et ferme, réservée à ce qui doit "peser" visuellement : titres d'écran et chiffres-clés (kcal consommées, kcal par repas). Inter porte tout le reste — labels, corps de texte, boutons — pour rester neutre et très lisible en petite taille sur mobile.
 
 ### Hierarchy
-- **Display** (700, `text-2xl` ≈ 24px, tracking serré) : `screenTitle` — titre d'écran ("Journal"), et chiffres-clés isolés (kcal restantes au centre de l'anneau, kcal d'une entrée de repas).
+- **Display** (600, 28px / 1.1, tracking −0,03em) : `screenTitle` — titre d'écran ("Journal"), et chiffres-clés isolés (kcal restantes au centre de l'anneau, kcal d'une entrée de repas).
 - **Title** (700, 15px) : `sectionTitle` — titres de section ("Résumé du jour", "Repas du jour").
 - **Body** (600, 14.5px) : nom d'une entité dans une liste (nom d'un repas, d'une tâche).
 - **Label** (600, 12.5–13.5px) : `eyebrow` (date du jour, contexte), onglets de sous-nav.
 - **Caption** (400–600, 11–12px) : `metaText`/meta (détail de quantité, libellés de moment de repas en majuscules espacées, labels de la barre de nav du bas). **Plancher : 11px** pour tout texte lisible. Seules exceptions : les grilles denses de l'Agenda et du calendrier Budget (9-10px, texte `ink-2`) et les pastilles blanches sur photo (fond noir, contraste élevé).
 - **Champs de saisie** : 16px minimum (en dessous, iOS zoome la page au focus) ; un filet global dans `globals.css` l'impose sur écran tactile.
 
-**Échelle observée** (toutes ces tailles sont légitimes) : 11 · 12 · 12,5 · 13 · 13,5 · 14 · 14,5 · 15 · 16 · 17 (titres de carte hero) · 22 (chiffre-clé de carte) · 24px (titre d'écran).
+**Échelle observée** (toutes ces tailles sont légitimes) : 11 · 12 · 12,5 · 13 · 13,5 · 14 · 14,5 · 15 · 16 · 17 (titres de carte hero) · 22 (chiffre-clé de carte) · 28px (titre d'écran et chiffre-clé hero).
 
 ### Named Rules
 **The Two-Voice Rule.** Une app entière tient sur deux polices : Sora uniquement pour les titres et les chiffres qui doivent dominer visuellement, Inter pour absolument tout le reste. Aucune troisième police, aucune variation de graisse Sora en dessous de 600.
@@ -195,7 +195,7 @@ Motifs récurrents de composition :
 Système **plat avec un soulèvement doux** : aucune interface n'est "posée" en couches multiples, une seule ombre existe dans tout le système (`--shadow-card`), appliquée uniformément à toute carte/pilule flottante pour signaler juste "ceci est un élément détaché du fond" — jamais pour créer une hiérarchie de profondeur entre plusieurs niveaux. La séparation entre zones vient d'abord de la couleur de fond (`background` vs `surface` vs `surface-alt`) et de bordures hairline `--line` (1px), pas de l'ombre.
 
 ### Shadow Vocabulary
-- **Card** (clair : `0 10px 24px oklch(0.35 0.03 150 / 0.09)` ; sombre : `0 10px 26px rgba(0,0,0,0.42)`) : seule ombre du système — cartes, barre de navigation flottante, tout élément "détaché" du fond de page.
+- **Card** (clair : `0 1px 2px oklch(0.3 0.03 150 / 0.05), 0 8px 24px -10px oklch(0.3 0.03 150 / 0.12)` ; sombre : reflet `0 1px 0 oklch(1 0 0 / 0.04) inset` + `0 10px 28px -10px rgba(0,0,0,0.55)`) : seule ombre du système — cartes, barre de navigation flottante, tout élément "détaché" du fond de page.
 
 ### Named Rules
 **The Single Shadow Rule.** Un seul token d'ombre existe (`--shadow-card`). Ne jamais en introduire un second (pas d'ombre "hover" ou "elevated" distincte) : l'élévation dans Kilio est binaire — posé sur le fond, ou détaché avec `--shadow-card`.

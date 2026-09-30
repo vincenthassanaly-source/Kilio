@@ -24,7 +24,7 @@ export function RepartitionComptes({ comptes }: { comptes: CompteAvecSolde[] }) 
           <li key={compte.id} className="flex flex-col gap-1">
             <div className="flex items-center justify-between gap-2 text-[13px]">
               <span className="font-medium text-ink">{compte.nom}</span>
-              <span className={`font-mono ${compte.solde < 0 ? "text-alert" : "text-ink-2"}`}>
+              <span className={`tabular-nums ${compte.solde < 0 ? "text-alert" : "text-ink-2"}`}>
                 {formatMontant(compte.solde)}
               </span>
             </div>
