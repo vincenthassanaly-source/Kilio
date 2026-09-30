@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getNotesAvecRelations } from "@/app/actions/notes";
 import { getTags } from "@/app/actions/taches";
 import { normalizeSearch } from "@/lib/normalize";
+import { TAG_IDEES } from "@/lib/notes/saisie-naturelle";
 import { queryKeys } from "@/lib/query/keys";
 import { NoteCard } from "./NoteCard";
 import { AddNoteToggle } from "./AddNoteToggle";
@@ -13,9 +14,14 @@ import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
 import { errorText, input, pillTag, sectionTitle } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
-export function NotesGrid({ defaultOpen }: { defaultOpen?: boolean }) {
+// Tag des idées (ajouté par « Ajouter avec l'IA ») : sa pastille passe en tête.
+const CLE_TAG_IDEES = normalizeSearch(TAG_IDEES);
+
+export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; defaultTag?: string }) {
   const [search, setSearch] = useState("");
-  const [tagFilter, setTagFilter] = useState<string[]>([]);
+  // `null` tant que l'utilisateur n'a pas touché aux pastilles : le préfiltre
+  // du lien s'applique alors ; dès qu'il en bascule une, son choix prime.
+  const [choixTags, setChoixTags] = useState<string[] | null>(null);
   const queryClient = useQueryClient();
 
   const { data: notes, isLoading, isError } = useQuery({
@@ -24,8 +30,25 @@ export function NotesGrid({ defaultOpen }: { defaultOpen?: boolean }) {
   });
   const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
 
+  // `?tag=idees` : filtre actif dès que les tags sont chargés.
+  const prefiltre = useMemo(() => {
+    if (!defaultTag) return [];
+    const cle = normalizeSearch(defaultTag);
+    const tag = tags.find((t) => normalizeSearch(t.nom) === cle);
+    return tag ? [tag.id] : [];
+  }, [defaultTag, tags]);
+  const tagFilter = choixTags ?? prefiltre;
+
+  const tagsAffiches = useMemo(
+    () =>
+      [...tags].sort(
+        (a, b) => Number(normalizeSearch(b.nom) === CLE_TAG_IDEES) - Number(normalizeSearch(a.nom) === CLE_TAG_IDEES)
+      ),
+    [tags]
+  );
+
   function toggleTagFilter(id: string) {
-    setTagFilter((ids) => (ids.includes(id) ? ids.filter((t) => t !== id) : [...ids, id]));
+    setChoixTags(tagFilter.includes(id) ? tagFilter.filter((t) => t !== id) : [...tagFilter, id]);
   }
 
   // Filtrage 100% côté client : titre + contenu + libellés des items
@@ -84,7 +107,7 @@ export function NotesGrid({ defaultOpen }: { defaultOpen?: boolean }) {
 
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
+              {tagsAffiches.map((tag) => (
                 <button
                   key={tag.id}
                   type="button"

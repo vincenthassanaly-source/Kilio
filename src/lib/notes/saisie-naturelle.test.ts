@@ -57,6 +57,23 @@ describe("interpreterNotes", () => {
     expect(premiere({ titre: "N", type: "autre", contenu: "x", items: [], tags: [] }).type).toBe("texte");
   });
 
+  it("force le tag « idées » quand le modèle signale une idée, sans le doubler", () => {
+    const n = premiere({ titre: "Sortie vélo", type: "texte", contenu: "x", items: [], tags: ["Idées", "sport"], idee: true });
+    expect(n.tagIds).toEqual(["t-idees"]);
+    expect(n.tagNoms).toEqual(["idées", "sport"]);
+  });
+
+  it("crée le tag « idées » s'il n'existe pas encore, même avec 5 tags déjà cités", () => {
+    const [n] = interpreterNotes([{ titre: "N", type: "texte", contenu: "x", items: [], tags: ["a", "b", "c", "d", "e"], idee: true }], []);
+    expect(n.nouveauxTags[0]).toBe("idées");
+    expect(n.tagNoms).toEqual(["idées", "a", "b", "c", "d"]);
+  });
+
+  it("reconnaît une idée par le mot en tête du titre, pas ailleurs", () => {
+    expect(premiere({ titre: "Idée cadeau", type: "texte", contenu: "x", items: [], tags: [] }).tagIds).toEqual(["t-idees"]);
+    expect(premiere({ titre: "Courses idées", type: "texte", contenu: "x", items: [], tags: [] }).tagIds).toEqual([]);
+  });
+
   it("dédoublonne les tags et plafonne à 5", () => {
     const n = premiere({ titre: "N", type: "texte", contenu: "x", items: [], tags: ["a", "A", "b", "c", "d", "e", "f"] });
     expect(n.tagNoms).toEqual(["a", "b", "c", "d", "e"]);

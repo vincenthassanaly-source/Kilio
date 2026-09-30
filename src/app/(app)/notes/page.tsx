@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { NotesGrid } from "./NotesGrid";
 import { screenTitle } from "@/lib/ui";
 
-type NotesSearchParams = Promise<{ action?: string }>;
+type NotesSearchParams = Promise<{ action?: string; tag?: string }>;
 
 // La lecture de `searchParams` (API dynamique) est isolée dans
 // `NotesGridAvecAction`, sous <Suspense>, pour que la coquille statique
@@ -21,6 +21,6 @@ export default function NotesPage({ searchParams }: { searchParams: NotesSearchP
 }
 
 async function NotesGridAvecAction({ searchParams }: { searchParams: NotesSearchParams }) {
-  const { action } = await searchParams;
-  return <NotesGrid defaultOpen={action === "new"} />;
+  const { action, tag } = await searchParams;
+  return <NotesGrid defaultOpen={action === "new"} defaultTag={tag} />;
 }
