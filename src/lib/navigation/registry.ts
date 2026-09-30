@@ -136,6 +136,14 @@ const DOCUMENTS_ICON = (c: string) =>
     createElement("rect", { x: 9.2, y: 14.5, width: 5.6, height: 4, rx: 1 })
   );
 
+const PHARMACIE_ICON = (c: string) =>
+  createElement(
+    "svg",
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    createElement("path", { d: "M10.5 20.5 3.5 13.5a4.95 4.95 0 0 1 7-7l7 7a4.95 4.95 0 0 1-7 7z" }),
+    createElement("path", { d: "m8.5 8.5 7 7" })
+  );
+
 // Ordre canonique : les 4 modules primaires (épinglés en barre du bas par
 // défaut) puis les 7 modules secondaires. La grille "Plus" liste TOUJOURS
 // les 11 items (voir resolveOrdreGrillePlus dans
@@ -216,6 +224,13 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Notes libres",
     accentVar: "var(--accent-protein)",
     icon: NOTES_ICON,
+  },
+  {
+    href: "/pharmacie",
+    label: "Pharmacie",
+    description: "Cours, recherche et révision",
+    accentVar: "var(--accent-pharmacie)",
+    icon: PHARMACIE_ICON,
   },
   {
     href: "/reglages",

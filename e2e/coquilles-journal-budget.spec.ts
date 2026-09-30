@@ -80,7 +80,7 @@ const CONTRATS: Contrat[] = [
     depuis: "/budget",
     declencheur: lien("/budget/calendrier"),
     entete: (page) => main(page).getByRole("link", { name: "Liste", exact: true }),
-    contenu: (page) => main(page).getByText("+2 400,00 €"),
+    contenu: (page) => main(page).getByText("+2 400", { exact: true }),
   },
 ];
 
