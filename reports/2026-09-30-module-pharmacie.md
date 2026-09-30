@@ -15,7 +15,7 @@ Cahier de cours personnel : matière → chapitre → notion atomique, recherche
 - Données : `scripts/migration-pharmacie-2026-09-30.sql` (+ `-revert.sql`), types dans `src/lib/supabase/types.ts`.
 - Logique : `src/lib/pharmacie/` (`srs.ts`, `selecteurs.ts`, `cache.ts`, `format.ts`, `useSnapshotPharmacie.ts`), `src/app/actions/pharmacie.ts`.
 - UI : `src/app/(app)/pharmacie/` (accueil + recherche, matière, chapitre + éditeur, révision).
-- Skill : `.claude/skills/kilio-pharmacie-ajout/SKILL.md`.
+- Skill `kilio-pharmacie-ajout` : désormais géré dans mon dépôt de skills `KilaSkills` (`plugin/skills/kilio-pharmacie-ajout/SKILL.md`), plus dans Kilio.
 - Navigation : entrée `/pharmacie` dans `src/lib/navigation/registry.ts`, teinte passive `--accent-pharmacie` (teinte 355).
 
 ## À reporter dans DESIGN.md
