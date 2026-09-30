@@ -8,6 +8,7 @@ import { SEGMENT_CADRE, segmentClasseGlissant } from "@/lib/segmented";
 
 const TABS = [
   { href: "/nutrition/journal", label: "Journal" },
+  { href: "/nutrition/bilan", label: "Bilan" },
   { href: "/nutrition/recettes", label: "Recettes" },
 ];
 

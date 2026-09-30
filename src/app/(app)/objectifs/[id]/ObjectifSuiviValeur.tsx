@@ -8,6 +8,11 @@ import { runAction } from "@/lib/actions/runAction";
 import type { Tables } from "@/lib/supabase/types";
 import { card, dangerButton, errorText, ghostButton, input, label as labelClass, metaText, sectionTitle } from "@/lib/ui";
 import { toISODate } from "@/lib/date/iso";
+import { moyenneGlissante, progressionValeur } from "@/lib/objectifs/valeur";
+
+// Sous ce nombre de mesures, la moyenne 7 jours se confond avec la courbe
+// brute : on ne trace que la courbe brute.
+const MESURES_MIN_LISSAGE = 3;
 
 function EvolutionChart({
   entries,
@@ -23,47 +28,82 @@ function EvolutionChart({
   const padding = 8;
 
   const valeurs = entries.map((e) => e.valeur);
+  const lissage = entries.length >= MESURES_MIN_LISSAGE ? moyenneGlissante(entries) : null;
   const min = Math.min(...valeurs, cible ?? Infinity);
   const max = Math.max(...valeurs, cible ?? -Infinity);
   const range = max - min || 1;
 
-  const points = entries.map((e, i) => {
-    const x = padding + (i / (entries.length - 1)) * (width - padding * 2);
-    const y = height - padding - ((e.valeur - min) / range) * (height - padding * 2);
-    return `${x},${y}`;
-  });
+  const toPoints = (serie: number[]) =>
+    serie
+      .map((valeur, i) => {
+        const x = padding + (i / (entries.length - 1)) * (width - padding * 2);
+        const y = height - padding - ((valeur - min) / range) * (height - padding * 2);
+        return `${x},${y}`;
+      })
+      .join(" ");
 
   const cibleY =
     cible != null ? height - padding - ((cible - min) / range) * (height - padding * 2) : null;
 
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      className="w-full"
-      preserveAspectRatio="none"
-      role="img"
-      aria-label="Évolution de la valeur dans le temps"
-    >
-      {cibleY != null && (
-        <line
-          x1={padding}
-          y1={cibleY}
-          x2={width - padding}
-          y2={cibleY}
-          stroke="var(--line)"
-          strokeDasharray="4 3"
-          strokeWidth={1}
+    <div className="flex flex-col gap-1.5">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full"
+        preserveAspectRatio="none"
+        role="img"
+        aria-label={
+          lissage
+            ? "Évolution de la valeur dans le temps, avec sa moyenne sur 7 jours"
+            : "Évolution de la valeur dans le temps"
+        }
+      >
+        {cibleY != null && (
+          <line
+            x1={padding}
+            y1={cibleY}
+            x2={width - padding}
+            y2={cibleY}
+            stroke="var(--line)"
+            strokeDasharray="4 3"
+            strokeWidth={1}
+          />
+        )}
+        {/* Avec lissage, la mesure brute passe au second plan (fine, neutre)
+            et la moyenne porte la couleur d'accent : c'est elle qui dit la
+            tendance. */}
+        <polyline
+          points={toPoints(valeurs)}
+          fill="none"
+          stroke={lissage ? "var(--ink-3)" : "var(--accent-kcal)"}
+          strokeWidth={lissage ? 1.25 : 2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
+        {lissage && (
+          <polyline
+            points={toPoints(lissage)}
+            fill="none"
+            stroke="var(--accent-kcal)"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
+      </svg>
+      {lissage && (
+        <p className="flex items-center gap-3 text-xs text-ink-2">
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden="true" className="h-0.5 w-3.5 rounded-full bg-ink-3" />
+            Mesure
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden="true" className="h-[3px] w-3.5 rounded-full bg-kcal" />
+            Moyenne 7 jours
+          </span>
+        </p>
       )}
-      <polyline
-        points={points.join(" ")}
-        fill="none"
-        stroke="var(--accent-kcal)"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    </div>
   );
 }
 
@@ -95,10 +135,10 @@ export function ObjectifSuiviValeur({
   const valeurExistante = entries.find((e) => e.date === date)?.valeur;
 
   const derniere = entries[entries.length - 1] ?? null;
-  const ratio =
-    objectif.valeur_cible != null
-      ? Math.min(1, Math.max(0, (derniere?.valeur ?? 0) / objectif.valeur_cible))
-      : null;
+  const ratio = progressionValeur(
+    entries.map((e) => e.valeur),
+    objectif.valeur_cible
+  );
 
   // Champ vide : refusé en ligne (plus d'enregistrement de 0 qui écrasait
   // la mesure du jour) ; la valeur brute part au serveur, qui refuse aussi.

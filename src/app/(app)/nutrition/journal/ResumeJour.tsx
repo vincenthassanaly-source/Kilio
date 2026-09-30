@@ -1,16 +1,17 @@
 import type { Nutrition } from "@/lib/nutrition/compute";
+import { SEUIL_DEPASSEMENT_LEGER } from "@/lib/nutrition/bilan";
 import { card } from "@/lib/ui";
 
 const RADIUS = 56;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 // Un seul gramme au-delà de l'objectif n'a pas la même gravité que 500 kcal
-// en trop : un dépassement léger (≤10 %) reste ambre/informatif plutôt que
-// de basculer immédiatement dans le rouge d'alerte — la même teinte que le
-// bouton "Supprimer" — pour un outil de perte de poids utilisé plusieurs
-// fois par jour, où un cadrage binaire réussi/échec entretient l'anxiété
-// plus qu'il n'aide. Seul un dépassement net (>10 %) mérite l'alerte forte.
-const SEUIL_DEPASSEMENT_LEGER = 1.1;
+// en trop : un dépassement léger (≤10 %, SEUIL_DEPASSEMENT_LEGER, partagé
+// avec le Bilan) reste ambre/informatif plutôt que de basculer
+// immédiatement dans le rouge d'alerte — la même teinte que le bouton
+// "Supprimer" — pour un outil de perte de poids utilisé plusieurs fois par
+// jour, où un cadrage binaire réussi/échec entretient l'anxiété plus qu'il
+// n'aide. Seul un dépassement net (>10 %) mérite l'alerte forte.
 
 type Severite = "ok" | "leger" | "marque";
 
