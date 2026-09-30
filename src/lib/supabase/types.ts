@@ -992,7 +992,8 @@ export type Database = {
           facilite: number
           id: string
           intervalle_jours: number
-          notion_id: string
+          molecule_id: string | null
+          notion_id: string | null
           question: string
           repetitions: number
           reponse: string
@@ -1004,7 +1005,8 @@ export type Database = {
           facilite?: number
           id?: string
           intervalle_jours?: number
-          notion_id: string
+          molecule_id?: string | null
+          notion_id?: string | null
           question: string
           repetitions?: number
           reponse: string
@@ -1016,12 +1018,20 @@ export type Database = {
           facilite?: number
           id?: string
           intervalle_jours?: number
-          notion_id?: string
+          molecule_id?: string | null
+          notion_id?: string | null
           question?: string
           repetitions?: number
           reponse?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pharma_cartes_molecule_id_fkey"
+            columns: ["molecule_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_ref_molecules"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pharma_cartes_notion_id_fkey"
             columns: ["notion_id"]
@@ -1113,6 +1123,251 @@ export type Database = {
             columns: ["chapitre_id"]
             isOneToOne: false
             referencedRelation: "pharma_chapitres"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_ref_classes: {
+        Row: {
+          atc: string | null
+          conseils: string | null
+          contre_indications: string | null
+          created_at: string
+          id: string
+          interactions: string | null
+          mecanisme: string | null
+          nom: string
+          ordre: number
+          parent_id: string | null
+        }
+        Insert: {
+          atc?: string | null
+          conseils?: string | null
+          contre_indications?: string | null
+          created_at?: string
+          id?: string
+          interactions?: string | null
+          mecanisme?: string | null
+          nom: string
+          ordre?: number
+          parent_id?: string | null
+        }
+        Update: {
+          atc?: string | null
+          conseils?: string | null
+          contre_indications?: string | null
+          created_at?: string
+          id?: string
+          interactions?: string | null
+          mecanisme?: string | null
+          nom?: string
+          ordre?: number
+          parent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_ref_classes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_ref_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_ref_ligne_items: {
+        Row: {
+          classe_id: string | null
+          id: string
+          ligne_id: string
+          molecule_id: string | null
+          note: string | null
+          ordre: number
+          role: string
+        }
+        Insert: {
+          classe_id?: string | null
+          id?: string
+          ligne_id: string
+          molecule_id?: string | null
+          note?: string | null
+          ordre?: number
+          role?: string
+        }
+        Update: {
+          classe_id?: string | null
+          id?: string
+          ligne_id?: string
+          molecule_id?: string | null
+          note?: string | null
+          ordre?: number
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_ref_ligne_items_classe_id_fkey"
+            columns: ["classe_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_ref_classes"
+            referencedColumns: ["id"]
+          },
+        
+          {
+            foreignKeyName: "pharma_ref_ligne_items_ligne_id_fkey"
+            columns: ["ligne_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_ref_lignes"
+            referencedColumns: ["id"]
+          },
+        
+          {
+            foreignKeyName: "pharma_ref_ligne_items_molecule_id_fkey"
+            columns: ["molecule_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_ref_molecules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_ref_lignes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          pathologie_id: string
+          profil: string
+          rang: number
+          titre: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          pathologie_id: string
+          profil?: string
+          rang?: number
+          titre: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          pathologie_id?: string
+          profil?: string
+          rang?: number
+          titre?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_ref_lignes_pathologie_id_fkey"
+            columns: ["pathologie_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_ref_pathologies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_ref_molecules: {
+        Row: {
+          association: boolean
+          classe_id: string
+          composants: string[]
+          created_at: string
+          dci: string
+          id: string
+          indications: string[]
+          ordre: number
+          particularites: string | null
+        }
+        Insert: {
+          association?: boolean
+          classe_id: string
+          composants?: string[]
+          created_at?: string
+          dci: string
+          id?: string
+          indications?: string[]
+          ordre?: number
+          particularites?: string | null
+        }
+        Update: {
+          association?: boolean
+          classe_id?: string
+          composants?: string[]
+          created_at?: string
+          dci?: string
+          id?: string
+          indications?: string[]
+          ordre?: number
+          particularites?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_ref_molecules_classe_id_fkey"
+            columns: ["classe_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_ref_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_ref_pathologies: {
+        Row: {
+          created_at: string
+          id: string
+          nom: string
+          ordre: number
+          resume: string | null
+          source: string | null
+          source_date: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nom: string
+          ordre?: number
+          resume?: string | null
+          source?: string | null
+          source_date?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nom?: string
+          ordre?: number
+          resume?: string | null
+          source?: string | null
+          source_date?: string | null
+        }
+        Relationships: []
+      }
+      pharma_ref_specialites: {
+        Row: {
+          created_at: string
+          dosages: string | null
+          id: string
+          molecule_id: string
+          nom: string
+        }
+        Insert: {
+          created_at?: string
+          dosages?: string | null
+          id?: string
+          molecule_id: string
+          nom: string
+        }
+        Update: {
+          created_at?: string
+          dosages?: string | null
+          id?: string
+          molecule_id?: string
+          nom?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_ref_specialites_molecule_id_fkey"
+            columns: ["molecule_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_ref_molecules"
             referencedColumns: ["id"]
           },
         ]

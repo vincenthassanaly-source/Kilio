@@ -14,7 +14,7 @@ export function notionsDeChapitre(snap: PharmaSnapshot, chapitreId: string): Pha
 }
 
 export function cartesDeNotions(snap: PharmaSnapshot, notionIds: Set<string>): PharmaCarte[] {
-  return snap.cartes.filter((c) => notionIds.has(c.notion_id));
+  return snap.cartes.filter((c) => c.notion_id !== null && notionIds.has(c.notion_id));
 }
 
 export type StatsMatiere = { chapitres: number; notions: number; cartes: number; acquises: number };
@@ -55,7 +55,7 @@ export function cheminDeNotion(snap: PharmaSnapshot, notion: PharmaNotion): Chem
 // Distance d'édition bornée à 1 (substitution, insertion ou suppression) :
 // suffit à tolérer une faute de frappe sur un nom de molécule sans faux
 // positifs en cascade.
-function aUneFauteDePres(mot: string, cible: string): boolean {
+export function aUneFauteDePres(mot: string, cible: string): boolean {
   if (Math.abs(mot.length - cible.length) > 1) return false;
   let i = 0;
   let j = 0;

@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchAllRows } from "@/lib/supabase/pagination";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { estNoteRevision, prochainEtatCarte } from "@/lib/pharmacie/srs";
+import type { PharmaRefSnapshot } from "@/lib/pharmacie/referentiel";
 import type { PharmaCarte, PharmaChapitre, PharmaMatiere, PharmaNotion, PharmaSnapshot } from "@/lib/pharmacie/types";
 
 // Lecture unique : arborescence + notions + cartes (voir lib/pharmacie/types.ts).
@@ -26,7 +27,7 @@ export async function getPharmacieSnapshot(): Promise<PharmaSnapshot> {
     fetchAllRows<PharmaCarte>((from, to) =>
       supabase
         .from("pharma_cartes")
-        .select("id, notion_id, question, reponse, echeance, intervalle_jours, facilite, repetitions, dernier_passage")
+        .select("id, notion_id, molecule_id, question, reponse, echeance, intervalle_jours, facilite, repetitions, dernier_passage")
         .order("id")
         .range(from, to)
     ),
@@ -89,5 +90,54 @@ export async function supprimerNotion(id: string): Promise<ActionResult> {
   if (error) return fail(error.message);
 
   revalidatePath("/pharmacie");
+  return ok();
+}
+
+// Lecture unique du référentiel médicaments (classes, molécules, spécialités,
+// pathologies et protocoles). Les ajouts passent par le chat ; l'app permet
+// de corriger les textes d'une molécule.
+export async function getReferentielSnapshot(): Promise<PharmaRefSnapshot> {
+  const supabase = createAdminClient();
+
+  const [classes, molecules, specialites, pathologies, lignes, items] = await Promise.all([
+    fetchAllRows<PharmaRefSnapshot["classes"][number]>((from, to) =>
+      supabase.from("pharma_ref_classes").select("*").order("ordre").order("nom").range(from, to)
+    ),
+    fetchAllRows<PharmaRefSnapshot["molecules"][number]>((from, to) =>
+      supabase.from("pharma_ref_molecules").select("*").order("dci").range(from, to)
+    ),
+    fetchAllRows<PharmaRefSnapshot["specialites"][number]>((from, to) =>
+      supabase.from("pharma_ref_specialites").select("*").order("nom").range(from, to)
+    ),
+    fetchAllRows<PharmaRefSnapshot["pathologies"][number]>((from, to) =>
+      supabase.from("pharma_ref_pathologies").select("*").order("ordre").order("nom").range(from, to)
+    ),
+    fetchAllRows<PharmaRefSnapshot["lignes"][number]>((from, to) =>
+      supabase.from("pharma_ref_lignes").select("*").order("rang").order("id").range(from, to)
+    ),
+    fetchAllRows<PharmaRefSnapshot["items"][number]>((from, to) =>
+      supabase.from("pharma_ref_ligne_items").select("*").order("ordre").order("id").range(from, to)
+    ),
+  ]);
+
+  return { classes, molecules, specialites, pathologies, lignes, items, genereLe: new Date().toISOString() };
+}
+
+export async function modifierMolecule(
+  id: string,
+  champs: { indications: string[]; particularites: string }
+): Promise<ActionResult> {
+  const indications = [...new Set(champs.indications.map((i) => i.trim()).filter(Boolean))].slice(0, 20);
+  if (indications.length === 0) return fail("Au moins une indication est requise.");
+  const particularites = champs.particularites.trim();
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("pharma_ref_molecules")
+    .update({ indications, particularites: particularites || null })
+    .eq("id", id);
+  if (error) return fail(error.message);
+
+  revalidatePath("/pharmacie/referentiel");
   return ok();
 }

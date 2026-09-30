@@ -15,8 +15,8 @@ const SNAP: PharmaSnapshot = {
     notion("n2", "Amoxicilline", "Antibiotique de la famille des pénicillines.", ["antibiotique"]),
   ],
   cartes: [
-    { id: "k1", notion_id: "n1", question: "q", reponse: "r", echeance: "2026-09-30T00:00:00Z", intervalle_jours: 10, facilite: 2.5, repetitions: 3, dernier_passage: null },
-    { id: "k2", notion_id: "n2", question: "q", reponse: "r", echeance: "2026-10-05T00:00:00Z", intervalle_jours: 1, facilite: 2.5, repetitions: 1, dernier_passage: null },
+    { id: "k1", notion_id: "n1", molecule_id: null, question: "q", reponse: "r", echeance: "2026-09-30T00:00:00Z", intervalle_jours: 10, facilite: 2.5, repetitions: 3, dernier_passage: null },
+    { id: "k2", notion_id: "n2", molecule_id: null, question: "q", reponse: "r", echeance: "2026-10-05T00:00:00Z", intervalle_jours: 1, facilite: 2.5, repetitions: 1, dernier_passage: null },
   ],
 };
 
