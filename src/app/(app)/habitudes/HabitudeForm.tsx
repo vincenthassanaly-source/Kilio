@@ -107,7 +107,7 @@ export function HabitudeForm({
 
       {type === "quantifiee" && (
         <div className="flex gap-3">
-          <div className="flex flex-1 flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <label htmlFor={`${uid}-unite`} className={labelClass}>
               Unité
             </label>
@@ -119,7 +119,7 @@ export function HabitudeForm({
               className={input}
             />
           </div>
-          <div className="flex flex-1 flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <label htmlFor={`${uid}-valeur_cible`} className={labelClass}>
               Objectif (optionnel)
             </label>

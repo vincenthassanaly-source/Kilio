@@ -108,7 +108,7 @@ export function TransactionsFilters({
           aria-label="Filtrer par mois"
           value={searchParams.get("mois") ?? ""}
           onChange={(e) => updateParam("mois", e.target.value)}
-          className={`${input} py-2 text-[13px]`}
+          className={`${input} min-w-0 max-w-full py-2 text-[13px]`}
         />
       </div>
     </div>

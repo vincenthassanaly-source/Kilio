@@ -337,7 +337,7 @@ export function DocumentForm({
       </div>
 
       <div className="flex gap-3">
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={`${uid}-categorie`} className={labelClass}>
             Catégorie (optionnel)
           </label>
@@ -350,7 +350,7 @@ export function DocumentForm({
             ))}
           </select>
         </div>
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={`${uid}-date_echeance`} className={labelClass}>
             Échéance (optionnel)
           </label>
@@ -359,7 +359,7 @@ export function DocumentForm({
             name="date_echeance"
             type="date"
             defaultValue={document?.date_echeance ?? ""}
-            className={input}
+            className={`${input} w-full min-w-0`}
           />
         </div>
       </div>
