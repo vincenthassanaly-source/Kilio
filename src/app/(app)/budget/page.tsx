@@ -132,7 +132,7 @@ async function BudgetResume() {
 
       <div className={`${card} flex flex-col gap-3`}>
         <p className={sectionTitle}>{formatPeriode(periode)}</p>
-        <div className="flex gap-5">
+        <div className="flex flex-wrap gap-x-5 gap-y-3">
           <div className="flex flex-col gap-0.5">
             <span className={eyebrow}>Revenus</span>
             <span className="font-display text-lg font-semibold tabular-nums text-kcal">

@@ -73,6 +73,20 @@ async function PeriodeNavigationCourante({ searchParams }: { searchParams: Calen
   return <PeriodeNavigation route="/budget/calendrier" periode={await lirePeriodeMensuelle(searchParams)} />;
 }
 
+// Cellules de 40 px à 320 px : montants arrondis, sans symbole ni centimes.
+// Le détail exact reste dans le libellé accessible et sur la page du jour.
+const montantCompact = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
+function formatMontantCompact(montant: number): string {
+  return montantCompact.format(montant);
+}
+
+function libelleJour(date: string, totaux: { depenses?: number; revenus?: number }): string {
+  const parties = [];
+  if (totaux.depenses) parties.push(`dépenses ${formatMontant(totaux.depenses)}`);
+  if (totaux.revenus) parties.push(`revenus ${formatMontant(totaux.revenus)}`);
+  return `${Number(date.slice(-2))} : ${parties.join(", ")}`;
+}
+
 async function Grille({ searchParams }: { searchParams: CalendrierSearchParams }) {
   const periode = await lirePeriodeMensuelle(searchParams);
   await genererOccurrencesDuesPourLaRequete();
@@ -90,7 +104,8 @@ async function Grille({ searchParams }: { searchParams: CalendrierSearchParams }
               <Link
                 key={jour.date}
                 href={`/budget/transactions?date=${jour.date}`}
-                className={`flex min-h-14 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] leading-tight transition-colors ${
+                aria-label={totaux ? libelleJour(jour.date, totaux) : undefined}
+                className={`flex min-h-14 min-w-0 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] leading-tight transition-colors ${
                   jour.horsMois ? "opacity-30" : ""
                 } ${totaux ? "bg-surface-alt" : "hover:bg-surface-alt/60"}`}
               >
@@ -98,10 +113,10 @@ async function Grille({ searchParams }: { searchParams: CalendrierSearchParams }
                   {Number(jour.date.slice(-2))}
                 </span>
                 {totaux?.depenses ? (
-                  <span className="text-alert tabular-nums">-{formatMontant(totaux.depenses)}</span>
+                  <span className="whitespace-nowrap text-alert tabular-nums">-{formatMontantCompact(totaux.depenses)}</span>
                 ) : null}
                 {totaux?.revenus ? (
-                  <span className="text-kcal tabular-nums">+{formatMontant(totaux.revenus)}</span>
+                  <span className="whitespace-nowrap text-kcal tabular-nums">+{formatMontantCompact(totaux.revenus)}</span>
                 ) : null}
               </Link>
             );

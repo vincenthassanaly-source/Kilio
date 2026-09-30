@@ -106,7 +106,7 @@ export function CategorieProgressCard({
                 ? "Budget cible de l'année"
                 : "Budget cible du mois"
           }
-          className={`${input} flex-1 py-1.5 text-[13px]`}
+          className={`${input} min-w-0 flex-1 py-1.5 text-[13px]`}
         />
         <button type="submit" disabled={pending} className={`${linkButton} shrink-0 disabled:opacity-60`}>
           {pending ? "…" : "Définir"}

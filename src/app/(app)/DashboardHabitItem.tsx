@@ -82,7 +82,7 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
       <ProgressRing size={50} strokeWidth={5} pct={pct} color="var(--accent-habitudes)">
         <span className="text-base leading-none">{habitude.icone || "✓"}</span>
       </ProgressRing>
-      <span className="truncate text-[11px] font-semibold text-ink-2">{habitude.nom}</span>
+      <span className="max-w-full truncate text-[11px] font-semibold text-ink-2">{habitude.nom}</span>
       {(habitude.type === "streak" || habitude.frequence_hebdo != null) && habitude.streak > 0 && (
         <span className="text-[11px] font-bold text-habitudes">🔥{habitude.streak}</span>
       )}

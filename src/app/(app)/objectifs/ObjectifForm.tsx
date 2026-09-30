@@ -95,8 +95,8 @@ export function ObjectifForm({
         />
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex flex-1 flex-col gap-1">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <span className={labelClass}>Catégorie</span>
           <SegmentedControl
             ariaLabel="Catégorie"
@@ -110,7 +110,7 @@ export function ObjectifForm({
             onChange={setCategorie}
           />
         </div>
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={`${uid}-date_echeance`} className={labelClass}>
             Échéance (optionnel)
           </label>
@@ -119,7 +119,7 @@ export function ObjectifForm({
             name="date_echeance"
             type="date"
             defaultValue={objectif?.date_echeance ?? ""}
-            className={input}
+            className={`${input} w-full min-w-0`}
           />
         </div>
       </div>
@@ -142,7 +142,7 @@ export function ObjectifForm({
 
       {typeSuivi === "valeur" && (
         <div className="flex gap-3">
-          <div className="flex flex-1 flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <label htmlFor={`${uid}-valeur_cible`} className={labelClass}>
               Valeur cible
             </label>
@@ -156,7 +156,7 @@ export function ObjectifForm({
               className={input}
             />
           </div>
-          <div className="flex flex-1 flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <label htmlFor={`${uid}-unite`} className={labelClass}>
               Unité
             </label>

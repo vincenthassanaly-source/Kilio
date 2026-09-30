@@ -157,7 +157,7 @@ export function ObjectifSuiviValeur({
       <EvolutionChart entries={entries} cible={objectif.valeur_cible} />
 
       <div className="flex items-end gap-2">
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={dateId} className={labelClass}>
             Date
           </label>
@@ -169,10 +169,10 @@ export function ObjectifSuiviValeur({
               setDate(e.target.value);
               setErreur(null);
             }}
-            className={input}
+            className={`${input} w-full min-w-0`}
           />
         </div>
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={valeurId} className={labelClass}>
             Valeur{objectif.unite ? ` (${objectif.unite})` : ""}
           </label>
