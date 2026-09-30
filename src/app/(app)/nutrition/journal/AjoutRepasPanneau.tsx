@@ -363,7 +363,7 @@ function EtapeQuantite({
       </div>
 
       <div className="flex items-baseline justify-between rounded-2xl bg-surface-alt px-4 py-3" aria-live="polite">
-        <span className="font-display text-2xl font-bold text-ink tabular-nums">
+        <span className="font-display text-[28px] font-semibold text-ink tabular-nums">
           {nutrition ? Math.round(nutrition.kcal) : "—"}
           <span className="ml-1 font-sans text-sm font-semibold text-ink-2">kcal</span>
         </span>

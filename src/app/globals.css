@@ -6,11 +6,13 @@
   --background: oklch(0.97 0.012 95);
   --surface: oklch(0.995 0.006 95);
   --surface-alt: oklch(0.935 0.012 95);
-  --line: oklch(0.9 0.012 95);
+  --line: oklch(0.915 0.01 95);
   --ink: oklch(0.22 0.02 150);
   --ink-2: oklch(0.5 0.018 150);
-  /* Vague 2 (T5) : 0,64 → 0,55 ; ≈ 4,7:1 sur surface (3,3:1 avant). */
-  --ink-3: oklch(0.55 0.014 150);
+  /* Vague 2 (T5) : 0,64 → 0,55 ; ≈ 4,7:1 sur surface (3,3:1 avant).
+     Polish premium : 0,55 → 0,54 pour compenser l'éclaircissement de
+     `--line` (contraste conservé sur surface et sur fond). */
+  --ink-3: oklch(0.54 0.014 150);
   /* Bordure des contrôles non textuels (cercle non coché, piste
      d'interrupteur éteint) : ≥ 3:1 sur surface (T5), `--line` restant
      réservé aux séparations décoratives. */
@@ -48,7 +50,14 @@
   --accent-documents: oklch(0.55 0.14 25);
   --accent-pharmacie: oklch(0.55 0.14 355);
   --nav-bg: oklch(0.995 0.006 95 / 0.78);
-  --shadow-card: 0 10px 24px oklch(0.35 0.03 150 / 0.09);
+  --shadow-card:
+    0 1px 2px oklch(0.3 0.03 150 / 0.05),
+    0 8px 24px -10px oklch(0.3 0.03 150 / 0.12);
+  /* Jetons de mouvement : une seule courbe, trois durées. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur: 220ms;
+  --dur-slow: 480ms;
   --note-sauge: oklch(0.93 0.035 150);
   --note-peche: oklch(0.93 0.045 55);
   --note-lavande: oklch(0.92 0.035 300);
@@ -63,7 +72,7 @@
   --background: oklch(0.17 0.016 195);
   --surface: oklch(0.215 0.018 195);
   --surface-alt: oklch(0.27 0.02 195);
-  --line: oklch(0.33 0.022 195);
+  --line: oklch(0.3 0.022 195);
   --ink: oklch(0.95 0.008 195);
   --ink-2: oklch(0.72 0.014 195);
   --ink-3: oklch(0.64 0.014 195);
@@ -91,7 +100,9 @@
   --accent-documents: oklch(0.72 0.13 25);
   --accent-pharmacie: oklch(0.72 0.13 355);
   --nav-bg: oklch(0.22 0.018 195 / 0.72);
-  --shadow-card: 0 10px 26px rgba(0, 0, 0, 0.42);
+  --shadow-card:
+    0 1px 0 oklch(1 0 0 / 0.04) inset,
+    0 10px 28px -10px rgba(0, 0, 0, 0.55);
   --note-sauge: oklch(0.32 0.045 150);
   --note-peche: oklch(0.34 0.06 55);
   --note-lavande: oklch(0.32 0.045 300);
@@ -143,6 +154,8 @@
 body {
   background: var(--background);
   color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Désactive le pull-to-refresh natif du navigateur/WebView (rechargement
@@ -413,6 +426,27 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
 }
 .kilio-barre-navigation-progression {
   animation: kilio-barre-navigation-progression-anim 900ms ease-in-out infinite;
+}
+
+/* Micro-interactions du polish premium : une courbe, trois durées (voir
+   jetons --ease-out / --dur-* en tête de fichier). Neutralisées par la règle
+   globale prefers-reduced-motion ci-dessous. */
+@keyframes kl-ring {
+  from {
+    stroke-dashoffset: var(--kl-c);
+  }
+}
+.kl-ring-anim {
+  animation: kl-ring 700ms var(--ease-out) both;
+}
+@keyframes kl-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.kl-in {
+  animation: kl-in 320ms var(--ease-out) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

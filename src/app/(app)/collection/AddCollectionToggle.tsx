@@ -30,7 +30,7 @@ export function AddCollectionToggle({ onSaved }: { onSaved?: () => void }) {
         +
       </div>
       <div className="flex flex-col gap-[1px]">
-        <span className="font-display text-[14.5px] font-bold tracking-tight text-ink">Nouvelle collection</span>
+        <span className="font-display text-[15px] font-semibold tracking-[-0.01em] text-ink">Nouvelle collection</span>
         <span className="text-xs font-medium text-ink-3">Nouveau classeur</span>
       </div>
     </button>

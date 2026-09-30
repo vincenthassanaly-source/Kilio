@@ -25,7 +25,7 @@ async function DashboardHeader() {
     <header className="flex flex-col gap-0.5">
       <p className={`${eyebrow} capitalize`}>{dateLabel}</p>
       <div className="flex items-center justify-between gap-2">
-        <h1 className="font-display text-[25px] font-bold tracking-tight text-ink">{greeting(new Date())}</h1>
+        <h1 className="font-display text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] text-ink">{greeting(new Date())}</h1>
       </div>
     </header>
   );

@@ -55,8 +55,8 @@ export function CheckToggle({
           borderColor: checked ? color : "var(--control-border)",
           background: checked ? color : "transparent",
         }}
-        animate={checked ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
+        animate={checked ? { scale: [1, 1.12, 1] } : { scale: 1 }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
       >
         <AnimatePresence>
           {checked && (

@@ -31,7 +31,7 @@ export function RepartitionCategories({ suivi }: { suivi: SuiviCategorie[] }) {
                 {s.categorie.icone && <span className="mr-1">{s.categorie.icone}</span>}
                 {s.categorie.nom}
               </span>
-              <span className="font-mono text-ink-2">
+              <span className="tabular-nums text-ink-2">
                 {formatMontant(s.consomme)} · {pct}%
               </span>
             </div>
