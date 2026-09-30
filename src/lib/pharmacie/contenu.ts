@@ -2,9 +2,11 @@
 // pour colorer une LIGNE entière : `[vert] Normale : 0,70 – 1,10 g/L`.
 // Module neutre (aucun React) : partagé par le rendu, l'éditeur et la
 // recherche. Un contenu sans balise reste un bloc de texte inchangé.
-
-export const NIVEAUX = ["bleu", "vert", "orange", "rouge", "gris"] as const;
-export type Niveau = (typeof NIVEAUX)[number];
+//
+// Source unique des couleurs : META_NIVEAU. NIVEAUX en est dérivé, donc le
+// parsing, l'éditeur et le rendu suivent toute couleur ajoutée ici (plus son
+// pictogramme dans ContenuColore et ses jetons dans globals.css). Les 5
+// premières ont un sens fixe ; les 7 suivantes distinguent des catégories.
 
 export type MetaNiveau = {
   /** Libellé lu par les lecteurs d'écran (la couleur n'est jamais seule). */
@@ -13,20 +15,30 @@ export type MetaNiveau = {
   couleur: string;
 };
 
-export const META_NIVEAU: Record<Niveau, MetaNiveau> = {
+export const META_NIVEAU = {
   bleu: { libelle: "Bas", couleur: "var(--accent-agenda)" },
   vert: { libelle: "Normal", couleur: "var(--accent-kcal)" },
   orange: { libelle: "À surveiller", couleur: "var(--accent-warning)" },
   rouge: { libelle: "Danger", couleur: "var(--accent-alert)" },
   gris: { libelle: "Repère", couleur: "var(--ink-3)" },
-};
+  violet: { libelle: "Violet", couleur: "var(--niveau-violet)" },
+  rose: { libelle: "Rose", couleur: "var(--niveau-rose)" },
+  jaune: { libelle: "Jaune", couleur: "var(--niveau-jaune)" },
+  turquoise: { libelle: "Turquoise", couleur: "var(--niveau-turquoise)" },
+  marron: { libelle: "Marron", couleur: "var(--niveau-marron)" },
+  indigo: { libelle: "Indigo", couleur: "var(--niveau-indigo)" },
+  lime: { libelle: "Lime", couleur: "var(--niveau-lime)" },
+} as const satisfies Record<string, MetaNiveau>;
+
+export type Niveau = keyof typeof META_NIVEAU;
+export const NIVEAUX = Object.keys(META_NIVEAU) as Niveau[];
 
 export type BlocContenu =
   | { type: "texte"; texte: string }
   | { type: "niveau"; niveau: Niveau; texte: string };
 
 // Balise reconnue uniquement en début de ligne, avec un texte derrière :
-// `[1]`, `[vert]` seul ou `[violet] …` restent du texte ordinaire.
+// `[1]`, `[vert]` seul ou `[fuchsia] …` restent du texte ordinaire.
 const BALISE_LIGNE = new RegExp(`^\\[(${NIVEAUX.join("|")})\\][ \\t]*(\\S.*)$`, "i");
 const BALISE_DEBUT = new RegExp(`^\\[(?:${NIVEAUX.join("|")})\\][ \\t]*`, "i");
 
