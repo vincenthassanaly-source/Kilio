@@ -49,6 +49,15 @@
   --accent-carburants: oklch(0.55 0.14 120);
   --accent-documents: oklch(0.55 0.14 25);
   --accent-pharmacie: oklch(0.55 0.14 355);
+  /* Balises de catégorie du module Pharmacie (violet, rose, jaune…) : barre
+     et pictogramme ≥ 3:1 sur surface (les 5 niveaux historiques : 4,1 à 5,3:1). */
+  --niveau-violet: oklch(0.52 0.16 300);
+  --niveau-rose: oklch(0.55 0.17 350);
+  --niveau-jaune: oklch(0.6 0.13 90);
+  --niveau-turquoise: oklch(0.55 0.11 195);
+  --niveau-marron: oklch(0.5 0.07 55);
+  --niveau-indigo: oklch(0.48 0.17 275);
+  --niveau-lime: oklch(0.6 0.16 125);
   --nav-bg: oklch(0.995 0.006 95 / 0.78);
   --shadow-card:
     0 1px 2px oklch(0.3 0.03 150 / 0.05),
@@ -99,6 +108,13 @@
   --accent-carburants: oklch(0.72 0.13 120);
   --accent-documents: oklch(0.72 0.13 25);
   --accent-pharmacie: oklch(0.72 0.13 355);
+  --niveau-violet: oklch(0.72 0.13 300);
+  --niveau-rose: oklch(0.73 0.14 350);
+  --niveau-jaune: oklch(0.79 0.14 95);
+  --niveau-turquoise: oklch(0.76 0.11 195);
+  --niveau-marron: oklch(0.66 0.07 55);
+  --niveau-indigo: oklch(0.7 0.13 275);
+  --niveau-lime: oklch(0.77 0.16 125);
   --nav-bg: oklch(0.22 0.018 195 / 0.72);
   --shadow-card:
     0 1px 0 oklch(1 0 0 / 0.04) inset,

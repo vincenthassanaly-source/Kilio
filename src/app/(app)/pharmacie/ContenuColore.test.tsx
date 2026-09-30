@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { META_NIVEAU, NIVEAUX } from "@/lib/pharmacie/contenu";
 import { ContenuColore } from "./ContenuColore";
 
 describe("ContenuColore", () => {
@@ -22,5 +23,23 @@ describe("ContenuColore", () => {
     const { container } = render(<ContenuColore contenu={"Intro\n[vert] Normale\n[orange] Prédiabète"} />);
     expect(screen.getByText("Intro")).toBeInTheDocument();
     expect(container.querySelectorAll("svg")).toHaveLength(2);
+  });
+
+  it.each(NIVEAUX)("rend la balise [%s] : rangée à barre, pictogramme et libellé accessible", (niveau) => {
+    const { container } = render(<ContenuColore contenu={`[${niveau}] Pansement hydrocolloïde`} />);
+    const vue = within(container);
+    expect(vue.getByText(/Pansement hydrocolloïde/)).toBeInTheDocument();
+    expect(vue.getByText(new RegExp(META_NIVEAU[niveau].libelle))).toHaveClass("sr-only");
+    expect(container.querySelectorAll("svg path").length).toBeGreaterThan(0);
+    expect(container.querySelector("div > div.border-l-4")).not.toBeNull();
+    expect(container.textContent).not.toContain(`[${niveau}]`);
+  });
+
+  it("laisse une balise inconnue en texte normal, sans erreur", () => {
+    const contenu = "[fuchsia] Pansement";
+    const { container } = render(<ContenuColore contenu={contenu} />);
+    expect(container.querySelectorAll("p")).toHaveLength(1);
+    expect(container.querySelector("p")?.textContent).toBe(contenu);
+    expect(container.querySelector("svg")).toBeNull();
   });
 });

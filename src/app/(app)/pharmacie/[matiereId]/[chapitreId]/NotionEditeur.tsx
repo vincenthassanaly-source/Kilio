@@ -102,7 +102,7 @@ export function NotionEditeur({
                   // Garde la sélection du champ pendant le tap sur le bouton.
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => colorer(niveau)}
-                  aria-label={`Colorer en ${niveau} (${META_NIVEAU[niveau].libelle.toLowerCase()})`}
+                  aria-label={`Colorer en ${niveau}${META_NIVEAU[niveau].libelle.toLowerCase() === niveau ? "" : ` (${META_NIVEAU[niveau].libelle.toLowerCase()})`}`}
                   className={boutonNiveau}
                 >
                   <IconeNiveau niveau={niveau} taille={14} />
