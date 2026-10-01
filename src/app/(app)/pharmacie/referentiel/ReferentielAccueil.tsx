@@ -8,6 +8,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { card, cardTight, eyebrow, input, sectionTitle } from "@/lib/ui";
 import { pluriel } from "@/lib/pharmacie/format";
 import {
+  classeParId,
   classesRacines,
   hrefResultat,
   moleculesParInitiale,
@@ -17,6 +18,7 @@ import {
   sousClasses,
   type PharmaRefSnapshot,
 } from "@/lib/pharmacie/referentiel";
+import { styleClasse } from "@/lib/pharmacie/couleurClasse";
 import { IntrouvableCarte } from "../EtatSnapshot";
 import { AvecReferentiel } from "./EtatReferentiel";
 
@@ -114,8 +116,11 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
         </h2>
         <ul className="flex flex-col gap-3">
           {racines.map((racine) => (
-            <li key={racine.id} className={`${card} flex flex-col gap-2`}>
-              <span className={eyebrow}>{racine.nom}</span>
+            <li key={racine.id} className={`${card} flex flex-col gap-2`} style={styleClasse(snapshot, racine)}>
+              <span className="flex items-center gap-2 text-[13px] font-semibold text-[var(--classe)]">
+                <span aria-hidden className="size-2 shrink-0 rounded-full bg-[var(--classe)]" />
+                {racine.nom}
+              </span>
               <ul className="flex flex-col">
                 {sousClasses(snapshot, racine.id).map((classe) => (
                   <li key={classe.id}>
@@ -144,11 +149,12 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
               <span className={eyebrow}>{initiale}</span>
               <ul className={`${card} flex flex-col p-0`}>
                 {molecules.map((molecule) => (
-                  <li key={molecule.id}>
+                  <li key={molecule.id} style={styleClasse(snapshot, classeParId(snapshot, molecule.classe_id))}>
                     <TransitionLink
                       href={`/pharmacie/referentiel/medicament/${molecule.id}`}
-                      className="flex min-h-11 items-center px-4 py-2 text-[14.5px] text-ink border-t border-line first:border-t-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                      className="flex min-h-11 items-center gap-2.5 px-4 py-2 text-[14.5px] text-ink border-t border-line first:border-t-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
                     >
+                      <span aria-hidden className="size-2 shrink-0 rounded-full bg-[var(--classe)]" />
                       {molecule.dci}
                     </TransitionLink>
                   </li>

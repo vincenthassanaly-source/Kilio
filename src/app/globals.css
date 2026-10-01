@@ -58,6 +58,16 @@
   --niveau-marron: oklch(0.5 0.07 55);
   --niveau-indigo: oklch(0.48 0.17 275);
   --niveau-lime: oklch(0.6 0.16 125);
+  /* Teintes des classes thérapeutiques (référentiel pharmacie) : une par classe
+     racine, héritée par sous-classes et médicaments. Texte ≥ 4,5:1 sur surface. */
+  --classe-1: oklch(0.5 0.13 250);
+  --classe-2: oklch(0.5 0.11 160);
+  --classe-3: oklch(0.5 0.17 25);
+  --classe-4: oklch(0.5 0.15 300);
+  --classe-5: oklch(0.5 0.1 75);
+  --classe-6: oklch(0.5 0.09 200);
+  --classe-7: oklch(0.5 0.16 350);
+  --classe-8: oklch(0.5 0.12 125);
   --nav-bg: oklch(0.995 0.006 95 / 0.78);
   --shadow-card:
     0 1px 2px oklch(0.3 0.03 150 / 0.05),
@@ -115,6 +125,14 @@
   --niveau-marron: oklch(0.66 0.07 55);
   --niveau-indigo: oklch(0.7 0.13 275);
   --niveau-lime: oklch(0.77 0.16 125);
+  --classe-1: oklch(0.76 0.11 250);
+  --classe-2: oklch(0.76 0.11 160);
+  --classe-3: oklch(0.76 0.13 25);
+  --classe-4: oklch(0.76 0.12 300);
+  --classe-5: oklch(0.78 0.11 80);
+  --classe-6: oklch(0.76 0.09 200);
+  --classe-7: oklch(0.76 0.13 350);
+  --classe-8: oklch(0.77 0.13 125);
   --nav-bg: oklch(0.22 0.018 195 / 0.72);
   --shadow-card:
     0 1px 0 oklch(1 0 0 / 0.04) inset,
