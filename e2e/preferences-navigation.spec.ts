@@ -8,9 +8,27 @@
 // sert les pages statiques avec `s-maxage, stale-while-revalidate`, que
 // Chrome applique aussi à son propre cache HTTP ; on mesure ici la fraîcheur
 // côté serveur, pas le cache du navigateur de test.
-import { test, expect, type Browser, type Page } from "@playwright/test";
+import { test, expect, type Browser, type Locator, type Page } from "@playwright/test";
 
 const navLink = (page: Page, href: string) => page.getByRole("navigation").locator(`a[href="${href}"]`);
+
+// `boundingBox()` renvoie null si l'élément est re-rendu entre le contrôle de
+// visibilité et la lecture (remontage à l'hydratation). On attend donc une
+// boîte non nulle et identique sur deux lectures successives.
+async function boite(locator: Locator) {
+  type Boite = NonNullable<Awaited<ReturnType<Locator["boundingBox"]>>>;
+  const etat: { cle: string | null; boite: Boite | null } = { cle: null, boite: null };
+  await expect
+    .poll(async () => {
+      const lue = await locator.boundingBox();
+      const cle = lue ? JSON.stringify(lue) : null;
+      etat.boite = lue !== null && cle === etat.cle ? lue : null;
+      etat.cle = cle;
+      return etat.boite !== null;
+    })
+    .toBe(true);
+  return etat.boite!;
+}
 
 async function epingler(page: Page, href: string, slotHref: string) {
   await page.goto("/plus");
@@ -19,8 +37,8 @@ async function epingler(page: Page, href: string, slotHref: string) {
   await expect(tile).toBeVisible();
   await expect(slot).toBeVisible();
 
-  const from = (await tile.boundingBox())!;
-  const to = (await slot.boundingBox())!;
+  const from = await boite(tile);
+  const to = await boite(slot);
   const action = page.waitForResponse((r) => r.request().method() === "POST" && r.request().headers()["next-action"] !== undefined);
 
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
@@ -78,8 +96,8 @@ async function deplacerTuile(page: Page, href: string, surHref: string) {
   const tile = page.locator(`a[data-nav-edit-tile][href="${href}"]`);
   const cible = page.locator(`a[data-nav-edit-tile][href="${surHref}"]`);
   await expect(tile).toBeVisible();
-  const from = (await tile.boundingBox())!;
-  const to = (await cible.boundingBox())!;
+  const from = await boite(tile);
+  const to = await boite(cible);
   const action = page.waitForResponse((r) => r.request().method() === "POST" && r.request().headers()["next-action"] !== undefined);
 
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
