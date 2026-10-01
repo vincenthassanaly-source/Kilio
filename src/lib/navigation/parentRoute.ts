@@ -18,6 +18,13 @@ export function parentRoute(pathname: string, modulesBarreBasse: readonly string
     return modulesBarreBasse.includes(chemin) ? "/" : "/plus";
   }
 
+  // Les fiches du référentiel pharmacie (…/referentiel/<type>/<id>) n'ont pas
+  // de page « <type> » : retirer un segment tomberait sur /pharmacie/<matière>/<chapitre>
+  // (« Ce chapitre n'existe plus »). Leur parent est l'accueil du référentiel.
+  if (/^\/pharmacie\/referentiel\/(classe|medicament|pathologie)\/[^/]+$/.test(chemin)) {
+    return "/pharmacie/referentiel";
+  }
+
   const segments = chemin.split("/").filter(Boolean);
   segments.pop();
   const parent = segments.length ? `/${segments.join("/")}` : "/";

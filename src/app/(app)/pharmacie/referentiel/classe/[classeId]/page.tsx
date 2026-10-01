@@ -2,8 +2,9 @@
 
 import { use } from "react";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, cardTight, eyebrow, linkButton, pillTag, screenTitle, sectionTitle } from "@/lib/ui";
+import { card, cardTight, eyebrow, linkButton, pillClasse, screenTitle, sectionTitle } from "@/lib/ui";
 import { pluriel } from "@/lib/pharmacie/format";
+import { styleClasse } from "@/lib/pharmacie/couleurClasse";
 import {
   cheminDeClasse,
   classeParId,
@@ -42,18 +43,18 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
           const pathologies = pathologiesDeClasse(snapshot, classe.id);
 
           return (
-            <>
+            <div className="flex flex-col gap-4" style={styleClasse(snapshot, classe)}>
               <div className="flex flex-col gap-1">
                 <TransitionLink href="/pharmacie/referentiel" className={`${linkButton} self-start`}>
                   ← Référentiel
                 </TransitionLink>
                 {parent && <p className={eyebrow}>{chemin.slice(0, -1).map((c) => c.nom).join(" › ")}</p>}
                 <h1 className={screenTitle}>{classe.nom}</h1>
-                {classe.atc && <span className={`${pillTag} self-start`}>ATC {classe.atc}</span>}
+                {classe.atc && <span className={`${pillClasse} self-start`}>ATC {classe.atc}</span>}
               </div>
 
               {(classe.mecanisme || classe.contre_indications || classe.interactions || classe.conseils) && (
-                <div className={`${card} flex flex-col gap-4`}>
+                <div className={`${card} flex flex-col gap-4 bg-[color-mix(in_oklch,var(--classe)_7%,var(--color-surface))]`}>
                   <BlocInfo titre="Mécanisme" texte={classe.mecanisme} />
                   <BlocInfo titre="Contre-indications" texte={classe.contre_indications} />
                   <BlocInfo titre="Interactions" texte={classe.interactions} />
@@ -98,7 +99,10 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
                             href={`/pharmacie/referentiel/medicament/${molecule.id}`}
                             className={`${cardTight} flex flex-col gap-0.5`}
                           >
-                            <span className="text-[14.5px] font-semibold text-ink">{molecule.dci}</span>
+                            <span className="flex items-center gap-2 text-[14.5px] font-semibold text-ink">
+                              <span aria-hidden className="size-2 shrink-0 rounded-full bg-[var(--classe)]" />
+                              {molecule.dci}
+                            </span>
                             {marques.length > 0 && <span className="text-[13px] text-ink-2">{marques.join(" · ")}</span>}
                             {molecule.indications.length > 0 && (
                               <span className="line-clamp-1 text-[12.5px] text-ink-3">{molecule.indications.join(" · ")}</span>
@@ -130,7 +134,7 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
                   </ul>
                 </section>
               )}
-            </>
+            </div>
           );
         }}
       </AvecReferentiel>

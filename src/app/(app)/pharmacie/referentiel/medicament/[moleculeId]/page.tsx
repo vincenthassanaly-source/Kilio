@@ -2,7 +2,19 @@
 
 import { use, useState } from "react";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, cardTight, eyebrow, linkButton, pillTag, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
+import {
+  card,
+  cardTight,
+  eyebrow,
+  linkButton,
+  pillClasse,
+  pillTag,
+  screenTitle,
+  secondaryButton,
+  sectionTitle,
+  titreBlocClasse,
+} from "@/lib/ui";
+import { styleClasse } from "@/lib/pharmacie/couleurClasse";
 import {
   cheminDeClasse,
   classeParId,
@@ -42,7 +54,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
           const pathologies = pathologiesDeMolecule(snapshot, molecule);
 
           return (
-            <>
+            <div className="flex flex-col gap-4" style={styleClasse(snapshot, classe)}>
               <div className="flex flex-col gap-1">
                 <TransitionLink
                   href={classe ? `/pharmacie/referentiel/classe/${classe.id}` : "/pharmacie/referentiel"}
@@ -52,16 +64,19 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                 </TransitionLink>
                 {chemin.length > 0 && <p className={eyebrow}>{chemin.map((c) => c.nom).join(" › ")}</p>}
                 <h1 className={screenTitle}>{molecule.dci}</h1>
-                {molecule.association && <span className={`${pillTag} self-start`}>Association fixe</span>}
+                {molecule.association && <span className={`${pillClasse} self-start`}>Association fixe</span>}
               </div>
 
-              <section className={`${card} flex flex-col gap-4`} aria-label="Fiche du médicament">
+              <section
+                className={`${card} flex flex-col gap-4 bg-[color-mix(in_oklch,var(--classe)_7%,var(--color-surface))]`}
+                aria-label="Fiche du médicament"
+              >
                 {molecule.indications.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">Indications</h2>
+                    <h2 className={titreBlocClasse}>Indications</h2>
                     <ul className="flex flex-wrap gap-1.5">
                       {molecule.indications.map((indication) => (
-                        <li key={indication} className={pillTag}>
+                        <li key={indication} className={pillClasse}>
                           {indication}
                         </li>
                       ))}
@@ -70,7 +85,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                 )}
                 {composants.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">Composants</h2>
+                    <h2 className={titreBlocClasse}>Composants</h2>
                     <ul className="flex flex-wrap gap-2">
                       {composants.map(({ nom, molecule: liee }) => (
                         <li key={nom}>
@@ -149,7 +164,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                 Modifier la fiche
               </button>
               {edition && <MoleculeEditeur molecule={molecule} onClose={() => setEdition(false)} />}
-            </>
+            </div>
           );
         }}
       </AvecReferentiel>

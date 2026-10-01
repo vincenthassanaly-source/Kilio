@@ -32,6 +32,13 @@ describe("parentRoute", () => {
     expect(parentRoute("/pharmacie/m1/c1", BARRE)).toBe("/pharmacie/m1");
   });
 
+  it("ramène une fiche du référentiel pharmacie à l'accueil du référentiel", () => {
+    expect(parentRoute("/pharmacie/referentiel/medicament/abc", BARRE)).toBe("/pharmacie/referentiel");
+    expect(parentRoute("/pharmacie/referentiel/classe/abc", BARRE)).toBe("/pharmacie/referentiel");
+    expect(parentRoute("/pharmacie/referentiel/pathologie/abc", BARRE)).toBe("/pharmacie/referentiel");
+    expect(parentRoute("/pharmacie/referentiel", BARRE)).toBe("/pharmacie");
+  });
+
   it("ignore le slash final et retombe sur l'accueil pour une route inconnue", () => {
     expect(parentRoute("/taches/", BARRE)).toBe("/");
     expect(parentRoute("/inconnu/x", BARRE)).toBe("/");

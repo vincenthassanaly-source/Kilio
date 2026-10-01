@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { errorText } from "@/lib/ui";
+import { errorText, titreBlocClasse } from "@/lib/ui";
 import { useReferentielPharmacie } from "@/lib/pharmacie/useReferentielPharmacie";
 import type { PharmaRefSnapshot } from "@/lib/pharmacie/referentiel";
 import { PharmacieSkeleton } from "../EtatSnapshot";
@@ -18,12 +18,13 @@ export function AvecReferentiel({ children }: { children: (snapshot: PharmaRefSn
   return <>{children(data)}</>;
 }
 
-/** Bloc de texte titré d'une fiche (mécanisme, contre-indications, interactions, conseils…). */
+/** Bloc de texte titré d'une fiche (mécanisme, contre-indications, interactions, conseils…).
+ * Le titre prend la teinte `--classe` de l'ancêtre (voir `styleClasse`). */
 export function BlocInfo({ titre, texte }: { titre: string; texte: string | null | undefined }) {
   if (!texte) return null;
   return (
     <section className="flex flex-col gap-1" aria-label={titre}>
-      <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">{titre}</h2>
+      <h2 className={titreBlocClasse}>{titre}</h2>
       <p className="whitespace-pre-line text-[14.5px] leading-[1.55] text-ink">{texte}</p>
     </section>
   );
