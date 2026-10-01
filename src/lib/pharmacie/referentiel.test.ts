@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   cheminDeClasse,
+  estRoleItem,
+  LIBELLE_ROLE,
+  libelleNbMedicaments,
   moleculesParInitiale,
   nbMoleculesDeClasse,
   pathologiesDeClasse,
@@ -30,9 +33,9 @@ const snap: PharmaRefSnapshot = {
   ],
   pathologies: [{ ...base, id: "p-hta", nom: "Hypertension artérielle", resume: null, source: "HAS 2016", source_date: "2016", ordre: 0 }],
   lignes: [
-    { ...base, id: "l-g1", pathologie_id: "p-hta", profil: "Général", rang: 1, titre: "Bithérapie", description: null },
-    { ...base, id: "l-g2", pathologie_id: "p-hta", profil: "Général", rang: 2, titre: "Trithérapie", description: null },
-    { ...base, id: "l-age", pathologie_id: "p-hta", profil: "Sujet âgé", rang: 1, titre: "Faible dose", description: null },
+    { ...base, id: "l-g1", pathologie_id: "p-hta", profil: "Général", rang: 1, titre: "Bithérapie", description: null, nb_medicaments: 2 },
+    { ...base, id: "l-g2", pathologie_id: "p-hta", profil: "Général", rang: 2, titre: "Trithérapie", description: null, nb_medicaments: 3 },
+    { ...base, id: "l-age", pathologie_id: "p-hta", profil: "Sujet âgé", rang: 1, titre: "Faible dose", description: null, nb_medicaments: null },
   ],
   items: [
     { id: "i1", ligne_id: "l-g1", classe_id: "c-iec", molecule_id: null, role: "traitement", note: null, ordre: 0 },
@@ -71,6 +74,25 @@ describe("référentiel : pathologies", () => {
     expect(pathologiesDeClasse(snap, "c-bb").map((p) => p.id)).toEqual(["p-hta"]);
     expect(pathologiesDeClasse(snap, "c-cardio").map((p) => p.id)).toEqual(["p-hta"]);
     expect(pathologiesDeMolecule(snap, snap.molecules[0]).map((p) => p.id)).toEqual(["p-hta"]);
+  });
+});
+
+describe("référentiel : étapes", () => {
+  it("annonce le nombre de médicaments, au singulier comme au pluriel", () => {
+    expect(libelleNbMedicaments(1)).toBe("1 médicament");
+    expect(libelleNbMedicaments(2)).toBe("2 médicaments");
+    expect(libelleNbMedicaments(3)).toBe("3 médicaments");
+  });
+
+  it("n'affiche rien quand le nombre n'est pas renseigné", () => {
+    expect(libelleNbMedicaments(null)).toBeNull();
+    expect(libelleNbMedicaments(undefined)).toBeNull();
+  });
+
+  it("reconnaît le rôle « ajout »", () => {
+    expect(estRoleItem("ajout")).toBe(true);
+    expect(LIBELLE_ROLE.ajout).toBe("Ajout");
+    expect(estRoleItem("inconnu")).toBe(false);
   });
 });
 

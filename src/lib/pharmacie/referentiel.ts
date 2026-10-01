@@ -29,8 +29,14 @@ export const PROFIL_GENERAL = "Général";
 export const LIBELLE_ROLE = {
   traitement: "Traitement",
   association: "Association possible",
+  ajout: "Ajout",
   eviter: "À éviter",
 } as const;
+
+/** « 2 médicaments » en tête d’étape ; rien quand le nombre n’est pas renseigné. */
+export function libelleNbMedicaments(nb: number | null | undefined): string | null {
+  return nb ? `${nb} médicament${nb > 1 ? "s" : ""}` : null;
+}
 
 export type RoleItem = keyof typeof LIBELLE_ROLE;
 

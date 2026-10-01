@@ -1233,6 +1233,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          nb_medicaments: number | null
           pathologie_id: string
           profil: string
           rang: number
@@ -1242,6 +1243,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          nb_medicaments?: number | null
           pathologie_id: string
           profil?: string
           rang?: number
@@ -1251,6 +1253,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          nb_medicaments?: number | null
           pathologie_id?: string
           profil?: string
           rang?: number
