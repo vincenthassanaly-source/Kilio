@@ -1182,6 +1182,7 @@ export type Database = {
           molecule_id: string | null
           note: string | null
           ordre: number
+          ou_precedent: boolean
           role: string
         }
         Insert: {
@@ -1191,6 +1192,7 @@ export type Database = {
           molecule_id?: string | null
           note?: string | null
           ordre?: number
+          ou_precedent?: boolean
           role?: string
         }
         Update: {
@@ -1200,6 +1202,7 @@ export type Database = {
           molecule_id?: string | null
           note?: string | null
           ordre?: number
+          ou_precedent?: boolean
           role?: string
         }
         Relationships: [
