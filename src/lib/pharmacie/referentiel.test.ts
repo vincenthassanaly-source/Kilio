@@ -38,9 +38,9 @@ const snap: PharmaRefSnapshot = {
     { ...base, id: "l-age", pathologie_id: "p-hta", profil: "Sujet âgé", rang: 1, titre: "Faible dose", description: null, nb_medicaments: null },
   ],
   items: [
-    { id: "i1", ligne_id: "l-g1", classe_id: "c-iec", molecule_id: null, role: "traitement", note: null, ordre: 0 },
-    { id: "i2", ligne_id: "l-g1", classe_id: "c-bb", molecule_id: null, role: "eviter", note: "sans indication cardiaque", ordre: 1 },
-    { id: "i3", ligne_id: "l-age", classe_id: null, molecule_id: "m-bisoprolol", role: "traitement", note: null, ordre: 0 },
+    { id: "i1", ligne_id: "l-g1", classe_id: "c-iec", molecule_id: null, role: "traitement", note: null, ordre: 0, ou_precedent: false },
+    { id: "i2", ligne_id: "l-g1", classe_id: "c-bb", molecule_id: null, role: "eviter", note: "sans indication cardiaque", ordre: 1, ou_precedent: true },
+    { id: "i3", ligne_id: "l-age", classe_id: null, molecule_id: "m-bisoprolol", role: "traitement", note: null, ordre: 0, ou_precedent: false },
   ],
 };
 
@@ -89,10 +89,15 @@ describe("référentiel : étapes", () => {
     expect(libelleNbMedicaments(undefined)).toBeNull();
   });
 
-  it("reconnaît le rôle « ajout »", () => {
-    expect(estRoleItem("ajout")).toBe(true);
-    expect(LIBELLE_ROLE.ajout).toBe("Ajout");
-    expect(estRoleItem("inconnu")).toBe(false);
+  it("ne reconnaît que les rôles affichés", () => {
+    expect(Object.keys(LIBELLE_ROLE)).toEqual(["traitement", "association", "eviter"]);
+    expect(estRoleItem("association")).toBe(true);
+    expect(estRoleItem("ajout")).toBe(false);
+  });
+
+  it("conserve le « ou » des alternatives d'une étape", () => {
+    const [etape] = profilsDePathologie(snap, "p-hta")[0].lignes;
+    expect(etape.items.map((i) => i.item.ou_precedent)).toEqual([false, true]);
   });
 });
 

@@ -22,11 +22,10 @@ import { AvecReferentiel } from "../../EtatReferentiel";
 const STYLE_ROLE: Record<RoleItem, { bordure: string; pastille: string; signe: string }> = {
   traitement: { bordure: "border-l-kcal", pastille: "bg-kcal-soft text-kcal", signe: "✓" },
   association: { bordure: "border-l-warning", pastille: "bg-surface-alt text-ink-2", signe: "+" },
-  ajout: { bordure: "border-l-protein", pastille: "bg-protein/15 text-protein", signe: "⊕" },
   eviter: { bordure: "border-l-alert", pastille: "bg-surface-alt text-alert", signe: "✕" },
 };
 
-const ORDRE_ROLE: RoleItem[] = ["traitement", "association", "ajout", "eviter"];
+const ORDRE_ROLE: RoleItem[] = ["traitement", "association", "eviter"];
 
 function hrefItem({ classe, molecule }: ItemResolu): string | null {
   if (molecule) return `/pharmacie/referentiel/medicament/${molecule.id}`;
@@ -74,7 +73,10 @@ function LigneTraitement({ ligne }: { ligne: LigneResolue }) {
                 </>
               );
               return (
-                <li key={resolu.item.id}>
+                <li key={resolu.item.id} className="flex flex-col gap-1.5">
+                  {resolu.item.ou_precedent && (
+                    <span className="pl-3 text-[12px] font-semibold uppercase tracking-wide text-ink-3">ou</span>
+                  )}
                   {href ? (
                     <TransitionLink
                       href={href}

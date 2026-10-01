@@ -29,7 +29,6 @@ export const PROFIL_GENERAL = "Général";
 export const LIBELLE_ROLE = {
   traitement: "Traitement",
   association: "Association possible",
-  ajout: "Ajout",
   eviter: "À éviter",
 } as const;
 
