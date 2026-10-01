@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { TransitionLink } from "@/components/TransitionLink";
 import { queryKeys } from "@/lib/query/keys";
-import { card, cardTight, eyebrow, input, sectionTitle } from "@/lib/ui";
+import { cardTight, eyebrow, input } from "@/lib/ui";
 import { pluriel } from "@/lib/pharmacie/format";
 import {
   classeParId,
@@ -21,6 +21,7 @@ import {
 import { styleClasse } from "@/lib/pharmacie/couleurClasse";
 import { IntrouvableCarte } from "../EtatSnapshot";
 import { AvecReferentiel } from "./EtatReferentiel";
+import { GroupeRepliable, SectionRepliable } from "./Repliable";
 
 export function ReferentielAccueil() {
   const queryClient = useQueryClient();
@@ -88,10 +89,7 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
 
   return (
     <>
-      <section className="flex flex-col gap-2.5" aria-labelledby="titre-pathologies">
-        <h2 id="titre-pathologies" className={sectionTitle}>
-          Pathologies et protocoles
-        </h2>
+      <SectionRepliable id="ref-pathologies" titre="Pathologies et protocoles" compteur={snapshot.pathologies.length}>
         <ul className="flex flex-col gap-2">
           {snapshot.pathologies.map((pathologie) => {
             const profils = profilsDePathologie(snapshot, pathologie.id);
@@ -108,46 +106,56 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
             );
           })}
         </ul>
-      </section>
+      </SectionRepliable>
 
-      <section className="flex flex-col gap-2.5" aria-labelledby="titre-classes">
-        <h2 id="titre-classes" className={sectionTitle}>
-          Classes thérapeutiques
-        </h2>
-        <ul className="flex flex-col gap-3">
-          {racines.map((racine) => (
-            <li key={racine.id} className={`${card} flex flex-col gap-2`} style={styleClasse(snapshot, racine)}>
-              <span className="flex items-center gap-2 text-[13px] font-semibold text-[var(--classe)]">
-                <span aria-hidden className="size-2 shrink-0 rounded-full bg-[var(--classe)]" />
-                {racine.nom}
-              </span>
-              <ul className="flex flex-col">
-                {sousClasses(snapshot, racine.id).map((classe) => (
-                  <li key={classe.id}>
-                    <TransitionLink
-                      href={`/pharmacie/referentiel/classe/${classe.id}`}
-                      className="relative flex min-h-11 items-center justify-between gap-3 border-t border-line py-2 first:border-t-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
-                    >
-                      <span className="text-[14.5px] font-medium text-ink">{classe.nom}</span>
-                      <span className="shrink-0 text-[12px] text-ink-2">{nbMoleculesDeClasse(snapshot, classe.id)}</span>
-                    </TransitionLink>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <SectionRepliable id="ref-classes" titre="Classes thérapeutiques" compteur={racines.length}>
+        <div className="flex flex-col gap-3">
+          {racines.map((racine) => {
+            const classes = sousClasses(snapshot, racine.id);
+            return (
+              <GroupeRepliable
+                key={racine.id}
+                id={`ref-classes-${racine.id}`}
+                titre={
+                  <>
+                    <span aria-hidden className="size-2 shrink-0 rounded-full bg-[var(--classe)]" />
+                    {racine.nom}
+                  </>
+                }
+                titreClassName="text-[13px] font-semibold text-[var(--classe)]"
+                compteur={classes.length}
+                style={styleClasse(snapshot, racine)}
+              >
+                <ul className="flex flex-col px-4">
+                  {classes.map((classe) => (
+                    <li key={classe.id}>
+                      <TransitionLink
+                        href={`/pharmacie/referentiel/classe/${classe.id}`}
+                        className="relative flex min-h-11 items-center justify-between gap-3 border-t border-line py-2 first:border-t-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                      >
+                        <span className="text-[14.5px] font-medium text-ink">{classe.nom}</span>
+                        <span className="shrink-0 text-[12px] text-ink-2">{nbMoleculesDeClasse(snapshot, classe.id)}</span>
+                      </TransitionLink>
+                    </li>
+                  ))}
+                </ul>
+              </GroupeRepliable>
+            );
+          })}
+        </div>
+      </SectionRepliable>
 
-      <section className="flex flex-col gap-2.5" aria-labelledby="titre-index">
-        <h2 id="titre-index" className={sectionTitle}>
-          Médicaments A–Z ({snapshot.molecules.length})
-        </h2>
+      <SectionRepliable id="ref-az" titre="Médicaments A–Z" compteur={`(${snapshot.molecules.length})`}>
         <div className="flex flex-col gap-3">
           {index.map(({ initiale, molecules }) => (
-            <div key={initiale} className="flex flex-col gap-1">
-              <span className={eyebrow}>{initiale}</span>
-              <ul className={`${card} flex flex-col p-0`}>
+            <GroupeRepliable
+              key={initiale}
+              id={`ref-az-${initiale}`}
+              titre={initiale}
+              titreClassName="text-[15px] font-semibold text-ink"
+              compteur={molecules.length}
+            >
+              <ul className="flex flex-col">
                 {molecules.map((molecule) => (
                   <li key={molecule.id} style={styleClasse(snapshot, classeParId(snapshot, molecule.classe_id))}>
                     <TransitionLink
@@ -160,10 +168,10 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
                   </li>
                 ))}
               </ul>
-            </div>
+            </GroupeRepliable>
           ))}
         </div>
-      </section>
+      </SectionRepliable>
     </>
   );
 }
