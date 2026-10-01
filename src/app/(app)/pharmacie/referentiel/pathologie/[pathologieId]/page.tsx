@@ -6,6 +6,7 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { card, eyebrow, screenTitle } from "@/lib/ui";
 import {
   LIBELLE_ROLE,
+  libelleNbMedicaments,
   pathologieParId,
   profilsDePathologie,
   type ItemResolu,
@@ -21,10 +22,11 @@ import { AvecReferentiel } from "../../EtatReferentiel";
 const STYLE_ROLE: Record<RoleItem, { bordure: string; pastille: string; signe: string }> = {
   traitement: { bordure: "border-l-kcal", pastille: "bg-kcal-soft text-kcal", signe: "✓" },
   association: { bordure: "border-l-warning", pastille: "bg-surface-alt text-ink-2", signe: "+" },
+  ajout: { bordure: "border-l-protein", pastille: "bg-protein/15 text-protein", signe: "⊕" },
   eviter: { bordure: "border-l-alert", pastille: "bg-surface-alt text-alert", signe: "✕" },
 };
 
-const ORDRE_ROLE: RoleItem[] = ["traitement", "association", "eviter"];
+const ORDRE_ROLE: RoleItem[] = ["traitement", "association", "ajout", "eviter"];
 
 function hrefItem({ classe, molecule }: ItemResolu): string | null {
   if (molecule) return `/pharmacie/referentiel/medicament/${molecule.id}`;
@@ -33,6 +35,7 @@ function hrefItem({ classe, molecule }: ItemResolu): string | null {
 }
 
 function LigneTraitement({ ligne }: { ligne: LigneResolue }) {
+  const nbMedicaments = libelleNbMedicaments(ligne.ligne.nb_medicaments);
   return (
     <li className={`${card} flex flex-col gap-3`}>
       <div className="flex items-start gap-3">
@@ -43,6 +46,9 @@ function LigneTraitement({ ligne }: { ligne: LigneResolue }) {
           {ligne.ligne.rang}
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
+          {nbMedicaments && (
+            <span className="self-start rounded-full bg-kcal-soft px-2.5 py-0.5 text-[12px] font-semibold text-kcal">{nbMedicaments}</span>
+          )}
           <h3 className="text-[15px] font-semibold leading-snug text-ink text-balance">{ligne.ligne.titre}</h3>
           {ligne.ligne.description && <p className="text-[13.5px] leading-[1.5] text-ink-2">{ligne.ligne.description}</p>}
         </div>
