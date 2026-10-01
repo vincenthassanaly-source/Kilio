@@ -143,7 +143,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                       <li key={pathologie.id}>
                         <TransitionLink
                           href={`/pharmacie/referentiel/pathologie/${pathologie.id}`}
-                          className={`${cardTight} text-[14.5px] font-semibold text-ink`}
+                          className={`${cardTight} block text-[14.5px] font-semibold text-ink`}
                         >
                           {pathologie.nom}
                         </TransitionLink>
