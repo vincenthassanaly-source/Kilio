@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, cardTight, eyebrow, linkButton, pillClasse, screenTitle, sectionTitle } from "@/lib/ui";
+import { card, cardTight, eyebrow, pillClasse, screenTitle, sectionTitle } from "@/lib/ui";
 import { pluriel } from "@/lib/pharmacie/format";
 import { styleClasse } from "@/lib/pharmacie/couleurClasse";
 import {
@@ -15,6 +15,7 @@ import {
   specialitesDeMolecule,
 } from "@/lib/pharmacie/referentiel";
 import { IntrouvableCarte } from "../../../EtatSnapshot";
+import { RetourReferentiel } from "../../RetourReferentiel";
 import { AvecReferentiel, BlocInfo } from "../../EtatReferentiel";
 
 export default function ClassePage({ params }: { params: Promise<{ classeId: string }> }) {
@@ -28,9 +29,7 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
           if (!classe) {
             return (
               <>
-                <TransitionLink href="/pharmacie/referentiel" className={`${linkButton} self-start`}>
-                  ← Référentiel
-                </TransitionLink>
+                <RetourReferentiel />
                 <IntrouvableCarte message="Cette classe n'existe plus : elle a peut-être été renommée ou fusionnée." />
               </>
             );
@@ -45,9 +44,7 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
           return (
             <div className="flex flex-col gap-4" style={styleClasse(snapshot, classe)}>
               <div className="flex flex-col gap-1">
-                <TransitionLink href="/pharmacie/referentiel" className={`${linkButton} self-start`}>
-                  ← Référentiel
-                </TransitionLink>
+                <RetourReferentiel />
                 {parent && <p className={eyebrow}>{chemin.slice(0, -1).map((c) => c.nom).join(" › ")}</p>}
                 <h1 className={screenTitle}>{classe.nom}</h1>
                 {classe.atc && <span className={`${pillClasse} self-start`}>ATC {classe.atc}</span>}

@@ -6,7 +6,6 @@ import {
   card,
   cardTight,
   eyebrow,
-  linkButton,
   pillClasse,
   pillTag,
   screenTitle,
@@ -24,6 +23,7 @@ import {
   specialitesDeMolecule,
 } from "@/lib/pharmacie/referentiel";
 import { IntrouvableCarte } from "../../../EtatSnapshot";
+import { RetourReferentiel } from "../../RetourReferentiel";
 import { AvecReferentiel, BlocInfo } from "../../EtatReferentiel";
 import { MoleculeEditeur } from "./MoleculeEditeur";
 
@@ -39,9 +39,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
           if (!molecule) {
             return (
               <>
-                <TransitionLink href="/pharmacie/referentiel" className={`${linkButton} self-start`}>
-                  ← Référentiel
-                </TransitionLink>
+                <RetourReferentiel />
                 <IntrouvableCarte message="Ce médicament n'existe plus : il a peut-être été renommé ou fusionné." />
               </>
             );
@@ -56,12 +54,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
           return (
             <div className="flex flex-col gap-4" style={styleClasse(snapshot, classe)}>
               <div className="flex flex-col gap-1">
-                <TransitionLink
-                  href={classe ? `/pharmacie/referentiel/classe/${classe.id}` : "/pharmacie/referentiel"}
-                  className={`${linkButton} self-start`}
-                >
-                  ← {classe ? classe.nom : "Référentiel"}
-                </TransitionLink>
+                <RetourReferentiel href={classe ? `/pharmacie/referentiel/classe/${classe.id}` : undefined} />
                 {chemin.length > 0 && <p className={eyebrow}>{chemin.map((c) => c.nom).join(" › ")}</p>}
                 <h1 className={screenTitle}>{molecule.dci}</h1>
                 {molecule.association && <span className={`${pillClasse} self-start`}>Association fixe</span>}

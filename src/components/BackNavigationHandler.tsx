@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { showToast } from "@/components/toast/toast-store";
 import { useNavigationEdit } from "@/lib/navigation/NavigationEditContext";
-import { parentRoute } from "@/lib/navigation/parentRoute";
+import { parentRoute, retourHistoriqueAutorise } from "@/lib/navigation/parentRoute";
 
 // Délai (ms) pendant lequel un second retour sur l'accueil quitte l'app.
 const DELAI_DOUBLE_RETOUR_MS = 2000;
@@ -121,6 +121,12 @@ export function BackNavigationHandler() {
 
       const parent = parentRoute(courant, modulesRef.current);
 
+      // Fiches du référentiel : le retour suit l'historique réel (voir
+      // `retourHistoriqueAutorise`). Hors garde, Next affiche déjà la bonne
+      // page : rien à corriger.
+      const historique = retourHistoriqueAutorise(courant, arrivee);
+      if (historique && !surGarde) return;
+
       if (surGarde) {
         // Déjà en attente du second retour sur cette page : un second retour
         // réel quitte nativement (aucun popstate). Une arrivée sur la garde
@@ -144,10 +150,11 @@ export function BackNavigationHandler() {
               window.history.pushState({}, "", "/");
             }
           }, DELAI_DOUBLE_RETOUR_MS);
-        } else if (arrivee === parent) {
-          // Next affiche déjà la page de la garde, qui est le parent : il
-          // suffit de remettre une entrée au-dessus d'elle.
-          window.history.pushState({}, "", parent);
+        } else if (arrivee === parent || historique) {
+          // Next affiche déjà la page de la garde, qui est le parent (ou une
+          // page du référentiel autorisée) : il suffit de remettre une
+          // entrée au-dessus d'elle.
+          window.history.pushState({}, "", window.location.pathname + window.location.search);
         } else {
           router.push(parent);
         }

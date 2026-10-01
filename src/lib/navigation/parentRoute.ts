@@ -1,5 +1,21 @@
 import { NAV_ITEMS, isModuleRootPath } from "@/lib/navigation/registry";
 
+const FICHE_REFERENTIEL = /^\/pharmacie\/referentiel\/(classe|medicament|pathologie)\/[^/]+$/;
+
+/**
+ * Exception au retour « parent logique » : depuis une fiche du référentiel
+ * (classe, médicament, pathologie), le retour suit l'historique réel tant
+ * qu'il reste dans le référentiel — on revient ainsi à la pathologie, à la
+ * classe ou à la recherche d'où l'on vient, pas toujours à son accueil.
+ */
+export function retourHistoriqueAutorise(courant: string, arrivee: string): boolean {
+  const normaliser = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
+  const de = normaliser(courant);
+  const vers = normaliser(arrivee);
+  if (de === vers || !FICHE_REFERENTIEL.test(de)) return false;
+  return vers === "/pharmacie/referentiel" || FICHE_REFERENTIEL.test(vers);
+}
+
 /**
  * Écran vers lequel le retour (bouton/geste du téléphone) doit ramener
  * depuis `pathname`, indépendamment du chemin réellement parcouru :
@@ -21,7 +37,7 @@ export function parentRoute(pathname: string, modulesBarreBasse: readonly string
   // Les fiches du référentiel pharmacie (…/referentiel/<type>/<id>) n'ont pas
   // de page « <type> » : retirer un segment tomberait sur /pharmacie/<matière>/<chapitre>
   // (« Ce chapitre n'existe plus »). Leur parent est l'accueil du référentiel.
-  if (/^\/pharmacie\/referentiel\/(classe|medicament|pathologie)\/[^/]+$/.test(chemin)) {
+  if (FICHE_REFERENTIEL.test(chemin)) {
     return "/pharmacie/referentiel";
   }
 

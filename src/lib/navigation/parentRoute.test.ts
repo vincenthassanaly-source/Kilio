@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parentRoute } from "./parentRoute";
+import { parentRoute, retourHistoriqueAutorise } from "./parentRoute";
 
 const BARRE = ["/", "/nutrition", "/taches", "/habitudes"];
 
@@ -42,5 +42,32 @@ describe("parentRoute", () => {
   it("ignore le slash final et retombe sur l'accueil pour une route inconnue", () => {
     expect(parentRoute("/taches/", BARRE)).toBe("/");
     expect(parentRoute("/inconnu/x", BARRE)).toBe("/");
+  });
+});
+
+describe("retourHistoriqueAutorise", () => {
+  const classe = "/pharmacie/referentiel/classe/c1";
+  const pathologie = "/pharmacie/referentiel/pathologie/p1";
+  const accueil = "/pharmacie/referentiel";
+
+  it("laisse revenir d'une fiche vers la fiche d'où l'on vient", () => {
+    expect(retourHistoriqueAutorise(classe, pathologie)).toBe(true);
+    expect(retourHistoriqueAutorise("/pharmacie/referentiel/medicament/m1", classe)).toBe(true);
+  });
+
+  it("laisse revenir d'une fiche vers l'accueil du référentiel", () => {
+    expect(retourHistoriqueAutorise(classe, accueil)).toBe(true);
+    expect(retourHistoriqueAutorise(classe, `${accueil}/`)).toBe(true);
+  });
+
+  it("ne s'applique pas hors du référentiel ni depuis l'accueil", () => {
+    expect(retourHistoriqueAutorise(classe, "/pharmacie")).toBe(false);
+    expect(retourHistoriqueAutorise(classe, "/plus")).toBe(false);
+    expect(retourHistoriqueAutorise(accueil, "/pharmacie")).toBe(false);
+    expect(retourHistoriqueAutorise("/nutrition/recettes/abc", classe)).toBe(false);
+  });
+
+  it("ignore une arrivée sur la même fiche", () => {
+    expect(retourHistoriqueAutorise(classe, classe)).toBe(false);
   });
 });

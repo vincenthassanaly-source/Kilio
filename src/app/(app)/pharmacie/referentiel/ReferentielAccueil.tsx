@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { TransitionLink } from "@/components/TransitionLink";
@@ -25,7 +26,19 @@ import { GroupeRepliable, SectionRepliable } from "./Repliable";
 
 export function ReferentielAccueil() {
   const queryClient = useQueryClient();
-  const [requete, setRequete] = useState("");
+  // La recherche vit aussi dans l'URL (`?q=`) : au retour depuis un résultat,
+  // elle et sa liste sont retrouvées. `replaceState` (intégré au routeur de
+  // Next) évite une navigation et une entrée d'historique par frappe.
+  const searchParams = useSearchParams();
+  const [requete, setRequete] = useState(() => searchParams.get("q") ?? "");
+
+  function saisir(valeur: string) {
+    setRequete(valeur);
+    const url = new URL(window.location.href);
+    if (valeur) url.searchParams.set("q", valeur);
+    else url.searchParams.delete("q");
+    window.history.replaceState(window.history.state, "", url);
+  }
 
   return (
     <PullToRefresh onRefresh={() => queryClient.invalidateQueries({ queryKey: queryKeys.pharmacieReferentiel })}>
@@ -33,7 +46,7 @@ export function ReferentielAccueil() {
         <input
           type="search"
           value={requete}
-          onChange={(e) => setRequete(e.target.value)}
+          onChange={(e) => saisir(e.target.value)}
           placeholder="DCI, nom commercial, classe, pathologie…"
           aria-label="Rechercher dans le référentiel"
           enterKeyHint="search"
