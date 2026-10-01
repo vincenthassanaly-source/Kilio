@@ -14,10 +14,10 @@ where p.id = l.pathologie_id
 
 update public.pharma_ref_ligne_items i
 set role = 'ajout', note = 'Le deuxième, celui qui manquait à l''étape 1.'
-from public.pharma_ref_lignes l
-join public.pharma_ref_pathologies p on p.id = l.pathologie_id
-join public.pharma_ref_classes c on c.id = i.classe_id
+from public.pharma_ref_lignes l, public.pharma_ref_pathologies p, public.pharma_ref_classes c
 where i.ligne_id = l.id
+  and p.id = l.pathologie_id
+  and c.id = i.classe_id
   and lower(p.nom) = 'hypertension'
   and l.profil = 'Général'
   and l.rang = 2
