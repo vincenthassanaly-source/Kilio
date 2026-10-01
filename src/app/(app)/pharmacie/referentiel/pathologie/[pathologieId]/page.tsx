@@ -1,8 +1,9 @@
 "use client";
 
-import { use, useState } from "react";
+import { Suspense, use } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, eyebrow, linkButton, screenTitle } from "@/lib/ui";
+import { card, eyebrow, screenTitle } from "@/lib/ui";
 import {
   LIBELLE_ROLE,
   pathologieParId,
@@ -11,7 +12,8 @@ import {
   type LigneResolue,
   type RoleItem,
 } from "@/lib/pharmacie/referentiel";
-import { IntrouvableCarte } from "../../../EtatSnapshot";
+import { IntrouvableCarte, PharmacieSkeleton } from "../../../EtatSnapshot";
+import { RetourReferentiel } from "../../RetourReferentiel";
 import { AvecReferentiel } from "../../EtatReferentiel";
 
 // Le rôle est dit en toutes lettres et par un pictogramme : la couleur
@@ -88,7 +90,21 @@ function LigneTraitement({ ligne }: { ligne: LigneResolue }) {
 
 export default function PathologiePage({ params }: { params: Promise<{ pathologieId: string }> }) {
   const { pathologieId } = use(params);
-  const [profilChoisi, setProfilChoisi] = useState<string | null>(null);
+  return (
+    <Suspense fallback={<PharmacieSkeleton />}>
+      <PathologieContenu pathologieId={pathologieId} />
+    </Suspense>
+  );
+}
+
+function PathologieContenu({ pathologieId }: { pathologieId: string }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Le profil vit dans l'URL : il survit au retour depuis une classe ou un
+  // médicament. `replace` pour ne pas empiler une entrée d'historique par choix.
+  const profilChoisi = searchParams.get("profil");
+  const choisirProfil = (profil: string) =>
+    router.replace(`?profil=${encodeURIComponent(profil)}`, { scroll: false });
 
   return (
     <div className="flex flex-col gap-4">
@@ -98,9 +114,7 @@ export default function PathologiePage({ params }: { params: Promise<{ pathologi
           if (!pathologie) {
             return (
               <>
-                <TransitionLink href="/pharmacie/referentiel" className={`${linkButton} self-start`}>
-                  ← Référentiel
-                </TransitionLink>
+                <RetourReferentiel />
                 <IntrouvableCarte message="Cette pathologie n'existe plus : elle a peut-être été renommée ou fusionnée." />
               </>
             );
@@ -112,9 +126,7 @@ export default function PathologiePage({ params }: { params: Promise<{ pathologi
           return (
             <>
               <div className="flex flex-col gap-1">
-                <TransitionLink href="/pharmacie/referentiel" className={`${linkButton} self-start`}>
-                  ← Référentiel
-                </TransitionLink>
+                <RetourReferentiel />
                 <h1 className={screenTitle}>{pathologie.nom}</h1>
               </div>
 
@@ -139,7 +151,7 @@ export default function PathologiePage({ params }: { params: Promise<{ pathologi
                             key={profil}
                             type="button"
                             aria-pressed={actif}
-                            onClick={() => setProfilChoisi(profil)}
+                            onClick={() => choisirProfil(profil)}
                             className={`min-h-11 shrink-0 rounded-full border px-3.5 text-[13.5px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                               actif ? "border-kcal bg-kcal-soft text-kcal" : "border-line bg-surface text-ink-2"
                             }`}
