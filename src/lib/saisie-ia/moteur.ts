@@ -10,7 +10,9 @@ import { ajouterJours, nomDuJour, texteOuNull } from "./outils";
 const MAX_CHOIX = 4;
 const MAX_CHOIX_LONGUEUR = 40;
 
-// Schéma volontairement sans `nullable` : aucune valeur n'est optionnelle,
+// Schéma volontairement minimal : ni `enum` (Gemini refuse la chaîne vide), ni
+// `maxItems` (plafonds appliqués à la revalidation plus bas, un schéma trop
+// contraint étant refusé en 400), ni `nullable` : aucune valeur n'est optionnelle,
 // « pas de valeur » s'écrit par une chaîne vide (ou 0). Le mot-clé `nullable`
 // du sous-ensemble OpenAPI de Gemini n'est pas garanti selon les modèles ;
 // une chaîne vide, elle, l'est toujours. La revalidation côté serveur traite
@@ -29,12 +31,12 @@ export function construireSchema(modules: readonly ModuleIAServeur[]): SchemaSai
         type: "object",
         properties: {
           texte: { type: "string" },
-          choix: { type: "array", maxItems: MAX_CHOIX, items: { type: "string" } },
+          choix: { type: "array", items: { type: "string" } },
         },
         required: ["texte", "choix"],
       },
       ...Object.fromEntries(
-        modules.map((m) => [m.cle, { type: "array", maxItems: m.max, items: m.schemaElement }])
+        modules.map((m) => [m.cle, { type: "array", items: m.schemaElement }])
       ),
     },
     required: ["question", ...modules.map((m) => m.cle)],

@@ -212,7 +212,7 @@ describe("moteur — plusieurs modules", () => {
     const schema = construireSchema(modules);
     expect(Object.keys(schema.properties)).toEqual(["question", "taches", "courses", "notes", "repas"]);
     expect(schema.required).toEqual(["question", "taches", "courses", "notes", "repas"]);
-    expect(schema.properties.courses).toMatchObject({ type: "array", maxItems: 30 });
+    expect(schema.properties.courses).toMatchObject({ type: "array" });
     expect(JSON.stringify(schema)).not.toContain("nullable");
   });
 

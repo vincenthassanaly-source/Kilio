@@ -21,7 +21,7 @@ const SCHEMA_TACHE = {
     heure: { type: "string" },
     heure_fin: { type: "string" },
     toute_la_journee: { type: "boolean" },
-    priorite: { type: "string", enum: ["aucune", "basse", "moyenne", "haute"] },
+    priorite: { type: "string" },
     rappel_minutes: { type: "integer" },
     recurrence_frequence: { type: "string" },
     recurrence_non_supportee: { type: "string" },
