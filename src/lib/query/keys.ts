@@ -35,4 +35,7 @@ export const queryKeys = {
   // et fiche d'un exercice.
   sportBibliotheque: ["sport-bibliotheque"] as const,
   sportExercice: (id: string) => ["sport-exercice", id] as const,
+  // Routines (avec leurs exercices) et résumé de la dernière séance.
+  sportRoutines: ["sport-routines"] as const,
+  sportDerniereSeance: ["sport-derniere-seance"] as const,
 };

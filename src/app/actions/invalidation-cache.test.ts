@@ -70,6 +70,7 @@ const MODULES: Module[] = [
       createTag: "un nouveau tag sans lien n'apparaît dans aucune lecture en cache",
     },
   },
+  { fichier: "src/app/actions/sport.ts", expiration: /updateTag\(SPORT_(ROUTINES|SEANCES)_TAG\)/ },
   { fichier: "src/app/actions/recettes.ts", expiration: /updateTag\(RECETTES_TAG\)/ },
   { fichier: "src/app/actions/recette-ingredients.ts", expiration: /updateTag\(RECETTES_TAG\)/ },
   {

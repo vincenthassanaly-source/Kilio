@@ -102,8 +102,13 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   if (url.origin !== self.location.origin) return;
 
+  // /sport-img/ : images des exercices (module Sport), immuables et lourdes à
+  // retélécharger en salle de sport — servies depuis le cache dès qu'elles ont
+  // été vues une fois, donc visibles même sans réseau.
   const isStaticAsset =
-    url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/");
+    url.pathname.startsWith("/_next/static/") ||
+    url.pathname.startsWith("/icons/") ||
+    url.pathname.startsWith("/sport-img/");
 
   if (!isStaticAsset) {
     event.respondWith(

@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig } from "framer-motion";
 import { ToastHost } from "@/components/toast/ToastHost";
 import { useOnlineSync } from "@/lib/offline/useOnlineSync";
+import { SportSync } from "@/lib/sport/SportSync";
 
 // Import dynamique plutôt que statique : `process.env.NODE_ENV` est figé au
 // build, donc en production cette branche devient `null` et le bundler élimine
@@ -64,6 +65,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <MotionConfig reducedMotion="user">
     <QueryClientProvider client={queryClient}>
       {children}
+      <SportSync />
       <ToastHost />
       {ReactQueryDevtools && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>

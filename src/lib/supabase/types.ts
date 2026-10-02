@@ -1762,6 +1762,167 @@ export type Database = {
         }
         Relationships: []
       }
+      sport_routine_exercices: {
+        Row: {
+          exercice_id: string
+          id: string
+          nb_series: number
+          position: number
+          repos_s: number
+          reps_cible: number | null
+          routine_id: string
+        }
+        Insert: {
+          exercice_id: string
+          id?: string
+          nb_series?: number
+          position: number
+          repos_s?: number
+          reps_cible?: number | null
+          routine_id: string
+        }
+        Update: {
+          exercice_id?: string
+          id?: string
+          nb_series?: number
+          position?: number
+          repos_s?: number
+          reps_cible?: number | null
+          routine_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sport_routine_exercices_exercice_id_fkey"
+            columns: ["exercice_id"]
+            isOneToOne: false
+            referencedRelation: "sport_exercices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sport_routine_exercices_routine_id_fkey"
+            columns: ["routine_id"]
+            isOneToOne: false
+            referencedRelation: "sport_routines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sport_routines: {
+        Row: {
+          created_at: string
+          id: string
+          nom: string
+          ordre: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nom: string
+          ordre?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nom?: string
+          ordre?: number
+        }
+        Relationships: []
+      }
+      sport_seances: {
+        Row: {
+          created_at: string
+          debut_at: string
+          fin_at: string
+          id: string
+          jour: string
+          nom: string
+          notes: string | null
+          routine_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          debut_at: string
+          fin_at: string
+          id: string
+          jour: string
+          nom: string
+          notes?: string | null
+          routine_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          debut_at?: string
+          fin_at?: string
+          id?: string
+          jour?: string
+          nom?: string
+          notes?: string | null
+          routine_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sport_seances_routine_id_fkey"
+            columns: ["routine_id"]
+            isOneToOne: false
+            referencedRelation: "sport_routines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sport_series: {
+        Row: {
+          duree_s: number | null
+          exercice_id: string
+          fait_at: string
+          id: string
+          ordre: number
+          poids_kg: number | null
+          position: number
+          repos_pris_s: number | null
+          reps: number | null
+          seance_id: string
+        }
+        Insert: {
+          duree_s?: number | null
+          exercice_id: string
+          fait_at: string
+          id: string
+          ordre: number
+          poids_kg?: number | null
+          position: number
+          repos_pris_s?: number | null
+          reps?: number | null
+          seance_id: string
+        }
+        Update: {
+          duree_s?: number | null
+          exercice_id?: string
+          fait_at?: string
+          id?: string
+          ordre?: number
+          poids_kg?: number | null
+          position?: number
+          repos_pris_s?: number | null
+          reps?: number | null
+          seance_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sport_series_exercice_id_fkey"
+            columns: ["exercice_id"]
+            isOneToOne: false
+            referencedRelation: "sport_exercices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sport_series_seance_id_fkey"
+            columns: ["seance_id"]
+            isOneToOne: false
+            referencedRelation: "sport_seances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tache_images: {
         Row: {
           created_at: string

@@ -4,3 +4,9 @@
 // modifie. Après un ré-import, expirer ce tag (revalidateTag) ou attendre la
 // fin de `cacheLife` pour voir les changements.
 export const SPORT_EXERCICES_TAG = "sport-exercices";
+
+// Routines (liste et contenu) : expiré par enregistrerRoutine / supprimerRoutine.
+export const SPORT_ROUTINES_TAG = "sport-routines";
+
+// Séances enregistrées (dernière séance, historique) : expiré par enregistrerSeance.
+export const SPORT_SEANCES_TAG = "sport-seances";
