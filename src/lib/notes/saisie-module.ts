@@ -22,7 +22,7 @@ export const moduleNotes: ModuleIAServeur = {
     type: "object",
     properties: {
       titre: { type: "string" },
-      type: { type: "string", enum: ["texte", "checklist"] },
+      type: { type: "string" },
       contenu: { type: "string" },
       items: { type: "array", items: { type: "string" } },
       tags: { type: "array", items: { type: "string" } },
