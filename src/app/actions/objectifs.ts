@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { HABITUDES_TAG } from "@/lib/habitudes/tags";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { progressionObjectif, type HabitudeLiee } from "@/lib/habitudes/compute";
@@ -153,6 +154,7 @@ export async function creerObjectif(
 
   revalidatePath("/objectifs");
   revalidatePath("/habitudes");
+  updateTag(HABITUDES_TAG);
   return { error: null };
 }
 
@@ -178,6 +180,7 @@ export async function modifierObjectif(
   revalidatePath("/objectifs");
   revalidatePath(`/objectifs/${id}`);
   revalidatePath("/habitudes");
+  updateTag(HABITUDES_TAG);
   return { error: null };
 }
 
@@ -191,6 +194,7 @@ export async function changerStatutObjectif(id: string, statut: Enums<"statut_ob
 
   revalidatePath("/objectifs");
   revalidatePath(`/objectifs/${id}`);
+  updateTag(HABITUDES_TAG);
 }
 
 export async function supprimerObjectif(id: string) {
@@ -200,6 +204,7 @@ export async function supprimerObjectif(id: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/objectifs");
+  updateTag(HABITUDES_TAG);
   redirect("/objectifs");
 }
 

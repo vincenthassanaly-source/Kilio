@@ -1,5 +1,9 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { makeServerQueryClient } from "@/lib/query/server-client";
+import { queryKeys } from "@/lib/query/keys";
+import { getHabitudesDuJourEnCache } from "@/lib/habitudes/cache";
 import { HabitudesView } from "./HabitudesView";
 import { HabitudesSkeleton } from "./HabitudesSkeleton";
 import { screenTitle } from "@/lib/ui";
@@ -9,7 +13,18 @@ import { aujourdhuiParis } from "@/lib/date/paris";
 // <Suspense>, pour que le titre reste dans la coquille statique.
 async function HabitudesDuJour() {
   await connection();
-  return <HabitudesView today={aujourdhuiParis()} />;
+  const today = aujourdhuiParis();
+  const queryClient = makeServerQueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.habitudes(today),
+    queryFn: () => getHabitudesDuJourEnCache(today),
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <HabitudesView today={today} />
+    </HydrationBoundary>
+  );
 }
 
 export default function HabitudesPage() {

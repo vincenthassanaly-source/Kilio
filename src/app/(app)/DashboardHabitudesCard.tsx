@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { makeServerQueryClient } from "@/lib/query/server-client";
 import { queryKeys } from "@/lib/query/keys";
-import { getHabitudesDuJour } from "@/app/actions/habitudes";
+import { getHabitudesDuJourEnCache } from "@/lib/habitudes/cache";
 import { DashboardHabitudesSection } from "./DashboardHabitudesSection";
 import { getToday } from "./today";
 
@@ -10,7 +10,7 @@ import { getToday } from "./today";
 export async function DashboardHabitudesCard() {
   const today = await getToday();
   const queryClient = makeServerQueryClient();
-  await queryClient.prefetchQuery({ queryKey: queryKeys.habitudes(today), queryFn: () => getHabitudesDuJour(today) });
+  await queryClient.prefetchQuery({ queryKey: queryKeys.habitudes(today), queryFn: () => getHabitudesDuJourEnCache(today) });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
