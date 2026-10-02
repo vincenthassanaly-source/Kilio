@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { makeServerQueryClient } from "@/lib/query/server-client";
 import { queryKeys } from "@/lib/query/keys";
-import { getTachesAvecRelations } from "@/app/actions/taches";
+import { getTachesAvecRelationsEnCache } from "@/lib/taches/cache";
 import { DashboardTachesSection } from "./DashboardTachesSection";
 import { getToday } from "./today";
 
@@ -11,7 +11,7 @@ import { getToday } from "./today";
 export async function DashboardTachesCard() {
   const today = await getToday();
   const queryClient = makeServerQueryClient();
-  await queryClient.prefetchQuery({ queryKey: queryKeys.taches, queryFn: getTachesAvecRelations });
+  await queryClient.prefetchQuery({ queryKey: queryKeys.taches, queryFn: getTachesAvecRelationsEnCache });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

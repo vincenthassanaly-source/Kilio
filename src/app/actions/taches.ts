@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import sharp from "sharp";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { TACHES_TAG } from "@/lib/taches/tags";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiISO } from "@/lib/budget/compute";
 import type { Enums, Tables } from "@/lib/supabase/types";
@@ -33,7 +34,15 @@ const FREQUENCES: readonly Enums<"frequence_recurrence">[] = [
 
 const HEURE_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
+// `expire: 0` : le prochain rendu relit la base, jamais de donnée périmée
+// (setTacheFait est aussi appelée depuis une route API, où updateTag est
+// interdit).
+function expirerCacheTaches() {
+  revalidateTag(TACHES_TAG, { expire: 0 });
+}
+
 function revalidateTachesPaths() {
+  expirerCacheTaches();
   revalidatePath("/taches");
   revalidatePath("/agenda");
   revalidatePath("/");
@@ -642,6 +651,7 @@ export async function createListe(
 
   revalidatePath("/taches");
   revalidatePath("/taches/listes");
+  expirerCacheTaches();
   return { error: null };
 }
 
@@ -670,6 +680,7 @@ export async function updateListe(
   // ou le nouveau nom n'apparaît qu'après un rechargement manuel.
   revalidatePath("/taches");
   revalidatePath("/taches/listes");
+  expirerCacheTaches();
   return { error: null };
 }
 
@@ -781,6 +792,7 @@ export async function deleteListe(
 
   revalidateTachesPaths();
   revalidatePath("/taches/listes");
+  expirerCacheTaches();
 
   if (error) {
     console.error("deleteListe : suppression de la liste impossible", error);
@@ -844,6 +856,7 @@ export async function reordonnerListes(id: string, direction: "haut" | "bas") {
   // écrit en base mais invisible jusqu'à un rechargement (CLICK-PATH-301).
   revalidatePath("/taches");
   revalidatePath("/taches/listes");
+  expirerCacheTaches();
 }
 
 export async function getListes(): Promise<Tables<"listes_taches">[]> {

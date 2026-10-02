@@ -1,5 +1,7 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { TACHES_TAG } from "@/lib/taches/tags";
 
 // Appelée depuis les actions de la notification push (public/sw.js,
 // notificationclick) : contrairement aux Server Actions de src/app/actions,
@@ -40,6 +42,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateTag(TACHES_TAG, { expire: 0 });
 
   return NextResponse.json({ ok: true, rappelReporteJusqua });
 }
