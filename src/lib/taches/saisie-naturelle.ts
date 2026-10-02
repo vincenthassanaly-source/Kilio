@@ -27,7 +27,27 @@ export type TagConnu = { id: string; nom: string };
 export type ContexteTaches = {
   listes: ListeConnue[];
   tags: TagConnu[];
+  /**
+   * Ce que Vincent a écrit (phrase + réponses aux précisions). Une liste ou un
+   * tag n'est retenu que si son nom y figure : Gemini ne choisit jamais seul.
+   */
+  texte: string;
+  /** Liste choisie dans Réglages ; null = pas de choix. */
+  listeParDefautId: string | null;
 };
+
+const NOM_LISTE_REPLI = "Tâches";
+
+function echapperRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Le nom figure dans le texte (mot entier, sans accents ni casse). */
+function estCite(nom: string, texteNormalise: string): boolean {
+  const n = normaliserTexte(nom);
+  if (!n) return false;
+  return new RegExp(`(?<![\\p{L}\\p{N}])${echapperRegex(n)}(?![\\p{L}\\p{N}])`, "u").test(texteNormalise);
+}
 
 // Une tâche proposée, telle qu'affichée dans l'aperçu puis envoyée à la
 // création. `listeId` OU `nouvelleListe` est renseigné (jamais les deux) ;
@@ -218,28 +238,33 @@ function interpreterTache(brut: BrutTache, ctx: ContexteTaches): TachePropose | 
     recurrence_fin = null;
   }
 
+  const texteNormalise = normaliserTexte(ctx.texte);
+
   // Liste : correspondance sans accents ni casse ; sinon création à la
-  // validation (jamais dans l'aperçu). Sans liste citée, la première liste
-  // (celle que le formulaire présélectionne).
-  const listeDemandee = texteOuNull(brut.liste, MAX_NOM);
+  // validation (jamais dans l'aperçu). Une liste n'est retenue que si Vincent
+  // la nomme (sinon « acheter » finissait dans « Trucs à acheter »). Sans
+  // liste citée : celle des Réglages, sinon une liste « Tâches » (existante
+  // ou à créer).
+  const listeProposee = texteOuNull(brut.liste, MAX_NOM);
+  const listeDemandee = listeProposee && estCite(listeProposee, texteNormalise) ? listeProposee : null;
   let listeId: string | null = null;
   let nouvelleListe: string | null = null;
   let listeNom: string;
   const listeExistante = listeDemandee
     ? ctx.listes.find((l) => normaliserTexte(l.nom) === normaliserTexte(listeDemandee))
     : undefined;
-  if (listeExistante) {
-    listeId = listeExistante.id;
-    listeNom = listeExistante.nom;
+  const listeParDefaut = ctx.listeParDefautId ? ctx.listes.find((l) => l.id === ctx.listeParDefautId) : undefined;
+  const listeRepli = ctx.listes.find((l) => normaliserTexte(l.nom) === normaliserTexte(NOM_LISTE_REPLI));
+  const listeChoisie = listeExistante ?? (listeDemandee ? undefined : (listeParDefaut ?? listeRepli));
+  if (listeChoisie) {
+    listeId = listeChoisie.id;
+    listeNom = listeChoisie.nom;
   } else if (listeDemandee) {
     nouvelleListe = listeDemandee;
     listeNom = listeDemandee;
-  } else if (ctx.listes[0]) {
-    listeId = ctx.listes[0].id;
-    listeNom = ctx.listes[0].nom;
   } else {
-    nouvelleListe = "Tâches";
-    listeNom = "Tâches";
+    nouvelleListe = NOM_LISTE_REPLI;
+    listeNom = NOM_LISTE_REPLI;
   }
 
   const tagIds: string[] = [];
@@ -250,7 +275,8 @@ function interpreterTache(brut: BrutTache, ctx: ContexteTaches): TachePropose | 
   for (const tagBrut of tagsBruts) {
     // Pas de virgule : `createTache` découpe les nouveaux tags sur ce signe.
     const nom = texteOuNull(typeof tagBrut === "string" ? tagBrut.replace(/[,#]/g, "") : null, MAX_NOM);
-    if (!nom) continue;
+    // Un tag que Vincent n'a pas écrit est une déduction de Gemini : écarté.
+    if (!nom || !estCite(nom, texteNormalise)) continue;
     const cle = normaliserTexte(nom);
     if (dejaVus.has(cle) || dejaVus.size >= MAX_TAGS) continue;
     dejaVus.add(cle);
@@ -304,7 +330,8 @@ export const REGLES_TACHES = [
   "- `rappel_minutes` : minutes avant l'heure (« la veille » = 1440, « 2 h avant » = 120). Sans rappel demandé, 0.",
   "- `priorite` : aucune, basse, moyenne ou haute (« urgent » = haute). Sans indice, aucune.",
   "- Répétition : `recurrence_frequence` vaut quotidien, hebdomadaire, mensuel ou annuel, sinon chaîne vide. Tout autre rythme (« tous les 15 jours ») : `recurrence_frequence` vide et `recurrence_non_supportee` reprend l'expression citée (sinon vide). `recurrence_fin` : AAAA-MM-JJ si une fin est citée, sinon chaîne vide.",
-  "- `liste` : nom cité par Vincent (reprends l'orthographe d'une liste existante si elle correspond), sinon chaîne vide. `tags` : seulement ceux cités.",
+  "- `liste` : seulement si Vincent nomme une liste dans sa phrase (reprends l'orthographe d'une liste existante si elle correspond), sinon chaîne vide : ne la déduis jamais du sens (« acheter » ne veut pas dire une liste d'achats). `tags` : seulement ceux qu'il écrit, jamais déduits.",
+  "- « Rappelle-moi … » est toujours UNE tâche (`taches`) avec son heure et son rappel, même si l'objet ressemble à un achat : n'alimente alors aucun autre tableau.",
 ] as const;
 
 export const CAS_QUESTION_TACHES = [

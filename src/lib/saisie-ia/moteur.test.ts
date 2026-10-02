@@ -38,6 +38,8 @@ const ctxTaches: ContexteTaches = {
     { id: "l-travail", nom: "Travail" },
   ],
   tags: [{ id: "t-sante", nom: "Santé" }],
+  texte: "dentiste jeudi 14h",
+  listeParDefautId: null,
 };
 
 const moduleTaches: ModuleIAServeur = {
@@ -56,12 +58,12 @@ const moduleTaches: ModuleIAServeur = {
 };
 
 async function interpreter(brut: unknown, questionsRestantes = MAX_QUESTIONS) {
-  const contexte = await moduleTaches.preparer(AUJOURDHUI);
+  const contexte = await moduleTaches.preparer(AUJOURDHUI, ctxTaches.texte);
   return interpreterReponse(brut, [moduleTaches], [contexte], questionsRestantes);
 }
 
 async function prompt(texte: string, precisions: { question: string; reponse: string }[] = []) {
-  const contexte = await moduleTaches.preparer(AUJOURDHUI);
+  const contexte = await moduleTaches.preparer(AUJOURDHUI, texte);
   return construirePrompt({
     texte,
     precisions,
@@ -119,7 +121,7 @@ describe("construirePrompt", () => {
   });
 
   it("fournit l'heure actuelle pour résoudre « dans une heure »", async () => {
-    const contexte = await moduleTaches.preparer(AUJOURDHUI);
+    const contexte = await moduleTaches.preparer(AUJOURDHUI, "rappelle-moi dans une heure");
     const p = construirePrompt({
       texte: "rappelle-moi dans une heure",
       precisions: [],
@@ -220,7 +222,7 @@ const moduleRepas: ModuleIAServeur = {
 
 describe("moteur — plusieurs modules", () => {
   const modules = [moduleTaches, moduleCourses, moduleNotes, moduleRepas];
-  const contextes = () => Promise.all(modules.map((m) => m.preparer(AUJOURDHUI)));
+  const contextes = () => Promise.all(modules.map((m) => m.preparer(AUJOURDHUI, "x")));
 
   it("construit un schéma avec un tableau obligatoire par module", () => {
     const schema = construireSchema(modules);

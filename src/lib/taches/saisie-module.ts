@@ -1,5 +1,6 @@
 import type { ModuleIAServeur } from "@/lib/saisie-ia/module";
 import type { ElementACreer } from "@/lib/saisie-ia/types";
+import { getReglagesSaisieIA } from "@/app/actions/reglages-saisie-ia";
 import { getListes, getTags } from "@/app/actions/taches";
 import { creerTaches } from "./saisie-creation";
 import {
@@ -54,11 +55,13 @@ export const moduleTaches: ModuleIAServeur = {
   regles: REGLES_TACHES,
   casQuestion: CAS_QUESTION_TACHES,
 
-  async preparer() {
-    const [listes, tags] = await Promise.all([getListes(), getTags()]);
+  async preparer(_aujourdhui, texte) {
+    const [listes, tags, reglages] = await Promise.all([getListes(), getTags(), getReglagesSaisieIA()]);
     const ctx = {
       listes: listes.map((l) => ({ id: l.id, nom: l.nom })),
       tags: tags.map((t) => ({ id: t.id, nom: t.nom })),
+      texte,
+      listeParDefautId: reglages?.liste_taches_id ?? null,
     };
     return {
       lignesContexte: lignesContexteTaches(ctx),

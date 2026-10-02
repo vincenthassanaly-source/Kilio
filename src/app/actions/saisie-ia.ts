@@ -78,7 +78,10 @@ async function analyser(propre: string, precisions: PrecisionDonnee[]): Promise<
 
   let contextes;
   try {
-    contextes = await Promise.all(MODULES_SERVEUR.map((m) => m.preparer(aujourdhui)));
+    // Tout ce que Vincent a écrit : une liste ou un tag cité dans une réponse
+    // de précision compte comme cité.
+    const texteEcrit = [propre, ...precisions.map((p) => p.reponse)].join(" ");
+    contextes = await Promise.all(MODULES_SERVEUR.map((m) => m.preparer(aujourdhui, texteEcrit)));
   } catch (err) {
     console.error("[saisie-ia] Lecture du contexte des modules impossible.", err);
     return {

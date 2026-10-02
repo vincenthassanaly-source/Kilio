@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { interpreterReponse } from "@/lib/saisie-ia/moteur";
 import type { ModuleIAServeur } from "@/lib/saisie-ia/module";
 import { MAX_QUESTIONS } from "@/lib/saisie-ia/types";
@@ -17,13 +17,20 @@ import {
 } from "./saisie-naturelle";
 
 // Jeudi 1er octobre 2026 : le calendrier du prompt part de cette date.
-const ctx: ContexteTaches = {
+const CTX_BASE: ContexteTaches = {
   listes: [
     { id: "l-perso", nom: "Perso" },
     { id: "l-travail", nom: "Travail" },
   ],
   tags: [{ id: "t-sante", nom: "Santé" }],
+  // Tout ce que les tests « citent » : liste, tags, nouvelle liste.
+  texte: "dentiste dans la liste perso #santé vacances perso projet",
+  listeParDefautId: null,
 };
+let ctx: ContexteTaches = CTX_BASE;
+beforeEach(() => {
+  ctx = CTX_BASE;
+});
 
 // Module Tâches sans lecture en base : même règles et même revalidation que
 // le vrai (lib/taches/saisie-module), contexte fourni par le test.
@@ -43,7 +50,7 @@ const moduleTest: ModuleIAServeur = {
 };
 
 async function interpreter(brut: unknown, questionsRestantes = MAX_QUESTIONS) {
-  const contexte = await moduleTest.preparer("2026-10-01");
+  const contexte = await moduleTest.preparer("2026-10-01", ctx.texte);
   return interpreterReponse(brut, [moduleTest], [contexte], questionsRestantes);
 }
 
@@ -169,10 +176,54 @@ describe("interpreterReponse — tâches", () => {
     });
   });
 
-  it("met la première liste par défaut", async () => {
+  it("sans liste citée, crée une liste « Tâches » (et non la première liste)", async () => {
     const t = await premiereTache({ liste: null });
+    expect(t.listeId).toBeNull();
+    expect(t.nouvelleListe).toBe("Tâches");
+    expect(t.listeNom).toBe("Tâches");
+  });
+
+  it("sans liste citée, réutilise une liste « Tâches » existante", async () => {
+    ctx = { ...CTX_BASE, listes: [{ id: "l-trucs", nom: "Trucs à acheter" }, { id: "l-taches", nom: "Tâches" }] };
+    const t = await premiereTache({ liste: "" });
+    expect(t).toMatchObject({ listeId: "l-taches", nouvelleListe: null, listeNom: "Tâches" });
+  });
+
+  it("sans liste citée, utilise la liste choisie dans Réglages", async () => {
+    ctx = { ...CTX_BASE, listeParDefautId: "l-travail" };
+    const t = await premiereTache({ liste: "" });
+    expect(t).toMatchObject({ listeId: "l-travail", nouvelleListe: null, listeNom: "Travail" });
+  });
+
+  it("ignore une liste du Réglage supprimée et retombe sur « Tâches »", async () => {
+    ctx = { ...CTX_BASE, listeParDefautId: "l-disparue" };
+    const t = await premiereTache({ liste: "" });
+    expect(t).toMatchObject({ listeId: null, nouvelleListe: "Tâches" });
+  });
+
+  it("n'accepte pas une liste que Gemini déduit sans que Vincent la nomme", async () => {
+    ctx = {
+      ...CTX_BASE,
+      listes: [{ id: "l-trucs", nom: "Trucs à acheter" }, { id: "l-perso", nom: "Perso" }],
+      texte: "rappelle-moi dans une heure culotte menstruelle",
+      listeParDefautId: "l-perso",
+    };
+    const t = await premiereTache({ liste: "Trucs à acheter" });
+    expect(t).toMatchObject({ listeId: "l-perso", nouvelleListe: null });
+  });
+
+  it("une liste citée l'emporte sur celle des Réglages", async () => {
+    ctx = { ...CTX_BASE, listeParDefautId: "l-travail" };
+    const t = await premiereTache({ liste: "Perso" });
     expect(t.listeId).toBe("l-perso");
-    expect(t.nouvelleListe).toBeNull();
+  });
+
+  it("ne confond pas un mot qui contient le nom avec une citation", async () => {
+    ctx = { ...CTX_BASE, texte: "appeler personne demain" };
+    const t = await premiereTache({ liste: "Perso", tags: ["Perso"] });
+    expect(t.listeId).toBeNull();
+    expect(t.nouvelleListe).toBe("Tâches");
+    expect(t.tagNoms).toEqual([]);
   });
 
   it("marque une liste inconnue comme à créer, sans identifiant", async () => {
@@ -187,6 +238,14 @@ describe("interpreterReponse — tâches", () => {
     expect(t.tagIds).toEqual(["t-sante"]);
     expect(t.nouveauxTags).toEqual(["Perso projet"]);
     expect(t.tagNoms).toEqual(["Santé", "Perso projet"]);
+  });
+
+  it("écarte un tag que Vincent n'a pas écrit, même s'il existe", async () => {
+    ctx = { ...CTX_BASE, texte: "rappelle-moi dans une heure culotte menstruelle" };
+    const t = await premiereTache({ tags: ["Santé", "acheter"] });
+    expect(t.tagIds).toEqual([]);
+    expect(t.nouveauxTags).toEqual([]);
+    expect(t.tagNoms).toEqual([]);
   });
 
   it("rejette une date impossible et prévient", async () => {
@@ -291,8 +350,8 @@ describe("interpreterReponse — valeurs vides (schéma sans `nullable`)", () =>
       rappel_minutes: null,
       recurrence_frequence: null,
       recurrence_fin: null,
-      listeId: "l-perso",
-      nouvelleListe: null,
+      listeId: null,
+      nouvelleListe: "Tâches",
       tagIds: [],
       nouveauxTags: [],
       avertissements: [],
