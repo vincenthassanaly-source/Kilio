@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { RECETTES_TAG } from "@/lib/nutrition/tags";
 import type { Enums } from "@/lib/supabase/types";
 
 export type IngredientFormState = { error: string | null };
@@ -37,6 +38,7 @@ export async function addIngredient(
   }
 
   revalidatePath(`/nutrition/recettes/${recette_id}`);
+  updateTag(RECETTES_TAG);
   return { error: null };
 }
 
@@ -61,6 +63,7 @@ export async function updateIngredient(
   }
 
   revalidatePath(`/nutrition/recettes/${recette_id}`);
+  updateTag(RECETTES_TAG);
 }
 
 export async function removeIngredient(id: string, recette_id: string) {
@@ -76,4 +79,5 @@ export async function removeIngredient(id: string, recette_id: string) {
   }
 
   revalidatePath(`/nutrition/recettes/${recette_id}`);
+  updateTag(RECETTES_TAG);
 }

@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getRecettesListeEnCache } from "@/lib/nutrition/recettes-cache";
 import { AddRecetteToggle } from "./AddRecetteToggle";
 import { RecettesList } from "./RecettesList";
 import {
@@ -13,20 +13,15 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 
 export default async function RecettesPage() {
   await connection();
-  const supabase = createAdminClient();
-
-  const { data: recettes, error } = await supabase
-    .from("recettes")
-    .select(
-      "*, recette_ingredients(quantite, aliment:aliments(nom, kcal_100g, proteines_100g, glucides_100g, lipides_100g)), recette_ingredients_libres(nom)"
-    )
-    .order("nom", { ascending: true });
-
-  if (error) {
-    return <p className={errorText}>Erreur de chargement : {error.message}</p>;
+  let recettes: Awaited<ReturnType<typeof getRecettesListeEnCache>>;
+  try {
+    recettes = await getRecettesListeEnCache();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erreur inconnue.";
+    return <p className={errorText}>Erreur de chargement : {message}</p>;
   }
 
-  const views = (recettes ?? []).map((recette) => {
+  const views = recettes.map((recette) => {
     const { recette_ingredients, recette_ingredients_libres, ...rest } = recette;
     const kcalParPortion = hasNutritionOverride(recette)
       ? nutritionFromOverride(recette, 1).kcal

@@ -1,12 +1,14 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { RECETTES_TAG } from "@/lib/nutrition/tags";
 
 export type IngredientLibreFormState = { error: string | null };
 
 function revalidateRecette(recette_id: string) {
   revalidatePath("/nutrition/recettes");
+  updateTag(RECETTES_TAG);
   revalidatePath(`/nutrition/recettes/${recette_id}`);
 }
 
