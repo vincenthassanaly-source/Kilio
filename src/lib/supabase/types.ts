@@ -1714,6 +1714,54 @@ export type Database = {
           },
         ]
       }
+      sport_exercices: {
+        Row: {
+          categorie: string
+          created_at: string
+          equipement: string | null
+          id: string
+          images: string[]
+          instructions_fr: string[]
+          mecanique: string | null
+          muscle_principal: string
+          muscles_secondaires: string[]
+          niveau: string | null
+          nom_en: string
+          nom_fr: string
+          type_mesure: string
+        }
+        Insert: {
+          categorie: string
+          created_at?: string
+          equipement?: string | null
+          id: string
+          images?: string[]
+          instructions_fr?: string[]
+          mecanique?: string | null
+          muscle_principal: string
+          muscles_secondaires?: string[]
+          niveau?: string | null
+          nom_en: string
+          nom_fr: string
+          type_mesure?: string
+        }
+        Update: {
+          categorie?: string
+          created_at?: string
+          equipement?: string | null
+          id?: string
+          images?: string[]
+          instructions_fr?: string[]
+          mecanique?: string | null
+          muscle_principal?: string
+          muscles_secondaires?: string[]
+          niveau?: string | null
+          nom_en?: string
+          nom_fr?: string
+          type_mesure?: string
+        }
+        Relationships: []
+      }
       tache_images: {
         Row: {
           created_at: string
