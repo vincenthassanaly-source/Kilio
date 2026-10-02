@@ -1,8 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { RECETTES_TAG } from "@/lib/nutrition/tags";
 import type { Enums } from "@/lib/supabase/types";
 
 export type RecetteFormState = { error: string | null };
@@ -117,6 +118,7 @@ export async function createRecette(
   if (error) return { error: error.message };
 
   revalidatePath("/nutrition/recettes");
+  updateTag(RECETTES_TAG);
   redirect(`/nutrition/recettes/${data.id}`);
 }
 
@@ -144,6 +146,7 @@ export async function updateRecette(
   }
 
   revalidatePath("/nutrition/recettes");
+  updateTag(RECETTES_TAG);
   revalidatePath(`/nutrition/recettes/${id}`);
   return { error: null };
 }
@@ -161,5 +164,6 @@ export async function deleteRecette(id: string) {
   }
 
   revalidatePath("/nutrition/recettes");
+  updateTag(RECETTES_TAG);
   redirect("/nutrition/recettes");
 }
