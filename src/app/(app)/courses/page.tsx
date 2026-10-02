@@ -2,7 +2,7 @@ import { connection } from "next/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { makeServerQueryClient } from "@/lib/query/server-client";
 import { queryKeys } from "@/lib/query/keys";
-import { getCoursesItems } from "@/app/actions/courses";
+import { getCoursesItemsEnCache } from "@/lib/courses/cache";
 import { CoursesView } from "./CoursesView";
 import { screenTitle } from "@/lib/ui";
 
@@ -12,7 +12,7 @@ import { screenTitle } from "@/lib/ui";
 export default async function CoursesPage() {
   await connection();
   const queryClient = makeServerQueryClient();
-  await queryClient.prefetchQuery({ queryKey: queryKeys.courses, queryFn: getCoursesItems });
+  await queryClient.prefetchQuery({ queryKey: queryKeys.courses, queryFn: getCoursesItemsEnCache });
 
   return (
     <div className="flex flex-col gap-4">

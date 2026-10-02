@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { COURSES_TAG } from "@/lib/courses/cache";
 import type { Tables } from "@/lib/supabase/types";
 import { LONGUEUR_MAX_LIBELLE_COURSE, planifierAjoutCourses, PLAFOND_ARTICLES_COURSES } from "@/lib/courses/compute";
 
@@ -27,6 +28,7 @@ export async function createCourseItem(libelle: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/courses");
+  updateTag(COURSES_TAG);
 }
 
 export async function toggleCourseItem(id: string, coche: boolean) {
@@ -36,6 +38,7 @@ export async function toggleCourseItem(id: string, coche: boolean) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/courses");
+  updateTag(COURSES_TAG);
 }
 
 export async function deleteCourseItem(id: string) {
@@ -45,6 +48,7 @@ export async function deleteCourseItem(id: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/courses");
+  updateTag(COURSES_TAG);
 }
 
 export async function updateCourseItem(id: string, libelle: string) {
@@ -57,6 +61,7 @@ export async function updateCourseItem(id: string, libelle: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/courses");
+  updateTag(COURSES_TAG);
 }
 
 // Suppression groupée par ids exacts (jamais `where coche = true`) : pour
@@ -72,6 +77,7 @@ export async function deleteCourseItems(ids: string[]) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/courses");
+  updateTag(COURSES_TAG);
 }
 
 export type ResultatAjoutArticlesCourses = {
@@ -143,6 +149,7 @@ export async function ajouterArticlesCourses(libelles: string[]): Promise<Result
   }
 
   revalidatePath("/courses");
+  updateTag(COURSES_TAG);
 
   return { crees: plan.aCreer.length, reactives: plan.aReactiver.length, dejaPresents: plan.dejaPresents };
 }
@@ -187,4 +194,5 @@ export async function restoreCourseItems(items: CourseItemARestaurer[]) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/courses");
+  updateTag(COURSES_TAG);
 }
