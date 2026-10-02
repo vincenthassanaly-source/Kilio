@@ -25,8 +25,12 @@ export type ModuleIAServeur = {
   regles: readonly string[];
   /** Cas où une question de précision est permise (numérotés par le moteur). */
   casQuestion: readonly string[];
-  /** Charge le contexte du module (lectures en base) puis rend le module prêt à interpréter. */
-  preparer(aujourdhui: string): Promise<ModulePrepare>;
+  /**
+   * Charge le contexte du module (lectures en base) puis rend le module prêt à
+   * interpréter. `texte` : ce que Vincent a écrit (phrase + réponses aux
+   * précisions), pour les modules qui n'acceptent que ce qu'il a nommé.
+   */
+  preparer(aujourdhui: string, texte: string): Promise<ModulePrepare>;
   /** Crée les éléments validés, dans l'ordre reçu ; un résultat par élément. */
   creer(elements: ElementACreer[]): Promise<IssueCreation[]>;
 };

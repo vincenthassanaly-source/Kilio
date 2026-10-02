@@ -38,6 +38,13 @@ const fixtures = {
       updated_at: "2026-09-11T00:00:00+00:00",
     },
   ],
+  reglages_saisie_ia: [
+    {
+      id: 1,
+      liste_taches_id: null,
+      updated_at: "2026-10-02T00:00:00+00:00",
+    },
+  ],
 };
 
 // Module Pharmacie : un cours minimal (2 matières, 3 chapitres, 4 notions) et

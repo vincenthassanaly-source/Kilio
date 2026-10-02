@@ -1646,6 +1646,32 @@ export type Database = {
         }
         Relationships: []
       }
+      reglages_saisie_ia: {
+        Row: {
+          id: number
+          liste_taches_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          liste_taches_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          liste_taches_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reglages_saisie_ia_liste_taches_id_fkey"
+            columns: ["liste_taches_id"]
+            isOneToOne: false
+            referencedRelation: "listes_taches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skills_catalogue: {
         Row: {
           categorie: Database["public"]["Enums"]["categorie_skill"]
