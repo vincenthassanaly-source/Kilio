@@ -54,15 +54,12 @@ function messageResultat(plan: PlanAjoutCourses): string {
 // les ids temp- et les articles réactivés de CETTE mutation) si le serveur
 // échoue, pour ne jamais écraser un autre ajout encore en vol.
 export function AddCourseForm({
-  initial = "",
   onDone,
 }: {
-  /** Texte pré-rempli (ex. article proposé par « Ajouter avec l'IA »). */
-  initial?: string;
   /** Appelé après l'envoi ; sans lui, le formulaire reste ouvert pour enchaîner les ajouts. */
   onDone?: () => void;
 } = {}) {
-  const [texte, setTexte] = useState(initial);
+  const [texte, setTexte] = useState("");
   const [erreur, setErreur] = useState<string | null>(null);
   const [messageStatut, setMessageStatut] = useState<string | null>(null);
   const [suggestionActiveIndex, setSuggestionActiveIndex] = useState(-1);

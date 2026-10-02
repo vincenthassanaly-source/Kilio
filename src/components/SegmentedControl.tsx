@@ -25,7 +25,7 @@ export function SegmentedPill({ layoutId }: { layoutId: string }) {
 
 // Contrôle segmenté partagé (constat T7 de l'audit du 2026-09-25) : il était
 // réimplémenté dans une dizaine d'écrans avec des couleurs d'actif
-// différentes (carbs, carburants, habitudes…), sans `aria-pressed` ni
+// différentes (carbs, habitudes…), sans `aria-pressed` ni
 // anneau de focus. Conforme à DESIGN.md : pilule `surface-alt`, onglets
 // `rounded-xl`, actif en `bg-kcal` (The One Accent Rule) avec `text-on-kcal`
 // (lisible en sombre, T4), cibles de 44 px (T6).

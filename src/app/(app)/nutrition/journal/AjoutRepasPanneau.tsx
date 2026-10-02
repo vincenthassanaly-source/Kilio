@@ -404,8 +404,7 @@ export function AjoutRepasPanneau({
 }: {
   date?: string;
   /**
-   * Point de départ (proposition de « Ajouter avec l'IA » à corriger) :
-   * un aliment ou une recette déjà choisi, avec sa quantité, ou une recherche
+   * Point de départ : un aliment ou une recette déjà choisi, avec sa quantité, ou une recherche
    * pré-remplie quand rien ne correspond.
    */
   depart?: { moment?: MomentRepas; requete?: string; item?: CatalogueItem; recent?: SaisieRecente };
