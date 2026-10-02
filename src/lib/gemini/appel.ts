@@ -41,9 +41,18 @@ function echec(etiquette: string, detail: string): ResultatGemini {
 // la clé est invalide.
 async function messageGoogle(res: Response): Promise<string> {
   try {
-    const corps = (await res.json()) as { error?: { message?: unknown } };
-    const message = corps.error?.message;
-    return typeof message === "string" ? message.replace(/\s+/g, " ").trim() : "";
+    const corps = (await res.json()) as {
+      error?: { message?: unknown; details?: Array<{ fieldViolations?: Array<{ field?: unknown; description?: unknown }> }> };
+    };
+    const message = typeof corps.error?.message === "string" ? corps.error.message : "";
+    // Google répond parfois « Request contains an invalid argument. » seul : le
+    // champ fautif n'est alors que dans `details[].fieldViolations`.
+    const champs = (corps.error?.details ?? [])
+      .flatMap((d) => d.fieldViolations ?? [])
+      .map((v) => `${String(v.field ?? "")} ${String(v.description ?? "")}`.trim())
+      .filter(Boolean)
+      .join(" ; ");
+    return [message, champs].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
   } catch {
     return "";
   }
