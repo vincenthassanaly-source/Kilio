@@ -300,7 +300,7 @@ export const REGLES_TACHES = [
   "- Une tâche par action distincte ; le titre est court, à l'infinitif ou nominal, sans la date ni l'heure.",
   "- Toutes les propriétés sont obligatoires : quand une information est absente du texte, mets une chaîne vide (0 pour `rappel_minutes`, une liste vide pour `tags`), jamais null.",
   "- `date` : AAAA-MM-JJ, tirée du calendrier ci-dessus. Sans jour cité, chaîne vide. Pour une répétition, `date` est la première occurrence.",
-  "- `heure` et `heure_fin` : HH:MM en 24 h. Une durée (« 1h ») donne `heure_fin`. Sans heure citée, chaîne vide. `toute_la_journee` vaut true seulement si Vincent le dit.",
+  "- `heure` et `heure_fin` : HH:MM en 24 h. Une durée (« 1h ») donne `heure_fin`. Une heure relative (« dans une heure », « dans 30 min ») se calcule à partir de l'heure actuelle indiquée ci-dessus, avec `date` d'aujourd'hui (ou du lendemain si on passe minuit). Sans heure citée, chaîne vide. `toute_la_journee` vaut true seulement si Vincent le dit.",
   "- `rappel_minutes` : minutes avant l'heure (« la veille » = 1440, « 2 h avant » = 120). Sans rappel demandé, 0.",
   "- `priorite` : aucune, basse, moyenne ou haute (« urgent » = haute). Sans indice, aucune.",
   "- Répétition : `recurrence_frequence` vaut quotidien, hebdomadaire, mensuel ou annuel, sinon chaîne vide. Tout autre rythme (« tous les 15 jours ») : `recurrence_frequence` vide et `recurrence_non_supportee` reprend l'expression citée (sinon vide). `recurrence_fin` : AAAA-MM-JJ si une fin est citée, sinon chaîne vide.",

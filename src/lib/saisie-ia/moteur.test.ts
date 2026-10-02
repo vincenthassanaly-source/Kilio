@@ -118,6 +118,20 @@ describe("construirePrompt", () => {
     expect(p).toContain('"dentiste jeudi 14h"');
   });
 
+  it("fournit l'heure actuelle pour résoudre « dans une heure »", async () => {
+    const contexte = await moduleTaches.preparer(AUJOURDHUI);
+    const p = construirePrompt({
+      texte: "rappelle-moi dans une heure",
+      precisions: [],
+      aujourdhui: AUJOURDHUI,
+      heure: "10:13",
+      modules: [moduleTaches],
+      contextes: [contexte],
+    });
+    expect(p).toContain("Heure actuelle : 10:13");
+    expect(await prompt("x")).not.toContain("Heure actuelle");
+  });
+
   it("autorise une question tant qu'il en reste, avec les quatre cas listés", async () => {
     const p = await prompt("x");
     expect(p).toContain("UNE question de précision");

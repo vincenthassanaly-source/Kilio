@@ -2,6 +2,7 @@
 
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiISO } from "@/lib/budget/compute";
+import { heureParis } from "@/lib/date/paris";
 import { MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { appelerGeminiSaisie } from "@/lib/saisie-ia/gemini";
 import { construirePrompt, construireSchema, interpreterReponse } from "@/lib/saisie-ia/moteur";
@@ -88,7 +89,14 @@ async function analyser(propre: string, precisions: PrecisionDonnee[]): Promise<
     };
   }
 
-  const prompt = construirePrompt({ texte: propre, precisions, aujourdhui, modules: MODULES_SERVEUR, contextes });
+  const prompt = construirePrompt({
+    texte: propre,
+    precisions,
+    aujourdhui,
+    heure: heureParis(),
+    modules: MODULES_SERVEUR,
+    contextes,
+  });
   const reponse = await appelerGeminiSaisie(prompt, construireSchema(MODULES_SERVEUR));
   if (!reponse.ok) {
     return {
