@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import sharp from "sharp";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { NOTES_TAG } from "@/lib/notes/tags";
 import { TACHES_TAG } from "@/lib/taches/tags";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiISO } from "@/lib/budget/compute";
@@ -898,6 +899,9 @@ export async function deleteTag(id: string) {
   if (error) throw new Error(error.message);
 
   revalidateTachesPaths();
+  // La table `tags` est partagée : supprimer un tag retire aussi ses liens
+  // avec les notes, donc des pastilles de la liste des notes en cache.
+  revalidateTag(NOTES_TAG, { expire: 0 });
 }
 
 export async function getTags(): Promise<Tables<"tags">[]> {
