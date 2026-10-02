@@ -13,6 +13,9 @@
 export const GEMINI_MODEL = "gemini-3.1-flash-lite";
 export const MESSAGE_QUOTA_GEMINI = "Le quota gratuit de Gemini est atteint pour le moment. Réessaie plus tard.";
 const DETAIL_MAX = 200;
+// 503 = modèle surchargé, en général quelques secondes : un seul nouvel essai,
+// dans le même délai global (`timeoutMs`).
+const DELAI_RETRY_MS = 1500;
 
 export type ResultatGemini =
   | { ok: true; brut: unknown }
@@ -52,9 +55,9 @@ export async function appelerGemini(appel: AppelGemini): Promise<ResultatGemini>
   if (!apiKey) return echec(etiquette, "Clé GEMINI_API_KEY absente sur le serveur.");
 
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
-      {
+    const signal = AbortSignal.timeout(timeoutMs);
+    const envoyer = () =>
+      fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
         method: "POST",
         // Clé en en-tête plutôt qu'en paramètre d'URL : elle ne finit jamais
         // dans un message d'erreur ni dans un journal de requêtes.
@@ -67,9 +70,14 @@ export async function appelerGemini(appel: AppelGemini): Promise<ResultatGemini>
             ...(temperature === undefined ? {} : { temperature }),
           },
         }),
-        signal: AbortSignal.timeout(timeoutMs),
-      }
-    );
+        signal,
+      });
+    let res = await envoyer();
+    if (res.status === 503) {
+      console.warn(`[${etiquette}] Gemini surchargé (503), nouvel essai.`);
+      await new Promise((r) => setTimeout(r, DELAI_RETRY_MS));
+      res = await envoyer();
+    }
 
     if (res.status === 429) {
       console.warn(`[${etiquette}] Quota Gemini atteint (429).`);
