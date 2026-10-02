@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { calculerStreak, calculerStreakHebdo, estFait, lundiDe } from "@/lib/habitudes/compute";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { HABITUDES_TAG } from "@/lib/habitudes/tags";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 export type HabitudeFormState = { error: string | null };
@@ -92,6 +93,7 @@ export async function creerHabitude(
   if (error) return { error: error.message };
 
   revalidatePath("/habitudes");
+  updateTag(HABITUDES_TAG);
   return { error: null };
 }
 
@@ -111,6 +113,7 @@ export async function modifierHabitude(
   if (error) return { error: error.message };
 
   revalidatePath("/habitudes");
+  updateTag(HABITUDES_TAG);
   return { error: null };
 }
 
@@ -128,6 +131,7 @@ export async function supprimerHabitude(id: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/habitudes");
+  updateTag(HABITUDES_TAG);
   revalidatePath("/objectifs");
 }
 
@@ -148,6 +152,7 @@ export async function enregistrerEntreeHabitude(
   if (error) throw new Error(error.message);
 
   revalidatePath("/habitudes");
+  updateTag(HABITUDES_TAG);
 }
 
 export type HabitudeDuJour = Tables<"habitudes"> & {
