@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { NOTES_TAG } from "@/lib/notes/tags";
 import { estCouleurValide } from "@/lib/notes/palette";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
@@ -142,6 +143,7 @@ export async function createNote(
   }
 
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
   return { error: null };
 }
 
@@ -172,6 +174,7 @@ export async function updateNote(
   // carte/le formulaire d'édition via addNoteItem/toggleNoteItem/
   // updateNoteItemLibelle/deleteNoteItem/reorderNoteItems, pas ici.
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
   return { error: null };
 }
 
@@ -182,6 +185,7 @@ export async function deleteNote(id: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
 }
 
 export async function toggleEpingle(id: string, epingle: boolean) {
@@ -191,6 +195,7 @@ export async function toggleEpingle(id: string, epingle: boolean) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
 }
 
 // --- Items de checklist ---
@@ -216,6 +221,7 @@ export async function addNoteItem(noteId: string, libelle: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
 }
 
 export async function toggleNoteItem(id: string, coche: boolean) {
@@ -225,6 +231,7 @@ export async function toggleNoteItem(id: string, coche: boolean) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
 }
 
 export async function updateNoteItemLibelle(id: string, libelle: string) {
@@ -237,6 +244,7 @@ export async function updateNoteItemLibelle(id: string, libelle: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
 }
 
 export async function deleteNoteItem(id: string) {
@@ -246,6 +254,7 @@ export async function deleteNoteItem(id: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
 }
 
 // Réordonnance simple par échange avec l'item voisin, au sein de la même
@@ -281,6 +290,7 @@ export async function reorderNoteItems(noteId: string, id: string, direction: "h
   if (err2) throw new Error(err2.message);
 
   revalidatePath("/notes");
+  updateTag(NOTES_TAG);
 }
 
 // --- Tags sur une note ---

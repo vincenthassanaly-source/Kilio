@@ -1,4 +1,8 @@
 import { Suspense } from "react";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { makeServerQueryClient } from "@/lib/query/server-client";
+import { queryKeys } from "@/lib/query/keys";
+import { getNotesAvecRelationsEnCache } from "@/lib/notes/cache";
 import { NotesGrid } from "./NotesGrid";
 import { screenTitle } from "@/lib/ui";
 
@@ -9,6 +13,8 @@ type NotesSearchParams = Promise<{ action?: string; tag?: string }>;
 // (titre + NotesGrid dans son état par défaut) reste prérendue et servie
 // instantanément : seule l'ouverture automatique du formulaire pour
 // `?action=new` attend la requête (voir audit navigation, §"?action=new").
+// Le même composant précharge la liste depuis le cache serveur et hydrate
+// React Query : les notes arrivent avec la page, sans aller-retour client.
 export default function NotesPage({ searchParams }: { searchParams: NotesSearchParams }) {
   return (
     <div className="flex flex-col gap-4">
@@ -22,5 +28,12 @@ export default function NotesPage({ searchParams }: { searchParams: NotesSearchP
 
 async function NotesGridAvecAction({ searchParams }: { searchParams: NotesSearchParams }) {
   const { action, tag } = await searchParams;
-  return <NotesGrid defaultOpen={action === "new"} defaultTag={tag} />;
+  const queryClient = makeServerQueryClient();
+  await queryClient.prefetchQuery({ queryKey: queryKeys.notes, queryFn: getNotesAvecRelationsEnCache });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <NotesGrid defaultOpen={action === "new"} defaultTag={tag} />
+    </HydrationBoundary>
+  );
 }
