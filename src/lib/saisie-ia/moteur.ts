@@ -57,10 +57,12 @@ export function construirePrompt(input: {
   texte: string;
   precisions: PrecisionDonnee[];
   aujourdhui: string;
+  /** Heure courante à Paris (`HH:MM`) : sans elle, « dans une heure » est indevinable. */
+  heure?: string;
   modules: readonly ModuleIAServeur[];
   contextes: readonly ModulePrepare[];
 }): string {
-  const { texte, precisions, aujourdhui, modules, contextes } = input;
+  const { texte, precisions, aujourdhui, heure, modules, contextes } = input;
   const questionsRestantes = Math.max(0, MAX_QUESTIONS - precisions.length);
 
   const calendrier = Array.from({ length: 14 }, (_, i) => {
@@ -72,6 +74,7 @@ export function construirePrompt(input: {
     `Tu transformes une phrase de Vincent en ${enumeration(modules.map((m) => m.libelle))} pour son app personnelle Kilio (fuseau Europe/Paris).`,
     "",
     `Calendrier : ${calendrier}.`,
+    ...(heure ? [`Heure actuelle : ${heure} (24 h, Europe/Paris), le ${aujourdhui}.`] : []),
     ...contextes.flatMap((c) => c.lignesContexte),
     "",
     `Texte de Vincent : ${JSON.stringify(texte)}`,
