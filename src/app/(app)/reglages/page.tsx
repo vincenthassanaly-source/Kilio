@@ -1,13 +1,10 @@
 import { connection } from "next/server";
 import { getReglagesNettoyage } from "@/app/actions/nettoyage";
-import { getReglagesSaisieIA } from "@/app/actions/reglages-saisie-ia";
-import { getListes } from "@/app/actions/taches";
 import { TransitionLink } from "@/components/TransitionLink";
 import { screenTitle, sectionTitle } from "@/lib/ui";
 import { AppearanceRow } from "./AppearanceRow";
 import { NettoyageAutoRow } from "./NettoyageAutoRow";
 import { NotificationsRow } from "./NotificationsRow";
-import { SaisieIARow } from "./SaisieIARow";
 
 const INFO_ICON_PROPS = {
   width: 16,
@@ -60,11 +57,7 @@ function ChevronIcon() {
 
 export default async function ReglagesPage() {
   await connection();
-  const [reglagesNettoyage, reglagesSaisieIA, listes] = await Promise.all([
-    getReglagesNettoyage(),
-    getReglagesSaisieIA(),
-    getListes(),
-  ]);
+  const reglagesNettoyage = await getReglagesNettoyage();
 
   return (
     <div className="flex flex-col gap-5">
@@ -94,10 +87,6 @@ export default async function ReglagesPage() {
             <AppearanceRow />
           </div>
           <NotificationsRow />
-          <SaisieIARow
-            listes={listes.map((l) => ({ id: l.id, nom: l.nom }))}
-            listeId={reglagesSaisieIA?.liste_taches_id ?? null}
-          />
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
       </div>

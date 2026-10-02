@@ -46,7 +46,6 @@
   --accent-budget: oklch(0.55 0.14 65);
   --accent-reglages: oklch(0.55 0.14 150);
   --accent-collection: oklch(0.55 0.14 280);
-  --accent-carburants: oklch(0.55 0.14 120);
   --accent-documents: oklch(0.55 0.14 25);
   --accent-pharmacie: oklch(0.55 0.14 355);
   /* Balises de catégorie du module Pharmacie (violet, rose, jaune…) : barre
@@ -115,7 +114,6 @@
   --accent-budget: oklch(0.72 0.13 65);
   --accent-reglages: oklch(0.72 0.13 150);
   --accent-collection: oklch(0.72 0.13 280);
-  --accent-carburants: oklch(0.72 0.13 120);
   --accent-documents: oklch(0.72 0.13 25);
   --accent-pharmacie: oklch(0.72 0.13 355);
   --niveau-violet: oklch(0.72 0.13 300);
@@ -176,7 +174,6 @@
   --color-budget: var(--accent-budget);
   --color-reglages: var(--accent-reglages);
   --color-collection: var(--accent-collection);
-  --color-carburants: var(--accent-carburants);
   --color-documents: var(--accent-documents);
   --color-pharmacie: var(--accent-pharmacie);
   --color-nav: var(--nav-bg);
@@ -198,7 +195,7 @@ body {
    pour ne bloquer que la propagation du geste vers le document — le
    rebond élastique normal d'un scroll interne (ex: <main>, cf.
    TabSwipeWrapper.tsx qui porte déjà cette même valeur) n'est pas affecté.
-   Voir reports/2026-09-08-fix-pull-to-refresh-carburants.md. */
+   */
 html,
 body {
   overscroll-behavior-y: contain;

@@ -25,7 +25,6 @@ colors:
   module-courses: "oklch(0.55 0.14 305)"
   module-objectifs: "oklch(0.55 0.14 200)"
   module-collection: "oklch(0.55 0.14 280)"
-  module-carburants: "oklch(0.55 0.14 120)"
   module-documents: "oklch(0.55 0.14 25)"
   module-planning-travail: "oklch(0.38 0.09 150)"
 typography:
@@ -144,7 +143,7 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - Ne jamais écrire `text-white` sur un fond d'accent : il échoue en thème sombre.
 
 ### Module Accents (optional)
-Chaque module a sa propre teinte identitaire (agenda `230`, budget `65`, habitudes `45`, courses `305`, objectifs `200`, collection `280`, carburants `120`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent uniquement à colorer l'icône/l'identité de leur module dans la grille d'accueil et le sélecteur "Plus" ; elles ne remplacent jamais le vert Kcal comme couleur interactive à l'intérieur d'un module.
+Chaque module a sa propre teinte identitaire (agenda `230`, budget `65`, habitudes `45`, courses `305`, objectifs `200`, collection `280`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent uniquement à colorer l'icône/l'identité de leur module dans la grille d'accueil et le sélecteur "Plus" ; elles ne remplacent jamais le vert Kcal comme couleur interactive à l'intérieur d'un module.
 
 ### Note Tints (optional)
 Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavande`, `--note-ciel`, `--note-rose`, `--note-citron`, `--note-menthe`, `--note-argile`) réservées aux fonds de note du module Notes — hors périmètre du Journal Nutrition, listées ici pour mémoire de complétude du système.

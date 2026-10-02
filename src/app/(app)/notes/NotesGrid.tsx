@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getNotesAvecRelations } from "@/app/actions/notes";
 import { getTags } from "@/app/actions/taches";
 import { normalizeSearch } from "@/lib/normalize";
-import { TAG_IDEES } from "@/lib/notes/saisie-naturelle";
 import { queryKeys } from "@/lib/query/keys";
 import { NoteCard } from "./NoteCard";
 import { AddNoteToggle } from "./AddNoteToggle";
@@ -14,8 +13,8 @@ import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
 import { errorText, input, pillTag, sectionTitle } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
-// Tag des idées (ajouté par « Ajouter avec l'IA ») : sa pastille passe en tête.
-const CLE_TAG_IDEES = normalizeSearch(TAG_IDEES);
+// Tag des idées : sa pastille passe en tête.
+const CLE_TAG_IDEES = normalizeSearch("idées");
 
 export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; defaultTag?: string }) {
   const [search, setSearch] = useState("");
