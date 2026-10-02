@@ -155,6 +155,10 @@ export function BottomNav() {
     }
   }
 
+  // Séance de sport en cours : l'écran est plein, avec sa propre barre de
+  // repos en bas (sport/seance/BarreRepos.tsx).
+  if (pathname === "/sport/seance") return null;
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+14px)]">
       {/* `view-transition-name` : sort la barre de la transition "root" (sinon elle

@@ -9,6 +9,7 @@ function exercice(partiel: Partial<ExerciceListe> & Pick<ExerciceListe, "id" | "
     equipement: "barbell",
     categorie: "strength",
     niveau: "beginner",
+    typeMesure: "poids_reps",
     image: null,
     ...partiel,
   };

@@ -2,6 +2,12 @@
 // anglais dans sport_exercices). Les slugs restent la clé de filtre ; seuls
 // les libellés sont traduits, ici, pour ne pas multiplier les lignes en base.
 
+/**
+ * Préfixe des images d'exercices : route de même origine, réécrite vers le
+ * bucket Supabase (next.config.ts) pour que le service worker les mette en cache.
+ */
+export const URL_IMAGES_SPORT = "/sport-img";
+
 /** Muscles principaux, dans l'ordre d'affichage des filtres (haut du corps → bas). */
 export const MUSCLES: readonly { slug: string; label: string }[] = [
   { slug: "chest", label: "Pectoraux" },

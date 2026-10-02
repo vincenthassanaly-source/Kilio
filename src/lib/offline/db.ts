@@ -21,9 +21,25 @@ type PendingAction = {
 // "snapshot") : permet de consulter et de réviser sans réseau.
 type CacheLecture = { cle: string; valeur: unknown; enregistre_le: string };
 
+// Module Sport : séance en cours (un seul enregistrement, clé "courant") et
+// séances terminées en attente d'envoi. Volontairement HORS de la file
+// générique `pending_actions` : celle-ci abandonne une action après quelques
+// échecs (flush-policy.ts), ce qui ferait perdre toutes les séries d'une
+// séance. Ici rien n'est supprimé tant que le serveur n'a pas confirmé.
+type BrouillonSport = { cle: string; valeur: import("@/lib/sport/seance").Brouillon };
+type SeanceAEnvoyer = {
+  id: string;
+  payload: import("@/lib/sport/seance").SeancePayload;
+  cree_le: string;
+  /** Dernier refus du serveur (la séance reste en attente, jamais supprimée). */
+  erreur?: string;
+};
+
 class OfflineDB extends Dexie {
   pending_actions!: Table<PendingAction, number>;
   cache_lecture!: Table<CacheLecture, string>;
+  sport_brouillon!: Table<BrouillonSport, string>;
+  sport_a_envoyer!: Table<SeanceAEnvoyer, string>;
 
   constructor() {
     super("kilio-offline");
@@ -33,6 +49,12 @@ class OfflineDB extends Dexie {
     this.version(2).stores({
       pending_actions: "++id, created_at",
       cache_lecture: "cle",
+    });
+    this.version(3).stores({
+      pending_actions: "++id, created_at",
+      cache_lecture: "cle",
+      sport_brouillon: "cle",
+      sport_a_envoyer: "id, cree_le",
     });
   }
 }

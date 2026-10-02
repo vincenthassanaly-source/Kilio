@@ -1,4 +1,5 @@
 import { EQUIPEMENT_AUTRE } from "./libelles";
+import type { TypeMesure } from "./seance";
 
 /** Ligne légère de la bibliothèque : tout ce qu'il faut pour la liste et les filtres. */
 export type ExerciceListe = {
@@ -9,6 +10,7 @@ export type ExerciceListe = {
   equipement: string | null;
   categorie: string;
   niveau: string | null;
+  typeMesure: TypeMesure;
   /** Chemin de la première image dans le bucket, ou null si l'exercice n'en a pas. */
   image: string | null;
 };

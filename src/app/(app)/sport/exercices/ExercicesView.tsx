@@ -14,7 +14,7 @@ import { cardTight, errorText, eyebrow, input, linkButton, metaText, nameText, s
 // exercices, en rendre autant d'un bloc ralentirait le téléphone.
 const PAGE = 60;
 
-function Puce({ actif, onClick, children }: { actif: boolean; onClick: () => void; children: string }) {
+export function Puce({ actif, onClick, children }: { actif: boolean; onClick: () => void; children: string }) {
   return (
     <button
       type="button"
