@@ -69,6 +69,21 @@ test("Séance : routine → séries validées → repos → terminer et enregist
   await expect(page.getByRole("region", { name: "Dernière séance" })).toContainText("Push");
 });
 
+test("Séance : un clic sur l'exercice ouvre son aperçu sans perdre la saisie", async ({ page }) => {
+  const banc = await demarrerPush(page);
+  await banc.getByRole("button", { name: "Valider la série 1" }).click();
+
+  await banc.getByRole("button", { name: `Aperçu de ${NOM_BANC}` }).click();
+  const apercu = page.getByRole("dialog", { name: NOM_BANC });
+  await expect(apercu).toBeVisible();
+  await expect(apercu.getByRole("list", { name: "Caractéristiques" })).toBeVisible();
+
+  await apercu.getByRole("button", { name: "Fermer" }).click();
+  await expect(apercu).toBeHidden();
+  // La séance est intacte : la série validée le reste.
+  await expect(banc.getByRole("button", { name: "Annuler la série 1" })).toHaveAttribute("aria-pressed", "true");
+});
+
 test("Séance : reprise après rechargement, sans perdre les séries validées", async ({ page }) => {
   const banc = await demarrerPush(page);
   await banc.getByRole("button", { name: "Valider la série 1" }).click();

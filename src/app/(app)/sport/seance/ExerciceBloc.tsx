@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { vibrate } from "@/lib/haptics";
 import { URL_IMAGES_SPORT } from "@/lib/sport/libelles";
 import { deverrouillerAudio } from "@/lib/sport/useMinuteurRepos";
@@ -13,6 +14,7 @@ import {
   type SeriePrecedente,
 } from "@/lib/sport/seance";
 import { dangerButton, ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
+import { ApercuExercice } from "./ApercuExercice";
 
 type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree">>;
 
@@ -95,6 +97,7 @@ export function ExerciceBloc({
   onReposExercice: (cle: string, deltaS: number) => void;
 }) {
   const [options, setOptions] = useState(false);
+  const [apercu, setApercu] = useState(false);
   const { typeMesure, cle } = exercice;
   const aPoids = typeMesure === "poids_reps" || typeMesure === "poids_duree";
   const aReps = typeMesure === "poids_reps" || typeMesure === "reps";
@@ -112,25 +115,33 @@ export function ExerciceBloc({
       aria-label={exercice.nom}
     >
       <header className="flex items-center gap-3">
-        <span className="h-12 w-12 shrink-0 overflow-hidden rounded-[12px] bg-surface-alt">
-          {exercice.image && (
-            // eslint-disable-next-line @next/next/no-img-element -- images déjà optimisées (WebP 600 px)
-            <img
-              src={`${URL_IMAGES_SPORT}/${exercice.image}`}
-              alt=""
-              width={48}
-              height={48}
-              decoding="async"
-              className="h-full w-full object-cover"
-            />
-          )}
-        </span>
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <h2 className={`${nameText} !whitespace-normal`}>{exercice.nom}</h2>
-          <span className={metaText}>
-            {faites}/{exercice.series.length} séries · repos {formaterMinutes(exercice.reposS)}
+        <button
+          type="button"
+          onClick={() => setApercu(true)}
+          aria-label={`Aperçu de ${exercice.nom}`}
+          aria-haspopup="dialog"
+          className="-m-1 flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-1 text-left transition active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        >
+          <span className="h-12 w-12 shrink-0 overflow-hidden rounded-[12px] bg-surface-alt">
+            {exercice.image && (
+              // eslint-disable-next-line @next/next/no-img-element -- images déjà optimisées (WebP 600 px)
+              <img
+                src={`${URL_IMAGES_SPORT}/${exercice.image}`}
+                alt=""
+                width={48}
+                height={48}
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            )}
           </span>
-        </div>
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className={`${nameText} !whitespace-normal`}>{exercice.nom}</span>
+            <span className={metaText}>
+              {faites}/{exercice.series.length} séries · repos {formaterMinutes(exercice.reposS)}
+            </span>
+          </span>
+        </button>
         <button
           type="button"
           onClick={() => setOptions((o) => !o)}
@@ -242,6 +253,8 @@ export function ExerciceBloc({
       <button type="button" className={`${secondaryButton} h-11 !py-0 text-[14px]`} onClick={() => onAjouterSerie(cle)}>
         + Ajouter une série
       </button>
+
+      <AnimatePresence>{apercu && <ApercuExercice exercice={exercice} onClose={() => setApercu(false)} />}</AnimatePresence>
     </section>
   );
 }
