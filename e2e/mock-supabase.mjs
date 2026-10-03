@@ -238,6 +238,9 @@ fixtures.sport_exercices = [
   sportExercice(SPORT_SQUAT, "Squat à la barre", "Barbell Squat", "quadriceps", "poids_reps", ["Place la barre sur les trapèzes.", "Descends en fléchissant les genoux puis remonte."]),
   sportExercice(SPORT_PLANCHE, "Gainage planche", "Plank", "abdominals", "duree", ["Appuie-toi sur les avant-bras et garde le corps aligné."]),
 ];
+// Le développé couché a une illustration dessinée (poses réelles extraites de ses
+// photos) ; le squat n'en a pas : l'app retombe sur ses photos.
+fixtures.sport_exercices[0].poses = {"v":1,"a":[[122.7,86.2],[128.4,84.4],[94.1,86.0],[167.3,77.5],[88.3,69.8],[180.0,48.9],[95.0,40.7],[109.7,94.1],[89.7,90.7],[90.4,140.6],[33.6,119.9],[101.1,197.0],[35.2,164.0],[89.0,219.3],[33.3,180.6]],"b":[[78.5,114.7],[93.7,99.7],[68.6,92.2],[97.0,102.4],[73.5,91.9],[96.7,99.4],[88.0,88.7],[90.2,112.1],[74.3,106.9],[87.1,144.4],[35.5,128.3],[98.1,194.6],[38.2,166.4],[88.2,212.0],[20.0,177.1]]};
 fixtures.sport_routines = [{ id: uuid(2001), nom: "Push", ordre: 0, created_at: ts }];
 fixtures.sport_routine_exercices = [
   { id: uuid(2101), routine_id: uuid(2001), exercice_id: SPORT_BANC, position: 0, nb_series: 3, reps_cible: 8, repos_s: 90 },

@@ -78,10 +78,26 @@ test("Séance : un clic sur l'exercice ouvre son aperçu sans perdre la saisie",
   await expect(apercu).toBeVisible();
   await expect(apercu.getByRole("list", { name: "Caractéristiques" })).toBeVisible();
 
+  // Le développé couché a des poses : illustration dessinée, pas de photo.
+  await expect(apercu.locator("[data-dessin] path").first()).toBeVisible();
+  await expect(apercu.locator("img")).toHaveCount(0);
+
   await apercu.getByRole("button", { name: "Fermer" }).click();
   await expect(apercu).toBeHidden();
   // La séance est intacte : la série validée le reste.
   await expect(banc.getByRole("button", { name: "Annuler la série 1" })).toHaveAttribute("aria-pressed", "true");
+});
+
+test("Séance : un exercice sans poses validées garde sa photo", async ({ page }) => {
+  await demarrerPush(page);
+  const squat = page.getByRole("region", { name: "Squat à la barre" });
+  // Vignette : photo, pas de dessin.
+  await expect(squat.locator("img").first()).toBeVisible();
+
+  await squat.getByRole("button", { name: "Aperçu de Squat à la barre" }).click();
+  const apercu = page.getByRole("dialog", { name: "Squat à la barre" });
+  await expect(apercu.locator("img").first()).toBeVisible();
+  await expect(apercu.locator("[data-dessin] path")).toHaveCount(0);
 });
 
 test("Séance : reprise après rechargement, sans perdre les séries validées", async ({ page }) => {
