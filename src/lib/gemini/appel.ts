@@ -10,7 +10,7 @@
 // de notre côté : c'est Google qui renvoie 429 quand le quota gratuit,
 // partagé entre les fonctions, est atteint.
 
-export const GEMINI_MODEL = "gemini-3.1-flash-lite";
+const GEMINI_MODEL = "gemini-3.1-flash-lite";
 export const MESSAGE_QUOTA_GEMINI = "Le quota gratuit de Gemini est atteint pour le moment. Réessaie plus tard.";
 const DETAIL_MAX = 200;
 // 503 = modèle surchargé, en général quelques secondes : un seul nouvel essai,

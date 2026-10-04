@@ -44,7 +44,7 @@ export type HabitudeSnapshot = {
 
 export type SourceProposition = "tache" | "note" | "habitude" | "general";
 
-export type PropositionProgramme = {
+type PropositionProgramme = {
   texte: string;
   source: SourceProposition;
   /** `17:00–18:00`, toujours contenu dans une plage libre ; null sans créneau. */

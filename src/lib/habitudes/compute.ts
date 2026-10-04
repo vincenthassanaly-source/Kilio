@@ -29,7 +29,7 @@ export function calculerStreak(entriesParDate: Map<string, number>, date: string
 
 // --- Fréquence hebdomadaire et progression d'objectif ---
 
-export function ajouterJours(date: string, n: number): string {
+function ajouterJours(date: string, n: number): string {
   const curseur = new Date(`${date}T00:00:00Z`);
   curseur.setUTCDate(curseur.getUTCDate() + n);
   return curseur.toISOString().slice(0, 10);

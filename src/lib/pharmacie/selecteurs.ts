@@ -13,7 +13,7 @@ export function notionsDeChapitre(snap: PharmaSnapshot, chapitreId: string): Pha
   return snap.notions.filter((n) => n.chapitre_id === chapitreId).sort(parOrdre);
 }
 
-export function cartesDeNotions(snap: PharmaSnapshot, notionIds: Set<string>): PharmaCarte[] {
+function cartesDeNotions(snap: PharmaSnapshot, notionIds: Set<string>): PharmaCarte[] {
   return snap.cartes.filter((c) => c.notion_id !== null && notionIds.has(c.notion_id));
 }
 
