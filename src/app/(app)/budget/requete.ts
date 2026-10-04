@@ -14,10 +14,15 @@ import type { Enums } from "@/lib/supabase/types";
  * chaque requête (date du jour), donc jamais dans la coquille ni en cache.
  * Dédoublonnée par requête : une page qui lit ses données depuis plusieurs
  * <Suspense> ne la déclenche qu'une fois.
+ *
+ * Renvoie `true` si elle a écrit. `updateTag` n'étant pas permis au rendu,
+ * elle ne peut pas expirer le cache du Budget (voir lib/budget/cache.ts) : la
+ * page lit alors en direct pour cette requête, et le cache se remet à jour
+ * au plus tard à la fin de son `revalidate`.
  */
-export const genererOccurrencesDuesPourLaRequete = cache(async () => {
+export const genererOccurrencesDuesPourLaRequete = cache(async (): Promise<boolean> => {
   await connection();
-  await genererOccurrencesDues();
+  return genererOccurrencesDues();
 });
 
 /**

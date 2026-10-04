@@ -3,6 +3,11 @@ import { Suspense } from "react";
 import { getComptesAvecSolde } from "@/app/actions/comptes";
 import { getResumeMois } from "@/app/actions/transactions";
 import { getSuiviCategories } from "@/app/actions/budgets";
+import {
+  getComptesAvecSoldeEnCache,
+  getResumeMoisEnCache,
+  getSuiviCategoriesEnCache,
+} from "@/lib/budget/cache";
 import { formatMontant, formatPeriode, premierJourDuMois } from "@/lib/budget/compute";
 import { card, eyebrow, screenTitle, sectionTitle } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -98,14 +103,16 @@ export default function BudgetPage() {
 // Mois courant et occurrences récurrentes générées à chaque requête :
 // tout ce qui en dépend arrive en streaming sous la coquille.
 async function BudgetResume() {
-  await genererOccurrencesDuesPourLaRequete();
+  const aGenere = await genererOccurrencesDuesPourLaRequete();
   const periode = premierJourDuMois();
 
-  const [comptes, resumeMois, suiviCategories] = await Promise.all([
-    getComptesAvecSolde(),
-    getResumeMois(periode),
-    getSuiviCategories(periode),
-  ]);
+  // Lecture en cache serveur, sauf si la génération vient d'écrire (elle ne
+  // peut pas expirer le tag au rendu) : on lit alors en direct.
+  const [comptes, resumeMois, suiviCategories] = await Promise.all(
+    aGenere
+      ? [getComptesAvecSolde(), getResumeMois(periode), getSuiviCategories(periode)]
+      : [getComptesAvecSoldeEnCache(), getResumeMoisEnCache(periode), getSuiviCategoriesEnCache(periode)]
+  );
 
   const totalSoldes = comptes.reduce((acc, c) => acc + c.solde, 0);
   const soldeMois = resumeMois.totalRevenus - resumeMois.totalDepenses;

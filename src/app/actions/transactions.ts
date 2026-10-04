@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { BUDGET_TAG } from "@/lib/budget/tags";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { finDuMois } from "@/lib/budget/compute";
@@ -64,6 +65,7 @@ function revalidateTransactionPaths() {
   revalidatePath("/budget/comptes");
   revalidatePath("/budget/transactions");
   revalidatePath("/budget/categories");
+  updateTag(BUDGET_TAG);
 }
 
 export async function creerTransaction(

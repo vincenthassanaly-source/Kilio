@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { BUDGET_TAG } from "@/lib/budget/tags";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   bornesPeriode,
@@ -80,6 +81,7 @@ export async function upsertBudget(
 
   revalidatePath("/budget");
   revalidatePath("/budget/categories");
+  updateTag(BUDGET_TAG);
   return { error: null };
 }
 

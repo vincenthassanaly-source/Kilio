@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { BUDGET_TAG } from "@/lib/budget/tags";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiISO, calculerProchaineOccurrence } from "@/lib/budget/compute";
@@ -19,6 +20,7 @@ function revalidateRecurrencePaths() {
   revalidatePath("/budget");
   revalidatePath("/budget/transactions");
   revalidatePath("/budget/recurrentes");
+  updateTag(BUDGET_TAG);
 }
 
 async function getTypeCategorie(
@@ -302,7 +304,7 @@ export async function getRecurrences(): Promise<RecurrenceAvecRelations[]> {
  * `prochaine_occurrence` avance à chaque insertion jusqu'à dépasser
  * aujourd'hui.
  */
-export async function genererOccurrencesDues(): Promise<void> {
+export async function genererOccurrencesDues(): Promise<boolean> {
   const supabase = createAdminClient();
   const aujourdhui = aujourdhuiISO();
 
@@ -313,7 +315,7 @@ export async function genererOccurrencesDues(): Promise<void> {
     .lte("prochaine_occurrence", aujourdhui);
 
   if (error) throw new Error(error.message);
-  if (!recurrences || recurrences.length === 0) return;
+  if (!recurrences || recurrences.length === 0) return false;
 
   // Modèles indépendants les uns des autres : un insert/update par modèle,
   // lancés en parallèle (Promise.all) plutôt qu'attendus séquentiellement
@@ -374,4 +376,5 @@ export async function genererOccurrencesDues(): Promise<void> {
     if (insertError) throw new Error(insertError.message);
     if (updateError) throw new Error(updateError.message);
   }
+  return true;
 }
