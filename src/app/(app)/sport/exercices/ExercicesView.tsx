@@ -9,6 +9,7 @@ import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { filtrerExercices, texteRecherche } from "@/lib/sport/compute";
 import { EQUIPEMENTS, MUSCLES, libelleEquipement, libelleMuscle } from "@/lib/sport/libelles";
 import { cardTight, errorText, eyebrow, input, linkButton, metaText, nameText, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { VignetteExercice } from "../IllustrationExercice";
 
 // Nombre de lignes affichées d'un coup : la bibliothèque compte ~900
 // exercices, en rendre autant d'un bloc ralentirait le téléphone.
@@ -141,20 +142,7 @@ export function ExercicesView() {
           {visibles.map((exercice) => (
             <li key={exercice.id}>
               <TransitionLink href={`/sport/exercices/${encodeURIComponent(exercice.id)}`} className={`${cardTight} flex items-center gap-3`}>
-                <span className="h-14 w-14 shrink-0 overflow-hidden rounded-[14px] bg-surface-alt">
-                  {exercice.image && (
-                    // eslint-disable-next-line @next/next/no-img-element -- images déjà optimisées (WebP 600 px) dans Supabase Storage
-                    <img
-                      src={`${data.urlImages}/${exercice.image}`}
-                      alt=""
-                      width={56}
-                      height={56}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                </span>
+                <VignetteExercice poses={exercice.poses} image={exercice.image} muscle={exercice.muscle_principal} taille={56} rayon={14} />
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className={nameText}>{exercice.nom_fr}</span>
                   <span className={`${metaText} truncate`}>

@@ -8,7 +8,7 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { card, errorText, linkButton, metaText, pillTag, screenTitle, sectionTitle } from "@/lib/ui";
 import { libelleCategorie, libelleEquipement, libelleMuscle, libelleNiveau } from "@/lib/sport/libelles";
-import { ExerciceMedia } from "./ExerciceMedia";
+import { IllustrationExercice } from "../../IllustrationExercice";
 
 // Shell client (même patron que /objectifs/[id]) : la fiche est lue via
 // TanStack Query, la navigation reste instantanée.
@@ -52,7 +52,12 @@ export default function ExerciceDetailPage({ params }: { params: Promise<{ id: s
   return (
     <div className="flex flex-col gap-4">
       {retour}
-      <ExerciceMedia urls={exercice.images.map((chemin) => `${exercice.urlImages}/${chemin}`)} alt={exercice.nom_fr} />
+      <IllustrationExercice
+        poses={exercice.poses}
+        photos={exercice.images.map((chemin) => `${exercice.urlImages}/${chemin}`)}
+        muscle={exercice.muscle_principal}
+        alt={exercice.nom_fr}
+      />
 
       <div className="flex flex-col gap-1">
         <h1 className={screenTitle}>{exercice.nom_fr}</h1>

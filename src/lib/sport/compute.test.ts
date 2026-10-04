@@ -11,6 +11,7 @@ function exercice(partiel: Partial<ExerciceListe> & Pick<ExerciceListe, "id" | "
     niveau: "beginner",
     typeMesure: "poids_reps",
     image: null,
+    poses: null,
     ...partiel,
   };
 }
