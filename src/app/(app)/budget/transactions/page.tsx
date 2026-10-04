@@ -94,15 +94,17 @@ async function TransactionsContenu({ searchParams }: { searchParams: Transaction
   // du jour à son ouverture — plus d'écriture en base par lettre tapée.
   if (!q) await genererOccurrencesDuesPourLaRequete();
 
-  const [comptes, categories] = await Promise.all([getComptesAvecSolde(), getCategories()]);
-
-  const transactions = await getTransactions({
-    compteId: compte,
-    categorieId: categorie,
-    mois: mois ? `${mois}-01` : undefined,
-    date,
-    recherche: q,
-  });
+  const [comptes, categories, transactions] = await Promise.all([
+    getComptesAvecSolde(),
+    getCategories(),
+    getTransactions({
+      compteId: compte,
+      categorieId: categorie,
+      mois: mois ? `${mois}-01` : undefined,
+      date,
+      recherche: q,
+    }),
+  ]);
 
   // Filtre "jour" posé depuis /budget/calendrier (choix retenu plutôt qu'un
   // panneau inline sous le calendrier — cf. rapport : réutilise directement
