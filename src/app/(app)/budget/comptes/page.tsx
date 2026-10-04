@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { getComptesAvecSolde } from "@/app/actions/comptes";
+import { getComptesAvecSoldeEnCache } from "@/lib/budget/cache";
 import { screenTitle } from "@/lib/ui";
 import { AddCompteToggle } from "./AddCompteToggle";
 import { ComptesList } from "./ComptesList";
@@ -23,5 +23,5 @@ export default function ComptesPage() {
 
 async function Comptes() {
   await connection();
-  return <ComptesList comptes={await getComptesAvecSolde()} />;
+  return <ComptesList comptes={await getComptesAvecSoldeEnCache()} />;
 }

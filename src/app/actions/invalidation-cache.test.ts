@@ -70,6 +70,18 @@ const MODULES: Module[] = [
       createTag: "un nouveau tag sans lien n'apparaît dans aucune lecture en cache",
     },
   },
+  { fichier: "src/app/actions/comptes.ts", expiration: /updateTag\(BUDGET_TAG\)/ },
+  { fichier: "src/app/actions/budgets.ts", expiration: /updateTag\(BUDGET_TAG\)/ },
+  { fichier: "src/app/actions/categories-budget.ts", expiration: /updateTag\(BUDGET_TAG\)/ },
+  { fichier: "src/app/actions/transactions.ts", expiration: /updateTag\(BUDGET_TAG\)|revalidateTransactionPaths\(/ },
+  {
+    fichier: "src/app/actions/transactions-recurrentes.ts",
+    expiration: /updateTag\(BUDGET_TAG\)|revalidateRecurrencePaths\(/,
+    exemptions: {
+      genererOccurrencesDues:
+        "appelée au rendu, où updateTag est interdit : elle renvoie true quand elle a écrit et la page lit alors en direct (budget/requete.ts)",
+    },
+  },
   { fichier: "src/app/actions/recettes.ts", expiration: /updateTag\(RECETTES_TAG\)/ },
   { fichier: "src/app/actions/recette-ingredients.ts", expiration: /updateTag\(RECETTES_TAG\)/ },
   {
@@ -125,6 +137,16 @@ describe("les écritures expirent le tag du cache serveur qu'elles invalident", 
       (f) => f.nom === "revalidateTachesPaths"
     );
     expect(helper?.corps).toMatch(/expirerCacheTaches\(\)/);
+  });
+
+  it("les helpers de revalidation du Budget expirent le tag du Budget", () => {
+    for (const [fichier, nom] of [
+      ["src/app/actions/transactions.ts", "revalidateTransactionPaths"],
+      ["src/app/actions/transactions-recurrentes.ts", "revalidateRecurrencePaths"],
+    ]) {
+      const helper = extraireFonctions(lire(fichier)).find((f) => f.nom === nom);
+      expect(helper?.corps, nom).toMatch(/updateTag\(BUDGET_TAG\)/);
+    }
   });
 
   it("deleteTag expire aussi le tag des notes (table tags partagée)", () => {

@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { BUDGET_TAG } from "@/lib/budget/tags";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { fetchAllRows } from "@/lib/supabase/pagination";
@@ -49,6 +50,7 @@ export async function creerCompte(
 
   revalidatePath("/budget");
   revalidatePath("/budget/comptes");
+  updateTag(BUDGET_TAG);
   return { error: null };
 }
 
@@ -68,6 +70,7 @@ export async function modifierCompte(
 
   revalidatePath("/budget");
   revalidatePath("/budget/comptes");
+  updateTag(BUDGET_TAG);
   return { error: null };
 }
 
@@ -120,6 +123,7 @@ export async function supprimerCompte(id: string): Promise<ActionResult> {
   revalidatePath("/budget/comptes");
   revalidatePath("/budget/transactions");
   revalidatePath("/budget/recurrentes");
+  updateTag(BUDGET_TAG);
   return ok();
 }
 

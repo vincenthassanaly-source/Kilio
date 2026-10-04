@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { BUDGET_TAG } from "@/lib/budget/tags";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import type { Enums, Tables } from "@/lib/supabase/types";
@@ -45,6 +46,7 @@ export async function creerCategorie(
   if (error) return { error: error.message };
 
   revalidatePath("/budget/categories");
+  updateTag(BUDGET_TAG);
   return { error: null };
 }
 
@@ -80,6 +82,7 @@ export async function supprimerCategorie(id: string): Promise<ActionResult> {
 
   revalidatePath("/budget/categories");
   revalidatePath("/budget");
+  updateTag(BUDGET_TAG);
   return ok();
 }
 
@@ -124,6 +127,7 @@ export async function creerSousCategorie(
   if (error) return { error: error.message };
 
   revalidatePath("/budget/categories");
+  updateTag(BUDGET_TAG);
   return { error: null };
 }
 
