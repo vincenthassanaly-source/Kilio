@@ -48,10 +48,9 @@ Kilio existe plutôt qu'un outil generique (MyFitnessPal, Cronometer, Yazio...) 
 - Code source complet du module Nutrition (`src/app/(app)/nutrition/`, `src/lib/nutrition/compute.ts`).
 - Design system documenté et généré via `impeccable` : `DESIGN.md` (tokens couleurs/typo/rounded/composants), tenu à jour par l'outillage `.impeccable/` — à régénérer via `impeccable document` plutôt qu'à éditer à la main.
 
-### Statut des rapports (`RAPPORT-*.md` à la racine, `reports/*.md`)
+### Statut des rapports (`reports/*.md`)
 
 Ce sont des **journaux de bord d'itérations passées**, pas une documentation de référence : chaque fichier capture le contexte et les décisions d'un chantier ponctuel à sa date, et peut devenir obsolète dès qu'un chantier ultérieur revient dessus (ex. le renommage Kilio et le correctif `theme_color` ci-dessus, décrits comme "non résolus" dans d'anciens rapports, sont en réalité déjà réglés dans le code actuel). Deux séries coexistent :
-- `RAPPORT-*.md` (racine) : convention la plus ancienne (27–29 août 2026), centrée sur le module Nutrition/Recettes/Courses.
 - `reports/*.md` : convention retenue depuis fin août 2026, un fichier par chantier daté, couvrant tous les modules — c'est la série active.
 
 **Règle** : `PRODUCT.md` et `DESIGN.md` sont les seules sources de vérité produit/design à jour. Un rapport ne remplace jamais ces docs — toute décision produit ou design encore valide issue d'un rapport doit être répercutée ici (ou dans `DESIGN.md` via `impeccable`) au moment où elle est prise ; sinon elle reste une trace historique sans garantie d'exactitude actuelle. En cas de doute entre un rapport et le code, **le code fait foi**.
