@@ -176,6 +176,20 @@ fixtures.journal_repas = [
   repas(8, "__DAY(1)__", "collation", "skyr", 125),
 ];
 
+// Pages détail [id] (collection, objectif) : une entrée de chaque, pour
+// vérifier que la donnée est préchargée côté serveur (e2e/detail-pages.spec.ts).
+fixtures.collections = [
+  { id: uuid(1001), nom: "Voyage Lisbonne", ordre: 0, created_at: ts, updated_at: ts },
+];
+fixtures.collection_items = [];
+fixtures.objectifs = [
+  { id: uuid(1101), titre: "Courir un semi-marathon", description: null, categorie: "perso", type_suivi: "etapes", statut: "en_cours", unite: null, valeur_cible: null, date_echeance: null, ordre: 0, created_at: ts, updated_at: ts },
+];
+fixtures.objectif_etapes = [
+  { id: uuid(1111), objectif_id: uuid(1101), titre: "Courir 10 km", ordre: 0, fait: false, termine_le: null, created_at: ts },
+];
+fixtures.objectif_entries = [];
+
 // Budget : deux comptes, catégories, budgets du mois courant, transactions
 // sur les trois derniers mois, une récurrence future (aucune génération
 // pendant les tests, sauf mutation explicite).
@@ -239,6 +253,9 @@ const RELATIONS = {
     recette_ingredients_libres: (r) => (fixtures.recette_ingredients_libres ?? []).filter((i) => i.recette_id === r.id),
   },
   recette_ingredients: { aliment: (r) => pick("aliments", r.aliment_id) },
+  collections: {
+    collection_items: (r) => (fixtures.collection_items ?? []).filter((i) => i.collection_id === r.id),
+  },
   transactions: {
     compte: (r) => pick("comptes", r.compte_id),
     compte_destination: (r) => pick("comptes", r.compte_destination_id),
