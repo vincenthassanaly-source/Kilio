@@ -5,7 +5,9 @@ import { BUDGET_TAG } from "@/lib/budget/tags";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { finDuMois } from "@/lib/budget/compute";
+import { motifContient } from "@/lib/supabase/like";
 import { fetchAllRows } from "@/lib/supabase/pagination";
+import { estUuid } from "@/lib/uuid";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 export type TransactionFormState = { error: string | null };
@@ -198,8 +200,6 @@ export type TransactionAvecRelations = Tables<"transactions"> & {
   categorie: Pick<Tables<"categories_budget">, "id" | "nom" | "icone"> | null;
 };
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 export async function getTransactions(filtres?: {
   compteId?: string;
   categorieId?: string;
@@ -225,7 +225,7 @@ export async function getTransactions(filtres?: {
       .order("date_operation", { ascending: false })
       .order("created_at", { ascending: false });
 
-    if (filtres?.compteId && UUID_RE.test(filtres.compteId)) {
+    if (filtres?.compteId && estUuid(filtres.compteId)) {
       // Un virement doit apparaître dans l'historique filtré du compte crédité
       // comme de celui débité, pas seulement de la source.
       query = query.or(
@@ -241,7 +241,7 @@ export async function getTransactions(filtres?: {
     // transaction sans libellé est donc naturellement exclue d'une recherche
     // non vide, sans traitement particulier.
     if (filtres?.recherche?.trim()) {
-      query = query.ilike("libelle", `%${filtres.recherche.trim()}%`);
+      query = query.ilike("libelle", motifContient(filtres.recherche.trim()));
     }
     return query;
   }

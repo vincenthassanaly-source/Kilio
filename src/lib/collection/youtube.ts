@@ -4,6 +4,10 @@
 // présent dans l'URL (y compris pour les liens courts youtu.be) : aucune
 // résolution de redirection n'est nécessaire.
 
+// Sans délai max, un YouTube qui ne répond pas bloquerait l'action serveur
+// jusqu'au timeout de la fonction.
+const DELAI_REQUETE_MS = 5000;
+
 const VIDEO_ID_FORMAT = /^[\w-]{6,}$/;
 const PATH_ID_PATTERN = /^\/(?:shorts|embed|live)\/([\w-]+)/;
 export const YOUTUBE_URL_IN_TEXT_PATTERN =
@@ -59,7 +63,8 @@ export async function recupererMetadonneesYoutube(url: string): Promise<Metadonn
 
   try {
     const response = await fetch(
-      `https://www.youtube.com/oembed?url=${encodeURIComponent(parsed.href)}&format=json`
+      `https://www.youtube.com/oembed?url=${encodeURIComponent(parsed.href)}&format=json`,
+      { signal: AbortSignal.timeout(DELAI_REQUETE_MS) }
     );
     if (!response.ok) return null;
 

@@ -2,6 +2,10 @@
 // résolution des liens courts (vm.tiktok.com, vt.tiktok.com) et récupération
 // des métadonnées via l'endpoint oEmbed public de TikTok.
 
+// Sans délai max, un TikTok qui ne répond pas bloquerait l'action serveur
+// jusqu'au timeout de la fonction.
+const DELAI_REQUETE_MS = 5000;
+
 const VIDEO_ID_PATTERN = /\/video\/(\d+)/;
 export const TIKTOK_URL_IN_TEXT_PATTERN = /https?:\/\/(?:[\w-]+\.)?tiktok\.com\/\S+/i;
 
@@ -28,7 +32,11 @@ async function resoudreUrlCanoniqueTiktok(url: string): Promise<URL | null> {
   if (VIDEO_ID_PATTERN.test(parsed.pathname)) return parsed;
 
   try {
-    const response = await fetch(url, { method: "HEAD", redirect: "follow" });
+    const response = await fetch(url, {
+      method: "HEAD",
+      redirect: "follow",
+      signal: AbortSignal.timeout(DELAI_REQUETE_MS),
+    });
     const resolue = parserUrlTiktok(response.url);
     return resolue && VIDEO_ID_PATTERN.test(resolue.pathname) ? resolue : null;
   } catch {
@@ -54,7 +62,9 @@ export async function recupererMetadonneesTiktok(url: string): Promise<Metadonne
   if (!canonique) return null;
 
   try {
-    const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(canonique.href)}`);
+    const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(canonique.href)}`, {
+      signal: AbortSignal.timeout(DELAI_REQUETE_MS),
+    });
     if (!response.ok) return null;
 
     const data = (await response.json()) as { thumbnail_url?: unknown; title?: unknown };
