@@ -16,6 +16,7 @@ import {
   messageAvertissementCreation,
   parseDureeMinutes,
 } from "@/lib/taches/compute";
+import { calculerHeureFin } from "@/lib/evenements/compute";
 
 // `id` : renseigné par createTache en cas de succès (id de la tâche créée,
 // pour que l'UI puisse la mettre en évidence) ; absent pour updateTache et
@@ -696,6 +697,75 @@ export async function restaurerTaches(etats: EtatTacheRestaurable[]): Promise<Ac
   );
   const echec = resultats.find((r) => r.error);
   if (echec?.error) return fail(echec.error.message);
+  revalidateTachesPaths();
+  return ok();
+}
+
+// --- Planification dans un trou libre (écran Aujourd'hui) ---
+
+export type EtatPlanification = {
+  echeance: string | null;
+  heure: string | null;
+  heure_fin: string | null;
+  toute_la_journee: boolean;
+  // Absente (`undefined`) : la durée n'a pas été touchée, la colonne n'est pas
+  // écrite (même précaution que `champDuree`).
+  duree_minutes?: number | null;
+};
+
+// Place une tâche à une date et une heure (la fin = début + durée) : « Planifier »
+// de l'écran Aujourd'hui. Une tâche « toute la journée » devient horodatée. Le
+// rappel déjà envoyé est remis à zéro : la tâche a changé d'heure. La durée
+// n'est écrite que si elle était absente (`ecrireDuree`) : on ne remplace jamais
+// une estimation que Vincent a saisie.
+export async function planifierTache(
+  id: string,
+  echeance: string,
+  heure: string,
+  dureeMinutes: number,
+  ecrireDuree: boolean
+): Promise<ActionResult> {
+  if (!estUuid(id)) return fail("Tâche introuvable.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(echeance)) return fail("Date invalide.");
+  const heureFin = calculerHeureFin(heure, dureeMinutes);
+  if (!heureFin) return fail("Ce créneau ne tient pas dans la journée.");
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("taches")
+    .update({
+      echeance,
+      heure: heure.slice(0, 5),
+      heure_fin: heureFin,
+      toute_la_journee: false,
+      rappel_envoye_le: null,
+      ...(ecrireDuree ? { duree_minutes: dureeMinutes } : {}),
+    })
+    .eq("id", id);
+  if (error) return fail(error.message);
+
+  revalidateTachesPaths();
+  return ok();
+}
+
+// Rétablit la date, l'heure et la durée d'une tâche : « Annuler » d'une
+// planification (l'état d'avant vient du client).
+export async function restaurerPlanification(id: string, etat: EtatPlanification): Promise<ActionResult> {
+  if (!estUuid(id)) return fail("Tâche introuvable.");
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("taches")
+    .update({
+      echeance: etat.echeance,
+      heure: etat.heure,
+      heure_fin: etat.heure_fin,
+      toute_la_journee: etat.toute_la_journee,
+      rappel_envoye_le: null,
+      ...(etat.duree_minutes !== undefined ? { duree_minutes: etat.duree_minutes } : {}),
+    })
+    .eq("id", id);
+  if (error) return fail(error.message);
+
   revalidateTachesPaths();
   return ok();
 }

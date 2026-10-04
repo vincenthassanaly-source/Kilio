@@ -1,7 +1,7 @@
 import { differenceInCalendarDays } from "date-fns";
 import { getBlocInterval } from "@/lib/agenda/compute";
 import { heureToMinutes } from "@/app/(app)/agenda/date-utils";
-import { enHeure, plagesLibres, type Plage } from "@/lib/programme/disponibilites";
+import { enHeure, enMinutes, plagesLibres, type Plage } from "@/lib/programme/disponibilites";
 import { parseISODate } from "@/lib/date/iso";
 import type { CreneauDuJour } from "@/lib/agenda/planning-travail";
 
@@ -94,4 +94,33 @@ export function plagesLibresDuJour(input: {
     });
   }
   return plagesLibres({ maintenant: input.maintenant, occupations, dureeMin: input.dureeMin });
+}
+
+// --- Planification d'une tâche dans un trou libre ----------------------------
+
+/** Durée proposée à une tâche sans durée estimée. */
+export const DUREE_PLANIFICATION_PAR_DEFAUT = 30;
+const NB_CRENEAUX_PROPOSES = 3;
+
+/**
+ * Créneaux à proposer pour une tâche de `dureeMinutes` : le plus tôt possible
+ * dans chaque trou libre, puis, si le trou est grand, d'autres départs calés
+ * sur la demi-heure et espacés d'au moins 90 minutes (« cet après-midi »,
+ * « ce soir ») plutôt que trois propositions collées les unes aux autres.
+ * Chronologique, `max` au plus ; vide si aucun trou n'est assez long.
+ */
+export function proposerCreneaux(libres: readonly Plage[], dureeMinutes: number, max = NB_CRENEAUX_PROPOSES): Plage[] {
+  if (!Number.isInteger(dureeMinutes) || dureeMinutes < 1) return [];
+  const propositions: Plage[] = [];
+  const espacement = Math.max(dureeMinutes + 30, 90);
+  for (const plage of libres) {
+    const finPlage = enMinutes(plage.fin);
+    let debut = enMinutes(plage.debut);
+    while (debut + dureeMinutes <= finPlage) {
+      propositions.push({ debut: enHeure(debut), fin: enHeure(debut + dureeMinutes) });
+      if (propositions.length >= max) return propositions;
+      debut = Math.ceil((debut + espacement) / 30) * 30;
+    }
+  }
+  return propositions;
 }

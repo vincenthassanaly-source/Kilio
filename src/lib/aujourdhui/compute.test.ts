@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { libelleRetard, plagesLibresDuJour, repasRestants, tachesDuJour, tachesEnRetard } from "./compute";
+import { libelleRetard, plagesLibresDuJour, proposerCreneaux, repasRestants, tachesDuJour, tachesEnRetard } from "./compute";
 
 const t = (id: string, echeance: string | null, fait = false, heure: string | null = null) => ({
   id,
@@ -96,5 +96,40 @@ describe("plagesLibresDuJour", () => {
 
   it("plus rien de libre passé 22h", () => {
     expect(plagesLibresDuJour({ maintenant: "22:30", creneauxTravail: [], blocs: [] })).toEqual([]);
+  });
+});
+
+describe("proposerCreneaux", () => {
+  it("propose le plus tôt possible dans chaque trou assez long", () => {
+    const libres = [
+      { debut: "12:00", fin: "12:20" },
+      { debut: "13:00", fin: "14:00" },
+      { debut: "18:00", fin: "18:45" },
+    ];
+    expect(proposerCreneaux(libres, 45)).toEqual([
+      { debut: "13:00", fin: "13:45" },
+      { debut: "18:00", fin: "18:45" },
+    ]);
+  });
+
+  it("espace les propositions dans un grand trou, calées sur la demi-heure", () => {
+    const libres = [{ debut: "16:10", fin: "22:00" }];
+    expect(proposerCreneaux(libres, 30)).toEqual([
+      { debut: "16:10", fin: "16:40" },
+      { debut: "18:00", fin: "18:30" },
+      { debut: "19:30", fin: "20:00" },
+    ]);
+  });
+
+  it("ne dépasse jamais le nombre demandé ni la fin du trou", () => {
+    expect(proposerCreneaux([{ debut: "09:00", fin: "22:00" }], 60, 2)).toHaveLength(2);
+    const dernier = proposerCreneaux([{ debut: "20:00", fin: "22:00" }], 60, 10);
+    expect(dernier.at(-1)!.fin <= "22:00").toBe(true);
+  });
+
+  it("renvoie une liste vide sans trou assez long ou avec une durée invalide", () => {
+    expect(proposerCreneaux([{ debut: "10:00", fin: "10:30" }], 60)).toEqual([]);
+    expect(proposerCreneaux([{ debut: "10:00", fin: "12:00" }], 0)).toEqual([]);
+    expect(proposerCreneaux([], 30)).toEqual([]);
   });
 });

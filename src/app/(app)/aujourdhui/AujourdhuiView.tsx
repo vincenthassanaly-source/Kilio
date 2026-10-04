@@ -12,7 +12,7 @@ import { showToast } from "@/components/toast/toast-store";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
-import { tachesDuJour, tachesEnRetard } from "@/lib/aujourdhui/compute";
+import { plagesLibresDuJour, tachesDuJour, tachesEnRetard } from "@/lib/aujourdhui/compute";
 import { parseISODate } from "@/lib/date/iso";
 import { queryKeys } from "@/lib/query/keys";
 import { useBackClose } from "@/hooks/useBackClose";
@@ -24,6 +24,7 @@ import { EnRetardSection } from "./EnRetardSection";
 import { EvenementForm } from "./EvenementForm";
 import { RepasRestantsCard } from "./RepasRestantsCard";
 import { TachesDuJour } from "./TachesDuJour";
+import { useHeureCourante } from "./useHeureCourante";
 
 const DUREE_SURBRILLANCE_MS = 2600;
 
@@ -68,6 +69,21 @@ export function AujourdhuiView({ today }: { today: string }) {
   const duJour = useMemo(() => tachesDuJour(taches ?? [], today), [taches, today]);
   const horodatees = useMemo(() => duJour.filter((t) => !t.fait && t.heure), [duJour]);
   const evenementsVisibles = useMemo(() => evenements.filter((e) => !masques.has(e.id)), [evenements, masques]);
+  const maintenant = useHeureCourante();
+  // Trous libres du jour : partagés par la frise (affichage) et par « Planifier »
+  // (créneaux proposés), pour que les deux ne se contredisent jamais.
+  const libres = useMemo(
+    () =>
+      plagesLibresDuJour({
+        maintenant,
+        creneauxTravail: creneauxDuJour,
+        blocs: [
+          ...horodatees.map((t) => ({ heure: t.heure, heure_fin: t.heure_fin })),
+          ...evenementsVisibles.map((e) => ({ heure: e.heure, heure_fin: e.heure_fin })),
+        ],
+      }),
+    [maintenant, creneauxDuJour, horodatees, evenementsVisibles]
+  );
 
   // Retire la surbrillance une fois jouée : le scroll de la ligne ne doit pas
   // se rejouer aux rendus suivants.
@@ -133,6 +149,8 @@ export function AujourdhuiView({ today }: { today: string }) {
         taches={horodatees}
         evenements={evenementsVisibles}
         creneaux={creneauxDuJour}
+        libres={libres}
+        maintenant={maintenant}
         onAddEvenement={() => setFormulaire({})}
         onSelectEvenement={(evenement) => setFormulaire({ evenement })}
         onSelectTache={setTacheSurlignee}
@@ -141,7 +159,7 @@ export function AujourdhuiView({ today }: { today: string }) {
       {tachesChargent ? (
         <Skeleton className="h-32 w-full rounded-[22px]" />
       ) : (
-        <TachesDuJour taches={duJour} tacheSurlignee={tacheSurlignee} />
+        <TachesDuJour taches={duJour} today={today} libres={libres} tacheSurlignee={tacheSurlignee} />
       )}
 
       <DashboardHabitudesSection today={today} className={card} />
