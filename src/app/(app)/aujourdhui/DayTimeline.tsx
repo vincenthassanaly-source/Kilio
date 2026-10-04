@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import type { Evenement } from "@/app/actions/evenements";
 import type { TacheAvecRelations } from "@/app/actions/taches";
 import { layoutChevauchements } from "@/lib/agenda/compute";
 import type { CreneauDuJour } from "@/lib/agenda/planning-travail";
-import { plagesLibresDuJour } from "@/lib/aujourdhui/compute";
-import { heureParis } from "@/lib/date/paris";
-import { enMinutes, libelleDuree } from "@/lib/programme/disponibilites";
+import { enMinutes, libelleDuree, type Plage } from "@/lib/programme/disponibilites";
 import { ghostButton } from "@/lib/ui";
 import {
   computeInitialScrollMinutes,
@@ -34,36 +32,17 @@ const PLUS_ICON = (
   </svg>
 );
 
-// Heure courante (Paris), rafraîchie chaque minute et au retour au premier
-// plan : la PWA reste ouverte des heures, les trous libres et le résumé ne
-// doivent pas rester figés sur l'heure du premier rendu (le repère
-// « maintenant » de la grille, lui, avance déjà seul).
-function useHeureCourante(): string {
-  const [heure, setHeure] = useState(heureParis);
-  useEffect(() => {
-    const maj = () => {
-      if (!document.hidden) setHeure(heureParis());
-    };
-    const intervalle = setInterval(maj, 60_000);
-    document.addEventListener("visibilitychange", maj);
-    return () => {
-      clearInterval(intervalle);
-      document.removeEventListener("visibilitychange", maj);
-    };
-  }, []);
-  return heure;
-}
-
 /**
  * Frise de la journée à l'échelle réelle : horaires de travail, événements,
- * tâches horodatées, repère « maintenant » et trous libres. Les trous libres
- * sont calculés par `plagesLibresDuJour` (même logique que la planification,
- * testée), jamais devinés à l'affichage.
+ * tâches horodatées, repère « maintenant » et trous libres (reçus en props,
+ * jamais devinés à l'affichage).
  */
 export function DayTimeline({
   taches,
   evenements,
   creneaux,
+  libres,
+  maintenant,
   onAddEvenement,
   onSelectEvenement,
   onSelectTache,
@@ -72,25 +51,26 @@ export function DayTimeline({
   taches: TacheAvecRelations[];
   evenements: Evenement[];
   creneaux: CreneauDuJour[];
+  // Trous libres et heure courante : calculés par l'écran, partagés avec la
+  // planification des tâches (`plagesLibresDuJour`, testé).
+  libres: Plage[];
+  maintenant: string;
   onAddEvenement: () => void;
   onSelectEvenement: (evenement: Evenement) => void;
   onSelectTache: (id: string) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const maintenant = useHeureCourante();
 
   useInitialScroll(scrollRef, computeInitialScrollMinutes({ showCurrentTime: true, creneaux }), ZOOM);
 
-  const { positions, libres } = useMemo(() => {
-    const blocs = [
-      ...taches.map((t) => ({ id: t.id, heure: t.heure, heure_fin: t.heure_fin })),
-      ...evenements.map((e) => ({ id: e.id, heure: e.heure, heure_fin: e.heure_fin })),
-    ];
-    return {
-      positions: layoutChevauchements(blocs),
-      libres: plagesLibresDuJour({ maintenant, creneauxTravail: creneaux, blocs }),
-    };
-  }, [taches, evenements, creneaux, maintenant]);
+  const positions = useMemo(
+    () =>
+      layoutChevauchements([
+        ...taches.map((t) => ({ id: t.id, heure: t.heure, heure_fin: t.heure_fin })),
+        ...evenements.map((e) => ({ id: e.id, heure: e.heure, heure_fin: e.heure_fin })),
+      ]),
+    [taches, evenements]
+  );
 
   const resume = useMemo(() => {
     const prochainEvenement = evenements.find((e) => e.heure.slice(0, 5) >= maintenant);
