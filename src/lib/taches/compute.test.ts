@@ -4,12 +4,17 @@ import {
   appliquerCochage,
   champsAvancesRenseignes,
   cochageDejaApplique,
+  dateReport,
   echeanceParDefaut,
   etatListeTaches,
+  filtrerParPriorite,
+  libelleDuree,
   libelleNombreTaches,
   messageAvertissementCreation,
   messageHorsLigne,
   messageSuppressionListe,
+  parseDureeMinutes,
+  trierTaches,
   type ChampsAvancesTache,
 } from "./compute";
 
@@ -272,5 +277,71 @@ describe("etatListeTaches / actualisationEchouee", () => {
     const requete = { isLoading: false, isError: false, aDesDonnees: true };
     expect(etatListeTaches(requete)).toBe("liste");
     expect(actualisationEchouee(requete)).toBe(false);
+  });
+});
+
+describe("libelleDuree / parseDureeMinutes", () => {
+  it("formate les durées courtes et longues", () => {
+    expect(libelleDuree(15)).toBe("15 min");
+    expect(libelleDuree(60)).toBe("1 h");
+    expect(libelleDuree(90)).toBe("1 h 30");
+    expect(libelleDuree(125)).toBe("2 h 05");
+  });
+
+  it("n'accepte que des entiers entre 1 et 1440", () => {
+    expect(parseDureeMinutes("")).toBeNull();
+    expect(parseDureeMinutes("0")).toBeNull();
+    expect(parseDureeMinutes("1.5")).toBeNull();
+    expect(parseDureeMinutes("abc")).toBeNull();
+    expect(parseDureeMinutes("1441")).toBeNull();
+    expect(parseDureeMinutes(" 45 ")).toBe(45);
+    expect(parseDureeMinutes("1440")).toBe(1440);
+  });
+});
+
+describe("trierTaches / filtrerParPriorite", () => {
+  const t = (id: string, priorite: "aucune" | "basse" | "moyenne" | "haute", echeance: string | null) => ({
+    id,
+    priorite,
+    echeance,
+  });
+  const taches = [
+    t("a", "basse", "2026-10-05"),
+    t("b", "haute", null),
+    t("c", "haute", "2026-10-09"),
+    t("d", "aucune", "2026-10-04"),
+    t("e", "moyenne", "2026-10-04"),
+  ];
+
+  it("manuel conserve l'ordre reçu sans muter l'entrée", () => {
+    expect(trierTaches(taches, "manuel").map((x) => x.id)).toEqual(["a", "b", "c", "d", "e"]);
+    expect(taches.map((x) => x.id)).toEqual(["a", "b", "c", "d", "e"]);
+  });
+
+  it("priorite : haute d'abord, puis échéance, sans date en dernier", () => {
+    expect(trierTaches(taches, "priorite").map((x) => x.id)).toEqual(["c", "b", "e", "a", "d"]);
+  });
+
+  it("echeance : date croissante puis priorité, sans date en dernier", () => {
+    expect(trierTaches(taches, "echeance").map((x) => x.id)).toEqual(["e", "d", "a", "c", "b"]);
+  });
+
+  it("filtre par priorité, ensemble vide = tout", () => {
+    expect(filtrerParPriorite(taches, new Set()).length).toBe(5);
+    expect(filtrerParPriorite(taches, new Set(["haute"] as const)).map((x) => x.id)).toEqual(["b", "c"]);
+  });
+});
+
+describe("dateReport", () => {
+  it("aujourd'hui et demain", () => {
+    expect(dateReport("aujourdhui", "2026-10-04")).toBe("2026-10-04");
+    expect(dateReport("demain", "2026-10-31")).toBe("2026-11-01");
+  });
+
+  it("semaine prochaine = lundi suivant, même un lundi", () => {
+    // 2026-10-04 est un dimanche, 2026-10-05 un lundi.
+    expect(dateReport("semaine_prochaine", "2026-10-04")).toBe("2026-10-05");
+    expect(dateReport("semaine_prochaine", "2026-10-05")).toBe("2026-10-12");
+    expect(dateReport("semaine_prochaine", "2026-10-10")).toBe("2026-10-12");
   });
 });
