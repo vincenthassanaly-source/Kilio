@@ -10,8 +10,8 @@ export type PharmaClasse = Tables<"pharma_ref_classes">;
 export type PharmaMolecule = Tables<"pharma_ref_molecules">;
 export type PharmaSpecialite = Tables<"pharma_ref_specialites">;
 export type PharmaPathologie = Tables<"pharma_ref_pathologies">;
-export type PharmaLigne = Tables<"pharma_ref_lignes">;
-export type PharmaLigneItem = Tables<"pharma_ref_ligne_items">;
+type PharmaLigne = Tables<"pharma_ref_lignes">;
+type PharmaLigneItem = Tables<"pharma_ref_ligne_items">;
 
 export type PharmaRefSnapshot = {
   classes: PharmaClasse[];
@@ -24,7 +24,7 @@ export type PharmaRefSnapshot = {
   genereLe: string;
 };
 
-export const PROFIL_GENERAL = "Général";
+const PROFIL_GENERAL = "Général";
 
 export const LIBELLE_ROLE = {
   traitement: "Traitement",

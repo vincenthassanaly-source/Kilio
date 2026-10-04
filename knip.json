@@ -1,5 +1,14 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["supabase/functions/*/index.ts", "e2e/*.mjs"],
-  "ignore": ["src/lib/supabase/types.ts", "public/sw.js"]
+  "entry": [
+    "supabase/functions/*/index.ts",
+    "e2e/*.mjs"
+  ],
+  "ignore": [
+    "src/lib/supabase/types.ts",
+    "public/sw.js"
+  ],
+  "ignoreDependencies": [
+    "npm"
+  ]
 }

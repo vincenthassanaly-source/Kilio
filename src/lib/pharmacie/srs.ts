@@ -24,7 +24,7 @@ const DELAI_A_REVOIR_MS = 10 * 60 * 1000;
 const JOUR_MS = 24 * 60 * 60 * 1000;
 // Au-delà de cet intervalle (jours), une carte compte comme acquise dans la
 // barre de maîtrise d'une matière.
-export const SEUIL_ACQUISE_JOURS = 7;
+const SEUIL_ACQUISE_JOURS = 7;
 
 function arrondiFacilite(valeur: number): number {
   return Math.round(Math.min(FACILITE_MAX, Math.max(FACILITE_MIN, valeur)) * 100) / 100;

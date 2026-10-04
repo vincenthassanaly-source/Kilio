@@ -6,12 +6,12 @@
 /** Plage horaire d'une même journée, bornes au format `HH:MM`. */
 export type Plage = { debut: string; fin: string };
 
-export const DEBUT_JOURNEE = "07:00";
-export const FIN_JOURNEE = "22:00";
+const DEBUT_JOURNEE = "07:00";
+const FIN_JOURNEE = "22:00";
 // En dessous, une plage est trop courte pour y placer quoi que ce soit.
-export const DUREE_MIN_PLAGE_MINUTES = 30;
+const DUREE_MIN_PLAGE_MINUTES = 30;
 // Durée supposée d'une tâche datée sans heure de fin.
-export const DUREE_TACHE_PAR_DEFAUT_MINUTES = 60;
+const DUREE_TACHE_PAR_DEFAUT_MINUTES = 60;
 // Les plages commencent à un multiple de 5 minutes (« il est 18 h 16 » → 18 h 20).
 const ARRONDI_MINUTES = 5;
 const MINUTES_PAR_JOUR = 24 * 60;

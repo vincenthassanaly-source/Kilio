@@ -27,7 +27,7 @@ Kilio existe plutôt qu'un outil generique (MyFitnessPal, Cronometer, Yazio...) 
 - Usage mobile en priorité : Vincent utilise le Journal Nutrition depuis son téléphone (PWA installée, icône maskable dédiée), typiquement en cuisine ou juste après un repas. Le desktop est secondaire.
 - La saisie doit être rapide et à faible friction ("one-handed") : ajouter un repas ne doit pas demander plusieurs écrans ou une saisie longue.
 - Le journal distingue deux types de jour (repos / entraînement) avec un objectif macro différent pour chacun — Vincent s'entraîne et adapte son alimentation en conséquence. Le type d'un jour se déduit d'un planning hebdomadaire fixe (jours d'entraînement cochés dans la section Objectifs du Journal) ; il n'y a plus de bascule quotidienne.
-- L'app fonctionne aussi hors-ligne partiellement (Dexie en local, `src/lib/offline`) et envoie des notifications push (`web-push`).
+- L'app fonctionne aussi hors-ligne partiellement (Dexie en local, `src/lib/offline`) et envoie des notifications push (Edge Functions Supabase, `supabase/functions/`).
 
 ## Capabilities and Constraints
 

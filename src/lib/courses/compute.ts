@@ -266,7 +266,7 @@ export const RAYON_AUTRES = "Autres";
  * normalisé en entier. Le premier rayon dont un mot-clé correspond
  * l'emporte — l'ordre du tableau ci-dessous ne fixe donc pas seulement
  * l'ordre d'affichage, mais aussi la priorité en cas d'ambiguïté. */
-export const RAYONS: { nom: string; motsCles: string[] }[] = [
+const RAYONS: { nom: string; motsCles: string[] }[] = [
   {
     nom: "Fruits & légumes",
     motsCles: [
