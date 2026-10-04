@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { guillemetsPostgrest, motifContient } from "@/lib/supabase/like";
 
 export type ModuleRecherche = "notes" | "taches" | "recettes" | "objectifs" | "courses" | "budget";
 
@@ -14,10 +15,6 @@ export type ResultatRecherche = {
 
 const LIMIT_PAR_SOURCE = 5;
 
-function escapeIlike(value: string) {
-  return value.replace(/[%_,]/g, (c) => `\\${c}`);
-}
-
 function commenceParQuery(champ: string, query: string) {
   return champ.toLowerCase().startsWith(query.toLowerCase());
 }
@@ -27,14 +24,15 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
   if (q.length < 2) return [];
 
   const supabase = createAdminClient();
-  const like = `%${escapeIlike(q)}%`;
+  const like = motifContient(q);
+  const likeOr = guillemetsPostgrest(like);
 
   const [notesResult, tachesResult, recettesResult, objectifsResult, coursesResult, transactionsResult] =
     await Promise.allSettled([
       supabase
         .from("notes")
         .select("id, titre, contenu")
-        .or(`titre.ilike.${like},contenu.ilike.${like}`)
+        .or(`titre.ilike.${likeOr},contenu.ilike.${likeOr}`)
         .limit(LIMIT_PAR_SOURCE),
       supabase
         .from("taches")

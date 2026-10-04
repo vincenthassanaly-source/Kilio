@@ -1,5 +1,6 @@
 import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
+import { estUuid } from "@/lib/uuid";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TACHES_TAG } from "@/lib/taches/tags";
 
@@ -11,7 +12,6 @@ import { TACHES_TAG } from "@/lib/taches/tags";
 // Ne touche ni echeance ni heure : reporter le rappel ne déplace pas
 // l'échéance réelle de la tâche, seulement la prochaine notification (cf.
 // scripts/migration-rappel-taches-report-notification-2026-09-27.sql).
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const DELAIS_MS: Record<string, number> = {
   "1h": 60 * 60 * 1000,
@@ -21,7 +21,7 @@ const DELAIS_MS: Record<string, number> = {
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!UUID_REGEX.test(id)) {
+  if (!estUuid(id)) {
     return NextResponse.json({ error: "Tâche introuvable." }, { status: 404 });
   }
 

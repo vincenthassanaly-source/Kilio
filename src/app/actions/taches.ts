@@ -7,6 +7,7 @@ import { NOTES_TAG } from "@/lib/notes/tags";
 import { TACHES_TAG } from "@/lib/taches/tags";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiISO } from "@/lib/budget/compute";
+import { estUuid } from "@/lib/uuid";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import {
   RAPPEL_MINUTES_VALEURS,
@@ -22,8 +23,6 @@ import {
 // étape secondaire (tags, images) a échoué ; à afficher à l'utilisateur sans
 // le laisser recréer la tâche.
 export type TacheFormState = { error: string | null; id?: string; avertissement?: string };
-
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const PRIORITES: readonly Enums<"priorite_tache">[] = ["aucune", "basse", "moyenne", "haute"];
 const FREQUENCES: readonly Enums<"frequence_recurrence">[] = [
@@ -281,7 +280,7 @@ export async function updateTache(
   formData: FormData
 ): Promise<TacheFormState> {
   const id = String(formData.get("id") ?? "");
-  if (!id) return { error: "Tâche introuvable." };
+  if (!estUuid(id)) return { error: "Tâche introuvable." };
 
   const parsed = parseTacheInput(formData);
   if (!parsed.ok) return { error: parsed.error };
@@ -338,7 +337,7 @@ export async function updateTache(
   // annuler côté serveur).
   try {
     const imageIds = [...new Set(formData.getAll("delete_image_ids").map(String))].filter((imageId) =>
-      UUID_REGEX.test(imageId)
+      estUuid(imageId)
     );
     await supprimerImagesDeTache(supabase, id, imageIds);
   } catch (suppressionError) {

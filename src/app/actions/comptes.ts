@@ -5,6 +5,7 @@ import { BUDGET_TAG } from "@/lib/budget/tags";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { fetchAllRows } from "@/lib/supabase/pagination";
+import { estUuid } from "@/lib/uuid";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 export type CompteFormState = { error: string | null };
@@ -88,6 +89,9 @@ export type ImpactSuppressionCompte = {
  * autre compte, dont le solde changera.
  */
 export async function getImpactSuppressionCompte(id: string): Promise<ActionResult<ImpactSuppressionCompte>> {
+  // `id` est interpolé dans des filtres `.or()` : un id non conforme pourrait
+  // y injecter des conditions.
+  if (!estUuid(id)) return fail("Compte introuvable.");
   const supabase = createAdminClient();
   const [tx, virements, recurrences] = await Promise.all([
     supabase
