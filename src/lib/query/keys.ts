@@ -31,11 +31,4 @@ export const queryKeys = {
   // skill kilio-planning-travail) : voir AgendaView pour le staleTime dédié.
   planningTravail: ["planning-travail"] as const,
   planningTravailExceptions: ["planning-travail-exceptions"] as const,
-  // Module Sport : bibliothèque d'exercices (statique, importée par script)
-  // et fiche d'un exercice.
-  sportBibliotheque: ["sport-bibliotheque"] as const,
-  sportExercice: (id: string) => ["sport-exercice", id] as const,
-  // Routines (avec leurs exercices) et résumé de la dernière séance.
-  sportRoutines: ["sport-routines"] as const,
-  sportDerniereSeance: ["sport-derniere-seance"] as const,
 };
