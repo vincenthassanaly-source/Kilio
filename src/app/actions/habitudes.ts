@@ -188,14 +188,21 @@ export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]
   uneAnneeAvant.setUTCDate(uneAnneeAvant.getUTCDate() - 365);
   const dateMin = streakIds.length > 0 ? uneAnneeAvant.toISOString().slice(0, 10) : date;
 
-  const { data: entries, error: entriesError } = await supabase
-    .from("habitude_entries")
-    .select("*")
-    .in("habitude_id", idsAJour)
-    .gte("date", dateMin)
-    .lte("date", date);
+  const [{ data: entries, error: entriesError }, { data: liens, error: liensError }] = await Promise.all([
+    supabase
+      .from("habitude_entries")
+      .select("*")
+      .in("habitude_id", idsAJour)
+      .gte("date", dateMin)
+      .lte("date", date),
+    supabase
+      .from("objectif_habitudes")
+      .select("habitude_id, objectifs(id, titre, statut)")
+      .in("habitude_id", idsAJour),
+  ]);
 
   if (entriesError) throw new Error(entriesError.message);
+  if (liensError) throw new Error(liensError.message);
 
   const entriesParHabitude = new Map<string, Map<string, number>>();
   const entreeDuJourParHabitude = new Map<string, Tables<"habitude_entries">>();
@@ -206,13 +213,6 @@ export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]
     entriesParHabitude.get(entry.habitude_id)!.set(entry.date, entry.valeur);
     if (entry.date === date) entreeDuJourParHabitude.set(entry.habitude_id, entry);
   }
-
-  const { data: liens, error: liensError } = await supabase
-    .from("objectif_habitudes")
-    .select("habitude_id, objectifs(id, titre, statut)")
-    .in("habitude_id", idsAJour);
-
-  if (liensError) throw new Error(liensError.message);
 
   const objectifsParHabitude = new Map<string, { id: string; titre: string }[]>();
   for (const lien of liens ?? []) {
