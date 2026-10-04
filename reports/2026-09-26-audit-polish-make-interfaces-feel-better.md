@@ -1,5 +1,7 @@
 # Audit visuel — `make-interfaces-feel-better` (2026-09-26)
 
+> Note : les captures d'écran citées dans ce rapport ont été supprimées du dépôt (nettoyage d'octobre 2026) ; elles restent récupérables dans l'historique git.
+
 Audit de fit-and-finish des 12 modules actifs de Kilio (`src/lib/navigation/registry.ts`), sur la checklist du skill ECC `make-interfaces-feel-better` : rayon concentrique, alignement optique, ombres/bordures, text-wrapping, tabular-nums, font smoothing, contours d'image, transitions explicites, animations enter/exit, hit areas ≥40×40px.
 
 **Aucun fichier de code n'a été modifié.** Seuls ce rapport et `reports/captures-2026-09-26-polish/` ont été produits.
