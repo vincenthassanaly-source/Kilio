@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { vibrate } from "@/lib/haptics";
+import { URL_IMAGES_SPORT } from "@/lib/sport/libelles";
 import { deverrouillerAudio } from "@/lib/sport/useMinuteurRepos";
 import {
   formaterMinutes,
@@ -13,7 +14,6 @@ import {
   type SeriePrecedente,
 } from "@/lib/sport/seance";
 import { dangerButton, ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
-import { VignetteExercice } from "../IllustrationExercice";
 import { ApercuExercice } from "./ApercuExercice";
 
 type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree">>;
@@ -122,7 +122,19 @@ export function ExerciceBloc({
           aria-haspopup="dialog"
           className="-m-1 flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-1 text-left transition active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         >
-          <VignetteExercice poses={exercice.poses} image={exercice.image} taille={48} />
+          <span className="h-12 w-12 shrink-0 overflow-hidden rounded-[12px] bg-surface-alt">
+            {exercice.image && (
+              // eslint-disable-next-line @next/next/no-img-element -- images déjà optimisées (WebP 600 px)
+              <img
+                src={`${URL_IMAGES_SPORT}/${exercice.image}`}
+                alt=""
+                width={48}
+                height={48}
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            )}
+          </span>
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className={`${nameText} !whitespace-normal`}>{exercice.nom}</span>
             <span className={metaText}>

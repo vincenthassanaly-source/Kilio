@@ -8,9 +8,8 @@ import { Modal } from "@/components/Modal";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { queryKeys } from "@/lib/query/keys";
 import { filtrerExercices, texteRecherche, type ExerciceListe } from "@/lib/sport/compute";
-import { MUSCLES, libelleEquipement, libelleMuscle } from "@/lib/sport/libelles";
+import { MUSCLES, URL_IMAGES_SPORT, libelleEquipement, libelleMuscle } from "@/lib/sport/libelles";
 import { cardTight, errorText, input, metaText, nameText, secondaryButton } from "@/lib/ui";
-import { VignetteExercice } from "./IllustrationExercice";
 import { Puce } from "./exercices/ExercicesView";
 
 const PAGE = 40;
@@ -88,7 +87,20 @@ function Contenu({ onChoisir }: { onChoisir: (exercice: ExerciceListe) => void }
                 onClick={() => onChoisir(exercice)}
                 className={`${cardTight} flex w-full items-center gap-3 text-left`}
               >
-                <VignetteExercice poses={exercice.poses} image={exercice.image} muscle={exercice.muscle_principal} taille={48} />
+                <span className="h-12 w-12 shrink-0 overflow-hidden rounded-[12px] bg-surface-alt">
+                  {exercice.image && (
+                    // eslint-disable-next-line @next/next/no-img-element -- images déjà optimisées (WebP 600 px)
+                    <img
+                      src={`${URL_IMAGES_SPORT}/${exercice.image}`}
+                      alt=""
+                      width={48}
+                      height={48}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </span>
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className={nameText}>{exercice.nom_fr}</span>
                   <span className={`${metaText} truncate`}>

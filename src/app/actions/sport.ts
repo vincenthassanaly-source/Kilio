@@ -6,7 +6,6 @@ import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import type { ExerciceListe } from "@/lib/sport/compute";
 import { URL_IMAGES_SPORT } from "@/lib/sport/libelles";
-import { lirePoses, type PosesExercice } from "@/lib/sport/silhouette";
 import {
   validerPayload,
   validerRoutine,
@@ -27,10 +26,7 @@ export type BibliothequeExercices = {
   exercices: ExerciceListe[];
 };
 
-export type ExerciceDetail = Omit<Tables<"sport_exercices">, "poses"> & {
-  urlImages: string;
-  poses: PosesExercice | null;
-};
+export type ExerciceDetail = Tables<"sport_exercices"> & { urlImages: string };
 
 function urlImages(): string {
   return URL_IMAGES_SPORT;
@@ -45,17 +41,16 @@ export async function getBibliothequeExercices(): Promise<BibliothequeExercices>
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("sport_exercices")
-    .select("id, nom_fr, nom_en, muscle_principal, equipement, categorie, niveau, type_mesure, images, poses")
+    .select("id, nom_fr, nom_en, muscle_principal, equipement, categorie, niveau, type_mesure, images")
     // PostgREST plafonne à 1000 lignes par requête ; la bibliothèque en compte ~880.
     .range(0, 999);
   if (error) throw new Error(error.message);
 
   const exercices: ExerciceListe[] = data
-    .map(({ images, type_mesure, poses, ...exercice }) => ({
+    .map(({ images, type_mesure, ...exercice }) => ({
       ...exercice,
       typeMesure: type_mesure as TypeMesure,
       image: images[0] ?? null,
-      poses: lirePoses(poses),
     }))
     .sort((a, b) => a.nom_fr.localeCompare(b.nom_fr, "fr"));
 
@@ -66,7 +61,7 @@ export async function getExercice(id: string): Promise<ExerciceDetail | null> {
   const supabase = createAdminClient();
   const { data, error } = await supabase.from("sport_exercices").select("*").eq("id", id).maybeSingle();
   if (error) throw new Error(error.message);
-  return data ? { ...data, poses: lirePoses(data.poses), urlImages: urlImages() } : null;
+  return data ? { ...data, urlImages: urlImages() } : null;
 }
 
 // --- Routines --------------------------------------------------------------
@@ -77,7 +72,6 @@ export type ExerciceRoutine = {
   exerciceId: string;
   nom: string;
   image: string | null;
-  poses: PosesExercice | null;
   typeMesure: TypeMesure;
   nbSeries: number;
   repsCible: number | null;
@@ -94,7 +88,7 @@ export async function getRoutines(): Promise<RoutinesData> {
   const { data, error } = await supabase
     .from("sport_routines")
     .select(
-      "id, nom, ordre, created_at, sport_routine_exercices(id, exercice_id, position, nb_series, reps_cible, repos_s, exercice:sport_exercices(nom_fr, images, type_mesure, poses))",
+      "id, nom, ordre, created_at, sport_routine_exercices(id, exercice_id, position, nb_series, reps_cible, repos_s, exercice:sport_exercices(nom_fr, images, type_mesure))",
     )
     .order("ordre")
     .order("created_at");
@@ -110,7 +104,6 @@ export async function getRoutines(): Promise<RoutinesData> {
         exerciceId: ligne.exercice_id,
         nom: ligne.exercice?.nom_fr ?? ligne.exercice_id,
         image: ligne.exercice?.images[0] ?? null,
-        poses: lirePoses(ligne.exercice?.poses),
         typeMesure: (ligne.exercice?.type_mesure ?? "poids_reps") as TypeMesure,
         nbSeries: ligne.nb_series,
         repsCible: ligne.reps_cible,

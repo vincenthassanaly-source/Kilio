@@ -1728,7 +1728,6 @@ export type Database = {
           niveau: string | null
           nom_en: string
           nom_fr: string
-          poses: Json | null
           type_mesure: string
         }
         Insert: {
@@ -1744,7 +1743,6 @@ export type Database = {
           niveau?: string | null
           nom_en: string
           nom_fr: string
-          poses?: Json | null
           type_mesure?: string
         }
         Update: {
@@ -1760,7 +1758,6 @@ export type Database = {
           niveau?: string | null
           nom_en?: string
           nom_fr?: string
-          poses?: Json | null
           type_mesure?: string
         }
         Relationships: []
