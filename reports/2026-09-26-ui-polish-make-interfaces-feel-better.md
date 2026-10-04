@@ -1,5 +1,7 @@
 # Passe de polish UI — `make-interfaces-feel-better` (suite, 2026-09-26)
 
+> Note : les captures d'écran citées dans ce rapport ont été supprimées du dépôt (nettoyage d'octobre 2026) ; elles restent récupérables dans l'historique git.
+
 Cette passe fait suite à `reports/2026-09-26-audit-polish-make-interfaces-feel-better.md` (même journée, session précédente), qui avait audité les 12 modules actifs mais avec un accès réseau à Supabase coupé en cours de route, laissant la plupart des écrans vérifiés uniquement en skeleton/erreur générique ou par lecture de code seule.
 
 ## Ce qui change par rapport à la passe précédente

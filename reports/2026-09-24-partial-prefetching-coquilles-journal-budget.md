@@ -1,5 +1,7 @@
 # Partial Prefetching et coquilles du Journal et du Budget (2026-09-24)
 
+> Note : les captures d'écran citées dans ce rapport ont été supprimées du dépôt (nettoyage d'octobre 2026) ; elles restent récupérables dans l'historique git.
+
 Branche : `kilio` (commits `18c4e5b` → `7c07844`, non poussés à la rédaction).
 Skills appliqués : `next-partial-prefetching-adoption`, `next-dev-loop`,
 `next-cache-components-optimizer`, `vercel-react-best-practices`,

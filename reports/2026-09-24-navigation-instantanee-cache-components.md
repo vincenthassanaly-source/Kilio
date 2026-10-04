@@ -1,5 +1,7 @@
 # Navigation instantanée (Cache Components) — 2026-09-24
 
+> Note : les captures d'écran citées dans ce rapport ont été supprimées du dépôt (nettoyage d'octobre 2026) ; elles restent récupérables dans l'historique git.
+
 ## 1. Résumé
 
 Avant cette session, **aucune page de Kilio ne pouvait s'afficher avant que le
