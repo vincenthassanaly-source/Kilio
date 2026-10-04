@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Sora, Inter } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { AppResumeRefresh } from "@/components/AppResumeRefresh";
 import { THEME_COLOR_CLAIR, THEME_COLOR_SOMBRE, themeInitScript } from "@/lib/theme";
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <ServiceWorkerRegister />
         <AppResumeRefresh />
+        <SpeedInsights />
       </body>
     </html>
   );
