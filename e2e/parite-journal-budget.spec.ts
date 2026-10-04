@@ -26,42 +26,43 @@ test.describe("Journal", () => {
     await expect(repas(page, "Skyr nature")).toBeVisible();
     await expect(repas(page, "Poulet riz meal prep")).toBeVisible();
 
-    // Vague 1 : ‹ › ne propagent plus `?jour=` — chaque jour applique son
-    // type mémorisé (table journal_jours, « repos » par défaut).
+    // Planning vide (rien dans nutrition_planning) : tous les jours en repos.
     await main(page).getByRole("link", { name: "Jour précédent" }).click();
-    await page.waitForURL((u) => u.searchParams.get("date") === jour(-1) && !u.searchParams.has("jour"));
+    await page.waitForURL((u) => u.searchParams.get("date") === jour(-1));
     await expect(main(page).getByRole("heading", { name: "Objectif (repos)" })).toBeVisible();
     await expect(repas(page, "Blanc de poulet")).toBeVisible();
     await expect(repas(page, "Curry de légumes HelloFresh")).toBeVisible();
     await expect(repas(page, "Skyr nature")).toHaveCount(0);
   });
 
-  test("bascule Entraînement : même jour, objectif du jour d'entraînement", async ({ page }) => {
-    await page.goto(`/nutrition/journal?date=${jour(-1)}&jour=repos`);
-    await main(page).getByRole("link", { name: "Entraînement", exact: true }).click();
-    await page.waitForURL((u) => u.searchParams.get("jour") === "entrainement");
-    await expect(main(page).getByRole("heading", { name: "Objectif (entraînement)" })).toBeVisible();
-    await expect(main(page).getByRole("link", { name: "Entraînement", exact: true })).toHaveAttribute("aria-current", "page");
-    await expect(repas(page, "Blanc de poulet")).toBeVisible();
+  test("planning : cocher un jour d'entraînement l'enregistre", async ({ page }) => {
+    await page.goto(`/nutrition/journal?date=${jour(-1)}`);
+    await main(page).getByRole("button", { name: "Modifier les objectifs et le planning" }).click();
 
-    // Vague 1 : le choix est mémorisé pour la date (journal_jours).
+    // Jour de la semaine de la veille (1 = lundi … 7 = dimanche).
+    const noms = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+    const indexJs = new Date(`${jour(-1)}T00:00:00Z`).getUTCDay();
+    await main(page).getByRole("checkbox", { name: noms[indexJs] }).check({ force: true });
+    await main(page).getByRole("button", { name: "Enregistrer", exact: true }).click();
+
+    const iso = indexJs === 0 ? 7 : indexJs;
     await expect
       .poll(async () =>
         (await (await fetch(`${MOCK}/__writes`)).json()).some(
           (w: { method: string; table: string; body: unknown }) =>
-            w.table === "journal_jours" && JSON.stringify(w.body).includes("entrainement")
+            w.table === "nutrition_planning" && JSON.stringify(w.body).includes(`"jours_entrainement":[${iso}]`)
         )
       )
       .toBe(true);
   });
 
   test("état vide inchangé", async ({ page }) => {
-    await page.goto(`/nutrition/journal?date=${jour(-10)}&jour=repos`);
+    await page.goto(`/nutrition/journal?date=${jour(-10)}`);
     await expect(main(page).getByText("Aucun repas enregistré pour ce jour.")).toBeVisible();
   });
 
   test("suppression optimiste : la ligne disparaît avant la réponse serveur", async ({ page }) => {
-    await page.goto(`/nutrition/journal?date=${jour(-1)}&jour=repos`);
+    await page.goto(`/nutrition/journal?date=${jour(-1)}`);
     await expect(repas(page, "Lait demi-écrémé")).toBeVisible();
 
     page.once("dialog", (d) => d.accept());
@@ -100,12 +101,11 @@ test.describe("Journal : swipe", () => {
   }
 
   test("glisser vers la droite affiche la veille, vers la gauche le lendemain", async ({ page }) => {
-    await page.goto(`/nutrition/journal?date=${jour(-1)}&jour=entrainement`);
+    await page.goto(`/nutrition/journal?date=${jour(-1)}`);
     await expect(repas(page, "Blanc de poulet")).toBeVisible();
 
     await swipe(page, 150);
-    // Le type d'entraînement forcé par l'URL ne suit pas au jour voisin.
-    await page.waitForURL((u) => u.searchParams.get("date") === jour(-2) && !u.searchParams.has("jour"));
+    await page.waitForURL((u) => u.searchParams.get("date") === jour(-2));
     await expect(repas(page, "Riz basmati cuit")).toBeVisible();
 
     await swipe(page, -150);

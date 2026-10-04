@@ -3,21 +3,106 @@
 import { useId, useActionState, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { upsertObjectif, type ObjectifFormState } from "@/app/actions/objectifs-nutritionnels";
-import type { Enums, Tables } from "@/lib/supabase/types";
+import type { Tables } from "@/lib/supabase/types";
+import { JOURS_SEMAINE, type JourType } from "@/lib/nutrition/planning";
 import { card, errorText, input, label as labelClass, linkButton, primaryButton, secondaryButton } from "@/lib/ui";
 
 const initialState: ObjectifFormState = { error: null };
 
+type Objectif = Tables<"objectifs_nutritionnels"> | null;
+
+const TITRES: Record<JourType, string> = { repos: "Jour de repos", entrainement: "Jour d'entraînement" };
+
+/** Les quatre champs de cible d'un type de jour (noms `<type>_<champ>`). */
+function ChampsCible({ jourType, objectif, uid }: { jourType: JourType; objectif: Objectif; uid: string }) {
+  const champ = (nom: string) => `${jourType}_${nom}`;
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="text-sm font-semibold text-ink">{TITRES[jourType]}</legend>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${uid}-${champ("kcal_cible")}`} className={labelClass}>
+            Kcal cible
+          </label>
+          <input
+            id={`${uid}-${champ("kcal_cible")}`}
+            name={champ("kcal_cible")}
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="10000"
+            step="1"
+            placeholder={jourType === "repos" ? "ex. 2000" : "ex. 2400"}
+            defaultValue={objectif?.kcal_cible ?? ""}
+            className={input}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${uid}-${champ("proteines_cible_g")}`} className={labelClass}>
+            Protéines (g)
+          </label>
+          <input
+            id={`${uid}-${champ("proteines_cible_g")}`}
+            name={champ("proteines_cible_g")}
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="1000"
+            step="1"
+            defaultValue={objectif?.proteines_cible_g ?? 0}
+            className={input}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${uid}-${champ("glucides_cible_g")}`} className={labelClass}>
+            Glucides (g)
+          </label>
+          <input
+            id={`${uid}-${champ("glucides_cible_g")}`}
+            name={champ("glucides_cible_g")}
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="1000"
+            step="1"
+            defaultValue={objectif?.glucides_cible_g ?? 0}
+            className={input}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${uid}-${champ("lipides_cible_g")}`} className={labelClass}>
+            Lipides (g)
+          </label>
+          <input
+            id={`${uid}-${champ("lipides_cible_g")}`}
+            name={champ("lipides_cible_g")}
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="1000"
+            step="1"
+            defaultValue={objectif?.lipides_cible_g ?? 0}
+            className={input}
+          />
+        </div>
+      </div>
+    </fieldset>
+  );
+}
+
 export function ObjectifForm({
-  jourType,
-  objectif,
+  repos,
+  entrainement,
+  jours,
 }: {
-  jourType: Enums<"jour_type_ppl">;
-  objectif: Tables<"objectifs_nutritionnels"> | null;
+  repos: Objectif;
+  entrainement: Objectif;
+  /** Planning : jours ISO (1 = lundi … 7 = dimanche) d'entraînement. */
+  jours: readonly number[];
 }) {
   // Ids uniques par instance (T11) : formulaire rendu en ajout et en édition.
   const uid = useId();
-  const [open, setOpen] = useState(!objectif);
+  const [open, setOpen] = useState(!repos && !entrainement);
   const [state, formAction, pending] = useActionState(upsertObjectif, initialState);
   const queryClient = useQueryClient();
 
@@ -36,7 +121,7 @@ export function ObjectifForm({
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)} className={linkButton}>
-        Modifier l&apos;objectif
+        Modifier les objectifs et le planning
       </button>
     );
   }
@@ -49,78 +134,37 @@ export function ObjectifForm({
       // JournalSwipeWrapper — voir la même garde sur le bouton "Suppr." de
       // JournalEntriesList.tsx.
       onTouchStart={(e) => e.stopPropagation()}
-      className={`${card} flex flex-col gap-3`}
+      className={`${card} flex flex-col gap-4`}
     >
-      <input type="hidden" name="jour_type" value={jourType} />
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm font-semibold text-ink">Jours d&apos;entraînement</legend>
+        <div className="flex gap-1.5">
+          {JOURS_SEMAINE.map((jour) => (
+            <label key={jour.iso} className="relative flex-1">
+              <input
+                type="checkbox"
+                name="jours_entrainement"
+                value={jour.iso}
+                defaultChecked={jours.includes(jour.iso)}
+                className="peer sr-only"
+              />
+              <span className="sr-only">{jour.long}</span>
+              <span
+                aria-hidden="true"
+                className="flex min-h-11 items-center justify-center rounded-xl bg-surface-alt text-[13.5px] font-semibold text-ink-2 transition-colors peer-checked:bg-kcal peer-checked:text-on-kcal peer-focus-visible:ring-2 peer-focus-visible:ring-kcal peer-focus-visible:ring-offset-2"
+              >
+                {jour.court}
+              </span>
+            </label>
+          ))}
+        </div>
+        <p className="text-xs text-ink-2 text-pretty">
+          Les autres jours ont l&apos;objectif de repos. Aucun jour coché : repos tous les jours.
+        </p>
+      </fieldset>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-kcal_cible`} className={labelClass}>
-            Kcal cible
-          </label>
-          <input
-            id={`${uid}-kcal_cible`}
-            name="kcal_cible"
-            type="number"
-            inputMode="numeric"
-            min="0"
-            max="10000"
-            step="1"
-            required
-            placeholder="ex. 2200"
-            defaultValue={objectif?.kcal_cible ?? ""}
-            className={input}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-proteines_cible_g`} className={labelClass}>
-            Protéines (g)
-          </label>
-          <input
-            id={`${uid}-proteines_cible_g`}
-            name="proteines_cible_g"
-            type="number"
-            inputMode="numeric"
-            min="0"
-            max="1000"
-            step="1"
-            defaultValue={objectif?.proteines_cible_g ?? 0}
-            className={input}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-glucides_cible_g`} className={labelClass}>
-            Glucides (g)
-          </label>
-          <input
-            id={`${uid}-glucides_cible_g`}
-            name="glucides_cible_g"
-            type="number"
-            inputMode="numeric"
-            min="0"
-            max="1000"
-            step="1"
-            defaultValue={objectif?.glucides_cible_g ?? 0}
-            className={input}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-lipides_cible_g`} className={labelClass}>
-            Lipides (g)
-          </label>
-          <input
-            id={`${uid}-lipides_cible_g`}
-            name="lipides_cible_g"
-            type="number"
-            inputMode="numeric"
-            min="0"
-            max="1000"
-            step="1"
-            defaultValue={objectif?.lipides_cible_g ?? 0}
-            className={input}
-          />
-        </div>
-      </div>
+      <ChampsCible jourType="repos" objectif={repos} uid={uid} />
+      <ChampsCible jourType="entrainement" objectif={entrainement} uid={uid} />
 
       {state.error && (
         <p className={errorText} role="alert">
@@ -130,9 +174,9 @@ export function ObjectifForm({
 
       <div className="flex gap-2">
         <button type="submit" disabled={pending} className={primaryButton}>
-          {pending ? "Enregistrement..." : "Enregistrer l'objectif"}
+          {pending ? "Enregistrement..." : "Enregistrer"}
         </button>
-        {objectif && (
+        {(repos || entrainement) && (
           <button type="button" onClick={() => setOpen(false)} className={secondaryButton}>
             Fermer
           </button>

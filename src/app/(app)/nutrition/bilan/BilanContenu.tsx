@@ -10,6 +10,8 @@ import {
   type CiblesJour,
   type JourType,
 } from "@/lib/nutrition/bilan";
+import { getPlanningEntrainement } from "@/app/actions/journal";
+import { estJourType } from "@/lib/nutrition/planning";
 import { card, errorText, linkButton } from "@/lib/ui";
 import {
   BandeSemaine,
@@ -37,7 +39,7 @@ export async function BilanContenu() {
   const debut = shiftDate(aujourdhui, -(NB_JOURS_FENETRE - 1));
   const supabase = createAdminClient();
 
-  const [objectifs, repas, joursTypes] = await Promise.all([
+  const [objectifs, repas, joursEntrainement] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*"),
     supabase
       .from("journal_repas")
@@ -46,10 +48,10 @@ export async function BilanContenu() {
       )
       .gte("date", debut)
       .lte("date", aujourdhui),
-    supabase.from("journal_jours").select("date, jour_type").gte("date", debut).lte("date", aujourdhui),
+    getPlanningEntrainement(),
   ]);
 
-  const erreur = objectifs.error ?? repas.error ?? joursTypes.error;
+  const erreur = objectifs.error ?? repas.error;
   if (erreur) {
     // Message brut du driver jamais affiché (loggé pour le diagnostic).
     console.error("BilanContenu: échec de chargement", erreur);
@@ -62,7 +64,7 @@ export async function BilanContenu() {
 
   const cibles: Record<JourType, CiblesJour | null> = { repos: null, entrainement: null };
   for (const o of objectifs.data ?? []) {
-    cibles[o.jour_type] = { kcal: o.kcal_cible, proteines: o.proteines_cible_g };
+    if (estJourType(o.jour_type)) cibles[o.jour_type] = { kcal: o.kcal_cible, proteines: o.proteines_cible_g };
   }
 
   if (!cibles.repos && !cibles.entrainement) {
@@ -79,14 +81,11 @@ export async function BilanContenu() {
     );
   }
 
-  const jourTypes: Record<string, JourType> = {};
-  for (const j of joursTypes.data ?? []) jourTypes[j.date] = j.jour_type;
-
   const jours = construireBilan({
     aujourdhui,
     nbJours: NB_JOURS_FENETRE,
     entrees: repas.data ?? [],
-    jourTypes,
+    joursEntrainement,
     cibles,
   });
   const semaine = jours.slice(-NB_JOURS_SEMAINE);

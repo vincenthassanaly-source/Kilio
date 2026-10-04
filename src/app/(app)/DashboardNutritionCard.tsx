@@ -14,8 +14,7 @@ export async function DashboardNutritionCard() {
   const queryClient = makeServerQueryClient();
   await queryClient.prefetchQuery({
     queryKey: queryKeys.resumeNutrition(today),
-    // Sans type forcé : le type de jour mémorisé par le Journal
-    // (journal_jours) décide de la cible comparée.
+    // Le planning hebdomadaire d'entraînement décide de la cible comparée.
     queryFn: () => getResumeNutritionJour(today),
   });
 

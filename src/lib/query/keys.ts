@@ -15,9 +15,9 @@ export const queryKeys = {
   // mois (premier jour du mois, format ISO) pour que changer d'habitude ou
   // naviguer d'un mois à l'autre déclenche un nouveau fetch distinct.
   historiqueHabitude: (habitudeId: string, mois: string) => ["historique-habitude", habitudeId, mois] as const,
-  journal: (date: string, jourType: string) => ["journal", date, jourType] as const,
-  // Résumé nutritionnel d'une date (consommé + cible du type de jour
-  // mémorisé) : invalidé après un ajout de repas ou un changement de type.
+  // Résumé nutritionnel d'une date (consommé + cible du type de jour,
+  // déduit du planning) : invalidé après un ajout de repas ou une
+  // modification des objectifs.
   resumeNutrition: (date: string) => ["resume-nutrition", date] as const,
   catalogueJournal: ["catalogue-journal"] as const,
   objectifs: ["objectifs"] as const,

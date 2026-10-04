@@ -15,8 +15,8 @@ import {
   type Nutrition,
   type SaisieRecente,
 } from "@/lib/nutrition/compute";
-import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import type { Enums } from "@/lib/supabase/types";
+import { jourTypePourDate, normaliserJours, type JourType } from "@/lib/nutrition/planning";
 import { aujourdhuiParis } from "@/lib/date/paris";
 
 export type JournalFormState = { error: string | null; ok?: boolean };
@@ -28,31 +28,24 @@ export type JournalFormState = { error: string | null; ok?: boolean };
 // côté client.
 export type ResumeNutritionJour = {
   consomme: Nutrition;
-  jourType: Enums<"jour_type_ppl">;
+  jourType: JourType;
   // null : aucun objectif défini pour ce type de jour (plus de cible
   // inventée, constat J-P1-5).
   kcalGoal: number | null;
   macroGoals: { proteines: number; glucides: number; lipides: number } | null;
 };
 
-// Type de jour mémorisé pour une date (table journal_jours, vague 1) ;
-// absence de ligne = repos.
-const lireJourTypeMemorise = cache(async (date: string): Promise<Enums<"jour_type_ppl">> => {
+// Planning hebdomadaire d'entraînement (table nutrition_planning, ligne
+// unique) : jours ISO 1 à 7 ; aucune ligne ou liste vide = repos tous les jours.
+export const getPlanningEntrainement = cache(async (): Promise<number[]> => {
   const supabase = createAdminClient();
-  const { data } = await supabase.from("journal_jours").select("jour_type").eq("date", date).maybeSingle();
-  return data?.jour_type ?? "repos";
+  const { data } = await supabase.from("nutrition_planning").select("jours_entrainement").maybeSingle();
+  return normaliserJours(data?.jours_entrainement);
 });
 
-export async function getJourTypeJournal(date: string): Promise<Enums<"jour_type_ppl">> {
-  return lireJourTypeMemorise(date);
-}
-
-export async function getResumeNutritionJour(
-  date: string,
-  jourTypeForce?: Enums<"jour_type_ppl">
-): Promise<ResumeNutritionJour> {
+export async function getResumeNutritionJour(date: string): Promise<ResumeNutritionJour> {
   const supabase = createAdminClient();
-  const jourType = jourTypeForce ?? (await lireJourTypeMemorise(date));
+  const jourType = jourTypePourDate(date, await getPlanningEntrainement());
 
   const [{ data: objectif }, { data: entries }] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*").eq("jour_type", jourType).maybeSingle(),
@@ -89,27 +82,6 @@ export async function getResumeNutritionJour(
         }
       : null,
   };
-}
-
-/**
- * Mémorise le type de jour choisi par la bascule Repos / Entraînement. Le
- * Journal le relit pour une date sans `?jour=` et le dashboard compare à la
- * bonne cible. Contrat `ActionResult` (T1) : jamais d'exception.
- */
-export async function setJourTypeJournal(
-  date: string,
-  jourType: Enums<"jour_type_ppl">
-): Promise<ActionResult> {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail("Date invalide.");
-  if (jourType !== "repos" && jourType !== "entrainement") return fail("Type de jour invalide.");
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("journal_jours").upsert({ date, jour_type: jourType });
-  if (error) return fail("Le type de jour n'a pas pu être mémorisé. Réessaie.");
-
-  revalidatePath("/nutrition/journal");
-  revalidatePath("/");
-  return ok();
 }
 
 export type CatalogueJournal = { items: CatalogueItem[]; recents: SaisieRecente[] };

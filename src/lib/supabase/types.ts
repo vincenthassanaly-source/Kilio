@@ -574,27 +574,6 @@ export type Database = {
         }
         Relationships: []
       }
-      journal_jours: {
-        Row: {
-          created_at: string
-          date: string
-          jour_type: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          date: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       journal_repas: {
         Row: {
           aliment_id: string | null
@@ -771,6 +750,24 @@ export type Database = {
           },
         ]
       }
+      nutrition_planning: {
+        Row: {
+          id: number
+          jours_entrainement: number[]
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          jours_entrainement?: number[]
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          jours_entrainement?: number[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       objectif_habitudes: {
         Row: {
           created_at: string
@@ -924,7 +921,7 @@ export type Database = {
           created_at: string
           glucides_cible_g: number
           id: string
-          jour_type: Database["public"]["Enums"]["jour_type_ppl"]
+          jour_type: string
           kcal_cible: number
           lipides_cible_g: number
           proteines_cible_g: number
@@ -934,7 +931,7 @@ export type Database = {
           created_at?: string
           glucides_cible_g?: number
           id?: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
+          jour_type?: string
           kcal_cible: number
           lipides_cible_g?: number
           proteines_cible_g?: number
@@ -944,7 +941,7 @@ export type Database = {
           created_at?: string
           glucides_cible_g?: number
           id?: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
+          jour_type?: string
           kcal_cible?: number
           lipides_cible_g?: number
           proteines_cible_g?: number
@@ -2062,7 +2059,6 @@ export type Database = {
         | "tests"
       frequence_recurrence: "quotidien" | "hebdomadaire" | "mensuel" | "annuel"
       habitude_type: "boolean" | "streak" | "quantifiee"
-      jour_type_ppl: "entrainement" | "repos"
       moment_repas: "petit_dej" | "dejeuner" | "diner" | "collation"
       note_type: "texte" | "checklist"
       priorite_tache: "aucune" | "basse" | "moyenne" | "haute"
@@ -2218,7 +2214,6 @@ export const Constants = {
       ],
       frequence_recurrence: ["quotidien", "hebdomadaire", "mensuel", "annuel"],
       habitude_type: ["boolean", "streak", "quantifiee"],
-      jour_type_ppl: ["entrainement", "repos"],
       moment_repas: ["petit_dej", "dejeuner", "diner", "collation"],
       note_type: ["texte", "checklist"],
       priorite_tache: ["aucune", "basse", "moyenne", "haute"],

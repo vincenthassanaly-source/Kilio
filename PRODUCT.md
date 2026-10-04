@@ -16,7 +16,7 @@ Kilio est le "système d'exploitation personnel" de Vincent : une app unique qui
 
 Le module **Pharmacie** est le cahier de cours personnel de Vincent (connaissances de pharmacie apprises au fil du temps) : cours structurés matière → chapitre → notion atomique (texte + tags), consultation rapide par sommaire et recherche plein texte (hors ligne compris), révision par cartes mémoire à répétition espacée (SM-2 simplifié). L'ajout se fait **uniquement par le chat** (skill `kilio-pharmacie-ajout`, désormais géré dans le dépôt de skills `KilaSkills` : Claude reformule, classe, crée les cartes et gère l'arborescence seul, en prévenant après coup) ; l'app sert à consulter, réviser, corriger ou supprimer une notion. Pas de journal brut ni de suivi de source : seule la version reformulée est conservée.
 
-Pour le Journal Nutrition en particulier : l'objectif motivant le suivi est la **perte de poids / recomposition corporelle**. Le "succès" sur cet écran se mesure à la capacité de rester proche de l'objectif calorique et macro du jour (avec deux cibles distinctes : jour "repos" vs jour "entraînement").
+Pour le Journal Nutrition en particulier : l'objectif motivant le suivi est la **perte de poids / recomposition corporelle**. Le "succès" sur cet écran se mesure à la capacité de rester proche de l'objectif calorique et macro du jour (avec deux cibles distinctes : jour "repos" vs jour "entraînement", choisies d'après un planning hebdomadaire d'entraînement).
 
 ## Positioning
 
@@ -26,7 +26,7 @@ Kilio existe plutôt qu'un outil generique (MyFitnessPal, Cronometer, Yazio...) 
 
 - Usage mobile en priorité : Vincent utilise le Journal Nutrition depuis son téléphone (PWA installée, icône maskable dédiée), typiquement en cuisine ou juste après un repas. Le desktop est secondaire.
 - La saisie doit être rapide et à faible friction ("one-handed") : ajouter un repas ne doit pas demander plusieurs écrans ou une saisie longue.
-- Le journal distingue deux types de jour (repos / entraînement) avec un objectif macro différent pour chacun — Vincent s'entraîne et adapte son alimentation en conséquence.
+- Le journal distingue deux types de jour (repos / entraînement) avec un objectif macro différent pour chacun — Vincent s'entraîne et adapte son alimentation en conséquence. Le type d'un jour se déduit d'un planning hebdomadaire fixe (jours d'entraînement cochés dans la section Objectifs du Journal) ; il n'y a plus de bascule quotidienne.
 - L'app fonctionne aussi hors-ligne partiellement (Dexie en local, `src/lib/offline`) et envoie des notifications push (`web-push`).
 
 ## Capabilities and Constraints

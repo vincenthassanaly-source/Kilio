@@ -2,9 +2,9 @@ import { Suspense } from "react";
 import { eyebrow, screenTitle } from "@/lib/ui";
 import { NutritionSubNav } from "@/components/NutritionSubNav";
 import { JournalSwipeWrapper } from "./JournalSwipeWrapper";
-import { JourNavigation, JourTypeOnglets } from "./JournalNavigationJour";
+import { JourNavigation } from "./JournalNavigationJour";
 import { JournalJourSkeleton } from "./JournalJourSkeleton";
-import { JournalDateLibelle, JournalJour, JournalJourNavigation, JournalJourOnglets } from "./JournalJour";
+import { JournalDateLibelle, JournalJour, JournalJourNavigation } from "./JournalJour";
 import type { JournalSearchParams } from "./jour";
 
 // La page elle-même ne lit ni l'URL, ni la date, ni Supabase : sous-navigation,
@@ -27,10 +27,6 @@ export default function JournalPage({ searchParams }: { searchParams: JournalSea
             <JournalJourNavigation searchParams={searchParams} />
           </Suspense>
         </div>
-
-        <Suspense fallback={<JourTypeOnglets />}>
-          <JournalJourOnglets searchParams={searchParams} />
-        </Suspense>
 
         <Suspense fallback={<JournalJourSkeleton />}>
           <JournalJour searchParams={searchParams} />
