@@ -15,10 +15,9 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { TransitionLink } from "@/components/TransitionLink";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
-import type { PosesExercice } from "@/lib/sport/silhouette";
+import { URL_IMAGES_SPORT } from "@/lib/sport/libelles";
 import { formaterMinutes, REPOS_PAR_DEFAUT_S } from "@/lib/sport/seance";
 import { card, dangerButton, errorText, eyebrow, input, linkButton, metaText, nameText, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
-import { VignetteExercice } from "../../IllustrationExercice";
 import { SelecteurExercices } from "../../SelecteurExercices";
 
 type Ligne = {
@@ -26,7 +25,6 @@ type Ligne = {
   exerciceId: string;
   nom: string;
   image: string | null;
-  poses: PosesExercice | null;
   nbSeries: number;
   repsCible: number | null;
   reposS: number;
@@ -75,7 +73,6 @@ function depuisRoutine(routine: RoutineAvecExercices): Ligne[] {
     exerciceId: e.exerciceId,
     nom: e.nom,
     image: e.image,
-    poses: e.poses,
     nbSeries: e.nbSeries,
     repsCible: e.repsCible,
     reposS: e.reposS,
@@ -167,7 +164,12 @@ function Formulaire({ initial }: { initial: RoutineAvecExercices | null }) {
       {lignes.map((ligne, index) => (
         <section key={ligne.cle} className={`${card} flex flex-col gap-3`} aria-label={ligne.nom}>
           <div className="flex items-center gap-3">
-            <VignetteExercice poses={ligne.poses} image={ligne.image} taille={48} />
+            <span className="h-12 w-12 shrink-0 overflow-hidden rounded-[12px] bg-surface-alt">
+              {ligne.image && (
+                // eslint-disable-next-line @next/next/no-img-element -- images déjà optimisées (WebP 600 px)
+                <img src={`${URL_IMAGES_SPORT}/${ligne.image}`} alt="" width={48} height={48} decoding="async" className="h-full w-full object-cover" />
+              )}
+            </span>
             <h2 className={`${nameText} min-w-0 flex-1 !whitespace-normal`}>{ligne.nom}</h2>
             <div className="flex shrink-0">
               <button type="button" className={boutonPas} onClick={() => deplacer(index, -1)} disabled={index === 0} aria-label={`Monter ${ligne.nom}`}>
@@ -236,7 +238,6 @@ function Formulaire({ initial }: { initial: RoutineAvecExercices | null }) {
               exerciceId: exercice.id,
               nom: exercice.nom_fr,
               image: exercice.image,
-              poses: exercice.poses,
               nbSeries: 3,
               repsCible: avecReps ? 10 : null,
               reposS: REPOS_PAR_DEFAUT_S,

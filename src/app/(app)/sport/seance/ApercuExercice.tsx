@@ -8,7 +8,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { libelleEquipement, libelleMuscle, libelleNiveau, URL_IMAGES_SPORT } from "@/lib/sport/libelles";
 import type { ExerciceBrouillon } from "@/lib/sport/seance";
 import { errorText, metaText, pillTag, sectionTitle } from "@/lib/ui";
-import { IllustrationExercice } from "../IllustrationExercice";
+import { ExerciceMedia } from "../exercices/[id]/ExerciceMedia";
 
 /**
  * Aperçu d'un exercice pendant la séance (feuille du bas). Même source que la
@@ -31,12 +31,7 @@ export function ApercuExercice({ exercice, onClose }: { exercice: ExerciceBrouil
       <div className="flex flex-col gap-4">
         {data ? (
           <>
-            <IllustrationExercice
-              poses={data.poses}
-              photos={data.images.map((chemin) => `${data.urlImages}/${chemin}`)}
-              muscle={data.muscle_principal}
-              alt={data.nom_fr}
-            />
+            <ExerciceMedia urls={data.images.map((chemin) => `${data.urlImages}/${chemin}`)} alt={data.nom_fr} />
             <ul className="flex flex-wrap gap-2" aria-label="Caractéristiques">
               <li className={pillTag}>{libelleMuscle(data.muscle_principal)}</li>
               {data.muscles_secondaires.map((muscle) => (
@@ -60,11 +55,17 @@ export function ApercuExercice({ exercice, onClose }: { exercice: ExerciceBrouil
           </>
         ) : horsLigne ? (
           <>
-            <IllustrationExercice
-              poses={exercice.poses}
-              photos={exercice.image ? [`${URL_IMAGES_SPORT}/${exercice.image}`] : []}
-              alt={exercice.nom}
-            />
+            {exercice.image && (
+              // eslint-disable-next-line @next/next/no-img-element -- images déjà optimisées (WebP 600 px)
+              <img
+                src={`${URL_IMAGES_SPORT}/${exercice.image}`}
+                alt=""
+                width={600}
+                height={400}
+                decoding="async"
+                className="aspect-[3/2] w-full rounded-[22px] border border-line bg-white object-cover"
+              />
+            )}
             <p className={isError ? errorText : metaText}>Détails indisponibles hors ligne.</p>
           </>
         ) : (

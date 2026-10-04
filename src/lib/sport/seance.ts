@@ -4,8 +4,6 @@
 // Les horodatages sont des chaînes ISO ; `now` est toujours passé par
 // l'appelant pour que les calculs restent déterministes.
 
-import type { PosesExercice } from "./silhouette";
-
 export type TypeMesure = "poids_reps" | "reps" | "duree" | "poids_duree";
 
 /** Série réalisée lors de la dernière séance, affichée en repère et préremplie. */
@@ -29,8 +27,6 @@ export type ExerciceBrouillon = {
   exerciceId: string;
   nom: string;
   image: string | null;
-  /** Poses de l'illustration dessinée ; absent des brouillons créés avant leur introduction. */
-  poses?: PosesExercice | null;
   typeMesure: TypeMesure;
   /** Repos prévu après chaque série, en secondes. */
   reposS: number;
@@ -53,7 +49,6 @@ export type NouvelExercice = {
   exerciceId: string;
   nom: string;
   image: string | null;
-  poses?: PosesExercice | null;
   typeMesure: TypeMesure;
   reposS: number;
   nbSeries: number;
@@ -115,7 +110,6 @@ export function creerExerciceBrouillon(source: NouvelExercice, genererId: Genere
     exerciceId: source.exerciceId,
     nom: source.nom,
     image: source.image,
-    poses: source.poses ?? null,
     typeMesure: source.typeMesure,
     reposS: source.reposS,
     precedent: source.precedent,
