@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import { addDays, format, isSameDay, isToday, startOfToday, subDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { TacheAvecRelations } from "@/app/actions/taches";
+import type { Evenement } from "@/app/actions/evenements";
 import type { Tables } from "@/lib/supabase/types";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
 import { layoutChevauchements } from "@/lib/agenda/compute";
@@ -22,6 +23,7 @@ import {
   WorkHoursBand,
 } from "./TimeGrid";
 import { TacheBlock } from "./TacheBlock";
+import { EvenementBlock } from "../aujourdhui/EvenementBlock";
 import { useAgendaZoom } from "./useAgendaZoom";
 
 export function DayView({
@@ -30,16 +32,20 @@ export function DayView({
   tags,
   creneaux,
   exceptions,
+  evenements = [],
   selectedDate,
   onChangeDate,
   tacheEnSurbrillanceId = null,
   onSelectTache,
+  onSelectEvenement,
 }: {
   taches: TacheAvecRelations[];
   listes: Tables<"listes_taches">[];
   tags: Tables<"tags">[];
   creneaux: Tables<"horaires_travail_creneaux">[];
   exceptions: Tables<"horaires_travail_exceptions">[];
+  // Événements légers de la fenêtre chargée (le jour affiché est filtré ici).
+  evenements?: Evenement[];
   selectedDate: Date;
   onChangeDate: (date: Date) => void;
   // Tâche visée par un deep-link de notification (cf. AgendaView) : mise en
@@ -49,6 +55,8 @@ export function DayView({
   // Tap sur un bloc de la grille (cf. AgendaView) : surligne la tâche et la
   // scrolle en vue dans la liste ci-dessous.
   onSelectTache: (id: string) => void;
+  // Tap sur un événement de la grille : ouvre son édition (cf. AgendaView).
+  onSelectEvenement?: (evenement: Evenement) => void;
 }) {
   // Les tâches sans heure sont regroupées après celles ayant une heure
   // (cohérent avec le tri "échéance nullsFirst: false" déjà utilisé par la
@@ -56,7 +64,7 @@ export function DayView({
   // `zoom`, qui change à chaque frame pendant le geste de pincement/molette
   // (cf. useAgendaZoom) — sans ce useMemo, layoutChevauchements et les
   // filtres/tris ci-dessous étaient recalculés à chaque frame de zoom.
-  const { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, positions } = useMemo(() => {
+  const { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions } = useMemo(() => {
     const dayTachesJour = taches.filter(
       (t) => t.echeance && isSameDay(parseISODate(t.echeance), selectedDate)
     );
@@ -66,10 +74,12 @@ export function DayView({
 
     const dayTachesAvecHeure = dayTaches.filter((t) => t.heure);
     const dayTachesSansHeure = dayTachesJour.filter((t) => !t.fait && !t.heure);
-    const positions = layoutChevauchements(dayTachesAvecHeure);
+    const dayEvenements = evenements.filter((e) => isSameDay(parseISODate(e.date), selectedDate));
+    // Tâches horodatées et événements se partagent la largeur de la grille.
+    const positions = layoutChevauchements([...dayTachesAvecHeure, ...dayEvenements]);
 
-    return { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, positions };
-  }, [taches, selectedDate]);
+    return { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions };
+  }, [taches, evenements, selectedDate]);
 
   const creneauxJour = getCreneauxDuJour(creneaux, selectedDate, exceptions);
   const { zoom, touchHandlers } = useAgendaZoom();
@@ -117,6 +127,15 @@ export function DayView({
               <HourLines zoom={zoom} />
               <WorkHoursBand creneaux={creneauxJour} zoom={zoom} />
               {isToday(selectedDate) && <NowLine zoom={zoom} />}
+              {dayEvenements.map((e) => (
+                <EvenementBlock
+                  key={e.id}
+                  evenement={e}
+                  zoom={zoom}
+                  position={positions.get(e.id)}
+                  onSelect={onSelectEvenement}
+                />
+              ))}
               {dayTachesAvecHeure.map((t) => (
                 <TacheBlock
                   key={t.id}

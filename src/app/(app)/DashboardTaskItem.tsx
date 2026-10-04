@@ -15,6 +15,7 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
   heure,
   fait,
   echeance,
+  detail,
 }: {
   id: string;
   titre: string;
@@ -23,6 +24,9 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
   // Échéance vue à l'écran, transmise à setTacheFait (garde d'idempotence
   // des tâches récurrentes, voir TasksList.tsx).
   echeance: string | null;
+  // Texte discret à droite à la place de l'heure (ex. « il y a 3 j » pour une
+  // tâche en retard).
+  detail?: string;
 }) {
   const queryClient = useQueryClient();
 
@@ -88,7 +92,9 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
         >
           {titre}
         </span>
-        {heure && <span className="shrink-0 text-[11.5px] font-medium tabular-nums text-ink-3">{heure.slice(0, 5)}</span>}
+        {(detail ?? heure?.slice(0, 5)) && (
+          <span className="shrink-0 text-[11.5px] font-medium tabular-nums text-ink-3">{detail ?? heure?.slice(0, 5)}</span>
+        )}
       </div>
     </div>
   );

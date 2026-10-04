@@ -107,6 +107,20 @@ fixtures.taches = [
   },
 ];
 
+// Un événement léger aujourd'hui (écran « Aujourd'hui », e2e/aujourdhui.spec.ts).
+fixtures.evenements = [
+  {
+    id: "00000000-0000-4000-8000-0000000000e1",
+    titre: "Rendez-vous e2e",
+    date: "__TODAY__",
+    heure: "09:00:00",
+    heure_fin: "10:00:00",
+    notes: null,
+    created_at: "2026-09-01T00:00:00+00:00",
+    updated_at: "2026-09-01T00:00:00+00:00",
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Données réalistes pour le Journal, les Recettes et le Budget (préchargement
 // de données : un préchargement de listes vides ne prouverait rien).
