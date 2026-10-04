@@ -6,14 +6,14 @@ import { queryKeys } from "@/lib/query/keys";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { DashboardHabitItem } from "./DashboardHabitItem";
 
-export function DashboardHabitudesSection({ today }: { today: string }) {
+export function DashboardHabitudesSection({ today, className = "mt-4" }: { today: string; className?: string }) {
   const { data: habitudes, isLoading } = useQuery({
     queryKey: queryKeys.habitudes(today),
     queryFn: () => getHabitudesDuJour(today),
   });
 
   return (
-    <div className="mt-4 flex flex-col gap-2.5">
+    <div className={`${className} flex flex-col gap-2.5`}>
       <span
         className="px-0.5 text-[14px] font-semibold text-ink"
         style={{ viewTransitionName: "habitudes-titre-dashboard" }}

@@ -1,7 +1,7 @@
 // Plages libres de la journée : logique pure (aucun réseau, aucune base),
-// calculée par l'app et non par Gemini — un petit modèle se trompe sur les
-// intervalles de temps, un calcul déterministe est exact et testable. Gemini
-// ne fait que choisir quoi placer dans les plages qu'on lui donne.
+// calculée par l'app — un calcul déterministe est exact et testable. Sert à
+// la frise de l'écran « Aujourd'hui » (trous libres) et, plus tard, au
+// blocage de temps.
 
 /** Plage horaire d'une même journée, bornes au format `HH:MM`. */
 export type Plage = { debut: string; fin: string };

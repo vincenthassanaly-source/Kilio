@@ -443,6 +443,39 @@ export type Database = {
         }
         Relationships: []
       }
+      evenements: {
+        Row: {
+          created_at: string
+          date: string
+          heure: string
+          heure_fin: string
+          id: string
+          notes: string | null
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          heure: string
+          heure_fin: string
+          id?: string
+          notes?: string | null
+          titre: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          heure?: string
+          heure_fin?: string
+          id?: string
+          notes?: string | null
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       habitude_entries: {
         Row: {
           created_at: string

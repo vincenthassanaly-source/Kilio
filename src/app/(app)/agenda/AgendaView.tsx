@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   addDays,
   addMonths,
   addWeeks,
+  endOfMonth,
+  startOfMonth,
   startOfToday,
   startOfWeek,
   subDays,
@@ -17,6 +19,9 @@ import {
 } from "date-fns";
 import { getListes, getTachesAvecRelations, getTags } from "@/app/actions/taches";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
+import { deleteEvenement, getEvenements, type Evenement } from "@/app/actions/evenements";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { EvenementForm } from "../aujourdhui/EvenementForm";
 import { queryKeys } from "@/lib/query/keys";
 import { showToast } from "@/components/toast/toast-store";
 import { DUREE_TOAST_AVERTISSEMENT_MS, actualisationEchouee, etatListeTaches } from "@/lib/taches/compute";
@@ -116,6 +121,21 @@ export function AgendaView() {
   const [view, setView] = useState<ViewKey>("jour");
   const [selectedDate, setSelectedDate] = useState<Date>(() => startOfToday());
   const [fabOpen, setFabOpen] = useState(false);
+  // Événement léger en cours d'édition (`{}` = création), voir EvenementForm.
+  const [evenementForm, setEvenementForm] = useState<{ evenement?: Evenement } | null>(null);
+  const [evenementsMasques, setEvenementsMasques] = useState<ReadonlySet<string>>(() => new Set());
+
+  // Événements du mois affiché, plus une semaine de marge de chaque côté (une
+  // semaine à cheval sur deux mois reste complète). Les événements précédents
+  // restent affichés pendant le chargement d'un autre mois.
+  const fenetreDebut = toISODate(addDays(startOfMonth(selectedDate), -7));
+  const fenetreFin = toISODate(addDays(endOfMonth(selectedDate), 7));
+  const { data: evenementsBruts = [] } = useQuery({
+    queryKey: queryKeys.evenementsPlage(fenetreDebut, fenetreFin),
+    queryFn: () => getEvenements(fenetreDebut, fenetreFin),
+    placeholderData: keepPreviousData,
+  });
+  const evenements = evenementsBruts.filter((e) => !evenementsMasques.has(e.id));
   // Tâche ciblée par un deep-link de notification (?tache=<id>, cf.
   // envoyer-rappels-taches). Contrairement à l'ancienne page Server
   // Component, `taches` n'est plus disponible dès le tout premier rendu
@@ -200,6 +220,29 @@ export function AgendaView() {
   function handleSelectTache(id: string) {
     setTacheEnSurbrillanceId(null);
     requestAnimationFrame(() => setTacheEnSurbrillanceId(id));
+  }
+
+  // Suppression d'un événement avec toast « Annuler » : masqué tout de suite,
+  // supprimé côté serveur à l'expiration du toast.
+  function supprimerEvenement(evenement: Evenement) {
+    setEvenementForm(null);
+    const retirer = () =>
+      setEvenementsMasques((m) => {
+        const suivant = new Set(m);
+        suivant.delete(evenement.id);
+        return suivant;
+      });
+    supprimerAvecAnnulation({
+      texte: `« ${evenement.titre} » supprimé`,
+      ariaLabel: `Annuler la suppression de « ${evenement.titre} »`,
+      masquer: () => setEvenementsMasques((m) => new Set(m).add(evenement.id)),
+      restaurer: retirer,
+      supprimer: () => deleteEvenement(evenement.id),
+      erreur: `Impossible de supprimer « ${evenement.titre} ». Réessaie.`,
+      onSupprime: () => {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.evenements }).then(retirer);
+      },
+    });
   }
 
   function handleChangeDate(date: Date) {
@@ -303,6 +346,29 @@ export function AgendaView() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {evenementForm && (
+          <Modal
+            key="evenement"
+            title={evenementForm.evenement ? "Modifier l'événement" : "Nouvel événement"}
+            onClose={() => setEvenementForm(null)}
+          >
+            <EvenementForm
+              evenement={evenementForm.evenement}
+              dateParDefaut={toISODate(selectedDate)}
+              onSaved={() => {
+                setEvenementForm(null);
+                showToast(evenementForm.evenement ? "Événement modifié" : "Événement ajouté");
+                queryClient.invalidateQueries({ queryKey: queryKeys.evenements });
+              }}
+              onSupprimer={
+                evenementForm.evenement ? () => supprimerEvenement(evenementForm.evenement!) : undefined
+              }
+            />
+          </Modal>
+        )}
+      </AnimatePresence>
+
       <div className="flex items-center gap-2">
         <div className="flex flex-1 rounded-2xl border border-line bg-surface p-1">
           {VIEWS.map((v) => (
@@ -326,6 +392,17 @@ export function AgendaView() {
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          onClick={() => setEvenementForm({})}
+          aria-label="Ajouter un événement"
+          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface px-3 text-[13px] font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-agenda"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Événement
+        </button>
       </div>
 
       {actualisationKo && (
@@ -360,10 +437,12 @@ export function AgendaView() {
                     tags={tags}
                     creneaux={creneaux}
                     exceptions={exceptions}
+                    evenements={evenements}
                     selectedDate={selectedDate}
                     onChangeDate={handleChangeDate}
                     tacheEnSurbrillanceId={tacheEnSurbrillanceId}
                     onSelectTache={handleSelectTache}
+                    onSelectEvenement={(evenement) => setEvenementForm({ evenement })}
                   />
                 )}
                 {view === "semaine" && (
@@ -371,6 +450,7 @@ export function AgendaView() {
                     taches={taches}
                     creneaux={creneaux}
                     exceptions={exceptions}
+                    evenements={evenements}
                     selectedDate={selectedDate}
                     onChangeDate={handleChangeDate}
                     onSelectDay={selectDay}

@@ -38,7 +38,7 @@ export type TacheBlocInfo = {
   priorite: Tables<"taches">["priorite"];
 };
 
-function horizontalStyle(position?: PositionColonne): React.CSSProperties | undefined {
+export function horizontalStyle(position?: PositionColonne): React.CSSProperties | undefined {
   if (!position || position.nbColonnes <= 1) return undefined;
   const { colonne, nbColonnes } = position;
   return {

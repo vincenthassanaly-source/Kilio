@@ -4,28 +4,26 @@ import { useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   deplacerTaches,
-  reporterTaches,
   restaurerTaches,
   supprimerTaches,
   type EtatTacheRestaurable,
   type TacheAvecRelations,
 } from "@/app/actions/taches";
 import { showActionToast } from "@/components/toast/toast-store";
-import { aujourdhuiISO } from "@/lib/budget/compute";
 import { runAction } from "@/lib/actions/runAction";
 import type { ActionResult } from "@/lib/actions/result";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { queryKeys } from "@/lib/query/keys";
-import { dateReport, type CibleReport } from "@/lib/taches/compute";
+import type { CibleReport } from "@/lib/taches/compute";
 import { masquerTaches, reafficherTaches } from "@/lib/taches/masquees";
 import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, ghostButton } from "@/lib/ui";
+import { LIBELLES_REPORT, useReporterTaches } from "./useReporterTaches";
 
-const REPORTS: { cible: CibleReport; label: string }[] = [
-  { cible: "aujourdhui", label: "Aujourd'hui" },
-  { cible: "demain", label: "Demain" },
-  { cible: "semaine_prochaine", label: "Lundi" },
-];
+const REPORTS = (Object.keys(LIBELLES_REPORT) as CibleReport[]).map((cible) => ({
+  cible,
+  label: LIBELLES_REPORT[cible],
+}));
 
 function pluriel(n: number) {
   return n === 1 ? "1 tâche" : `${n} tâches`;
@@ -50,6 +48,7 @@ export function SelectionBar({
   onDone: () => void;
 }) {
   const queryClient = useQueryClient();
+  const reporterEtAnnuler = useReporterTaches();
   const [panneau, setPanneau] = useState<"reporter" | "liste" | null>(null);
   const [pending, startTransition] = useTransition();
   const nombre = ids.size;
@@ -86,10 +85,11 @@ export function SelectionBar({
     });
   }
 
-  function reporter(cible: CibleReport, label: string) {
-    const date = dateReport(cible, aujourdhuiISO());
-    const liste = [...ids];
-    appliquer(`Reporté à « ${label.toLowerCase()} »`, () => reporterTaches(liste, date));
+  function reporter(cible: CibleReport) {
+    const choisies = taches.filter((t) => ids.has(t.id));
+    startTransition(async () => {
+      if (await reporterEtAnnuler(choisies, cible)) onDone();
+    });
   }
 
   function deplacer(listeId: string, nom: string) {
@@ -136,7 +136,7 @@ export function SelectionBar({
               key={cible}
               type="button"
               disabled={vide || pending}
-              onClick={() => reporter(cible, label)}
+              onClick={() => reporter(cible)}
               className={`${ghostButton} disabled:opacity-40`}
             >
               {label}

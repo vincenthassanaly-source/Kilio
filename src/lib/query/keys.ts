@@ -29,6 +29,11 @@ export const queryKeys = {
   collection: (id: string) => ["collection", id] as const,
   // Sans mutation côté app (écrites uniquement hors Server Action, cf.
   // skill kilio-planning-travail) : voir AgendaView pour le staleTime dédié.
+  // Événements légers de l'agenda, par jour (écran Aujourd'hui) ou par plage
+  // (Agenda) : toute écriture invalide la racine `evenements`.
+  evenements: ["evenements"] as const,
+  evenementsDuJour: (date: string) => ["evenements", date] as const,
+  evenementsPlage: (debut: string, fin: string) => ["evenements", debut, fin] as const,
   planningTravail: ["planning-travail"] as const,
   planningTravailExceptions: ["planning-travail-exceptions"] as const,
 };

@@ -14,6 +14,7 @@ import {
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { Tables } from "@/lib/supabase/types";
+import type { Evenement } from "@/app/actions/evenements";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
 import { layoutChevauchements } from "@/lib/agenda/compute";
 import { PeriodHeader } from "./PeriodHeader";
@@ -29,6 +30,7 @@ import {
   WorkHoursBand,
 } from "./TimeGrid";
 import { TacheBlock } from "./TacheBlock";
+import { EvenementBlock } from "../aujourdhui/EvenementBlock";
 import {
   BASE_DAY_COLUMN_WIDTH,
   computeMinZoomForWeekWidth,
@@ -48,6 +50,7 @@ export function WeekView({
   taches,
   creneaux,
   exceptions,
+  evenements = [],
   selectedDate,
   onChangeDate,
   onSelectDay,
@@ -55,6 +58,7 @@ export function WeekView({
   taches: Tache[];
   creneaux: Tables<"horaires_travail_creneaux">[];
   exceptions: Tables<"horaires_travail_exceptions">[];
+  evenements?: Evenement[];
   selectedDate: Date;
   onChangeDate: (date: Date) => void;
   onSelectDay: (date: Date) => void;
@@ -77,6 +81,7 @@ export function WeekView({
         creneauxJour: ReturnType<typeof getCreneauxDuJour>;
         dayTachesAvecHeure: Tache[];
         dayTachesSansHeure: Tache[];
+        dayEvenements: Evenement[];
         positions: ReturnType<typeof layoutChevauchements>;
       }
     >();
@@ -88,14 +93,15 @@ export function WeekView({
       const dayTachesSansHeure = taches.filter(
         (t) => !t.fait && t.echeance && isSameDay(parseISODate(t.echeance), day) && !t.heure
       );
-      const positions = layoutChevauchements(dayTachesAvecHeure);
-      map.set(day.toISOString(), { creneauxJour, dayTachesAvecHeure, dayTachesSansHeure, positions });
+      const dayEvenements = evenements.filter((e) => isSameDay(parseISODate(e.date), day));
+      const positions = layoutChevauchements([...dayTachesAvecHeure, ...dayEvenements]);
+      map.set(day.toISOString(), { creneauxJour, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions });
     }
     return map;
     // weekStart/weekEnd sont dérivés de façon pure de selectedDate (date-fns,
     // sans état mutable) : selectedDate suffit comme dépendance.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taches, selectedDate, creneaux, exceptions]);
+  }, [taches, evenements, selectedDate, creneaux, exceptions]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   // Zoom minimal dynamique : le plancher de dézoom est fixé au niveau
@@ -155,11 +161,12 @@ export function WeekView({
             </div>
 
             {days.map((day) => {
-              const { creneauxJour, dayTachesAvecHeure, dayTachesSansHeure, positions } =
+              const { creneauxJour, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions } =
                 parJour.get(day.toISOString()) ?? {
                   creneauxJour: [],
                   dayTachesAvecHeure: [],
                   dayTachesSansHeure: [],
+                  dayEvenements: [],
                   positions: new Map(),
                 };
 
@@ -210,6 +217,9 @@ export function WeekView({
                     <HourLines zoom={zoom} />
                     <WorkHoursBand creneaux={creneauxJour} zoom={zoom} />
                     {isToday(day) && <NowLine zoom={zoom} />}
+                    {dayEvenements.map((e) => (
+                      <EvenementBlock key={e.id} evenement={e} zoom={zoom} position={positions.get(e.id)} compact />
+                    ))}
                     {dayTachesAvecHeure.map((t) => (
                       <TacheBlock key={t.id} tache={t} zoom={zoom} position={positions.get(t.id)} compact />
                     ))}
