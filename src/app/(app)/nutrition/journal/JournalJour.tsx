@@ -12,9 +12,11 @@ import { ObjectifForm } from "./ObjectifForm";
 import { ResumeJour } from "./ResumeJour";
 import { JournalEntriesList, type JournalEntryView } from "./JournalEntriesList";
 import { JournalJourAnime } from "./JournalSwipeWrapper";
-import { JourNavigation, JourTypeOnglets } from "./JournalNavigationJour";
+import { JourNavigation } from "./JournalNavigationJour";
 import { AjoutRepasBouton } from "./AjoutRepasBouton";
 import { lireJourJournal, type JournalSearchParams } from "./jour";
+import { getPlanningEntrainement } from "@/app/actions/journal";
+import { jourTypePourDate } from "@/lib/nutrition/planning";
 
 // Parties du Journal qui dépendent du jour affiché (URL ou date du jour),
 // chacune rendue sous son propre <Suspense> par page.tsx.
@@ -33,20 +35,13 @@ export async function JournalJourNavigation({ searchParams }: { searchParams: Jo
   return <JourNavigation jour={await lireJourJournal(searchParams)} />;
 }
 
-export async function JournalJourOnglets({ searchParams }: { searchParams: JournalSearchParams }) {
-  return <JourTypeOnglets jour={await lireJourJournal(searchParams)} />;
-}
-
 export async function JournalJour({ searchParams }: { searchParams: JournalSearchParams }) {
-  const { date, jourType } = await lireJourJournal(searchParams);
+  const { date } = await lireJourJournal(searchParams);
   const supabase = createAdminClient();
 
-  const [{ data: objectif }, { data: entries }] = await Promise.all([
-    supabase
-      .from("objectifs_nutritionnels")
-      .select("*")
-      .eq("jour_type", jourType)
-      .maybeSingle(),
+  const [{ data: objectifs }, planning, { data: entries }] = await Promise.all([
+    supabase.from("objectifs_nutritionnels").select("*"),
+    getPlanningEntrainement(),
     supabase
       .from("journal_repas")
       .select(
@@ -99,6 +94,11 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
       };
     });
 
+  const jourType = jourTypePourDate(date, planning);
+  const objectifRepos = objectifs?.find((o) => o.jour_type === "repos") ?? null;
+  const objectifEntrainement = objectifs?.find((o) => o.jour_type === "entrainement") ?? null;
+  const objectif = jourType === "entrainement" ? objectifEntrainement : objectifRepos;
+
   const consomme = views.reduce((acc, v) => addNutrition(acc, v.nutrition), zeroNutrition());
   const cible = objectif
     ? {
@@ -111,11 +111,11 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
 
   return (
     <>
-    <JournalJourAnime key={date} date={date} jourType={jourType}>
+    <JournalJourAnime key={date} date={date}>
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
           <h2 className={sectionTitle}>Objectif ({jourType === "repos" ? "repos" : "entraînement"})</h2>
-          <ObjectifForm jourType={jourType} objectif={objectif} />
+          <ObjectifForm repos={objectifRepos} entrainement={objectifEntrainement} jours={planning} />
         </div>
 
         <div className="flex flex-col gap-2">

@@ -1,4 +1,4 @@
-const CACHE_NAME = "nutrition-app-shell-v2";
+const CACHE_NAME = "nutrition-app-shell-v3";
 // Photos reçues par le partage natif (Web Share Target), mises de côté le
 // temps que la page /collection/partage/choisir les compresse côté client
 // (src/lib/images/compression.ts) puis les envoie par lots. Sans ce détour,
@@ -102,13 +102,9 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   if (url.origin !== self.location.origin) return;
 
-  // /sport-img/ : images des exercices (module Sport), immuables et lourdes à
-  // retélécharger en salle de sport — servies depuis le cache dès qu'elles ont
-  // été vues une fois, donc visibles même sans réseau.
   const isStaticAsset =
     url.pathname.startsWith("/_next/static/") ||
-    url.pathname.startsWith("/icons/") ||
-    url.pathname.startsWith("/sport-img/");
+    url.pathname.startsWith("/icons/");
 
   if (!isStaticAsset) {
     event.respondWith(

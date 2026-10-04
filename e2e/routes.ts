@@ -27,8 +27,6 @@ export const ROUTES: RouteContract[] = [
   { path: "/nutrition/recettes", title: "Recettes" },
   { path: "/objectifs", title: "Objectifs" },
   { path: "/documents", title: "Documents" },
-  { path: "/sport", title: "Sport" },
-  { path: "/sport/exercices", title: "Exercices" },
   { path: "/collection", title: "Collection" },
   { path: "/pharmacie", title: "Pharmacie" },
   { path: "/plus", title: "Plus" },

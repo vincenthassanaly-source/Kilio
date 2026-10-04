@@ -1,5 +1,5 @@
 // Classes du contrôle segmenté, dans un module sans directive "use client" :
-// elles servent aussi aux rendus serveur (fallback de la bascule du Journal).
+// elles servent aussi aux rendus serveur.
 // Composant interactif : components/SegmentedControl.tsx.
 
 export const SEGMENT_CADRE = "flex gap-1 rounded-2xl bg-surface-alt p-1";

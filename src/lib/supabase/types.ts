@@ -574,27 +574,6 @@ export type Database = {
         }
         Relationships: []
       }
-      journal_jours: {
-        Row: {
-          created_at: string
-          date: string
-          jour_type: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          date: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       journal_repas: {
         Row: {
           aliment_id: string | null
@@ -771,6 +750,24 @@ export type Database = {
           },
         ]
       }
+      nutrition_planning: {
+        Row: {
+          id: number
+          jours_entrainement: number[]
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          jours_entrainement?: number[]
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          jours_entrainement?: number[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       objectif_habitudes: {
         Row: {
           created_at: string
@@ -924,7 +921,7 @@ export type Database = {
           created_at: string
           glucides_cible_g: number
           id: string
-          jour_type: Database["public"]["Enums"]["jour_type_ppl"]
+          jour_type: string
           kcal_cible: number
           lipides_cible_g: number
           proteines_cible_g: number
@@ -934,7 +931,7 @@ export type Database = {
           created_at?: string
           glucides_cible_g?: number
           id?: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
+          jour_type?: string
           kcal_cible: number
           lipides_cible_g?: number
           proteines_cible_g?: number
@@ -944,7 +941,7 @@ export type Database = {
           created_at?: string
           glucides_cible_g?: number
           id?: string
-          jour_type?: Database["public"]["Enums"]["jour_type_ppl"]
+          jour_type?: string
           kcal_cible?: number
           lipides_cible_g?: number
           proteines_cible_g?: number
@@ -1714,215 +1711,6 @@ export type Database = {
           },
         ]
       }
-      sport_exercices: {
-        Row: {
-          categorie: string
-          created_at: string
-          equipement: string | null
-          id: string
-          images: string[]
-          instructions_fr: string[]
-          mecanique: string | null
-          muscle_principal: string
-          muscles_secondaires: string[]
-          niveau: string | null
-          nom_en: string
-          nom_fr: string
-          type_mesure: string
-        }
-        Insert: {
-          categorie: string
-          created_at?: string
-          equipement?: string | null
-          id: string
-          images?: string[]
-          instructions_fr?: string[]
-          mecanique?: string | null
-          muscle_principal: string
-          muscles_secondaires?: string[]
-          niveau?: string | null
-          nom_en: string
-          nom_fr: string
-          type_mesure?: string
-        }
-        Update: {
-          categorie?: string
-          created_at?: string
-          equipement?: string | null
-          id?: string
-          images?: string[]
-          instructions_fr?: string[]
-          mecanique?: string | null
-          muscle_principal?: string
-          muscles_secondaires?: string[]
-          niveau?: string | null
-          nom_en?: string
-          nom_fr?: string
-          type_mesure?: string
-        }
-        Relationships: []
-      }
-      sport_routine_exercices: {
-        Row: {
-          exercice_id: string
-          id: string
-          nb_series: number
-          position: number
-          repos_s: number
-          reps_cible: number | null
-          routine_id: string
-        }
-        Insert: {
-          exercice_id: string
-          id?: string
-          nb_series?: number
-          position: number
-          repos_s?: number
-          reps_cible?: number | null
-          routine_id: string
-        }
-        Update: {
-          exercice_id?: string
-          id?: string
-          nb_series?: number
-          position?: number
-          repos_s?: number
-          reps_cible?: number | null
-          routine_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sport_routine_exercices_exercice_id_fkey"
-            columns: ["exercice_id"]
-            isOneToOne: false
-            referencedRelation: "sport_exercices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sport_routine_exercices_routine_id_fkey"
-            columns: ["routine_id"]
-            isOneToOne: false
-            referencedRelation: "sport_routines"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sport_routines: {
-        Row: {
-          created_at: string
-          id: string
-          nom: string
-          ordre: number
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          nom: string
-          ordre?: number
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          nom?: string
-          ordre?: number
-        }
-        Relationships: []
-      }
-      sport_seances: {
-        Row: {
-          created_at: string
-          debut_at: string
-          fin_at: string
-          id: string
-          jour: string
-          nom: string
-          notes: string | null
-          routine_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          debut_at: string
-          fin_at: string
-          id: string
-          jour: string
-          nom: string
-          notes?: string | null
-          routine_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          debut_at?: string
-          fin_at?: string
-          id?: string
-          jour?: string
-          nom?: string
-          notes?: string | null
-          routine_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sport_seances_routine_id_fkey"
-            columns: ["routine_id"]
-            isOneToOne: false
-            referencedRelation: "sport_routines"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sport_series: {
-        Row: {
-          duree_s: number | null
-          exercice_id: string
-          fait_at: string
-          id: string
-          ordre: number
-          poids_kg: number | null
-          position: number
-          repos_pris_s: number | null
-          reps: number | null
-          seance_id: string
-        }
-        Insert: {
-          duree_s?: number | null
-          exercice_id: string
-          fait_at: string
-          id: string
-          ordre: number
-          poids_kg?: number | null
-          position: number
-          repos_pris_s?: number | null
-          reps?: number | null
-          seance_id: string
-        }
-        Update: {
-          duree_s?: number | null
-          exercice_id?: string
-          fait_at?: string
-          id?: string
-          ordre?: number
-          poids_kg?: number | null
-          position?: number
-          repos_pris_s?: number | null
-          reps?: number | null
-          seance_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sport_series_exercice_id_fkey"
-            columns: ["exercice_id"]
-            isOneToOne: false
-            referencedRelation: "sport_exercices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sport_series_seance_id_fkey"
-            columns: ["seance_id"]
-            isOneToOne: false
-            referencedRelation: "sport_seances"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tache_images: {
         Row: {
           created_at: string
@@ -2271,7 +2059,6 @@ export type Database = {
         | "tests"
       frequence_recurrence: "quotidien" | "hebdomadaire" | "mensuel" | "annuel"
       habitude_type: "boolean" | "streak" | "quantifiee"
-      jour_type_ppl: "entrainement" | "repos"
       moment_repas: "petit_dej" | "dejeuner" | "diner" | "collation"
       note_type: "texte" | "checklist"
       priorite_tache: "aucune" | "basse" | "moyenne" | "haute"
@@ -2427,7 +2214,6 @@ export const Constants = {
       ],
       frequence_recurrence: ["quotidien", "hebdomadaire", "mensuel", "annuel"],
       habitude_type: ["boolean", "streak", "quantifiee"],
-      jour_type_ppl: ["entrainement", "repos"],
       moment_repas: ["petit_dej", "dejeuner", "diner", "collation"],
       note_type: ["texte", "checklist"],
       priorite_tache: ["aucune", "basse", "moyenne", "haute"],

@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { useSwipeHorizontal, type SensSwipe } from "@/hooks/useSwipeHorizontal";
 import { shiftDate } from "@/lib/date/iso";
 
-type JourCourant = { date: string; jourType: string };
+type JourCourant = { date: string };
 
 const JournalSwipeContext = createContext<{
   sens: SensSwipe;
@@ -15,7 +15,7 @@ const JournalSwipeContext = createContext<{
 /**
  * Ajoute le swipe horizontal (même geste/tolérances que l'Agenda, voir
  * `useSwipeHorizontal`) au Journal Nutrition — un composant serveur dont
- * chaque changement de jour recharge via `searchParams` (`date`, `jour`).
+ * chaque changement de jour recharge via `searchParams` (`date`).
  *
  * Englobe toute la page, coquille comprise : il ne connaît donc pas le jour
  * affiché, qui arrive en streaming. `JournalJourAnime` (rendu avec le
@@ -37,7 +37,6 @@ export function JournalSwipeWrapper({ children }: { children: ReactNode }) {
     if (!jour) return;
     setSens(sensSwipe);
     const nouvelleDate = shiftDate(jour.date, sensSwipe === "suivant" ? 1 : -1);
-    // Sans `&jour=` : le jour d'arrivée applique son propre type mémorisé.
     // replace : un changement de jour ne doit pas empiler l'historique (retour = sortir du Journal).
     router.replace(`/nutrition/journal?date=${nouvelleDate}`);
   });
@@ -52,21 +51,13 @@ export function JournalSwipeWrapper({ children }: { children: ReactNode }) {
 }
 
 /** Contenu du jour affiché : l'annonce au swipe et rejoue le glissement. */
-export function JournalJourAnime({
-  date,
-  jourType,
-  children,
-}: {
-  date: string;
-  jourType: string;
-  children: ReactNode;
-}) {
+export function JournalJourAnime({ date, children }: { date: string; children: ReactNode }) {
   const contexte = useContext(JournalSwipeContext);
   const enregistrerJour = contexte?.enregistrerJour;
 
   useEffect(() => {
-    enregistrerJour?.({ date, jourType });
-  }, [enregistrerJour, date, jourType]);
+    enregistrerJour?.({ date });
+  }, [enregistrerJour, date]);
 
   return (
     <div className={contexte?.sens === "precedent" ? "agenda-glisse-precedent" : "agenda-glisse-suivant"}>

@@ -223,29 +223,6 @@ fixtures.transactions_recurrentes = [
   },
 ];
 
-// Module Sport : bibliothèque réduite à trois exercices et une routine « Push »
-// (deux exercices) ; aucune séance enregistrée au départ.
-const SPORT_BANC = "Barbell_Bench_Press_-_Medium_Grip";
-const SPORT_SQUAT = "Barbell_Squat";
-const SPORT_PLANCHE = "Plank";
-const sportExercice = (id, nom_fr, nom_en, muscle_principal, type_mesure, instructions) => ({
-  id, nom_fr, nom_en, muscle_principal, muscles_secondaires: [], equipement: "barbell", categorie: "strength",
-  niveau: "beginner", mecanique: "compound", type_mesure, instructions_fr: instructions,
-  images: [`${id}/0.webp`, `${id}/1.webp`], created_at: ts,
-});
-fixtures.sport_exercices = [
-  sportExercice(SPORT_BANC, "Développé couché à la barre, prise moyenne", "Barbell Bench Press - Medium Grip", "chest", "poids_reps", ["Allonge-toi sur un banc plat.", "Descends la barre vers la poitrine puis repousse."]),
-  sportExercice(SPORT_SQUAT, "Squat à la barre", "Barbell Squat", "quadriceps", "poids_reps", ["Place la barre sur les trapèzes.", "Descends en fléchissant les genoux puis remonte."]),
-  sportExercice(SPORT_PLANCHE, "Gainage planche", "Plank", "abdominals", "duree", ["Appuie-toi sur les avant-bras et garde le corps aligné."]),
-];
-fixtures.sport_routines = [{ id: uuid(2001), nom: "Push", ordre: 0, created_at: ts }];
-fixtures.sport_routine_exercices = [
-  { id: uuid(2101), routine_id: uuid(2001), exercice_id: SPORT_BANC, position: 0, nb_series: 3, reps_cible: 8, repos_s: 90 },
-  { id: uuid(2102), routine_id: uuid(2001), exercice_id: SPORT_SQUAT, position: 1, nb_series: 2, reps_cible: 10, repos_s: 60 },
-];
-fixtures.sport_seances = [];
-fixtures.sport_series = [];
-
 // Embeds PostgREST (`alias:table(...)`) : reconstitués à la lecture à partir
 // des clés étrangères, uniquement si la requête les demande dans `select`.
 const pick = (table, id) => (id ? fixtures[table]?.find((r) => r.id === id) ?? null : null);
@@ -262,13 +239,6 @@ const RELATIONS = {
     recette_ingredients_libres: (r) => (fixtures.recette_ingredients_libres ?? []).filter((i) => i.recette_id === r.id),
   },
   recette_ingredients: { aliment: (r) => pick("aliments", r.aliment_id) },
-  sport_routines: {
-    sport_routine_exercices: (r) =>
-      (fixtures.sport_routine_exercices ?? [])
-        .filter((ligne) => ligne.routine_id === r.id)
-        .map((ligne) => ({ ...ligne, exercice: pick("sport_exercices", ligne.exercice_id) })),
-  },
-  sport_routine_exercices: { exercice: (r) => pick("sport_exercices", r.exercice_id) },
   transactions: {
     compte: (r) => pick("comptes", r.compte_id),
     compte_destination: (r) => pick("comptes", r.compte_destination_id),

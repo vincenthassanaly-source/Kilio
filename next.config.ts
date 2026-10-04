@@ -12,17 +12,6 @@ const supabaseUrl = e2eSupabaseUrl ?? "https://vsmtkopkqasrdnjceegp.supabase.co"
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
-  // Images des exercices (module Sport) servies sous /sport-img/… : même
-  // origine que l'app, donc mises en cache par le service worker (public/sw.js)
-  // et disponibles hors ligne en salle de sport.
-  async rewrites() {
-    return [
-      {
-        source: "/sport-img/:path*",
-        destination: `${supabaseUrl}/storage/v1/object/public/sport-exercices/:path*`,
-      },
-    ];
-  },
   // Chaque <Link> précharge la coquille partagée de sa route (App Shell) ;
   // <Link prefetch={true}> résout en plus le contenu propre à son URL.
   // Voir reports/2026-09-24-partial-prefetching-coquilles-journal-budget.md.

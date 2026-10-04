@@ -1,4 +1,5 @@
 import { shiftDate } from "@/lib/date/iso";
+import { jourTypePourDate, type JourType } from "./planning";
 import {
   addNutrition,
   hasNutritionOverride,
@@ -18,7 +19,7 @@ import {
 // (rouge) : même seuil que l'anneau du Journal (ResumeJour.tsx).
 export const SEUIL_DEPASSEMENT_LEGER = 1.1;
 
-export type JourType = "repos" | "entrainement";
+export type { JourType };
 
 type MacrosAliment = {
   kcal_100g: number;
@@ -101,18 +102,18 @@ export function evaluerJour(params: {
 
 /**
  * Bilan des `nbJours` derniers jours jusqu'à `aujourdhui` inclus, du plus
- * ancien au plus récent. `jourTypes` : type de jour mémorisé par date
- * (absent = repos, comme le Journal). Les cibles sont celles d'aujourd'hui,
- * non historisées.
+ * ancien au plus récent. `joursEntrainement` : planning hebdomadaire (jours
+ * ISO 1 à 7) qui décide du type de chaque jour, vide = repos partout. Les
+ * cibles sont celles d'aujourd'hui, non historisées.
  */
 export function construireBilan(params: {
   aujourdhui: string;
   nbJours: number;
   entrees: EntreeJournal[];
-  jourTypes: Record<string, JourType>;
+  joursEntrainement: readonly number[];
   cibles: Record<JourType, CiblesJour | null>;
 }): JourBilan[] {
-  const { aujourdhui, nbJours, entrees, jourTypes, cibles } = params;
+  const { aujourdhui, nbJours, entrees, joursEntrainement, cibles } = params;
 
   const parDate = new Map<string, { consomme: Nutrition; nbRepas: number }>();
   for (const entree of entrees) {
@@ -128,7 +129,7 @@ export function construireBilan(params: {
   const jours: JourBilan[] = [];
   for (let i = nbJours - 1; i >= 0; i--) {
     const date = shiftDate(aujourdhui, -i);
-    const jourType = jourTypes[date] ?? "repos";
+    const jourType = jourTypePourDate(date, joursEntrainement);
     const { consomme, nbRepas } = parDate.get(date) ?? { consomme: zeroNutrition(), nbRepas: 0 };
     const cible = cibles[jourType];
     const { statut, gravite } = evaluerJour({ consomme, cible, nbRepas, estAujourdhui: date === aujourdhui });
