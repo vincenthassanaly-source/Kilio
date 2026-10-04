@@ -1,3 +1,4 @@
+import { addDays, format } from "date-fns";
 import { calculerProchaineOccurrence } from "@/lib/budget/compute";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
@@ -117,6 +118,8 @@ export type ChampsAvancesTache = Pick<
   | "recurrence_frequence"
   | "recurrence_fin"
 > & {
+  /** Absente tant que la migration `duree_minutes` n'est pas appliquée. */
+  duree_minutes?: number | null;
   images: readonly unknown[];
   tags: readonly unknown[];
 };
@@ -230,6 +233,86 @@ export function champsAvancesRenseignes(tache: ChampsAvancesTache): boolean {
     tache.toute_la_journee ||
     tache.tags.length > 0 ||
     tache.recurrence_frequence !== null ||
-    tache.recurrence_fin !== null
+    tache.recurrence_fin !== null ||
+    (tache.duree_minutes ?? null) !== null
   );
+}
+
+// --- Durée estimée -------------------------------------------------------
+
+// Durées proposées par le formulaire (en minutes). Le serveur accepte tout
+// entier entre 1 et DUREE_MAX_MINUTES : la liste ne sert qu'à la saisie.
+export const DUREES_MINUTES = [15, 30, 45, 60, 90, 120, 180, 240] as const;
+const DUREE_MAX_MINUTES = 1440;
+
+/** « 45 min », « 1 h », « 1 h 30 » : libellé court d'une durée estimée. */
+export function libelleDuree(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m === 0 ? `${h} h` : `${h} h ${String(m).padStart(2, "0")}`;
+}
+
+/** Entier de minutes valide (1..DUREE_MAX_MINUTES), sinon `null`. */
+export function parseDureeMinutes(brut: string): number | null {
+  const texte = brut.trim();
+  if (!texte) return null;
+  const n = Number(texte);
+  return Number.isInteger(n) && n >= 1 && n <= DUREE_MAX_MINUTES ? n : null;
+}
+
+// --- Tri et filtre par priorité --------------------------------------------
+
+export type Priorite = Enums<"priorite_tache">;
+export type OrdreTaches = "manuel" | "priorite" | "echeance";
+
+const RANG_PRIORITE: Record<Priorite, number> = { haute: 0, moyenne: 1, basse: 2, aucune: 3 };
+
+type AvecPriorite = { priorite: Priorite; echeance: string | null };
+
+/**
+ * Tri d'affichage des tâches actives. `manuel` conserve l'ordre reçu (celui
+ * du glisser-déposer, calculé côté serveur). `priorite` : haute d'abord, puis
+ * échéance la plus proche, sans échéance en dernier. `echeance` : date
+ * croissante puis priorité. Le tri est stable : à critères égaux, l'ordre
+ * manuel reste l'ordre de départage.
+ */
+export function trierTaches<T extends AvecPriorite>(taches: readonly T[], ordre: OrdreTaches): T[] {
+  if (ordre === "manuel") return [...taches];
+  const parEcheance = (a: T, b: T) =>
+    a.echeance === b.echeance
+      ? 0
+      : a.echeance === null
+        ? 1
+        : b.echeance === null
+          ? -1
+          : a.echeance < b.echeance
+            ? -1
+            : 1;
+  const parPriorite = (a: T, b: T) => RANG_PRIORITE[a.priorite] - RANG_PRIORITE[b.priorite];
+  return [...taches].sort(ordre === "priorite" ? (a, b) => parPriorite(a, b) || parEcheance(a, b) : (a, b) => parEcheance(a, b) || parPriorite(a, b));
+}
+
+/** Garde les tâches dont la priorité est cochée ; ensemble vide = pas de filtre. */
+export function filtrerParPriorite<T extends { priorite: Priorite }>(
+  taches: readonly T[],
+  priorites: ReadonlySet<Priorite>
+): T[] {
+  return priorites.size === 0 ? [...taches] : taches.filter((t) => priorites.has(t.priorite));
+}
+
+// --- Report d'échéance ------------------------------------------------------
+
+export type CibleReport = "aujourdhui" | "demain" | "semaine_prochaine";
+
+/**
+ * Date ISO d'un report rapide. « Semaine prochaine » = lundi prochain
+ * (jamais aujourd'hui : un lundi, c'est le lundi suivant).
+ */
+export function dateReport(cible: CibleReport, today: string): string {
+  const base = new Date(`${today}T00:00:00`);
+  if (cible === "aujourdhui") return today;
+  if (cible === "demain") return format(addDays(base, 1), "yyyy-MM-dd");
+  const joursJusquauLundi = ((8 - base.getDay()) % 7) || 7;
+  return format(addDays(base, joursJusquauLundi), "yyyy-MM-dd");
 }

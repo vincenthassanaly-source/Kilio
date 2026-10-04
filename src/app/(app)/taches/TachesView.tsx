@@ -12,14 +12,19 @@ import {
   actualisationEchouee,
   echeanceParDefaut,
   etatListeTaches,
+  filtrerParPriorite,
+  trierTaches,
+  type OrdreTaches,
+  type Priorite,
   type VueTache,
 } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
 import { AddTaskToggle } from "./AddTaskToggle";
+import { SelectionBar } from "./SelectionBar";
 import { TasksList } from "./TasksList";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { errorText, input } from "@/lib/ui";
+import { errorText, ghostButton, input } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { showToast } from "@/components/toast/toast-store";
 import { QuickAddFab } from "../QuickAddFab";
@@ -62,6 +67,19 @@ const VUES: { key: VueKey; label: string }[] = [
   { key: "toutes", label: "Toutes" },
 ];
 
+const ORDRES: { value: OrdreTaches; label: string }[] = [
+  { value: "manuel", label: "Ordre manuel" },
+  { value: "priorite", label: "Priorité" },
+  { value: "echeance", label: "Échéance" },
+];
+
+const FILTRES_PRIORITE: { value: Priorite; label: string }[] = [
+  { value: "haute", label: "Haute" },
+  { value: "moyenne", label: "Moyenne" },
+  { value: "basse", label: "Basse" },
+  { value: "aucune", label: "Sans priorité" },
+];
+
 export function TachesView() {
   const [vue, setVue] = useState<VueKey>("toutes");
   const [listeId, setListeId] = useState<string>("toutes");
@@ -71,6 +89,11 @@ export function TachesView() {
   const [ajoutInlineOuvert, setAjoutInlineOuvert] = useState(false);
   // Tâche qui vient d'être créée : à faire défiler en vue et à surligner.
   const [tacheSurlignee, setTacheSurlignee] = useState<string | null>(null);
+  const [ordre, setOrdre] = useState<OrdreTaches>("manuel");
+  const [priorites, setPriorites] = useState<ReadonlySet<Priorite>>(() => new Set());
+  // Sélection multiple : cartes cochables + barre d'actions groupées.
+  const [selection, setSelection] = useState(false);
+  const [selectionIds, setSelectionIds] = useState<ReadonlySet<string>>(() => new Set());
   const queryClient = useQueryClient();
 
   const { data: taches, isLoading: tachesLoading, isError: tachesError } = useQuery({
@@ -96,7 +119,7 @@ export function TachesView() {
     const dansSeptJours = format(addDays(new Date(`${today}T00:00:00`), 7), "yyyy-MM-dd");
     const rechercheNormalisee = normalizeSearch(recherche);
 
-    return taches.filter((tache) => {
+    const visibles = taches.filter((tache) => {
       if (listeId !== "toutes" && tache.liste_id !== listeId) return false;
       if (vue === "aujourdhui" && tache.echeance !== today) return false;
       if (vue === "en_retard") {
@@ -114,7 +137,34 @@ export function TachesView() {
       }
       return true;
     });
-  }, [taches, vue, listeId, recherche]);
+    return trierTaches(filtrerParPriorite(visibles, priorites), ordre);
+  }, [taches, vue, listeId, recherche, priorites, ordre]);
+
+  function basculerPriorite(p: Priorite) {
+    setPriorites((courantes) => {
+      const suivantes = new Set(courantes);
+      if (!suivantes.delete(p)) suivantes.add(p);
+      return suivantes;
+    });
+  }
+
+  function basculerSelection(id: string) {
+    setSelectionIds((courants) => {
+      const suivants = new Set(courants);
+      if (!suivants.delete(id)) suivants.add(id);
+      return suivants;
+    });
+  }
+
+  function quitterSelection() {
+    setSelection(false);
+    setSelectionIds(new Set());
+  }
+
+  // Le glisser-déposer renumérote la liste complète d'après la position
+  // visuelle : il n'a de sens qu'en ordre manuel, sans filtre qui masque des
+  // tâches.
+  const reordonnable = vue === "toutes" && !recherche.trim() && ordre === "manuel" && priorites.size === 0;
 
   function invalidateTaches() {
     queryClient.invalidateQueries({ queryKey: queryKeys.taches });
@@ -236,6 +286,53 @@ export function TachesView() {
         )}
       </div>
 
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par priorité">
+          {FILTRES_PRIORITE.map((f) => {
+            const actif = priorites.has(f.value);
+            return (
+              <button
+                key={f.value}
+                type="button"
+                aria-pressed={actif}
+                onClick={() => basculerPriorite(f.value)}
+                className={`min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-[12.5px] font-semibold transition-colors ${
+                  actif ? "border-kcal bg-kcal-soft text-ink" : "border-line bg-surface text-ink-2"
+                }`}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <label className="flex min-w-0 items-center gap-2 text-sm text-ink-2">
+            <span className="shrink-0">Trier</span>
+            <select
+              value={ordre}
+              onChange={(e) => setOrdre(e.target.value as OrdreTaches)}
+              aria-label="Trier les tâches"
+              className={`${input} min-h-11 min-w-0 py-1.5 text-sm`}
+            >
+              {ORDRES.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            onClick={() => (selection ? quitterSelection() : setSelection(true))}
+            aria-pressed={selection}
+            className={ghostButton}
+          >
+            {selection ? "Terminer" : "Sélectionner"}
+          </button>
+        </div>
+      </div>
+
+      {!selection && (
       <AddTaskToggle
         listes={listes}
         tags={tags}
@@ -244,6 +341,7 @@ export function TachesView() {
         onSaved={handleCreated}
         onOpenChange={setAjoutInlineOuvert}
       />
+      )}
       {actualisationKo && (
         <p role="status" className={errorText}>
           Actualisation impossible : dernières données affichées.
@@ -265,15 +363,21 @@ export function TachesView() {
           taches={filtered}
           listes={listes}
           tags={tags}
-          reordonnable={vue === "toutes" && !recherche.trim()}
+          reordonnable={reordonnable}
           highlightedId={tacheSurlignee}
+          selectionMode={selection}
+          selectionIds={selectionIds}
+          onToggleSelect={basculerSelection}
         />
       )}
     </div>
     </PullToRefresh>
     {/* Hors de PullToRefresh : ni le bouton ni sa feuille de saisie ne doivent
         partager les gestes tactiles du tirer-pour-rafraîchir. */}
-    {!ajoutInlineOuvert && (
+    {selection && (
+      <SelectionBar ids={selectionIds} taches={taches ?? []} listes={listes} onDone={quitterSelection} />
+    )}
+    {!ajoutInlineOuvert && !selection && (
       <QuickAddFab
         directTask={{ defaultListeId, defaultEcheance, onCreated: handleCreated }}
       />

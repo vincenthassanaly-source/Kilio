@@ -10,7 +10,13 @@ import {
 } from "@/app/actions/taches";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { FREQUENCE_LABELS, aujourdhuiISO } from "@/lib/budget/compute";
-import { champsAvancesRenseignes, messageHorsLigne, type TacheInitiale } from "@/lib/taches/compute";
+import {
+  DUREES_MINUTES,
+  champsAvancesRenseignes,
+  libelleDuree,
+  messageHorsLigne,
+  type TacheInitiale,
+} from "@/lib/taches/compute";
 import { isNetworkError } from "@/lib/offline/queue";
 import { errorText, input, label as labelClass, primaryButton, secondaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
@@ -164,6 +170,7 @@ export function AddTaskForm({
     tache?.priorite ?? initial?.priorite ?? "aucune"
   );
   const [programmeJour, setProgrammeJour] = useState(tache?.programme_jour ?? false);
+  const [duree, setDuree] = useState(tache?.duree_minutes != null ? String(tache.duree_minutes) : "");
   const [frequence, setFrequence] = useState<string>(
     tache?.recurrence_frequence ?? initial?.recurrence_frequence ?? ""
   );
@@ -348,6 +355,9 @@ export function AddTaskForm({
         <input key={imageId} type="hidden" name="delete_image_ids" value={imageId} />
       ))}
       <input type="hidden" name="priorite" value={priorite} />
+      {/* Durée d'origine : le serveur n'écrit la colonne que si elle change
+          (cf. champDuree dans actions/taches.ts). */}
+      <input type="hidden" name="duree_initiale" value={tache?.duree_minutes != null ? String(tache.duree_minutes) : ""} />
 
       <div className="flex flex-col gap-1">
         <label htmlFor={`${uid}-titre`} className={labelClass}>
@@ -597,6 +607,30 @@ export function AddTaskForm({
               value={priorite}
               onChange={setPriorite}
             />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor={`${uid}-duree_minutes`} className={labelClass}>
+              Durée estimée
+            </label>
+            <select
+              id={`${uid}-duree_minutes`}
+              name="duree_minutes"
+              value={duree}
+              onChange={(e) => setDuree(e.target.value)}
+              className={input}
+            >
+              <option value="">Non renseignée</option>
+              {/* Valeur existante hors liste (saisie ailleurs) : conservée. */}
+              {duree && !DUREES_MINUTES.some((d) => String(d) === duree) && (
+                <option value={duree}>{libelleDuree(Number(duree))}</option>
+              )}
+              {DUREES_MINUTES.map((d) => (
+                <option key={d} value={d}>
+                  {libelleDuree(d)}
+                </option>
+              ))}
+            </select>
           </div>
 
           <label className="flex items-center gap-2 text-sm font-medium text-ink">

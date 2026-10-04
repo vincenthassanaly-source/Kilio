@@ -35,14 +35,15 @@ export function supprimerAvecAnnulation({
   restaurer: () => void;
   supprimer: () => Promise<ActionResult<unknown> | unknown>;
   erreur: string;
-  onSupprime?: () => void;
+  /** Reçoit la valeur renvoyée par `supprimer` (ex. suppression mise en file hors ligne). */
+  onSupprime?: (data: unknown) => void;
 }) {
   masquer();
   let annule = false;
   const timer = window.setTimeout(async () => {
     if (annule) return;
     const resultat = await runAction(supprimer, { erreur, onError: restaurer });
-    if (resultat.ok) onSupprime?.();
+    if (resultat.ok) onSupprime?.(resultat.data);
   }, DELAI_ANNULATION_MS);
 
   showActionToast(texte, {

@@ -16,6 +16,7 @@ import {
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
+  annulerCochage,
   createSousTache,
   deleteSousTache,
   deleteTache,
@@ -26,13 +27,14 @@ import {
   type TacheAvecRelations,
 } from "@/app/actions/taches";
 import { queryKeys } from "@/lib/query/keys";
-import { showToast } from "@/components/toast/toast-store";
+import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { card, dangerButton, ghostButton, input, kcalPillTag, listCard, metaText, pillTag, zoneTapPill } from "@/lib/ui";
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import type { ActionResult } from "@/lib/actions/result";
-import { confirmDelete } from "@/lib/confirm";
+import { libelleDuree } from "@/lib/taches/compute";
+import { masquerTaches, reafficherTaches, useTachesMasquees } from "@/lib/taches/masquees";
 import { CheckToggle } from "@/components/CheckToggle";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { useBackClose } from "@/hooks/useBackClose";
@@ -47,6 +49,21 @@ function formatEcheance(iso: string) {
     month: "long",
     year: "numeric",
   });
+}
+
+// Suppression d'une tâche : hors ligne, l'écriture part en file et sera
+// rejouée au retour du réseau (comme la coche) ; `enfile` le signale à
+// l'appelant pour qu'il garde la carte masquée.
+async function supprimerTacheOuEnFile(id: string): Promise<{ enfile: boolean }> {
+  try {
+    await deleteTache(id);
+    return { enfile: false };
+  } catch (err) {
+    if (!isNetworkError(err)) throw err;
+    await enqueueAction("taches", "deleteTache", [id]);
+    showToast("Enregistré, sera synchronisé à la reconnexion");
+    return { enfile: true };
+  }
 }
 
 const PRIORITE_LABELS: Record<Enums<"priorite_tache">, string> = {
@@ -268,6 +285,9 @@ export const TaskCard = memo(function TaskCard({
   reorderable = false,
   colorByListe = false,
   highlighted = false,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
 }: {
   tache: TacheAvecRelations;
   listes: Tables<"listes_taches">[];
@@ -291,10 +311,16 @@ export const TaskCard = memo(function TaskCard({
   // Tâche ciblée par un deep-link de notification (cf. AgendaView/DayView) :
   // scrollée en vue et mise en surbrillance temporairement à l'apparition.
   highlighted?: boolean;
+  // Mode « Sélectionner » de /taches : la carte devient une case à cocher
+  // géante (tap = sélectionner), sans actions ni glisser-déposer.
+  selectionMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   useBackClose(editing, () => setEditing(false));
   const [expanded, setExpanded] = useState(false);
+  const masquees = useTachesMasquees();
   const reduceMotion = useReducedMotion() ?? false;
   // Bascule carte compacte <-> formulaire d'édition : cross-fade (comme
   // AnimatedAddCard) plutôt que `layout`, qui interpolerait les dimensions
@@ -336,7 +362,7 @@ export const TaskCard = memo(function TaskCard({
   // silencieux + toast discret si le serveur échoue. La logique de
   // récurrence (échéance suivante) reste calculée côté serveur ; on ne
   // l'approxime pas ici, `onSettled` réconcilie avec l'état réel.
-  // `networkMode: "always"` (ici et sur deleteMutation) : par défaut,
+  // `networkMode: "always"` (ici) : par défaut,
   // TanStack Query met une mutation en pause tant qu'il se croit hors ligne
   // (onMutate s'exécute, mutationFn jamais) : le repli Dexie ci-dessous n'était
   // alors jamais atteint, la coche restait en mémoire et se perdait si l'app
@@ -369,7 +395,9 @@ export const TaskCard = memo(function TaskCard({
       queryClient.setQueryData<TacheAvecRelations[]>(queryKeys.taches, (old) =>
         old?.map((t) => (t.id === tache.id ? { ...t, fait: !t.fait } : t))
       );
-      return { previous };
+      // État d'avant la coche, pour « Annuler » (le rendu suivant voit déjà
+      // l'état optimiste).
+      return { previous, avaitFait: tache.fait, echeance: tache.echeance };
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(queryKeys.taches, context.previous);
@@ -380,37 +408,53 @@ export const TaskCard = memo(function TaskCard({
     onSettled: (resultat) => {
       if (!resultat?.enfile) invalidateTaches();
     },
+    // Cocher est le geste le plus fréquent (et le plus facile à rater au
+    // pouce) : toast « Annuler » comme pour une suppression. Pas d'annulation
+    // d'une action encore en file hors ligne : elle n'a pas atteint le serveur.
+    onSuccess: (resultat, _vars, context) => {
+      if (resultat.enfile || !context || context.avaitFait) return;
+      showActionToast(`« ${tache.titre} » faite`, {
+        ariaLabel: `Annuler : « ${tache.titre} » faite`,
+        onAction: () => {
+          queryClient.setQueryData<TacheAvecRelations[]>(queryKeys.taches, (old) =>
+            old?.map((t) =>
+              t.id === tache.id ? { ...t, fait: false, echeance: tache.recurrence_frequence ? context.echeance : t.echeance } : t
+            )
+          );
+          void runAction(
+            // Une récurrente avait avancé son échéance : on la restaure.
+            () => annulerCochage(tache.id, false, tache.recurrence_frequence ? context.echeance : undefined),
+            { erreur: "Impossible d'annuler. Réessaie.", onError: invalidateTaches }
+          ).then((r) => {
+            if (r.ok) invalidateTaches();
+          });
+        },
+      });
+    },
   });
 
-  const deleteMutation = useMutation({
-    networkMode: "always",
-    mutationFn: async (): Promise<{ enfile: boolean }> => {
-      try {
-        await deleteTache(tache.id);
-        return { enfile: false };
-      } catch (err) {
-        if (!isNetworkError(err)) throw err;
-        await enqueueAction("taches", "deleteTache", [tache.id]);
-        showToast("Enregistré, sera synchronisé à la reconnexion");
-        return { enfile: true };
-      }
-    },
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.taches });
-      const previous = queryClient.getQueryData<TacheAvecRelations[]>(queryKeys.taches);
-      queryClient.setQueryData<TacheAvecRelations[]>(queryKeys.taches, (old) =>
-        old?.filter((t) => t.id !== tache.id)
-      );
-      return { previous };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.taches, context.previous);
-      showToast("Impossible de supprimer la tâche.");
-    },
-    onSettled: (resultat) => {
-      if (!resultat?.enfile) invalidateTaches();
-    },
-  });
+  // Suppression différée avec toast « Annuler » (plus de confirmation
+  // bloquante) : la carte est masquée tout de suite, l'appel serveur part à
+  // l'expiration du toast.
+  function handleSupprimer() {
+    supprimerAvecAnnulation({
+      texte: `« ${tache.titre} » supprimée`,
+      ariaLabel: `Annuler la suppression de « ${tache.titre} »`,
+      masquer: () => masquerTaches([tache.id]),
+      restaurer: () => reafficherTaches([tache.id]),
+      supprimer: () => supprimerTacheOuEnFile(tache.id),
+      erreur: `Impossible de supprimer « ${tache.titre} ». Réessaie.`,
+      onSupprime: (data) => {
+        // Hors ligne (écriture en file) : la carte reste masquée jusqu'au rejeu.
+        if ((data as { enfile?: boolean } | undefined)?.enfile) return;
+        void queryClient.invalidateQueries({ queryKey: queryKeys.taches }).then(() => reafficherTaches([tache.id]));
+      },
+    });
+  }
+
+  // Masquée le temps du toast « Annuler » d'une suppression (aussi pour les
+  // cartes de l'Agenda, qui ne passent pas par TasksList).
+  if (masquees.has(tache.id)) return null;
 
   if (editing) {
     return (
@@ -448,14 +492,26 @@ export const TaskCard = memo(function TaskCard({
 
   const content = (
     <>
-      <div className="flex items-start gap-3">
-        <CheckToggle
-          checked={tache.fait}
-          disabled={toggleMutation.isPending}
-          onToggle={() => toggleMutation.mutate()}
-          className="mt-0.5"
-          label={tache.fait ? "Marquer non fait" : "Marquer fait"}
-        />
+      <div
+        className={`flex items-start gap-3 ${selectionMode ? "cursor-pointer" : ""}`}
+        onClick={selectionMode ? () => onToggleSelect?.(tache.id) : undefined}
+      >
+        {selectionMode ? (
+          <CheckToggle
+            checked={selected}
+            onToggle={() => onToggleSelect?.(tache.id)}
+            className="mt-0.5"
+            label={selected ? "Désélectionner" : "Sélectionner"}
+          />
+        ) : (
+          <CheckToggle
+            checked={tache.fait}
+            disabled={toggleMutation.isPending}
+            onToggle={() => toggleMutation.mutate()}
+            className="mt-0.5"
+            label={tache.fait ? "Marquer non fait" : "Marquer fait"}
+          />
+        )}
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex min-w-0 items-start justify-between gap-2">
             <p
@@ -483,6 +539,11 @@ export const TaskCard = memo(function TaskCard({
                 {PRIORITE_LABELS[tache.priorite]}
               </span>
             )}
+            {tache.duree_minutes ? (
+              <span className={pillTag} title="Durée estimée">
+                {libelleDuree(tache.duree_minutes)}
+              </span>
+            ) : null}
             {tache.programme_jour && (
               <span className={kcalPillTag} title="Sera supprimée automatiquement si non cochée à la fin de la journée">
                 Tâche du jour
@@ -493,11 +554,17 @@ export const TaskCard = memo(function TaskCard({
                 #{tag.nom}
               </span>
             ))}
-            <button type="button" onClick={() => setExpanded((v) => !v)} className={`${pillTag} ${zoneTapPill}`}>
-              {tache.sous_taches.length > 0
-                ? `${sousTachesFaites}/${tache.sous_taches.length}`
-                : "+ sous-tâches"}
-            </button>
+            {selectionMode ? (
+              tache.sous_taches.length > 0 && (
+                <span className={pillTag}>{`${sousTachesFaites}/${tache.sous_taches.length}`}</span>
+              )
+            ) : (
+              <button type="button" onClick={() => setExpanded((v) => !v)} className={`${pillTag} ${zoneTapPill}`}>
+                {tache.sous_taches.length > 0
+                  ? `${sousTachesFaites}/${tache.sous_taches.length}`
+                  : "+ sous-tâches"}
+              </button>
+            )}
           </div>
 
           {tache.notes && (
@@ -514,11 +581,12 @@ export const TaskCard = memo(function TaskCard({
             </span>
           )}
 
-          <TacheImagesRow tache={tache} />
+          {!selectionMode && <TacheImagesRow tache={tache} />}
 
-          {expanded && <SousTachesList tache={tache} />}
+          {expanded && !selectionMode && <SousTachesList tache={tache} />}
         </div>
       </div>
+      {!selectionMode && (
       <div className={`flex items-center gap-2 ${reorderable ? "justify-between" : "justify-end"}`}>
         {reorderable && (
           <button
@@ -539,17 +607,14 @@ export const TaskCard = memo(function TaskCard({
           </button>
           <button
             type="button"
-            disabled={deleteMutation.isPending}
-            onClick={() => {
-              if (!confirmDelete(`Supprimer la tâche « ${tache.titre} » ?`)) return;
-              deleteMutation.mutate();
-            }}
+            onClick={handleSupprimer}
             className={dangerButton}
           >
             Suppr.
           </button>
         </div>
       </div>
+      )}
     </>
   );
 
@@ -570,7 +635,7 @@ export const TaskCard = memo(function TaskCard({
           animate={{ opacity: 1, y: 0 }}
           exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -8 }}
           transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-          className={`${listCard} ${highlighted ? "tache-surbrillance" : ""}`}
+          className={`${listCard} ${highlighted ? "tache-surbrillance" : ""} ${selected ? "ring-2 ring-kcal" : ""}`}
           style={accentStyle}
         >
           {content}
@@ -607,7 +672,7 @@ export const TaskCard = memo(function TaskCard({
           animate={{ opacity: 1, y: 0 }}
           exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -8 }}
           transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-          className={`${listCard} ${highlighted ? "tache-surbrillance" : ""}`}
+          className={`${listCard} ${highlighted ? "tache-surbrillance" : ""} ${selected ? "ring-2 ring-kcal" : ""}`}
           style={accentStyle}
         >
           {content}
@@ -739,31 +804,41 @@ export function TasksList({
   tags,
   reordonnable = false,
   highlightedId = null,
+  selectionMode = false,
+  selectionIds,
+  onToggleSelect,
 }: {
   taches: TacheAvecRelations[];
   listes: Tables<"listes_taches">[];
   tags: Tables<"tags">[];
   reordonnable?: boolean;
+  // Mode sélection multiple (cf. TachesView) : cartes cochables, sans drag.
+  selectionMode?: boolean;
+  selectionIds?: ReadonlySet<string>;
+  onToggleSelect?: (id: string) => void;
   // Tâche à faire défiler en vue et surligner (création réussie, cf.
   // TachesView) ; uniquement pour les tâches actives.
   highlightedId?: string | null;
 }) {
-  if (taches.length === 0) {
+  const masquees = useTachesMasquees();
+  const visibles = taches.filter((tache) => !masquees.has(tache.id));
+
+  if (visibles.length === 0) {
     return <p className="text-ink-2">Aucune tâche pour l&apos;instant.</p>;
   }
 
-  const actives = taches.filter((tache) => !tache.fait);
+  const actives = visibles.filter((tache) => !tache.fait);
   // Trié par updated_at décroissant : proxy imparfait de la date de cochage
   // (updated_at change aussi si la tâche est éditée après coup), faute de
   // colonne dédiée type `fait_le`.
-  const archivees = taches
+  const archivees = visibles
     .filter((tache) => tache.fait)
     .sort((a, b) => (a.updated_at < b.updated_at ? 1 : a.updated_at > b.updated_at ? -1 : 0));
 
   return (
     <>
       {actives.length > 0 &&
-        (reordonnable ? (
+        (reordonnable && !selectionMode ? (
           <SortableTachesList actives={actives} listes={listes} tags={tags} highlightedId={highlightedId} />
         ) : (
           <ul className="flex flex-col gap-2.5">
@@ -775,6 +850,9 @@ export function TasksList({
                   listes={listes}
                   tags={tags}
                   highlighted={tache.id === highlightedId}
+                  selectionMode={selectionMode}
+                  selected={selectionIds?.has(tache.id) ?? false}
+                  onToggleSelect={onToggleSelect}
                 />
               ))}
             </AnimatePresence>
@@ -788,7 +866,15 @@ export function TasksList({
           <ul className="mt-2.5 flex flex-col gap-2.5">
             <AnimatePresence initial={false}>
               {archivees.map((tache) => (
-                <TaskCard key={tache.id} tache={tache} listes={listes} tags={tags} />
+                <TaskCard
+                  key={tache.id}
+                  tache={tache}
+                  listes={listes}
+                  tags={tags}
+                  selectionMode={selectionMode}
+                  selected={selectionIds?.has(tache.id) ?? false}
+                  onToggleSelect={onToggleSelect}
+                />
               ))}
             </AnimatePresence>
           </ul>

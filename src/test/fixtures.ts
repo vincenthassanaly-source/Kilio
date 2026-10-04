@@ -31,6 +31,7 @@ export function makeTache(overrides: Partial<TacheAvecRelations> = {}): TacheAve
     rappel_envoye_le: null,
     rappel_minutes: null,
     rappel_reporte_jusqua: null,
+    duree_minutes: null,
     termine_le: null,
     toute_la_journee: false,
     echeance: null,

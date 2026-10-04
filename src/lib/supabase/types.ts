@@ -1746,6 +1746,7 @@ export type Database = {
       taches: {
         Row: {
           created_at: string
+          duree_minutes: number | null
           echeance: string | null
           fait: boolean
           heure: string | null
@@ -1770,6 +1771,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          duree_minutes?: number | null
           echeance?: string | null
           fait?: boolean
           heure?: string | null
@@ -1794,6 +1796,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          duree_minutes?: number | null
           echeance?: string | null
           fait?: boolean
           heure?: string | null

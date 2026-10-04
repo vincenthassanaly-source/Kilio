@@ -14,6 +14,7 @@ import {
   appliquerCochage,
   cochageDejaApplique,
   messageAvertissementCreation,
+  parseDureeMinutes,
 } from "@/lib/taches/compute";
 
 // `id` : renseigné par createTache en cas de succès (id de la tâche créée,
@@ -63,7 +64,18 @@ type TacheInput = {
   rappel_minutes: number | null;
 };
 
-type ParseResult = { ok: true; value: TacheInput } | { ok: false; error: string };
+// `duree` est séparée de `value` : la colonne `duree_minutes` n'est envoyée
+// que si elle change réellement (voir `champDuree`), pour qu'une base sans la
+// migration continue d'accepter toutes les autres écritures.
+type DureeSaisie = { valeur: number | null; initiale: boolean };
+
+type ParseResult =
+  | { ok: true; value: TacheInput; duree: DureeSaisie }
+  | { ok: false; error: string };
+
+function champDuree({ valeur, initiale }: DureeSaisie): { duree_minutes?: number | null } {
+  return valeur !== null || initiale ? { duree_minutes: valeur } : {};
+}
 
 function parseTacheInput(formData: FormData): ParseResult {
   const titre = String(formData.get("titre") ?? "").trim();
@@ -78,6 +90,8 @@ function parseTacheInput(formData: FormData): ParseResult {
   const recurrence_fin = String(formData.get("recurrence_fin") ?? "").trim();
   const toute_la_journee = formData.get("toute_la_journee") === "on";
   const rappel_minutes_brut = String(formData.get("rappel_minutes") ?? "").trim();
+  const dureeBrute = String(formData.get("duree_minutes") ?? "").trim();
+  const duree_minutes = parseDureeMinutes(dureeBrute);
 
   if (!titre) return { ok: false, error: "Le titre est requis." };
   if (!liste_id) return { ok: false, error: "La liste est requise." };
@@ -89,6 +103,9 @@ function parseTacheInput(formData: FormData): ParseResult {
   }
   if (heure && heure_fin && heure_fin <= heure) {
     return { ok: false, error: "L'heure de fin doit être après l'heure de début." };
+  }
+  if (dureeBrute && duree_minutes === null) {
+    return { ok: false, error: "Durée invalide (entre 1 minute et 24 h)." };
   }
   if (!PRIORITES.includes(priorite as Enums<"priorite_tache">)) {
     return { ok: false, error: "Priorité invalide." };
@@ -126,6 +143,10 @@ function parseTacheInput(formData: FormData): ParseResult {
 
   return {
     ok: true,
+    duree: {
+      valeur: duree_minutes,
+      initiale: String(formData.get("duree_initiale") ?? "").trim() !== "",
+    },
     value: {
       titre,
       // "Toute la journée" et une heure précise sont mutuellement
@@ -230,7 +251,7 @@ export async function createTache(
   const [{ data: tache, error }, tagsResult] = await Promise.all([
     supabase
       .from("taches")
-      .insert({ ...parsed.value, ordre: (derniere?.ordre ?? -1) + 1 })
+      .insert({ ...parsed.value, ...champDuree(parsed.duree), ordre: (derniere?.ordre ?? -1) + 1 })
       .select("id")
       .single(),
     resolveTagIds(supabase, tagIds, nouveauxNoms).then(
@@ -309,7 +330,11 @@ export async function updateTache(
   const [{ error }, tagsResult] = await Promise.all([
     supabase
       .from("taches")
-      .update(rappelObsolete ? { ...parsed.value, rappel_envoye_le: null } : parsed.value)
+      .update({
+        ...parsed.value,
+        ...champDuree(parsed.duree),
+        ...(rappelObsolete ? { rappel_envoye_le: null } : {}),
+      })
       .eq("id", id),
     resolveTagIds(supabase, tagIds, nouveauxNoms).then(
       (resolvedTagIds) => ({ ok: true as const, resolvedTagIds }),
@@ -565,6 +590,124 @@ export async function deleteTache(id: string) {
   if (error) throw new Error(error.message);
 
   revalidateTachesPaths();
+}
+
+// Annule une coche : remet `fait` et l'échéance telles que l'écran les
+// montrait avant. Pour une récurrente, cocher avait avancé l'échéance : la
+// restaurer évite de perdre l'occurrence. (Les sous-tâches remises à zéro par
+// l'avance d'occurrence ne sont pas restaurées.) Sans échéance fournie, seule
+// la case change.
+export async function annulerCochage(
+  id: string,
+  fait: boolean,
+  echeance?: string | null
+): Promise<ActionResult> {
+  if (!estUuid(id)) return fail("Tâche introuvable.");
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("taches")
+    .update({ fait, ...(echeance !== undefined ? { echeance, rappel_envoye_le: null } : {}) })
+    .eq("id", id);
+  if (error) return fail(error.message);
+  revalidateTachesPaths();
+  return ok();
+}
+
+// --- Actions groupées (sélection multiple de /taches) ---
+
+const MAX_TACHES_GROUPEES = 200;
+
+function idsValides(ids: string[]): string[] | null {
+  const uniques = [...new Set(ids)];
+  if (uniques.length === 0 || uniques.length > MAX_TACHES_GROUPEES) return null;
+  return uniques.every(estUuid) ? uniques : null;
+}
+
+export type EtatTacheRestaurable = {
+  id: string;
+  echeance: string | null;
+  liste_id: string;
+  ordre: number;
+};
+
+// Reporte l'échéance de plusieurs tâches. `echeance` est calculée côté client
+// (`dateReport`, fuseau de l'utilisateur). Un rappel déjà envoyé est remis à
+// zéro : une tâche déplacée doit pouvoir rappeler à sa nouvelle date.
+export async function reporterTaches(ids: string[], echeance: string): Promise<ActionResult> {
+  const valides = idsValides(ids);
+  if (!valides) return fail("Sélection invalide.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(echeance)) return fail("Date invalide.");
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("taches")
+    .update({ echeance, rappel_envoye_le: null })
+    .in("id", valides);
+  if (error) return fail(error.message);
+  revalidateTachesPaths();
+  return ok();
+}
+
+// Déplace plusieurs tâches vers une liste, à la suite de ses tâches actuelles
+// (en conservant leur ordre relatif).
+export async function deplacerTaches(ids: string[], listeId: string): Promise<ActionResult> {
+  const valides = idsValides(ids);
+  if (!valides) return fail("Sélection invalide.");
+  if (!estUuid(listeId)) return fail("Liste introuvable.");
+  const supabase = createAdminClient();
+
+  const [{ data: derniere }, { data: aDeplacer, error: lectureError }] = await Promise.all([
+    supabase
+      .from("taches")
+      .select("ordre")
+      .eq("liste_id", listeId)
+      .order("ordre", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from("taches").select("id, ordre").in("id", valides).order("ordre", { ascending: true }),
+  ]);
+  if (lectureError) return fail(lectureError.message);
+
+  const debut = (derniere?.ordre ?? -1) + 1;
+  const resultats = await Promise.all(
+    (aDeplacer ?? []).map((t, i) =>
+      supabase.from("taches").update({ liste_id: listeId, ordre: debut + i }).eq("id", t.id)
+    )
+  );
+  const echec = resultats.find((r) => r.error);
+  if (echec?.error) return fail(echec.error.message);
+  revalidateTachesPaths();
+  return ok();
+}
+
+// Rétablit l'échéance, la liste et l'ordre d'un lot de tâches : « Annuler »
+// d'un report ou d'un déplacement groupé (l'état d'avant vient du client).
+export async function restaurerTaches(etats: EtatTacheRestaurable[]): Promise<ActionResult> {
+  if (!idsValides(etats.map((e) => e.id)) || !etats.every((e) => estUuid(e.liste_id))) {
+    return fail("Sélection invalide.");
+  }
+  const supabase = createAdminClient();
+  const resultats = await Promise.all(
+    etats.map((e) =>
+      supabase
+        .from("taches")
+        .update({ echeance: e.echeance, liste_id: e.liste_id, ordre: e.ordre, rappel_envoye_le: null })
+        .eq("id", e.id)
+    )
+  );
+  const echec = resultats.find((r) => r.error);
+  if (echec?.error) return fail(echec.error.message);
+  revalidateTachesPaths();
+  return ok();
+}
+
+export async function supprimerTaches(ids: string[]): Promise<ActionResult> {
+  const valides = idsValides(ids);
+  if (!valides) return fail("Sélection invalide.");
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("taches").delete().in("id", valides);
+  if (error) return fail(error.message);
+  revalidateTachesPaths();
+  return ok();
 }
 
 // Persiste un nouvel ordre pour les tâches actives, après un drag & drop
