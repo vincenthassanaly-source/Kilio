@@ -16,8 +16,7 @@ create table if not exists nutrition_planning (
   updated_at timestamptz not null default now()
 );
 
-drop trigger if exists nutrition_planning_set_updated_at on nutrition_planning;
-create trigger nutrition_planning_set_updated_at
+create or replace trigger nutrition_planning_set_updated_at
   before update on nutrition_planning
   for each row execute function set_updated_at();
 
