@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSwipeHorizontal, type SensSwipe } from "@/hooks/useSwipeHorizontal";
 import { shiftDate } from "@/lib/date/iso";
+import { hrefJourJournal } from "./jour";
 
-type JourCourant = { date: string };
+type JourCourant = { date: string; depuisBilan: boolean };
 
 const JournalSwipeContext = createContext<{
   sens: SensSwipe;
@@ -38,7 +39,7 @@ export function JournalSwipeWrapper({ children }: { children: ReactNode }) {
     setSens(sensSwipe);
     const nouvelleDate = shiftDate(jour.date, sensSwipe === "suivant" ? 1 : -1);
     // replace : un changement de jour ne doit pas empiler l'historique (retour = sortir du Journal).
-    router.replace(`/nutrition/journal?date=${nouvelleDate}`);
+    router.replace(hrefJourJournal(nouvelleDate, jour.depuisBilan));
   });
 
   return (
@@ -51,13 +52,21 @@ export function JournalSwipeWrapper({ children }: { children: ReactNode }) {
 }
 
 /** Contenu du jour affiché : l'annonce au swipe et rejoue le glissement. */
-export function JournalJourAnime({ date, children }: { date: string; children: ReactNode }) {
+export function JournalJourAnime({
+  date,
+  depuisBilan,
+  children,
+}: {
+  date: string;
+  depuisBilan: boolean;
+  children: ReactNode;
+}) {
   const contexte = useContext(JournalSwipeContext);
   const enregistrerJour = contexte?.enregistrerJour;
 
   useEffect(() => {
-    enregistrerJour?.({ date });
-  }, [enregistrerJour, date]);
+    enregistrerJour?.({ date, depuisBilan });
+  }, [enregistrerJour, date, depuisBilan]);
 
   return (
     <div className={contexte?.sens === "precedent" ? "agenda-glisse-precedent" : "agenda-glisse-suivant"}>

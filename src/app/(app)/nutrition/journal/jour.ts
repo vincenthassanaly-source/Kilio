@@ -1,8 +1,12 @@
 import { connection } from "next/server";
 import { aujourdhuiParis } from "@/lib/date/paris";
 
-export type JourJournal = { date: string };
-export type JournalSearchParams = Promise<{ date?: string }>;
+export type JourJournal = { date: string; depuisBilan: boolean };
+export type JournalSearchParams = Promise<{ date?: string; from?: string }>;
+
+/** Query d'un jour du Journal ; `from=bilan` fait revenir le retour au Bilan (voir `retourHistoriqueAutorise`). */
+export const hrefJourJournal = (date: string, depuisBilan: boolean) =>
+  `/nutrition/journal?date=${date}${depuisBilan ? "&from=bilan" : ""}`;
 
 /**
  * Jour affiché par le Journal, lu dans l'URL (`?date`). Appelé uniquement
@@ -18,8 +22,8 @@ export type JournalSearchParams = Promise<{ date?: string }>;
  * déduit du planning hebdomadaire (voir `jourTypePourDate`).
  */
 export async function lireJourJournal(searchParams: JournalSearchParams): Promise<JourJournal> {
-  const { date: dateParam } = await searchParams;
+  const { date: dateParam, from } = await searchParams;
   if (!dateParam) await connection();
   const date = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : aujourdhuiParis();
-  return { date };
+  return { date, depuisBilan: from === "bilan" };
 }
