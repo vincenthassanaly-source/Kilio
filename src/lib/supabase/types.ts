@@ -1850,7 +1850,7 @@ export type Database = {
       priorite_tache: "aucune" | "basse" | "moyenne" | "haute"
       recette_source: "manuel" | "hellofresh"
       statut_objectif: "en_cours" | "atteint" | "abandonne"
-      type_suivi_objectif: "valeur" | "etapes" | "binaire" | "habitudes"
+      type_suivi_objectif: "valeur" | "etapes" | "binaire" | "habitudes" | "nutrition"
       unite_mesure: "g" | "ml" | "piece"
     }
     CompositeTypes: {
@@ -2002,7 +2002,7 @@ export const Constants = {
       priorite_tache: ["aucune", "basse", "moyenne", "haute"],
       recette_source: ["manuel", "hellofresh"],
       statut_objectif: ["en_cours", "atteint", "abandonne"],
-      type_suivi_objectif: ["valeur", "etapes", "binaire", "habitudes"],
+      type_suivi_objectif: ["valeur", "etapes", "binaire", "habitudes", "nutrition"],
       unite_mesure: ["g", "ml", "piece"],
     },
   },

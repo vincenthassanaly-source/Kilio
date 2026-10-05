@@ -35,6 +35,17 @@ describe("evaluerJour", () => {
     expect(evaluerJour({ ...base, consomme: nutri(1800, 100) })).toEqual({ statut: "rate", gravite: "leger" });
   });
 
+  it("kcal seules (proteinesRequises: false) : protéines basses ne font pas rater le jour", () => {
+    expect(evaluerJour({ ...base, consomme: nutri(1800, 100), proteinesRequises: false }).statut).toBe("reussi");
+  });
+
+  it("kcal seules : un dépassement kcal reste raté", () => {
+    expect(evaluerJour({ ...base, consomme: nutri(2150, 160), proteinesRequises: false })).toEqual({
+      statut: "rate",
+      gravite: "leger",
+    });
+  });
+
   it("vide : aucun repas saisi, même avec un objectif", () => {
     expect(evaluerJour({ ...base, nbRepas: 0, consomme: nutri(0, 0) }).statut).toBe("vide");
   });
