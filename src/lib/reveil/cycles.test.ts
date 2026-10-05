@@ -44,6 +44,11 @@ describe("validerPropositions", () => {
     expect(validerPropositions(brut, "23:42")).not.toBeNull();
   });
 
+  it("tolère « 5:57 » et « 05h57 » comme formats d'heure", () => {
+    const brut = { propositions: [{ cycles: 4, heure: "5:57" }, { cycles: 5, heure: "07h27" }, { cycles: 6, heure: "08:57" }] };
+    expect(validerPropositions(brut, "23:42")).not.toBeNull();
+  });
+
   it("refuse une heure fausse", () => {
     const brut = { propositions: [{ cycles: 4, heure: "05:57" }, { cycles: 5, heure: "07:00" }, { cycles: 6, heure: "08:57" }] };
     expect(validerPropositions(brut, "23:42")).toBeNull();

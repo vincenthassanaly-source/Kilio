@@ -30,6 +30,18 @@ export function minutesDepuisHeure(heure: unknown): number | null {
   return m ? Number(m[1]) * 60 + Number(m[2]) : null;
 }
 
+const FORMAT_HEURE_SOUPLE = /^(\d{1,2})\s*[:hH]\s*(\d{2})$/;
+
+/** Lecture tolérante de la réponse de Gemini : « 5:57 », « 05h57 », « 05:57 ». */
+export function minutesDepuisHeureSouple(heure: unknown): number | null {
+  if (typeof heure !== "string") return null;
+  const m = FORMAT_HEURE_SOUPLE.exec(heure.trim());
+  if (!m) return null;
+  const h = Number(m[1]);
+  const min = Number(m[2]);
+  return h <= 23 && min <= 59 ? h * 60 + min : null;
+}
+
 export function heureDepuisMinutes(minutes: number): string {
   const m = ((minutes % MINUTES_PAR_JOUR) + MINUTES_PAR_JOUR) % MINUTES_PAR_JOUR;
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
@@ -61,7 +73,7 @@ export function validerPropositions(brut: unknown, heureActuelle: string): Propo
     const trouvee = liste.some((p) => {
       if (typeof p !== "object" || p === null) return false;
       const { cycles, heure } = p as { cycles?: unknown; heure?: unknown };
-      const minutes = minutesDepuisHeure(heure);
+      const minutes = minutesDepuisHeureSouple(heure);
       return cycles === attendue.cycles && minutes !== null && heureDepuisMinutes(minutes) === attendue.heure;
     });
     if (!trouvee) return null;

@@ -5,6 +5,8 @@ import {
   DELAI_ENDORMISSEMENT_MIN,
   DUREE_CYCLE_MIN,
   NOMBRES_CYCLES,
+  calculerPropositions,
+  heureDepuisMinutes,
   minutesDepuisHeure,
   validerPropositions,
 } from "@/lib/reveil/cycles";
@@ -37,10 +39,13 @@ const SCHEMA = {
 };
 
 function prompt(heureActuelle: string): string {
+  const debut = minutesDepuisHeure(heureActuelle) ?? 0;
+  const endormissement = heureDepuisMinutes(debut + DELAI_ENDORMISSEMENT_MIN);
   return [
     `Il est ${heureActuelle} (heure locale, format 24 h). Je vais me coucher maintenant.`,
     `Calcule les heures de réveil qui coïncident avec la FIN d'un cycle de sommeil.`,
     `Hypothèses : un cycle dure ${DUREE_CYCLE_MIN} minutes, et il faut ${DELAI_ENDORMISSEMENT_MIN} minutes pour s'endormir.`,
+    `Tu t'endors donc à ${endormissement}. Ajoute à cette heure N × ${DUREE_CYCLE_MIN} minutes.`,
     `Pour chaque nombre de cycles N dans [${NOMBRES_CYCLES.join(", ")}] :`,
     `heure de réveil = ${heureActuelle} + ${DELAI_ENDORMISSEMENT_MIN} minutes + N × ${DUREE_CYCLE_MIN} minutes, modulo 24 h.`,
     `Réponds en JSON : une proposition par N, avec "cycles" = N et "heure" au format HH:mm (24 h, deux chiffres).`,
@@ -83,9 +88,19 @@ export async function POST(request: NextRequest) {
 
   const propositions = validerPropositions(resultat.brut, heureActuelle);
   if (!propositions) {
-    console.error("[reveil-cycles] Réponse Gemini incohérente avec le calcul de référence.");
+    // Ce que Gemini a renvoyé face à l'attendu : visible à l'écran pour
+    // distinguer une erreur de calcul d'un problème de format.
+    const recu = JSON.stringify(resultat.brut).slice(0, 200);
+    const attendu = calculerPropositions(heureActuelle)
+      .map((p) => `${p.cycles}→${p.heure}`)
+      .join(", ");
+    console.error(`[reveil-cycles] Réponse Gemini incohérente. Reçu : ${recu}. Attendu : ${attendu}.`);
     return NextResponse.json(
-      { ok: false, message: "Gemini a renvoyé des heures incohérentes." },
+      {
+        ok: false,
+        message: "Gemini a renvoyé des heures incohérentes.",
+        detail: `Reçu : ${recu} — attendu : ${attendu}.`,
+      },
       { status: 502 }
     );
   }
