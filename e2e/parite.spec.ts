@@ -45,9 +45,9 @@ test("le service worker s'enregistre toujours", async ({ page }) => {
 });
 
 test("AppResumeRefresh relance un rendu serveur au retour au premier plan", async ({ page }) => {
-  await page.goto("/budget");
-  await expect(page.getByRole("heading", { level: 1, name: "Vue d'ensemble" })).toBeVisible();
-  const rsc = page.waitForRequest((r) => r.headers()["rsc"] === "1" && new URL(r.url()).pathname === "/budget");
+  await page.goto("/courses");
+  await expect(page.getByRole("heading", { level: 1, name: "Courses" })).toBeVisible();
+  const rsc = page.waitForRequest((r) => r.headers()["rsc"] === "1" && new URL(r.url()).pathname === "/courses");
   await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   await rsc;
 });

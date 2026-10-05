@@ -38,12 +38,3 @@ export function msAvantMinuitParis(maintenant: Date = new Date()): number {
   const ecoule = ((h * 60 + m) * 60 + s) * 1000 + maintenant.getMilliseconds();
   return 24 * 60 * 60 * 1000 - ecoule;
 }
-
-/**
- * Le jour courant à Paris sous forme de `Date` (à midi, heure locale de
- * l'environnement) : ses getters locaux (`getFullYear`, `getMonth`,
- * `getDate`, `getDay`) donnent le jour de Paris même sur un serveur en UTC.
- */
-export function dateDuJourParis(maintenant: Date = new Date()): Date {
-  return new Date(`${aujourdhuiParis(maintenant)}T12:00:00`);
-}

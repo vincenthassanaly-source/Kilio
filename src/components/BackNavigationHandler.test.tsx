@@ -67,9 +67,9 @@ describe("BackNavigationHandler", () => {
   });
 
   it("sur la garde depuis un module non épinglé, mène à la grille Plus", () => {
-    pathnameMock = "/budget";
+    pathnameMock = "/courses";
     render(<BackNavigationHandler />);
-    retourVers("/budget", { kilioGarde: true });
+    retourVers("/courses", { kilioGarde: true });
     expect(push).toHaveBeenCalledWith("/plus");
     expect(showToast).not.toHaveBeenCalled();
   });
@@ -99,9 +99,9 @@ describe("BackNavigationHandler", () => {
   });
 
   it("ne touche pas aux couches sur la même URL (modale, mode édition)", () => {
-    pathnameMock = "/budget/comptes";
+    pathnameMock = "/objectifs/abc";
     render(<BackNavigationHandler />);
-    retourVers("/budget/comptes", { backCloseToken: "x" });
+    retourVers("/objectifs/abc", { backCloseToken: "x" });
     expect(replace).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
   });

@@ -18,10 +18,9 @@ const MODULE_INFO: Record<ModuleRecherche, { label: string; accentVar: string }>
   recettes: { label: "Recettes", accentVar: "var(--accent-kcal)" },
   objectifs: { label: "Objectifs", accentVar: "var(--accent-objectifs)" },
   courses: { label: "Courses", accentVar: "var(--accent-courses)" },
-  budget: { label: "Budget", accentVar: "var(--accent-budget)" },
 };
 
-const ORDRE_MODULES: ModuleRecherche[] = ["notes", "taches", "recettes", "objectifs", "courses", "budget"];
+const ORDRE_MODULES: ModuleRecherche[] = ["notes", "taches", "recettes", "objectifs", "courses"];
 
 function SearchIcon({ color }: { color: string }) {
   return (

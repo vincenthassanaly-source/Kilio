@@ -8,11 +8,11 @@ web
 
 ## Users
 
-Utilisateur unique : Vincent, propriétaire et seul utilisateur de l'application. Kilio est une app personnelle mono-utilisateur (pas de multi-tenant, l'authentification multi-utilisateurs a été retirée) qu'il utilise au quotidien depuis son téléphone pour gérer sa vie personnelle : nutrition, budget, agenda, courses, tâches, habitudes, documents, notes, pharmacie (cours personnels).
+Utilisateur unique : Vincent, propriétaire et seul utilisateur de l'application. Kilio est une app personnelle mono-utilisateur (pas de multi-tenant, l'authentification multi-utilisateurs a été retirée) qu'il utilise au quotidien depuis son téléphone pour gérer sa vie personnelle : nutrition, agenda, courses, tâches, habitudes, documents, notes, pharmacie (cours personnels).
 
 ## Product Purpose
 
-Kilio est le "système d'exploitation personnel" de Vincent : une app unique qui centralise plusieurs domaines de vie (nutrition, budget, agenda, courses, habitudes, tâches, documents, notes, collection, pharmacie) plutôt que de jongler entre outils spécialisés indépendants. Le module Nutrition permet de suivre les repas du jour, calculer les macros (kcal, protéines, glucides, lipides) consommées vs. un objectif cible, et gérer une bibliothèque de recettes/aliments personnelle.
+Kilio est le "système d'exploitation personnel" de Vincent : une app unique qui centralise plusieurs domaines de vie (nutrition, agenda, courses, habitudes, tâches, documents, notes, collection, pharmacie) plutôt que de jongler entre outils spécialisés indépendants. Le module Nutrition permet de suivre les repas du jour, calculer les macros (kcal, protéines, glucides, lipides) consommées vs. un objectif cible, et gérer une bibliothèque de recettes/aliments personnelle.
 
 Le module **Pharmacie** est le cahier de cours personnel de Vincent (connaissances de pharmacie apprises au fil du temps) : cours structurés matière → chapitre → notion atomique (texte + tags), consultation rapide par sommaire et recherche plein texte (hors ligne compris), révision par cartes mémoire à répétition espacée (SM-2 simplifié). L'ajout se fait **uniquement par le chat** (skill `kilio-pharmacie-ajout`, désormais géré dans le dépôt de skills `KilaSkills` : Claude reformule, classe, crée les cartes et gère l'arborescence seul, en prévenant après coup) ; l'app sert à consulter, réviser, corriger ou supprimer une notion. Pas de journal brut ni de suivi de source : seule la version reformulée est conservée.
 
@@ -20,7 +20,7 @@ Pour le Journal Nutrition en particulier : l'objectif motivant le suivi est la *
 
 ## Positioning
 
-Kilio existe plutôt qu'un outil generique (MyFitnessPal, Cronometer, Yazio...) parce que tous les modules personnels de Vincent partagent les mêmes données : une recette utilisée dans le Journal Nutrition vient directement du module Recettes (mêmes ingrédients, mêmes macros calculées), et à terme d'autres modules (Courses, Placard, Budget) pourront se recouper avec la Nutrition. C'est l'intégration native entre modules — pas la richesse d'une base alimentaire tierce — qui est la valeur du produit.
+Kilio existe plutôt qu'un outil generique (MyFitnessPal, Cronometer, Yazio...) parce que tous les modules personnels de Vincent partagent les mêmes données : une recette utilisée dans le Journal Nutrition vient directement du module Recettes (mêmes ingrédients, mêmes macros calculées), et à terme d'autres modules (Courses, Placard) pourront se recouper avec la Nutrition. C'est l'intégration native entre modules — pas la richesse d'une base alimentaire tierce — qui est la valeur du produit.
 
 ## Operating Context
 
@@ -59,7 +59,7 @@ Ce sont des **journaux de bord d'itérations passées**, pas une documentation d
 
 1. Un seul utilisateur, zéro friction de compte : pas de logique multi-tenant, pas d'onboarding — optimiser pour l'usage répété quotidien d'une seule personne qui connaît déjà l'app.
 2. Mobile d'abord : les écrans du quotidien (Journal en tête) sont conçus et jugés sur leur usage téléphone en situation réelle (en cuisine, après un repas), pas sur desktop.
-3. Intégration inter-modules plutôt que profondeur d'un seul module : la valeur de Kilio vient de la cohérence des données entre Nutrition, Recettes, Courses, Budget, etc.
+3. Intégration inter-modules plutôt que profondeur d'un seul module : la valeur de Kilio vient de la cohérence des données entre Nutrition, Recettes, Courses, etc.
 4. Saisie rapide avant tout : réduire le nombre de taps et d'écrans pour enregistrer un repas est une priorité produit, pas un détail.
 5. Cohérence visuelle de marque : le vert olive foncé et le "K" du logo sont des repères d'identité récents et volontaires — à respecter dans toute évolution visuelle.
 

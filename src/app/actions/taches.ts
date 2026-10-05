@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NOTES_TAG } from "@/lib/notes/tags";
 import { TACHES_TAG } from "@/lib/taches/tags";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
-import { aujourdhuiISO } from "@/lib/budget/compute";
+import { aujourdhuiISO } from "@/lib/date/recurrence";
 import { estUuid } from "@/lib/uuid";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import {

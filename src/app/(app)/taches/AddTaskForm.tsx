@@ -9,7 +9,7 @@ import {
   type TacheFormState,
 } from "@/app/actions/taches";
 import type { Enums, Tables } from "@/lib/supabase/types";
-import { FREQUENCE_LABELS, aujourdhuiISO } from "@/lib/budget/compute";
+import { FREQUENCE_LABELS, aujourdhuiISO } from "@/lib/date/recurrence";
 import {
   DUREES_MINUTES,
   champsAvancesRenseignes,

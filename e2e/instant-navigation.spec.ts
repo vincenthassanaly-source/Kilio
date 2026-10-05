@@ -55,7 +55,6 @@ const SOFT_NAVS: SoftNav[] = [
   { from: "/taches", to: "/plus", trigger: bottomNav("/plus") },
   { from: "/plus", to: "/habitudes", trigger: byHref("/habitudes") },
   { from: "/plus", to: "/courses", trigger: byHref("/courses") },
-  { from: "/plus", to: "/budget", trigger: byHref("/budget") },
   { from: "/plus", to: "/objectifs", trigger: byHref("/objectifs") },
   { from: "/plus", to: "/collection", trigger: byHref("/collection") },
   { from: "/plus", to: "/documents", trigger: byHref("/documents") },
@@ -63,12 +62,6 @@ const SOFT_NAVS: SoftNav[] = [
   { from: "/nutrition/recettes", to: "/nutrition/journal", trigger: byHref("/nutrition/journal") },
   { from: "/nutrition/journal", to: "/nutrition/recettes", trigger: byHref("/nutrition/recettes") },
   { from: "/taches", to: "/taches/listes", trigger: byHref("/taches/listes") },
-  { from: "/budget", to: "/budget/transactions", trigger: byHref("/budget/transactions") },
-  { from: "/budget", to: "/budget/comptes", trigger: byHref("/budget/comptes") },
-  { from: "/budget", to: "/budget/categories", trigger: byHref("/budget/categories") },
-  { from: "/budget", to: "/budget/statistiques", trigger: byHref("/budget/statistiques") },
-  { from: "/budget", to: "/budget/recurrentes", trigger: byHref("/budget/recurrentes") },
-  { from: "/budget", to: "/budget/calendrier", trigger: byHref("/budget/calendrier") },
 ];
 
 test.describe("navigation client : la coquille préchargée s'affiche au clic", () => {

@@ -1,6 +1,6 @@
 ---
 name: Kilio
-description: App personnelle mono-utilisateur (nutrition, budget, agenda, courses, habitudes...) — mobile d'abord, ton "tableau de bord doux"
+description: App personnelle mono-utilisateur (nutrition, agenda, courses, habitudes...) — mobile d'abord, ton "tableau de bord doux"
 colors:
   primary: "oklch(0.55 0.14 165)"
   primary-soft: "oklch(0.55 0.14 165 / 0.12)"
@@ -20,7 +20,6 @@ colors:
   on-accent: "oklch(1 0 0)"
   control-border: "oklch(0.64 0.012 150)"
   module-agenda: "oklch(0.55 0.14 230)"
-  module-budget: "oklch(0.55 0.14 65)"
   module-habitudes: "oklch(0.55 0.14 45)"
   module-courses: "oklch(0.55 0.14 305)"
   module-objectifs: "oklch(0.55 0.14 200)"
@@ -99,7 +98,7 @@ components:
 
 **Creative North Star: "Le Tableau de Bord Doux"**
 
-Kilio est l'app personnelle de Vincent : un tableau de bord de vie quotidienne (nutrition, budget, agenda, courses, habitudes, tâches...) pensé pour être rouvert plusieurs fois par jour, sur téléphone, sans jamais fatiguer. L'interface ne cherche pas à impressionner : elle cherche à rester **lisible, calme et instantanément familière**, avec juste assez de mouvement et de douceur pour rendre le quotidien agréable. Tout est arrondi, tout est feutré — un fond ivoire chaud, une encre presque noire teintée de vert olive (écho direct du logo « K »), et une unique couleur d'accent franche qui sert de fil rouge dans toute l'app.
+Kilio est l'app personnelle de Vincent : un tableau de bord de vie quotidienne (nutrition, agenda, courses, habitudes, tâches...) pensé pour être rouvert plusieurs fois par jour, sur téléphone, sans jamais fatiguer. L'interface ne cherche pas à impressionner : elle cherche à rester **lisible, calme et instantanément familière**, avec juste assez de mouvement et de douceur pour rendre le quotidien agréable. Tout est arrondi, tout est feutré — un fond ivoire chaud, une encre presque noire teintée de vert olive (écho direct du logo « K »), et une unique couleur d'accent franche qui sert de fil rouge dans toute l'app.
 
 La densité d'information reste modérée : une carte = une idée (un repas, une tâche, une transaction), jamais un tableau dense. Les micro-interactions (pastille active qui glisse dans la barre du bas, transitions de page directionnelles, suppression optimiste avec sortie animée) donnent à l'app une sensation d'app native, alors qu'elle est servie en PWA.
 
@@ -143,7 +142,7 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - Ne jamais écrire `text-white` sur un fond d'accent : il échoue en thème sombre.
 
 ### Module Accents (optional)
-Chaque module a sa propre teinte identitaire (agenda `230`, budget `65`, habitudes `45`, courses `305`, objectifs `200`, collection `280`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent uniquement à colorer l'icône/l'identité de leur module dans la grille d'accueil et le sélecteur "Plus" ; elles ne remplacent jamais le vert Kcal comme couleur interactive à l'intérieur d'un module.
+Chaque module a sa propre teinte identitaire (agenda `230`, habitudes `45`, courses `305`, objectifs `200`, collection `280`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent uniquement à colorer l'icône/l'identité de leur module dans la grille d'accueil et le sélecteur "Plus" ; elles ne remplacent jamais le vert Kcal comme couleur interactive à l'intérieur d'un module.
 
 ### Note Tints (optional)
 Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavande`, `--note-ciel`, `--note-rose`, `--note-citron`, `--note-menthe`, `--note-argile`) réservées aux fonds de note du module Notes — hors périmètre du Journal Nutrition, listées ici pour mémoire de complétude du système.
@@ -151,7 +150,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 ### Named Rules
 **The One Accent Rule.** Le vert Kcal est la seule couleur autorisée pour un élément interactif primaire (bouton plein, lien, focus ring, onglet actif), quel que soit le module affiché.
 **The Semantic-Only Macro Rule.** Bleu/Jaune/Magenta ne désignent jamais rien d'autre que Protéines/Glucides/Lipides — jamais réutilisées comme couleurs décoratives ailleurs.
-**The Graduated Alert Rule.** Un dépassement d'objectif (nutritionnel ou budgétaire) n'est jamais binaire : léger (≤10% au-delà de la cible) passe par l'Ambre Avertissement, net (>10%) par le Rouge Alerte. Le rouge — partagé avec les actions destructives — ne s'applique qu'aux dépassements qui le méritent vraiment, pour ne pas transformer un usage quotidien en cadrage anxiogène. Budget : une catégorie « proche » de sa cible passe en Ambre Avertissement, « dépassée » en Rouge Alerte (plus de jaune Glucides).
+**The Graduated Alert Rule.** Un dépassement d'objectif (nutritionnel) n'est jamais binaire : léger (≤10% au-delà de la cible) passe par l'Ambre Avertissement, net (>10%) par le Rouge Alerte. Le rouge — partagé avec les actions destructives — ne s'applique qu'aux dépassements qui le méritent vraiment, pour ne pas transformer un usage quotidien en cadrage anxiogène.
 
 ### Exceptions assumées
 Écarts volontaires aux règles ci-dessus, documentés pour ne pas être « corrigés » par erreur :
@@ -171,7 +170,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 - **Title** (700, 15px) : `sectionTitle` — titres de section ("Résumé du jour", "Repas du jour").
 - **Body** (600, 14.5px) : nom d'une entité dans une liste (nom d'un repas, d'une tâche).
 - **Label** (600, 12.5–13.5px) : `eyebrow` (date du jour, contexte), onglets de sous-nav.
-- **Caption** (400–600, 11–12px) : `metaText`/meta (détail de quantité, libellés de moment de repas en majuscules espacées, labels de la barre de nav du bas). **Plancher : 11px** pour tout texte lisible. Seules exceptions : les grilles denses de l'Agenda et du calendrier Budget (9-10px, texte `ink-2`) et les pastilles blanches sur photo (fond noir, contraste élevé).
+- **Caption** (400–600, 11–12px) : `metaText`/meta (détail de quantité, libellés de moment de repas en majuscules espacées, labels de la barre de nav du bas). **Plancher : 11px** pour tout texte lisible. Seules exceptions : les grilles denses de l'Agenda (9-10px, texte `ink-2`) et les pastilles blanches sur photo (fond noir, contraste élevé).
 - **Champs de saisie** : 16px minimum (en dessous, iOS zoome la page au focus) ; un filet global dans `globals.css` l'impose sur écran tactile.
 
 **Échelle observée** (toutes ces tailles sont légitimes) : 11 · 12 · 12,5 · 13 · 13,5 · 14 · 14,5 · 15 · 16 · 17 (titres de carte hero) · 22 (chiffre-clé de carte) · 28px (titre d'écran et chiffre-clé hero).

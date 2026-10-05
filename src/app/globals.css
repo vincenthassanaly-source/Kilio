@@ -43,7 +43,6 @@
   --accent-habitudes: oklch(0.55 0.14 45);
   --accent-courses: oklch(0.55 0.14 305);
   --accent-objectifs: oklch(0.55 0.14 200);
-  --accent-budget: oklch(0.55 0.14 65);
   --accent-reglages: oklch(0.55 0.14 150);
   --accent-collection: oklch(0.55 0.14 280);
   --accent-documents: oklch(0.55 0.14 25);
@@ -111,7 +110,6 @@
   --accent-habitudes: oklch(0.72 0.13 45);
   --accent-courses: oklch(0.72 0.13 305);
   --accent-objectifs: oklch(0.72 0.13 200);
-  --accent-budget: oklch(0.72 0.13 65);
   --accent-reglages: oklch(0.72 0.13 150);
   --accent-collection: oklch(0.72 0.13 280);
   --accent-documents: oklch(0.72 0.13 25);
@@ -171,7 +169,6 @@
   --color-habitudes: var(--accent-habitudes);
   --color-courses: var(--accent-courses);
   --color-objectifs: var(--accent-objectifs);
-  --color-budget: var(--accent-budget);
   --color-reglages: var(--accent-reglages);
   --color-collection: var(--accent-collection);
   --color-documents: var(--accent-documents);

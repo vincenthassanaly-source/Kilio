@@ -1,5 +1,5 @@
 import { addDays, format } from "date-fns";
-import { calculerProchaineOccurrence } from "@/lib/budget/compute";
+import { calculerProchaineOccurrence } from "@/lib/date/recurrence";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 // Onglets de vue de /taches (TachesView) : défini ici, dans un module pur,
@@ -14,7 +14,7 @@ export type VueTache = "aujourdhui" | "en_retard" | "semaine" | "toutes";
  * naître. « En retard » et « Toutes » n'imposent aucune date.
  *
  * `today` est fourni par l'appelant (`aujourdhuiISO()` de
- * `@/lib/budget/compute`) : cette fonction reste pure.
+ * `@/lib/date/recurrence`) : cette fonction reste pure.
  */
 export function echeanceParDefaut(vue: VueTache, today: string): string | undefined {
   return vue === "aujourdhui" || vue === "semaine" ? today : undefined;

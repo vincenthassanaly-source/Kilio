@@ -17,18 +17,18 @@ describe("parentRoute", () => {
   });
 
   it("ramène un module non épinglé à la grille Plus", () => {
-    expect(parentRoute("/budget", BARRE)).toBe("/plus");
     expect(parentRoute("/courses", BARRE)).toBe("/plus");
+    expect(parentRoute("/objectifs", BARRE)).toBe("/plus");
   });
 
   it("suit l'épinglage personnalisé", () => {
-    expect(parentRoute("/budget", ["/", "/budget", "/taches", "/habitudes"])).toBe("/");
+    expect(parentRoute("/courses", ["/", "/courses", "/taches", "/habitudes"])).toBe("/");
   });
 
   it("remonte une sous-page d'un segment", () => {
     expect(parentRoute("/nutrition/recettes/abc", BARRE)).toBe("/nutrition/recettes");
     expect(parentRoute("/nutrition/recettes", BARRE)).toBe("/nutrition");
-    expect(parentRoute("/budget/comptes", BARRE)).toBe("/budget");
+    expect(parentRoute("/objectifs/abc", BARRE)).toBe("/objectifs");
     expect(parentRoute("/pharmacie/m1/c1", BARRE)).toBe("/pharmacie/m1");
   });
 
