@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
-import { aujourdhuiISO } from "@/lib/budget/compute";
+import { aujourdhuiISO } from "@/lib/date/recurrence";
 import { getListes, getTachesAvecRelations, getTags } from "@/app/actions/taches";
 import { normalizeSearch } from "@/lib/normalize";
 import {

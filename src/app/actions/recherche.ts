@@ -3,7 +3,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { guillemetsPostgrest, motifContient } from "@/lib/supabase/like";
 
-export type ModuleRecherche = "notes" | "taches" | "recettes" | "objectifs" | "courses" | "budget";
+export type ModuleRecherche = "notes" | "taches" | "recettes" | "objectifs" | "courses";
 
 export type ResultatRecherche = {
   id: string;
@@ -27,7 +27,7 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
   const like = motifContient(q);
   const likeOr = guillemetsPostgrest(like);
 
-  const [notesResult, tachesResult, recettesResult, objectifsResult, coursesResult, transactionsResult] =
+  const [notesResult, tachesResult, recettesResult, objectifsResult, coursesResult] =
     await Promise.allSettled([
       supabase
         .from("notes")
@@ -52,12 +52,6 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
       supabase
         .from("courses_items")
         .select("id, libelle")
-        .ilike("libelle", like)
-        .limit(LIMIT_PAR_SOURCE),
-      supabase
-        .from("transactions")
-        .select("id, libelle, compte:comptes!transactions_compte_id_fkey(nom)")
-        .not("libelle", "is", null)
         .ilike("libelle", like)
         .limit(LIMIT_PAR_SOURCE),
     ]);
@@ -117,18 +111,6 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
         module: "courses",
         titre: item.libelle,
         href: "/courses",
-      });
-    }
-  }
-
-  if (transactionsResult.status === "fulfilled" && transactionsResult.value.data) {
-    for (const transaction of transactionsResult.value.data) {
-      resultats.push({
-        id: transaction.id,
-        module: "budget",
-        titre: transaction.libelle ?? "",
-        sousTitre: transaction.compte?.nom,
-        href: `/budget/transactions?q=${encodeURIComponent(transaction.libelle ?? "")}`,
       });
     }
   }

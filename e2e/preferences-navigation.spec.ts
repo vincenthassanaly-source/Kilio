@@ -110,13 +110,13 @@ async function deplacerTuile(page: Page, href: string, surHref: string) {
 
 test("réorganiser la grille Plus est visible au rechargement", async ({ page, browser }) => {
   const avant = await grillePlus(browser);
-  expect(avant.slice(0, 3)).toEqual(["/", "/agenda", "/budget"]);
+  expect(avant.slice(0, 3)).toEqual(["/", "/agenda", "/taches"]);
 
-  await deplacerTuile(page, "/budget", "/");
+  await deplacerTuile(page, "/taches", "/");
   const apres = await grillePlus(browser);
-  expect(apres.slice(0, 3)).toEqual(["/budget", "/", "/agenda"]);
+  expect(apres.slice(0, 3)).toEqual(["/taches", "/", "/agenda"]);
 
   // Remise en état.
-  await deplacerTuile(page, "/budget", "/agenda");
+  await deplacerTuile(page, "/taches", "/agenda");
   expect(await grillePlus(browser)).toEqual(avant);
 });

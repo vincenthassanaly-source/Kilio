@@ -24,7 +24,7 @@ const fixtures = {
   preferences_navigation: [
     {
       id: 1,
-      ordre_grille_plus: ["/", "/agenda", "/budget", "/taches", "/courses", "/collection", "/objectifs", "/notes", "/nutrition", "/habitudes", "/reglages"],
+      ordre_grille_plus: ["/", "/agenda", "/taches", "/courses", "/collection", "/objectifs", "/notes", "/nutrition", "/habitudes", "/reglages"],
       modules_barre_basse: ["/", "/agenda", "/taches", "/notes"],
       updated_at: "2026-09-05T06:53:58.575119+00:00",
     },
@@ -122,7 +122,7 @@ fixtures.evenements = [
 ];
 
 // ---------------------------------------------------------------------------
-// Données réalistes pour le Journal, les Recettes et le Budget (préchargement
+// Données réalistes pour le Journal et les Recettes (préchargement
 // de données : un préchargement de listes vides ne prouverait rien).
 // Dates relatives au jour du test (UTC, comme todayISO()/aujourdhuiISO() côté
 // serveur) : "__DAY(-1)__" = veille, "__MONTH(-2)__" = "YYYY-MM" il y a deux
@@ -204,53 +204,6 @@ fixtures.objectif_etapes = [
 ];
 fixtures.objectif_entries = [];
 
-// Budget : deux comptes, catégories, budgets du mois courant, transactions
-// sur les trois derniers mois, une récurrence future (aucune génération
-// pendant les tests, sauf mutation explicite).
-const COMPTE_COURANT = uuid(601);
-const COMPTE_LIVRET = uuid(602);
-fixtures.comptes = [
-  { id: COMPTE_COURANT, nom: "Compte courant", type: "courant", solde_initial: 1200, created_at: "2026-01-01T00:00:00+00:00", updated_at: ts },
-  { id: COMPTE_LIVRET, nom: "Livret A", type: "epargne", solde_initial: 5000, created_at: "2026-01-02T00:00:00+00:00", updated_at: ts },
-];
-const CAT = { alim: uuid(701), logement: uuid(702), loisirs: uuid(703), salaire: uuid(704) };
-fixtures.categories_budget = [
-  { id: CAT.alim, nom: "Alimentation", type: "depense", icone: "🛒", categorie_parent_id: null, is_predefinie: true, created_at: ts, updated_at: ts },
-  { id: CAT.logement, nom: "Logement", type: "depense", icone: "🏠", categorie_parent_id: null, is_predefinie: true, created_at: ts, updated_at: ts },
-  { id: CAT.loisirs, nom: "Loisirs", type: "depense", icone: "🎬", categorie_parent_id: null, is_predefinie: false, created_at: ts, updated_at: ts },
-  { id: CAT.salaire, nom: "Salaire", type: "revenu", icone: "💶", categorie_parent_id: null, is_predefinie: true, created_at: ts, updated_at: ts },
-];
-fixtures.budgets = [
-  { id: uuid(801), categorie_id: CAT.alim, montant_cible: 300, periode: "__MONTH(0)__-01", type_periode: "mensuel", created_at: ts, updated_at: ts },
-  { id: uuid(802), categorie_id: CAT.loisirs, montant_cible: 50, periode: "__MONTH(0)__-01", type_periode: "mensuel", created_at: ts, updated_at: ts },
-];
-let tx = 900;
-const transaction = (mois, jour, type, montant, categorie, libelle) => ({
-  id: uuid(++tx), compte_id: COMPTE_COURANT, compte_destination_id: null, categorie_id: categorie, type, montant, libelle,
-  date_operation: `__MONTH(${mois})__-${jour}`, transaction_recurrente_id: null, created_at: ts, updated_at: ts,
-});
-fixtures.transactions = [
-  transaction(0, "01", "revenu", 2400, CAT.salaire, "Salaire"),
-  transaction(0, "01", "depense", 750, CAT.logement, "Loyer"),
-  transaction(0, "01", "depense", 62.4, CAT.alim, "Courses marché"),
-  transaction(0, "01", "depense", 58, CAT.loisirs, "Cinéma et resto"),
-  transaction(-1, "01", "revenu", 2400, CAT.salaire, "Salaire"),
-  transaction(-1, "01", "depense", 750, CAT.logement, "Loyer"),
-  transaction(-1, "12", "depense", 184.3, CAT.alim, "Supermarché"),
-  transaction(-1, "20", "depense", 32, CAT.loisirs, "Concert"),
-  transaction(-2, "01", "revenu", 2350, CAT.salaire, "Salaire"),
-  transaction(-2, "01", "depense", 750, CAT.logement, "Loyer"),
-  transaction(-2, "15", "depense", 211.9, CAT.alim, "Supermarché"),
-  { ...transaction(-1, "05", "virement", 200, null, "Épargne"), compte_destination_id: COMPTE_LIVRET },
-];
-fixtures.transactions_recurrentes = [
-  {
-    id: uuid(1001), compte_id: COMPTE_COURANT, compte_destination_id: null, categorie_id: CAT.logement, type: "depense", montant: 750,
-    libelle: "Loyer", frequence: "mensuel", active: true, date_debut: "2026-01-01", date_fin: null,
-    prochaine_occurrence: "__MONTH(1)__-01", created_at: ts, updated_at: ts,
-  },
-];
-
 // Embeds PostgREST (`alias:table(...)`) : reconstitués à la lecture à partir
 // des clés étrangères, uniquement si la requête les demande dans `select`.
 const pick = (table, id) => (id ? fixtures[table]?.find((r) => r.id === id) ?? null : null);
@@ -269,16 +222,6 @@ const RELATIONS = {
   recette_ingredients: { aliment: (r) => pick("aliments", r.aliment_id) },
   collections: {
     collection_items: (r) => (fixtures.collection_items ?? []).filter((i) => i.collection_id === r.id),
-  },
-  transactions: {
-    compte: (r) => pick("comptes", r.compte_id),
-    compte_destination: (r) => pick("comptes", r.compte_destination_id),
-    categorie: (r) => pick("categories_budget", r.categorie_id),
-  },
-  transactions_recurrentes: {
-    compte: (r) => pick("comptes", r.compte_id),
-    compte_destination: (r) => pick("comptes", r.compte_destination_id),
-    categorie: (r) => pick("categories_budget", r.categorie_id),
   },
 };
 function ingredientsDe(recetteId) {

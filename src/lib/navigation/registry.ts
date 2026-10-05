@@ -79,15 +79,6 @@ const COURSES_ICON = (c: string) =>
     createElement("path", { d: "M5.5 8h13l-1 11.5a1.5 1.5 0 0 1-1.5 1.5H8a1.5 1.5 0 0 1-1.5-1.5L5.5 8z" })
   );
 
-const BUDGET_ICON = (c: string) =>
-  createElement(
-    "svg",
-    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
-    createElement("rect", { x: 3.5, y: 6.5, width: 17, height: 12.5, rx: 2.5 }),
-    createElement("path", { d: "M3.5 10.5h17" }),
-    createElement("circle", { cx: 16.5, cy: 14.5, r: 1.1, fill: c, stroke: "none" })
-  );
-
 const OBJECTIFS_ICON = (c: string) =>
   createElement(
     "svg",
@@ -203,13 +194,6 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Liste de courses",
     accentVar: "var(--accent-courses)",
     icon: COURSES_ICON,
-  },
-  {
-    href: "/budget",
-    label: "Budget",
-    description: "Comptes, dépenses et budgets par catégorie",
-    accentVar: "var(--accent-budget)",
-    icon: BUDGET_ICON,
   },
   {
     href: "/objectifs",

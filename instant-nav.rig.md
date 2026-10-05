@@ -25,8 +25,7 @@ Rapports associés : `reports/2026-09-24-navigation-instantanee-cache-components
   `/taches`, `/notes`), `reglages_nettoyage`, une liste et une tâche due
   aujourd'hui ; depuis le 2026-09-24 (Partial Prefetching), des données
   réalistes pour le Journal (repas de J-2 à J+1, deux recettes, objectifs
-  repos/entraînement) et le Budget (deux comptes, catégories, budgets du mois,
-  transactions sur trois mois, une récurrence future). Dates relatives au jour
+  repos/entraînement) (le module Budget a été supprimé le 2026-10-05). Dates relatives au jour
   du test (UTC). Le faux Supabase applique les filtres PostgREST usuels et les
   écritures ; `GET /__writes` liste les écritures reçues, `GET /__reset` remet
   les données à zéro. Les autres tables sont vides (états vides).
@@ -36,13 +35,10 @@ Rapports associés : `reports/2026-09-24-navigation-instantanee-cache-components
   présents dans les états vides. Personnaliser la barre du bas dans le faux
   Supabase change les liens `BottomNav` utilisés comme déclencheurs.
 - CONTRACTS: `e2e/instant-navigation.spec.ts` + `e2e/routes.ts` ;
-  `e2e/coquilles-journal-budget.spec.ts` (vrai en-tête du Journal et des 7
-  pages Budget dans la coquille, contenu retenu sous verrou puis streamé, en
-  chargement initial et en navigation client) ; parité :
-  `e2e/parite.spec.ts`, `e2e/parite-journal-budget.spec.ts`.
+  parité : `e2e/parite.spec.ts`.
   Chargement initial (`page.goto` dans `instant()`, `baseURL`) pour les 21
   routes principales ; navigation client (clic réel sur un `<Link>`) depuis la
-  barre du bas, la grille « Plus », `/budget`, `/taches` et le Journal ;
+  barre du bas, la grille « Plus », `/taches` et le Journal ;
   variante auto-validante (contenu du jour `toHaveCount(0)` sous verrou puis
   visible) pour `/` et `/habitudes`.
 - LOOP: local — build (≈ 1 min) → start → test → arrêt du serveur → édition.

@@ -22,7 +22,7 @@ type ActionFn = (...args: any[]) => Promise<unknown>;
 
 // Mapping module + nom d'action -> Server Action à rejouer. Limité aux
 // écritures haute fréquence des 4 modules du scope (cf. 2.4 du prompt de
-// session) : Budget et Recettes ne sont volontairement pas couverts.
+// session) : Recettes n'est volontairement pas couverts.
 const ACTIONS: Record<string, Record<string, ActionFn>> = {
   taches: { setTacheFait, deleteTache },
   notes: { toggleNoteItem, deleteNote },

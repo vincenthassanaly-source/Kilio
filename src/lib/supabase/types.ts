@@ -68,85 +68,6 @@ export type Database = {
         }
         Relationships: []
       }
-      budgets: {
-        Row: {
-          categorie_id: string
-          created_at: string
-          id: string
-          montant_cible: number
-          periode: string
-          type_periode: Database["public"]["Enums"]["type_periode_budget"]
-          updated_at: string
-        }
-        Insert: {
-          categorie_id: string
-          created_at?: string
-          id?: string
-          montant_cible: number
-          periode: string
-          type_periode?: Database["public"]["Enums"]["type_periode_budget"]
-          updated_at?: string
-        }
-        Update: {
-          categorie_id?: string
-          created_at?: string
-          id?: string
-          montant_cible?: number
-          periode?: string
-          type_periode?: Database["public"]["Enums"]["type_periode_budget"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "budgets_categorie_id_fkey"
-            columns: ["categorie_id"]
-            isOneToOne: false
-            referencedRelation: "categories_budget"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      categories_budget: {
-        Row: {
-          categorie_parent_id: string | null
-          created_at: string
-          icone: string | null
-          id: string
-          is_predefinie: boolean
-          nom: string
-          type: Database["public"]["Enums"]["type_mouvement"]
-          updated_at: string
-        }
-        Insert: {
-          categorie_parent_id?: string | null
-          created_at?: string
-          icone?: string | null
-          id?: string
-          is_predefinie?: boolean
-          nom: string
-          type: Database["public"]["Enums"]["type_mouvement"]
-          updated_at?: string
-        }
-        Update: {
-          categorie_parent_id?: string | null
-          created_at?: string
-          icone?: string | null
-          id?: string
-          is_predefinie?: boolean
-          nom?: string
-          type?: Database["public"]["Enums"]["type_mouvement"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "categories_budget_categorie_parent_id_fkey"
-            columns: ["categorie_parent_id"]
-            isOneToOne: false
-            referencedRelation: "categories_budget"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       collection_items: {
         Row: {
           collection_id: string
@@ -211,33 +132,6 @@ export type Database = {
           id?: string
           nom?: string
           ordre?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      comptes: {
-        Row: {
-          created_at: string
-          id: string
-          nom: string
-          solde_initial: number
-          type: Database["public"]["Enums"]["type_compte"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          nom: string
-          solde_initial?: number
-          type?: Database["public"]["Enums"]["type_compte"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          nom?: string
-          solde_initial?: number
-          type?: Database["public"]["Enums"]["type_compte"]
           updated_at?: string
         }
         Relationships: []
@@ -1913,150 +1807,6 @@ export type Database = {
         }
         Relationships: []
       }
-      transactions: {
-        Row: {
-          categorie_id: string | null
-          compte_destination_id: string | null
-          compte_id: string
-          created_at: string
-          date_operation: string
-          id: string
-          libelle: string | null
-          montant: number
-          transaction_recurrente_id: string | null
-          type: Database["public"]["Enums"]["type_mouvement"]
-          updated_at: string
-        }
-        Insert: {
-          categorie_id?: string | null
-          compte_destination_id?: string | null
-          compte_id: string
-          created_at?: string
-          date_operation?: string
-          id?: string
-          libelle?: string | null
-          montant: number
-          transaction_recurrente_id?: string | null
-          type: Database["public"]["Enums"]["type_mouvement"]
-          updated_at?: string
-        }
-        Update: {
-          categorie_id?: string | null
-          compte_destination_id?: string | null
-          compte_id?: string
-          created_at?: string
-          date_operation?: string
-          id?: string
-          libelle?: string | null
-          montant?: number
-          transaction_recurrente_id?: string | null
-          type?: Database["public"]["Enums"]["type_mouvement"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "transactions_categorie_id_fkey"
-            columns: ["categorie_id"]
-            isOneToOne: false
-            referencedRelation: "categories_budget"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_compte_destination_id_fkey"
-            columns: ["compte_destination_id"]
-            isOneToOne: false
-            referencedRelation: "comptes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_compte_id_fkey"
-            columns: ["compte_id"]
-            isOneToOne: false
-            referencedRelation: "comptes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_transaction_recurrente_id_fkey"
-            columns: ["transaction_recurrente_id"]
-            isOneToOne: false
-            referencedRelation: "transactions_recurrentes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      transactions_recurrentes: {
-        Row: {
-          active: boolean
-          categorie_id: string | null
-          compte_destination_id: string | null
-          compte_id: string
-          created_at: string
-          date_debut: string
-          date_fin: string | null
-          frequence: Database["public"]["Enums"]["frequence_recurrence"]
-          id: string
-          libelle: string | null
-          montant: number
-          prochaine_occurrence: string
-          type: Database["public"]["Enums"]["type_mouvement"]
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          categorie_id?: string | null
-          compte_destination_id?: string | null
-          compte_id: string
-          created_at?: string
-          date_debut: string
-          date_fin?: string | null
-          frequence: Database["public"]["Enums"]["frequence_recurrence"]
-          id?: string
-          libelle?: string | null
-          montant: number
-          prochaine_occurrence: string
-          type: Database["public"]["Enums"]["type_mouvement"]
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          categorie_id?: string | null
-          compte_destination_id?: string | null
-          compte_id?: string
-          created_at?: string
-          date_debut?: string
-          date_fin?: string | null
-          frequence?: Database["public"]["Enums"]["frequence_recurrence"]
-          id?: string
-          libelle?: string | null
-          montant?: number
-          prochaine_occurrence?: string
-          type?: Database["public"]["Enums"]["type_mouvement"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "transactions_recurrentes_categorie_id_fkey"
-            columns: ["categorie_id"]
-            isOneToOne: false
-            referencedRelation: "categories_budget"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_recurrentes_compte_destination_id_fkey"
-            columns: ["compte_destination_id"]
-            isOneToOne: false
-            referencedRelation: "comptes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_recurrentes_compte_id_fkey"
-            columns: ["compte_id"]
-            isOneToOne: false
-            referencedRelation: "comptes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -2100,9 +1850,6 @@ export type Database = {
       priorite_tache: "aucune" | "basse" | "moyenne" | "haute"
       recette_source: "manuel" | "hellofresh"
       statut_objectif: "en_cours" | "atteint" | "abandonne"
-      type_compte: "courant" | "epargne" | "autre"
-      type_mouvement: "depense" | "revenu" | "virement"
-      type_periode_budget: "hebdomadaire" | "mensuel" | "annuel"
       type_suivi_objectif: "valeur" | "etapes" | "binaire" | "habitudes"
       unite_mesure: "g" | "ml" | "piece"
     }
@@ -2255,9 +2002,6 @@ export const Constants = {
       priorite_tache: ["aucune", "basse", "moyenne", "haute"],
       recette_source: ["manuel", "hellofresh"],
       statut_objectif: ["en_cours", "atteint", "abandonne"],
-      type_compte: ["courant", "epargne", "autre"],
-      type_mouvement: ["depense", "revenu", "virement"],
-      type_periode_budget: ["hebdomadaire", "mensuel", "annuel"],
       type_suivi_objectif: ["valeur", "etapes", "binaire", "habitudes"],
       unite_mesure: ["g", "ml", "piece"],
     },
