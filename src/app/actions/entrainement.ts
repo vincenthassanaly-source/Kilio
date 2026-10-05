@@ -7,8 +7,8 @@ export type EntrainementResult = { error: string | null };
 
 /**
  * Marque une date comme jour d'entraînement (`entraine: true`) ou de repos.
- * Utilisable sur une date passée : le Bilan et le suivi des objectifs relisent
- * le statut par date.
+ * Appelée depuis le bouton haltère d'Aujourd'hui ; le Journal, le Bilan et le
+ * suivi des objectifs relisent le statut par date.
  */
 export async function setJourEntrainement(date: string, entraine: boolean): Promise<EntrainementResult> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: "Date invalide." };

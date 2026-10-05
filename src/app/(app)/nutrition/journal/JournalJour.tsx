@@ -9,7 +9,6 @@ import {
 } from "@/lib/nutrition/compute";
 import { card, eyebrow, sectionTitle } from "@/lib/ui";
 import { ObjectifForm } from "./ObjectifForm";
-import { EntrainementToggle } from "./EntrainementToggle";
 import { ResumeJour } from "./ResumeJour";
 import { JournalEntriesList, type JournalEntryView } from "./JournalEntriesList";
 import { JournalJourAnime } from "./JournalSwipeWrapper";
@@ -116,7 +115,6 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
           <h2 className={sectionTitle}>Objectif ({jourType === "repos" ? "repos" : "entraînement"})</h2>
-          <EntrainementToggle date={date} entraine={jourType === "entrainement"} />
           <ObjectifForm repos={objectifRepos} entrainement={objectifEntrainement} />
         </div>
 
