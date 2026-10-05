@@ -9,6 +9,7 @@ import { getTachesAvecRelationsEnCache } from "@/lib/taches/cache";
 import { screenTitle } from "@/lib/ui";
 import { getToday } from "../today";
 import { AujourdhuiView } from "./AujourdhuiView";
+import { EntrainementBouton } from "./EntrainementBouton";
 
 // Shell serveur : tout ce que l'écran lit est préchargé ici (TanStack Query)
 // puis hydraté côté client, sur les mêmes clés que le reste de l'app — cocher
@@ -40,8 +41,11 @@ export default async function AujourdhuiPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className={screenTitle}>Aujourd&apos;hui</h1>
       <HydrationBoundary state={dehydrate(queryClient)}>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className={screenTitle}>Aujourd&apos;hui</h1>
+          <EntrainementBouton today={today} />
+        </div>
         <AujourdhuiView today={today} />
       </HydrationBoundary>
     </div>
