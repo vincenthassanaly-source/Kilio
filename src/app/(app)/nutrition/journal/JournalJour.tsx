@@ -9,13 +9,14 @@ import {
 } from "@/lib/nutrition/compute";
 import { card, eyebrow, sectionTitle } from "@/lib/ui";
 import { ObjectifForm } from "./ObjectifForm";
+import { EntrainementToggle } from "./EntrainementToggle";
 import { ResumeJour } from "./ResumeJour";
 import { JournalEntriesList, type JournalEntryView } from "./JournalEntriesList";
 import { JournalJourAnime } from "./JournalSwipeWrapper";
 import { JourNavigation } from "./JournalNavigationJour";
 import { AjoutRepasBouton } from "./AjoutRepasBouton";
 import { lireJourJournal, type JournalSearchParams } from "./jour";
-import { getPlanningEntrainement } from "@/app/actions/journal";
+import { getDatesEntrainement } from "@/app/actions/journal";
 import { jourTypePourDate } from "@/lib/nutrition/planning";
 
 // Parties du Journal qui dépendent du jour affiché (URL ou date du jour),
@@ -39,9 +40,9 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
   const { date, depuisBilan } = await lireJourJournal(searchParams);
   const supabase = createAdminClient();
 
-  const [{ data: objectifs }, planning, { data: entries }] = await Promise.all([
+  const [{ data: objectifs }, datesEntrainement, { data: entries }] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*"),
-    getPlanningEntrainement(),
+    getDatesEntrainement(date, date),
     supabase
       .from("journal_repas")
       .select(
@@ -94,7 +95,7 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
       };
     });
 
-  const jourType = jourTypePourDate(date, planning);
+  const jourType = jourTypePourDate(date, datesEntrainement);
   const objectifRepos = objectifs?.find((o) => o.jour_type === "repos") ?? null;
   const objectifEntrainement = objectifs?.find((o) => o.jour_type === "entrainement") ?? null;
   const objectif = jourType === "entrainement" ? objectifEntrainement : objectifRepos;
@@ -115,7 +116,8 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
           <h2 className={sectionTitle}>Objectif ({jourType === "repos" ? "repos" : "entraînement"})</h2>
-          <ObjectifForm repos={objectifRepos} entrainement={objectifEntrainement} jours={planning} />
+          <EntrainementToggle date={date} entraine={jourType === "entrainement"} />
+          <ObjectifForm repos={objectifRepos} entrainement={objectifEntrainement} />
         </div>
 
         <div className="flex flex-col gap-2">

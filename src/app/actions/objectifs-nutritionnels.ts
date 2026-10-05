@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { normaliserJours, type JourType } from "@/lib/nutrition/planning";
+import type { JourType } from "@/lib/nutrition/planning";
 
 export type ObjectifFormState = { error: string | null };
 
@@ -45,17 +45,14 @@ function lireCible(formData: FormData, jourType: JourType): CibleSaisie | null |
 }
 
 /**
- * Enregistre en une fois les cibles de repos et d'entraînement et le
- * planning hebdomadaire (jours d'entraînement). Une cible est requise pour
- * chaque type réellement utilisé par le planning : repos tant qu'un jour de
- * la semaine n'est pas d'entraînement, entraînement dès qu'un jour l'est.
+ * Enregistre en une fois les cibles de repos et d'entraînement. La cible de
+ * repos est requise (c'est le type par défaut d'une journée) ; celle
+ * d'entraînement peut rester vide tant qu'aucun jour n'est marqué.
  */
 export async function upsertObjectif(
   _prevState: ObjectifFormState,
   formData: FormData
 ): Promise<ObjectifFormState> {
-  const jours = normaliserJours(formData.getAll("jours_entrainement"));
-
   const cibles: Partial<Record<JourType, CibleSaisie>> = {};
   for (const jourType of JOUR_TYPES) {
     const cible = lireCible(formData, jourType);
@@ -63,11 +60,8 @@ export async function upsertObjectif(
     if (cible) cibles[jourType] = cible;
   }
 
-  if (!cibles.repos && jours.length < 7) {
+  if (!cibles.repos) {
     return { error: "Renseigne l'objectif de repos (kcal)." };
-  }
-  if (!cibles.entrainement && jours.length > 0) {
-    return { error: "Renseigne l'objectif d'entraînement (kcal) : des jours d'entraînement sont cochés." };
   }
 
   const supabase = createAdminClient();
@@ -86,14 +80,6 @@ export async function upsertObjectif(
       console.error("upsertObjectif: échec de l'upsert Supabase", error);
       return { error: "Impossible d'enregistrer l'objectif. Réessaie dans un instant." };
     }
-  }
-
-  const { error: erreurPlanning } = await supabase
-    .from("nutrition_planning")
-    .upsert({ id: 1, jours_entrainement: jours });
-  if (erreurPlanning) {
-    console.error("upsertObjectif: échec de l'enregistrement du planning", erreurPlanning);
-    return { error: "Impossible d'enregistrer le planning. Réessaie dans un instant." };
   }
 
   revalidatePath("/nutrition/journal");

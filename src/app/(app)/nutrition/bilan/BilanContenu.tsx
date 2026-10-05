@@ -10,7 +10,7 @@ import {
   type CiblesJour,
   type JourType,
 } from "@/lib/nutrition/bilan";
-import { getPlanningEntrainement } from "@/app/actions/journal";
+import { getDatesEntrainement } from "@/app/actions/journal";
 import { estJourType } from "@/lib/nutrition/planning";
 import { card, errorText, linkButton } from "@/lib/ui";
 import {
@@ -39,7 +39,7 @@ export async function BilanContenu() {
   const debut = shiftDate(aujourdhui, -(NB_JOURS_FENETRE - 1));
   const supabase = createAdminClient();
 
-  const [objectifs, repas, joursEntrainement] = await Promise.all([
+  const [objectifs, repas, datesEntrainement] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*"),
     supabase
       .from("journal_repas")
@@ -48,7 +48,7 @@ export async function BilanContenu() {
       )
       .gte("date", debut)
       .lte("date", aujourdhui),
-    getPlanningEntrainement(),
+    getDatesEntrainement(debut, aujourdhui),
   ]);
 
   const erreur = objectifs.error ?? repas.error;
@@ -85,7 +85,7 @@ export async function BilanContenu() {
     aujourdhui,
     nbJours: NB_JOURS_FENETRE,
     entrees: repas.data ?? [],
-    joursEntrainement,
+    datesEntrainement,
     cibles,
   });
   const semaine = jours.slice(-NB_JOURS_SEMAINE);

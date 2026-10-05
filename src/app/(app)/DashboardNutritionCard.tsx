@@ -14,7 +14,7 @@ export async function DashboardNutritionCard() {
   const queryClient = makeServerQueryClient();
   await queryClient.prefetchQuery({
     queryKey: queryKeys.resumeNutrition(today),
-    // Le planning hebdomadaire d'entraînement décide de la cible comparée.
+    // Le statut d'entraînement de la date décide de la cible comparée.
     queryFn: () => getResumeNutritionJour(today),
   });
 

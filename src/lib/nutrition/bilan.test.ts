@@ -123,19 +123,19 @@ describe("construireBilan", () => {
       aujourdhui: "2026-09-30",
       nbJours: 3,
       entrees: [],
-      joursEntrainement: [],
+      datesEntrainement: [],
       cibles,
     });
     expect(jours.map((j) => j.date)).toEqual(["2026-09-28", "2026-09-29", "2026-09-30"]);
   });
 
-  it("agrège les repas d'un jour et applique la cible du type de jour déduit du planning", () => {
+  it("agrège les repas d'un jour et applique la cible du type de jour marqué", () => {
     const jours = construireBilan({
       aujourdhui: "2026-09-30",
       nbJours: 2,
       // 2000 g à 100 kcal/100 g = 2000 kcal, 200 g de protéines
       entrees: [entree("2026-09-29", 1000), entree("2026-09-29", 1000)],
-      joursEntrainement: [2], // mardi : le 2026-09-29
+      datesEntrainement: ["2026-09-29"],
       cibles,
     });
     const veille = jours[0];
@@ -146,12 +146,12 @@ describe("construireBilan", () => {
     expect(jours[1].statut).toBe("vide");
   });
 
-  it("planning vide = repos, sans objectif si la cible manque", () => {
+  it("aucune date marquée = repos, sans objectif si la cible manque", () => {
     const jours = construireBilan({
       aujourdhui: "2026-09-30",
       nbJours: 2,
       entrees: [entree("2026-09-29", 100)],
-      joursEntrainement: [],
+      datesEntrainement: [],
       cibles: { repos: null, entrainement: null },
     });
     expect(jours[0].jourType).toBe("repos");

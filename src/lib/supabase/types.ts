@@ -501,6 +501,24 @@ export type Database = {
         }
         Relationships: []
       }
+      jours_entrainement: {
+        Row: {
+          date: string
+          entraine: boolean
+          updated_at: string
+        }
+        Insert: {
+          date: string
+          entraine?: boolean
+          updated_at?: string
+        }
+        Update: {
+          date?: string
+          entraine?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       journal_repas: {
         Row: {
           aliment_id: string | null
@@ -676,24 +694,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      nutrition_planning: {
-        Row: {
-          id: number
-          jours_entrainement: number[]
-          updated_at: string
-        }
-        Insert: {
-          id?: number
-          jours_entrainement?: number[]
-          updated_at?: string
-        }
-        Update: {
-          id?: number
-          jours_entrainement?: number[]
-          updated_at?: string
-        }
-        Relationships: []
       }
       objectif_habitudes: {
         Row: {
