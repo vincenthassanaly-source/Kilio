@@ -76,8 +76,13 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
         onClick={() => history.back()}
       />
 
+      {/* `pointer-events-none` : la boîte du conteneur couvre aussi les entrées
+          du menu masquées, empilées au-dessus du « + » (une colonne haute à
+          droite). Sans ça, un geste de scroll y démarre sur un élément `fixed`,
+          dont la chaîne de scroll saute `<main>` : la page ne défile plus.
+          Chaque bouton réactive ses propres événements. */}
       <div
-        className="fixed right-4 z-40 flex flex-col-reverse items-center gap-3"
+        className="pointer-events-none fixed right-4 z-40 flex flex-col-reverse items-center gap-3"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)", viewTransitionName: "fab" }}
       >
         <button
@@ -88,7 +93,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           aria-label={direct ? "Ajouter une tâche" : mode === null ? "Ajouter" : "Fermer"}
           aria-expanded={direct ? undefined : mode !== null}
           aria-haspopup={direct ? "dialog" : undefined}
-          className="flex h-14 w-14 items-center justify-center rounded-full text-on-kcal shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full text-on-kcal shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           style={{ background: "var(--accent-kcal)" }}
         >
           <svg

@@ -200,7 +200,12 @@ export function AgendaView() {
   const swipeIgnoreElRef = useRef<HTMLElement | null>(null);
   const swipeIgnoreScrollLeftDebutRef = useRef(0);
 
-  useBackClose(fabOpen, () => setFabOpen(false));
+  // Une seule entrée d'historique pour les deux fenêtres (jamais ouvertes en
+  // même temps) : Retour ferme la fenêtre au lieu de quitter l'agenda.
+  useBackClose(fabOpen || evenementForm !== null, () => {
+    setFabOpen(false);
+    setEvenementForm(null);
+  });
 
   function selectDay(date: Date) {
     setSelectedDate(date);

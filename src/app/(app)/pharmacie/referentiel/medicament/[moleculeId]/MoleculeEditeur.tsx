@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { modifierMolecule } from "@/app/actions/pharmacie";
 import { Modal } from "@/components/Modal";
 import { showToast } from "@/components/toast/toast-store";
+import { useBackClose } from "@/hooks/useBackClose";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
 import { errorText, input, label, primaryButton } from "@/lib/ui";
@@ -19,6 +20,8 @@ export function MoleculeEditeur({ molecule, onClose }: { molecule: PharmaMolecul
   const [particularites, setParticularites] = useState(molecule.particularites ?? "");
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, startTransition] = useTransition();
+
+  useBackClose(true, onClose);
 
   function enregistrer(e: React.FormEvent) {
     e.preventDefault();

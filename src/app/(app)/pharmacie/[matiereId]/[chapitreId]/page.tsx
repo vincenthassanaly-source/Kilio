@@ -4,6 +4,7 @@ import { use, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Modal } from "@/components/Modal";
 import { TransitionLink } from "@/components/TransitionLink";
+import { useBackClose } from "@/hooks/useBackClose";
 import { card, linkButton, pillTag, screenTitle, secondaryButton } from "@/lib/ui";
 import { notionsDeChapitre } from "@/lib/pharmacie/selecteurs";
 import { pluriel } from "@/lib/pharmacie/format";
@@ -35,6 +36,8 @@ function Chapitre({
 }) {
   const [sommaireOuvert, setSommaireOuvert] = useState(false);
   const [enEdition, setEnEdition] = useState<PharmaNotion | null>(null);
+
+  useBackClose(sommaireOuvert, () => setSommaireOuvert(false));
 
   const matiere = snapshot.matieres.find((m) => m.id === matiereId);
   const chapitre = snapshot.chapitres.find((c) => c.id === chapitreId && c.matiere_id === matiereId);
