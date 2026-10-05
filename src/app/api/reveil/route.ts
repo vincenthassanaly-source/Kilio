@@ -68,8 +68,15 @@ export async function POST(request: NextRequest) {
   });
 
   if (!resultat.ok) {
+    // `detail` (statut HTTP et message de Google, délai dépassé, clé absente…)
+    // est renvoyé tel quel : il ne contient jamais la clé, et c'est lui qui
+    // dit pourquoi Gemini n'a pas répondu.
     return NextResponse.json(
-      { ok: false, message: resultat.code === "quota" ? MESSAGE_QUOTA_GEMINI : "Gemini n'a pas répondu." },
+      {
+        ok: false,
+        message: resultat.code === "quota" ? MESSAGE_QUOTA_GEMINI : "Gemini n'a pas répondu.",
+        detail: resultat.detail,
+      },
       { status: resultat.code === "quota" ? 429 : 502 }
     );
   }

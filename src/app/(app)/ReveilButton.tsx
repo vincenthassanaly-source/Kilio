@@ -17,11 +17,11 @@ import { errorText, kcalPillTag, secondaryButton } from "@/lib/ui";
 type Etat =
   | { statut: "chargement"; heureActuelle: string }
   | { statut: "ok"; heureActuelle: string; propositions: Proposition[]; recommande: number }
-  | { statut: "erreur"; message: string };
+  | { statut: "erreur"; message: string; detail?: string };
 
 type Reponse =
   | { ok: true; propositions: Proposition[]; recommande: number }
-  | { ok: false; message?: string };
+  | { ok: false; message?: string; detail?: string };
 
 function AlarmIcon() {
   return (
@@ -67,7 +67,11 @@ export function ReveilButton() {
       });
       const data = (await res.json()) as Reponse;
       if (!res.ok || !data.ok) {
-        setEtat({ statut: "erreur", message: (!data.ok && data.message) || "Le calcul a échoué." });
+        setEtat({
+          statut: "erreur",
+          message: (!data.ok && data.message) || "Le calcul a échoué.",
+          detail: !data.ok ? data.detail : undefined,
+        });
         return;
       }
       setEtat({ statut: "ok", heureActuelle, propositions: data.propositions, recommande: data.recommande });
@@ -110,6 +114,7 @@ function ContenuReveil({ etat, onRetry }: { etat: Etat; onRetry: () => void }) {
     return (
       <div className="flex flex-col gap-3 pb-1" role="alert">
         <p className={errorText}>{etat.message}</p>
+        {etat.detail && <p className="text-[13px] break-words text-ink-2">{etat.detail}</p>}
         <button type="button" onClick={onRetry} className={secondaryButton}>
           Réessayer
         </button>
