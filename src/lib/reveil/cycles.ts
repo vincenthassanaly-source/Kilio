@@ -33,7 +33,7 @@ export function minutesDepuisHeure(heure: unknown): number | null {
 const FORMAT_HEURE_SOUPLE = /^(\d{1,2})\s*[:hH]\s*(\d{2})$/;
 
 /** Lecture tolérante de la réponse de Gemini : « 5:57 », « 05h57 », « 05:57 ». */
-export function minutesDepuisHeureSouple(heure: unknown): number | null {
+function minutesDepuisHeureSouple(heure: unknown): number | null {
   if (typeof heure !== "string") return null;
   const m = FORMAT_HEURE_SOUPLE.exec(heure.trim());
   if (!m) return null;
