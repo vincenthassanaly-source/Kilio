@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { modifierNotion, supprimerNotion } from "@/app/actions/pharmacie";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Modal } from "@/components/Modal";
+import { useBackClose } from "@/hooks/useBackClose";
 import { runAction } from "@/lib/actions/runAction";
 import { showToast } from "@/components/toast/toast-store";
 import { queryKeys } from "@/lib/query/keys";
@@ -38,6 +39,10 @@ export function NotionEditeur({
   const [enCours, startTransition] = useTransition();
   const idContenu = useId();
   const zoneRef = useRef<HTMLTextAreaElement>(null);
+
+  // Retour ferme d'abord la confirmation (entrée du dessus), puis l'éditeur.
+  useBackClose(true, onClose);
+  useBackClose(confirmerSuppression, () => setConfirmerSuppression(false));
 
   // Colore la ligne du curseur (ou toutes les lignes de la sélection) sans
   // que l'utilisateur ait à taper la syntaxe `[couleur]` à la main.
