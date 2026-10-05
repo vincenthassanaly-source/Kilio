@@ -3,6 +3,7 @@ import { eyebrow } from "@/lib/ui";
 import { DashboardHeaderSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { GlobalSearchBar } from "./GlobalSearchBar";
 import { DashboardView } from "./DashboardView";
+import { ReveilButton } from "./ReveilButton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { getToday } from "./today";
 
@@ -40,10 +41,16 @@ async function DashboardHeader() {
 // reports/2026-09-24-navigation-instantanee-cache-components.md.
 export default function DashboardPage() {
   return (
-    <div data-testid="dashboard-shell" className="flex flex-col gap-4">
+    <div data-testid="dashboard-shell" className="relative flex flex-col gap-4">
       <Suspense fallback={<DashboardHeaderSkeleton />}>
         <DashboardHeader />
       </Suspense>
+      {/* Dans la coquille statique (hors Suspense) : le bouton est là dès le
+          premier paint, aligné à droite sur la ligne date + « Bonjour » (sous
+          le ThemeToggle fixe, qui occupe la bande des 64 px du haut). */}
+      <div className="absolute right-0 top-1">
+        <ReveilButton />
+      </div>
 
       <GlobalSearchBar />
 
