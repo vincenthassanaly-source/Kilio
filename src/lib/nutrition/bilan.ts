@@ -106,19 +106,19 @@ export function evaluerJour(params: {
 
 /**
  * Bilan des `nbJours` derniers jours jusqu'à `aujourdhui` inclus, du plus
- * ancien au plus récent. `joursEntrainement` : planning hebdomadaire (jours
- * ISO 1 à 7) qui décide du type de chaque jour, vide = repos partout. Les
+ * ancien au plus récent. `datesEntrainement` : dates marquées
+ * « entraînement » (les autres jours sont en repos). Les
  * cibles sont celles d'aujourd'hui, non historisées.
  */
 export function construireBilan(params: {
   aujourdhui: string;
   nbJours: number;
   entrees: EntreeJournal[];
-  joursEntrainement: readonly number[];
+  datesEntrainement: readonly string[];
   cibles: Record<JourType, CiblesJour | null>;
   proteinesRequises?: boolean;
 }): JourBilan[] {
-  const { aujourdhui, nbJours, entrees, joursEntrainement, cibles, proteinesRequises } = params;
+  const { aujourdhui, nbJours, entrees, datesEntrainement, cibles, proteinesRequises } = params;
 
   const parDate = new Map<string, { consomme: Nutrition; nbRepas: number }>();
   for (const entree of entrees) {
@@ -134,7 +134,7 @@ export function construireBilan(params: {
   const jours: JourBilan[] = [];
   for (let i = nbJours - 1; i >= 0; i--) {
     const date = shiftDate(aujourdhui, -i);
-    const jourType = jourTypePourDate(date, joursEntrainement);
+    const jourType = jourTypePourDate(date, datesEntrainement);
     const { consomme, nbRepas } = parDate.get(date) ?? { consomme: zeroNutrition(), nbRepas: 0 };
     const cible = cibles[jourType];
     const { statut, gravite } = evaluerJour({

@@ -10,7 +10,7 @@ import { progressionObjectif, type HabitudeLiee } from "@/lib/habitudes/compute"
 import { shiftDate } from "@/lib/date/iso";
 import { construireBilan, serieEnCours, tauxReussite, type CiblesJour, type JourBilan } from "@/lib/nutrition/bilan";
 import { estJourType, type JourType } from "@/lib/nutrition/planning";
-import { getPlanningEntrainement } from "@/app/actions/journal";
+import { getDatesEntrainement } from "@/app/actions/journal";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 export type ObjectifFormState = { error: string | null };
@@ -323,7 +323,7 @@ async function calculerSuiviNutrition(): Promise<SuiviNutrition> {
   const debut = shiftDate(aujourdhui, -(NB_JOURS_SUIVI_NUTRITION - 1));
   const supabase = createAdminClient();
 
-  const [cibles, repas, joursEntrainement] = await Promise.all([
+  const [cibles, repas, datesEntrainement] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*"),
     supabase
       .from("journal_repas")
@@ -332,7 +332,7 @@ async function calculerSuiviNutrition(): Promise<SuiviNutrition> {
       )
       .gte("date", debut)
       .lte("date", aujourdhui),
-    getPlanningEntrainement(),
+    getDatesEntrainement(debut, aujourdhui),
   ]);
 
   const erreur = cibles.error ?? repas.error;
@@ -354,7 +354,7 @@ async function calculerSuiviNutrition(): Promise<SuiviNutrition> {
     aujourdhui,
     nbJours: NB_JOURS_SUIVI_NUTRITION,
     entrees: repas.data ?? [],
-    joursEntrainement,
+    datesEntrainement,
     cibles: parType,
     proteinesRequises: false,
   });

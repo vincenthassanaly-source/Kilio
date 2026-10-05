@@ -1,6 +1,5 @@
 "use server";
 
-import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -16,7 +15,7 @@ import {
   type SaisieRecente,
 } from "@/lib/nutrition/compute";
 import type { Enums } from "@/lib/supabase/types";
-import { jourTypePourDate, normaliserJours, type JourType } from "@/lib/nutrition/planning";
+import { jourTypePourDate, type JourType } from "@/lib/nutrition/planning";
 import { aujourdhuiParis } from "@/lib/date/paris";
 
 export type JournalFormState = { error: string | null; ok?: boolean };
@@ -35,17 +34,23 @@ export type ResumeNutritionJour = {
   macroGoals: { proteines: number; glucides: number; lipides: number } | null;
 };
 
-// Planning hebdomadaire d'entraînement (table nutrition_planning, ligne
-// unique) : jours ISO 1 à 7 ; aucune ligne ou liste vide = repos tous les jours.
-export const getPlanningEntrainement = cache(async (): Promise<number[]> => {
+// Dates (YYYY-MM-DD) marquées « entraînement » entre `debut` et `fin`
+// incluses (table jours_entrainement) ; toute autre date est un jour de repos.
+export async function getDatesEntrainement(debut: string, fin: string): Promise<string[]> {
   const supabase = createAdminClient();
-  const { data } = await supabase.from("nutrition_planning").select("jours_entrainement").maybeSingle();
-  return normaliserJours(data?.jours_entrainement);
-});
+  const { data, error } = await supabase
+    .from("jours_entrainement")
+    .select("date")
+    .eq("entraine", true)
+    .gte("date", debut)
+    .lte("date", fin);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((ligne) => ligne.date);
+}
 
 export async function getResumeNutritionJour(date: string): Promise<ResumeNutritionJour> {
   const supabase = createAdminClient();
-  const jourType = jourTypePourDate(date, await getPlanningEntrainement());
+  const jourType = jourTypePourDate(date, await getDatesEntrainement(date, date));
 
   const [{ data: objectif }, { data: entries }] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*").eq("jour_type", jourType).maybeSingle(),

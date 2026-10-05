@@ -14,8 +14,8 @@ export type JournalSearchParams = Promise<{ date?: string }>;
  * build ni dans un cache). Avec `?date` (liens ‹ ›, swipe), rien ne dépend
  * de la requête.
  *
- * Le type du jour (repos / entraînement) ne vient pas de l'URL : il se
- * déduit du planning hebdomadaire (voir `jourTypePourDate`).
+ * Le type du jour (repos / entraînement) ne vient pas de l'URL : il est
+ * marqué par date depuis le Journal (voir `jourTypePourDate`).
  */
 export async function lireJourJournal(searchParams: JournalSearchParams): Promise<JourJournal> {
   const { date: dateParam } = await searchParams;
