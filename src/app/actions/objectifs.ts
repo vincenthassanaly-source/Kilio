@@ -7,12 +7,16 @@ import { HABITUDES_TAG } from "@/lib/habitudes/tags";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { progressionObjectif, type HabitudeLiee } from "@/lib/habitudes/compute";
+import { shiftDate } from "@/lib/date/iso";
+import { construireBilan, serieEnCours, tauxReussite, type CiblesJour, type JourBilan } from "@/lib/nutrition/bilan";
+import { estJourType, type JourType } from "@/lib/nutrition/planning";
+import { getPlanningEntrainement } from "@/app/actions/journal";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 export type ObjectifFormState = { error: string | null };
 
 const CATEGORIES: readonly Enums<"categorie_objectif">[] = ["perso", "pro"];
-const TYPES_SUIVI: readonly Enums<"type_suivi_objectif">[] = ["valeur", "etapes", "binaire", "habitudes"];
+const TYPES_SUIVI: readonly Enums<"type_suivi_objectif">[] = ["valeur", "etapes", "binaire", "habitudes", "nutrition"];
 const STATUTS: readonly Enums<"statut_objectif">[] = ["en_cours", "atteint", "abandonne"];
 
 type ObjectifInput = {
@@ -72,7 +76,8 @@ function parseObjectifInput(formData: FormData): ParseResult {
       description: description || null,
       categorie: categorie as Enums<"categorie_objectif">,
       type_suivi: type_suivi as Enums<"type_suivi_objectif">,
-      date_echeance: date_echeance || null,
+      // Objectif Nutrition : permanent, sans échéance.
+      date_echeance: type_suivi === "nutrition" ? null : date_echeance || null,
       valeur_cible,
       unite: estValeur && unite ? unite : null,
       habitude_ids,
@@ -124,12 +129,30 @@ export async function getHabitudeIdsDeLObjectif(objectifId: string): Promise<str
   return (data ?? []).map((l) => l.habitude_id);
 }
 
+const MESSAGE_NUTRITION_UNIQUE = "Tu as déjà un objectif Nutrition : un seul est possible.";
+
+// Un seul objectif de type « nutrition » (hors `exceptId`, l'objectif en
+// cours d'édition). `null` : aucun doublon ; sinon le message d'erreur.
+async function verifierNutritionUnique(exceptId?: string): Promise<string | null> {
+  const supabase = createAdminClient();
+  let requete = supabase.from("objectifs").select("id").eq("type_suivi", "nutrition").limit(1);
+  if (exceptId) requete = requete.neq("id", exceptId);
+  const { data, error } = await requete;
+  if (error) return error.message;
+  return data && data.length > 0 ? MESSAGE_NUTRITION_UNIQUE : null;
+}
+
 export async function creerObjectif(
   _prevState: ObjectifFormState,
   formData: FormData
 ): Promise<ObjectifFormState> {
   const parsed = parseObjectifInput(formData);
   if (!parsed.ok) return { error: parsed.error };
+
+  if (parsed.value.type_suivi === "nutrition") {
+    const doublon = await verifierNutritionUnique();
+    if (doublon) return { error: doublon };
+  }
 
   const supabase = createAdminClient();
 
@@ -167,6 +190,11 @@ export async function modifierObjectif(
 
   const parsed = parseObjectifInput(formData);
   if (!parsed.ok) return { error: parsed.error };
+
+  if (parsed.value.type_suivi === "nutrition") {
+    const doublon = await verifierNutritionUnique(id);
+    if (doublon) return { error: doublon };
+  }
 
   const supabase = createAdminClient();
   const { habitude_ids, ...champs } = parsed.value;
@@ -228,6 +256,22 @@ export type ObjectifDetail = {
   // Mode "habitudes" : habitudes rattachées et progression (0 à 1).
   habitudes: { id: string; nom: string; icone: string | null; frequence_hebdo: number | null; actif: boolean; taux: number }[];
   progression: number | null;
+  // Mode "nutrition" : suivi calculé depuis le Journal.
+  suiviNutrition: SuiviNutrition | null;
+};
+
+// Fenêtre d'historique du Journal lue pour le suivi Nutrition : assez large
+// pour une série longue, sous la limite de 1000 lignes par requête Supabase.
+const NB_JOURS_SUIVI_NUTRITION = 90;
+
+export type SuiviNutrition = {
+  /** Du plus ancien au plus récent ; le dernier est aujourd'hui. */
+  jours: JourBilan[];
+  serie: { jours: number; tronquee: boolean };
+  taux7: { reussis: number; evalues: number };
+  taux30: { reussis: number; evalues: number };
+  /** Au moins une cible kcal est définie dans le Journal. */
+  aDesCibles: boolean;
 };
 
 export async function getObjectif(id: string): Promise<ObjectifDetail | null> {
@@ -259,12 +303,69 @@ export async function getObjectif(id: string): Promise<ObjectifDetail | null> {
   if (etapesError) throw new Error(etapesError.message);
   if (entriesError) throw new Error(entriesError.message);
 
-  if (objectif.type_suivi !== "habitudes") {
-    return { objectif, etapes: etapes ?? [], entries: entries ?? [], habitudes: [], progression: null };
+  const base = { objectif, etapes: etapes ?? [], entries: entries ?? [], habitudes: [], progression: null, suiviNutrition: null };
+
+  if (objectif.type_suivi === "nutrition") {
+    return { ...base, suiviNutrition: await calculerSuiviNutrition() };
   }
+  if (objectif.type_suivi !== "habitudes") return base;
 
   const { habitudes, progression } = await calculerProgressionHabitudes(objectif);
-  return { objectif, etapes: etapes ?? [], entries: entries ?? [], habitudes, progression };
+  return { ...base, habitudes, progression };
+}
+
+// Suivi Nutrition : mêmes données et même évaluation que le Bilan du module
+// Nutrition, mais un jour est réussi dès que les kcal sont sous la cible
+// (protéines et autres macros n'entrent pas dans le verdict). Les cibles sont
+// celles d'aujourd'hui, non historisées, comme dans le Bilan.
+async function calculerSuiviNutrition(): Promise<SuiviNutrition> {
+  const aujourdhui = aujourdhuiParis();
+  const debut = shiftDate(aujourdhui, -(NB_JOURS_SUIVI_NUTRITION - 1));
+  const supabase = createAdminClient();
+
+  const [cibles, repas, joursEntrainement] = await Promise.all([
+    supabase.from("objectifs_nutritionnels").select("*"),
+    supabase
+      .from("journal_repas")
+      .select(
+        "date, quantite, aliment:aliments(*), recette:recettes(id, nom, portions, kcal_portion, proteines_portion, glucides_portion, lipides_portion, recette_ingredients(quantite, aliment:aliments(kcal_100g, proteines_100g, glucides_100g, lipides_100g)))"
+      )
+      .gte("date", debut)
+      .lte("date", aujourdhui),
+    getPlanningEntrainement(),
+  ]);
+
+  const erreur = cibles.error ?? repas.error;
+  if (erreur) throw new Error(erreur.message);
+
+  const parType: Record<JourType, CiblesJour | null> = { repos: null, entrainement: null };
+  for (const o of cibles.data ?? []) {
+    if (estJourType(o.jour_type)) {
+      parType[o.jour_type] = {
+        kcal: o.kcal_cible,
+        proteines: o.proteines_cible_g,
+        glucides: o.glucides_cible_g,
+        lipides: o.lipides_cible_g,
+      };
+    }
+  }
+
+  const jours = construireBilan({
+    aujourdhui,
+    nbJours: NB_JOURS_SUIVI_NUTRITION,
+    entrees: repas.data ?? [],
+    joursEntrainement,
+    cibles: parType,
+    proteinesRequises: false,
+  });
+
+  return {
+    jours,
+    serie: serieEnCours(jours),
+    taux7: tauxReussite(jours.slice(-7)),
+    taux30: tauxReussite(jours.slice(-30)),
+    aDesCibles: parType.repos !== null || parType.entrainement !== null,
+  };
 }
 
 async function calculerProgressionHabitudes(

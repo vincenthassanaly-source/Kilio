@@ -10,6 +10,7 @@ import { ObjectifSuiviBinaire } from "./ObjectifSuiviBinaire";
 import { ObjectifSuiviEtapes } from "./ObjectifSuiviEtapes";
 import { ObjectifSuiviValeur } from "./ObjectifSuiviValeur";
 import { ObjectifSuiviHabitudes } from "./ObjectifSuiviHabitudes";
+import { ObjectifSuiviNutrition } from "./ObjectifSuiviNutrition";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 
@@ -51,7 +52,7 @@ export function ObjectifDetailView({ id }: { id: string }) {
     );
   }
 
-  const { objectif, etapes, entries, habitudes, progression } = detail;
+  const { objectif, etapes, entries, habitudes, progression, suiviNutrition } = detail;
 
   return (
     <div className="flex flex-col gap-5">
@@ -67,6 +68,7 @@ export function ObjectifDetailView({ id }: { id: string }) {
       {objectif.type_suivi === "habitudes" && (
         <ObjectifSuiviHabitudes objectif={objectif} habitudes={habitudes} progression={progression ?? 0} />
       )}
+      {objectif.type_suivi === "nutrition" && suiviNutrition && <ObjectifSuiviNutrition suivi={suiviNutrition} />}
     </div>
   );
 }

@@ -17,6 +17,7 @@ const TYPE_SUIVI_LABELS: Record<Enums<"type_suivi_objectif">, string> = {
   etapes: "Étapes",
   binaire: "Fait / pas fait",
   habitudes: "Habitudes",
+  nutrition: "Nutrition",
 };
 
 function formatEcheance(iso: string) {

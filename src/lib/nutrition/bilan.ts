@@ -52,7 +52,9 @@ export function nutritionEntree(entree: EntreeJournal): Nutrition | null {
     : nutritionRecette(recette.recette_ingredients, recette.portions, entree.quantite);
 }
 
-export type CiblesJour = { kcal: number; proteines: number };
+// glucides / lipides : renseignés seulement quand l'appelant affiche aussi les
+// jauges de macros (suivi d'un objectif Nutrition) ; le verdict ne les lit pas.
+export type CiblesJour = { kcal: number; proteines: number; glucides?: number; lipides?: number };
 
 export type StatutJour =
   | "reussi"
@@ -82,8 +84,10 @@ export function evaluerJour(params: {
   cible: CiblesJour | null;
   nbRepas: number;
   estAujourdhui: boolean;
+  /** `false` : seules les kcal décident (objectif Nutrition). Défaut `true`. */
+  proteinesRequises?: boolean;
 }): { statut: StatutJour; gravite: Gravite | null } {
-  const { consomme, cible, nbRepas, estAujourdhui } = params;
+  const { consomme, cible, nbRepas, estAujourdhui, proteinesRequises = true } = params;
   if (nbRepas === 0) return { statut: "vide", gravite: null };
   if (!cible || cible.kcal <= 0) return { statut: "sans_objectif", gravite: null };
 
@@ -96,7 +100,7 @@ export function evaluerJour(params: {
     return { statut: "rate", gravite: kcal / cible.kcal <= SEUIL_DEPASSEMENT_LEGER ? "leger" : "marque" };
   }
   if (estAujourdhui) return { statut: "en_cours", gravite: null };
-  if (proteines < cible.proteines) return { statut: "rate", gravite: "leger" };
+  if (proteinesRequises && proteines < cible.proteines) return { statut: "rate", gravite: "leger" };
   return { statut: "reussi", gravite: null };
 }
 
@@ -112,8 +116,9 @@ export function construireBilan(params: {
   entrees: EntreeJournal[];
   joursEntrainement: readonly number[];
   cibles: Record<JourType, CiblesJour | null>;
+  proteinesRequises?: boolean;
 }): JourBilan[] {
-  const { aujourdhui, nbJours, entrees, joursEntrainement, cibles } = params;
+  const { aujourdhui, nbJours, entrees, joursEntrainement, cibles, proteinesRequises } = params;
 
   const parDate = new Map<string, { consomme: Nutrition; nbRepas: number }>();
   for (const entree of entrees) {
@@ -132,7 +137,13 @@ export function construireBilan(params: {
     const jourType = jourTypePourDate(date, joursEntrainement);
     const { consomme, nbRepas } = parDate.get(date) ?? { consomme: zeroNutrition(), nbRepas: 0 };
     const cible = cibles[jourType];
-    const { statut, gravite } = evaluerJour({ consomme, cible, nbRepas, estAujourdhui: date === aujourdhui });
+    const { statut, gravite } = evaluerJour({
+      consomme,
+      cible,
+      nbRepas,
+      estAujourdhui: date === aujourdhui,
+      proteinesRequises,
+    });
     jours.push({ date, jourType, statut, consomme, cible, nbRepas, gravite });
   }
   return jours;

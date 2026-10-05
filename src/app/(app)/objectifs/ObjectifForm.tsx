@@ -27,6 +27,7 @@ const TYPE_SUIVI_COURT: Record<Enums<"type_suivi_objectif">, string> = {
   etapes: "Étapes",
   binaire: "Oui / non",
   habitudes: "Habitudes",
+  nutrition: "Nutrition",
 };
 
 const TYPE_SUIVI_LABELS: Record<Enums<"type_suivi_objectif">, string> = {
@@ -34,6 +35,7 @@ const TYPE_SUIVI_LABELS: Record<Enums<"type_suivi_objectif">, string> = {
   etapes: "Checklist d'étapes",
   binaire: "Fait / pas fait",
   habitudes: "Alimenté par des habitudes",
+  nutrition: "Suivi automatique des kcal du Journal",
 };
 
 export function ObjectifForm({
@@ -110,18 +112,20 @@ export function ObjectifForm({
             onChange={setCategorie}
           />
         </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <label htmlFor={`${uid}-date_echeance`} className={labelClass}>
-            Échéance (optionnel)
-          </label>
-          <input
-            id={`${uid}-date_echeance`}
-            name="date_echeance"
-            type="date"
-            defaultValue={objectif?.date_echeance ?? ""}
-            className={`${input} w-full min-w-0`}
-          />
-        </div>
+        {typeSuivi !== "nutrition" && (
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <label htmlFor={`${uid}-date_echeance`} className={labelClass}>
+              Échéance (optionnel)
+            </label>
+            <input
+              id={`${uid}-date_echeance`}
+              name="date_echeance"
+              type="date"
+              defaultValue={objectif?.date_echeance ?? ""}
+              className={`${input} w-full min-w-0`}
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-1">
@@ -130,6 +134,7 @@ export function ObjectifForm({
           ariaLabel="Mode de suivi"
           name="type_suivi"
           taille="sm"
+          className="flex-wrap"
           options={(Object.keys(TYPE_SUIVI_LABELS) as Enums<"type_suivi_objectif">[]).map((key) => ({
             value: key,
             label: TYPE_SUIVI_COURT[key],
@@ -169,6 +174,13 @@ export function ObjectifForm({
             />
           </div>
         </div>
+      )}
+
+      {typeSuivi === "nutrition" && (
+        <p className="text-sm text-ink-2 text-pretty">
+          Un jour est réussi quand tes kcal restent sous la cible du Journal (repos ou entraînement). Les macros sont
+          affichées pour information. Un seul objectif Nutrition est possible, sans échéance.
+        </p>
       )}
 
       {typeSuivi === "habitudes" && (
