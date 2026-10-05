@@ -9,4 +9,8 @@ create table if not exists jours_entrainement (
   updated_at timestamptz not null default now()
 );
 
+-- RLS activée sans politique, comme les autres tables : seul le client admin
+-- (service role) y accède.
+alter table jours_entrainement enable row level security;
+
 drop table if exists nutrition_planning;
