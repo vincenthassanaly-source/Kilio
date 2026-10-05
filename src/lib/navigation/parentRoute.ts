@@ -3,16 +3,32 @@ import { NAV_ITEMS, isModuleRootPath } from "@/lib/navigation/registry";
 const FICHE_REFERENTIEL = /^\/pharmacie\/referentiel\/(classe|medicament|pathologie)\/[^/]+$/;
 
 /**
+ * Exception au retour « parent logique » : un jour du Journal ouvert depuis le
+ * Bilan (`?from=bilan`, conservé par ‹ › et le swipe) ramène au Bilan, pas à
+ * l'accueil Nutrition. Les bascules par les onglets Nutrition n'ont pas ce
+ * paramètre et gardent le retour vers l'accueil.
+ */
+function retourJournalVersBilan(de: string, vers: string, searchCourant: string): boolean {
+  return (
+    de === "/nutrition/journal" &&
+    vers === "/nutrition/bilan" &&
+    new URLSearchParams(searchCourant).get("from") === "bilan"
+  );
+}
+
+/**
  * Exception au retour « parent logique » : depuis une fiche du référentiel
  * (classe, médicament, pathologie), le retour suit l'historique réel tant
  * qu'il reste dans le référentiel — on revient ainsi à la pathologie, à la
  * classe ou à la recherche d'où l'on vient, pas toujours à son accueil.
  */
-export function retourHistoriqueAutorise(courant: string, arrivee: string): boolean {
+export function retourHistoriqueAutorise(courant: string, arrivee: string, searchCourant = ""): boolean {
   const normaliser = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
   const de = normaliser(courant);
   const vers = normaliser(arrivee);
-  if (de === vers || !FICHE_REFERENTIEL.test(de)) return false;
+  if (de === vers) return false;
+  if (retourJournalVersBilan(de, vers, searchCourant)) return true;
+  if (!FICHE_REFERENTIEL.test(de)) return false;
   return vers === "/pharmacie/referentiel" || FICHE_REFERENTIEL.test(vers);
 }
 

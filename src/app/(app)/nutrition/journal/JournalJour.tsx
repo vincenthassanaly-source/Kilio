@@ -36,7 +36,7 @@ export async function JournalJourNavigation({ searchParams }: { searchParams: Jo
 }
 
 export async function JournalJour({ searchParams }: { searchParams: JournalSearchParams }) {
-  const { date } = await lireJourJournal(searchParams);
+  const { date, depuisBilan } = await lireJourJournal(searchParams);
   const supabase = createAdminClient();
 
   const [{ data: objectifs }, planning, { data: entries }] = await Promise.all([
@@ -111,7 +111,7 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
 
   return (
     <>
-    <JournalJourAnime key={date} date={date}>
+    <JournalJourAnime key={date} date={date} depuisBilan={depuisBilan}>
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
           <h2 className={sectionTitle}>Objectif ({jourType === "repos" ? "repos" : "entraînement"})</h2>

@@ -74,7 +74,7 @@ export async function BilanContenu() {
         <p className="text-sm text-ink-2 text-pretty">
           Définis tes objectifs de kcal et de protéines dans le Journal pour suivre les jours dans les clous.
         </p>
-        <TransitionLink href="/nutrition/journal" className={linkButton}>
+        <TransitionLink href="/nutrition/journal?from=bilan" className={linkButton}>
           Ouvrir le Journal
         </TransitionLink>
       </div>

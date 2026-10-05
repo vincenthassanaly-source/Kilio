@@ -67,13 +67,21 @@ export function BackNavigationHandler() {
   const { modulesBarreBasse } = useNavigationEdit();
 
   const pathnameRef = useRef(pathname);
-  const changementRef = useRef<{ de: string; vers: string; instant: number } | null>(null);
+  const searchRef = useRef(typeof window === "undefined" ? "" : window.location.search);
+  const changementRef = useRef<{ de: string; vers: string; instant: number; deSearch: string } | null>(null);
   const modulesRef = useRef(modulesBarreBasse);
   useEffect(() => {
     if (pathnameRef.current !== pathname) {
-      changementRef.current = { de: pathnameRef.current, vers: pathname, instant: performance.now() };
+      changementRef.current = {
+        de: pathnameRef.current,
+        vers: pathname,
+        instant: performance.now(),
+        deSearch: searchRef.current,
+      };
       pathnameRef.current = pathname;
     }
+    // Query de la page affichée (lue après commit) : sert de « page d'où l'on vient » au prochain retour.
+    searchRef.current = window.location.search;
     modulesRef.current = modulesBarreBasse;
   });
 
@@ -114,6 +122,7 @@ export function BackNavigationHandler() {
       const changement = changementRef.current;
       const dejaCommite = changement !== null && changement.vers === arrivee && changement.instant >= event.timeStamp;
       const courant = dejaCommite ? changement.de : pathnameRef.current;
+      const searchCourant = dejaCommite ? changement.deSearch : searchRef.current;
 
       // Même chemin, pas la garde : couche (modale, menu, mode édition) ou
       // changement de query, géré par son propre code.
@@ -124,7 +133,7 @@ export function BackNavigationHandler() {
       // Fiches du référentiel : le retour suit l'historique réel (voir
       // `retourHistoriqueAutorise`). Hors garde, Next affiche déjà la bonne
       // page : rien à corriger.
-      const historique = retourHistoriqueAutorise(courant, arrivee);
+      const historique = retourHistoriqueAutorise(courant, arrivee, searchCourant);
       if (historique && !surGarde) return;
 
       if (surGarde) {

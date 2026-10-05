@@ -22,7 +22,7 @@ const libelleLong = (date: string) =>
 // Lundi = 0.
 const indexSemaine = (date: string) => (dateUTC(date).getUTCDay() + 6) % 7;
 
-const hrefJournal = (date: string) => `/nutrition/journal?date=${date}`;
+const hrefJournal = (date: string) => `/nutrition/journal?date=${date}&from=bilan`;
 
 const pluriel = (n: number) => (n > 1 ? "jours" : "jour");
 

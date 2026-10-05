@@ -71,3 +71,20 @@ describe("retourHistoriqueAutorise", () => {
     expect(retourHistoriqueAutorise(classe, classe)).toBe(false);
   });
 });
+
+describe("retourHistoriqueAutorise : Journal ouvert depuis le Bilan", () => {
+  it("ramène au Bilan quand le Journal porte from=bilan", () => {
+    expect(retourHistoriqueAutorise("/nutrition/journal", "/nutrition/bilan", "?date=2026-10-02&from=bilan")).toBe(true);
+    expect(retourHistoriqueAutorise("/nutrition/journal/", "/nutrition/bilan", "?from=bilan")).toBe(true);
+  });
+
+  it("garde le retour vers l'accueil Nutrition sans from=bilan", () => {
+    expect(retourHistoriqueAutorise("/nutrition/journal", "/nutrition/bilan", "?date=2026-10-02")).toBe(false);
+    expect(retourHistoriqueAutorise("/nutrition/journal", "/nutrition/bilan")).toBe(false);
+  });
+
+  it("ne s'applique qu'au retour vers le Bilan", () => {
+    expect(retourHistoriqueAutorise("/nutrition/journal", "/nutrition", "?from=bilan")).toBe(false);
+    expect(retourHistoriqueAutorise("/nutrition/recettes", "/nutrition/bilan", "?from=bilan")).toBe(false);
+  });
+});
