@@ -159,7 +159,13 @@ export function AujourdhuiView({ today }: { today: string }) {
       {tachesChargent ? (
         <Skeleton className="h-32 w-full rounded-[22px]" />
       ) : (
-        <TachesDuJour taches={duJour} today={today} libres={libres} tacheSurlignee={tacheSurlignee} />
+        <TachesDuJour
+          taches={duJour}
+          today={today}
+          libres={libres}
+          tacheSurlignee={tacheSurlignee}
+          onTacheCreee={setTacheSurlignee}
+        />
       )}
 
       <DashboardHabitudesSection today={today} className={card} />
