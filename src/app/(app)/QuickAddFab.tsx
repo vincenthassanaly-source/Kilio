@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AddCourseForm } from "./courses/AddCourseForm";
+import { EvenementForm } from "./aujourdhui/EvenementForm";
 import { Modal } from "@/components/Modal";
 import { goBackSteps, useBackClose } from "@/hooks/useBackClose";
 import { getListes, getTags } from "@/app/actions/taches";
+import { aujourdhuiISO } from "@/lib/date/recurrence";
 import { queryKeys } from "@/lib/query/keys";
 import { preloadAddTaskForm } from "./taches/preloadAddTaskForm";
 import { showToast } from "@/components/toast/toast-store";
@@ -23,7 +26,7 @@ const AjoutRepasPanneau = dynamic(
   { ssr: false }
 );
 
-type Mode = null | "menu" | "tache" | "note" | "course" | "repas";
+type Mode = null | "menu" | "tache" | "evenement" | "note" | "course" | "repas";
 
 // Mode « direct » : le FAB ouvre tout de suite le formulaire de tâche, sans
 // passer par le menu Tâche/Note/Course (utilisé par /taches). Sans cette
@@ -44,6 +47,7 @@ export type DirectTaskOptions = {
 export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) {
   const [mode, setMode] = useState<Mode>(null);
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { data: listes = [] } = useQuery({ queryKey: queryKeys.listes, queryFn: getListes });
   const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
   const direct = directTask !== undefined;
@@ -58,11 +62,15 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
   // functional update so it's a no-op if the dial-level handler above
   // already closed everything (e.g. goBackSteps(2) from onDone). In direct
   // mode, closing the form closes everything (no menu to land on).
-  useBackClose(mode === "tache" || mode === "note" || mode === "course" || mode === "repas", () =>
-    setMode((m) => {
-      if (direct) return null;
-      return m === "tache" || m === "note" || m === "course" || m === "repas" ? "menu" : m;
-    })
+  useBackClose(
+    mode === "tache" || mode === "evenement" || mode === "note" || mode === "course" || mode === "repas",
+    () =>
+      setMode((m) => {
+        if (direct) return null;
+        return m === "tache" || m === "evenement" || m === "note" || m === "course" || m === "repas"
+          ? "menu"
+          : m;
+      })
   );
 
   const dialOpen = mode !== null;
@@ -185,6 +193,29 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
 
         <button
           type="button"
+          onClick={() => setMode("evenement")}
+          aria-label="Nouvel événement"
+          tabIndex={dialInteractive ? 0 : -1}
+          className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
+          style={{
+            opacity: dialOpen ? 1 : 0,
+            transform: dialOpen ? "translateY(0)" : "translateY(12px)",
+            pointerEvents: dialInteractive ? "auto" : "none",
+          }}
+        >
+          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink shadow-card">
+            Événement
+          </span>
+          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+              <path d="M3.5 10h17M8 3v4M16 3v4" />
+            </svg>
+          </span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setMode("note")}
           aria-label="Nouvelle note"
           tabIndex={dialInteractive ? 0 : -1}
@@ -230,6 +261,21 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
                   if (avertissement) showToast(avertissement, DUREE_TOAST_AVERTISSEMENT_MS);
                   goBackSteps(2);
                 }
+              }}
+            />
+          </Modal>
+        )}
+
+        {mode === "evenement" && (
+          <Modal key="evenement" title="Nouvel événement" onClose={() => history.back()}>
+            <EvenementForm
+              dateParDefaut={aujourdhuiISO()}
+              onSaved={() => {
+                showToast("Événement ajouté");
+                void queryClient.invalidateQueries({ queryKey: queryKeys.evenements });
+                // Les écrans serveur (Agenda) relisent leurs données.
+                router.refresh();
+                goBackSteps(2);
               }}
             />
           </Modal>
