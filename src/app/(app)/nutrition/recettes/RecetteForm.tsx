@@ -144,20 +144,18 @@ export function RecetteForm({
         />
       </div>
 
-      {source === "hellofresh" && (
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-ustensiles`} className={labelClass}>
-            Ustensiles (un par ligne)
-          </label>
-          <textarea
-            id={`${uid}-ustensiles`}
-            name="ustensiles"
-            rows={3}
-            defaultValue={recette?.ustensiles?.join("\n") ?? ""}
-            className={input}
-          />
-        </div>
-      )}
+      <div className="flex flex-col gap-1">
+        <label htmlFor={`${uid}-ustensiles`} className={labelClass}>
+          Ustensiles (un par ligne)
+        </label>
+        <textarea
+          id={`${uid}-ustensiles`}
+          name="ustensiles"
+          rows={3}
+          defaultValue={recette?.ustensiles?.join("\n") ?? ""}
+          className={input}
+        />
+      </div>
 
       {source === "hellofresh" && (
         <div className="flex flex-col gap-2 rounded-2xl border border-line p-3">

@@ -40,6 +40,8 @@ export default async function RecetteDetailPage({
   }
 
   const isHelloFresh = recette.source === "hellofresh";
+  const hasIngredientsLibres = (ingredientsLibres ?? []).length > 0;
+  const hasEtapes = (etapes ?? []).length > 0;
   const overridden = hasNutritionOverride(recette);
   const perPortion = overridden
     ? nutritionFromOverride(recette, 1)
@@ -51,7 +53,7 @@ export default async function RecetteDetailPage({
       <RecetteHeader recette={recette} />
       {showMacros && <RecetteMacros recetteId={recette.id} nom={recette.nom} perPortion={perPortion} detail={overridden ? recette : undefined} />}
 
-      {isHelloFresh && recette.ustensiles && recette.ustensiles.length > 0 && (
+      {recette.ustensiles && recette.ustensiles.length > 0 && (
         <div className="flex flex-col gap-2">
           <h2 className={sectionTitle}>Ustensiles</h2>
           <div className="flex flex-wrap gap-1.5">
@@ -69,11 +71,21 @@ export default async function RecetteDetailPage({
         {isHelloFresh ? (
           <IngredientsLibresManager recetteId={id} ingredients={ingredientsLibres ?? []} />
         ) : (
-          <IngredientManager recetteId={id} ingredients={ingredients ?? []} aliments={aliments ?? []} />
+          <>
+            <IngredientManager
+              recetteId={id}
+              ingredients={ingredients ?? []}
+              aliments={aliments ?? []}
+              hideEmptyMessage={hasIngredientsLibres}
+            />
+            {hasIngredientsLibres && (
+              <IngredientsLibresManager recetteId={id} ingredients={ingredientsLibres ?? []} />
+            )}
+          </>
         )}
       </div>
 
-      {isHelloFresh && (
+      {(isHelloFresh || hasEtapes) && (
         <div className="flex flex-col gap-3">
           <h2 className={sectionTitle}>Étapes</h2>
           <EtapesManager recetteId={id} etapes={etapes ?? []} />
