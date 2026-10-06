@@ -199,15 +199,17 @@ export function IngredientManager({
   recetteId,
   ingredients,
   aliments,
+  hideEmptyMessage = false,
 }: {
   recetteId: string;
   ingredients: IngredientRow[];
   aliments: Tables<"aliments">[];
+  hideEmptyMessage?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3">
       {ingredients.length === 0 ? (
-        <p className="text-sm text-ink-2">Aucun ingrédient pour l&apos;instant.</p>
+        hideEmptyMessage ? null : <p className="text-sm text-ink-2">Aucun ingrédient pour l&apos;instant.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {ingredients.map((ing) => (
