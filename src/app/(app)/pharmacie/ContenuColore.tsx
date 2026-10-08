@@ -49,12 +49,16 @@ export function IconeNiveau({ niveau, taille = 16 }: { niveau: Niveau; taille?: 
 export function ContenuColore({
   contenu,
   className = "whitespace-pre-line text-[14.5px] leading-[1.55] text-ink",
+  titresSections = false,
 }: {
   contenu: string;
   /** Classes du texte (taille, graisse, couleur) appliquées aux paragraphes comme aux rangées. */
   className?: string;
+  /** Lignes de titre (texte tout en MAJUSCULES) : en gras, avec de l'espace au-dessus. */
+  titresSections?: boolean;
 }) {
   const blocs = parseContenu(contenu);
+  const titre = (texte: string) => titresSections && estTitreSection(texte);
 
   if (blocs.length === 1 && blocs[0].type === "texte") {
     return <p className={className}>{blocs[0].texte}</p>;
@@ -64,13 +68,13 @@ export function ContenuColore({
     <div className="flex flex-col gap-1.5">
       {blocs.map((bloc, i) =>
         bloc.type === "texte" ? (
-          <p key={i} className={className}>
+          <p key={i} className={`${className} ${titre(bloc.texte) ? "mt-2 font-bold" : ""}`}>
             {bloc.texte}
           </p>
         ) : (
           <div
             key={i}
-            className="flex items-start gap-2 rounded-xl border-l-4 py-2 pl-2.5 pr-3"
+            className={`flex items-start gap-2 rounded-xl border-l-4 py-2 pl-2.5 pr-3 ${titre(bloc.texte) ? "mt-2" : ""}`}
             style={{
               borderLeftColor: META_NIVEAU[bloc.niveau].couleur,
               background: `color-mix(in oklch, ${META_NIVEAU[bloc.niveau].couleur} 12%, transparent)`,
@@ -79,7 +83,7 @@ export function ContenuColore({
             <span className="mt-[3px]">
               <IconeNiveau niveau={bloc.niveau} />
             </span>
-            <p className={className}>
+            <p className={`${className} ${titre(bloc.texte) ? "font-bold" : ""}`}>
               <span className="sr-only">{META_NIVEAU[bloc.niveau].libelle} : </span>
               {bloc.texte}
             </p>
@@ -88,4 +92,10 @@ export function ContenuColore({
       )}
     </div>
   );
+}
+
+/** Titre de section : au moins 3 lettres et aucune minuscule (« INTERACTIONS », « À ÉVITER »). */
+function estTitreSection(texte: string): boolean {
+  const t = texte.trim();
+  return (t.match(/\p{L}/gu)?.length ?? 0) >= 3 && t === t.toUpperCase();
 }
