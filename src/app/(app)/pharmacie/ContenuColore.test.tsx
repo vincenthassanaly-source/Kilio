@@ -47,15 +47,34 @@ describe("ContenuColore", () => {
 describe("ContenuColore – titres de section", () => {
   const contenu = "[rouge] INTERACTIONS\n[rouge] Dégradé par le CYP3A4.\n\n[orange] À ÉVITER\n[orange] AINS (risque rénal).";
 
-  it("met les lignes en majuscules en gras si titresSections", () => {
+  it("rend une carte par section, titre en tête et lignes en liste, si titresSections", () => {
     const { container } = render(<ContenuColore contenu={contenu} titresSections />);
-    const gras = Array.from(container.querySelectorAll("p.font-bold")).map((p) => p.textContent);
-    expect(gras).toEqual(["Danger : INTERACTIONS", "À surveiller : À ÉVITER"]);
+    const titres = Array.from(container.querySelectorAll("section h3")).map((h) => h.textContent);
+    expect(titres).toEqual(["INTERACTIONS", "À ÉVITER"]);
+    const lignes = Array.from(container.querySelectorAll("section")).map((s) => s.querySelectorAll("li").length);
+    expect(lignes).toEqual([1, 1]);
   });
 
-  it("ne change rien par défaut", () => {
+  it("garde le rendu ligne par ligne par défaut", () => {
     const { container } = render(<ContenuColore contenu={contenu} />);
-    expect(container.querySelector("p.font-bold")).toBeNull();
+    expect(container.querySelector("section")).toBeNull();
+    expect(container.querySelectorAll("div.border-l-4")).toHaveLength(4);
+  });
+
+  it("distingue une ligne d'une autre couleur : libellé accessible et gras si rouge", () => {
+    const { container } = render(
+      <ContenuColore contenu={"[orange] SURVEILLANCE\n[orange] Kaliémie à 1 mois.\n[rouge] Risque : hyperkaliémie."} titresSections />
+    );
+    const [simple, critique] = Array.from(container.querySelectorAll("li p"));
+    expect(simple.querySelector(".sr-only")).toBeNull();
+    expect(critique).toHaveClass("font-semibold");
+    expect(critique.querySelector(".sr-only")?.textContent).toContain("Danger");
+  });
+
+  it("rend « # » comme sous-titre de section, sans afficher le dièse", () => {
+    const { container } = render(<ContenuColore contenu={"[gris] MÉCANISME\n[gris] # Diabète\n[gris] Le sucre est évacué."} titresSections />);
+    expect(screen.getByText("Diabète")).toBeInTheDocument();
+    expect(container.textContent).not.toContain("# Diabète");
   });
 
   it("n'affiche jamais la balise", () => {

@@ -1,4 +1,4 @@
-import { META_NIVEAU, parseContenu, type Niveau } from "@/lib/pharmacie/contenu";
+import { META_NIVEAU, grouperSections, parseContenu, type ElementContenu, type Niveau } from "@/lib/pharmacie/contenu";
 
 // Pictogrammes distincts par niveau : la couleur n'est jamais le seul
 // vecteur d'information (daltonisme, écran en plein soleil au comptoir).
@@ -54,36 +54,30 @@ export function ContenuColore({
   contenu: string;
   /** Classes du texte (taille, graisse, couleur) appliquées aux paragraphes comme aux rangées. */
   className?: string;
-  /** Lignes de titre (texte tout en MAJUSCULES) : en gras, avec de l'espace au-dessus. */
+  /** Fiche du référentiel : un titre en MAJUSCULES ouvre une carte de section (voir `grouperSections`). */
   titresSections?: boolean;
 }) {
   const blocs = parseContenu(contenu);
-  const titre = (texte: string) => titresSections && estTitreSection(texte);
 
   if (blocs.length === 1 && blocs[0].type === "texte") {
     return <p className={className}>{blocs[0].texte}</p>;
   }
 
+  if (titresSections) return <ContenuSections elements={grouperSections(blocs)} className={className} />;
+
   return (
     <div className="flex flex-col gap-1.5">
       {blocs.map((bloc, i) =>
         bloc.type === "texte" ? (
-          <p key={i} className={`${className} ${titre(bloc.texte) ? "mt-2 font-bold" : ""}`}>
+          <p key={i} className={className}>
             {bloc.texte}
           </p>
         ) : (
-          <div
-            key={i}
-            className={`flex items-start gap-2 rounded-xl border-l-4 py-2 pl-2.5 pr-3 ${titre(bloc.texte) ? "mt-2" : ""}`}
-            style={{
-              borderLeftColor: META_NIVEAU[bloc.niveau].couleur,
-              background: `color-mix(in oklch, ${META_NIVEAU[bloc.niveau].couleur} 12%, transparent)`,
-            }}
-          >
+          <div key={i} className="flex items-start gap-2 rounded-xl border-l-4 py-2 pl-2.5 pr-3" style={styleNiveau(bloc.niveau)}>
             <span className="mt-[3px]">
               <IconeNiveau niveau={bloc.niveau} />
             </span>
-            <p className={`${className} ${titre(bloc.texte) ? "font-bold" : ""}`}>
+            <p className={className}>
               <span className="sr-only">{META_NIVEAU[bloc.niveau].libelle} : </span>
               {bloc.texte}
             </p>
@@ -94,8 +88,85 @@ export function ContenuColore({
   );
 }
 
-/** Titre de section : au moins 3 lettres et aucune minuscule (« INTERACTIONS », « À ÉVITER »). */
-function estTitreSection(texte: string): boolean {
-  const t = texte.trim();
-  return (t.match(/\p{L}/gu)?.length ?? 0) >= 3 && t === t.toUpperCase();
+function styleNiveau(niveau: Niveau) {
+  return {
+    borderLeftColor: META_NIVEAU[niveau].couleur,
+    background: `color-mix(in oklch, ${META_NIVEAU[niveau].couleur} 12%, transparent)`,
+  };
+}
+
+/**
+ * Fiche du référentiel : une carte par section (titre en majuscules), dont la
+ * couleur est celle du titre. Les lignes sont en liste : une ligne de la
+ * couleur de la section porte une simple puce ; une ligne d'une autre couleur
+ * garde son pictogramme et son libellé accessible, et une ligne rouge passe en
+ * gras pour rester repérable au milieu d'une section orange.
+ */
+function ContenuSections({ elements, className }: { elements: ElementContenu[]; className: string }) {
+  return (
+    <div className="flex flex-col gap-2.5">
+      {elements.map((el, i) => {
+        if (el.type === "texte") {
+          return (
+            <p key={i} className={className}>
+              {el.texte}
+            </p>
+          );
+        }
+        if (el.type === "ligne") {
+          return (
+            <div key={i} className="flex items-start gap-2 rounded-xl border-l-4 py-2 pl-2.5 pr-3" style={styleNiveau(el.niveau)}>
+              <span className="mt-[3px]">
+                <IconeNiveau niveau={el.niveau} />
+              </span>
+              <p className={className}>
+                <span className="sr-only">{META_NIVEAU[el.niveau].libelle} : </span>
+                {el.texte}
+              </p>
+            </div>
+          );
+        }
+        return (
+          <section
+            key={i}
+            aria-label={el.titre}
+            className="flex flex-col gap-2 rounded-xl border-l-4 py-2.5 pl-3 pr-3"
+            style={styleNiveau(el.niveau)}
+          >
+            <h3 className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-ink">
+              <IconeNiveau niveau={el.niveau} />
+              {el.titre}
+            </h3>
+            <ul className="flex flex-col gap-1.5">
+              {el.lignes.map((ligne, j) =>
+                ligne.sousTitre ? (
+                  <li key={j} className="mt-1 text-[13.5px] font-semibold text-ink-2 first:mt-0">
+                    {ligne.texte}
+                  </li>
+                ) : (
+                  <li key={j} className="flex items-start gap-2">
+                    {ligne.niveau === el.niveau ? (
+                      <span
+                        aria-hidden="true"
+                        className="mt-[9px] size-1.5 shrink-0 rounded-full"
+                        style={{ background: META_NIVEAU[ligne.niveau].couleur }}
+                      />
+                    ) : (
+                      <span className="mt-[3px]">
+                        <IconeNiveau niveau={ligne.niveau} />
+                      </span>
+                    )}
+                    <p className={`${className} ${ligne.niveau === "rouge" ? "font-semibold" : ""}`}>
+                      {ligne.niveau !== el.niveau && <span className="sr-only">{META_NIVEAU[ligne.niveau].libelle} : </span>}
+                      {ligne.texte}
+                    </p>
+                  </li>
+                )
+              )}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  );
 }

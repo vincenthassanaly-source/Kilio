@@ -1,6 +1,56 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { appliquerNiveau, contientNiveau, enTexteBrut, META_NIVEAU, NIVEAUX, parseContenu } from "./contenu";
+import {
+  appliquerNiveau,
+  contientNiveau,
+  enTexteBrut,
+  estTitreSection,
+  grouperSections,
+  META_NIVEAU,
+  NIVEAUX,
+  parseContenu,
+} from "./contenu";
+
+describe("grouperSections", () => {
+  const groupe = (c: string) => grouperSections(parseContenu(c));
+
+  it("ouvre une section sur un titre en majuscules et y range les lignes suivantes", () => {
+    expect(groupe("[vert] DOSE\n[vert] 25 mg/jour.\n[vert] Puis 50 mg/jour.")).toEqual([
+      {
+        type: "section",
+        niveau: "vert",
+        titre: "DOSE",
+        lignes: [
+          { niveau: "vert", texte: "25 mg/jour.", sousTitre: false },
+          { niveau: "vert", texte: "Puis 50 mg/jour.", sousTitre: false },
+        ],
+      },
+    ]);
+  });
+
+  it("ferme la section sur une ligne vide et en ouvre une nouvelle au titre suivant", () => {
+    const el = groupe("[gris] MÉCANISME\n[gris] a\n\n[rouge] INTERACTIONS\n[rouge] b");
+    expect(el.map((e) => e.type)).toEqual(["section", "section"]);
+  });
+
+  it("reconnaît « # » comme sous-titre et retire le dièse", () => {
+    const [section] = groupe("[gris] MÉCANISME\n[gris] # Diabète\n[gris] Texte");
+    expect(section).toMatchObject({ lignes: [{ texte: "Diabète", sousTitre: true }, { texte: "Texte", sousTitre: false }] });
+  });
+
+  it("laisse une ligne balisée hors section isolée et garde le texte non vide", () => {
+    expect(groupe("Intro\n[vert] Normale")).toEqual([
+      { type: "texte", texte: "Intro" },
+      { type: "ligne", niveau: "vert", texte: "Normale" },
+    ]);
+  });
+
+  it("estTitreSection exige 3 lettres et aucune minuscule", () => {
+    expect(estTitreSection("À ÉVITER")).toBe(true);
+    expect(estTitreSection("Dose")).toBe(false);
+    expect(estTitreSection("OK")).toBe(false);
+  });
+});
 
 const COULEURS = ["bleu", "vert", "orange", "rouge", "gris", "violet", "rose", "jaune", "turquoise", "marron", "indigo", "lime"];
 
