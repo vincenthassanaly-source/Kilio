@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
@@ -52,6 +52,28 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
   const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
   const direct = directTask !== undefined;
   const repasTermine = useAjoutRepasTermine();
+
+  // Raccourcis d'appui long sur l'icône (public/manifest.json) : `?action=new`
+  // ouvre le formulaire de tâche (mode direct de /taches), `?ajout=evenement`
+  // celui d'événement. Le paramètre est retiré de l'URL pour qu'un
+  // rechargement ne rouvre pas le formulaire.
+  // La lecture et le nettoyage de l'URL sont dans le callback différé : le
+  // nettoyage de l'effet l'annule (double rendu de React en dev) avant que
+  // l'URL ait été modifiée.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      const demande: Mode =
+        params.get("ajout") === "evenement" ? "evenement" : direct && params.get("action") === "new" ? "tache" : null;
+      if (!demande) return;
+      params.delete("ajout");
+      params.delete("action");
+      const reste = params.toString();
+      history.replaceState(history.state, "", window.location.pathname + (reste ? `?${reste}` : ""));
+      setMode(demande);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [direct]);
 
   // The dial's history entry stays pushed for as long as *anything* is
   // open (menu or form) so a single back press from a form lands on the
