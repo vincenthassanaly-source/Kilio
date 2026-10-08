@@ -7,6 +7,7 @@ import {
   subscribeToPush,
   unsubscribeFromPush,
 } from "@/lib/push/subscribe";
+import { Switch } from "@/components/Switch";
 import { errorText } from "@/lib/ui";
 
 function NotificationsIcon() {
@@ -95,26 +96,18 @@ export function NotificationsRow() {
           </span>
           Notifications
         </span>
-        <button
-          type="button"
-          onClick={toggle}
+        <Switch
+          checked={on ?? false}
+          onToggle={toggle}
           disabled={pending || on === null}
-          aria-pressed={on ?? false}
-          aria-label="Activer les notifications"
-          className="relative h-[26px] w-11 shrink-0 rounded-full transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
-          // Piste éteinte bordée par --control-border (≥ 3:1, T5).
-          style={{
-            background: on ? "var(--accent-kcal)" : "var(--surface-alt)",
-            boxShadow: on ? undefined : "inset 0 0 0 1.5px var(--control-border)",
-          }}
-        >
-          <span
-            className="absolute top-0.5 h-[22px] w-[22px] rounded-full bg-white transition-[left]"
-            style={{ left: on ? "20px" : "2px" }}
-          />
-        </button>
+          label="Activer les notifications"
+        />
       </div>
-      {error && <p className={errorText}>{error}</p>}
+      {error && (
+        <p role="alert" className={errorText}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }

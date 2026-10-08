@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateReglagesNettoyage } from "@/app/actions/nettoyage";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Switch } from "@/components/Switch";
 import { useBackClose } from "@/hooks/useBackClose";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
@@ -105,23 +106,7 @@ export function NettoyageAutoRow({ reglages }: { reglages: Tables<"reglages_nett
           </span>
           Nettoyage automatique
         </span>
-        <button
-          type="button"
-          onClick={toggle}
-          aria-pressed={actif}
-          aria-label="Nettoyage automatique des éléments terminés"
-          className="relative h-[26px] w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
-          // Piste éteinte bordée par --control-border (≥ 3:1, T5).
-          style={{
-            background: actif ? "var(--accent-kcal)" : "var(--surface-alt)",
-            boxShadow: actif ? undefined : "inset 0 0 0 1.5px var(--control-border)",
-          }}
-        >
-          <span
-            className="absolute top-0.5 h-[22px] w-[22px] rounded-full bg-white transition-[left]"
-            style={{ left: actif ? "20px" : "2px" }}
-          />
-        </button>
+        <Switch checked={actif} onToggle={toggle} label="Nettoyage automatique des éléments terminés" />
       </div>
       <p className="text-[12.5px] leading-snug text-ink-2">
         {actif
@@ -130,15 +115,19 @@ export function NettoyageAutoRow({ reglages }: { reglages: Tables<"reglages_nett
       </p>
       {actif && (
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[13px] text-ink-2">Supprimer les items faits après (jours)</span>
+          <label htmlFor="delai-nettoyage" className="text-[13px] text-ink-2">
+            Supprimer les items faits après (jours)
+          </label>
           <input
+            id="delai-nettoyage"
             type="number"
+            inputMode="numeric"
             min={1}
             step={1}
             value={delaiJours}
             onChange={(e) => setDelaiJours(e.target.value)}
             onBlur={validerDelai}
-            className={`${input} w-16 shrink-0 py-1.5 text-center text-[13px]`}
+            className={`${input} min-h-11 w-16 shrink-0 text-center tabular-nums`}
           />
         </div>
       )}
