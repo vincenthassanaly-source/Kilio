@@ -29,7 +29,7 @@ export function AppearanceRow() {
       <button
         type="button"
         onClick={toggleTheme}
-        className="rounded-full bg-surface-alt px-3.5 py-2 text-[12.5px] font-semibold text-ink transition active:scale-[0.97] hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        className="min-h-11 rounded-full bg-surface-alt px-4 text-[13px] font-semibold text-ink transition active:scale-[0.97] hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         <span className="dark:hidden">Clair</span>
         <span className="hidden dark:inline">Sombre</span>
