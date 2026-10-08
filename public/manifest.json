@@ -40,9 +40,9 @@
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
-      "name": "Courses",
-      "short_name": "Courses",
-      "url": "/courses",
+      "name": "Nouvel événement",
+      "short_name": "Événement",
+      "url": "/?ajout=evenement",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
