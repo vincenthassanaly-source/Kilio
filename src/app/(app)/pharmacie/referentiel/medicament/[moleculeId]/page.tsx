@@ -7,7 +7,7 @@ import {
   cardTight,
   eyebrow,
   pillClasse,
-  pillMultiligneClasse,
+  pillIndication,
   pillTag,
   screenTitle,
   secondaryButton,
@@ -70,7 +70,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                     <h2 className={titreBlocClasse}>Indications</h2>
                     <ul className="flex flex-wrap gap-1.5">
                       {molecule.indications.map((indication) => (
-                        <li key={indication} className={pillMultiligneClasse}>
+                        <li key={indication} className={pillIndication}>
                           {indication}
                         </li>
                       ))}

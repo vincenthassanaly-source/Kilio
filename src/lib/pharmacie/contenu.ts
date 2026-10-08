@@ -70,6 +70,50 @@ export function parseContenu(contenu: string): BlocContenu[] {
   return blocs;
 }
 
+/** Titre de section : au moins 3 lettres et aucune minuscule (« INTERACTIONS », « À ÉVITER »). */
+export function estTitreSection(texte: string): boolean {
+  const t = texte.trim();
+  return (t.match(/\p{L}/gu)?.length ?? 0) >= 3 && t === t.toUpperCase();
+}
+
+export type LigneSection = { niveau: Niveau; texte: string; sousTitre: boolean };
+
+export type ElementContenu =
+  | { type: "texte"; texte: string }
+  | { type: "ligne"; niveau: Niveau; texte: string }
+  | { type: "section"; niveau: Niveau; titre: string; lignes: LigneSection[] };
+
+/**
+ * Regroupe les lignes balisées en sections : un titre en MAJUSCULES ouvre une
+ * section (sa couleur est celle de la section) qui contient toutes les lignes
+ * balisées suivantes, jusqu'au prochain titre ou à une ligne non balisée
+ * (ligne vide comprise). Dans une section, `# Texte` est un sous-titre. Une
+ * ligne balisée hors section reste une ligne isolée.
+ */
+export function grouperSections(blocs: BlocContenu[]): ElementContenu[] {
+  const elements: ElementContenu[] = [];
+  let section: Extract<ElementContenu, { type: "section" }> | null = null;
+  for (const bloc of blocs) {
+    if (bloc.type === "texte") {
+      section = null;
+      if (bloc.texte.trim() !== "") elements.push({ type: "texte", texte: bloc.texte });
+    } else if (estTitreSection(bloc.texte)) {
+      section = { type: "section", niveau: bloc.niveau, titre: bloc.texte.trim(), lignes: [] };
+      elements.push(section);
+    } else if (section) {
+      const sousTitre = /^#\s+\S/.test(bloc.texte);
+      section.lignes.push({
+        niveau: bloc.niveau,
+        texte: sousTitre ? bloc.texte.replace(/^#\s+/, "") : bloc.texte,
+        sousTitre,
+      });
+    } else {
+      elements.push({ type: "ligne", niveau: bloc.niveau, texte: bloc.texte });
+    }
+  }
+  return elements;
+}
+
 export function contientNiveau(contenu: string): boolean {
   return contenu.split("\n").some((l) => lireLigne(l));
 }
