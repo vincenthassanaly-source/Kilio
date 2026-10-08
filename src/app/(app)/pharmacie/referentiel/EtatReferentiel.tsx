@@ -5,6 +5,7 @@ import { errorText, titreBlocClasse } from "@/lib/ui";
 import { useReferentielPharmacie } from "@/lib/pharmacie/useReferentielPharmacie";
 import type { PharmaRefSnapshot } from "@/lib/pharmacie/referentiel";
 import { PharmacieSkeleton } from "../EtatSnapshot";
+import { ContenuColore } from "../ContenuColore";
 
 // Coquille commune aux écrans du référentiel : chargement, erreur, puis rendu
 // avec l'instantané (jamais de rendu partiel).
@@ -25,7 +26,7 @@ export function BlocInfo({ titre, texte }: { titre: string; texte: string | null
   return (
     <section className="flex flex-col gap-1" aria-label={titre}>
       <h2 className={titreBlocClasse}>{titre}</h2>
-      <p className="whitespace-pre-line text-[14.5px] leading-[1.55] text-ink">{texte}</p>
+      <ContenuColore contenu={texte} titresSections />
     </section>
   );
 }

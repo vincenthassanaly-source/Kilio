@@ -43,3 +43,23 @@ describe("ContenuColore", () => {
     expect(container.querySelector("svg")).toBeNull();
   });
 });
+
+describe("ContenuColore – titres de section", () => {
+  const contenu = "[rouge] INTERACTIONS\n[rouge] Dégradé par le CYP3A4.\n\n[orange] À ÉVITER\n[orange] AINS (risque rénal).";
+
+  it("met les lignes en majuscules en gras si titresSections", () => {
+    const { container } = render(<ContenuColore contenu={contenu} titresSections />);
+    const gras = Array.from(container.querySelectorAll("p.font-bold")).map((p) => p.textContent);
+    expect(gras).toEqual(["Danger : INTERACTIONS", "À surveiller : À ÉVITER"]);
+  });
+
+  it("ne change rien par défaut", () => {
+    const { container } = render(<ContenuColore contenu={contenu} />);
+    expect(container.querySelector("p.font-bold")).toBeNull();
+  });
+
+  it("n'affiche jamais la balise", () => {
+    const { container } = render(<ContenuColore contenu={contenu} titresSections />);
+    expect(container.textContent).not.toContain("[rouge]");
+  });
+});

@@ -89,4 +89,6 @@ export const metaText = "text-[12.5px] text-ink-2 tabular-nums";
 // (voir `styleClasse` dans `lib/pharmacie/couleurClasse.ts`).
 export const pillClasse =
   "shrink-0 rounded-full bg-[color-mix(in_oklch,var(--classe)_14%,transparent)] px-2.5 py-1 text-[11px] font-semibold text-[var(--classe)]";
+/** Pastille dont le texte peut passer à la ligne au lieu d'être coupé. */
+export const pillMultiligneClasse = `${pillClasse.replace("shrink-0 ", "")} max-w-full break-words`;
 export const titreBlocClasse = "text-[13px] font-semibold uppercase tracking-wide text-[var(--classe)]";
