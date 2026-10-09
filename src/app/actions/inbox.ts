@@ -22,13 +22,6 @@ export async function getInboxItems(): Promise<InboxItem[]> {
   return data ?? [];
 }
 
-export async function getInboxCount(): Promise<number> {
-  const supabase = createAdminClient();
-  const { count, error } = await supabase.from("inbox_items").select("id", { count: "exact", head: true });
-  if (error) throw new Error(error.message);
-  return count ?? 0;
-}
-
 export async function addInboxItem(texte: string): Promise<ActionResult<{ id: string }>> {
   const propre = texte.trim();
   if (!propre) return fail("Écris quelque chose à capturer.");

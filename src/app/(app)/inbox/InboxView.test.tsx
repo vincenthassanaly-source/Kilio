@@ -12,7 +12,6 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("@/app/actions/inbox", () => ({
   getInboxItems: vi.fn().mockResolvedValue([]),
-  getInboxCount: vi.fn().mockResolvedValue(0),
   addInboxItem: vi.fn(),
   deleteInboxItem: vi.fn(),
   inboxVersTache: vi.fn(),

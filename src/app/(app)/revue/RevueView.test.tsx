@@ -10,7 +10,11 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/revue",
   useSearchParams: () => new URLSearchParams(),
 }));
-vi.mock("@/app/actions/inbox", () => ({ getInboxCount: vi.fn().mockResolvedValue(3) }));
+// Compteur de l'inbox : route GET /api/inbox/count.
+vi.stubGlobal(
+  "fetch",
+  vi.fn().mockResolvedValue({ ok: true, json: async () => ({ count: 3 }) })
+);
 vi.mock("@/app/actions/evenements", () => ({ getEvenements: vi.fn().mockResolvedValue([]) }));
 vi.mock("@/app/actions/taches", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/app/actions/taches")>()),
