@@ -4,6 +4,8 @@ import { compareAsc, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { TacheAvecRelations } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
+import type { Evenement } from "@/app/actions/evenements";
+import { libellePlage } from "@/lib/evenements/compute";
 import { TaskCard } from "../taches/TasksList";
 import { sectionTitle } from "@/lib/ui";
 import { ArchivedTasksSection } from "./ArchivedTasksSection";
@@ -12,10 +14,14 @@ import { sortByHeure } from "./date-utils";
 
 export function ListView({
   taches,
+  evenements = [],
   listes,
   tags,
+  onSelectEvenement,
 }: {
   taches: TacheAvecRelations[];
+  evenements?: Evenement[];
+  onSelectEvenement?: (evenement: Evenement) => void;
   listes: Tables<"listes_taches">[];
   tags: Tables<"tags">[];
 }) {
@@ -38,7 +44,14 @@ export function ListView({
     groups.set(t.echeance!, list);
   }
 
-  const sortedDates = Array.from(groups.keys()).sort((a, b) =>
+  const evenementsParJour = new Map<string, Evenement[]>();
+  for (const e of evenements) {
+    const list = evenementsParJour.get(e.date) ?? [];
+    list.push(e);
+    evenementsParJour.set(e.date, list);
+  }
+
+  const sortedDates = Array.from(new Set([...groups.keys(), ...evenementsParJour.keys()])).sort((a, b) =>
     compareAsc(parseISODate(a), parseISODate(b))
   );
 
@@ -49,13 +62,28 @@ export function ListView({
   return (
     <div className="flex flex-col gap-5">
       {sortedDates.map((iso) => {
-        const dayTaches = groups.get(iso)!.sort(sortByHeure);
+        const dayTaches = (groups.get(iso) ?? []).sort(sortByHeure);
+        const dayEvenements = evenementsParJour.get(iso) ?? [];
         return (
           <div key={iso} className="flex flex-col gap-2">
             <h2 className={sectionTitle}>
               {format(parseISODate(iso), "EEEE d MMMM yyyy", { locale: fr })}
             </h2>
             <ul className="flex flex-col gap-2.5">
+              {dayEvenements.map((evenement) => (
+                <li key={evenement.id}>
+                  <button
+                    type="button"
+                    onClick={() => onSelectEvenement?.(evenement)}
+                    disabled={!onSelectEvenement}
+                    aria-label={`Événement ${evenement.titre}, ${libellePlage(evenement.heure, evenement.heure_fin)}. Modifier`}
+                    className="flex min-h-11 w-full items-center gap-2 rounded-xl bg-agenda px-3 py-2 text-left text-[14px] font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                  >
+                    <span className="tabular-nums">{libellePlage(evenement.heure, evenement.heure_fin)}</span>
+                    <span className="truncate">{evenement.titre}</span>
+                  </button>
+                </li>
+              ))}
               {dayTaches.map((tache) => (
                 <TaskCard key={tache.id} tache={tache} listes={listes} tags={tags} colorByListe />
               ))}

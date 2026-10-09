@@ -15,12 +15,13 @@ const MODULE_INFO: Record<ModuleRecherche, { label: string; accentVar: string }>
   // Pas de bleu Protéines hors macros (Semantic-Only Macro Rule, T8).
   notes: { label: "Notes", accentVar: "var(--ink-2)" },
   taches: { label: "Tâches", accentVar: "var(--accent-agenda)" },
+  evenements: { label: "Événements", accentVar: "var(--accent-agenda)" },
   recettes: { label: "Recettes", accentVar: "var(--accent-kcal)" },
   objectifs: { label: "Objectifs", accentVar: "var(--accent-objectifs)" },
   courses: { label: "Courses", accentVar: "var(--accent-courses)" },
 };
 
-const ORDRE_MODULES: ModuleRecherche[] = ["notes", "taches", "recettes", "objectifs", "courses"];
+const ORDRE_MODULES: ModuleRecherche[] = ["notes", "taches", "evenements", "recettes", "objectifs", "courses"];
 
 function SearchIcon({ color }: { color: string }) {
   return (
