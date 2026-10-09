@@ -1,4 +1,4 @@
-const CACHE_NAME = "nutrition-app-shell-v3";
+const CACHE_NAME = "nutrition-app-shell-v4";
 // Photos reçues par le partage natif (Web Share Target), mises de côté le
 // temps que la page /collection/partage/choisir les compresse côté client
 // (src/lib/images/compression.ts) puis les envoie par lots. Sans ce détour,
@@ -10,7 +10,7 @@ const APP_SHELL = [
   "/manifest.json",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
-  "/icons/icon-badge.png",
+  "/icons/icon-badge-v2.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -142,7 +142,7 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(data.title || "Kilio", {
       body: data.body || "",
       icon: "/icons/icon-192.png",
-      badge: "/icons/icon-badge.png",
+      badge: "/icons/icon-badge-v2.png",
       data: { url: data.url || "/agenda", tacheId: data.tacheId || null },
       actions: data.tacheId ? ACTIONS_REPORT_RAPPEL : [],
     })
