@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getEvenements } from "@/app/actions/evenements";
 import { getTachesAvecRelations } from "@/app/actions/taches";
 import { Skeleton } from "@/components/skeletons/Skeleton";
+import { useInboxCount } from "@/hooks/useInboxCount";
+import { libelleNbInbox } from "@/lib/inbox/compute";
 import { TransitionLink } from "@/components/TransitionLink";
 import { tachesEnRetard } from "@/lib/aujourdhui/compute";
 import { parseISODate, shiftDate } from "@/lib/date/iso";
@@ -31,7 +33,7 @@ function Chiffre({ valeur, libelle, alerte = false }: { valeur: number; libelle:
 
 /**
  * Revue guidée : 1) bilan des 7 derniers jours, 2) retards à replanifier,
- * 3) les 7 jours à venir (charge estimée), 4) tâches sans date. Les actions
+ * 3) les 7 jours à venir (charge estimée), 4) inbox à trier, 5) tâches sans date. Les actions
  * (reporter) réutilisent celles de l'écran Aujourd'hui.
  */
 export function RevueView({ today }: { today: string }) {
@@ -57,6 +59,7 @@ export function RevueView({ today }: { today: string }) {
   const enRetard = useMemo(() => tachesEnRetard(liste, today), [liste, today]);
   const jours = useMemo(() => semaineProchaine(liste, evenementsAvenir, today), [liste, evenementsAvenir, today]);
   const sansDate = nbSansDate(liste);
+  const nbInbox = useInboxCount();
 
   if (tachesChargent) {
     return (
@@ -144,11 +147,27 @@ export function RevueView({ today }: { today: string }) {
         </ul>
       </section>
 
+      {nbInbox > 0 && (
+        <section aria-labelledby="revue-inbox" className={`${card} flex items-center justify-between gap-3`}>
+          <div>
+            <h2 id="revue-inbox" className={sectionTitle}>
+              4. Inbox à trier
+            </h2>
+            <p className="mt-0.5 text-[12.5px] text-ink-2">
+              {libelleNbInbox(nbInbox)} : tâche, note, événement ou corbeille.
+            </p>
+          </div>
+          <TransitionLink href="/inbox" className="shrink-0 text-sm font-semibold text-kcal">
+            Trier
+          </TransitionLink>
+        </section>
+      )}
+
       {sansDate > 0 && (
         <section aria-labelledby="revue-sans-date" className={`${card} flex items-center justify-between gap-3`}>
           <div>
             <h2 id="revue-sans-date" className={sectionTitle}>
-              4. Sans date
+              5. Sans date
             </h2>
             <p className="mt-0.5 text-[12.5px] text-ink-2">
               {sansDate === 1 ? "1 tâche n'a pas d'échéance" : `${sansDate} tâches n'ont pas d'échéance`} : à dater ou à

@@ -4,7 +4,15 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteNote, toggleEpingle, toggleNoteItem, type NoteAvecRelations } from "@/app/actions/notes";
+import {
+  deleteNote,
+  noteItemVersTache,
+  noteVersTache,
+  toggleEpingle,
+  toggleNoteItem,
+  type NoteAvecRelations,
+} from "@/app/actions/notes";
+import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
 import { showToast } from "@/components/toast/toast-store";
 import { noteBackgroundStyle } from "@/lib/notes/palette";
@@ -154,6 +162,18 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
     onSettled: invalidate,
   });
 
+  // Note (ou élément) → tâche : un tap, sans formulaire. La note reste telle quelle.
+  const [creationEnCours, setCreationEnCours] = useState(false);
+  async function creerTache(creation: () => ReturnType<typeof noteVersTache>) {
+    if (creationEnCours) return;
+    setCreationEnCours(true);
+    const resultat = await runAction(creation, { erreur: "Impossible de créer la tâche. Réessaie." });
+    setCreationEnCours(false);
+    if (!resultat.ok) return;
+    showToast("Tâche créée");
+    void queryClient.invalidateQueries({ queryKey: queryKeys.taches });
+  }
+
   function supprimer() {
     if (!confirmDelete(`Supprimer la note « ${note.titre} » ?`)) return;
     setMode("closed");
@@ -292,9 +312,18 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                         size={22}
                         hitSlop={6}
                       />
-                      <span className={`text-base ${item.coche ? "text-ink-3 line-through" : "text-ink"}`}>
+                      <span className={`min-w-0 flex-1 text-base ${item.coche ? "text-ink-3 line-through" : "text-ink"}`}>
                         {item.libelle}
                       </span>
+                      <button
+                        type="button"
+                        disabled={creationEnCours}
+                        onClick={() => creerTache(() => noteItemVersTache(item.id))}
+                        aria-label={`Créer une tâche : ${item.libelle}`}
+                        className="relative shrink-0 text-xs font-semibold text-kcal after:absolute after:-inset-2"
+                      >
+                        → Tâche
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -308,6 +337,14 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                   ))}
                 </div>
               )}
+              <button
+                type="button"
+                disabled={creationEnCours}
+                onClick={() => creerTache(() => noteVersTache(note.id))}
+                className={ghostButton}
+              >
+                Créer une tâche depuis cette note
+              </button>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setMode("edit")} className={`${primaryButton} flex-1`}>
                   Modifier

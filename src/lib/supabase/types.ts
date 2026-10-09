@@ -534,6 +534,24 @@ export type Database = {
         }
         Relationships: []
       }
+      inbox_items: {
+        Row: {
+          created_at: string
+          id: string
+          texte: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          texte: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          texte?: string
+        }
+        Relationships: []
+      }
       journal_repas: {
         Row: {
           aliment_id: string | null
@@ -1731,6 +1749,7 @@ export type Database = {
           heure_fin: string | null
           id: string
           liste_id: string
+          note_id: string | null
           notes: string | null
           ordre: number
           priorite: Database["public"]["Enums"]["priorite_tache"]
@@ -1756,6 +1775,7 @@ export type Database = {
           heure_fin?: string | null
           id?: string
           liste_id: string
+          note_id?: string | null
           notes?: string | null
           ordre?: number
           priorite?: Database["public"]["Enums"]["priorite_tache"]
@@ -1781,6 +1801,7 @@ export type Database = {
           heure_fin?: string | null
           id?: string
           liste_id?: string
+          note_id?: string | null
           notes?: string | null
           ordre?: number
           priorite?: Database["public"]["Enums"]["priorite_tache"]
@@ -1798,6 +1819,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "taches_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "taches_liste_id_fkey"
             columns: ["liste_id"]

@@ -33,18 +33,21 @@ function heureParDefaut(): string {
  */
 export function EvenementForm({
   evenement,
+  titreInitial,
   dateParDefaut,
   onSaved,
   onSupprimer,
 }: {
   evenement?: Evenement;
+  // Pré-remplit le titre d'un nouvel événement (tri d'une capture d'inbox).
+  titreInitial?: string;
   dateParDefaut: string;
   onSaved: () => void;
   onSupprimer?: () => void;
 }) {
   const uid = useId();
   const titreRef = useRef<HTMLInputElement>(null);
-  const [titre, setTitre] = useState(evenement?.titre ?? "");
+  const [titre, setTitre] = useState(evenement?.titre ?? titreInitial ?? "");
   // Occurrence d'une série : on édite la série, donc sa date de départ.
   const [date, setDate] = useState(evenement?.dateOrigine ?? evenement?.date ?? dateParDefaut);
   const [journeeEntiere, setJourneeEntiere] = useState(evenement?.toute_la_journee ?? false);
