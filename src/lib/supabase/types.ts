@@ -341,6 +341,11 @@ export type Database = {
         Row: {
           created_at: string
           date: string
+          rappel_minutes: number | null
+          rappel_occurrence_envoyee: string | null
+          recurrence_fin: string | null
+          recurrence_frequence: Database["public"]["Enums"]["frequence_recurrence"] | null
+          toute_la_journee: boolean
           heure: string
           heure_fin: string
           id: string
@@ -351,6 +356,11 @@ export type Database = {
         Insert: {
           created_at?: string
           date: string
+          rappel_minutes?: number | null
+          rappel_occurrence_envoyee?: string | null
+          recurrence_fin?: string | null
+          recurrence_frequence?: Database["public"]["Enums"]["frequence_recurrence"] | null
+          toute_la_journee?: boolean
           heure: string
           heure_fin: string
           id?: string
@@ -361,6 +371,11 @@ export type Database = {
         Update: {
           created_at?: string
           date?: string
+          rappel_minutes?: number | null
+          rappel_occurrence_envoyee?: string | null
+          recurrence_fin?: string | null
+          recurrence_frequence?: Database["public"]["Enums"]["frequence_recurrence"] | null
+          toute_la_journee?: boolean
           heure?: string
           heure_fin?: string
           id?: string

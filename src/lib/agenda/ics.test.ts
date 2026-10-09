@@ -117,3 +117,17 @@ describe("construireCalendrierIcs", () => {
     expect(sortie).toContain("DTSTART;VALUE=DATE:20261013");
   });
 });
+
+describe("événements enrichis", () => {
+  it("journée entière : VALUE=DATE", () => {
+    const ics = construireCalendrierIcs([{ ...evenement, toute_la_journee: true }], []);
+    expect(ics).toMatch(/DTSTART;VALUE=DATE:\d{8}/);
+  });
+  it("récurrence : RRULE avec UNTIL", () => {
+    const ics = construireCalendrierIcs(
+      [{ ...evenement, recurrence_frequence: "hebdomadaire", recurrence_fin: "2026-12-31" }],
+      []
+    );
+    expect(ics).toContain("RRULE:FREQ=WEEKLY;UNTIL=20261231");
+  });
+});

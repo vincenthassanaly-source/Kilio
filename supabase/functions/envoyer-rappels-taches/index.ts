@@ -90,6 +90,60 @@ function isDue(tache: TacheCandidate, nowMs: number): boolean {
   return rappelMs <= nowMs && rappelMs > nowMs - 60_000;
 }
 
+
+// --- Événements (table `evenements`) ------------------------------------------
+// Un événement peut être récurrent : on ne stocke qu'une ligne, et
+// `rappel_occurrence_envoyee` retient la date de la dernière occurrence déjà
+// rappelée (un rappel par occurrence). Les occurrences candidates sont celles
+// d'aujourd'hui et de demain (Paris) : le rappel le plus long est « la veille ».
+
+type EvenementCandidate = {
+  id: string;
+  titre: string;
+  date: string;
+  heure: string;
+  toute_la_journee: boolean;
+  rappel_minutes: number;
+  rappel_occurrence_envoyee: string | null;
+  recurrence_frequence: "quotidien" | "hebdomadaire" | "mensuel" | "annuel" | null;
+  recurrence_fin: string | null;
+};
+
+function dateParisISO(ms: number): string {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: PARIS_TZ }).format(new Date(ms));
+}
+
+function dernierJourDuMois(annee: number, mois: number): number {
+  return new Date(Date.UTC(annee, mois, 0)).getUTCDate();
+}
+
+function evenementAlieuLe(e: EvenementCandidate, jour: string): boolean {
+  if (jour < e.date) return false;
+  if (!e.recurrence_frequence) return jour === e.date;
+  if (e.recurrence_fin && jour > e.recurrence_fin) return false;
+  const [a0, m0, j0] = e.date.split("-").map(Number);
+  const [a, m, j] = jour.split("-").map(Number);
+  switch (e.recurrence_frequence) {
+    case "quotidien":
+      return true;
+    case "hebdomadaire":
+      return (Date.UTC(a, m - 1, j) - Date.UTC(a0, m0 - 1, j0)) / 86_400_000 % 7 === 0;
+    case "mensuel":
+      return j === Math.min(j0, dernierJourDuMois(a, m));
+    case "annuel":
+      return m === m0 && j === Math.min(j0, dernierJourDuMois(a, m));
+  }
+}
+
+function evenementRappelDu(e: EvenementCandidate, jour: string, nowMs: number): boolean {
+  const [year, month, day] = jour.split("-").map(Number);
+  const [hour, minute] = (e.toute_la_journee ? RAPPEL_JOURNEE_HEURE_ANCRAGE : e.heure).split(":").map(Number);
+  const approxUtcMs = Date.UTC(year, month - 1, day, hour, minute, 0);
+  const debutMs = approxUtcMs - parisOffsetMinutes(new Date(approxUtcMs)) * 60_000;
+  const rappelMs = debutMs - e.rappel_minutes * 60_000;
+  return rappelMs <= nowMs && rappelMs > nowMs - 60_000;
+}
+
 Deno.serve(async () => {
   if (!vapidConfigured) {
     return new Response(
@@ -157,7 +211,28 @@ Deno.serve(async () => {
 
   const reportees = candidatesReportees ?? [];
 
-  if (dues.length === 0 && reportees.length === 0) {
+  // Événements avec rappel. Table absente (migration non appliquée) : ignorés.
+  const { data: candidatsEvenements } = await supabase
+    .from("evenements")
+    .select(
+      "id, titre, date, heure, toute_la_journee, rappel_minutes, rappel_occurrence_envoyee, recurrence_frequence, recurrence_fin"
+    )
+    .not("rappel_minutes", "is", null);
+
+  const aujourdhui = dateParisISO(nowMs);
+  const demain = dateParisISO(nowMs + 86_400_000);
+  const evenementsDus: { evenement: EvenementCandidate; jour: string }[] = [];
+  for (const e of (candidatsEvenements ?? []) as EvenementCandidate[]) {
+    for (const jour of [aujourdhui, demain]) {
+      if (e.rappel_occurrence_envoyee === jour) continue;
+      if (evenementAlieuLe(e, jour) && evenementRappelDu(e, jour, nowMs)) {
+        evenementsDus.push({ evenement: e, jour });
+        break;
+      }
+    }
+  }
+
+  if (dues.length === 0 && reportees.length === 0 && evenementsDus.length === 0) {
     return new Response(JSON.stringify({ sent: 0 }), {
       headers: { "Content-Type": "application/json" },
     });
@@ -238,8 +313,33 @@ Deno.serve(async () => {
     );
   }
 
+  for (const { evenement, jour } of evenementsDus) {
+    const body = evenement.toute_la_journee
+      ? "demain"
+      : evenement.rappel_minutes === 1440
+        ? `demain à ${evenement.heure.slice(0, 5)}`
+        : evenement.rappel_minutes === 60
+          ? `dans 1h (${evenement.heure.slice(0, 5)})`
+          : `dans ${evenement.rappel_minutes} min (${evenement.heure.slice(0, 5)})`;
+    const payload = JSON.stringify({
+      title: evenement.titre,
+      body,
+      url: `/agenda?date=${jour}`,
+    });
+
+    await envoyerEtMarquer(payload, () =>
+      supabase.from("evenements").update({ rappel_occurrence_envoyee: jour }).eq("id", evenement.id)
+    );
+  }
+
   return new Response(
-    JSON.stringify({ taches: dues.length, reportees: reportees.length, sent, expired }),
+    JSON.stringify({
+      taches: dues.length,
+      reportees: reportees.length,
+      evenements: evenementsDus.length,
+      sent,
+      expired,
+    }),
     { headers: { "Content-Type": "application/json" } }
   );
 });

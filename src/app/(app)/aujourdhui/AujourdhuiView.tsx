@@ -22,6 +22,7 @@ import { QuickAddFab } from "../QuickAddFab";
 import { DayTimeline } from "./DayTimeline";
 import { EnRetardSection } from "./EnRetardSection";
 import { EvenementForm } from "./EvenementForm";
+import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/compute";
 import { RepasRestantsCard } from "./RepasRestantsCard";
 import { TachesDuJour } from "./TachesDuJour";
 import { useHeureCourante } from "./useHeureCourante";
@@ -69,6 +70,8 @@ export function AujourdhuiView({ today }: { today: string }) {
   const duJour = useMemo(() => tachesDuJour(taches ?? [], today), [taches, today]);
   const horodatees = useMemo(() => duJour.filter((t) => !t.fait && t.heure), [duJour]);
   const evenementsVisibles = useMemo(() => evenements.filter((e) => !masques.has(e.id)), [evenements, masques]);
+  const evenementsHorairesVisibles = useMemo(() => evenementsHoraires(evenementsVisibles), [evenementsVisibles]);
+  const evenementsJournee = useMemo(() => evenementsJourneeEntiere(evenementsVisibles), [evenementsVisibles]);
   const maintenant = useHeureCourante();
   // Trous libres du jour : partagés par la frise (affichage) et par « Planifier »
   // (créneaux proposés), pour que les deux ne se contredisent jamais.
@@ -79,10 +82,10 @@ export function AujourdhuiView({ today }: { today: string }) {
         creneauxTravail: creneauxDuJour,
         blocs: [
           ...horodatees.map((t) => ({ heure: t.heure, heure_fin: t.heure_fin })),
-          ...evenementsVisibles.map((e) => ({ heure: e.heure, heure_fin: e.heure_fin })),
+          ...evenementsHorairesVisibles.map((e) => ({ heure: e.heure, heure_fin: e.heure_fin })),
         ],
       }),
-    [maintenant, creneauxDuJour, horodatees, evenementsVisibles]
+    [maintenant, creneauxDuJour, horodatees, evenementsHorairesVisibles]
   );
 
   // Retire la surbrillance une fois jouée : le scroll de la ligne ne doit pas
@@ -147,7 +150,8 @@ export function AujourdhuiView({ today }: { today: string }) {
 
       <DayTimeline
         taches={horodatees}
-        evenements={evenementsVisibles}
+        evenements={evenementsHorairesVisibles}
+        evenementsJournee={evenementsJournee}
         creneaux={creneauxDuJour}
         libres={libres}
         maintenant={maintenant}

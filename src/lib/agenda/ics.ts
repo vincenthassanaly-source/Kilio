@@ -14,6 +14,9 @@ export type EvenementIcs = {
   heure_fin: string; // HH:MM[:SS]
   notes: string | null;
   updated_at: string;
+  toute_la_journee?: boolean;
+  recurrence_frequence?: "quotidien" | "hebdomadaire" | "mensuel" | "annuel" | null;
+  recurrence_fin?: string | null; // AAAA-MM-JJ
 };
 
 export type TacheIcs = {
@@ -118,6 +121,16 @@ function ligneTexte(nom: string, valeur: string): string {
   return `${nom}:${echapperTexte(valeur)}`;
 }
 
+const FREQ_RRULE = { quotidien: "DAILY", hebdomadaire: "WEEKLY", mensuel: "MONTHLY", annuel: "YEARLY" } as const;
+
+// Récurrence d'un événement. UNTIL en date seule (inclusive) : suffisant pour
+// les clients courants, qu'il s'agisse d'événements horaires ou journée entière.
+function rrule(evenement: EvenementIcs): string[] {
+  if (!evenement.recurrence_frequence) return [];
+  const fin = evenement.recurrence_fin && DATE_REGEX.test(evenement.recurrence_fin) ? `;UNTIL=${dateCompacte(evenement.recurrence_fin)}` : "";
+  return [`RRULE:FREQ=${FREQ_RRULE[evenement.recurrence_frequence]}${fin}`];
+}
+
 function evenementTimed(
   uid: string,
   titre: string,
@@ -125,7 +138,8 @@ function evenementTimed(
   debut: string,
   fin: string | null,
   notes: string | null,
-  majISO: string
+  majISO: string,
+  extra: string[] = []
 ): string[] {
   const lignes = [
     "BEGIN:VEVENT",
@@ -134,19 +148,21 @@ function evenementTimed(
     `DTSTART;TZID=Europe/Paris:${dateHeureLocale(dateISO, debut)}`,
   ];
   if (fin) lignes.push(`DTEND;TZID=Europe/Paris:${dateHeureLocale(dateISO, fin)}`);
+  lignes.push(...extra);
   lignes.push(ligneTexte("SUMMARY", titre));
   if (notes?.trim()) lignes.push(ligneTexte("DESCRIPTION", notes.trim()));
   lignes.push("END:VEVENT");
   return lignes;
 }
 
-function evenementJourEntier(uid: string, titre: string, dateISO: string, notes: string | null, majISO: string): string[] {
+function evenementJourEntier(uid: string, titre: string, dateISO: string, notes: string | null, majISO: string, extra: string[] = []): string[] {
   const lignes = [
     "BEGIN:VEVENT",
     `UID:${uid}@kilio`,
     `DTSTAMP:${horodatageUtc(majISO)}`,
     `DTSTART;VALUE=DATE:${dateCompacte(dateISO)}`,
     `DTEND;VALUE=DATE:${dateCompacte(jourSuivant(dateISO))}`,
+    ...extra,
     ligneTexte("SUMMARY", titre),
   ];
   if (notes?.trim()) lignes.push(ligneTexte("DESCRIPTION", notes.trim()));
@@ -172,7 +188,11 @@ function veventTache(tache: TacheIcs): string[] {
 }
 
 function veventRendezVous(evenement: EvenementIcs): string[] {
-  if (!DATE_REGEX.test(evenement.date) || !heureValide(evenement.heure)) return [];
+  if (!DATE_REGEX.test(evenement.date)) return [];
+  if (evenement.toute_la_journee) {
+    return evenementJourEntier(`evenement-${evenement.id}`, evenement.titre, evenement.date, evenement.notes, evenement.updated_at, rrule(evenement));
+  }
+  if (!heureValide(evenement.heure)) return [];
   const fin = heureValide(evenement.heure_fin) ? evenement.heure_fin.slice(0, 5) : null;
   return evenementTimed(
     `evenement-${evenement.id}`,
@@ -181,7 +201,8 @@ function veventRendezVous(evenement: EvenementIcs): string[] {
     evenement.heure,
     fin,
     evenement.notes,
-    evenement.updated_at
+    evenement.updated_at,
+    rrule(evenement)
   );
 }
 

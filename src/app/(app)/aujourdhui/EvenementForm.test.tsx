@@ -46,6 +46,10 @@ describe("EvenementForm", () => {
         date: "2026-10-04",
         heure: "14:30",
         dureeMinutes: 90,
+        toute_la_journee: false,
+        rappelMinutes: null,
+        recurrenceFrequence: null,
+        recurrenceFin: null,
       })
     );
     expect(onSaved).toHaveBeenCalledTimes(1);
@@ -77,6 +81,11 @@ describe("EvenementForm", () => {
           heure: "09:00:00",
           heure_fin: "09:45:00",
           notes: null,
+          toute_la_journee: false,
+          rappel_minutes: null,
+          rappel_occurrence_envoyee: null,
+          recurrence_frequence: null,
+          recurrence_fin: null,
           created_at: "2026-10-01T00:00:00Z",
           updated_at: "2026-10-01T00:00:00Z",
         }}
@@ -94,10 +103,37 @@ describe("EvenementForm", () => {
         date: "2026-10-05",
         heure: "09:00",
         dureeMinutes: 45,
+        toute_la_journee: false,
+        rappelMinutes: null,
+        recurrenceFrequence: null,
+        recurrenceFin: null,
       })
     );
 
     await userEvent.click(screen.getByRole("button", { name: "Supprimer" }));
     expect(onSupprimer).toHaveBeenCalledTimes(1);
+  });
+
+  it("journée entière avec rappel la veille et répétition hebdomadaire", async () => {
+    vi.mocked(createEvenement).mockResolvedValue({ ok: true, data: { id: "e2" } });
+    render(<EvenementForm dateParDefaut="2026-10-04" onSaved={vi.fn()} />);
+
+    await userEvent.type(screen.getByLabelText("Titre"), "Anniversaire");
+    await userEvent.click(screen.getByLabelText("Journée entière"));
+    expect(screen.queryByLabelText("Heure")).toBeNull();
+    await userEvent.selectOptions(screen.getByLabelText("Rappel"), "1440");
+    await userEvent.selectOptions(screen.getByLabelText("Répétition"), "annuel");
+    await userEvent.click(screen.getByRole("button", { name: "Ajouter" }));
+
+    await waitFor(() =>
+      expect(createEvenement).toHaveBeenCalledWith(
+        expect.objectContaining({
+          titre: "Anniversaire",
+          toute_la_journee: true,
+          rappelMinutes: 1440,
+          recurrenceFrequence: "annuel",
+        })
+      )
+    );
   });
 });

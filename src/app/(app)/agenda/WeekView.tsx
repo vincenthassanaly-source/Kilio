@@ -31,6 +31,7 @@ import {
 } from "./TimeGrid";
 import { TacheBlock } from "./TacheBlock";
 import { EvenementBlock } from "../aujourdhui/EvenementBlock";
+import { evenementsHoraires } from "@/lib/evenements/compute";
 import {
   BASE_DAY_COLUMN_WIDTH,
   computeMinZoomForWeekWidth,
@@ -93,7 +94,7 @@ export function WeekView({
       const dayTachesSansHeure = taches.filter(
         (t) => !t.fait && t.echeance && isSameDay(parseISODate(t.echeance), day) && !t.heure
       );
-      const dayEvenements = evenements.filter((e) => isSameDay(parseISODate(e.date), day));
+      const dayEvenements = evenementsHoraires(evenements).filter((e) => isSameDay(parseISODate(e.date), day));
       const positions = layoutChevauchements([...dayTachesAvecHeure, ...dayEvenements]);
       map.set(day.toISOString(), { creneauxJour, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions });
     }
