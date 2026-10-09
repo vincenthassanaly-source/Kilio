@@ -23,6 +23,7 @@ import { DayTimeline } from "./DayTimeline";
 import { EnRetardSection } from "./EnRetardSection";
 import { EvenementForm } from "./EvenementForm";
 import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/compute";
+import { PlanDuJourCard } from "./PlanDuJourCard";
 import { RepasRestantsCard } from "./RepasRestantsCard";
 import { TachesDuJour } from "./TachesDuJour";
 import { useHeureCourante } from "./useHeureCourante";
@@ -147,6 +148,8 @@ export function AujourdhuiView({ today }: { today: string }) {
       ) : (
         <EnRetardSection taches={enRetard} today={today} />
       )}
+
+      {!tachesChargent && <PlanDuJourCard taches={taches ?? []} libres={libres} today={today} />}
 
       <DayTimeline
         taches={horodatees}

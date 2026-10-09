@@ -18,7 +18,7 @@ import type { Tables } from "@/lib/supabase/types";
 // récurrent (`date` y est la date de l'occurrence affichée).
 export type Evenement = Tables<"evenements"> & { dateOrigine?: string };
 
-export const RAPPELS_EVENEMENT = [5, 15, 30, 60, 1440] as const;
+const RAPPELS_EVENEMENT = [5, 15, 30, 60, 1440] as const;
 
 export type EvenementInput = {
   titre: string;
