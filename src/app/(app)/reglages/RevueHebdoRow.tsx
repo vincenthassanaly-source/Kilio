@@ -77,7 +77,7 @@ export function RevueHebdoRow({ reglages }: { reglages: Tables<"reglages_briefin
           : "Désactivé : aucun rappel de revue (la revue reste accessible depuis Aujourd'hui)."}
       </p>
       {etat.actif && (
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col gap-1.5">
           <label htmlFor="jour-revue" className="text-[13px] text-ink-2">
             Jour et heure
           </label>
@@ -86,7 +86,7 @@ export function RevueHebdoRow({ reglages }: { reglages: Tables<"reglages_briefin
               id="jour-revue"
               value={etat.jour}
               onChange={(e) => persister({ ...etat, jour: Number(e.target.value) })}
-              className={`${input} min-h-11 shrink-0`}
+              className={`${input} min-h-11 min-w-0 flex-1`}
             >
               {JOURS.map((nom, i) => (
                 <option key={nom} value={i}>

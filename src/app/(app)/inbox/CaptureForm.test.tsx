@@ -7,7 +7,10 @@ import { CaptureForm } from "./CaptureForm";
 vi.mock("@/app/actions/inbox", () => ({ addInboxItem: vi.fn() }));
 import { addInboxItem } from "@/app/actions/inbox";
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 function monter(onCaptured = vi.fn()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -57,5 +60,14 @@ describe("CaptureForm", () => {
     await userEvent.click(screen.getByRole("button", { name: "Capturer" }));
     expect((await screen.findByRole("alert")).textContent).toBe("Capture trop longue.");
     expect(champ.value).toBe("Texte");
+  });
+
+  it("écran tactile : Entrée ajoute une ligne au lieu d'envoyer", async () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: query === "(pointer: coarse)", media: query }));
+    monter();
+    const champ = screen.getByLabelText(/Idée, tâche/) as HTMLTextAreaElement;
+    await userEvent.type(champ, "Titre{Enter}Détail");
+    expect(addInboxItem).not.toHaveBeenCalled();
+    expect(champ.value).toBe("Titre\nDétail");
   });
 });

@@ -60,8 +60,11 @@ export function CaptureForm({ onCaptured }: { onCaptured?: () => void }) {
           value={texte}
           onChange={(e) => setTexte(e.target.value)}
           onKeyDown={(e) => {
-            // Entrée envoie ; Maj+Entrée ajoute une ligne (détails de la capture).
-            if (e.key === "Enter" && !e.shiftKey) {
+            // Souris + clavier : Entrée envoie, Maj+Entrée ajoute une ligne. Sur écran
+            // tactile, il n'y a pas de Maj+Entrée : Entrée reste un retour à la ligne
+            // (sinon impossible d'écrire les détails sous le titre) et le bouton envoie.
+            const tactile = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+            if (e.key === "Enter" && !e.shiftKey && !tactile) {
               e.preventDefault();
               e.currentTarget.form?.requestSubmit();
             }

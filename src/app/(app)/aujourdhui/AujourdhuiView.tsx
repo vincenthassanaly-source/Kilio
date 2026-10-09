@@ -16,7 +16,7 @@ import { plagesLibresDuJour, tachesDuJour, tachesEnRetard } from "@/lib/aujourdh
 import { parseISODate } from "@/lib/date/iso";
 import { queryKeys } from "@/lib/query/keys";
 import { useBackClose } from "@/hooks/useBackClose";
-import { card } from "@/lib/ui";
+import { card, cardTight } from "@/lib/ui";
 import { DashboardHabitudesSection } from "../DashboardHabitudesSection";
 import { QuickAddFab } from "../QuickAddFab";
 import { DayTimeline } from "./DayTimeline";
@@ -183,7 +183,7 @@ export function AujourdhuiView({ today }: { today: string }) {
       {/* Revue hebdomadaire : mise en avant le dimanche, accessible tous les jours. */}
       <TransitionLink
         href="/revue"
-        className={`${card} flex items-center justify-between gap-3 ${
+        className={`${cardTight} flex min-h-11 items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
           parseISODate(today).getDay() === 0 ? "border-kcal/60" : ""
         }`}
       >
@@ -191,9 +191,9 @@ export function AujourdhuiView({ today }: { today: string }) {
           <span className="text-[15px] font-semibold text-ink">Revue de la semaine</span>
           <span className="text-[12.5px] text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
         </span>
-        <span aria-hidden className="text-ink-3">
-          ›
-        </span>
+        <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
       </TransitionLink>
 
       <QuickAddFab />

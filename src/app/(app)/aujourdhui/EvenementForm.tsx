@@ -4,6 +4,7 @@ import { useId, useRef, useState } from "react";
 import { createEvenement, updateEvenement, type Evenement } from "@/app/actions/evenements";
 import { FREQUENCE_LABELS } from "@/lib/date/recurrence";
 import type { Enums } from "@/lib/supabase/types";
+import { Switch } from "@/components/Switch";
 import { runAction } from "@/lib/actions/runAction";
 import { DUREE_EVENEMENT_PAR_DEFAUT, DUREES_EVENEMENT, dureeEvenement } from "@/lib/evenements/compute";
 import { libelleDuree } from "@/lib/taches/compute";
@@ -54,6 +55,10 @@ export function EvenementForm({
   const [rappel, setRappel] = useState(evenement?.rappel_minutes ? String(evenement.rappel_minutes) : "");
   const [frequence, setFrequence] = useState<string>(evenement?.recurrence_frequence ?? "");
   const [finRecurrence, setFinRecurrence] = useState(evenement?.recurrence_fin ?? "");
+  // Rappel et répétition : repliés pour un ajout rapide, ouverts s'ils sont déjà réglés.
+  const [optionsOuvertes, setOptionsOuvertes] = useState(
+    Boolean(evenement?.rappel_minutes || evenement?.recurrence_frequence)
+  );
   const [heure, setHeure] = useState(evenement ? evenement.heure.slice(0, 5) : heureParDefaut);
   const [duree, setDuree] = useState(
     String(evenement ? (dureeEvenement(evenement.heure, evenement.heure_fin) ?? DUREE_EVENEMENT_PAR_DEFAUT) : DUREE_EVENEMENT_PAR_DEFAUT)
@@ -114,19 +119,19 @@ export function EvenementForm({
         />
       </div>
 
-      <label className="flex min-h-11 items-center gap-2.5 text-[14px] text-ink">
-        <input
-          type="checkbox"
+      <div className="flex min-h-11 items-center justify-between gap-3">
+        <span className="text-[14px] font-medium text-ink">Journée entière</span>
+        <Switch
           checked={journeeEntiere}
-          onChange={(e) => {
-            setJourneeEntiere(e.target.checked);
+          label="Journée entière"
+          onToggle={() => {
+            const suivant = !journeeEntiere;
+            setJourneeEntiere(suivant);
             // « La veille » est le seul rappel d'une journée entière.
-            if (e.target.checked && rappel && rappel !== "1440") setRappel("1440");
+            if (suivant && rappel && rappel !== "1440") setRappel("1440");
           }}
-          className="h-5 w-5 accent-[var(--accent-agenda)]"
         />
-        Journée entière
-      </label>
+      </div>
 
       <div className={journeeEntiere ? "flex flex-col gap-1" : "grid grid-cols-2 gap-3"}>
         <div className="flex flex-col gap-1">
@@ -160,39 +165,66 @@ export function EvenementForm({
         </div>
       )}
 
+      <div className="flex flex-col gap-3">
+        <button
+          type="button"
+          aria-expanded={optionsOuvertes}
+          aria-controls={`${uid}-options`}
+          onClick={() => setOptionsOuvertes((v) => !v)}
+          className="relative flex min-h-11 items-center justify-between gap-2 text-left text-[14px] font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        >
+          <span>
+            Rappel et répétition
+            {!optionsOuvertes && (rappel || frequence) && (
+              <span className="ml-2 text-[12.5px] font-medium text-ink-2">
+                {[rappel ? "rappel" : null, frequence ? FREQUENCE_LABELS[frequence as Enums<"frequence_recurrence">].toLowerCase() : null]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+            )}
+          </span>
+          <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-transform ${optionsOuvertes ? "rotate-90" : ""}`}>
+            <path d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        {optionsOuvertes && (
+          <div id={`${uid}-options`} className="flex flex-col gap-3.5">
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${uid}-rappel`} className={labelClass}>
-          Rappel
-        </label>
-        <select id={`${uid}-rappel`} value={rappel} onChange={(e) => setRappel(e.target.value)} className={input}>
-          {RAPPELS.filter((r) => (journeeEntiere ? r.valeur === "" || r.journeeEntiere : true)).map((r) => (
-            <option key={r.valeur} value={r.valeur}>
-              {r.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={frequence ? "grid grid-cols-2 gap-3" : "flex flex-col gap-1"}>
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-freq`} className={labelClass}>
-            Répétition
+          <label htmlFor={`${uid}-rappel`} className={labelClass}>
+            Rappel
           </label>
-          <select id={`${uid}-freq`} value={frequence} onChange={(e) => setFrequence(e.target.value)} className={input}>
-            <option value="">Aucune</option>
-            {(Object.keys(FREQUENCE_LABELS) as Enums<"frequence_recurrence">[]).map((f) => (
-              <option key={f} value={f}>
-                {FREQUENCE_LABELS[f]}
+          <select id={`${uid}-rappel`} value={rappel} onChange={(e) => setRappel(e.target.value)} className={input}>
+            {RAPPELS.filter((r) => (journeeEntiere ? r.valeur === "" || r.journeeEntiere : true)).map((r) => (
+              <option key={r.valeur} value={r.valeur}>
+                {r.label}
               </option>
             ))}
           </select>
         </div>
-        {frequence && (
+
+        <div className={frequence ? "grid grid-cols-2 gap-3" : "flex flex-col gap-1"}>
           <div className="flex flex-col gap-1">
-            <label htmlFor={`${uid}-finrec`} className={labelClass}>
-              Jusqu&apos;au (facultatif)
+            <label htmlFor={`${uid}-freq`} className={labelClass}>
+              Répétition
             </label>
-            <input id={`${uid}-finrec`} type="date" value={finRecurrence} min={date} onChange={(e) => setFinRecurrence(e.target.value)} className={input} />
+            <select id={`${uid}-freq`} value={frequence} onChange={(e) => setFrequence(e.target.value)} className={input}>
+              <option value="">Aucune</option>
+              {(Object.keys(FREQUENCE_LABELS) as Enums<"frequence_recurrence">[]).map((f) => (
+                <option key={f} value={f}>
+                  {FREQUENCE_LABELS[f]}
+                </option>
+              ))}
+            </select>
+          </div>
+          {frequence && (
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${uid}-finrec`} className={labelClass}>
+                Jusqu&apos;au (facultatif)
+              </label>
+              <input id={`${uid}-finrec`} type="date" value={finRecurrence} min={date} onChange={(e) => setFinRecurrence(e.target.value)} className={input} />
+            </div>
+          )}
+        </div>
           </div>
         )}
       </div>

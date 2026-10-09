@@ -20,7 +20,7 @@ import { CheckToggle } from "@/components/CheckToggle";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, ghostButton, nameText, pillTag, primaryButton } from "@/lib/ui";
+import { card, dangerButton, ghostButton, linkButton, nameText, pillTag, primaryButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -320,7 +320,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                         disabled={creationEnCours}
                         onClick={() => creerTache(() => noteItemVersTache(item.id))}
                         aria-label={`Créer une tâche : ${item.libelle}`}
-                        className="relative shrink-0 text-xs font-semibold text-kcal after:absolute after:-inset-2"
+                        className={`${linkButton} shrink-0`}
                       >
                         → Tâche
                       </button>

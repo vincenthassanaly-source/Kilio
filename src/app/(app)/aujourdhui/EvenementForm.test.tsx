@@ -119,8 +119,11 @@ describe("EvenementForm", () => {
     render(<EvenementForm dateParDefaut="2026-10-04" onSaved={vi.fn()} />);
 
     await userEvent.type(screen.getByLabelText("Titre"), "Anniversaire");
-    await userEvent.click(screen.getByLabelText("Journée entière"));
+    await userEvent.click(screen.getByRole("switch", { name: "Journée entière" }));
     expect(screen.queryByLabelText("Heure")).toBeNull();
+    // Rappel et répétition sont repliés par défaut.
+    expect(screen.queryByLabelText("Rappel")).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: /Rappel et répétition/ }));
     await userEvent.selectOptions(screen.getByLabelText("Rappel"), "1440");
     await userEvent.selectOptions(screen.getByLabelText("Répétition"), "annuel");
     await userEvent.click(screen.getByRole("button", { name: "Ajouter" }));
@@ -135,5 +138,32 @@ describe("EvenementForm", () => {
         })
       )
     );
+  });
+
+  it("ouvre d'emblée le volet quand l'événement a déjà un rappel ou une répétition", () => {
+    render(
+      <EvenementForm
+        evenement={{
+          id: "e3",
+          titre: "Réunion",
+          date: "2026-10-05",
+          heure: "09:00:00",
+          heure_fin: "10:00:00",
+          notes: null,
+          toute_la_journee: false,
+          rappel_minutes: 30,
+          rappel_occurrence_envoyee: null,
+          recurrence_frequence: "hebdomadaire",
+          recurrence_fin: null,
+          created_at: "2026-10-01T00:00:00Z",
+          updated_at: "2026-10-01T00:00:00Z",
+        }}
+        dateParDefaut="2026-10-04"
+        onSaved={vi.fn()}
+      />
+    );
+    expect(screen.getByRole("button", { name: /Rappel et répétition/ }).getAttribute("aria-expanded")).toBe("true");
+    expect((screen.getByLabelText("Rappel") as HTMLSelectElement).value).toBe("30");
+    expect((screen.getByLabelText("Répétition") as HTMLSelectElement).value).toBe("hebdomadaire");
   });
 });
