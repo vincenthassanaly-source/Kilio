@@ -9,7 +9,7 @@ import { AddCourseForm } from "./courses/AddCourseForm";
 import { EvenementForm } from "./aujourdhui/EvenementForm";
 import { CaptureForm } from "./inbox/CaptureForm";
 import { useInboxCount } from "@/hooks/useInboxCount";
-import { pastilleCompteur } from "@/lib/inbox/compute";
+import { libelleNbInbox, pastilleCompteur } from "@/lib/inbox/compute";
 import { Modal } from "@/components/Modal";
 import { goBackSteps, useBackClose } from "@/hooks/useBackClose";
 import { getListes, getTags } from "@/app/actions/taches";
@@ -55,7 +55,8 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
   const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
   const direct = directTask !== undefined;
   const repasTermine = useAjoutRepasTermine();
-  const pastille = pastilleCompteur(useInboxCount());
+  const nbInbox = useInboxCount();
+  const pastille = pastilleCompteur(nbInbox);
 
   // Raccourcis d'appui long sur l'icône (public/manifest.json) : `?action=new`
   // ouvre le formulaire de tâche (mode direct de /taches), `?ajout=evenement`
@@ -124,7 +125,15 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           onClick={() => (mode === null ? setMode(direct ? "tache" : "menu") : history.back())}
           onPointerDown={preloadAddTaskForm}
           onFocus={preloadAddTaskForm}
-          aria-label={direct ? "Ajouter une tâche" : mode === null ? "Ajouter" : "Fermer"}
+          aria-label={
+            direct
+              ? "Ajouter une tâche"
+              : mode === null
+                ? pastille
+                  ? `Ajouter (${libelleNbInbox(nbInbox)} dans l'inbox)`
+                  : "Ajouter"
+                : "Fermer"
+          }
           aria-expanded={direct ? undefined : mode !== null}
           aria-haspopup={direct ? "dialog" : undefined}
           className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full text-on-kcal shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
@@ -145,8 +154,8 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           </svg>
           {pastille && !dialOpen && (
             <span
-              aria-label={`${pastille} à trier dans l'inbox`}
-              className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-alert px-1 text-[11px] font-bold tabular-nums text-white"
+              aria-hidden
+              className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-alert px-1 text-[11px] font-bold tabular-nums text-on-accent"
             >
               {pastille}
             </span>

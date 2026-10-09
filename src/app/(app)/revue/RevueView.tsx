@@ -23,7 +23,7 @@ const NB_TERMINEES_VISIBLES = 5;
 function Chiffre({ valeur, libelle, alerte = false }: { valeur: number; libelle: string; alerte?: boolean }) {
   return (
     <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl bg-surface-alt px-2 py-3">
-      <span className={`text-[22px] font-semibold tabular-nums ${alerte && valeur > 0 ? "text-alert" : "text-ink"}`}>
+      <span className={`font-display text-[22px] font-semibold tabular-nums ${alerte && valeur > 0 ? "text-alert" : "text-ink"}`}>
         {valeur}
       </span>
       <span className="text-center text-[11.5px] leading-tight text-ink-2">{libelle}</span>
@@ -84,8 +84,11 @@ export function RevueView({ today }: { today: string }) {
         {bilan.terminees.length > 0 && (
           <ul className="flex flex-col gap-1 text-[13.5px] text-ink-2">
             {bilan.terminees.slice(0, NB_TERMINEES_VISIBLES).map((t) => (
-              <li key={t.id} className="truncate">
-                ✓ {t.titre}
+              <li key={t.id} className="flex items-center gap-2">
+                <svg aria-hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-kcal)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <path d="m5 13 4 4L19 7" />
+                </svg>
+                <span className="truncate">{t.titre}</span>
               </li>
             ))}
             {bilan.terminees.length > NB_TERMINEES_VISIBLES && (
@@ -113,20 +116,27 @@ export function RevueView({ today }: { today: string }) {
             const vide = jour.taches.length === 0 && jour.evenements.length === 0;
             const total = jour.minutesTaches + jour.minutesEvenements;
             return (
-              <li key={jour.date} className="flex flex-col gap-1 rounded-xl bg-surface-alt px-3 py-2.5">
+              <li key={jour.date}>
+                <TransitionLink
+                  href={`/agenda?date=${jour.date}`}
+                  aria-label={`Ouvrir ${format(parseISODate(jour.date), "EEEE d MMMM", { locale: fr })} dans l'agenda`}
+                  className="flex min-h-11 flex-col gap-1 rounded-xl bg-surface-alt px-3 py-2.5 transition active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+                >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[13.5px] font-semibold capitalize text-ink">
                     {format(parseISODate(jour.date), "EEEE d MMM", { locale: fr })}
                   </span>
                   {jour.charge && (
-                    <span className="rounded-full bg-alert/10 px-2 py-0.5 text-[11px] font-bold text-alert">Chargé</span>
+                    <span className="rounded-full border border-line bg-surface px-2 py-0.5 text-[11px] font-semibold text-ink-2">
+                      Journée chargée
+                    </span>
                   )}
                   {!jour.charge && total > 0 && (
                     <span className="text-[11.5px] tabular-nums text-ink-3">{libelleDuree(total)}</span>
                   )}
                 </div>
                 {vide ? (
-                  <span className="text-[12.5px] text-ink-3">Libre</span>
+                  <span className="text-[12.5px] text-ink-2">Libre</span>
                 ) : (
                   <ul className="flex flex-col gap-0.5 text-[13px] text-ink-2">
                     {jour.evenements.map((e, i) => (
@@ -135,12 +145,14 @@ export function RevueView({ today }: { today: string }) {
                       </li>
                     ))}
                     {jour.taches.map((t) => (
-                      <li key={t.id} className="truncate">
-                        ☐ {t.titre}
+                      <li key={t.id} className="flex items-center gap-2">
+                        <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-ink-3" />
+                        <span className="truncate">{t.titre}</span>
                       </li>
                     ))}
                   </ul>
                 )}
+                </TransitionLink>
               </li>
             );
           })}

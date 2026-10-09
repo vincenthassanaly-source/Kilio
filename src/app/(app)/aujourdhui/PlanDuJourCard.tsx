@@ -93,13 +93,14 @@ export function PlanDuJourCard({
             const retard = p.tache.echeance! < today;
             return (
               <li key={p.tache.id} className="flex items-center gap-3 rounded-xl bg-surface-alt px-3 py-2">
-                <span className="w-[92px] shrink-0 text-[13px] font-semibold tabular-nums text-ink">
-                  {p.creneau.debut} – {p.creneau.fin}
-                </span>
+                {/* Titre sur toute la largeur (2 lignes max) ; l'horaire passe en méta, en gras. */}
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[14px] text-ink">{p.tache.titre}</span>
-                  <span className="block text-[11.5px] text-ink-2">
-                    {libelleDuree(p.dureeMinutes)}
+                  <span className="line-clamp-2 block text-[14px] text-ink">{p.tache.titre}</span>
+                  <span className="block text-[12.5px] tabular-nums text-ink-2">
+                    <span className="font-semibold text-ink">
+                      {p.creneau.debut} – {p.creneau.fin}
+                    </span>
+                    {` · ${libelleDuree(p.dureeMinutes)}`}
                     {p.tache.priorite === "haute" ? " · priorité haute" : ""}
                     {retard ? ` · en retard (${libelleRetard(p.tache.echeance!, today)})` : ""}
                   </span>

@@ -46,9 +46,9 @@ describe("RevueView", () => {
       makeTache({ id: "t4", titre: "Sans date" }),
     ]);
     expect(screen.getByText("1. Bilan des 7 derniers jours")).toBeTruthy();
-    expect(screen.getByText("✓ Fini hier")).toBeTruthy();
+    expect(screen.getByText("Fini hier")).toBeTruthy();
     expect(screen.getByText("Facture en retard")).toBeTruthy();
-    expect(screen.getByText("☐ Lundi matin")).toBeTruthy();
+    expect(screen.getByText("Lundi matin")).toBeTruthy();
     expect(screen.getAllByText("Libre")).toHaveLength(6);
     expect(screen.getByText(/1 tâche n'a pas d'échéance/)).toBeTruthy();
   });
@@ -72,5 +72,16 @@ describe("RevueView", () => {
     monter([makeTache({ id: "t1" })]);
     await waitFor(() => expect(screen.getByText("4. Inbox à trier")).toBeTruthy());
     expect(screen.getByText(/3 éléments à trier/)).toBeTruthy();
+  });
+
+  it("chaque jour à venir renvoie vers l'agenda de ce jour", () => {
+    monter([makeTache({ id: "t1", titre: "Lundi matin", echeance: "2026-10-12" })]);
+    const lien = screen.getByRole("link", { name: "Ouvrir lundi 12 octobre dans l'agenda" });
+    expect(lien.getAttribute("href")).toBe("/agenda?date=2026-10-12");
+  });
+
+  it("signale un jour chargé par un libellé neutre", () => {
+    monter([makeTache({ id: "t1", echeance: "2026-10-12", duree_minutes: 400 })]);
+    expect(screen.getByText("Journée chargée")).toBeTruthy();
   });
 });

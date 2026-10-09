@@ -102,14 +102,14 @@ export function DayTimeline({
 
       <div className="overflow-hidden rounded-2xl border border-line bg-surface">
         {evenementsJournee.length > 0 && (
-          <div className="flex flex-wrap gap-1 border-b border-line/60 px-3 py-2">
+          <div className="flex flex-wrap gap-2 border-b border-line/60 px-3 py-2">
             {evenementsJournee.map((e) => (
               <button
                 key={e.id}
                 type="button"
                 onClick={() => onSelectEvenement(e)}
                 aria-label={`Événement journée entière ${e.titre}. Modifier`}
-                className="max-w-[260px] truncate rounded bg-agenda px-2 py-1 text-xs font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                className="relative min-h-9 max-w-[260px] truncate rounded-lg bg-agenda px-3 py-1.5 text-xs font-semibold text-on-agenda after:absolute after:inset-x-0 after:-inset-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
               >
                 {e.titre}
               </button>
