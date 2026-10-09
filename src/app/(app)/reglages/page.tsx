@@ -1,8 +1,10 @@
 import { connection } from "next/server";
+import { getReglagesBriefing } from "@/app/actions/briefing";
 import { getReglagesNettoyage } from "@/app/actions/nettoyage";
 import { TransitionLink } from "@/components/TransitionLink";
 import { screenTitle, sectionTitle } from "@/lib/ui";
 import { AppearanceRow } from "./AppearanceRow";
+import { BriefingRow } from "./BriefingRow";
 import { NettoyageAutoRow } from "./NettoyageAutoRow";
 import { NotificationsRow } from "./NotificationsRow";
 
@@ -57,7 +59,7 @@ function ChevronIcon() {
 
 export default async function ReglagesPage() {
   await connection();
-  const reglagesNettoyage = await getReglagesNettoyage();
+  const [reglagesNettoyage, reglagesBriefing] = await Promise.all([getReglagesNettoyage(), getReglagesBriefing()]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -87,6 +89,7 @@ export default async function ReglagesPage() {
             <AppearanceRow />
           </div>
           <NotificationsRow />
+          <BriefingRow reglages={reglagesBriefing} />
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
       </div>

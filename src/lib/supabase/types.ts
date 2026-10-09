@@ -1561,6 +1561,30 @@ export type Database = {
         }
         Relationships: []
       }
+      reglages_briefing: {
+        Row: {
+          actif: boolean
+          dernier_envoi: string | null
+          heure: string
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          actif?: boolean
+          dernier_envoi?: string | null
+          heure?: string
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          actif?: boolean
+          dernier_envoi?: string | null
+          heure?: string
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reglages_nettoyage: {
         Row: {
           actif: boolean
