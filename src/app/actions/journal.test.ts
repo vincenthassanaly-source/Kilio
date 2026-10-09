@@ -91,7 +91,8 @@ describe("addJournalEntry", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-10-09T10:00:00Z"));
     const fake = brancher();
-    const { date: _date, ...sansDate } = saisieAliment;
+    const sansDate: Record<string, string> = { ...saisieAliment };
+    delete sansDate.date;
     await addJournalEntry({ error: null }, form(sansDate));
     expect(ecritures(fake.appels, "journal_repas", "insert")[0].payload).toMatchObject({ date: "2026-10-09" });
   });
