@@ -30,13 +30,27 @@ export type Reponse = { data?: unknown; error?: { message: string; code?: string
 
 export type Repondre = (appel: Appel) => Reponse | undefined;
 
+/** Opération de stockage (`supabase.storage.from(bucket)…`). */
+export type OperationStockage = {
+  bucket: string;
+  action: "upload" | "remove";
+  /** `upload` : chemin du fichier. */
+  chemin?: string;
+  /** `remove` : chemins supprimés. */
+  chemins?: string[];
+  contentType?: string;
+};
+
+export type RepondreStockage = (op: OperationStockage) => { error?: { message: string } | null } | undefined;
+
 const FILTRES = new Set([
   "eq", "neq", "in", "is", "lt", "lte", "gt", "gte", "like", "ilike", "or", "not", "contains", "match", "filter",
 ]);
 const MODIFICATEURS = new Set(["order", "limit", "range", "abortSignal", "returns"]);
 
-export function fauxSupabase(repondre: Repondre = () => undefined) {
+export function fauxSupabase(repondre: Repondre = () => undefined, repondreStockage: RepondreStockage = () => undefined) {
   const appels: Appel[] = [];
+  const stockage: OperationStockage[] = [];
 
   function resoudre(appel: Appel): Reponse & { error: Reponse["error"] } {
     const r = repondre(appel) ?? {};
@@ -68,6 +82,23 @@ export function fauxSupabase(repondre: Repondre = () => undefined) {
   }
 
   const client = {
+    storage: {
+      from: (bucket: string) => ({
+        upload: (chemin: string, _corps: unknown, options?: { contentType?: string }) => {
+          const op: OperationStockage = { bucket, action: "upload", chemin, contentType: options?.contentType };
+          stockage.push(op);
+          return Promise.resolve({ data: null, error: repondreStockage(op)?.error ?? null });
+        },
+        remove: (chemins: string[]) => {
+          const op: OperationStockage = { bucket, action: "remove", chemins };
+          stockage.push(op);
+          return Promise.resolve({ data: null, error: repondreStockage(op)?.error ?? null });
+        },
+        getPublicUrl: (chemin: string) => ({
+          data: { publicUrl: `https://stockage.test/storage/v1/object/public/${bucket}/${chemin}` },
+        }),
+      }),
+    },
     from: (table: string) => constructeur(table),
     rpc: (fn: string, args?: unknown) => {
       const appel: Appel = { table: `rpc:${fn}`, action: "select", payload: args, filtres: [], modificateurs: [] };
@@ -76,7 +107,7 @@ export function fauxSupabase(repondre: Repondre = () => undefined) {
     },
   };
 
-  return { client, appels };
+  return { client, appels, stockage };
 }
 
 /** Appels d'écriture d'une table, pour des assertions lisibles. */
