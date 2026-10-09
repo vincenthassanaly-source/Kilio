@@ -1567,6 +1567,10 @@ export type Database = {
           dernier_envoi: string | null
           heure: string
           id: number
+          revue_actif: boolean
+          revue_dernier_envoi: string | null
+          revue_heure: string
+          revue_jour: number
           updated_at: string
         }
         Insert: {
@@ -1574,6 +1578,10 @@ export type Database = {
           dernier_envoi?: string | null
           heure?: string
           id?: number
+          revue_actif?: boolean
+          revue_dernier_envoi?: string | null
+          revue_heure?: string
+          revue_jour?: number
           updated_at?: string
         }
         Update: {
@@ -1581,6 +1589,10 @@ export type Database = {
           dernier_envoi?: string | null
           heure?: string
           id?: number
+          revue_actif?: boolean
+          revue_dernier_envoi?: string | null
+          revue_heure?: string
+          revue_jour?: number
           updated_at?: string
         }
         Relationships: []

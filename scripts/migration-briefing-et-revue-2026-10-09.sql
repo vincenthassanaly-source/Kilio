@@ -37,3 +37,32 @@ select cron.schedule(
   ) as request_id;
   $$
 );
+
+-- ---------------------------------------------------------------------------
+-- Revue hebdomadaire (étape 5) : mêmes réglages, colonnes ajoutées à la table.
+-- Appliquée via MCP (`reglages_briefing_revue_hebdo`), puis Edge Function
+-- envoyer-revue-hebdo déployée, puis cron ci-dessous. 0 = dimanche (getDay).
+alter table public.reglages_briefing
+  add column if not exists revue_actif boolean not null default true,
+  add column if not exists revue_jour smallint not null default 0,
+  add column if not exists revue_heure time not null default '18:00',
+  add column if not exists revue_dernier_envoi date;
+
+alter table public.reglages_briefing
+  drop constraint if exists reglages_briefing_revue_jour_check,
+  add constraint reglages_briefing_revue_jour_check check (revue_jour between 0 and 6);
+
+select cron.schedule(
+  'revue-hebdo',
+  '* * * * *',
+  $$
+  select net.http_post(
+      url := (select decrypted_secret from vault.decrypted_secrets where name = 'project_url') || '/functions/v1/envoyer-revue-hebdo',
+      headers := jsonb_build_object(
+        'Content-type', 'application/json',
+        'Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'publishable_key')
+      ),
+      body := '{}'::jsonb
+  ) as request_id;
+  $$
+);

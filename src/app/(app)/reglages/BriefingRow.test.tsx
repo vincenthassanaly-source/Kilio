@@ -8,7 +8,17 @@ import { updateReglagesBriefing } from "@/app/actions/briefing";
 
 afterEach(() => cleanup());
 
-const reglages = { id: 1, actif: true, heure: "07:30:00", dernier_envoi: null, updated_at: "2026-10-09T00:00:00Z" };
+const reglages = {
+  id: 1,
+  actif: true,
+  heure: "07:30:00",
+  dernier_envoi: null,
+  revue_actif: true,
+  revue_jour: 0,
+  revue_heure: "18:00:00",
+  revue_dernier_envoi: null,
+  updated_at: "2026-10-09T00:00:00Z",
+};
 
 describe("BriefingRow", () => {
   beforeEach(() => vi.clearAllMocks());

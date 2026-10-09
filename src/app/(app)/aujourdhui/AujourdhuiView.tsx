@@ -24,6 +24,7 @@ import { EnRetardSection } from "./EnRetardSection";
 import { EvenementForm } from "./EvenementForm";
 import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/compute";
 import { PlanDuJourCard } from "./PlanDuJourCard";
+import { TransitionLink } from "@/components/TransitionLink";
 import { RepasRestantsCard } from "./RepasRestantsCard";
 import { TachesDuJour } from "./TachesDuJour";
 import { useHeureCourante } from "./useHeureCourante";
@@ -178,6 +179,22 @@ export function AujourdhuiView({ today }: { today: string }) {
       <DashboardHabitudesSection today={today} className={card} />
 
       <RepasRestantsCard today={today} />
+
+      {/* Revue hebdomadaire : mise en avant le dimanche, accessible tous les jours. */}
+      <TransitionLink
+        href="/revue"
+        className={`${card} flex items-center justify-between gap-3 ${
+          parseISODate(today).getDay() === 0 ? "border-kcal/60" : ""
+        }`}
+      >
+        <span className="flex flex-col">
+          <span className="text-[15px] font-semibold text-ink">Revue de la semaine</span>
+          <span className="text-[12.5px] text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
+        </span>
+        <span aria-hidden className="text-ink-3">
+          ›
+        </span>
+      </TransitionLink>
 
       <QuickAddFab />
 

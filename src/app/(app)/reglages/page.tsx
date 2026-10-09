@@ -6,6 +6,7 @@ import { screenTitle, sectionTitle } from "@/lib/ui";
 import { AppearanceRow } from "./AppearanceRow";
 import { BriefingRow } from "./BriefingRow";
 import { NettoyageAutoRow } from "./NettoyageAutoRow";
+import { RevueHebdoRow } from "./RevueHebdoRow";
 import { NotificationsRow } from "./NotificationsRow";
 
 const INFO_ICON_PROPS = {
@@ -90,6 +91,7 @@ export default async function ReglagesPage() {
           </div>
           <NotificationsRow />
           <BriefingRow reglages={reglagesBriefing} />
+          <RevueHebdoRow reglages={reglagesBriefing} />
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
       </div>
