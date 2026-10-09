@@ -13,7 +13,9 @@ test("affiche l'événement, la tâche du jour et le résumé des repas", async 
 
   await expect(page.getByRole("heading", { name: "Aujourd'hui", level: 1 })).toBeVisible();
   await expect(page.getByRole("button", { name: /Événement Rendez-vous e2e, de 09:00 à 10:00/ })).toBeVisible();
-  await expect(page.getByText("Tâche e2e du jour")).toBeVisible();
+  // La tâche figure aussi dans la carte « Plan du jour » : on cible la liste du jour.
+  await expect(page.getByLabel("Tâches").getByText("Tâche e2e du jour")).toBeVisible();
+  await expect(page.getByLabel("Plan du jour").getByText("Tâche e2e du jour")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Journée" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Repas" })).toBeVisible();
   // Aucune tâche en retard dans le jeu de données : pas de bandeau.

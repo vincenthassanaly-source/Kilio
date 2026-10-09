@@ -27,7 +27,13 @@ export async function GET(request: NextRequest) {
   const supabase = createAdminClient();
 
   const [evenements, taches] = await Promise.all([
-    supabase.from("evenements").select("id,titre,date,heure,heure_fin,notes,updated_at").gte("date", debut).lte("date", fin),
+    // Séries : envoyées une fois (RRULE), dès qu'elles ont commencé et ne sont pas terminées.
+    supabase
+      .from("evenements")
+      .select("id,titre,date,heure,heure_fin,notes,updated_at,toute_la_journee,recurrence_frequence,recurrence_fin")
+      .or(
+        `and(recurrence_frequence.is.null,date.gte.${debut},date.lte.${fin}),and(recurrence_frequence.not.is.null,date.lte.${fin},or(recurrence_fin.is.null,recurrence_fin.gte.${debut}))`
+      ),
     supabase
       .from("taches")
       .select("id,titre,echeance,heure,heure_fin,duree_minutes,toute_la_journee,fait,notes,updated_at")

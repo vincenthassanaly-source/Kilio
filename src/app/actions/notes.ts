@@ -1,8 +1,12 @@
 "use server";
 
-import { revalidatePath, updateTag } from "next/cache";
+import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NOTES_TAG } from "@/lib/notes/tags";
+import { creerTacheRapide } from "@/lib/taches/creation-rapide";
+import { TACHES_TAG } from "@/lib/taches/tags";
+import { fail, ok, type ActionResult } from "@/lib/actions/result";
+import { estUuid } from "@/lib/uuid";
 import { estCouleurValide } from "@/lib/notes/palette";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
@@ -324,4 +328,66 @@ export async function getNotesAvecRelations(): Promise<NoteAvecRelations[]> {
     items: note_items,
     tags: notes_tags.map((nt) => nt.tag).filter((tag): tag is Tables<"tags"> => tag !== null),
   }));
+}
+
+// --- Note → tâche -------------------------------------------------------------
+// La note n'est pas modifiée : la tâche garde un lien (`taches.note_id`) et la
+// mention de son origine dans ses notes.
+
+function revalidateApresCreationTache() {
+  revalidateTag(TACHES_TAG, { expire: 0 });
+  revalidatePath("/taches");
+  revalidatePath("/agenda");
+}
+
+/** Crée une tâche à partir d'une note (titre = titre de la note, contenu en notes). */
+export async function noteVersTache(noteId: string): Promise<ActionResult<{ id: string }>> {
+  if (!estUuid(noteId)) return fail("Note introuvable.");
+  const supabase = createAdminClient();
+  const { data: note, error } = await supabase
+    .from("notes")
+    .select("titre, contenu, type, note_items(libelle, coche, position)")
+    .eq("id", noteId)
+    .maybeSingle();
+  if (error) return fail(error.message);
+  if (!note) return fail("Note introuvable.");
+
+  // Checklist : les éléments restant à faire deviennent les notes de la tâche.
+  const details =
+    note.type === "checklist"
+      ? [...note.note_items]
+          .filter((i) => !i.coche)
+          .sort((a, b) => a.position - b.position)
+          .map((i) => `- ${i.libelle}`)
+          .join("\n")
+      : note.contenu;
+
+  const creation = await creerTacheRapide(supabase, { titre: note.titre, notes: details, note_id: noteId });
+  if (!creation.ok) return fail(creation.error);
+
+  revalidateApresCreationTache();
+  return ok({ id: creation.id });
+}
+
+/** Crée une tâche à partir d'un élément de checklist (l'élément reste dans la note). */
+export async function noteItemVersTache(itemId: string): Promise<ActionResult<{ id: string }>> {
+  if (!estUuid(itemId)) return fail("Élément introuvable.");
+  const supabase = createAdminClient();
+  const { data: item, error } = await supabase
+    .from("note_items")
+    .select("libelle, note_id, note:notes(titre)")
+    .eq("id", itemId)
+    .maybeSingle();
+  if (error) return fail(error.message);
+  if (!item) return fail("Élément introuvable.");
+
+  const creation = await creerTacheRapide(supabase, {
+    titre: item.libelle,
+    notes: item.note ? `Depuis la note « ${item.note.titre} »` : null,
+    note_id: item.note_id,
+  });
+  if (!creation.ok) return fail(creation.error);
+
+  revalidateApresCreationTache();
+  return ok({ id: creation.id });
 }

@@ -24,6 +24,7 @@ import {
 } from "./TimeGrid";
 import { TacheBlock } from "./TacheBlock";
 import { EvenementBlock } from "../aujourdhui/EvenementBlock";
+import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/compute";
 import { useAgendaZoom } from "./useAgendaZoom";
 
 export function DayView({
@@ -64,7 +65,7 @@ export function DayView({
   // `zoom`, qui change à chaque frame pendant le geste de pincement/molette
   // (cf. useAgendaZoom) — sans ce useMemo, layoutChevauchements et les
   // filtres/tris ci-dessous étaient recalculés à chaque frame de zoom.
-  const { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions } = useMemo(() => {
+  const { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, dayJourneeEntiere, positions } = useMemo(() => {
     const dayTachesJour = taches.filter(
       (t) => t.echeance && isSameDay(parseISODate(t.echeance), selectedDate)
     );
@@ -74,11 +75,13 @@ export function DayView({
 
     const dayTachesAvecHeure = dayTaches.filter((t) => t.heure);
     const dayTachesSansHeure = dayTachesJour.filter((t) => !t.fait && !t.heure);
-    const dayEvenements = evenements.filter((e) => isSameDay(parseISODate(e.date), selectedDate));
+    const evenementsDuJour = evenements.filter((e) => isSameDay(parseISODate(e.date), selectedDate));
+    const dayEvenements = evenementsHoraires(evenementsDuJour);
+    const dayJourneeEntiere = evenementsJourneeEntiere(evenementsDuJour);
     // Tâches horodatées et événements se partagent la largeur de la grille.
     const positions = layoutChevauchements([...dayTachesAvecHeure, ...dayEvenements]);
 
-    return { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions };
+    return { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, dayJourneeEntiere, positions };
   }, [taches, evenements, selectedDate]);
 
   const creneauxJour = getCreneauxDuJour(creneaux, selectedDate, exceptions);
@@ -103,6 +106,21 @@ export function DayView({
       />
 
       <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+        {dayJourneeEntiere.length > 0 && (
+          <div className="flex flex-wrap gap-1 border-b border-line/60 px-3 py-2">
+            {dayJourneeEntiere.map((e) => (
+              <button
+                key={e.id}
+                type="button"
+                onClick={() => onSelectEvenement?.(e)}
+                aria-label={`Événement journée entière ${e.titre}. Modifier`}
+                className="max-w-[260px] truncate rounded bg-agenda px-2 py-1 text-xs font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+              >
+                {e.titre}
+              </button>
+            ))}
+          </div>
+        )}
         {dayTachesSansHeure.length > 0 && (
           <div className="flex flex-wrap gap-1 border-b border-line/60 px-3 py-2">
             {dayTachesSansHeure.map((t) => (

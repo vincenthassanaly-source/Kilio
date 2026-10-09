@@ -341,6 +341,11 @@ export type Database = {
         Row: {
           created_at: string
           date: string
+          rappel_minutes: number | null
+          rappel_occurrence_envoyee: string | null
+          recurrence_fin: string | null
+          recurrence_frequence: Database["public"]["Enums"]["frequence_recurrence"] | null
+          toute_la_journee: boolean
           heure: string
           heure_fin: string
           id: string
@@ -351,6 +356,11 @@ export type Database = {
         Insert: {
           created_at?: string
           date: string
+          rappel_minutes?: number | null
+          rappel_occurrence_envoyee?: string | null
+          recurrence_fin?: string | null
+          recurrence_frequence?: Database["public"]["Enums"]["frequence_recurrence"] | null
+          toute_la_journee?: boolean
           heure: string
           heure_fin: string
           id?: string
@@ -361,6 +371,11 @@ export type Database = {
         Update: {
           created_at?: string
           date?: string
+          rappel_minutes?: number | null
+          rappel_occurrence_envoyee?: string | null
+          recurrence_fin?: string | null
+          recurrence_frequence?: Database["public"]["Enums"]["frequence_recurrence"] | null
+          toute_la_journee?: boolean
           heure?: string
           heure_fin?: string
           id?: string
@@ -516,6 +531,24 @@ export type Database = {
           date?: string
           entraine?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      inbox_items: {
+        Row: {
+          created_at: string
+          id: string
+          texte: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          texte: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          texte?: string
         }
         Relationships: []
       }
@@ -1546,6 +1579,42 @@ export type Database = {
         }
         Relationships: []
       }
+      reglages_briefing: {
+        Row: {
+          actif: boolean
+          dernier_envoi: string | null
+          heure: string
+          id: number
+          revue_actif: boolean
+          revue_dernier_envoi: string | null
+          revue_heure: string
+          revue_jour: number
+          updated_at: string
+        }
+        Insert: {
+          actif?: boolean
+          dernier_envoi?: string | null
+          heure?: string
+          id?: number
+          revue_actif?: boolean
+          revue_dernier_envoi?: string | null
+          revue_heure?: string
+          revue_jour?: number
+          updated_at?: string
+        }
+        Update: {
+          actif?: boolean
+          dernier_envoi?: string | null
+          heure?: string
+          id?: number
+          revue_actif?: boolean
+          revue_dernier_envoi?: string | null
+          revue_heure?: string
+          revue_jour?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reglages_nettoyage: {
         Row: {
           actif: boolean
@@ -1680,6 +1749,7 @@ export type Database = {
           heure_fin: string | null
           id: string
           liste_id: string
+          note_id: string | null
           notes: string | null
           ordre: number
           priorite: Database["public"]["Enums"]["priorite_tache"]
@@ -1705,6 +1775,7 @@ export type Database = {
           heure_fin?: string | null
           id?: string
           liste_id: string
+          note_id?: string | null
           notes?: string | null
           ordre?: number
           priorite?: Database["public"]["Enums"]["priorite_tache"]
@@ -1730,6 +1801,7 @@ export type Database = {
           heure_fin?: string | null
           id?: string
           liste_id?: string
+          note_id?: string | null
           notes?: string | null
           ordre?: number
           priorite?: Database["public"]["Enums"]["priorite_tache"]
@@ -1747,6 +1819,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "taches_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "taches_liste_id_fkey"
             columns: ["liste_id"]

@@ -6,6 +6,7 @@ import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sort
 import { CSS } from "@dnd-kit/utilities";
 import { findNavItem } from "@/lib/navigation/registry";
 import { useNavigationEdit } from "@/lib/navigation/NavigationEditContext";
+import { PastilleInbox } from "@/components/PastilleInbox";
 import { TransitionLink } from "@/components/TransitionLink";
 import { card } from "@/lib/ui";
 
@@ -53,10 +54,11 @@ function ModuleTile({ href, isEditing }: { href: string; isEditing: boolean }) {
       {...listeners}
     >
       <span
-        className="flex h-10 w-10 items-center justify-center rounded-xl"
+        className="relative flex h-10 w-10 items-center justify-center rounded-xl"
         style={{ background: `color-mix(in oklch, ${mod.accentVar} 12%, transparent)` }}
       >
         {mod.icon(mod.accentVar)}
+        {mod.href === "/inbox" && <PastilleInbox className="-right-1.5 -top-1.5" />}
       </span>
       <div>
         <p className="font-display text-[15px] font-semibold text-ink">{mod.label}</p>

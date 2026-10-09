@@ -3,7 +3,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { guillemetsPostgrest, motifContient } from "@/lib/supabase/like";
 
-export type ModuleRecherche = "notes" | "taches" | "recettes" | "objectifs" | "courses";
+export type ModuleRecherche = "notes" | "taches" | "evenements" | "recettes" | "objectifs" | "courses";
 
 export type ResultatRecherche = {
   id: string;
@@ -27,8 +27,15 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
   const like = motifContient(q);
   const likeOr = guillemetsPostgrest(like);
 
-  const [notesResult, tachesResult, recettesResult, objectifsResult, coursesResult] =
-    await Promise.allSettled([
+  const [
+    notesResult,
+    tachesResult,
+    recettesResult,
+    objectifsResult,
+    coursesResult,
+    evenementsResult,
+    noteItemsResult,
+  ] = await Promise.allSettled([
       supabase
         .from("notes")
         .select("id, titre, contenu")
@@ -36,7 +43,7 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
         .limit(LIMIT_PAR_SOURCE),
       supabase
         .from("taches")
-        .select("id, titre, liste:listes_taches(nom)")
+        .select("id, titre, echeance, liste:listes_taches(nom)")
         .ilike("titre", like)
         .limit(LIMIT_PAR_SOURCE),
       supabase
@@ -52,6 +59,17 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
       supabase
         .from("courses_items")
         .select("id, libelle")
+        .ilike("libelle", like)
+        .limit(LIMIT_PAR_SOURCE),
+      supabase
+        .from("evenements")
+        .select("id, titre, date, heure")
+        .or(`titre.ilike.${likeOr},notes.ilike.${likeOr}`)
+        .order("date", { ascending: false })
+        .limit(LIMIT_PAR_SOURCE),
+      supabase
+        .from("note_items")
+        .select("note_id, libelle, note:notes(titre)")
         .ilike("libelle", like)
         .limit(LIMIT_PAR_SOURCE),
     ]);
@@ -77,7 +95,37 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
         module: "taches",
         titre: tache.titre,
         sousTitre: tache.liste?.nom,
-        href: "/taches",
+        // Une tâche datée s'ouvre dans l'agenda (deep-link ?tache=).
+        href: tache.echeance ? `/agenda?tache=${tache.id}` : "/taches",
+      });
+    }
+  }
+
+  if (evenementsResult.status === "fulfilled" && evenementsResult.value.data) {
+    for (const evenement of evenementsResult.value.data) {
+      resultats.push({
+        id: evenement.id,
+        module: "evenements",
+        titre: evenement.titre,
+        sousTitre: `${evenement.date} ${evenement.heure.slice(0, 5)}`,
+        href: `/agenda?date=${evenement.date}`,
+      });
+    }
+  }
+
+  // Éléments de checklist : un résultat par note déjà trouvée par titre/contenu
+  // est inutile, on l'ajoute seulement si la note n'est pas déjà dans la liste.
+  if (noteItemsResult.status === "fulfilled" && noteItemsResult.value.data) {
+    const dejaVues = new Set(resultats.filter((r) => r.module === "notes").map((r) => r.id));
+    for (const item of noteItemsResult.value.data) {
+      if (dejaVues.has(item.note_id)) continue;
+      dejaVues.add(item.note_id);
+      resultats.push({
+        id: item.note_id,
+        module: "notes",
+        titre: item.note?.titre || "Note",
+        sousTitre: item.libelle,
+        href: "/notes",
       });
     }
   }

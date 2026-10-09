@@ -15,6 +15,7 @@ import {
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { Tables } from "@/lib/supabase/types";
+import type { Evenement } from "@/app/actions/evenements";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
 import { PeriodHeader } from "./PeriodHeader";
 import { toISODate } from "@/lib/date/iso";
@@ -27,14 +28,17 @@ const WEEKDAY_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
 // existent effectivement ce jour-là (cf. `jourTravaille` ci-dessous) : ne
 // pas l'annoncer par défaut évite de donner une fausse information à un
 // utilisateur de lecteur d'écran un jour sans créneau.
-function monthCellAriaLabel(day: Date, count: number, jourTravaille: boolean): string {
+function monthCellAriaLabel(day: Date, count: number, nbEvenements: number, jourTravaille: boolean): string {
   const dateLabel = format(day, "EEEE d MMMM", { locale: fr });
   const tachesLabel = count === 0 ? "aucune tâche" : count === 1 ? "1 tâche" : `${count} tâches`;
-  return jourTravaille ? `${dateLabel}, ${tachesLabel}, jour travaillé` : `${dateLabel}, ${tachesLabel}`;
+  const evenementsLabel =
+    nbEvenements === 0 ? "" : nbEvenements === 1 ? ", 1 événement" : `, ${nbEvenements} événements`;
+  return `${dateLabel}, ${tachesLabel}${evenementsLabel}${jourTravaille ? ", jour travaillé" : ""}`;
 }
 
 export function MonthView({
   taches,
+  evenements = [],
   creneaux,
   exceptions,
   selectedDate,
@@ -42,6 +46,7 @@ export function MonthView({
   onSelectDay,
 }: {
   taches: Tache[];
+  evenements?: Evenement[];
   creneaux: Tables<"horaires_travail_creneaux">[];
   exceptions: Tables<"horaires_travail_exceptions">[];
   selectedDate: Date;
@@ -58,6 +63,11 @@ export function MonthView({
   for (const t of taches) {
     if (!t.echeance || t.fait) continue;
     countByDay.set(t.echeance, (countByDay.get(t.echeance) ?? 0) + 1);
+  }
+
+  const evenementsByDay = new Map<string, number>();
+  for (const e of evenements) {
+    evenementsByDay.set(e.date, (evenementsByDay.get(e.date) ?? 0) + 1);
   }
 
   return (
@@ -83,6 +93,7 @@ export function MonthView({
         {days.map((day) => {
           const iso = toISODate(day);
           const count = countByDay.get(iso) ?? 0;
+          const nbEvenements = evenementsByDay.get(iso) ?? 0;
           const inMonth = isSameMonth(day, selectedDate);
           const jourTravaille = getCreneauxDuJour(creneaux, day, exceptions).length > 0;
 
@@ -91,7 +102,7 @@ export function MonthView({
               key={day.toISOString()}
               type="button"
               onClick={() => onSelectDay(day)}
-              aria-label={monthCellAriaLabel(day, count, jourTravaille)}
+              aria-label={monthCellAriaLabel(day, count, nbEvenements, jourTravaille)}
               aria-current={isToday(day) ? "date" : undefined}
               className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border text-[13px] ${
                 isToday(day) ? "border-agenda" : "border-line"
@@ -99,7 +110,12 @@ export function MonthView({
               style={jourTravaille ? { backgroundColor: "var(--accent-planning-travail-soft)" } : undefined}
             >
               <span>{format(day, "d")}</span>
-              {count > 0 && <span className="h-1.5 w-1.5 rounded-full bg-agenda" />}
+              {(count > 0 || nbEvenements > 0) && (
+                <span className="flex items-center gap-0.5">
+                  {count > 0 && <span className="h-1.5 w-1.5 rounded-full bg-agenda" />}
+                  {nbEvenements > 0 && <span className="h-1.5 w-1.5 rounded-[2px] bg-agenda" />}
+                </span>
+              )}
             </button>
           );
         })}
@@ -120,6 +136,11 @@ export function MonthView({
         <span className="flex items-center gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-agenda" />
           tâche(s)
+        </span>
+        <span>·</span>
+        <span className="flex items-center gap-1">
+          <span className="h-1.5 w-1.5 rounded-[2px] bg-agenda" />
+          événement(s)
         </span>
       </div>
     </div>

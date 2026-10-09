@@ -34,6 +34,9 @@ export const queryKeys = {
   evenements: ["evenements"] as const,
   evenementsDuJour: (date: string) => ["evenements", date] as const,
   evenementsPlage: (debut: string, fin: string) => ["evenements", debut, fin] as const,
+  // Inbox : liste à trier, et son compteur (pastilles « Plus » / « + »).
+  inbox: ["inbox"] as const,
+  inboxCount: ["inbox", "count"] as const,
   planningTravail: ["planning-travail"] as const,
   planningTravailExceptions: ["planning-travail-exceptions"] as const,
 };

@@ -40,6 +40,7 @@ const PLUS_ICON = (
 export function DayTimeline({
   taches,
   evenements,
+  evenementsJournee = [],
   creneaux,
   libres,
   maintenant,
@@ -50,6 +51,8 @@ export function DayTimeline({
   // Tâches du jour non faites avec heure.
   taches: TacheAvecRelations[];
   evenements: Evenement[];
+  // Événements « journée entière » : bandeau au-dessus de la grille.
+  evenementsJournee?: Evenement[];
   creneaux: CreneauDuJour[];
   // Trous libres et heure courante : calculés par l'écran, partagés avec la
   // planification des tâches (`plagesLibresDuJour`, testé).
@@ -98,6 +101,21 @@ export function DayTimeline({
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+        {evenementsJournee.length > 0 && (
+          <div className="flex flex-wrap gap-1 border-b border-line/60 px-3 py-2">
+            {evenementsJournee.map((e) => (
+              <button
+                key={e.id}
+                type="button"
+                onClick={() => onSelectEvenement(e)}
+                aria-label={`Événement journée entière ${e.titre}. Modifier`}
+                className="max-w-[260px] truncate rounded bg-agenda px-2 py-1 text-xs font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+              >
+                {e.titre}
+              </button>
+            ))}
+          </div>
+        )}
         <div ref={scrollRef} className="max-h-[52vh] overflow-auto" data-swipe-ignore>
           <div className="flex">
             <TimeGutter zoom={ZOOM} creneaux={creneaux} />

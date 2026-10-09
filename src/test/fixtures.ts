@@ -24,6 +24,7 @@ export function makeTache(overrides: Partial<TacheAvecRelations> = {}): TacheAve
     fait: false,
     ordre: 0,
     liste_id: "liste-1",
+    note_id: null,
     priorite: "aucune",
     programme_jour: false,
     recurrence_frequence: null,

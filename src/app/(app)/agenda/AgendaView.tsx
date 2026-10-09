@@ -119,7 +119,11 @@ export function AgendaView() {
 
   const reduceMotion = useReducedMotion() ?? false;
   const [view, setView] = useState<ViewKey>("jour");
-  const [selectedDate, setSelectedDate] = useState<Date>(() => startOfToday());
+  // ?date=AAAA-MM-JJ : deep-link depuis la recherche globale (événements).
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const dateParam = searchParams.get("date");
+    return dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? parseISODate(dateParam) : startOfToday();
+  });
   const [fabOpen, setFabOpen] = useState(false);
   // Événement léger en cours d'édition (`{}` = création), voir EvenementForm.
   const [evenementForm, setEvenementForm] = useState<{ evenement?: Evenement } | null>(null);
@@ -168,9 +172,10 @@ export function AgendaView() {
   // que le comportement se répète à chaque re-render/navigation ultérieure
   // dans la session (ex. retour en arrière, refetch de `taches`).
   useEffect(() => {
-    if (!searchParams.get("tache")) return;
+    if (!searchParams.get("tache") && !searchParams.get("date")) return;
     const params = new URLSearchParams(searchParams.toString());
     params.delete("tache");
+    params.delete("date");
     router.replace(params.toString() ? `/agenda?${params.toString()}` : "/agenda", { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -464,6 +469,7 @@ export function AgendaView() {
                 {view === "mois" && (
                   <MonthView
                     taches={taches}
+                    evenements={evenements}
                     creneaux={creneaux}
                     exceptions={exceptions}
                     selectedDate={selectedDate}
@@ -474,7 +480,13 @@ export function AgendaView() {
               </div>
             </div>
           )}
-          {view === "liste" && <ListView taches={taches} listes={listes} tags={tags} />}
+          {view === "liste" && <ListView
+              taches={taches}
+              evenements={evenements}
+              listes={listes}
+              tags={tags}
+              onSelectEvenement={(evenement) => setEvenementForm({ evenement })}
+            />}
         </>
       )}
     </div>
