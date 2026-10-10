@@ -220,6 +220,24 @@ const RELATIONS = {
     recette_ingredients_libres: (r) => (fixtures.recette_ingredients_libres ?? []).filter((i) => i.recette_id === r.id),
   },
   recette_ingredients: { aliment: (r) => pick("aliments", r.aliment_id) },
+  // Tâches et notes créées pendant un test n'ont pas les embeds des fixtures
+  // (écrites en dur) : on les reconstitue depuis les tables liées, sinon la page
+  // plante à la relecture (`taches_tags.map` sur undefined).
+  taches: {
+    liste: (r) => {
+      const liste = pick("listes_taches", r.liste_id);
+      return liste && { id: liste.id, nom: liste.nom, couleur: liste.couleur };
+    },
+    sous_taches: (r) => (fixtures.sous_taches ?? []).filter((s) => s.tache_id === r.id).sort((a, b) => a.ordre - b.ordre),
+    taches_tags: (r) =>
+      (fixtures.taches_tags ?? []).filter((tt) => tt.tache_id === r.id).map((tt) => ({ tag: pick("tags", tt.tag_id) })),
+    tache_images: (r) => (fixtures.tache_images ?? []).filter((i) => i.tache_id === r.id).sort((a, b) => a.ordre - b.ordre),
+  },
+  notes: {
+    note_items: (r) => (fixtures.note_items ?? []).filter((i) => i.note_id === r.id).sort((a, b) => a.position - b.position),
+    notes_tags: (r) =>
+      (fixtures.notes_tags ?? []).filter((nt) => nt.note_id === r.id).map((nt) => ({ tag: pick("tags", nt.tag_id) })),
+  },
   collections: {
     collection_items: (r) => (fixtures.collection_items ?? []).filter((i) => i.collection_id === r.id),
   },
