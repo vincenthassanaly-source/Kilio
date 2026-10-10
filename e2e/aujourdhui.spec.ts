@@ -8,7 +8,24 @@ test.beforeEach(async () => {
   await fetch(`${process.env.E2E_SUPABASE_URL}/__reset`);
 });
 
+// Instant correspondant à `heure` (HH:MM) à Paris, aujourd'hui. L'écran « Plan du
+// jour » range les tâches dans les trous libres APRÈS l'heure courante : sans
+// horloge figée, le test échouait dès que la journée était trop avancée
+// (« Aucun trou libre aujourd'hui »).
+function aujourdhuiParisA(heure: string): Date {
+  const jour = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(new Date());
+  const [hh] = heure.split(":");
+  for (const decalage of ["+01:00", "+02:00"]) {
+    const candidat = new Date(`${jour}T${heure}:00${decalage}`);
+    const heureParis = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Paris", hour: "2-digit", hourCycle: "h23" }).format(candidat);
+    if (heureParis === hh) return candidat;
+  }
+  throw new Error(`Heure ${heure} introuvable à Paris le ${jour}`);
+}
+
 test("affiche l'événement, la tâche du jour et le résumé des repas", async ({ page }) => {
+  // E2E_HEURE_FIGEE permet de rejouer le test à une autre heure (HH:MM, Paris).
+  await page.clock.setFixedTime(aujourdhuiParisA(process.env.E2E_HEURE_FIGEE ?? "07:00"));
   await page.goto("/aujourdhui");
 
   await expect(page.getByRole("heading", { name: "Aujourd'hui", level: 1 })).toBeVisible();
@@ -68,4 +85,12 @@ test("planifie une tâche sans heure dans un créneau libre", async ({ page }) =
   // La tâche porte maintenant une heure : plus de bouton « Planifier », un bloc dans la frise.
   await expect(page.getByRole("button", { name: "Planifier « Tâche e2e du jour »" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^Tâche e2e du jour, de \d{2}:\d{2} à \d{2}:\d{2}/ })).toBeVisible();
+
+  // « Annuler » rétablit la tâche ET expire le cache serveur des tâches (60 s
+  // de fraîcheur) : sans cela, le test suivant relisait la tâche déjà planifiée
+  // alors que le faux serveur avait été remis à zéro. Vérifie aussi l'annulation.
+  const annulation = page.waitForResponse((r) => r.request().method() === "POST" && r.request().headers()["next-action"] !== undefined);
+  await page.getByRole("button", { name: /^Annuler :/ }).click();
+  expect((await annulation).ok()).toBe(true);
+  await expect(page.getByRole("button", { name: "Planifier « Tâche e2e du jour »" })).toBeVisible();
 });
