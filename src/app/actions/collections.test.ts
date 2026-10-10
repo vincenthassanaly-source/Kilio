@@ -1,6 +1,6 @@
 // @vitest-environment node
 import sharp from "sharp";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ecritures, fauxSupabase, type Repondre, type RepondreStockage } from "@/test/fake-supabase";
 
 const etat = vi.hoisted(() => ({
@@ -8,6 +8,7 @@ const etat = vi.hoisted(() => ({
   revalidatePath: vi.fn(),
   redirect: vi.fn(),
   metadonnees: vi.fn(),
+  metadonneesTiktok: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: etat.revalidatePath }));
@@ -16,6 +17,10 @@ vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client })
 vi.mock("@/lib/collection/video", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/collection/video")>()),
   recupererMetadonneesVideo: etat.metadonnees,
+}));
+vi.mock("@/lib/collection/tiktok", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/collection/tiktok")>()),
+  recupererMetadonneesTiktok: etat.metadonneesTiktok,
 }));
 
 import {
@@ -26,6 +31,7 @@ import {
   getCollectionAvecPhotos,
   getCollections,
   getCollectionsAvecApercu,
+  rafraichirMiniatureVideo,
   rattacherPhotoACollection,
   recupererLienVideoPartage,
   renameCollection,
@@ -266,6 +272,127 @@ describe("deleteCollectionItem", () => {
 
     brancher((a) => (a.action === "select" ? { data: { url: "https://youtu.be/x", collection_id: "C1" } } : { error: { message: "ligne ko" } }));
     await expect(deleteCollectionItem(ID)).rejects.toThrow("ligne ko");
+  });
+});
+
+describe("miniatures TikTok copiées dans le bucket", () => {
+  const CDN = "https://p16-sign-va.tiktokcdn.com/obj/a.jpeg?x-expires=1";
+  const metaTiktok = { type: "tiktok", url: "https://www.tiktok.com/@x/video/1", thumbnailUrl: CDN, titre: "T" };
+
+  async function reponseImage() {
+    const buffer = await sharp({ create: { width: 8, height: 8, channels: 3, background: "#f00" } }).jpeg().toBuffer();
+    return new Response(new Uint8Array(buffer), { status: 200, headers: { "content-type": "image/jpeg" } });
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("copie la miniature à l'ajout et enregistre l'URL du bucket", async () => {
+    etat.metadonnees.mockResolvedValue(metaTiktok);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(await reponseImage()));
+    const fake = brancher();
+
+    await ajouterLienVideo(ID, metaTiktok.url);
+
+    expect(fake.stockage).toEqual([
+      expect.objectContaining({ bucket: BUCKET, action: "upload", contentType: "image/jpeg", chemin: expect.stringMatching(/^miniatures\/.+\.jpg$/) }),
+    ]);
+    const insert = ecritures(fake.appels, "collection_items", "insert")[0].payload as { thumbnail_url: string };
+    expect(insert.thumbnail_url).toMatch(new RegExp(`^${URL_PUBLIQUE}/miniatures/`));
+  });
+
+  it("garde l'URL d'origine si la copie échoue, et ne télécharge jamais un hôte inconnu", async () => {
+    etat.metadonnees.mockResolvedValue(metaTiktok);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 403 })));
+    const fake = brancher();
+    await ajouterLienVideo(ID, metaTiktok.url);
+    expect(ecritures(fake.appels, "collection_items", "insert")[0].payload).toMatchObject({ thumbnail_url: CDN });
+    expect(fake.stockage).toHaveLength(0);
+
+    const fetchEspion = vi.fn();
+    vi.stubGlobal("fetch", fetchEspion);
+    etat.metadonnees.mockResolvedValue({ ...metaTiktok, thumbnailUrl: "http://169.254.169.254/x.jpg" });
+    brancher();
+    await ajouterLienVideo(ID, metaTiktok.url);
+    expect(fetchEspion).not.toHaveBeenCalled();
+  });
+
+  it("ne copie pas les miniatures YouTube", async () => {
+    etat.metadonnees.mockResolvedValue({ type: "youtube", url: "https://youtu.be/abc", thumbnailUrl: "https://i.ytimg.com/a.jpg", titre: "" });
+    const fetchEspion = vi.fn();
+    vi.stubGlobal("fetch", fetchEspion);
+    const fake = brancher();
+    await ajouterLienVideo(ID, "https://youtu.be/abc");
+    expect(fetchEspion).not.toHaveBeenCalled();
+    expect(fake.stockage).toHaveLength(0);
+  });
+
+  it("supprime la copie orpheline si l'insertion échoue", async () => {
+    etat.metadonnees.mockResolvedValue(metaTiktok);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(await reponseImage()));
+    const fake = brancher((a) => (a.action === "insert" ? { error: { message: "ko" } } : undefined));
+    await expect(ajouterLienVideo(ID, metaTiktok.url)).rejects.toThrow("ko");
+    expect(fake.stockage.map((o) => o.action)).toEqual(["upload", "remove"]);
+  });
+
+  it("copie aussi la miniature d'un partage natif TikTok", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(await reponseImage()));
+    const fake = brancher();
+    await expect(
+      rattacherPhotoACollection({ error: null }, form({ collection_id: ID, video_url: metaTiktok.url, video_type: "tiktok", video_thumbnail: CDN }))
+    ).rejects.toThrow("REDIRECT");
+    const items = ecritures(fake.appels, "collection_items", "insert")[0].payload as { thumbnail_url: string }[];
+    expect(items[0].thumbnail_url).toMatch(new RegExp(`^${URL_PUBLIQUE}/miniatures/`));
+  });
+
+  describe("rafraichirMiniatureVideo", () => {
+    const ligne = { url: metaTiktok.url, type: "tiktok", thumbnail_url: `${URL_PUBLIQUE}/miniatures/vieille.jpg` };
+
+    it("redemande une miniature fraîche, met la ligne à jour et supprime l'ancienne copie", async () => {
+      etat.metadonneesTiktok.mockResolvedValue({ url: metaTiktok.url, thumbnailUrl: CDN, titre: "" });
+      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(await reponseImage()));
+      const fake = brancher((a) => (a.action === "select" ? { data: ligne } : undefined));
+
+      const resultat = await rafraichirMiniatureVideo(ID);
+
+      expect(resultat.ok).toBe(true);
+      const nouvelle = ecritures(fake.appels, "collection_items", "update")[0].payload as { thumbnail_url: string };
+      expect(resultat.data).toBe(nouvelle.thumbnail_url);
+      expect(fake.stockage.map((o) => o.action)).toEqual(["upload", "remove"]);
+      expect(fake.stockage[1].chemins).toEqual(["miniatures/vieille.jpg"]);
+    });
+
+    it("échoue proprement : vidéo introuvable, non TikTok, oEmbed ou copie en échec", async () => {
+      brancher((a) => (a.action === "select" ? { error: { message: "introuvable" } } : undefined));
+      expect((await rafraichirMiniatureVideo(ID)).ok).toBe(false);
+
+      brancher((a) => (a.action === "select" ? { data: { ...ligne, type: "youtube" } } : undefined));
+      expect((await rafraichirMiniatureVideo(ID)).ok).toBe(false);
+
+      etat.metadonneesTiktok.mockResolvedValue(null);
+      brancher((a) => (a.action === "select" ? { data: ligne } : undefined));
+      expect((await rafraichirMiniatureVideo(ID)).ok).toBe(false);
+
+      etat.metadonneesTiktok.mockResolvedValue({ url: metaTiktok.url, thumbnailUrl: CDN, titre: "" });
+      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 500 })));
+      const fake = brancher((a) => (a.action === "select" ? { data: ligne } : undefined));
+      expect((await rafraichirMiniatureVideo(ID)).ok).toBe(false);
+      expect(ecritures(fake.appels, "collection_items")).toHaveLength(0);
+    });
+  });
+
+  it("supprime aussi la miniature stockée avec l'item et avec la collection", async () => {
+    const miniature = `${URL_PUBLIQUE}/miniatures/m.jpg`;
+    const fake = brancher((a) => (a.action === "select" ? { data: { url: "https://www.tiktok.com/@x/video/1", thumbnail_url: miniature, collection_id: "C1" } } : undefined));
+    await deleteCollectionItem(ID);
+    expect(fake.stockage).toEqual([{ bucket: BUCKET, action: "remove", chemins: ["miniatures/m.jpg"] }]);
+
+    const fake2 = brancher((a) =>
+      a.table === "collection_items" ? { data: [{ url: "https://www.tiktok.com/@x/video/1", thumbnail_url: miniature }, { url: "https://youtu.be/x", thumbnail_url: "https://i.ytimg.com/a.jpg" }] } : undefined
+    );
+    await deleteCollection(ID);
+    expect(fake2.stockage).toEqual([{ bucket: BUCKET, action: "remove", chemins: ["miniatures/m.jpg"] }]);
   });
 });
 

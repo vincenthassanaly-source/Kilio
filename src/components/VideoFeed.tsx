@@ -167,6 +167,9 @@ export function VideoFeed({
                 <img
                   src={video.thumbnail_url ?? undefined}
                   alt=""
+                  onError={(event) => {
+                    event.currentTarget.style.visibility = "hidden";
+                  }}
                   className="max-h-full max-w-full object-contain opacity-60"
                 />
               )}
