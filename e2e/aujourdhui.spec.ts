@@ -29,7 +29,7 @@ test("affiche l'événement, la tâche du jour et le résumé des repas", async 
   await page.goto("/aujourdhui");
 
   await expect(page.getByRole("heading", { name: "Aujourd'hui", level: 1 })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Événement Rendez-vous e2e, de 09:00 à 10:00/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /09:00 Rendez-vous e2e, événement de 09:00 à 10:00/ })).toBeVisible();
   // La tâche figure aussi dans la carte « Plan du jour » : on cible la liste du jour.
   await expect(page.getByLabel("Tâches").getByText("Tâche e2e du jour")).toBeVisible();
   await expect(page.getByLabel("Plan du jour").getByText("Tâche e2e du jour")).toBeVisible();
@@ -55,7 +55,7 @@ test("ajoute un événement depuis la frise", async ({ page }) => {
   expect((await action).ok()).toBe(true);
 
   await expect(dialogue).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Événement Dentiste e2e, de 11:00 à 12:00/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /11:00 Dentiste e2e, événement de 11:00 à 12:00/ })).toBeVisible();
 });
 
 test("la barre « Aujourd'hui » est joignable depuis la grille Plus", async ({ page }) => {

@@ -38,6 +38,21 @@ const fixtures = {
       updated_at: "2026-09-11T00:00:00+00:00",
     },
   ],
+  // Page Réglages : sans cette ligne, `getReglagesBriefing` échoue et la page
+  // affiche l'écran d'erreur (donc ni titre ni contenu à auditer).
+  reglages_briefing: [
+    {
+      id: 1,
+      actif: false,
+      heure: "08:00",
+      dernier_envoi: null,
+      revue_actif: false,
+      revue_jour: 0,
+      revue_heure: "18:00",
+      revue_dernier_envoi: null,
+      updated_at: "2026-10-02T00:00:00+00:00",
+    },
+  ],
   reglages_saisie_ia: [
     {
       id: 1,
