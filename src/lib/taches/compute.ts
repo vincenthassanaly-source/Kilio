@@ -96,6 +96,7 @@ export const RAPPEL_MINUTES_VALEURS = [5, 15, 30, 60, 1440] as const;
 // texte). Sans effet en édition, où `tache` fait foi.
 export type TacheInitiale = {
   titre?: string;
+  notes?: string;
   priorite?: Enums<"priorite_tache">;
   toute_la_journee?: boolean;
   heure_fin?: string | null;
