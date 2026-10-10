@@ -98,6 +98,7 @@ export function AddTaskForm({
   defaultEcheance,
   defaultHeure,
   initial,
+  initialFiles,
   onDone,
 }: {
   tache?: TacheAvecRelations;
@@ -109,6 +110,9 @@ export function AddTaskForm({
   // Valeurs de départ en création (saisie en langage naturel) ; ignorées
   // dès que `tache` est fourni.
   initial?: TacheInitiale;
+  // Images de départ en création (partage natif d'un screenshot) : posées
+  // dans l'input fichier au montage pour partir avec le formulaire.
+  initialFiles?: File[];
   // `id` : id de la tâche créée (création réussie uniquement, cf.
   // TacheFormState). `avertissement` : la tâche est créée mais une étape
   // secondaire (tags, images) a échoué. Les appelants qui n'en ont pas
@@ -156,6 +160,8 @@ export function AddTaskForm({
       ? champsAvancesRenseignes(tache)
       : Boolean(
           defaultHeure ||
+            initial?.notes ||
+            initialFiles?.length ||
             initial?.heure_fin ||
             initial?.rappel_minutes != null ||
             initial?.recurrence_frequence ||
@@ -189,8 +195,17 @@ export function AddTaskForm({
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>(() => (tache ? [] : (initialFiles ?? [])));
   const [imagesError, setImagesError] = useState<string | null>(null);
+  // Un FileList ne se fixe que via l'input : on y recopie les images de départ
+  // (le FormData lit l'input, pas l'état).
+  useEffect(() => {
+    if (!initialFiles?.length || !fileInputRef.current) return;
+    const dataTransfer = new DataTransfer();
+    initialFiles.forEach((file) => dataTransfer.items.add(file));
+    fileInputRef.current.files = dataTransfer.files;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const previews = useMemo(() => selectedFiles.map((file) => URL.createObjectURL(file)), [selectedFiles]);
   const [existingImages, setExistingImages] = useState<Tables<"tache_images">[]>(tache?.images ?? []);
   // Images retirées de l'affichage mais pas encore supprimées : le serveur
@@ -525,7 +540,7 @@ export function AddTaskForm({
               id={`${uid}-notes`}
               name="notes"
               rows={3}
-              defaultValue={tache?.notes ?? ""}
+              defaultValue={tache?.notes ?? initial?.notes ?? ""}
               className={input}
             />
           </div>

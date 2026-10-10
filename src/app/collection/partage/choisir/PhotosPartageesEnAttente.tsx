@@ -8,6 +8,8 @@ import type { TypeVideo } from "@/lib/collection/video";
 import type { Tables } from "@/lib/supabase/types";
 import { errorText, secondaryButton } from "@/lib/ui";
 import { ChoisirCollectionForm } from "./ChoisirCollectionForm";
+import { DestinationPartage } from "./DestinationPartage";
+import type { TexteTache } from "@/lib/partage/tache";
 
 // Même nom que dans public/sw.js.
 const CACHE_PARTAGE = "kilio-partage-en-attente";
@@ -37,12 +39,49 @@ async function oublierFichiersEnAttente(id: string, nb: number) {
 }
 
 /**
+ * Choix de destination des photos mises de côté par le service worker :
+ * collection (envoi par lots, ci-dessous) ou nouvelle tâche (fichiers
+ * compressés puis joints au formulaire de tâche, envoyés à sa validation).
+ */
+export function PhotosPartageesEnAttente({
+  id,
+  nb,
+  collections,
+  listes,
+  tags,
+  texte,
+  video,
+}: {
+  id: string;
+  nb: number;
+  collections: Tables<"collections">[];
+  listes: Tables<"listes_taches">[];
+  tags: Tables<"tags">[];
+  texte: TexteTache;
+  video: { url: string; thumbnailUrl: string; titre: string; type: TypeVideo } | null;
+}) {
+  const collectionContenu = <EnvoiVersCollection id={id} nb={nb} collections={collections} video={video} />;
+  // Un lien vidéo est réservé aux collections : pas de choix.
+  if (video) return collectionContenu;
+  return (
+    <DestinationPartage
+      collectionContenu={collectionContenu}
+      obtenirFichiers={async () => compresserImages(await lireFichiersEnAttente(id, nb))}
+      apresTache={() => void oublierFichiersEnAttente(id, nb).catch(() => {})}
+      listes={listes}
+      tags={tags}
+      texte={texte}
+    />
+  );
+}
+
+/**
  * Photos reçues par le partage natif et mises de côté par le service worker :
  * compressées ici avec l'utilitaire partagé (lib/images/compression.ts),
  * envoyées par lots sous le plafond des Server Actions, puis présentées au
  * formulaire de choix de collection comme des photos déjà uploadées.
  */
-export function PhotosPartageesEnAttente({
+function EnvoiVersCollection({
   id,
   nb,
   collections,

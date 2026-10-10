@@ -1,5 +1,6 @@
 import { getCollections } from "@/app/actions/collections";
-import { ChoisirCollectionForm } from "./ChoisirCollectionForm";
+import { getListes, getTags } from "@/app/actions/taches";
+import { PhotosDejaEnvoyees } from "./PhotosDejaEnvoyees";
 import { PhotosPartageesEnAttente } from "./PhotosPartageesEnAttente";
 import { FadeInImage } from "@/components/FadeInImage";
 import { estTypeVideo } from "@/lib/collection/video";
@@ -9,8 +10,9 @@ import { screenTitle } from "@/lib/ui";
 // urls des photos déjà uploadées par la Route Handler /collection/partage
 // (query param `photo`, répété une fois par photo) et/ou les métadonnées
 // d'un lien vidéo TikTok ou YouTube partagé (query params `video_url`/
-// `video_thumbnail`/`video_titre`/`video_type`), et laisse choisir une collection existante ou en créer
-// une à la volée.
+// `video_thumbnail`/`video_titre`/`video_type`), et laisse choisir entre une
+// collection (existante ou créée à la volée) et une nouvelle tâche avec les
+// images jointes (`tache_titre`/`tache_notes` : texte partagé en valeurs de départ).
 export default async function ChoisirCollectionPage({
   searchParams,
 }: {
@@ -20,11 +22,13 @@ export default async function ChoisirCollectionPage({
     video_thumbnail?: string;
     video_titre?: string;
     video_type?: string;
+    tache_titre?: string;
+    tache_notes?: string;
     attente?: string;
     nb?: string;
   }>;
 }) {
-  const { photo, video_url, video_thumbnail, video_titre, video_type, attente, nb } = await searchParams;
+  const { photo, video_url, video_thumbnail, video_titre, video_type, tache_titre, tache_notes, attente, nb } = await searchParams;
   // Photos gardées par le service worker, à compresser et envoyer côté client.
   const nbEnAttente = Number(nb);
   const enAttente =
@@ -36,7 +40,8 @@ export default async function ChoisirCollectionPage({
     video_url && video_thumbnail && video_type && estTypeVideo(video_type)
       ? { url: video_url, thumbnailUrl: video_thumbnail, titre: video_titre ?? "", type: video_type }
       : null;
-  const collections = await getCollections();
+  const [collections, listes, tags] = await Promise.all([getCollections(), getListes(), getTags()]);
+  const texte = { titre: tache_titre ?? "", notes: tache_notes ?? "" };
 
   return (
     <div
@@ -47,10 +52,18 @@ export default async function ChoisirCollectionPage({
       }}
     >
       <div className="flex flex-col gap-4">
-        <h1 className={screenTitle}>Ajouter à une collection</h1>
+        <h1 className={screenTitle}>{video ? "Ajouter à une collection" : "Que faire de ce partage ?"}</h1>
 
         {enAttente ? (
-          <PhotosPartageesEnAttente id={enAttente.id} nb={enAttente.nb} collections={collections} video={video} />
+          <PhotosPartageesEnAttente
+            id={enAttente.id}
+            nb={enAttente.nb}
+            collections={collections}
+            listes={listes}
+            tags={tags}
+            texte={texte}
+            video={video}
+          />
         ) : photos.length === 0 && !video ? (
           <p className="text-ink-2">Rien reçu.</p>
         ) : (
@@ -82,7 +95,14 @@ export default async function ChoisirCollectionPage({
                 </div>
               )}
             </div>
-            <ChoisirCollectionForm collections={collections} photos={photos} video={video} />
+            <PhotosDejaEnvoyees
+              photos={photos}
+              video={video}
+              collections={collections}
+              listes={listes}
+              tags={tags}
+              texte={texte}
+            />
           </>
         )}
       </div>

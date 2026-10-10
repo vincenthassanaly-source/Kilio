@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { recupererLienVideoPartage, uploaderPhotosPartagees } from "@/app/actions/collections";
 import { extraireLienVideoDuTexte } from "@/lib/collection/video";
+import { texteTacheDepuisPartage } from "@/lib/partage/tache";
 
 // Cible du Web Share Target déclaré dans public/manifest.json : reçoit les
 // photos et/ou le lien vidéo TikTok ou YouTube partagés depuis une autre app
@@ -34,6 +35,19 @@ export async function POST(request: NextRequest) {
   if (typeof attente === "string" && /^[a-z0-9]{1,32}$/.test(attente) && Number.isInteger(nb) && nb > 0) {
     url.searchParams.set("attente", attente);
     url.searchParams.set("nb", String(Math.min(nb, 50)));
+  }
+
+  // Texte et lien partagés avec des images : proposés comme titre et notes si
+  // l'utilisateur choisit « Nouvelle tâche » (pas pour un lien vidéo, réservé
+  // aux collections).
+  if (!lienVideo) {
+    const champ = (nom: string) => {
+      const v = formData.get(nom);
+      return typeof v === "string" ? v : undefined;
+    };
+    const { titre, notes } = texteTacheDepuisPartage({ text: champ("text"), url: champ("url"), title: champ("title") });
+    if (titre) url.searchParams.set("tache_titre", titre);
+    if (notes) url.searchParams.set("tache_notes", notes);
   }
 
   const photosPromise = fichiers.length > 0 ? uploaderPhotosPartagees(fichiers) : null;
