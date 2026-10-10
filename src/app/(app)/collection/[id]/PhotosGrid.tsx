@@ -70,6 +70,8 @@ export function PhotosGrid({
   // « Annuler » réaffiche simplement la photo, rien n'a encore été effacé.
   const [masquees, setMasquees] = useState<ReadonlySet<string>>(() => new Set());
   const visibles = photos.filter((p) => !masquees.has(p.id));
+  // Fil plein écran : toutes les vidéos du classeur, dans l'ordre de la grille.
+  const videos = videosDuFil(visibles);
 
   // Miniatures TikTok expirées : au premier échec de chargement d'une tuile,
   // on en redemande une fraîche au serveur (une seule tentative par vidéo et
