@@ -8,6 +8,7 @@ import { deleteCollectionItem } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { FadeInImage } from "@/components/FadeInImage";
+import { indexDepart, videosDuFil } from "@/lib/collection/fil";
 import { estTypeVideo } from "@/lib/collection/video";
 import type { Tables } from "@/lib/supabase/types";
 import { vibrate } from "@/lib/haptics";
@@ -15,10 +16,7 @@ import { vibrate } from "@/lib/haptics";
 const ImageLightbox = dynamic(() => import("@/components/ImageLightbox").then((m) => m.ImageLightbox), {
   ssr: false,
 });
-const TiktokLightbox = dynamic(() => import("@/components/TiktokLightbox").then((m) => m.TiktokLightbox), {
-  ssr: false,
-});
-const YoutubeLightbox = dynamic(() => import("@/components/YoutubeLightbox").then((m) => m.YoutubeLightbox), {
+const VideoFeed = dynamic(() => import("@/components/VideoFeed").then((m) => m.VideoFeed), {
   ssr: false,
 });
 
@@ -72,6 +70,8 @@ export function PhotosGrid({
   // « Annuler » réaffiche simplement la photo, rien n'a encore été effacé.
   const [masquees, setMasquees] = useState<ReadonlySet<string>>(() => new Set());
   const visibles = photos.filter((p) => !masquees.has(p.id));
+  // Fil plein écran : toutes les vidéos du classeur, dans l'ordre de la grille.
+  const videos = videosDuFil(visibles);
 
   function supprimer(photo: Tables<"collection_items">) {
     vibrate();
@@ -153,10 +153,12 @@ export function PhotosGrid({
         </AnimatePresence>
       </ul>
       {lightboxItem &&
-        (lightboxItem.type === "tiktok" ? (
-          <TiktokLightbox url={lightboxItem.url} onClose={() => setLightboxItem(null)} />
-        ) : lightboxItem.type === "youtube" ? (
-          <YoutubeLightbox url={lightboxItem.url} onClose={() => setLightboxItem(null)} />
+        (estTypeVideo(lightboxItem.type) ? (
+          <VideoFeed
+            videos={videos}
+            indexDepart={indexDepart(videos, lightboxItem.id)}
+            onClose={() => setLightboxItem(null)}
+          />
         ) : (
           <ImageLightbox src={lightboxItem.url} onClose={() => setLightboxItem(null)} />
         ))}
