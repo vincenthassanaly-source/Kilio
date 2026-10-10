@@ -57,13 +57,12 @@ test("ajoute plusieurs articles à la suite", async ({ page }) => {
     .toEqual([farine, pain].sort());
 });
 
-// DÉFAUT CONNU (constaté à la main, ~150 ms avec 400 ms de latence réseau) :
-// juste après un ajout, l'article apparaît deux fois — la ligne optimiste
-// « En attente de synchro » (id temp-…) ET la ligne réelle — avant que le
-// refetch ne retire la ligne optimiste. Le doublon disparaît seul ; à corriger
-// dans AddCourseForm / CoursesList sans casser le mode hors ligne. Retirer
-// `fixme` une fois corrigé.
-test.fixme("n'affiche jamais un article en double après l'ajout", async ({ page }) => {
+// Régression corrigée : la ligne confirmée par le serveur (id réel) remplace la
+// ligne optimiste (id temp-…). Avec une clé React suivant l'id, React gardait
+// l'ancienne le temps de son animation de sortie : l'article s'affichait deux
+// fois pendant ~150 ms (voir lib/courses/cles-affichage.ts). Le test échantillonne
+// le DOM toutes les 25 ms pendant 3 s.
+test("n'affiche jamais un article en double après l'ajout", async ({ page }) => {
   const libelle = nom("Yaourt");
   await ouvrirAjout(page);
   await page.getByRole("combobox", { name: /Ex\. lait/ }).fill(libelle);
