@@ -96,8 +96,6 @@ export function PhotosGrid({
       })
       .catch(() => setSansMiniature((s) => new Set(s).add(photo.id)));
   }
-  // Fil plein écran : toutes les vidéos du classeur, dans l'ordre de la grille.
-  const videos = videosDuFil(visibles);
 
   function supprimer(photo: Tables<"collection_items">) {
     vibrate();
