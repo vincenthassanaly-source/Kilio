@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
-import { deleteCollectionItem } from "@/app/actions/collections";
+import { deleteCollectionItem, rafraichirMiniatureVideo } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { FadeInImage } from "@/components/FadeInImage";
@@ -73,6 +73,30 @@ export function PhotosGrid({
   // Fil plein écran : toutes les vidéos du classeur, dans l'ordre de la grille.
   const videos = videosDuFil(visibles);
 
+  // Miniatures TikTok expirées : au premier échec de chargement d'une tuile,
+  // on en redemande une fraîche au serveur (une seule tentative par vidéo et
+  // par ouverture). Sans réponse, la tuile garde un fond uni plutôt qu'une
+  // image cassée.
+  const [miniaturesRafraichies, setMiniaturesRafraichies] = useState<Readonly<Record<string, string>>>({});
+  const [sansMiniature, setSansMiniature] = useState<ReadonlySet<string>>(() => new Set());
+  const reparationsTentees = useRef<Set<string>>(new Set());
+
+  function reparerMiniature(photo: Tables<"collection_items">) {
+    if (photo.type !== "tiktok" || reparationsTentees.current.has(photo.id)) {
+      setSansMiniature((s) => new Set(s).add(photo.id));
+      return;
+    }
+    reparationsTentees.current.add(photo.id);
+    rafraichirMiniatureVideo(photo.id)
+      .then((resultat) => {
+        if (!resultat.ok) throw new Error(resultat.error);
+        setMiniaturesRafraichies((m) => ({ ...m, [photo.id]: resultat.data }));
+        queryClient.invalidateQueries({ queryKey: queryKeys.collection(collectionId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.collections });
+      })
+      .catch(() => setSansMiniature((s) => new Set(s).add(photo.id)));
+  }
+
   function supprimer(photo: Tables<"collection_items">) {
     vibrate();
     const libelle = estTypeVideo(photo.type) ? "Vidéo" : "Photo";
@@ -105,7 +129,10 @@ export function PhotosGrid({
         <AnimatePresence initial={false}>
           {visibles.map((photo, index) => {
             const estVideo = estTypeVideo(photo.type);
-            const src = estVideo ? (photo.thumbnail_url ?? photo.url) : photo.url;
+            const src = estVideo
+              ? (miniaturesRafraichies[photo.id] ?? photo.thumbnail_url ?? photo.url)
+              : photo.url;
+            const miniatureIndisponible = estVideo && sansMiniature.has(photo.id);
 
             return (
               <motion.li
@@ -123,15 +150,25 @@ export function PhotosGrid({
                   aria-label={ariaLabelOuverture(photo.type)}
                   className="relative block h-full w-full"
                 >
-                  <FadeInImage
-                    src={src}
-                    alt=""
-                    fill
-                    sizes="50vw"
-                    unoptimized={estVideo}
-                    style={index === 0 ? { viewTransitionName: `collection-cover-${collectionId}` } : undefined}
-                    className="object-cover"
-                  />
+                  {miniatureIndisponible ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-surface-alt"
+                      style={index === 0 ? { viewTransitionName: `collection-cover-${collectionId}` } : undefined}
+                    />
+                  ) : (
+                    <FadeInImage
+                      key={src}
+                      src={src}
+                      alt=""
+                      fill
+                      sizes="50vw"
+                      unoptimized={estVideo}
+                      onError={estVideo ? () => reparerMiniature(photo) : undefined}
+                      style={index === 0 ? { viewTransitionName: `collection-cover-${collectionId}` } : undefined}
+                      className="object-cover"
+                    />
+                  )}
                   {estVideo && <VideoBadge type={photo.type} />}
                 </button>
                 {/* Zone de tap de 44 px, pastille visible de 28 px. */}

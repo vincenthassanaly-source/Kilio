@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
+import { estMiniatureStockee, estUrlMiniatureTiktokCopiable } from "@/lib/collection/miniature";
+import { recupererMetadonneesTiktok } from "@/lib/collection/tiktok";
 import { estTypeVideo, recupererMetadonneesVideo } from "@/lib/collection/video";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
@@ -11,6 +13,10 @@ import type { Tables, TablesInsert } from "@/lib/supabase/types";
 const COLLECTION_IMAGES_BUCKET = "collection-images";
 const COLLECTION_IMAGE_MAX_DIMENSION = 1600;
 const COLLECTION_IMAGE_JPEG_QUALITY = 75;
+// Miniature vidéo copiée dans le bucket : la tuile fait ~200 px de large.
+const MINIATURE_MAX_DIMENSION = 640;
+const MINIATURE_MAX_OCTETS = 5 * 1024 * 1024;
+const MINIATURE_DELAI_MS = 5000;
 
 // Nombre de vignettes affichées dans la mosaïque de couverture d'une
 // collection (grille façon Pinterest sur /collection).
@@ -60,6 +66,58 @@ function extraireCheminStorage(url: string): string | null {
   const index = url.indexOf(marqueur);
   if (index === -1) return null;
   return url.slice(index + marqueur.length);
+}
+
+// Copie une miniature TikTok dans le bucket (les URLs du CDN TikTok sont
+// signées et expirent après quelques jours). Ne lève jamais : retourne `null`
+// si l'URL n'est pas un CDN TikTok connu, si le téléchargement échoue ou si
+// l'image est invalide, pour que l'appelant garde l'URL d'origine.
+async function copierMiniatureTiktok(supabase: SupabaseClient, urlSource: string): Promise<string | null> {
+  if (!estUrlMiniatureTiktokCopiable(urlSource)) return null;
+  try {
+    const response = await fetch(urlSource, {
+      redirect: "error",
+      signal: AbortSignal.timeout(MINIATURE_DELAI_MS),
+    });
+    if (!response.ok) return null;
+    const declaree = Number(response.headers.get("content-length") ?? 0);
+    if (declaree > MINIATURE_MAX_OCTETS) return null;
+
+    const source = Buffer.from(await response.arrayBuffer());
+    if (source.length > MINIATURE_MAX_OCTETS) return null;
+
+    const compresse = await sharp(source)
+      .rotate()
+      .resize(MINIATURE_MAX_DIMENSION, MINIATURE_MAX_DIMENSION, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: COLLECTION_IMAGE_JPEG_QUALITY })
+      .toBuffer();
+
+    const chemin = `miniatures/${crypto.randomUUID()}.jpg`;
+    const { error } = await supabase.storage
+      .from(COLLECTION_IMAGES_BUCKET)
+      .upload(chemin, compresse, { contentType: "image/jpeg" });
+    if (error) return null;
+
+    return supabase.storage.from(COLLECTION_IMAGES_BUCKET).getPublicUrl(chemin).data.publicUrl;
+  } catch {
+    return null;
+  }
+}
+
+// Miniature à enregistrer pour une vidéo : copie stable pour TikTok, URL
+// d'origine pour YouTube (i.ytimg.com n'expire pas) ou si la copie échoue.
+async function miniatureAEnregistrer(
+  supabase: SupabaseClient,
+  type: string,
+  miniature: string | null
+): Promise<string | null> {
+  if (!miniature || type !== "tiktok" || estMiniatureStockee(miniature)) return miniature;
+  return (await copierMiniatureTiktok(supabase, miniature)) ?? miniature;
+}
+
+async function supprimerMiniatureStockee(supabase: SupabaseClient, miniature: string | null | undefined) {
+  const chemin = miniature && estMiniatureStockee(miniature) ? extraireCheminStorage(miniature) : null;
+  if (chemin) await supabase.storage.from(COLLECTION_IMAGES_BUCKET).remove([chemin]);
 }
 
 // --- Collections ---
@@ -170,12 +228,12 @@ export async function deleteCollection(id: string) {
 
   const { data: photos, error: fetchError } = await supabase
     .from("collection_items")
-    .select("url")
+    .select("url, thumbnail_url")
     .eq("collection_id", id);
   if (fetchError) throw new Error(fetchError.message);
 
   const chemins = (photos ?? [])
-    .map((p) => extraireCheminStorage(p.url))
+    .flatMap((p) => [extraireCheminStorage(p.url), estMiniatureStockee(p.thumbnail_url) ? extraireCheminStorage(p.thumbnail_url!) : null])
     .filter((c): c is string => c !== null);
   if (chemins.length > 0) {
     const { error: removeError } = await supabase.storage.from(COLLECTION_IMAGES_BUCKET).remove(chemins);
@@ -238,15 +296,20 @@ export async function ajouterLienVideo(collectionId: string, url: string) {
     .limit(1)
     .maybeSingle();
 
+  const miniature = await miniatureAEnregistrer(supabase, metadonnees.type, metadonnees.thumbnailUrl);
+
   const { error } = await supabase.from("collection_items").insert({
     collection_id: collectionId,
     type: metadonnees.type,
     url: metadonnees.url,
-    thumbnail_url: metadonnees.thumbnailUrl,
+    thumbnail_url: miniature,
     titre: metadonnees.titre || null,
     ordre: (derniere?.ordre ?? -1) + 1,
   });
-  if (error) throw new Error(error.message);
+  if (error) {
+    await supprimerMiniatureStockee(supabase, miniature);
+    throw new Error(error.message);
+  }
 
   revalidateCollectionsPaths(collectionId);
 }
@@ -256,14 +319,17 @@ export async function deleteCollectionItem(itemId: string) {
 
   const { data: item, error: fetchError } = await supabase
     .from("collection_items")
-    .select("url, collection_id")
+    .select("url, thumbnail_url, collection_id")
     .eq("id", itemId)
     .single();
   if (fetchError) throw new Error(fetchError.message);
 
-  const chemin = extraireCheminStorage(item.url);
-  if (chemin) {
-    const { error: removeError } = await supabase.storage.from(COLLECTION_IMAGES_BUCKET).remove([chemin]);
+  const chemins = [
+    extraireCheminStorage(item.url),
+    estMiniatureStockee(item.thumbnail_url) ? extraireCheminStorage(item.thumbnail_url!) : null,
+  ].filter((c): c is string => c !== null);
+  if (chemins.length > 0) {
+    const { error: removeError } = await supabase.storage.from(COLLECTION_IMAGES_BUCKET).remove(chemins);
     if (removeError) throw new Error(removeError.message);
   }
 
@@ -271,6 +337,37 @@ export async function deleteCollectionItem(itemId: string) {
   if (error) throw new Error(error.message);
 
   revalidateCollectionsPaths(item.collection_id);
+}
+
+// Auto-réparation d'une miniature TikTok expirée : appelée par la grille quand
+// l'image d'une tuile ne charge plus. Redemande une miniature fraîche à l'oEmbed
+// TikTok, la copie dans le bucket, met la ligne à jour et renvoie la nouvelle
+// URL. Pas de revalidatePath : le client met son cache à jour lui-même.
+export async function rafraichirMiniatureVideo(itemId: string): Promise<ActionResult<string>> {
+  const supabase = createAdminClient();
+
+  const { data: item, error: fetchError } = await supabase
+    .from("collection_items")
+    .select("url, type, thumbnail_url")
+    .eq("id", itemId)
+    .single();
+  if (fetchError || !item) return fail("Vidéo introuvable.");
+  if (item.type !== "tiktok") return fail("Cette vidéo n'a pas de miniature à rafraîchir.");
+
+  const metadonnees = await recupererMetadonneesTiktok(item.url);
+  if (!metadonnees) return fail("Miniature indisponible pour le moment.");
+
+  const copie = await copierMiniatureTiktok(supabase, metadonnees.thumbnailUrl);
+  if (!copie) return fail("Miniature indisponible pour le moment.");
+
+  const { error } = await supabase.from("collection_items").update({ thumbnail_url: copie }).eq("id", itemId);
+  if (error) {
+    await supprimerMiniatureStockee(supabase, copie);
+    return fail("Miniature indisponible pour le moment.");
+  }
+
+  await supprimerMiniatureStockee(supabase, item.thumbnail_url);
+  return ok(copie);
 }
 
 // --- Web Share Target ---
@@ -358,7 +455,7 @@ export async function rattacherPhotoACollection(
         collection_id: collectionId,
         type: videoType,
         url: videoUrl,
-        thumbnail_url: videoThumbnail || null,
+        thumbnail_url: await miniatureAEnregistrer(supabase, videoType, videoThumbnail || null),
         titre: videoTitre || null,
         ordre: ordre++,
       });
