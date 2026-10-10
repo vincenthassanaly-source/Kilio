@@ -54,7 +54,9 @@ export function EvenementBlock({
     <button
       type="button"
       onClick={() => onSelect(evenement)}
-      aria-label={`Événement ${evenement.titre}, ${plage}. Modifier`}
+      // Le nom accessible commence par le texte visible (« 09:00 Titre ») : un
+      // utilisateur de commande vocale doit pouvoir dire ce qu'il lit (WCAG 2.5.3).
+      aria-label={`${heure} ${evenement.titre}, événement ${plage}. Modifier`}
       className={`${className} ${zoneTap} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink`}
       style={blockStyle}
     >

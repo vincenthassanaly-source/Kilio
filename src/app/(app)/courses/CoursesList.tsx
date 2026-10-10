@@ -1,8 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { getCoursesItems } from "@/app/actions/courses";
+import { creerAttributeurDeCles } from "@/lib/courses/cles-affichage";
 import { queryKeys } from "@/lib/query/keys";
 import { errorText, eyebrow } from "@/lib/ui";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
@@ -15,6 +17,10 @@ export function CoursesList() {
     queryKey: queryKeys.courses,
     queryFn: getCoursesItems,
   });
+  // La ligne confirmée par le serveur reprend la clé de sa ligne optimiste (id
+  // `temp-…`) : sans cela React la remonte et l'article s'affiche deux fois le
+  // temps de l'animation de sortie.
+  const [cleAffichage] = useState(creerAttributeurDeCles);
 
   if (isLoading) return <ListItemSkeletonGroup count={4} />;
   if (isError) return <p className={errorText}>Erreur de chargement des courses. Réessaie.</p>;
@@ -40,7 +46,7 @@ export function CoursesList() {
                 <ul className="flex flex-col gap-2.5">
                   <AnimatePresence initial={false}>
                     {section.items.map((item) => (
-                      <CourseItemRow key={item.id} item={item} />
+                      <CourseItemRow key={cleAffichage(item)} item={item} />
                     ))}
                   </AnimatePresence>
                 </ul>
