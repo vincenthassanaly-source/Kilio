@@ -1,14 +1,17 @@
 import { connection } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { compterExercices } from "@/lib/musculation/serveur";
 import { card, eyebrow, screenTitle, sectionTitle } from "@/lib/ui";
+import { DemarrerSeance } from "./DemarrerSeance";
 
 export default async function MusculationPage() {
   await connection();
-  const nbExercices = await compterExercices();
+  const nbExercices = await compterExercices(createAdminClient());
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className={screenTitle}>Musculation</h1>
+      <DemarrerSeance catalogueVide={nbExercices === 0} />
       {nbExercices === 0 ? (
         <section className={`${card} flex flex-col gap-1.5`}>
           <h2 className={sectionTitle}>Aucun exercice pour l&apos;instant</h2>
@@ -22,7 +25,7 @@ export default async function MusculationPage() {
           <h2 className={sectionTitle}>
             {nbExercices} exercice{nbExercices > 1 ? "s" : ""} au catalogue
           </h2>
-          <p className={eyebrow}>Séances, routines et statistiques arrivent dans les prochaines étapes.</p>
+          <p className={eyebrow}>Routines, historique et statistiques arrivent dans les prochaines étapes.</p>
         </section>
       )}
     </div>
