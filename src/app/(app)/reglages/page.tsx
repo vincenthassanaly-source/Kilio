@@ -7,6 +7,7 @@ import { AppearanceRow } from "./AppearanceRow";
 import { BriefingRow } from "./BriefingRow";
 import { NettoyageAutoRow } from "./NettoyageAutoRow";
 import { RevueHebdoRow } from "./RevueHebdoRow";
+import { SeancesRappelRow } from "./SeancesRappelRow";
 import { NotificationsRow } from "./NotificationsRow";
 
 const INFO_ICON_PROPS = {
@@ -92,6 +93,7 @@ export default async function ReglagesPage() {
           <NotificationsRow />
           <BriefingRow reglages={reglagesBriefing} />
           <RevueHebdoRow reglages={reglagesBriefing} />
+          <SeancesRappelRow reglages={reglagesBriefing} />
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
       </div>

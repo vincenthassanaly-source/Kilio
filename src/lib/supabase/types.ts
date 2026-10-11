@@ -516,6 +516,33 @@ export type Database = {
         }
         Relationships: []
       }
+      creneaux_seance: {
+        Row: {
+          actif: boolean
+          created_at: string
+          heure: string
+          id: string
+          jour_semaine: number
+          type: string
+        }
+        Insert: {
+          actif?: boolean
+          created_at?: string
+          heure?: string
+          id?: string
+          jour_semaine: number
+          type: string
+        }
+        Update: {
+          actif?: boolean
+          created_at?: string
+          heure?: string
+          id?: string
+          jour_semaine?: number
+          type?: string
+        }
+        Relationships: []
+      }
       jours_entrainement: {
         Row: {
           date: string
@@ -1579,6 +1606,56 @@ export type Database = {
         }
         Relationships: []
       }
+      seances: {
+        Row: {
+          created_at: string
+          creneau_id: string | null
+          date: string
+          date_prevue: string
+          heure: string
+          id: string
+          rappel_envoye_le: string | null
+          reportee: boolean
+          statut: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creneau_id?: string | null
+          date: string
+          date_prevue: string
+          heure: string
+          id?: string
+          rappel_envoye_le?: string | null
+          reportee?: boolean
+          statut?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creneau_id?: string | null
+          date?: string
+          date_prevue?: string
+          heure?: string
+          id?: string
+          rappel_envoye_le?: string | null
+          reportee?: boolean
+          statut?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seances_creneau_id_fkey"
+            columns: ["creneau_id"]
+            isOneToOne: false
+            referencedRelation: "creneaux_seance"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reglages_briefing: {
         Row: {
           actif: boolean
@@ -1589,6 +1666,7 @@ export type Database = {
           revue_dernier_envoi: string | null
           revue_heure: string
           revue_jour: number
+          seances_rappel_actif: boolean
           updated_at: string
         }
         Insert: {
@@ -1600,6 +1678,7 @@ export type Database = {
           revue_dernier_envoi?: string | null
           revue_heure?: string
           revue_jour?: number
+          seances_rappel_actif?: boolean
           updated_at?: string
         }
         Update: {
@@ -1611,6 +1690,7 @@ export type Database = {
           revue_dernier_envoi?: string | null
           revue_heure?: string
           revue_jour?: number
+          seances_rappel_actif?: boolean
           updated_at?: string
         }
         Relationships: []

@@ -17,6 +17,7 @@ const reglages = {
   revue_jour: 0,
   revue_heure: "18:00:00",
   revue_dernier_envoi: null,
+  seances_rappel_actif: true,
   updated_at: "2026-10-09T00:00:00Z",
 };
 

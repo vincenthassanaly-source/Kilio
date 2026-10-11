@@ -26,6 +26,7 @@ import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/c
 import { PlanDuJourCard } from "./PlanDuJourCard";
 import { TransitionLink } from "@/components/TransitionLink";
 import { RepasRestantsCard } from "./RepasRestantsCard";
+import { SeancesCard } from "./SeancesCard";
 import { TachesDuJour } from "./TachesDuJour";
 import { useHeureCourante } from "./useHeureCourante";
 
@@ -177,6 +178,8 @@ export function AujourdhuiView({ today }: { today: string }) {
       )}
 
       <DashboardHabitudesSection today={today} className={card} />
+
+      <SeancesCard today={today} />
 
       <RepasRestantsCard today={today} />
 

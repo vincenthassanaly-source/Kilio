@@ -37,6 +37,10 @@ export const queryKeys = {
   // Inbox : liste à trier, et son compteur (pastilles « Plus » / « + »).
   inbox: ["inbox"] as const,
   inboxCount: ["inbox", "count"] as const,
+  // Séances de sport de la semaine en cours (créneaux + occurrences) : clé par
+  // jour pour repartir d'une semaine neuve passé minuit.
+  seances: ["seances"] as const,
+  seancesSemaine: (today: string) => ["seances", today] as const,
   planningTravail: ["planning-travail"] as const,
   planningTravailExceptions: ["planning-travail-exceptions"] as const,
 };
