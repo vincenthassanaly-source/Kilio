@@ -17,6 +17,7 @@ import {
   type ExerciceBrouillon,
   type SerieBrouillon,
 } from "@/lib/musculation/seance";
+import { libelleRecords, recordsBattus } from "@/lib/musculation/stats";
 import { deverrouillerAudio } from "@/lib/musculation/useMinuteurRepos";
 import { ChampNombre } from "./ChampNombre";
 import { dangerButton, ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
@@ -80,6 +81,13 @@ export function ExerciceBloc({
   const colonnes = ["40px", "minmax(0,1fr)", ...champs.map((c) => LARGEUR_CHAMP[c]), ...(edition ? [] : ["48px"])].join(" ");
   const entete = "text-center text-[11px] font-semibold uppercase tracking-wide text-ink-3";
   const faites = exercice.series.filter((s) => s.fait).length;
+  // Records battus par les séries validées (les autres sont traitées comme un échauffement : ignorées).
+  const battus = edition
+    ? []
+    : recordsBattus(
+        exercice.series.map((s) => (s.fait ? s : { ...s, type: "echauffement" as const })),
+        exercice.records,
+      );
 
   return (
     <section
@@ -211,6 +219,11 @@ export function ExerciceBloc({
                   </button>
                 )}
               </div>
+              {battus[index]?.length > 0 && serie.fait && (
+                <p className="px-1 text-[12.5px] font-semibold text-kcal" role="status">
+                  Nouveau record : {libelleRecords(battus[index])}
+                </p>
+              )}
               {typeOuvert && (
                 <div className="flex flex-wrap gap-2 px-1" role="group" aria-label={`Type de la série ${index + 1}`}>
                   {TYPES_SERIE.map((type: TypeSerie) => (

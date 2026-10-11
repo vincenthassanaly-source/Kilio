@@ -99,6 +99,12 @@ describe("exerciceDepuisRoutine", () => {
     expect(exerciceDepuisRoutine({ ...detail, reposExerciceS: null }, [], compteur()).reposS).toBe(90);
   });
 
+  it("transmet les records connus de l'exercice", () => {
+    const records = { poidsMax: { valeur: 90, date: "2026-10-01" } } as never;
+    expect(exerciceDepuisRoutine(detail, [], compteur(), records).records).toBe(records);
+    expect(exerciceDepuisRoutine(detail, [], compteur()).records).toBeNull();
+  });
+
   it("garde une seule série quand la routine n'en définit aucune", () => {
     expect(exerciceDepuisRoutine({ ...detail, series: [] }, [], compteur()).series).toHaveLength(1);
   });

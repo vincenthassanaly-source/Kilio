@@ -3,6 +3,7 @@
 // l'éditeur de routine et le démarrage d'une séance depuis une routine.
 import { creerExerciceBrouillon, REPOS_PAR_DEFAUT_S, type ExerciceBrouillon, type SeriePrecedente } from "./seance";
 import { estTypeSeance } from "@/lib/seances/compute";
+import type { RecordsExercice } from "./stats";
 import { estModeSaisie, estTypeSerie, type ModeSaisie, type TypeSeance, type TypeSerie } from "./constantes";
 
 export type RoutineSerie = {
@@ -70,6 +71,7 @@ export function exerciceDepuisRoutine(
   exercice: RoutineExerciceDetail,
   precedent: SeriePrecedente[],
   genererId?: () => string,
+  records: RecordsExercice | null = null,
 ): ExerciceBrouillon {
   const base = creerExerciceBrouillon(
     {
@@ -79,6 +81,7 @@ export function exerciceDepuisRoutine(
       reposS: exercice.reposS ?? exercice.reposExerciceS ?? REPOS_PAR_DEFAUT_S,
       nbSeries: Math.max(1, exercice.series.length),
       precedent,
+      records,
     },
     genererId,
   );
