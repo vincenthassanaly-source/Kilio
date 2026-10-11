@@ -3,12 +3,21 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
+import { validerNomDossier, validerRoutine, type RoutineDetail, type RoutineEntree } from "@/lib/musculation/routines";
 import { validerPayload, type EntrainementPayload, type SeriePrecedente } from "@/lib/musculation/seance";
 import {
+  creerDossier as creerDossierDb,
   dernieresSeries,
   enregistrerEntrainement as enregistrerEntrainementDb,
+  enregistrerRoutine as enregistrerRoutineDb,
+  lireRoutine,
   listerExercices,
+  listerRoutines,
+  renommerDossier as renommerDossierDb,
+  supprimerDossier as supprimerDossierDb,
+  supprimerRoutine as supprimerRoutineDb,
   type ExerciceCatalogue,
+  type RoutinesEtDossiers,
 } from "@/lib/musculation/serveur";
 import { estUuid } from "@/lib/uuid";
 
@@ -41,5 +50,69 @@ export async function enregistrerEntrainement(payload: EntrainementPayload): Pro
   revalidatePath("/nutrition/journal");
   revalidatePath("/nutrition/bilan");
   revalidatePath("/");
+  return ok();
+}
+
+// --- Routines -------------------------------------------------------------
+
+export async function getRoutines(): Promise<RoutinesEtDossiers> {
+  return listerRoutines(createAdminClient());
+}
+
+/** Routine complète, ou `null` si l'identifiant est invalide ou la routine introuvable. */
+export async function getRoutine(id: string): Promise<RoutineDetail | null> {
+  if (typeof id !== "string" || !estUuid(id)) return null;
+  return lireRoutine(createAdminClient(), id);
+}
+
+export async function enregistrerRoutine(entree: RoutineEntree): Promise<ActionResult<{ id: string }>> {
+  const erreur = validerRoutine(entree);
+  if (erreur) return fail(erreur);
+
+  const resultat = await enregistrerRoutineDb(createAdminClient(), entree);
+  if (resultat.error || !resultat.id) return fail(resultat.error ?? "La routine n'a pas pu être enregistrée.");
+
+  revalidatePath("/musculation");
+  return ok({ id: resultat.id });
+}
+
+export async function supprimerRoutine(id: string): Promise<ActionResult> {
+  if (typeof id !== "string" || !estUuid(id)) return fail("Routine introuvable.");
+  const resultat = await supprimerRoutineDb(createAdminClient(), id);
+  if (resultat.error) return fail(resultat.error);
+
+  revalidatePath("/musculation");
+  return ok();
+}
+
+export async function creerDossier(nom: string): Promise<ActionResult<{ id: string }>> {
+  const erreur = validerNomDossier(nom);
+  if (erreur) return fail(erreur);
+
+  const resultat = await creerDossierDb(createAdminClient(), nom);
+  if (resultat.error || !resultat.id) return fail(resultat.error ?? "Le dossier n'a pas pu être créé.");
+
+  revalidatePath("/musculation");
+  return ok({ id: resultat.id });
+}
+
+export async function renommerDossier(id: string, nom: string): Promise<ActionResult> {
+  if (typeof id !== "string" || !estUuid(id)) return fail("Dossier introuvable.");
+  const erreur = validerNomDossier(nom);
+  if (erreur) return fail(erreur);
+
+  const resultat = await renommerDossierDb(createAdminClient(), id, nom);
+  if (resultat.error) return fail(resultat.error);
+
+  revalidatePath("/musculation");
+  return ok();
+}
+
+export async function supprimerDossier(id: string): Promise<ActionResult> {
+  if (typeof id !== "string" || !estUuid(id)) return fail("Dossier introuvable.");
+  const resultat = await supprimerDossierDb(createAdminClient(), id);
+  if (resultat.error) return fail(resultat.error);
+
+  revalidatePath("/musculation");
   return ok();
 }

@@ -33,6 +33,12 @@ describe("parentRoute", () => {
     expect(parentRoute("/pharmacie/m1/c1", BARRE)).toBe("/pharmacie/m1");
   });
 
+  it("ramène l'éditeur de routine à l'accueil Musculation, et la séance en direct aussi", () => {
+    expect(parentRoute("/musculation/routines/abc", BARRE)).toBe("/musculation");
+    expect(parentRoute("/musculation/routines/nouvelle", BARRE)).toBe("/musculation");
+    expect(parentRoute("/musculation/seance", BARRE)).toBe("/musculation");
+  });
+
   it("ramène une fiche du référentiel pharmacie à l'accueil du référentiel", () => {
     expect(parentRoute("/pharmacie/referentiel/medicament/abc", BARRE)).toBe("/pharmacie/referentiel");
     expect(parentRoute("/pharmacie/referentiel/classe/abc", BARRE)).toBe("/pharmacie/referentiel");
