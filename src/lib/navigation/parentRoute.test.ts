@@ -19,6 +19,7 @@ describe("parentRoute", () => {
   it("ramène un module non épinglé à la grille Plus", () => {
     expect(parentRoute("/courses", BARRE)).toBe("/plus");
     expect(parentRoute("/objectifs", BARRE)).toBe("/plus");
+    expect(parentRoute("/musculation", BARRE)).toBe("/plus");
   });
 
   it("suit l'épinglage personnalisé", () => {
