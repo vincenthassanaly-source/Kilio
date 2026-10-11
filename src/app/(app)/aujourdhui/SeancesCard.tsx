@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { decalerSeanceAuProchainJourLibre, getSemaineSeances, marquerSeanceFaite } from "@/app/actions/seances";
@@ -9,6 +10,7 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showToast } from "@/components/toast/toast-store";
 import { useBackClose } from "@/hooks/useBackClose";
 import { runAction } from "@/lib/actions/runAction";
+import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { queryKeys } from "@/lib/query/keys";
 import {
   etatSeance,
@@ -47,6 +49,7 @@ export function SeancesCard({ today }: { today: string }) {
   const cle = queryKeys.seancesSemaine(today);
   const [planningOuvert, setPlanningOuvert] = useState(false);
   const [, startTransition] = useTransition();
+  const enCours = useBrouillonEnCours();
   useBackClose(planningOuvert, () => setPlanningOuvert(false));
 
   const { data, isLoading } = useQuery({
@@ -109,6 +112,16 @@ export function SeancesCard({ today }: { today: string }) {
         )}
       </div>
 
+      {enCours && (
+        <Link
+          href="/musculation/seance"
+          className="flex items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5 text-[14px] font-semibold text-ink transition active:scale-[0.985]"
+        >
+          <span className="truncate">Séance en cours · {enCours.nom}</span>
+          <span className="shrink-0 text-kcal">Reprendre</span>
+        </Link>
+      )}
+
       {creneaux.length === 0 ? (
         <>
           <p className="text-[13.5px] leading-snug text-ink-2">
@@ -144,6 +157,15 @@ export function SeancesCard({ today }: { today: string }) {
                         {note && ` · ${note}`}
                       </p>
                     </div>
+                    {etat !== "faite" && (
+                      <Link
+                        href={`/musculation/seance?seance=${seance.id}`}
+                        aria-label={`Commencer la séance ${seance.type}`}
+                        className={ghostButton}
+                      >
+                        Commencer
+                      </Link>
+                    )}
                     {etat !== "faite" && (
                       <button
                         type="button"

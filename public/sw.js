@@ -137,8 +137,7 @@ const ACTIONS_REPORT_RAPPEL = [
 ];
 
 // Actions proposées sur le rappel d'une séance de sport (data.seanceId présent).
-// « Commencer » coche la séance via /api/seances/[id]/commencer (et ouvre
-// Aujourd'hui seulement si ça échoue) ;
+// « Commencer » ouvre la séance en direct (/musculation/seance?seance=<id>) ;
 // « Décaler » appelle /api/seances/[id]/decaler (prochain jour libre de la semaine).
 const ACTIONS_SEANCE = [
   { action: "commencer", title: "Commencer" },
@@ -177,14 +176,10 @@ self.addEventListener("notificationclick", (event) => {
 
   if (action === "commencer" && seanceId) {
     notification.close();
-    // Coche la séance sans ouvrir l'app. Si la requête échoue (hors-ligne,
-    // séance déjà faite, décalée ou supprimée), on ouvre Aujourd'hui pour
-    // montrer l'état réel : la séance reste à cocher à la main.
-    event.waitUntil(
-      fetch(`/api/seances/${seanceId}/commencer`, { method: "POST" })
-        .then((reponse) => (reponse.ok ? undefined : ouvrirApp()))
-        .catch(() => ouvrirApp())
-    );
+    // Ouvre la séance en direct (Musculation) liée à cette séance planifiée.
+    // Elle n'est cochée « faite » qu'à la fin de l'entraînement, pas au démarrage ;
+    // une séance en cours est simplement reprise par l'écran.
+    event.waitUntil(ouvrirApp(`/musculation/seance?seance=${encodeURIComponent(seanceId)}`));
     return;
   }
 
@@ -224,8 +219,8 @@ self.addEventListener("notificationclick", (event) => {
   // nouvelle fenêtre à chaque notification.
   event.waitUntil(ouvrirApp());
 
-  function ouvrirApp() {
-    const path = new URL(url, self.location.origin).pathname;
+  function ouvrirApp(cible = url) {
+    const path = new URL(cible, self.location.origin).pathname;
     return self.clients.matchAll({ type: "window" }).then(async (clients) => {
       // Ne réutiliser focus() que si la fenêtre est déjà au premier plan :
       // sur Android, appeler focus() sur une fenêtre PWA en arrière-plan ou
@@ -238,7 +233,7 @@ self.addEventListener("notificationclick", (event) => {
       if (existing) {
         if ("navigate" in existing) {
           try {
-            await existing.navigate(url);
+            await existing.navigate(cible);
           } catch {
             // navigate() peut échouer selon le navigateur : la fenêtre
             // existante est quand même mise au premier plan ci-dessous,
@@ -247,7 +242,7 @@ self.addEventListener("notificationclick", (event) => {
         }
         return existing.focus();
       }
-      return self.clients.openWindow(url);
+      return self.clients.openWindow(cible);
     });
   }
 });

@@ -12,7 +12,6 @@ import {
   compteDansLeVolume,
   estModeSaisie,
   estMuscle,
-  estTypeSeance,
   estTypeSerie,
 } from "./constantes";
 
@@ -39,8 +38,6 @@ describe("constantes musculation", () => {
     expect(estModeSaisie(null)).toBe(false);
     expect(estTypeSerie("dropset")).toBe(true);
     expect(estTypeSerie("autre")).toBe(false);
-    expect(estTypeSeance("PUSH")).toBe(true);
-    expect(estTypeSeance("push")).toBe(false);
   });
 
   it("exclut l'échauffement du volume", () => {

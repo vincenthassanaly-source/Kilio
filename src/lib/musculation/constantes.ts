@@ -75,9 +75,8 @@ export const TYPE_SERIE_LABELS: Record<TypeSerie, string> = {
   echec: "À l'échec",
 };
 
-/** Types de séance planifiable (identiques à ceux du module Séances). */
-export const TYPES_SEANCE = ["LEGS", "PUSH", "PULL"] as const;
-export type TypeSeance = (typeof TYPES_SEANCE)[number];
+/** Types de séance planifiable : ceux du module Séances (src/lib/seances/compute.ts). */
+export { TYPES_SEANCE, type TypeSeance } from "@/lib/seances/compute";
 
 export function estMuscle(valeur: unknown): valeur is Muscle {
   return typeof valeur === "string" && (MUSCLES as readonly string[]).includes(valeur);
@@ -89,10 +88,6 @@ export function estModeSaisie(valeur: unknown): valeur is ModeSaisie {
 
 export function estTypeSerie(valeur: unknown): valeur is TypeSerie {
   return typeof valeur === "string" && (TYPES_SERIE as readonly string[]).includes(valeur);
-}
-
-export function estTypeSeance(valeur: unknown): valeur is TypeSeance {
-  return typeof valeur === "string" && (TYPES_SEANCE as readonly string[]).includes(valeur);
 }
 
 /** Une série d'échauffement ne compte pas dans le volume ni dans les records. */

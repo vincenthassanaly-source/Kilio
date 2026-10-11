@@ -21,9 +21,18 @@ type PendingAction = {
 // "snapshot") : permet de consulter et de réviser sans réseau.
 type CacheLecture = { cle: string; valeur: unknown; enregistre_le: string };
 
+// Module Musculation : la séance en cours (un seul enregistrement, clé
+// "courant") et les séances terminées pas encore reçues par le serveur.
+// `valeur` / `payload` sont typés côté lib/musculation (Brouillon,
+// EntrainementPayload) ; ici `unknown` pour ne pas coupler la base locale au module.
+type MusculationBrouillon = { cle: string; valeur: unknown };
+type MusculationAEnvoyer = { id: string; payload: unknown; cree_le: string; erreur?: string };
+
 class OfflineDB extends Dexie {
   pending_actions!: Table<PendingAction, number>;
   cache_lecture!: Table<CacheLecture, string>;
+  musculation_brouillon!: Table<MusculationBrouillon, string>;
+  musculation_a_envoyer!: Table<MusculationAEnvoyer, string>;
 
   constructor() {
     super("kilio-offline");
@@ -47,6 +56,12 @@ class OfflineDB extends Dexie {
       cache_lecture: "cle",
       sport_brouillon: null,
       sport_a_envoyer: null,
+    });
+    this.version(5).stores({
+      pending_actions: "++id, created_at",
+      cache_lecture: "cle",
+      musculation_brouillon: "cle",
+      musculation_a_envoyer: "id, cree_le",
     });
   }
 }

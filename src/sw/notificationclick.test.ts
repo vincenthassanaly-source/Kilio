@@ -99,7 +99,7 @@ describe("sw.js notificationclick (CLICK-PATH-605)", () => {
 });
 
 // Rappel de séance (supabase/functions/envoyer-rappels-seances) : boutons
-// « Commencer » (coche la séance) et « Décaler » (route de report).
+// « Commencer » (ouvre la séance en direct) et « Décaler » (route de report).
 describe("sw.js rappel de séance", () => {
   const notification = () => ({ data: { url: "/aujourdhui", tacheId: null, seanceId: "s1" }, close: vi.fn() });
 
@@ -150,34 +150,31 @@ describe("sw.js rappel de séance", () => {
     await attendu;
   };
 
-  it("« Commencer » coche la séance sans ouvrir l'app", async () => {
+  it("« Commencer » ouvre la séance en direct liée à la séance planifiée, sans appel réseau", async () => {
     const sw = chargerServiceWorker();
-    sw.fetchFictif.mockResolvedValue({ ok: true });
+    sw.self.clients.matchAll.mockResolvedValue([]);
 
     await cliquer(sw, "commencer");
 
-    expect(sw.fetchFictif).toHaveBeenCalledWith("/api/seances/s1/commencer", { method: "POST" });
+    expect(sw.self.clients.openWindow).toHaveBeenCalledWith("/musculation/seance?seance=s1");
+    expect(sw.fetchFictif).not.toHaveBeenCalled();
+  });
+
+  it("« Commencer » réutilise la fenêtre déjà ouverte sur la séance en direct", async () => {
+    const sw = chargerServiceWorker();
+    const fenetre = {
+      url: "https://kilio.test/musculation/seance",
+      focused: true,
+      focus: vi.fn().mockResolvedValue(undefined),
+      navigate: vi.fn().mockResolvedValue(undefined),
+    };
+    sw.self.clients.matchAll.mockResolvedValue([fenetre]);
+
+    await cliquer(sw, "commencer");
+
+    expect(fenetre.navigate).toHaveBeenCalledWith("/musculation/seance?seance=s1");
+    expect(fenetre.focus).toHaveBeenCalled();
     expect(sw.self.clients.openWindow).not.toHaveBeenCalled();
-  });
-
-  it("« Commencer » refusé par le serveur (déjà faite…) ouvre Aujourd'hui", async () => {
-    const sw = chargerServiceWorker();
-    sw.self.clients.matchAll.mockResolvedValue([]);
-    sw.fetchFictif.mockResolvedValue({ ok: false });
-
-    await cliquer(sw, "commencer");
-
-    expect(sw.self.clients.openWindow).toHaveBeenCalledWith("/aujourdhui");
-  });
-
-  it("« Commencer » hors-ligne ouvre Aujourd'hui", async () => {
-    const sw = chargerServiceWorker();
-    sw.self.clients.matchAll.mockResolvedValue([]);
-    sw.fetchFictif.mockRejectedValue(new Error("offline"));
-
-    await cliquer(sw, "commencer");
-
-    expect(sw.self.clients.openWindow).toHaveBeenCalledWith("/aujourdhui");
   });
 
   it("un clic sur le corps de la notification ouvre l'app sans cocher", async () => {

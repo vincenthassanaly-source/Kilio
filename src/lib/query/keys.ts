@@ -49,6 +49,7 @@ export const queryKeys = {
   joursLibresAutour: (today: string) => ["jours-libres", today] as const,
   seances: ["seances"] as const,
   seancesSemaine: (today: string) => ["seances", today] as const,
+  musculationExercices: ["musculation-exercices"] as const,
   planningTravail: ["planning-travail"] as const,
   planningTravailExceptions: ["planning-travail-exceptions"] as const,
 };
