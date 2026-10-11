@@ -35,11 +35,20 @@ function LigneRoutine({
 }) {
   return (
     <li className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-      <Link href={`/musculation/routines/${routine.id}`} className="flex min-w-0 flex-1 flex-col gap-0.5" aria-label={`Modifier la routine ${routine.nom}`}>
-        <span className={nameText}>{routine.nom}</span>
-        <span className={metaText}>
-          {routine.typeSeance ? `${routine.typeSeance} · ` : ""}
-          {routine.nbExercices} exercice{routine.nbExercices > 1 ? "s" : ""}
+      <Link
+        href={`/musculation/routines/${routine.id}`}
+        className="flex min-w-0 flex-1 items-center gap-2"
+        aria-label={`Modifier la routine ${routine.nom}`}
+      >
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className={nameText}>{routine.nom}</span>
+          <span className={metaText}>
+            {routine.typeSeance ? `${routine.typeSeance} · ` : ""}
+            {routine.nbExercices} exercice{routine.nbExercices > 1 ? "s" : ""}
+          </span>
+        </span>
+        <span aria-hidden="true" className="shrink-0 text-[18px] leading-none text-ink-3">
+          ›
         </span>
       </Link>
       <button
@@ -112,7 +121,7 @@ function DossierModal({ dossier, onClose }: { dossier: DossierRoutines | null; o
 }
 
 /** Routines rangées par dossier, avec création de routines et de dossiers. */
-export function RoutinesSection() {
+export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boolean }) {
   const router = useRouter();
   const enCours = useBrouillonEnCours();
   const [demarrage, setDemarrage] = useState(false);
@@ -146,6 +155,9 @@ export function RoutinesSection() {
     );
   }
   if (isError || !data) return <p className={errorText}>Impossible de charger les routines. Vérifie ta connexion.</p>;
+
+  // Sans exercice au catalogue on ne peut rien composer : la page l'explique déjà, inutile d'empiler une seconde carte vide.
+  if (catalogueVide && data.routines.length === 0 && data.dossiers.length === 0) return null;
 
   const sansDossier = data.routines.filter((r) => !r.dossierId || !data.dossiers.some((d) => d.id === r.dossierId));
   const seanceEnCours = Boolean(enCours);

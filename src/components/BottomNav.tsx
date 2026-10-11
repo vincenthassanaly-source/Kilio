@@ -7,6 +7,7 @@ import type { MouseEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useDroppable } from "@dnd-kit/core";
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate";
+import { barreBasseMasquee } from "@/lib/navigation/immersif";
 import { findNavItem, resolveActiveHref } from "@/lib/navigation/registry";
 import { useNavigationEdit, BOTTOM_BAR_SLOT_PREFIX } from "@/lib/navigation/NavigationEditContext";
 
@@ -156,6 +157,9 @@ export function BottomNav() {
       navigate(href, direction);
     }
   }
+
+  // Après tous les hooks (règle des hooks) : écran plein focus, voir immersif.ts.
+  if (barreBasseMasquee(pathname)) return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+14px)]">

@@ -79,7 +79,7 @@ export function ExerciceBloc({
   const champs = CHAMPS_PAR_MODE[mode];
 
   const colonnes = ["40px", "minmax(0,1fr)", ...champs.map((c) => LARGEUR_CHAMP[c]), ...(edition ? [] : ["48px"])].join(" ");
-  const entete = "text-center text-[11px] font-semibold uppercase tracking-wide text-ink-3";
+  const entete = "text-center text-[12px] font-semibold uppercase tracking-wide text-ink-3";
   const faites = exercice.series.filter((s) => s.fait).length;
   // Records battus par les séries validées (les autres sont traitées comme un échauffement : ignorées).
   const battus = edition
@@ -175,7 +175,7 @@ export function ExerciceBloc({
                   aria-expanded={typeOuvert}
                   aria-label={`Type de la série ${index + 1} : ${TYPE_SERIE_LABELS[serie.type]}`}
                   onClick={() => setTypeOuvertPour(typeOuvert ? null : serie.id)}
-                  className={`h-10 rounded-xl text-center text-[14px] font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                  className={`h-11 rounded-xl text-center text-[14px] font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                     serie.type === "normale" ? "text-ink-2" : "bg-surface-alt text-kcal"
                   }`}
                 >

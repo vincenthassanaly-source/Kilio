@@ -28,7 +28,7 @@ export function BarreRepos({
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-      <div className="flex w-full max-w-md flex-col gap-3 rounded-[22px] border border-line bg-nav p-3.5 shadow-card backdrop-blur-xl">
+      <div className="flex w-full max-w-md flex-col gap-3 rounded-[22px] border border-line bg-surface p-3.5 shadow-card">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-alt" aria-hidden="true">
           <div
             className="h-full rounded-full bg-kcal transition-[width] duration-300 ease-linear motion-reduce:transition-none"

@@ -216,22 +216,19 @@ export function SeanceView({ seanceId }: { seanceId: string | null }) {
         />
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <p className={`${metaText} flex flex-wrap items-center gap-x-2`}>
-          <span className="font-semibold text-ink">
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-1">
+          <span
+            role="timer"
+            aria-label="Durée de la séance"
+            className="font-display text-[26px] font-semibold leading-none tracking-[-0.02em] text-ink"
+          >
             <Chrono debutA={b.debutA} />
           </span>
-          <span aria-hidden="true">·</span>
-          <span>
-            {faites}/{total} séries
+          <span className={metaText}>
+            {faites}/{total} séries{volume > 0 ? ` · ${formaterPoids(volume)} kg` : ""}
           </span>
-          {volume > 0 && (
-            <>
-              <span aria-hidden="true">·</span>
-              <span>{formaterPoids(volume)} kg</span>
-            </>
-          )}
-        </p>
+        </div>
         <div className="flex shrink-0 gap-2">
           <button type="button" className={`${secondaryButton} h-11 !py-0 text-[14px]`} onClick={() => setConfirmation("abandonner")}>
             Quitter
