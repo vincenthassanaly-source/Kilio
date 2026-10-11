@@ -137,7 +137,8 @@ const ACTIONS_REPORT_RAPPEL = [
 ];
 
 // Actions proposées sur le rappel d'une séance de sport (data.seanceId présent).
-// « Commencer » ouvre l'écran Aujourd'hui (suite du gestionnaire ci-dessous) ;
+// « Commencer » coche la séance via /api/seances/[id]/commencer (et ouvre
+// Aujourd'hui seulement si ça échoue) ;
 // « Décaler » appelle /api/seances/[id]/decaler (prochain jour libre de la semaine).
 const ACTIONS_SEANCE = [
   { action: "commencer", title: "Commencer" },
@@ -170,6 +171,19 @@ self.addEventListener("notificationclick", (event) => {
         // Hors-ligne ou requête échouée : la séance reste à son jour, elle
         // pourra être décalée depuis l'écran Aujourd'hui.
       })
+    );
+    return;
+  }
+
+  if (action === "commencer" && seanceId) {
+    notification.close();
+    // Coche la séance sans ouvrir l'app. Si la requête échoue (hors-ligne,
+    // séance déjà faite, décalée ou supprimée), on ouvre Aujourd'hui pour
+    // montrer l'état réel : la séance reste à cocher à la main.
+    event.waitUntil(
+      fetch(`/api/seances/${seanceId}/commencer`, { method: "POST" })
+        .then((reponse) => (reponse.ok ? undefined : ouvrirApp()))
+        .catch(() => ouvrirApp())
     );
     return;
   }
@@ -208,9 +222,11 @@ self.addEventListener("notificationclick", (event) => {
   // ouverte sur /agenda est réutilisée même si son ?tache= diffère (ou est
   // absent) de celui de la notification cliquée, plutôt que d'ouvrir une
   // nouvelle fenêtre à chaque notification.
-  const path = new URL(url, self.location.origin).pathname;
-  event.waitUntil(
-    self.clients.matchAll({ type: "window" }).then(async (clients) => {
+  event.waitUntil(ouvrirApp());
+
+  function ouvrirApp() {
+    const path = new URL(url, self.location.origin).pathname;
+    return self.clients.matchAll({ type: "window" }).then(async (clients) => {
       // Ne réutiliser focus() que si la fenêtre est déjà au premier plan :
       // sur Android, appeler focus() sur une fenêtre PWA en arrière-plan ou
       // minimisée ne la ramène pas fiablement au premier plan (limite
@@ -232,6 +248,6 @@ self.addEventListener("notificationclick", (event) => {
         return existing.focus();
       }
       return self.clients.openWindow(url);
-    })
-  );
+    });
+  }
 });

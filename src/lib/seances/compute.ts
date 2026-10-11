@@ -4,6 +4,14 @@
 // Date#getDay (0 = dimanche), comme la revue hebdo.
 import { shiftDate } from "@/lib/date/iso";
 
+/** Types de séance proposés (liste fermée, doublée par une contrainte SQL). */
+export const TYPES_SEANCE = ["LEGS", "PUSH", "PULL"] as const;
+export type TypeSeance = (typeof TYPES_SEANCE)[number];
+
+export function estTypeSeance(valeur: string): valeur is TypeSeance {
+  return (TYPES_SEANCE as readonly string[]).includes(valeur);
+}
+
 export type Creneau = {
   id: string;
   jour_semaine: number;

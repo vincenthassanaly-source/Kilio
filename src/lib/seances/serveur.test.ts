@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { ecritures, fauxSupabase, type Appel, type Reponse } from "@/test/fake-supabase";
-import { decalerSeance, lireSemaine } from "./serveur";
+import { commencerSeance, decalerSeance, lireSemaine } from "./serveur";
 
 // Semaine du lundi 2026-10-12 au dimanche 2026-10-18.
 const ligne = (id: string, date: string, extra: Record<string, unknown> = {}) => ({
@@ -103,5 +103,33 @@ describe("decalerSeance", () => {
     expect(await decalerSeance(brancher(dimanche, [dimanche]).client as never, "a", "2026-10-18")).toEqual({
       error: "Aucun jour libre d'ici dimanche.",
     });
+  });
+});
+
+describe("commencerSeance", () => {
+  it("coche la séance et fait du jour un jour d'entraînement", async () => {
+    const fake = fauxSupabase((a: Appel): Reponse | undefined =>
+      a.table === "seances" && a.action === "select" ? { data: { date: "2026-10-14", statut: "prevue" } } : undefined
+    );
+    expect(await commencerSeance(fake.client as never, "a")).toEqual({ error: null, date: "2026-10-14" });
+    expect(ecritures(fake.appels, "seances", "update")[0].payload).toEqual({ statut: "faite" });
+    expect(ecritures(fake.appels, "jours_entrainement", "upsert")[0].payload).toMatchObject({
+      date: "2026-10-14",
+      entraine: true,
+    });
+  });
+
+  it("séance déjà faite : refus sans écriture", async () => {
+    const fake = fauxSupabase((a: Appel): Reponse | undefined =>
+      a.table === "seances" && a.action === "select" ? { data: { date: "2026-10-14", statut: "faite" } } : undefined
+    );
+    expect(await commencerSeance(fake.client as never, "a")).toEqual({ error: "Cette séance est déjà faite." });
+    expect(ecritures(fake.appels, "seances")).toHaveLength(0);
+  });
+
+  it("séance introuvable : refus sans écriture", async () => {
+    const fake = fauxSupabase();
+    expect(await commencerSeance(fake.client as never, "a")).toEqual({ error: "Séance introuvable." });
+    expect(ecritures(fake.appels, "seances")).toHaveLength(0);
   });
 });

@@ -23,10 +23,10 @@ beforeEach(() => {
 
 describe("creerCreneau", () => {
   it.each([
-    ["nom vide", { jourSemaine: 1, heure: "18:00", type: "  " }, "Donne un nom à la séance."],
-    ["nom trop long", { jourSemaine: 1, heure: "18:00", type: "x".repeat(41) }, "Le nom de la séance est limité à 40 caractères."],
-    ["jour invalide", { jourSemaine: 7, heure: "18:00", type: "Renfo" }, "Jour invalide."],
-    ["heure invalide", { jourSemaine: 1, heure: "25:00", type: "Renfo" }, "Heure invalide (format HH:MM)."],
+    ["type vide", { jourSemaine: 1, heure: "18:00", type: "  " }, "Choisis LEGS, PUSH ou PULL."],
+    ["type hors liste", { jourSemaine: 1, heure: "18:00", type: "Renfo" }, "Choisis LEGS, PUSH ou PULL."],
+    ["jour invalide", { jourSemaine: 7, heure: "18:00", type: "PUSH" }, "Jour invalide."],
+    ["heure invalide", { jourSemaine: 1, heure: "25:00", type: "PUSH" }, "Heure invalide (format HH:MM)."],
   ])("refuse : %s", async (_nom, input, erreur) => {
     const fake = brancher();
     expect(await creerCreneau(input)).toEqual({ ok: false, error: erreur });
@@ -35,18 +35,18 @@ describe("creerCreneau", () => {
 
   it("insère le créneau nettoyé et revalide Aujourd'hui", async () => {
     const fake = brancher((a) => (a.action === "select" ? { count: 2 } : undefined));
-    expect(await creerCreneau({ jourSemaine: 2, heure: "18:00", type: "  Renfo " })).toEqual({ ok: true, data: undefined });
+    expect(await creerCreneau({ jourSemaine: 2, heure: "18:00", type: " PUSH " })).toEqual({ ok: true, data: undefined });
     expect(ecritures(fake.appels, "creneaux_seance", "insert")[0].payload).toEqual({
       jour_semaine: 2,
       heure: "18:00",
-      type: "Renfo",
+      type: "PUSH",
     });
     expect(etat.revalidatePath).toHaveBeenCalledWith("/aujourdhui");
   });
 
   it("plafonne le nombre de créneaux", async () => {
     const fake = brancher((a) => (a.action === "select" ? { count: 14 } : undefined));
-    expect(await creerCreneau({ jourSemaine: 2, heure: "18:00", type: "Renfo" })).toEqual({
+    expect(await creerCreneau({ jourSemaine: 2, heure: "18:00", type: "PUSH" })).toEqual({
       ok: false,
       error: "Tu ne peux pas planifier plus de 14 créneaux.",
     });
@@ -57,7 +57,7 @@ describe("creerCreneau", () => {
 describe("modifierCreneau / supprimerCreneau", () => {
   it("rejettent un identifiant invalide", async () => {
     brancher();
-    expect(await modifierCreneau("nope", { jourSemaine: 1, heure: "18:00", type: "Renfo" })).toEqual({
+    expect(await modifierCreneau("nope", { jourSemaine: 1, heure: "18:00", type: "PUSH" })).toEqual({
       ok: false,
       error: "Créneau introuvable.",
     });
@@ -66,11 +66,11 @@ describe("modifierCreneau / supprimerCreneau", () => {
 
   it("la modification retire les séances à venir non faites du créneau", async () => {
     const fake = brancher();
-    expect(await modifierCreneau(ID, { jourSemaine: 3, heure: "07:30", type: "Course" })).toEqual({ ok: true, data: undefined });
+    expect(await modifierCreneau(ID, { jourSemaine: 3, heure: "07:30", type: "PULL" })).toEqual({ ok: true, data: undefined });
     expect(ecritures(fake.appels, "creneaux_seance", "update")[0].payload).toEqual({
       jour_semaine: 3,
       heure: "07:30",
-      type: "Course",
+      type: "PULL",
     });
     const [suppression] = ecritures(fake.appels, "seances", "delete");
     expect(suppression.filtres).toContainEqual(["eq", "creneau_id", ID]);
