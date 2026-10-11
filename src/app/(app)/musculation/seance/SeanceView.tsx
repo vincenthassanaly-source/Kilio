@@ -178,7 +178,11 @@ export function SeanceView({ seanceId }: { seanceId: string | null }) {
     if (resultat.restantes === 0) {
       queryClient.invalidateQueries({ queryKey: queryKeys.seances });
       queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
+      queryClient.invalidateQueries({ queryKey: ["musculation-historique"] });
       showToast("Séance enregistrée");
+      // Récapitulatif de la séance : on y retrouve « Enregistrer comme routine » et « Mettre à jour la routine ».
+      router.replace(`/musculation/historique/${payload.id}`);
+      return;
     } else if (resultat.refus.length > 0) {
       showErrorToast(`${resultat.refus[0]} La séance reste sur ton téléphone.`);
     } else {

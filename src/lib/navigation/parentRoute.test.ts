@@ -39,6 +39,13 @@ describe("parentRoute", () => {
     expect(parentRoute("/musculation/seance", BARRE)).toBe("/musculation");
   });
 
+  it("remonte l'historique Musculation d'un cran à la fois", () => {
+    expect(parentRoute("/musculation/historique", BARRE)).toBe("/musculation");
+    expect(parentRoute("/musculation/historique/nouvelle", BARRE)).toBe("/musculation/historique");
+    expect(parentRoute("/musculation/historique/abc", BARRE)).toBe("/musculation/historique");
+    expect(parentRoute("/musculation/historique/abc/modifier", BARRE)).toBe("/musculation/historique/abc");
+  });
+
   it("ramène une fiche du référentiel pharmacie à l'accueil du référentiel", () => {
     expect(parentRoute("/pharmacie/referentiel/medicament/abc", BARRE)).toBe("/pharmacie/referentiel");
     expect(parentRoute("/pharmacie/referentiel/classe/abc", BARRE)).toBe("/pharmacie/referentiel");

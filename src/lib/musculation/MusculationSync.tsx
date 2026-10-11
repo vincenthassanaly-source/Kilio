@@ -33,6 +33,7 @@ export function MusculationSync() {
         // La séance planifiée est cochée et le jour devient un jour d'entraînement.
         queryClient.invalidateQueries({ queryKey: queryKeys.seances });
         queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
+        queryClient.invalidateQueries({ queryKey: ["musculation-historique"] });
         if (annoncer) showToast(resultat.envoyees > 1 ? "Séances synchronisées" : "Séance synchronisée");
       }
       if (resultat.restantes > 0 && resultat.refus.length === 0 && tentative < DELAIS_REJEU_MS.length) {
