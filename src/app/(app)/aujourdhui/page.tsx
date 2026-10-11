@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getEvenements } from "@/app/actions/evenements";
 import { getResumeNutritionJour } from "@/app/actions/journal";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
+import { getJoursLibresAutour } from "@/app/actions/jours-libres";
 import { getSemaineSeances } from "@/app/actions/seances";
 import { getHabitudesDuJourEnCache } from "@/lib/habitudes/cache";
 import { queryKeys } from "@/lib/query/keys";
@@ -41,6 +42,10 @@ export default async function AujourdhuiPage() {
     queryClient.prefetchQuery({
       queryKey: queryKeys.seancesSemaine(today),
       queryFn: () => getSemaineSeances(today),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: queryKeys.joursLibresAutour(today),
+      queryFn: () => getJoursLibresAutour(today),
     }),
   ]);
 

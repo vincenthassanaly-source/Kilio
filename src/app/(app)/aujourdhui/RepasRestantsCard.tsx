@@ -51,7 +51,13 @@ export function RepasRestantsCard({ today }: { today: string }) {
         <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Repas</h2>
         <span className="text-[13px] font-semibold text-kcal">Ajouter un repas</span>
       </div>
-      {reste ? (
+      {resume?.jourLibre ? (
+        <p className="text-[13.5px] leading-snug text-ink-2">
+          <span className="font-display text-[22px] font-semibold tracking-[-0.02em] text-ink">Jour libre</span>
+          <br />
+          {Math.round(resume.consomme.kcal)} kcal saisies · pas de limite aujourd&apos;hui
+        </p>
+      ) : reste ? (
         <>
           <p className={`text-[13.5px] tabular-nums ${reste.kcal.depasse ? "text-alert" : "text-ink"}`}>
             <span className="font-display text-[22px] font-semibold tracking-[-0.02em]">{reste.kcal.valeur}</span>{" "}

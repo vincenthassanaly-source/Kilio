@@ -64,6 +64,9 @@ export type StatutJour =
   | "en_cours"
   // Aucun repas saisi : ni réussi ni raté, hors taux et série.
   | "vide"
+  // Jour libre (jeton posé) : la limite est suspendue, neutre comme « vide »
+  // (hors taux, la série n'est pas coupée), même si des repas sont saisis.
+  | "libre"
   | "sans_objectif";
 
 export type Gravite = "leger" | "marque";
@@ -86,8 +89,11 @@ export function evaluerJour(params: {
   estAujourdhui: boolean;
   /** `false` : seules les kcal décident (objectif Nutrition). Défaut `true`. */
   proteinesRequises?: boolean;
+  /** Jour libre : la limite est suspendue, le jour n'est jamais jugé. */
+  jourLibre?: boolean;
 }): { statut: StatutJour; gravite: Gravite | null } {
-  const { consomme, cible, nbRepas, estAujourdhui, proteinesRequises = true } = params;
+  const { consomme, cible, nbRepas, estAujourdhui, proteinesRequises = true, jourLibre = false } = params;
+  if (jourLibre) return { statut: "libre", gravite: null };
   if (nbRepas === 0) return { statut: "vide", gravite: null };
   if (!cible || cible.kcal <= 0) return { statut: "sans_objectif", gravite: null };
 
@@ -117,8 +123,10 @@ export function construireBilan(params: {
   datesEntrainement: readonly string[];
   cibles: Record<JourType, CiblesJour | null>;
   proteinesRequises?: boolean;
+  /** Dates des jours libres (jetons posés) : jugées « libre », hors taux et série. */
+  joursLibres?: readonly string[];
 }): JourBilan[] {
-  const { aujourdhui, nbJours, entrees, datesEntrainement, cibles, proteinesRequises } = params;
+  const { aujourdhui, nbJours, entrees, datesEntrainement, cibles, proteinesRequises, joursLibres = [] } = params;
 
   const parDate = new Map<string, { consomme: Nutrition; nbRepas: number }>();
   for (const entree of entrees) {
@@ -143,6 +151,7 @@ export function construireBilan(params: {
       nbRepas,
       estAujourdhui: date === aujourdhui,
       proteinesRequises,
+      jourLibre: joursLibres.includes(date),
     });
     jours.push({ date, jourType, statut, consomme, cible, nbRepas, gravite });
   }
@@ -167,7 +176,7 @@ export function tauxReussite(jours: JourBilan[]): { reussis: number; evalues: nu
 
 /**
  * Série de jours réussis consécutifs jusqu'à aujourd'hui. Un jour raté la
- * coupe ; un jour vide, en cours ou sans objectif la laisse intacte.
+ * coupe ; un jour vide, libre, en cours ou sans objectif la laisse intacte.
  * `tronquee` : la série remonte jusqu'au début de la fenêtre, elle est donc
  * peut-être plus longue.
  */

@@ -543,6 +543,21 @@ export type Database = {
         }
         Relationships: []
       }
+      jours_libres: {
+        Row: {
+          created_at: string
+          date: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+        }
+        Relationships: []
+      }
       jours_entrainement: {
         Row: {
           date: string
@@ -1659,9 +1674,14 @@ export type Database = {
       reglages_briefing: {
         Row: {
           actif: boolean
+          alerte_kcal_actif: boolean
+          alerte_kcal_dernier_envoi: string | null
           dernier_envoi: string | null
           heure: string
           id: number
+          rappel_saisie_actif: boolean
+          rappel_saisie_dernier_envoi: string | null
+          rappel_saisie_heure: string
           revue_actif: boolean
           revue_dernier_envoi: string | null
           revue_heure: string
@@ -1671,9 +1691,14 @@ export type Database = {
         }
         Insert: {
           actif?: boolean
+          alerte_kcal_actif?: boolean
+          alerte_kcal_dernier_envoi?: string | null
           dernier_envoi?: string | null
           heure?: string
           id?: number
+          rappel_saisie_actif?: boolean
+          rappel_saisie_dernier_envoi?: string | null
+          rappel_saisie_heure?: string
           revue_actif?: boolean
           revue_dernier_envoi?: string | null
           revue_heure?: string
@@ -1683,9 +1708,14 @@ export type Database = {
         }
         Update: {
           actif?: boolean
+          alerte_kcal_actif?: boolean
+          alerte_kcal_dernier_envoi?: string | null
           dernier_envoi?: string | null
           heure?: string
           id?: number
+          rappel_saisie_actif?: boolean
+          rappel_saisie_dernier_envoi?: string | null
+          rappel_saisie_heure?: string
           revue_actif?: boolean
           revue_dernier_envoi?: string | null
           revue_heure?: string

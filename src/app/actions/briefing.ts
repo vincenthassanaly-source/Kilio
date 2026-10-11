@@ -41,6 +41,29 @@ export async function updateReglageRappelsSeances(actif: boolean): Promise<Actio
   return ok();
 }
 
+export async function updateReglageAlerteKcal(actif: boolean): Promise<ActionResult> {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("reglages_briefing").update({ alerte_kcal_actif: actif }).eq("id", REGLAGES_ID);
+  if (error) return fail("Le réglage n'a pas pu être enregistré. Réessaie.");
+
+  revalidatePath("/reglages");
+  return ok();
+}
+
+export async function updateReglagesRappelSaisie(actif: boolean, heure: string): Promise<ActionResult> {
+  if (!HEURE_REGEX.test(heure)) return fail("Heure invalide (format HH:MM).");
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("reglages_briefing")
+    .update({ rappel_saisie_actif: actif, rappel_saisie_heure: heure })
+    .eq("id", REGLAGES_ID);
+  if (error) return fail("Le réglage n'a pas pu être enregistré. Réessaie.");
+
+  revalidatePath("/reglages");
+  return ok();
+}
+
 export async function updateReglagesRevue(actif: boolean, jour: number, heure: string): Promise<ActionResult> {
   if (!Number.isInteger(jour) || jour < 0 || jour > 6) return fail("Jour invalide.");
   if (!HEURE_REGEX.test(heure)) return fail("Heure invalide (format HH:MM).");

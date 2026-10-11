@@ -18,6 +18,11 @@ const reglages = {
   revue_heure: "18:00:00",
   revue_dernier_envoi: null,
   seances_rappel_actif: true,
+  alerte_kcal_actif: true,
+  alerte_kcal_dernier_envoi: null,
+  rappel_saisie_actif: true,
+  rappel_saisie_heure: "20:00:00",
+  rappel_saisie_dernier_envoi: null,
   updated_at: "2026-10-09T00:00:00Z",
 };
 

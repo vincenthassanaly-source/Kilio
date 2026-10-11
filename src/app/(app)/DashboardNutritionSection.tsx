@@ -23,7 +23,10 @@ export function DashboardNutritionSection({ today }: { today: string }) {
   // Plus de cible inventée (2100 kcal) quand aucun objectif n'existe pour
   // ce type de jour : la carte invite à en définir un (constat J-P1-5).
   const kcalGoal = resume?.kcalGoal ?? null;
-  const kcalPct = resume && kcalGoal ? resume.consomme.kcal / kcalGoal : 0;
+  const jourLibre = resume?.jourLibre === true;
+  // Jour libre : la limite est suspendue, l'anneau reste vide plutôt que de
+  // afficher un dépassement qui n'en est pas un.
+  const kcalPct = resume && kcalGoal && !jourLibre ? resume.consomme.kcal / kcalGoal : 0;
   const macros = resume?.macroGoals
     ? [
         { key: "proteines" as const, value: resume.consomme.proteines, goal: resume.macroGoals.proteines },
@@ -36,7 +39,9 @@ export function DashboardNutritionSection({ today }: { today: string }) {
     <motion.div whileTap={{ scale: 0.98 }}>
       <Link href="/nutrition/journal" className={`${card} flex items-center gap-3.5`}>
         <ProgressRing size={60} strokeWidth={6.5} pct={kcalPct} color="var(--accent-kcal)">
-          <span className="font-display text-[12.5px] font-bold tabular-nums text-ink">{Math.round(kcalPct * 100)}%</span>
+          <span className="font-display text-[12.5px] font-bold tabular-nums text-ink">
+            {jourLibre ? "Libre" : `${Math.round(kcalPct * 100)}%`}
+          </span>
         </ProgressRing>
         <div className="flex flex-1 flex-col gap-1.5 min-w-0">
           <span
@@ -46,7 +51,9 @@ export function DashboardNutritionSection({ today }: { today: string }) {
             Nutrition
           </span>
           <span className="text-[12.5px] font-medium tabular-nums text-ink-2">
-            {kcalGoal !== null
+            {jourLibre
+              ? `${Math.round(resume?.consomme.kcal ?? 0)} kcal · jour libre`
+              : kcalGoal !== null
               ? `${Math.round(resume?.consomme.kcal ?? 0)} / ${kcalGoal} kcal`
               : `${Math.round(resume?.consomme.kcal ?? 0)} kcal · objectif à définir`}
             {resume?.jourType === "entrainement" && " · Entraînement"}
