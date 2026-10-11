@@ -50,6 +50,8 @@ export const queryKeys = {
   seances: ["seances"] as const,
   seancesSemaine: (today: string) => ["seances", today] as const,
   musculationExercices: ["musculation-exercices"] as const,
+  musculationRoutines: ["musculation-routines"] as const,
+  musculationRoutine: (id: string) => ["musculation-routine", id] as const,
   planningTravail: ["planning-travail"] as const,
   planningTravailExceptions: ["planning-travail-exceptions"] as const,
 };

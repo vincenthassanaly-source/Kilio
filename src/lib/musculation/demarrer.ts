@@ -1,8 +1,9 @@
 "use client";
 
-import { getDernieresSeries, getSeancePlanifiee } from "@/app/actions/musculation";
+import { getDernieresSeries, getRoutine, getRoutines, getSeancePlanifiee } from "@/app/actions/musculation";
 import type { ExerciceCatalogue } from "./serveur";
 import { ecrireBrouillon } from "./brouillon";
+import { exerciceDepuisRoutine, type RoutineDetail, type RoutineResume } from "./routines";
 import { creerBrouillon, REPOS_PAR_DEFAUT_S, type Brouillon, type NouvelExercice, type SeriePrecedente } from "./seance";
 
 const NB_SERIES_PAR_DEFAUT = 3;
@@ -63,4 +64,51 @@ export async function demarrerSeanceVide(seanceId: string | null = null): Promis
   });
   await ecrireBrouillon(brouillon, true);
   return brouillon;
+}
+
+/** Séance démarrée depuis une routine : les cibles de la routine, puis la dernière performance. */
+export async function demarrerDepuisRoutine(routine: RoutineDetail, seanceId: string | null = null): Promise<Brouillon> {
+  const precedents = await chargerPrecedents(routine.exercices.map((e) => e.exerciceId));
+  const base = creerBrouillon({
+    nom: routine.nom,
+    routineId: routine.id,
+    seanceId,
+    maintenant: new Date().toISOString(),
+    exercices: [],
+  });
+  const brouillon: Brouillon = {
+    ...base,
+    exercices: routine.exercices.map((e) => exerciceDepuisRoutine(e, precedents[e.exerciceId] ?? [])),
+  };
+  await ecrireBrouillon(brouillon, true);
+  return brouillon;
+}
+
+/** Résultat de la préparation d'une séance planifiée : démarrée, ou plusieurs routines à départager. */
+export type PreparationSeance =
+  | { brouillon: Brouillon }
+  | { choix: { seanceId: string; type: string; routines: RoutineResume[] } };
+
+/**
+ * « Commencer » une séance planifiée : sa routine de même type (LEGS / PUSH /
+ * PULL) est choisie d'office s'il n'y en a qu'une, proposée s'il y en a
+ * plusieurs, et la séance est libre s'il n'y en a aucune. Hors ligne ou en cas
+ * d'erreur, on démarre quand même une séance libre liée à la séance planifiée.
+ */
+export async function preparerSeancePlanifiee(seanceId: string): Promise<PreparationSeance> {
+  try {
+    const planifiee = await getSeancePlanifiee(seanceId);
+    if (!planifiee) return { brouillon: await demarrerSeanceVide(null) };
+
+    const { routines } = await getRoutines();
+    const candidates = routines.filter((r) => r.typeSeance === planifiee.type && r.nbExercices > 0);
+    if (candidates.length === 0) return { brouillon: await demarrerSeanceVide(seanceId) };
+    if (candidates.length > 1) return { choix: { seanceId, type: planifiee.type, routines: candidates } };
+
+    const routine = await getRoutine(candidates[0].id);
+    if (!routine) return { brouillon: await demarrerSeanceVide(seanceId) };
+    return { brouillon: await demarrerDepuisRoutine(routine, seanceId) };
+  } catch {
+    return { brouillon: await demarrerSeanceVide(seanceId) };
+  }
 }

@@ -1,6 +1,9 @@
 import { NAV_ITEMS, isModuleRootPath } from "@/lib/navigation/registry";
 
 const FICHE_REFERENTIEL = /^\/pharmacie\/referentiel\/(classe|medicament|pathologie)\/[^/]+$/;
+// L'éditeur de routine (/musculation/routines/<id>) n'a pas de page « /musculation/routines » :
+// son parent est l'accueil du module.
+const EDITEUR_ROUTINE = /^\/musculation\/routines\/[^/]+$/;
 
 /**
  * Exception au retour « parent logique » : un jour du Journal ouvert depuis le
@@ -56,6 +59,8 @@ export function parentRoute(pathname: string, modulesBarreBasse: readonly string
   if (FICHE_REFERENTIEL.test(chemin)) {
     return "/pharmacie/referentiel";
   }
+
+  if (EDITEUR_ROUTINE.test(chemin)) return "/musculation";
 
   const segments = chemin.split("/").filter(Boolean);
   segments.pop();

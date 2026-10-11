@@ -6,7 +6,17 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { marquerFaite } from "@/lib/seances/serveur";
-import { estModeSaisie, estMuscle, type ModeSaisie, type Muscle } from "./constantes";
+import { estTypeSeance } from "@/lib/seances/compute";
+import { estModeSaisie, estMuscle, estTypeSerie, type ModeSaisie, type Muscle } from "./constantes";
+import type {
+  DossierRoutines,
+  RoutineDetail,
+  RoutineEntree,
+  RoutineExerciceDetail,
+  RoutineResume,
+  RoutineSerie,
+} from "./routines";
+import { modeOuDefaut } from "./routines";
 import type { EntrainementPayload, SeriePrecedente } from "./seance";
 
 type Client = SupabaseClient<Database>;
@@ -192,4 +202,187 @@ export async function enregistrerEntrainement(supabase: Client, payload: Entrain
   }
 
   return { error: null };
+}
+
+// --- Routines -------------------------------------------------------------
+
+export type RoutinesEtDossiers = { dossiers: DossierRoutines[]; routines: RoutineResume[] };
+
+const typeOuNull = (valeur: string | null) => (valeur && estTypeSeance(valeur) ? valeur : null);
+
+/** Dossiers et routines (avec leur nombre d'exercices). Vide si les tables sont absentes. */
+export async function listerRoutines(supabase: Client): Promise<RoutinesEtDossiers> {
+  const [dossiers, routines, exercices] = await Promise.all([
+    supabase.from("routine_dossiers").select("id, nom").order("ordre").order("nom"),
+    supabase.from("routines").select("id, nom, type_seance, dossier_id").order("ordre").order("nom"),
+    supabase.from("routine_exercices").select("routine_id"),
+  ]);
+  const erreur = dossiers.error ?? routines.error ?? exercices.error;
+  if (erreur) throw new Error(erreur.message);
+
+  const nombre = new Map<string, number>();
+  for (const l of exercices.data ?? []) nombre.set(l.routine_id, (nombre.get(l.routine_id) ?? 0) + 1);
+
+  return {
+    dossiers: (dossiers.data ?? []).map((d) => ({ id: d.id, nom: d.nom })),
+    routines: (routines.data ?? []).map((r) => ({
+      id: r.id,
+      nom: r.nom,
+      typeSeance: typeOuNull(r.type_seance),
+      dossierId: r.dossier_id,
+      nbExercices: nombre.get(r.id) ?? 0,
+    })),
+  };
+}
+
+/** Routine complète (exercices du catalogue et séries cibles), ou `null` si introuvable. */
+export async function lireRoutine(supabase: Client, id: string): Promise<RoutineDetail | null> {
+  const { data: routine, error } = await supabase
+    .from("routines")
+    .select("id, nom, type_seance, dossier_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!routine) return null;
+
+  const { data: lignes, error: erreurLignes } = await supabase
+    .from("routine_exercices")
+    .select("id, exercice_id, ordre, repos_s")
+    .eq("routine_id", id)
+    .order("ordre");
+  if (erreurLignes) throw new Error(erreurLignes.message);
+
+  const ids = (lignes ?? []).map((l) => l.id);
+  const idsExercices = [...new Set((lignes ?? []).map((l) => l.exercice_id))];
+  const [catalogue, series] = await Promise.all([
+    idsExercices.length > 0
+      ? supabase.from("exercices").select("id, nom, mode_saisie, repos_defaut_s").in("id", idsExercices)
+      : Promise.resolve({ data: [], error: null }),
+    ids.length > 0
+      ? supabase
+          .from("routine_series")
+          .select("routine_exercice_id, ordre, type_serie, poids_kg, reps, duree_s, distance_m")
+          .in("routine_exercice_id", ids)
+          .order("ordre")
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  const erreurDetail = catalogue.error ?? series.error;
+  if (erreurDetail) throw new Error(erreurDetail.message);
+
+  const exo = new Map((catalogue.data ?? []).map((e) => [e.id, e]));
+  const seriesParLigne = new Map<string, RoutineSerie[]>();
+  for (const s of series.data ?? []) {
+    const liste = seriesParLigne.get(s.routine_exercice_id) ?? [];
+    liste.push({
+      type: estTypeSerie(s.type_serie) ? s.type_serie : "normale",
+      poids: s.poids_kg,
+      reps: s.reps,
+      duree: s.duree_s,
+      distance: s.distance_m,
+    });
+    seriesParLigne.set(s.routine_exercice_id, liste);
+  }
+
+  const exercices: RoutineExerciceDetail[] = [];
+  for (const l of lignes ?? []) {
+    const e = exo.get(l.exercice_id);
+    if (!e) continue;
+    exercices.push({
+      exerciceId: l.exercice_id,
+      nom: e.nom,
+      mode: modeOuDefaut(e.mode_saisie),
+      reposS: l.repos_s,
+      reposExerciceS: e.repos_defaut_s,
+      series: seriesParLigne.get(l.id) ?? [],
+    });
+  }
+
+  return {
+    id: routine.id,
+    nom: routine.nom,
+    typeSeance: typeOuNull(routine.type_seance),
+    dossierId: routine.dossier_id,
+    exercices,
+  };
+}
+
+export type ResultatRoutine = { error: string | null; id?: string };
+
+/**
+ * Crée ou met à jour une routine. La mise à jour remplace tous les exercices
+ * et séries (l'ordre fait foi) : l'éditeur envoie toujours la routine entière.
+ */
+export async function enregistrerRoutine(supabase: Client, entree: RoutineEntree): Promise<ResultatRoutine> {
+  const echec = { error: "La routine n'a pas pu être enregistrée. Réessaie." };
+
+  // Un dossier supprimé entre-temps ne doit pas faire échouer l'enregistrement.
+  let dossierId = entree.dossierId;
+  if (dossierId) {
+    const { data } = await supabase.from("routine_dossiers").select("id").eq("id", dossierId).maybeSingle();
+    if (!data) dossierId = null;
+  }
+
+  const champs = { nom: entree.nom.trim(), type_seance: entree.typeSeance, dossier_id: dossierId };
+  let id = entree.id;
+  if (id) {
+    const { data, error } = await supabase.from("routines").update(champs).eq("id", id).select("id");
+    if (error) return echec;
+    if (!data || data.length === 0) return { error: "Cette routine n'existe plus." };
+  } else {
+    const { data, error } = await supabase.from("routines").insert(champs).select("id").single();
+    if (error || !data) return echec;
+    id = data.id;
+  }
+
+  const { error: erreurSuppression } = await supabase.from("routine_exercices").delete().eq("routine_id", id);
+  if (erreurSuppression) return echec;
+
+  const lignes = entree.exercices.map((e, ordre) => ({
+    id: crypto.randomUUID(),
+    routine_id: id,
+    exercice_id: e.exerciceId,
+    ordre,
+    repos_s: e.reposS,
+  }));
+  const { error: erreurExercices } = await supabase.from("routine_exercices").insert(lignes);
+  if (erreurExercices) return { error: "Un exercice de la routine n'existe plus dans le catalogue." };
+
+  const { error: erreurSeries } = await supabase.from("routine_series").insert(
+    entree.exercices.flatMap((e, i) =>
+      e.series.map((s, ordre) => ({
+        routine_exercice_id: lignes[i].id,
+        ordre,
+        type_serie: s.type,
+        poids_kg: s.poids === null ? null : Math.round(s.poids * 100) / 100,
+        reps: s.reps,
+        duree_s: s.duree,
+        distance_m: s.distance,
+      })),
+    ),
+  );
+  if (erreurSeries) return echec;
+
+  return { error: null, id };
+}
+
+export async function supprimerRoutine(supabase: Client, id: string): Promise<ResultatRoutine> {
+  const { error } = await supabase.from("routines").delete().eq("id", id);
+  return { error: error ? "La routine n'a pas pu être supprimée. Réessaie." : null };
+}
+
+export async function creerDossier(supabase: Client, nom: string): Promise<ResultatRoutine> {
+  const { data, error } = await supabase.from("routine_dossiers").insert({ nom: nom.trim() }).select("id").single();
+  if (error || !data) return { error: "Le dossier n'a pas pu être créé. Réessaie." };
+  return { error: null, id: data.id };
+}
+
+export async function renommerDossier(supabase: Client, id: string, nom: string): Promise<ResultatRoutine> {
+  const { error } = await supabase.from("routine_dossiers").update({ nom: nom.trim() }).eq("id", id);
+  return { error: error ? "Le dossier n'a pas pu être renommé. Réessaie." : null };
+}
+
+/** Supprime le dossier ; ses routines ne sont pas supprimées, elles passent « sans dossier ». */
+export async function supprimerDossier(supabase: Client, id: string): Promise<ResultatRoutine> {
+  const { error } = await supabase.from("routine_dossiers").delete().eq("id", id);
+  return { error: error ? "Le dossier n'a pas pu être supprimé. Réessaie." : null };
 }

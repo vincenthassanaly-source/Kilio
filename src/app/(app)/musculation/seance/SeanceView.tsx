@@ -7,7 +7,14 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { ecrireBrouillon, effacerBrouillon, lireBrouillon, synchroniserSeances, terminerSeance } from "@/lib/musculation/brouillon";
-import { demarrerSeanceVide, exerciceDepuisCatalogue } from "@/lib/musculation/demarrer";
+import { getRoutine } from "@/app/actions/musculation";
+import {
+  demarrerDepuisRoutine,
+  demarrerSeanceVide,
+  exerciceDepuisCatalogue,
+  preparerSeancePlanifiee,
+  type PreparationSeance,
+} from "@/lib/musculation/demarrer";
 import {
   ajouterExercice,
   ajouterSerie,
@@ -28,7 +35,7 @@ import {
 import { signalerFinRepos, useMinuteurRepos } from "@/lib/musculation/useMinuteurRepos";
 import { useWakeLock } from "@/lib/musculation/useWakeLock";
 import { queryKeys } from "@/lib/query/keys";
-import { metaText, primaryButton, secondaryButton } from "@/lib/ui";
+import { cardTight, metaText, nameText, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
 import { BarreRepos } from "./BarreRepos";
 import { ExerciceBloc } from "./ExerciceBloc";
 import { SelecteurExercices } from "./SelecteurExercices";
@@ -61,6 +68,8 @@ export function SeanceView({ seanceId }: { seanceId: string | null }) {
   const [selecteur, setSelecteur] = useState(false);
   const [confirmation, setConfirmation] = useState<Confirmation>(null);
   const [envoi, setEnvoi] = useState(false);
+  // Plusieurs routines pour le type de la séance planifiée : on laisse choisir.
+  const [choix, setChoix] = useState<Extract<PreparationSeance, { choix: unknown }>["choix"] | null>(null);
   // Une fois la séance terminée ou abandonnée, plus aucune écriture du brouillon.
   const clos = useRef(false);
 
@@ -75,8 +84,10 @@ export function SeanceView({ seanceId }: { seanceId: string | null }) {
       }
       // Pas de séance en cours : on démarre celle du lien, sinon retour à l'accueil du module.
       if (seanceId) {
-        const nouveau = await demarrerSeanceVide(seanceId);
-        if (!annule) setBrouillon(nouveau);
+        const preparation = await preparerSeancePlanifiee(seanceId);
+        if (annule) return;
+        if ("brouillon" in preparation) setBrouillon(preparation.brouillon);
+        else setChoix(preparation.choix);
       } else {
         setBrouillon(null);
       }
@@ -101,6 +112,40 @@ export function SeanceView({ seanceId }: { seanceId: string | null }) {
 
   useWakeLock(Boolean(brouillon));
   const restant = useMinuteurRepos(brouillon?.repos ?? null, signalerFinRepos);
+
+  if (choix && brouillon === undefined) {
+    const { seanceId: planifiee, type, routines } = choix;
+    const demarrer = async (routineId: string | null) => {
+      try {
+        const routine = routineId ? await getRoutine(routineId) : null;
+        setBrouillon(routine ? await demarrerDepuisRoutine(routine, planifiee) : await demarrerSeanceVide(planifiee));
+        setChoix(null);
+      } catch {
+        showErrorToast("Impossible de démarrer la séance. Réessaie.");
+      }
+    };
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className={screenTitle}>Séance {type}</h1>
+        <p className={metaText}>Quelle routine veux-tu suivre ?</p>
+        <ul className="flex flex-col gap-2">
+          {routines.map((r) => (
+            <li key={r.id}>
+              <button type="button" onClick={() => void demarrer(r.id)} className={`${cardTight} flex w-full flex-col gap-0.5 text-left`}>
+                <span className={nameText}>{r.nom}</span>
+                <span className={metaText}>
+                  {r.nbExercices} exercice{r.nbExercices > 1 ? "s" : ""}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <button type="button" className={secondaryButton} onClick={() => void demarrer(null)}>
+          Séance libre
+        </button>
+      </div>
+    );
+  }
 
   if (brouillon === undefined || brouillon === null) {
     return (
