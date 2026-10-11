@@ -11,6 +11,7 @@ import {
   type JourType,
 } from "@/lib/nutrition/bilan";
 import { getDatesEntrainement } from "@/app/actions/journal";
+import { getJoursLibres } from "@/app/actions/jours-libres";
 import { estJourType } from "@/lib/nutrition/planning";
 import { card, errorText, linkButton } from "@/lib/ui";
 import {
@@ -39,7 +40,7 @@ export async function BilanContenu() {
   const debut = shiftDate(aujourdhui, -(NB_JOURS_FENETRE - 1));
   const supabase = createAdminClient();
 
-  const [objectifs, repas, datesEntrainement] = await Promise.all([
+  const [objectifs, repas, datesEntrainement, joursLibres] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*"),
     supabase
       .from("journal_repas")
@@ -49,6 +50,7 @@ export async function BilanContenu() {
       .gte("date", debut)
       .lte("date", aujourdhui),
     getDatesEntrainement(debut, aujourdhui),
+    getJoursLibres(debut, aujourdhui),
   ]);
 
   const erreur = objectifs.error ?? repas.error;
@@ -87,6 +89,7 @@ export async function BilanContenu() {
     entrees: repas.data ?? [],
     datesEntrainement,
     cibles,
+    joursLibres,
   });
   const semaine = jours.slice(-NB_JOURS_SEMAINE);
   const mois = jours.slice(-NB_JOURS_MOIS);

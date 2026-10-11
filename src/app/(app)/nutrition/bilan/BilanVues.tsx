@@ -38,6 +38,8 @@ function libelleStatut(jour: JourBilan): string {
       return "journée en cours";
     case "vide":
       return "aucun repas saisi";
+    case "libre":
+      return "jour libre : limite suspendue";
     case "sans_objectif":
       return "pas d'objectif pour ce type de jour";
   }
@@ -54,6 +56,7 @@ function classesMarque(jour: Pick<JourBilan, "statut" | "gravite">): string {
     case "en_cours":
       return "border border-dashed border-ink-3 text-ink-2";
     case "vide":
+    case "libre":
     case "sans_objectif":
       return "bg-surface-alt text-ink-3";
   }
@@ -83,6 +86,13 @@ function Glyphe({ statut }: { statut: JourBilan["statut"] }) {
       return (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle cx="12" cy="12" r="3" fill="currentColor" />
+        </svg>
+      );
+    case "libre":
+      // Losange : distinct du tiret « sans saisie » sans dépendre de la couleur.
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m12 5.5 6.5 6.5-6.5 6.5L5.5 12 12 5.5Z" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
         </svg>
       );
     case "vide":
@@ -176,6 +186,7 @@ export function LegendeStatuts() {
   const exemples: { jour: Pick<JourBilan, "statut" | "gravite">; libelle: string }[] = [
     { jour: { statut: "reussi", gravite: null }, libelle: "Dans les clous" },
     { jour: { statut: "rate", gravite: "leger" }, libelle: "Hors objectif" },
+    { jour: { statut: "libre", gravite: null }, libelle: "Jour libre" },
     { jour: { statut: "vide", gravite: null }, libelle: "Sans saisie" },
   ];
   return (
@@ -197,9 +208,11 @@ export function DetailJours({ jours }: { jours: JourBilan[] }) {
         const { cible, consomme } = jour;
         const kcal = Math.round(consomme.kcal);
         const proteines = Math.round(consomme.proteines);
-        const kcalDepassees = cible != null && kcal > cible.kcal;
+        // Jour libre : la limite est suspendue, rien n'est signalé en dépassement.
+        const libre = jour.statut === "libre";
+        const kcalDepassees = !libre && cible != null && kcal > cible.kcal;
         const proteinesBasses =
-          cible != null && jour.statut !== "en_cours" && jour.nbRepas > 0 && proteines < cible.proteines;
+          !libre && cible != null && jour.statut !== "en_cours" && jour.nbRepas > 0 && proteines < cible.proteines;
         const classeKcal = kcalDepassees
           ? jour.gravite === "marque"
             ? "font-bold text-alert"
@@ -212,7 +225,10 @@ export function DetailJours({ jours }: { jours: JourBilan[] }) {
               <CercleStatut jour={jour} className="h-8 w-8" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[14.5px] font-semibold capitalize text-ink">{libelleCourt(jour.date)}</p>
-                <p className="text-xs text-ink-2">{jour.jourType === "entrainement" ? "Entraînement" : "Repos"}</p>
+                <p className="text-xs text-ink-2">
+                  {jour.jourType === "entrainement" ? "Entraînement" : "Repos"}
+                  {libre && " · jour libre"}
+                </p>
               </div>
               {jour.nbRepas === 0 ? (
                 <p className="text-xs text-ink-3">Aucun repas saisi</p>

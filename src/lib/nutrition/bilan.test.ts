@@ -50,6 +50,12 @@ describe("evaluerJour", () => {
     expect(evaluerJour({ ...base, nbRepas: 0, consomme: nutri(0, 0) }).statut).toBe("vide");
   });
 
+  it("libre : un jour libre n'est jamais jugé, même avec un gros dépassement ou sans repas", () => {
+    expect(evaluerJour({ ...base, consomme: nutri(3200, 40), jourLibre: true })).toEqual({ statut: "libre", gravite: null });
+    expect(evaluerJour({ ...base, nbRepas: 0, consomme: nutri(0, 0), jourLibre: true }).statut).toBe("libre");
+    expect(evaluerJour({ ...base, estAujourdhui: true, consomme: nutri(900, 40), jourLibre: true }).statut).toBe("libre");
+  });
+
   it("sans objectif : pas de cible pour ce type de jour", () => {
     expect(evaluerJour({ ...base, cible: null, consomme: nutri(1800, 100) }).statut).toBe("sans_objectif");
   });
@@ -146,6 +152,21 @@ describe("construireBilan", () => {
     expect(jours[1].statut).toBe("vide");
   });
 
+  it("marque libre les dates des jours libres, sans toucher aux autres", () => {
+    const jours = construireBilan({
+      aujourdhui: "2026-09-30",
+      nbJours: 3,
+      // Le 28 : 1700 kcal et 170 g de protéines, dans les clous (repos : 1800 / 140).
+      // Le 29 : 4000 kcal, un dépassement marqué sans jeton.
+      entrees: [entree("2026-09-28", 1700), entree("2026-09-29", 4000)],
+      datesEntrainement: [],
+      cibles,
+      joursLibres: ["2026-09-29"],
+    });
+    expect(jours.map((j) => j.statut)).toEqual(["reussi", "libre", "vide"]);
+    expect(jours[1].consomme.kcal).toBe(4000);
+  });
+
   it("aucune date marquée = repos, sans objectif si la cible manque", () => {
     const jours = construireBilan({
       aujourdhui: "2026-09-30",
@@ -178,6 +199,12 @@ describe("tauxReussite / serieEnCours", () => {
   it("série : coupée par un raté, épargnée par vide / en cours", () => {
     const jours = [jour("reussi"), jour("rate"), jour("reussi"), jour("vide"), jour("reussi"), jour("en_cours")];
     expect(serieEnCours(jours)).toEqual({ jours: 2, tronquee: false });
+  });
+
+  it("jour libre : hors taux, et la série n'est ni coupée ni allongée", () => {
+    const jours = [jour("reussi"), jour("libre"), jour("reussi"), jour("libre")];
+    expect(tauxReussite(jours)).toEqual({ reussis: 2, evalues: 2 });
+    expect(serieEnCours(jours)).toEqual({ jours: 2, tronquee: true });
   });
 
   it("série : nulle si le dernier jour jugé est raté", () => {

@@ -39,6 +39,9 @@ export const queryKeys = {
   inboxCount: ["inbox", "count"] as const,
   // Séances de sport de la semaine en cours (créneaux + occurrences) : clé par
   // jour pour repartir d'une semaine neuve passé minuit.
+  // Jours libres (jetons) autour d'aujourd'hui : posés/retirés depuis Aujourd'hui.
+  joursLibres: ["jours-libres"] as const,
+  joursLibresAutour: (today: string) => ["jours-libres", today] as const,
   seances: ["seances"] as const,
   seancesSemaine: (today: string) => ["seances", today] as const,
   planningTravail: ["planning-travail"] as const,

@@ -183,6 +183,16 @@ describe("getResumeNutritionJour", () => {
     expect(objectif.filtres).toContainEqual(["eq", "jour_type", "entrainement"]);
   });
 
+  it("signale un jour libre (jeton posé) et lit la date demandée", async () => {
+    const fake = brancher((a) => (a.table === "jours_libres" ? { data: { date: "2026-10-09" } } : undefined));
+    expect((await getResumeNutritionJour("2026-10-09")).jourLibre).toBe(true);
+    const lecture = fake.appels.find((a) => a.table === "jours_libres")!;
+    expect(lecture.filtres).toContainEqual(["eq", "date", "2026-10-09"]);
+
+    brancher();
+    expect((await getResumeNutritionJour("2026-10-09")).jourLibre).toBe(false);
+  });
+
   it("utilise la valeur de la recette quand elle est saisie, sinon calcule depuis ses ingrédients", async () => {
     brancher((a) => {
       if (a.table === "journal_repas") {

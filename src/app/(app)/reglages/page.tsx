@@ -3,6 +3,7 @@ import { getReglagesBriefing } from "@/app/actions/briefing";
 import { getReglagesNettoyage } from "@/app/actions/nettoyage";
 import { TransitionLink } from "@/components/TransitionLink";
 import { screenTitle, sectionTitle } from "@/lib/ui";
+import { AlertesNutritionRow } from "./AlertesNutritionRow";
 import { AppearanceRow } from "./AppearanceRow";
 import { BriefingRow } from "./BriefingRow";
 import { NettoyageAutoRow } from "./NettoyageAutoRow";
@@ -94,6 +95,7 @@ export default async function ReglagesPage() {
           <BriefingRow reglages={reglagesBriefing} />
           <RevueHebdoRow reglages={reglagesBriefing} />
           <SeancesRappelRow reglages={reglagesBriefing} />
+          <AlertesNutritionRow reglages={reglagesBriefing} />
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
       </div>

@@ -20,6 +20,8 @@ Pour le Journal Nutrition en particulier : l'objectif motivant le suivi est la *
 
 Séances de sport (écran Aujourd'hui) : Vincent planifie des créneaux hebdomadaires (jour, heure, type ; 3 par semaine au départ), et l'app en déduit les séances de la semaine en cours. Un rappel push part à l'heure du créneau avec les actions « Commencer » et « Décaler » ; une séance manquée est replacée une fois, automatiquement, sur le prochain jour libre de la semaine. Le ton reste neutre (« à replacer », jamais « échec »).
 
+Jours libres et alertes (nutrition) : le plafond kcal quotidien reste la règle. Vincent dispose de 2 jetons « jour libre » par semaine (lundi → dimanche), à poser le jour même ou la veille, jamais après coup ; un jour libre suspend la limite (pas d'alerte, affiché « libre » au Bilan, hors taux, sans casser la série) et se retire tant qu'il n'est pas passé. Comme les repas sont souvent saisis directement en base (via Claude), une Edge Function lit le journal chaque minute et envoie, une fois par jour : une alerte à 85 % de la limite kcal (ou au dépassement), et un rappel de saisie à 20:00 si le journal est vide. Les deux se règlent dans Réglages.
+
 ## Positioning
 
 Kilio existe plutôt qu'un outil generique (MyFitnessPal, Cronometer, Yazio...) parce que tous les modules personnels de Vincent partagent les mêmes données : une recette utilisée dans le Journal Nutrition vient directement du module Recettes (mêmes ingrédients, mêmes macros calculées), et à terme d'autres modules (Courses, Placard) pourront se recouper avec la Nutrition. C'est l'intégration native entre modules — pas la richesse d'une base alimentaire tierce — qui est la valeur du produit.

@@ -28,6 +28,8 @@ export type JournalFormState = { error: string | null; ok?: boolean };
 export type ResumeNutritionJour = {
   consomme: Nutrition;
   jourType: JourType;
+  // Jour libre (jeton posé) : la limite kcal est suspendue pour cette date.
+  jourLibre: boolean;
   // null : aucun objectif défini pour ce type de jour (plus de cible
   // inventée, constat J-P1-5).
   kcalGoal: number | null;
@@ -52,7 +54,7 @@ export async function getResumeNutritionJour(date: string): Promise<ResumeNutrit
   const supabase = createAdminClient();
   const jourType = jourTypePourDate(date, await getDatesEntrainement(date, date));
 
-  const [{ data: objectif }, { data: entries }] = await Promise.all([
+  const [{ data: objectif }, { data: entries }, { data: jourLibre }] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*").eq("jour_type", jourType).maybeSingle(),
     supabase
       .from("journal_repas")
@@ -60,6 +62,7 @@ export async function getResumeNutritionJour(date: string): Promise<ResumeNutrit
         "*, aliment:aliments(*), recette:recettes(id, nom, portions, kcal_portion, proteines_portion, glucides_portion, lipides_portion, recette_ingredients(quantite, aliment:aliments(kcal_100g, proteines_100g, glucides_100g, lipides_100g)))"
       )
       .eq("date", date),
+    supabase.from("jours_libres").select("date").eq("date", date).maybeSingle(),
   ]);
 
   // Même filtre des entrées orphelines que JournalJour.tsx (constat J-P1-5).
@@ -78,6 +81,7 @@ export async function getResumeNutritionJour(date: string): Promise<ResumeNutrit
   return {
     consomme,
     jourType,
+    jourLibre: jourLibre !== null && jourLibre !== undefined,
     kcalGoal: objectif?.kcal_cible ?? null,
     macroGoals: objectif
       ? {
