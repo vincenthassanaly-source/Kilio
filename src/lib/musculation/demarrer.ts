@@ -52,6 +52,7 @@ export async function exerciceDepuisCatalogue(exercice: ExerciceCatalogue): Prom
     nbSeries: NB_SERIES_PAR_DEFAUT,
     precedent: precedents[exercice.id] ?? [],
     records: records[exercice.id] ?? null,
+    animation: exercice.animation,
   };
 }
 

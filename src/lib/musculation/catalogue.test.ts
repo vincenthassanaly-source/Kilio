@@ -9,6 +9,7 @@ const exo = (nom: string, muscle: ExerciceCatalogue["muscle"], materiel: string 
   muscle,
   materiel,
   reposDefautS: null,
+  animation: null,
 });
 
 const catalogue = [

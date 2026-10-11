@@ -29,6 +29,7 @@ import { formaterMinutes } from "@/lib/musculation/seance";
 import type { ExerciceCatalogue } from "@/lib/musculation/serveur";
 import { queryKeys } from "@/lib/query/keys";
 import { card, dangerButton, errorText, ghostButton, input, label, metaText, nameText, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
+import { AnimationVignette } from "../../AnimationExercice";
 import { ChampNombre } from "../../seance/ChampNombre";
 import { SelecteurExercices } from "../../seance/SelecteurExercices";
 
@@ -51,6 +52,7 @@ function exerciceDepuisCatalogue(e: ExerciceCatalogue): RoutineExerciceDetail {
     mode: e.mode,
     reposS: null,
     reposExerciceS: e.reposDefautS,
+    animation: e.animation,
     series: [serieVide(), serieVide(), serieVide()],
   };
 }
@@ -187,6 +189,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
         return (
           <section key={`${exercice.exerciceId}-${index}`} className={`${card} flex flex-col gap-3`} aria-label={exercice.nom}>
             <header className="flex items-center gap-2">
+              <AnimationVignette animation={exercice.animation} nom={exercice.nom} />
               <span className={`${nameText} min-w-0 flex-1 !whitespace-normal`}>{exercice.nom}</span>
               <button type="button" className={ghostButton} onClick={() => deplacer(index, -1)} disabled={index === 0} aria-label={`Monter ${exercice.nom}`}>
                 ↑

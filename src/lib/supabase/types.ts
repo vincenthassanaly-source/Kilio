@@ -1837,6 +1837,7 @@ export type Database = {
       }
       exercices: {
         Row: {
+          animation: string | null
           created_at: string
           id: string
           materiel: string | null
@@ -1848,6 +1849,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          animation?: string | null
           created_at?: string
           id?: string
           materiel?: string | null
@@ -1859,6 +1861,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          animation?: string | null
           created_at?: string
           id?: string
           materiel?: string | null

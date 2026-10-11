@@ -174,11 +174,11 @@ describe("dernieresSeries", () => {
 describe("listerExercices", () => {
   it("normalise les valeurs inconnues", async () => {
     const fake = fauxSupabase(() => ({
-      data: [{ id: ID_EXERCICE, nom: "Squat", mode_saisie: "bizarre", muscle_principal: "nuque", materiel: null, repos_defaut_s: 120 }],
+      data: [{ id: ID_EXERCICE, nom: "Squat", mode_saisie: "bizarre", muscle_principal: "nuque", materiel: null, repos_defaut_s: 120, animation: "inconnue" }],
     }));
 
     expect(await listerExercices(fake.client as never)).toEqual([
-      { id: ID_EXERCICE, nom: "Squat", mode: "poids_reps", muscle: "corps_entier", materiel: null, reposDefautS: 120 },
+      { id: ID_EXERCICE, nom: "Squat", mode: "poids_reps", muscle: "corps_entier", materiel: null, reposDefautS: 120, animation: null },
     ]);
   });
 });

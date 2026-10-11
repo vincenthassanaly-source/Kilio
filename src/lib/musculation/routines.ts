@@ -2,6 +2,7 @@
 // Logique pure (aucun accès réseau ni React), partagée par les Server Actions,
 // l'éditeur de routine et le démarrage d'une séance depuis une routine.
 import { creerExerciceBrouillon, REPOS_PAR_DEFAUT_S, type ExerciceBrouillon, type SeriePrecedente } from "./seance";
+import type { CleAnimation } from "./animations";
 import { estTypeSeance } from "@/lib/seances/compute";
 import type { RecordsExercice } from "./stats";
 import { estModeSaisie, estTypeSerie, type ModeSaisie, type TypeSeance, type TypeSerie } from "./constantes";
@@ -37,6 +38,7 @@ export type RoutineExerciceDetail = RoutineExerciceEntree & {
   mode: ModeSaisie;
   /** Repos par défaut de l'exercice au catalogue. */
   reposExerciceS: number | null;
+  animation?: CleAnimation | null;
 };
 
 export type RoutineDetail = {
@@ -82,6 +84,7 @@ export function exerciceDepuisRoutine(
       nbSeries: Math.max(1, exercice.series.length),
       precedent,
       records,
+      animation: exercice.animation ?? null,
     },
     genererId,
   );

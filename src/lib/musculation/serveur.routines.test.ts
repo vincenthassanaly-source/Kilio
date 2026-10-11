@@ -73,7 +73,7 @@ describe("lireRoutine", () => {
       if (a.table === "routine_exercices") {
         return { data: [{ id: "re1", exercice_id: EXO, ordre: 0, repos_s: null }, { id: "re2", exercice_id: "disparu", ordre: 1, repos_s: 30 }] };
       }
-      if (a.table === "exercices") return { data: [{ id: EXO, nom: "Développé couché", mode_saisie: "poids_reps", repos_defaut_s: 120 }] };
+      if (a.table === "exercices") return { data: [{ id: EXO, nom: "Développé couché", mode_saisie: "poids_reps", repos_defaut_s: 120, animation: "developpe-couche" }] };
       if (a.table === "routine_series") {
         return {
           data: [
@@ -99,6 +99,7 @@ describe("lireRoutine", () => {
           mode: "poids_reps",
           reposS: null,
           reposExerciceS: 120,
+          animation: "developpe-couche",
           series: [
             { type: "echauffement", poids: 40, reps: 10, duree: null, distance: null },
             { type: "normale", poids: 80, reps: 8, duree: null, distance: null },
