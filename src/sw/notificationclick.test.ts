@@ -99,7 +99,7 @@ describe("sw.js notificationclick (CLICK-PATH-605)", () => {
 });
 
 // Rappel de séance (supabase/functions/envoyer-rappels-seances) : boutons
-// « Commencer » (ouvre Aujourd'hui) et « Décaler » (route de report).
+// « Commencer » (coche la séance) et « Décaler » (route de report).
 describe("sw.js rappel de séance", () => {
   const notification = () => ({ data: { url: "/aujourdhui", tacheId: null, seanceId: "s1" }, close: vi.fn() });
 
@@ -138,22 +138,56 @@ describe("sw.js rappel de séance", () => {
     expect(self.clients.openWindow).not.toHaveBeenCalled();
   });
 
-  it("« Commencer » ouvre l'écran Aujourd'hui", async () => {
-    const { self, listeners, fetchFictif } = chargerServiceWorker();
-    self.clients.matchAll.mockResolvedValue([]);
+  const cliquer = async (self: ReturnType<typeof chargerServiceWorker>, action: string) => {
     let attendu: Promise<unknown> = Promise.resolve();
-
-    listeners.notificationclick({
-      action: "commencer",
+    self.listeners.notificationclick({
+      action,
       notification: notification(),
       waitUntil: (promise: Promise<unknown>) => {
         attendu = promise;
       },
     });
     await attendu;
+  };
 
-    expect(self.clients.openWindow).toHaveBeenCalledWith("/aujourdhui");
-    expect(fetchFictif).not.toHaveBeenCalled();
+  it("« Commencer » coche la séance sans ouvrir l'app", async () => {
+    const sw = chargerServiceWorker();
+    sw.fetchFictif.mockResolvedValue({ ok: true });
+
+    await cliquer(sw, "commencer");
+
+    expect(sw.fetchFictif).toHaveBeenCalledWith("/api/seances/s1/commencer", { method: "POST" });
+    expect(sw.self.clients.openWindow).not.toHaveBeenCalled();
+  });
+
+  it("« Commencer » refusé par le serveur (déjà faite…) ouvre Aujourd'hui", async () => {
+    const sw = chargerServiceWorker();
+    sw.self.clients.matchAll.mockResolvedValue([]);
+    sw.fetchFictif.mockResolvedValue({ ok: false });
+
+    await cliquer(sw, "commencer");
+
+    expect(sw.self.clients.openWindow).toHaveBeenCalledWith("/aujourdhui");
+  });
+
+  it("« Commencer » hors-ligne ouvre Aujourd'hui", async () => {
+    const sw = chargerServiceWorker();
+    sw.self.clients.matchAll.mockResolvedValue([]);
+    sw.fetchFictif.mockRejectedValue(new Error("offline"));
+
+    await cliquer(sw, "commencer");
+
+    expect(sw.self.clients.openWindow).toHaveBeenCalledWith("/aujourdhui");
+  });
+
+  it("un clic sur le corps de la notification ouvre l'app sans cocher", async () => {
+    const sw = chargerServiceWorker();
+    sw.self.clients.matchAll.mockResolvedValue([]);
+
+    await cliquer(sw, "");
+
+    expect(sw.self.clients.openWindow).toHaveBeenCalledWith("/aujourdhui");
+    expect(sw.fetchFictif).not.toHaveBeenCalled();
   });
 
   it("« Décaler » échoué (hors-ligne) ne lève pas d'exception", async () => {

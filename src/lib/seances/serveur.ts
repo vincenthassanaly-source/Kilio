@@ -115,3 +115,38 @@ export async function decalerSeance(
   if (erreurMaj) return { error: "Impossible de décaler la séance. Réessaie." };
   return { error: null, date: jour };
 }
+
+export type ResultatMarquage = { error: string | null; date?: string };
+
+/**
+ * Marque une séance faite (ou non). Une séance faite fait aussi de ce jour un
+ * jour d'entraînement (cible kcal « entraînement » du Journal) ; la défaire le
+ * remet en repos. Partagé par la Server Action et la route « Commencer » de la
+ * notification push.
+ */
+export async function marquerFaite(supabase: Client, id: string, faite: boolean): Promise<ResultatMarquage> {
+  const { data: seance, error } = await supabase.from("seances").select("date, statut").eq("id", id).maybeSingle();
+  if (error || !seance) return { error: "Séance introuvable." };
+
+  const { error: erreurMaj } = await supabase
+    .from("seances")
+    .update({ statut: faite ? "faite" : "prevue" })
+    .eq("id", id);
+  if (erreurMaj) return { error: "La séance n'a pas pu être mise à jour. Réessaie." };
+
+  const { error: erreurJour } = await supabase
+    .from("jours_entrainement")
+    .upsert({ date: seance.date, entraine: faite, updated_at: new Date().toISOString() }, { onConflict: "date" });
+  if (erreurJour) console.error("marquerFaite: échec de la synchro jours_entrainement", erreurJour);
+
+  return { error: null, date: seance.date };
+}
+
+/** Bouton « Commencer » de la notification : coche la séance, sauf si elle l'est déjà. */
+export async function commencerSeance(supabase: Client, id: string): Promise<ResultatMarquage> {
+  const { data: seance, error } = await supabase.from("seances").select("statut").eq("id", id).maybeSingle();
+  if (error) return { error: "Impossible de cocher la séance. Réessaie." };
+  if (!seance) return { error: "Séance introuvable." };
+  if (seance.statut === "faite") return { error: "Cette séance est déjà faite." };
+  return marquerFaite(supabase, id, true);
+}

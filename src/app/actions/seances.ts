@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { aujourdhuiParis, heureParis } from "@/lib/date/paris";
-import { decalerSeance, lireSemaine, type SemaineSeances } from "@/lib/seances/serveur";
+import { estTypeSeance } from "@/lib/seances/compute";
+import { decalerSeance, lireSemaine, marquerFaite, type SemaineSeances } from "@/lib/seances/serveur";
 import { estUuid } from "@/lib/uuid";
 
 const HEURE_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -14,8 +15,7 @@ export type CreneauInput = { jourSemaine: number; heure: string; type: string };
 
 function validerCreneau(input: CreneauInput): { erreur: string } | { jour: number; heure: string; type: string } {
   const type = input.type.trim();
-  if (!type) return { erreur: "Donne un nom à la séance." };
-  if (type.length > 40) return { erreur: "Le nom de la séance est limité à 40 caractères." };
+  if (!estTypeSeance(type)) return { erreur: "Choisis LEGS, PUSH ou PULL." };
   if (!Number.isInteger(input.jourSemaine) || input.jourSemaine < 0 || input.jourSemaine > 6) {
     return { erreur: "Jour invalide." };
   }
@@ -45,21 +45,8 @@ export async function getSemaineSeances(today: string): Promise<SemaineSeances> 
  */
 export async function marquerSeanceFaite(id: string, faite: boolean): Promise<ActionResult> {
   if (!estUuid(id)) return fail("Séance introuvable.");
-  const supabase = createAdminClient();
-
-  const { data: seance, error } = await supabase.from("seances").select("date").eq("id", id).maybeSingle();
-  if (error || !seance) return fail("Séance introuvable.");
-
-  const { error: erreurMaj } = await supabase
-    .from("seances")
-    .update({ statut: faite ? "faite" : "prevue" })
-    .eq("id", id);
-  if (erreurMaj) return fail("La séance n'a pas pu être mise à jour. Réessaie.");
-
-  const { error: erreurJour } = await supabase
-    .from("jours_entrainement")
-    .upsert({ date: seance.date, entraine: faite, updated_at: new Date().toISOString() }, { onConflict: "date" });
-  if (erreurJour) console.error("marquerSeanceFaite: échec de la synchro jours_entrainement", erreurJour);
+  const resultat = await marquerFaite(createAdminClient(), id, faite);
+  if (resultat.error) return fail(resultat.error);
 
   revalider();
   revalidatePath("/nutrition/journal");

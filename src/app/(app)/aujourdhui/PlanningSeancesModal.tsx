@@ -8,13 +8,12 @@ import { showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
 import { confirmDelete } from "@/lib/confirm";
 import { queryKeys } from "@/lib/query/keys";
-import { heureCourte, JOURS_LONGS, type Creneau } from "@/lib/seances/compute";
+import { heureCourte, estTypeSeance, JOURS_LONGS, TYPES_SEANCE, type Creneau } from "@/lib/seances/compute";
 import { errorText, ghostButton, input, label, primaryButton, secondaryButton } from "@/lib/ui";
 
 // Lundi d'abord, comme la semaine affichée (jour_semaine : 0 = dimanche).
 const ORDRE_JOURS = [1, 2, 3, 4, 5, 6, 0] as const;
-const SUGGESTIONS = ["Renforcement", "Course à pied", "Marche rapide", "Gainage", "Vélo"];
-const BROUILLON_VIDE: CreneauInput = { jourSemaine: 1, heure: "18:00", type: "" };
+const BROUILLON_VIDE: CreneauInput = { jourSemaine: 1, heure: "18:00", type: TYPES_SEANCE[0] };
 
 const majuscule = (texte: string) => texte.charAt(0).toUpperCase() + texte.slice(1);
 
@@ -40,7 +39,7 @@ export function PlanningSeancesModal({ creneaux, onClose }: { creneaux: Creneau[
     setErreur(null);
     setBrouillon(
       creneau
-        ? { jourSemaine: creneau.jour_semaine, heure: heureCourte(creneau.heure), type: creneau.type }
+        ? { jourSemaine: creneau.jour_semaine, heure: heureCourte(creneau.heure), type: estTypeSeance(creneau.type) ? creneau.type : TYPES_SEANCE[0] }
         : BROUILLON_VIDE
     );
     setEdition({ id: creneau?.id ?? null });
@@ -118,22 +117,18 @@ export function PlanningSeancesModal({ creneaux, onClose }: { creneaux: Creneau[
               <label htmlFor="creneau-type" className={label}>
                 Séance
               </label>
-              <input
+              <select
                 id="creneau-type"
-                list="creneau-suggestions"
                 value={brouillon.type}
                 onChange={(e) => setBrouillon({ ...brouillon, type: e.target.value })}
-                maxLength={40}
-                autoComplete="off"
-                placeholder="Renforcement, course à pied…"
                 className={`${input} min-h-11`}
-                required
-              />
-              <datalist id="creneau-suggestions">
-                {SUGGESTIONS.map((s) => (
-                  <option key={s} value={s} />
+              >
+                {TYPES_SEANCE.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
-              </datalist>
+              </select>
             </div>
             <div className="grid grid-cols-[1fr_auto] gap-3">
               <div className="flex flex-col gap-1.5">
