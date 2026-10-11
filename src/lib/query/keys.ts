@@ -39,6 +39,11 @@ export const queryKeys = {
   inboxCount: ["inbox", "count"] as const,
   // Séances de sport de la semaine en cours (créneaux + occurrences) : clé par
   // jour pour repartir d'une semaine neuve passé minuit.
+  // Bilan de la semaine (kcal moyens, séances, poids, taille) et derniers
+  // relevés du corps : invalidés après une pesée.
+  syntheseSemaine: (today: string) => ["synthese-semaine", today] as const,
+  synthesesSemaine: ["synthese-semaine"] as const,
+  mesuresRecentes: ["mesures-recentes"] as const,
   // Jours libres (jetons) autour d'aujourd'hui : posés/retirés depuis Aujourd'hui.
   joursLibres: ["jours-libres"] as const,
   joursLibresAutour: (today: string) => ["jours-libres", today] as const,

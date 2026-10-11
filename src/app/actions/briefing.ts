@@ -64,6 +64,21 @@ export async function updateReglagesRappelSaisie(actif: boolean, heure: string):
   return ok();
 }
 
+export async function updateReglagesBilan(actif: boolean, jour: number, heure: string): Promise<ActionResult> {
+  if (!Number.isInteger(jour) || jour < 0 || jour > 6) return fail("Jour invalide.");
+  if (!HEURE_REGEX.test(heure)) return fail("Heure invalide (format HH:MM).");
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("reglages_briefing")
+    .update({ bilan_actif: actif, bilan_jour: jour, bilan_heure: heure })
+    .eq("id", REGLAGES_ID);
+  if (error) return fail("Le réglage n'a pas pu être enregistré. Réessaie.");
+
+  revalidatePath("/reglages");
+  return ok();
+}
+
 export async function updateReglagesRevue(actif: boolean, jour: number, heure: string): Promise<ActionResult> {
   if (!Number.isInteger(jour) || jour < 0 || jour > 6) return fail("Jour invalide.");
   if (!HEURE_REGEX.test(heure)) return fail("Heure invalide (format HH:MM).");

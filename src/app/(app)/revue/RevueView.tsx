@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { getEvenements } from "@/app/actions/evenements";
+import { getSyntheseSemaine } from "@/app/actions/sante";
 import { getTachesAvecRelations } from "@/app/actions/taches";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { useInboxCount } from "@/hooks/useInboxCount";
@@ -17,6 +18,7 @@ import { bilanSemaine, nbSansDate, semaineProchaine } from "@/lib/revue/compute"
 import { libelleDuree } from "@/lib/taches/compute";
 import { card, sectionTitle } from "@/lib/ui";
 import { EnRetardSection } from "../aujourdhui/EnRetardSection";
+import { SyntheseSemaine } from "../nutrition/bilan/SyntheseSemaine";
 
 const NB_TERMINEES_VISIBLES = 5;
 
@@ -52,6 +54,11 @@ export function RevueView({ today }: { today: string }) {
   const { data: evenementsAvenir = [] } = useQuery({
     queryKey: queryKeys.evenementsPlage(avenirDebut, avenirFin),
     queryFn: () => getEvenements(avenirDebut, avenirFin),
+  });
+
+  const { data: sante } = useQuery({
+    queryKey: queryKeys.syntheseSemaine(today),
+    queryFn: () => getSyntheseSemaine(today),
   });
 
   const liste = useMemo(() => taches ?? [], [taches]);
@@ -174,6 +181,17 @@ export function RevueView({ today }: { today: string }) {
           </TransitionLink>
         </section>
       )}
+
+      <section aria-labelledby="revue-sante" className="flex flex-col gap-2">
+        <h2 id="revue-sante" className={sectionTitle}>
+          6. Santé de la semaine
+        </h2>
+        {sante ? (
+          <SyntheseSemaine synthese={sante} lienBilan />
+        ) : (
+          <Skeleton className="h-40 w-full rounded-[22px]" />
+        )}
+      </section>
 
       {sansDate > 0 && (
         <section aria-labelledby="revue-sans-date" className={`${card} flex items-center justify-between gap-3`}>

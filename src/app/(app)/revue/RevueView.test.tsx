@@ -16,6 +16,7 @@ vi.stubGlobal(
   vi.fn().mockResolvedValue({ ok: true, json: async () => ({ count: 3 }) })
 );
 vi.mock("@/app/actions/evenements", () => ({ getEvenements: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/app/actions/sante", () => ({ getSyntheseSemaine: vi.fn() }));
 vi.mock("@/app/actions/taches", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/app/actions/taches")>()),
   getTachesAvecRelations: vi.fn().mockResolvedValue([]),
@@ -30,6 +31,13 @@ function monter(taches = [makeTache({ id: "a" })], evenementsAvenir: unknown[] =
   client.setQueryData(queryKeys.taches, taches);
   client.setQueryData(queryKeys.evenementsPlage("2026-10-05", TODAY), []);
   client.setQueryData(queryKeys.evenementsPlage("2026-10-12", "2026-10-18"), evenementsAvenir);
+  client.setQueryData(queryKeys.syntheseSemaine(TODAY), {
+    kcal: { moyenne: 1920, cibleMoyenne: 2000, nbJours: 6, nbDansLimite: 5 },
+    seances: { faites: 2, total: 3 },
+    poids: { actuel: 82.4, delta: -0.6, ageJours: 0 },
+    taille: null,
+    derniereMesure: TODAY,
+  });
   render(
     <QueryClientProvider client={client}>
       <RevueView today={TODAY} />
@@ -51,6 +59,15 @@ describe("RevueView", () => {
     expect(screen.getByText("Lundi matin")).toBeTruthy();
     expect(screen.getAllByText("Libre")).toHaveLength(6);
     expect(screen.getByText(/1 tâche n'a pas d'échéance/)).toBeTruthy();
+  });
+
+  it("résume la santé de la semaine avec un lien vers le bilan", () => {
+    monter();
+    expect(screen.getByText("6. Santé de la semaine")).toBeTruthy();
+    expect(screen.getByText("2/3")).toBeTruthy();
+    expect(screen.getByText("faites cette semaine")).toBeTruthy();
+    expect(screen.getByText("Pas de relevé")).toBeTruthy(); // tour de taille
+    expect(screen.getByRole("link", { name: "Voir le bilan complet" }).getAttribute("href")).toBe("/nutrition/bilan");
   });
 
   it("félicite quand rien n'est en retard", () => {
