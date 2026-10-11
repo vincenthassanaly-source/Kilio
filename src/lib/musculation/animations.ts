@@ -6,7 +6,26 @@
 // Garder cette liste identique à ANIMATIONS de public/sw.js (précache hors ligne) :
 // animations.test.ts compare les deux.
 
-export const ANIMATIONS = ["elevation-laterale", "developpe-couche", "developpe-couche-incline"] as const;
+export const ANIMATIONS = [
+  "elevation-laterale",
+  "developpe-couche",
+  "developpe-couche-incline",
+  "planche",
+  "planche-laterale",
+  "crunch",
+  "abdos-ciseaux",
+  "releve-jambe-barres-paralleles",
+  "extension-dos-hyperextension",
+  "leg-curl-assis",
+  "extension-jambes",
+  "adduction-hanche",
+  "presse-mollets",
+  "presse-cuisses-horizontale",
+  "tirage-poitrine-poulie",
+  "curl-marteau",
+  "curl-biceps",
+  "extension-triceps-poulie-haute",
+] as const;
 
 export type CleAnimation = (typeof ANIMATIONS)[number];
 

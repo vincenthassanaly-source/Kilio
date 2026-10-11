@@ -10,7 +10,26 @@ const CACHE_PARTAGE = "kilio-partage-en-attente";
 // (animations.test.ts compare les deux).
 const CACHE_ANIMATIONS = "kilio-animations-v1";
 const DOSSIER_ANIMATIONS = "/animations/musculation/";
-const ANIMATIONS = ["elevation-laterale", "developpe-couche", "developpe-couche-incline"];
+const ANIMATIONS = [
+  "elevation-laterale",
+  "developpe-couche",
+  "developpe-couche-incline",
+  "planche",
+  "planche-laterale",
+  "crunch",
+  "abdos-ciseaux",
+  "releve-jambe-barres-paralleles",
+  "extension-dos-hyperextension",
+  "leg-curl-assis",
+  "extension-jambes",
+  "adduction-hanche",
+  "presse-mollets",
+  "presse-cuisses-horizontale",
+  "tirage-poitrine-poulie",
+  "curl-marteau",
+  "curl-biceps",
+  "extension-triceps-poulie-haute",
+];
 const FICHIERS_ANIMATIONS = ANIMATIONS.flatMap((cle) => [
   `${DOSSIER_ANIMATIONS}${cle}.webm`,
   `${DOSSIER_ANIMATIONS}${cle}.webp`,
