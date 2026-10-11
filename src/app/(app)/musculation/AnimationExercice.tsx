@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, useReducedMotion } from "framer-motion";
 import { Modal } from "@/components/Modal";
+import { useBackClose } from "@/hooks/useBackClose";
 import { cleAnimationOuNull, urlPoster, urlVideo, type CleAnimation } from "@/lib/musculation/animations";
 
 // Silhouette animée d'un exercice (vidéo WebM transparente). Rien n'est rendu
@@ -36,6 +37,8 @@ export function AnimationMiniature({ animation, nom }: { animation: string | nul
   const cle = cleAnimationOuNull(animation);
   const [ouvert, setOuvert] = useState(false);
   const reduit = useReducedMotion() ?? false;
+  // Le retour referme la feuille au lieu de quitter la séance.
+  useBackClose(ouvert, () => setOuvert(false));
   if (!cle) return null;
   return (
     <>
