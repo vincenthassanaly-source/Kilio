@@ -7,6 +7,7 @@ import {
   basculerSerie,
   compterSeries,
   creerBrouillon,
+  deplacerExercice,
   formaterDureeSeance,
   formaterMinutes,
   formaterPoids,
@@ -14,6 +15,7 @@ import {
   libelleSerie,
   lireNombre,
   modifierSerie,
+  remplacerExercice,
   resteRepos,
   retirerExercice,
   retirerSerie,
@@ -122,6 +124,75 @@ describe("édition", () => {
     expect(b.exercices).toHaveLength(0);
     expect(b.repos).toBeNull();
     expect(ajouterExercice(b, banc, compteur()).exercices).toHaveLength(1);
+  });
+});
+
+describe("remplacerExercice", () => {
+  const AUTRE = "22222222-2222-4222-8222-222222222222";
+  const planche: NouvelExercice = {
+    exerciceId: AUTRE,
+    nom: "Planche",
+    mode: "duree",
+    reposS: 45,
+    nbSeries: 3,
+    precedent: [{ poids: null, reps: null, duree: 60, distance: null }],
+    animation: "planche",
+  };
+
+  it("garde place, clé, nombre et type des séries ; valeurs et cases repartent de zéro", () => {
+    let b = creerBrouillon(
+      { nom: "Push", routineId: null, seanceId: null, maintenant: DEBUT, exercices: [banc, { ...banc, nom: "Autre" }] },
+      compteur(),
+    );
+    const { cle, series } = b.exercices[0];
+    b = modifierSerie(b, cle, series[0].id, { type: "echauffement", poids: 100 });
+    b = basculerSerie(b, cle, series[0].id, apres(10));
+
+    const apresRemplacement = remplacerExercice(b, cle, planche, compteur());
+    const e = apresRemplacement.exercices[0];
+
+    expect(apresRemplacement.exercices).toHaveLength(2);
+    expect(apresRemplacement.exercices[1].nom).toBe("Autre");
+    expect([e.cle, e.exerciceId, e.nom, e.mode, e.reposS, e.animation]).toEqual([cle, AUTRE, "Planche", "duree", 45, "planche"]);
+    expect(e.series.map((s) => s.id)).toEqual(series.map((s) => s.id));
+    expect(e.series.map((s) => s.type)).toEqual(["echauffement", "normale", "normale"]);
+    expect(e.series.every((s) => !s.fait && s.faitA === null && s.poids === null && s.duree === 60)).toBe(true);
+  });
+
+  it("laisse un repos en cours finir", () => {
+    let b = brouillon();
+    const { cle, series } = b.exercices[0];
+    b = basculerSerie(b, cle, series[0].id, apres(10));
+    expect(remplacerExercice(b, cle, planche, compteur()).repos).toEqual(b.repos);
+  });
+});
+
+describe("deplacerExercice", () => {
+  function troisExercices(): Brouillon {
+    return creerBrouillon(
+      {
+        nom: "x",
+        routineId: null,
+        seanceId: null,
+        maintenant: DEBUT,
+        exercices: ["A", "B", "C"].map((nom) => ({ ...banc, nom })),
+      },
+      compteur(),
+    );
+  }
+  const noms = (b: Brouillon) => b.exercices.map((e) => e.nom).join("");
+
+  it("monte et descend d'un cran", () => {
+    const b = troisExercices();
+    expect(noms(deplacerExercice(b, b.exercices[1].cle, -1))).toBe("BAC");
+    expect(noms(deplacerExercice(b, b.exercices[1].cle, 1))).toBe("ACB");
+  });
+
+  it("ne bouge pas aux extrémités ni pour une clé inconnue", () => {
+    const b = troisExercices();
+    expect(deplacerExercice(b, b.exercices[0].cle, -1)).toBe(b);
+    expect(deplacerExercice(b, b.exercices[2].cle, 1)).toBe(b);
+    expect(deplacerExercice(b, "inconnue", 1)).toBe(b);
   });
 });
 

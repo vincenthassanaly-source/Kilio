@@ -22,9 +22,11 @@ import {
   ajusterReposExercice,
   basculerSerie,
   compterSeries,
+  deplacerExercice,
   formaterMinutes,
   formaterPoids,
   modifierSerie,
+  remplacerExercice,
   retirerExercice,
   retirerSerie,
   terminerRepos,
@@ -66,6 +68,8 @@ export function SeanceView({ seanceId }: { seanceId: string | null }) {
   // undefined : lecture du stockage local en cours ; null : aucune séance en cours.
   const [brouillon, setBrouillon] = useState<Brouillon | null | undefined>(undefined);
   const [selecteur, setSelecteur] = useState(false);
+  // Clé de l'exercice à remplacer : le sélecteur du catalogue sert alors au remplacement.
+  const [remplacementPour, setRemplacementPour] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation>(null);
   const [envoi, setEnvoi] = useState(false);
   // Plusieurs routines pour le type de la séance planifiée : on laisse choisir.
@@ -245,10 +249,14 @@ export function SeanceView({ seanceId }: { seanceId: string | null }) {
         </p>
       )}
 
-      {b.exercices.map((exercice) => (
+      {b.exercices.map((exercice, index) => (
         <ExerciceBloc
           key={exercice.cle}
           exercice={exercice}
+          premier={index === 0}
+          dernier={index === b.exercices.length - 1}
+          onRemplacer={setRemplacementPour}
+          onDeplacer={(cle, sens) => maj((courant) => deplacerExercice(courant, cle, sens))}
           onModifierSerie={(cle, serieId, champs) => maj((courant) => modifierSerie(courant, cle, serieId, champs))}
           onBasculer={(cle, serieId) => maj((courant) => basculerSerie(courant, cle, serieId, new Date().toISOString()))}
           onAjouterSerie={(cle) => maj((courant) => ajouterSerie(courant, cle))}
@@ -274,6 +282,19 @@ export function SeanceView({ seanceId }: { seanceId: string | null }) {
           setSelecteur(false);
           const nouvel = await exerciceDepuisCatalogue(exercice);
           maj((courant) => ajouterExercice(courant, nouvel));
+        }}
+      />
+
+      <SelecteurExercices
+        ouvert={remplacementPour !== null}
+        titre="Remplacer l'exercice"
+        onClose={() => setRemplacementPour(null)}
+        onChoisir={async (exercice) => {
+          const cle = remplacementPour;
+          setRemplacementPour(null);
+          if (!cle) return;
+          const nouvel = await exerciceDepuisCatalogue(exercice);
+          maj((courant) => remplacerExercice(courant, cle, nouvel));
         }}
       />
 

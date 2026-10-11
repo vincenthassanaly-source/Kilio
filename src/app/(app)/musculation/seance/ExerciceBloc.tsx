@@ -61,6 +61,10 @@ export function ExerciceBloc({
   onRetirerDerniereSerie,
   onRetirerExercice,
   onReposExercice,
+  onRemplacer,
+  onDeplacer,
+  premier = false,
+  dernier = false,
   edition = false,
 }: {
   exercice: ExerciceBrouillon;
@@ -70,6 +74,12 @@ export function ExerciceBloc({
   onRetirerDerniereSerie: (cle: string) => void;
   onRetirerExercice: (cle: string) => void;
   onReposExercice: (cle: string, deltaS: number) => void;
+  /** Séance en cours : ouvre le catalogue pour remplacer cet exercice. */
+  onRemplacer?: (cle: string) => void;
+  /** Séance en cours : décale l'exercice d'un cran (-1 haut, 1 bas). */
+  onDeplacer?: (cle: string, sens: -1 | 1) => void;
+  premier?: boolean;
+  dernier?: boolean;
   /** Séance passée : toutes les séries sont faites, pas de case à cocher (ni de minuteur). */
   edition?: boolean;
 }) {
@@ -130,6 +140,37 @@ export function ExerciceBloc({
           <button type="button" className={ghostButton} onClick={() => onReposExercice(cle, 15)} aria-label="Ajouter 15 secondes de repos">
             +15 s
           </button>
+          {(onRemplacer || onDeplacer) && (
+            <div className="mt-1 flex w-full gap-2">
+              {onDeplacer && (
+                <>
+                  <button
+                    type="button"
+                    className={`${ghostButton} flex-1`}
+                    onClick={() => onDeplacer(cle, -1)}
+                    disabled={premier}
+                    aria-label={`Monter ${exercice.nom}`}
+                  >
+                    ↑ Monter
+                  </button>
+                  <button
+                    type="button"
+                    className={`${ghostButton} flex-1`}
+                    onClick={() => onDeplacer(cle, 1)}
+                    disabled={dernier}
+                    aria-label={`Descendre ${exercice.nom}`}
+                  >
+                    ↓ Descendre
+                  </button>
+                </>
+              )}
+              {onRemplacer && (
+                <button type="button" className={`${ghostButton} flex-1`} onClick={() => onRemplacer(cle)}>
+                  Remplacer
+                </button>
+              )}
+            </div>
+          )}
           <div className="mt-1 flex w-full gap-2">
             <button
               type="button"
