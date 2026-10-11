@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
+import type { EntrainementDetail, EntrainementResume } from "@/lib/musculation/historique";
 import { validerNomDossier, validerRoutine, type RoutineDetail, type RoutineEntree } from "@/lib/musculation/routines";
 import { validerPayload, type EntrainementPayload, type SeriePrecedente } from "@/lib/musculation/seance";
 import {
@@ -10,11 +11,14 @@ import {
   dernieresSeries,
   enregistrerEntrainement as enregistrerEntrainementDb,
   enregistrerRoutine as enregistrerRoutineDb,
+  lireEntrainement,
   lireRoutine,
+  listerEntrainements,
   listerExercices,
   listerRoutines,
   renommerDossier as renommerDossierDb,
   supprimerDossier as supprimerDossierDb,
+  supprimerEntrainement as supprimerEntrainementDb,
   supprimerRoutine as supprimerRoutineDb,
   type ExerciceCatalogue,
   type RoutinesEtDossiers,
@@ -111,6 +115,29 @@ export async function renommerDossier(id: string, nom: string): Promise<ActionRe
 export async function supprimerDossier(id: string): Promise<ActionResult> {
   if (typeof id !== "string" || !estUuid(id)) return fail("Dossier introuvable.");
   const resultat = await supprimerDossierDb(createAdminClient(), id);
+  if (resultat.error) return fail(resultat.error);
+
+  revalidatePath("/musculation");
+  return ok();
+}
+
+// --- Historique -----------------------------------------------------------
+
+/** Séances terminées, de la plus récente à la plus ancienne (`limite` : 1 à 200). */
+export async function getEntrainements(limite: number): Promise<EntrainementResume[]> {
+  const n = Number.isInteger(limite) ? limite : 30;
+  return listerEntrainements(createAdminClient(), n);
+}
+
+/** Séance complète, ou `null` si l'identifiant est invalide ou la séance introuvable. */
+export async function getEntrainement(id: string): Promise<EntrainementDetail | null> {
+  if (typeof id !== "string" || !estUuid(id)) return null;
+  return lireEntrainement(createAdminClient(), id);
+}
+
+export async function supprimerEntrainement(id: string): Promise<ActionResult> {
+  if (typeof id !== "string" || !estUuid(id)) return fail("Séance introuvable.");
+  const resultat = await supprimerEntrainementDb(createAdminClient(), id);
   if (resultat.error) return fail(resultat.error);
 
   revalidatePath("/musculation");

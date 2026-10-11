@@ -59,6 +59,7 @@ export function ExerciceBloc({
   onRetirerDerniereSerie,
   onRetirerExercice,
   onReposExercice,
+  edition = false,
 }: {
   exercice: ExerciceBrouillon;
   onModifierSerie: (cle: string, serieId: string, champs: Champs) => void;
@@ -67,6 +68,8 @@ export function ExerciceBloc({
   onRetirerDerniereSerie: (cle: string) => void;
   onRetirerExercice: (cle: string) => void;
   onReposExercice: (cle: string, deltaS: number) => void;
+  /** Séance passée : toutes les séries sont faites, pas de case à cocher (ni de minuteur). */
+  edition?: boolean;
 }) {
   const [options, setOptions] = useState(false);
   // Série dont le sélecteur de type (normale, échauffement…) est ouvert.
@@ -74,7 +77,7 @@ export function ExerciceBloc({
   const { mode, cle } = exercice;
   const champs = CHAMPS_PAR_MODE[mode];
 
-  const colonnes = ["40px", "minmax(0,1fr)", ...champs.map((c) => LARGEUR_CHAMP[c]), "48px"].join(" ");
+  const colonnes = ["40px", "minmax(0,1fr)", ...champs.map((c) => LARGEUR_CHAMP[c]), ...(edition ? [] : ["48px"])].join(" ");
   const entete = "text-center text-[11px] font-semibold uppercase tracking-wide text-ink-3";
   const faites = exercice.series.filter((s) => s.fait).length;
 
@@ -142,7 +145,7 @@ export function ExerciceBloc({
               {enteteChamp(c, mode)}
             </span>
           ))}
-          <span className={entete}>✓</span>
+          {!edition && <span className={entete}>✓</span>}
         </div>
 
         {exercice.series.map((serie, index) => {
@@ -156,7 +159,7 @@ export function ExerciceBloc({
           return (
             <div key={serie.id} className="flex flex-col gap-1.5">
               <div
-                className={`grid items-center gap-2 rounded-2xl py-1 transition-colors ${serie.fait ? "bg-kcal-soft" : ""}`}
+                className={`grid items-center gap-2 rounded-2xl py-1 transition-colors ${serie.fait && !edition ? "bg-kcal-soft" : ""}`}
                 style={{ gridTemplateColumns: colonnes }}
               >
                 <button
@@ -188,23 +191,25 @@ export function ExerciceBloc({
                     />
                   );
                 })}
-                <button
-                  type="button"
-                  aria-pressed={serie.fait}
-                  aria-label={serie.fait ? `Annuler la série ${index + 1}` : `Valider la série ${index + 1}`}
-                  onClick={() => {
-                    if (!serie.fait) {
-                      deverrouillerAudio();
-                      vibrate(15);
-                    }
-                    onBasculer(cle, serie.id);
-                  }}
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 transition active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
-                    serie.fait ? "border-kcal bg-kcal text-on-kcal" : "border-control-border text-transparent"
-                  }`}
-                >
-                  <IconeCoche />
-                </button>
+                {!edition && (
+                  <button
+                    type="button"
+                    aria-pressed={serie.fait}
+                    aria-label={serie.fait ? `Annuler la série ${index + 1}` : `Valider la série ${index + 1}`}
+                    onClick={() => {
+                      if (!serie.fait) {
+                        deverrouillerAudio();
+                        vibrate(15);
+                      }
+                      onBasculer(cle, serie.id);
+                    }}
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 transition active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+                      serie.fait ? "border-kcal bg-kcal text-on-kcal" : "border-control-border text-transparent"
+                    }`}
+                  >
+                    <IconeCoche />
+                  </button>
+                )}
               </div>
               {typeOuvert && (
                 <div className="flex flex-wrap gap-2 px-1" role="group" aria-label={`Type de la série ${index + 1}`}>

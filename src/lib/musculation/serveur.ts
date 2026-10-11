@@ -17,6 +17,7 @@ import type {
   RoutineSerie,
 } from "./routines";
 import { modeOuDefaut } from "./routines";
+import { resumerEntrainement, type EntrainementDetail, type EntrainementResume } from "./historique";
 import type { EntrainementPayload, SeriePrecedente } from "./seance";
 
 type Client = SupabaseClient<Database>;
@@ -385,4 +386,139 @@ export async function renommerDossier(supabase: Client, id: string, nom: string)
 export async function supprimerDossier(supabase: Client, id: string): Promise<ResultatRoutine> {
   const { error } = await supabase.from("routine_dossiers").delete().eq("id", id);
   return { error: error ? "Le dossier n'a pas pu être supprimé. Réessaie." : null };
+}
+
+// --- Historique -----------------------------------------------------------
+
+type LigneSerie = {
+  entrainement_exercice_id: string;
+  ordre: number;
+  type_serie: string;
+  poids_kg: number | null;
+  reps: number | null;
+  duree_s: number | null;
+  distance_m: number | null;
+};
+
+function enSerie(l: LigneSerie): RoutineSerie {
+  return {
+    type: estTypeSerie(l.type_serie) ? l.type_serie : "normale",
+    poids: l.poids_kg,
+    reps: l.reps,
+    duree: l.duree_s,
+    distance: l.distance_m,
+  };
+}
+
+/** Séries d'une liste de lignes `entrainement_exercices`, groupées par ligne et dans l'ordre. */
+async function lireSeriesParLigne(supabase: Client, ids: string[]): Promise<Map<string, RoutineSerie[]>> {
+  const parLigne = new Map<string, RoutineSerie[]>();
+  if (ids.length === 0) return parLigne;
+  const { data, error } = await supabase
+    .from("entrainement_series")
+    .select("entrainement_exercice_id, ordre, type_serie, poids_kg, reps, duree_s, distance_m")
+    .in("entrainement_exercice_id", ids)
+    .order("ordre");
+  if (error) throw new Error(error.message);
+  for (const l of data ?? []) {
+    const liste = parLigne.get(l.entrainement_exercice_id) ?? [];
+    liste.push(enSerie(l));
+    parLigne.set(l.entrainement_exercice_id, liste);
+  }
+  return parLigne;
+}
+
+/** Séances terminées, de la plus récente à la plus ancienne, avec leur synthèse. */
+export async function listerEntrainements(supabase: Client, limite: number): Promise<EntrainementResume[]> {
+  const { data: entrainements, error } = await supabase
+    .from("entrainements")
+    .select("id, titre, date, duree_s, debut_at")
+    .order("date", { ascending: false })
+    .order("debut_at", { ascending: false })
+    .limit(Math.min(Math.max(1, limite), 200));
+  if (error) throw new Error(error.message);
+  if (!entrainements || entrainements.length === 0) return [];
+
+  const { data: lignes, error: erreurLignes } = await supabase
+    .from("entrainement_exercices")
+    .select("id, entrainement_id")
+    .in("entrainement_id", entrainements.map((e) => e.id));
+  if (erreurLignes) throw new Error(erreurLignes.message);
+
+  const series = await lireSeriesParLigne(supabase, (lignes ?? []).map((l) => l.id));
+  const parEntrainement = new Map<string, { series: RoutineSerie[] }[]>();
+  for (const l of lignes ?? []) {
+    const liste = parEntrainement.get(l.entrainement_id) ?? [];
+    liste.push({ series: series.get(l.id) ?? [] });
+    parEntrainement.set(l.entrainement_id, liste);
+  }
+
+  return entrainements.map((e) =>
+    resumerEntrainement(
+      { id: e.id, titre: e.titre, date: e.date, dureeS: e.duree_s },
+      parEntrainement.get(e.id) ?? [],
+    ),
+  );
+}
+
+/** Séance complète pour l'affichage, l'édition ou la création d'une routine, ou `null`. */
+export async function lireEntrainement(supabase: Client, id: string): Promise<EntrainementDetail | null> {
+  const { data: e, error } = await supabase
+    .from("entrainements")
+    .select("id, titre, date, debut_at, fin_at, duree_s, seance_id, routine_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!e) return null;
+
+  const { data: lignes, error: erreurLignes } = await supabase
+    .from("entrainement_exercices")
+    .select("id, exercice_id, ordre, repos_s")
+    .eq("entrainement_id", id)
+    .order("ordre");
+  if (erreurLignes) throw new Error(erreurLignes.message);
+
+  const idsExercices = [...new Set((lignes ?? []).map((l) => l.exercice_id))];
+  const [catalogue, series, seance] = await Promise.all([
+    idsExercices.length > 0
+      ? supabase.from("exercices").select("id, nom, mode_saisie").in("id", idsExercices)
+      : Promise.resolve({ data: [], error: null }),
+    lireSeriesParLigne(supabase, (lignes ?? []).map((l) => l.id)),
+    e.seance_id ? supabase.from("seances").select("type").eq("id", e.seance_id).maybeSingle() : Promise.resolve({ data: null, error: null }),
+  ]);
+  if (catalogue.error) throw new Error(catalogue.error.message);
+
+  const exo = new Map((catalogue.data ?? []).map((x) => [x.id, x]));
+  const exercices: EntrainementDetail["exercices"] = [];
+  for (const l of lignes ?? []) {
+    const x = exo.get(l.exercice_id);
+    if (!x) continue;
+    exercices.push({
+      cle: l.id,
+      exerciceId: l.exercice_id,
+      nom: x.nom,
+      mode: modeOuDefaut(x.mode_saisie),
+      reposS: l.repos_s,
+      series: series.get(l.id) ?? [],
+    });
+  }
+
+  return {
+    id: e.id,
+    titre: e.titre,
+    date: e.date,
+    debutA: e.debut_at,
+    finA: e.fin_at,
+    dureeS: e.duree_s,
+    seanceId: e.seance_id,
+    routineId: e.routine_id,
+    typeSeance: typeOuNull(seance.data?.type ?? null),
+    exercices,
+  };
+}
+
+/** Supprime la séance (exercices et séries en cascade). La séance planifiée liée n'est pas décochée. */
+export async function supprimerEntrainement(supabase: Client, id: string): Promise<ResultatRoutine> {
+  const { error } = await supabase.from("entrainements").delete().eq("id", id);
+  return { error: error ? "La séance n'a pas pu être supprimée. Réessaie." : null };
 }
