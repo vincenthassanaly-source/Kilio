@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { aujourdhuiParis } from "@/lib/date/paris";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import type { EntrainementDetail, EntrainementResume } from "@/lib/musculation/historique";
+import { bornesPeriode, statsExercice, type RecordsExercice, type ResumePeriode, type StatsExercice, type TypePeriode } from "@/lib/musculation/stats";
 import { validerNomDossier, validerRoutine, type RoutineDetail, type RoutineEntree } from "@/lib/musculation/routines";
 import { validerPayload, type EntrainementPayload, type SeriePrecedente } from "@/lib/musculation/seance";
 import {
@@ -11,15 +13,21 @@ import {
   dernieresSeries,
   enregistrerEntrainement as enregistrerEntrainementDb,
   enregistrerRoutine as enregistrerRoutineDb,
+  exercicesAvecHistorique,
   lireEntrainement,
+  lireExercice,
   lireRoutine,
   listerEntrainements,
   listerExercices,
   listerRoutines,
+  recordsDesExercices,
   renommerDossier as renommerDossierDb,
+  resumeDePeriode,
+  seriesDeExercice,
   supprimerDossier as supprimerDossierDb,
   supprimerEntrainement as supprimerEntrainementDb,
   supprimerRoutine as supprimerRoutineDb,
+  type ExerciceAvecHistorique,
   type ExerciceCatalogue,
   type RoutinesEtDossiers,
 } from "@/lib/musculation/serveur";
@@ -142,4 +150,38 @@ export async function supprimerEntrainement(id: string): Promise<ActionResult> {
 
   revalidatePath("/musculation");
   return ok();
+}
+
+// --- Statistiques ---------------------------------------------------------
+
+export type ResumeAvecBornes = { debut: string; fin: string; resume: ResumePeriode };
+
+/** Résumé de la semaine ou du mois courant, décalé de `decalage` périodes (négatif = passé). */
+export async function getResumePeriode(type: TypePeriode, decalage: number): Promise<ResumeAvecBornes> {
+  if (type !== "semaine" && type !== "mois") throw new Error("Période invalide.");
+  const d = Number.isInteger(decalage) ? Math.min(0, Math.max(-240, decalage)) : 0;
+  const { debut, fin } = bornesPeriode(type, aujourdhuiParis(), d);
+  return { debut, fin, resume: await resumeDePeriode(createAdminClient(), debut, fin) };
+}
+
+/** Exercices déjà réalisés, pour parcourir leurs statistiques. */
+export async function getExercicesPratiques(): Promise<ExerciceAvecHistorique[]> {
+  return exercicesAvecHistorique(createAdminClient());
+}
+
+export type FicheExercice = { exercice: ExerciceCatalogue; stats: StatsExercice };
+
+/** Records et progression d'un exercice, ou `null` si l'identifiant est invalide ou l'exercice introuvable. */
+export async function getStatsExercice(exerciceId: string): Promise<FicheExercice | null> {
+  if (typeof exerciceId !== "string" || !estUuid(exerciceId)) return null;
+  const supabase = createAdminClient();
+  const exercice = await lireExercice(supabase, exerciceId);
+  if (!exercice) return null;
+  return { exercice, stats: statsExercice(await seriesDeExercice(supabase, exerciceId)) };
+}
+
+/** Records de plusieurs exercices (repère « PR » pendant la séance en direct). */
+export async function getRecordsExercices(exerciceIds: string[]): Promise<Record<string, RecordsExercice>> {
+  if (!Array.isArray(exerciceIds)) return {};
+  return recordsDesExercices(createAdminClient(), exerciceIds.filter((id) => typeof id === "string" && estUuid(id)));
 }

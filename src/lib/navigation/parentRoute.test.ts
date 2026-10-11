@@ -39,6 +39,11 @@ describe("parentRoute", () => {
     expect(parentRoute("/musculation/seance", BARRE)).toBe("/musculation");
   });
 
+  it("remonte les statistiques Musculation d'un cran à la fois", () => {
+    expect(parentRoute("/musculation/stats", BARRE)).toBe("/musculation");
+    expect(parentRoute("/musculation/stats/abc", BARRE)).toBe("/musculation/stats");
+  });
+
   it("remonte l'historique Musculation d'un cran à la fois", () => {
     expect(parentRoute("/musculation/historique", BARRE)).toBe("/musculation");
     expect(parentRoute("/musculation/historique/nouvelle", BARRE)).toBe("/musculation/historique");

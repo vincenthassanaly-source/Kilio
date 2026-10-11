@@ -1,9 +1,10 @@
 "use client";
 
-import { getDernieresSeries, getRoutine, getRoutines, getSeancePlanifiee } from "@/app/actions/musculation";
+import { getDernieresSeries, getRecordsExercices, getRoutine, getRoutines, getSeancePlanifiee } from "@/app/actions/musculation";
 import type { ExerciceCatalogue } from "./serveur";
 import { ecrireBrouillon } from "./brouillon";
 import { exerciceDepuisRoutine, type RoutineDetail, type RoutineResume } from "./routines";
+import type { RecordsExercice } from "./stats";
 import { creerBrouillon, REPOS_PAR_DEFAUT_S, type Brouillon, type NouvelExercice, type SeriePrecedente } from "./seance";
 
 const NB_SERIES_PAR_DEFAUT = 3;
@@ -22,6 +23,19 @@ export async function chargerPrecedents(ids: string[]): Promise<Record<string, S
   }
 }
 
+/**
+ * Records de chaque exercice, pour annoncer un nouveau record pendant la séance.
+ * Même règle que les précédents : sans réseau, la séance démarre sans eux.
+ */
+export async function chargerRecords(ids: string[]): Promise<Record<string, RecordsExercice>> {
+  if (ids.length === 0) return {};
+  try {
+    return await getRecordsExercices(ids);
+  } catch {
+    return {};
+  }
+}
+
 function nomParDefaut(maintenant: Date): string {
   const jour = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: "Europe/Paris" });
   return `Séance du ${jour.format(maintenant)}`;
@@ -29,7 +43,7 @@ function nomParDefaut(maintenant: Date): string {
 
 /** Exercice du catalogue, prêt à ajouter à une séance en cours. */
 export async function exerciceDepuisCatalogue(exercice: ExerciceCatalogue): Promise<NouvelExercice> {
-  const precedents = await chargerPrecedents([exercice.id]);
+  const [precedents, records] = await Promise.all([chargerPrecedents([exercice.id]), chargerRecords([exercice.id])]);
   return {
     exerciceId: exercice.id,
     nom: exercice.nom,
@@ -37,6 +51,7 @@ export async function exerciceDepuisCatalogue(exercice: ExerciceCatalogue): Prom
     reposS: exercice.reposDefautS ?? REPOS_PAR_DEFAUT_S,
     nbSeries: NB_SERIES_PAR_DEFAUT,
     precedent: precedents[exercice.id] ?? [],
+    records: records[exercice.id] ?? null,
   };
 }
 
@@ -68,7 +83,8 @@ export async function demarrerSeanceVide(seanceId: string | null = null): Promis
 
 /** Séance démarrée depuis une routine : les cibles de la routine, puis la dernière performance. */
 export async function demarrerDepuisRoutine(routine: RoutineDetail, seanceId: string | null = null): Promise<Brouillon> {
-  const precedents = await chargerPrecedents(routine.exercices.map((e) => e.exerciceId));
+  const ids = routine.exercices.map((e) => e.exerciceId);
+  const [precedents, records] = await Promise.all([chargerPrecedents(ids), chargerRecords(ids)]);
   const base = creerBrouillon({
     nom: routine.nom,
     routineId: routine.id,
@@ -78,7 +94,9 @@ export async function demarrerDepuisRoutine(routine: RoutineDetail, seanceId: st
   });
   const brouillon: Brouillon = {
     ...base,
-    exercices: routine.exercices.map((e) => exerciceDepuisRoutine(e, precedents[e.exerciceId] ?? [])),
+    exercices: routine.exercices.map((e) =>
+      exerciceDepuisRoutine(e, precedents[e.exerciceId] ?? [], undefined, records[e.exerciceId] ?? null),
+    ),
   };
   await ecrireBrouillon(brouillon, true);
   return brouillon;

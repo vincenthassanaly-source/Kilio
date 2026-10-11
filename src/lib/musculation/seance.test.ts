@@ -80,6 +80,18 @@ describe("creerBrouillon", () => {
   });
 });
 
+describe("records connus", () => {
+  it("garde les records de l'exercice dans le brouillon, null par défaut", () => {
+    const records = { poidsMax: { valeur: 90, date: "2026-10-01" } } as never;
+    const avec = creerBrouillon(
+      { nom: "x", routineId: null, seanceId: null, maintenant: DEBUT, exercices: [{ ...banc, records }] },
+      compteur(),
+    );
+    expect(avec.exercices[0].records).toBe(records);
+    expect(brouillon().exercices[0].records).toBeNull();
+  });
+});
+
 describe("édition", () => {
   it("ajoute une série en copiant la dernière, et n'en retire jamais la dernière restante", () => {
     let b = brouillon();

@@ -19,6 +19,13 @@ import type {
 import { modeOuDefaut } from "./routines";
 import { resumerEntrainement, type EntrainementDetail, type EntrainementResume } from "./historique";
 import type { EntrainementPayload, SeriePrecedente } from "./seance";
+import {
+  calculerRecords,
+  resumerPeriode,
+  type RecordsExercice,
+  type ResumePeriode,
+  type SerieHistorique,
+} from "./stats";
 
 type Client = SupabaseClient<Database>;
 
@@ -521,4 +528,190 @@ export async function lireEntrainement(supabase: Client, id: string): Promise<En
 export async function supprimerEntrainement(supabase: Client, id: string): Promise<ResultatRoutine> {
   const { error } = await supabase.from("entrainements").delete().eq("id", id);
   return { error: error ? "La séance n'a pas pu être supprimée. Réessaie." : null };
+}
+
+// --- Statistiques ---------------------------------------------------------
+
+/** Plafond de lignes lues par requête de stats (largement au-dessus d'un usage personnel). */
+const LIMITE_SERIES_STATS = 5000;
+
+type LigneSerieStats = {
+  type_serie: string;
+  poids_kg: number | null;
+  reps: number | null;
+  duree_s: number | null;
+  distance_m: number | null;
+  entrainement_exercices: {
+    exercice_id: string;
+    entrainement_id: string;
+    entrainements: { date: string; debut_at: string } | null;
+  } | null;
+};
+
+const COLONNES_STATS =
+  "type_serie, poids_kg, reps, duree_s, distance_m, entrainement_exercices!inner(exercice_id, entrainement_id, entrainements!inner(date, debut_at))";
+
+function enSerieHistorique(l: LigneSerieStats): SerieHistorique | null {
+  const ligne = l.entrainement_exercices;
+  const seance = ligne?.entrainements;
+  if (!ligne || !seance) return null;
+  return {
+    entrainementId: ligne.entrainement_id,
+    date: seance.date,
+    debutA: seance.debut_at,
+    exerciceId: ligne.exercice_id,
+    type: estTypeSerie(l.type_serie) ? l.type_serie : "normale",
+    poids: l.poids_kg,
+    reps: l.reps,
+    duree: l.duree_s,
+    distance: l.distance_m,
+  };
+}
+
+/** Toutes les séries enregistrées d'un exercice (pour ses records et sa courbe). */
+export async function seriesDeExercice(supabase: Client, exerciceId: string): Promise<SerieHistorique[]> {
+  const { data, error } = await supabase
+    .from("entrainement_series")
+    .select(COLONNES_STATS)
+    .eq("entrainement_exercices.exercice_id", exerciceId)
+    .limit(LIMITE_SERIES_STATS);
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as LigneSerieStats[]).flatMap((l) => enSerieHistorique(l) ?? []);
+}
+
+/** Records de plusieurs exercices (repère « PR » au démarrage d'une séance). */
+export async function recordsDesExercices(
+  supabase: Client,
+  exerciceIds: string[],
+): Promise<Record<string, RecordsExercice>> {
+  const ids = [...new Set(exerciceIds)].slice(0, 60);
+  if (ids.length === 0) return {};
+  const { data, error } = await supabase
+    .from("entrainement_series")
+    .select(COLONNES_STATS)
+    .in("entrainement_exercices.exercice_id", ids)
+    .limit(LIMITE_SERIES_STATS);
+  if (error) throw new Error(error.message);
+
+  const parExercice = new Map<string, SerieHistorique[]>();
+  for (const l of (data ?? []) as unknown as LigneSerieStats[]) {
+    const s = enSerieHistorique(l);
+    if (!s) continue;
+    const liste = parExercice.get(s.exerciceId) ?? [];
+    liste.push(s);
+    parExercice.set(s.exerciceId, liste);
+  }
+  return Object.fromEntries([...parExercice].map(([id, series]) => [id, calculerRecords(series)]));
+}
+
+export type ExerciceAvecHistorique = { id: string; nom: string; muscle: Muscle; nbSeances: number; derniereSeance: string };
+
+/** Exercices déjà réalisés au moins une fois, du plus pratiqué au moins pratiqué. */
+export async function exercicesAvecHistorique(supabase: Client): Promise<ExerciceAvecHistorique[]> {
+  const { data, error } = await supabase
+    .from("entrainement_exercices")
+    .select("exercice_id, entrainement_id, entrainements!inner(date)")
+    .order("created_at", { ascending: false })
+    .limit(LIMITE_SERIES_STATS);
+  if (error) throw new Error(error.message);
+
+  const parExercice = new Map<string, { seances: Set<string>; derniere: string }>();
+  for (const l of (data ?? []) as unknown as { exercice_id: string; entrainement_id: string; entrainements: { date: string } | null }[]) {
+    const date = l.entrainements?.date;
+    if (!date) continue;
+    const courant = parExercice.get(l.exercice_id) ?? { seances: new Set<string>(), derniere: date };
+    courant.seances.add(l.entrainement_id);
+    if (date > courant.derniere) courant.derniere = date;
+    parExercice.set(l.exercice_id, courant);
+  }
+  if (parExercice.size === 0) return [];
+
+  const { data: catalogue, error: erreurCatalogue } = await supabase
+    .from("exercices")
+    .select("id, nom, muscle_principal")
+    .in("id", [...parExercice.keys()]);
+  if (erreurCatalogue) throw new Error(erreurCatalogue.message);
+
+  return (catalogue ?? [])
+    .map((e) => {
+      const stats = parExercice.get(e.id)!;
+      return {
+        id: e.id,
+        nom: e.nom,
+        muscle: estMuscle(e.muscle_principal) ? e.muscle_principal : ("corps_entier" as Muscle),
+        nbSeances: stats.seances.size,
+        derniereSeance: stats.derniere,
+      };
+    })
+    .sort((a, b) => b.nbSeances - a.nbSeances || a.nom.localeCompare(b.nom));
+}
+
+/** Résumé d'une période (bornes incluses, AAAA-MM-JJ) : séances, volume, répartition par muscle. */
+export async function resumeDePeriode(supabase: Client, debut: string, fin: string): Promise<ResumePeriode> {
+  const { data: seances, error } = await supabase
+    .from("entrainements")
+    .select("id, date, duree_s")
+    .gte("date", debut)
+    .lte("date", fin)
+    .limit(500);
+  if (error) throw new Error(error.message);
+  if (!seances || seances.length === 0) return resumerPeriode([], []);
+
+  const { data: lignes, error: erreurLignes } = await supabase
+    .from("entrainement_series")
+    .select(
+      "type_serie, poids_kg, reps, entrainement_exercices!inner(exercice_id, entrainement_id, entrainements!inner(date))",
+    )
+    .gte("entrainement_exercices.entrainements.date", debut)
+    .lte("entrainement_exercices.entrainements.date", fin)
+    .limit(LIMITE_SERIES_STATS);
+  if (erreurLignes) throw new Error(erreurLignes.message);
+
+  type Ligne = {
+    type_serie: string;
+    poids_kg: number | null;
+    reps: number | null;
+    entrainement_exercices: { exercice_id: string; entrainement_id: string } | null;
+  };
+  const brutes = ((lignes ?? []) as unknown as Ligne[]).filter((l) => l.entrainement_exercices);
+  const idsExercices = [...new Set(brutes.map((l) => l.entrainement_exercices!.exercice_id))];
+  const muscles = new Map<string, Muscle>();
+  if (idsExercices.length > 0) {
+    const { data: catalogue, error: erreurCatalogue } = await supabase
+      .from("exercices")
+      .select("id, muscle_principal")
+      .in("id", idsExercices);
+    if (erreurCatalogue) throw new Error(erreurCatalogue.message);
+    for (const e of catalogue ?? []) muscles.set(e.id, estMuscle(e.muscle_principal) ? e.muscle_principal : "corps_entier");
+  }
+
+  return resumerPeriode(
+    seances.map((s) => ({ id: s.id, date: s.date, dureeS: s.duree_s })),
+    brutes.map((l) => ({
+      entrainementId: l.entrainement_exercices!.entrainement_id,
+      muscle: muscles.get(l.entrainement_exercices!.exercice_id) ?? "corps_entier",
+      type: estTypeSerie(l.type_serie) ? l.type_serie : "normale",
+      poids: l.poids_kg,
+      reps: l.reps,
+    })),
+  );
+}
+
+/** Un exercice du catalogue, ou `null`. */
+export async function lireExercice(supabase: Client, id: string): Promise<ExerciceCatalogue | null> {
+  const { data, error } = await supabase
+    .from("exercices")
+    .select("id, nom, mode_saisie, muscle_principal, materiel, repos_defaut_s")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return {
+    id: data.id,
+    nom: data.nom,
+    mode: estModeSaisie(data.mode_saisie) ? data.mode_saisie : "poids_reps",
+    muscle: estMuscle(data.muscle_principal) ? data.muscle_principal : "corps_entier",
+    materiel: data.materiel,
+    reposDefautS: data.repos_defaut_s,
+  };
 }
