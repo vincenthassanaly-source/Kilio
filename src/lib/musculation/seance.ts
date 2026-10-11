@@ -10,6 +10,7 @@ import {
   type ModeSaisie,
   type TypeSerie,
 } from "./constantes";
+import type { CleAnimation } from "./animations";
 import type { RecordsExercice } from "./stats";
 
 /** Série réalisée lors de la dernière séance, affichée en repère et préremplie. */
@@ -48,6 +49,8 @@ export type ExerciceBrouillon = {
   precedent: SeriePrecedente[];
   /** Records connus avant la séance : permet d'annoncer un nouveau record. Absent des anciens brouillons. */
   records?: RecordsExercice | null;
+  /** Animation de l'exercice. Absente des anciens brouillons. */
+  animation?: CleAnimation | null;
 };
 
 export type Repos = { debutA: string; finA: string; dureeS: number; exerciceCle: string };
@@ -71,6 +74,7 @@ export type NouvelExercice = {
   nbSeries: number;
   precedent: SeriePrecedente[];
   records?: RecordsExercice | null;
+  animation?: CleAnimation | null;
 };
 
 export type EntrainementPayload = {
@@ -134,6 +138,7 @@ export function creerExerciceBrouillon(source: NouvelExercice, genererId: Genere
     reposS: source.reposS,
     precedent: source.precedent,
     records: source.records ?? null,
+    animation: source.animation ?? null,
     series: Array.from({ length: nb }, (_, i) =>
       serieVide(source.precedent[i] ?? source.precedent.at(-1), genererId()),
     ),

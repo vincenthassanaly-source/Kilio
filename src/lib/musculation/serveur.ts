@@ -7,6 +7,7 @@ import type { Database } from "@/lib/supabase/types";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { marquerFaite } from "@/lib/seances/serveur";
 import { estTypeSeance } from "@/lib/seances/compute";
+import { cleAnimationOuNull, type CleAnimation } from "./animations";
 import { estModeSaisie, estMuscle, estTypeSerie, type ModeSaisie, type Muscle } from "./constantes";
 import type {
   DossierRoutines,
@@ -36,6 +37,8 @@ export type ExerciceCatalogue = {
   muscle: Muscle;
   materiel: string | null;
   reposDefautS: number | null;
+  /** Animation de l'exercice (voir animations.ts), `null` s'il n'en a pas. */
+  animation: CleAnimation | null;
 };
 
 /**
@@ -53,7 +56,7 @@ export async function compterExercices(supabase: Client): Promise<number> {
 export async function listerExercices(supabase: Client): Promise<ExerciceCatalogue[]> {
   const { data, error } = await supabase
     .from("exercices")
-    .select("id, nom, mode_saisie, muscle_principal, materiel, repos_defaut_s")
+    .select("id, nom, mode_saisie, muscle_principal, materiel, repos_defaut_s, animation")
     .order("nom")
     .limit(2000);
   if (error) throw new Error(error.message);
@@ -64,6 +67,7 @@ export async function listerExercices(supabase: Client): Promise<ExerciceCatalog
     muscle: estMuscle(l.muscle_principal) ? l.muscle_principal : "corps_entier",
     materiel: l.materiel,
     reposDefautS: l.repos_defaut_s,
+    animation: cleAnimationOuNull(l.animation),
   }));
 }
 
@@ -264,7 +268,7 @@ export async function lireRoutine(supabase: Client, id: string): Promise<Routine
   const idsExercices = [...new Set((lignes ?? []).map((l) => l.exercice_id))];
   const [catalogue, series] = await Promise.all([
     idsExercices.length > 0
-      ? supabase.from("exercices").select("id, nom, mode_saisie, repos_defaut_s").in("id", idsExercices)
+      ? supabase.from("exercices").select("id, nom, mode_saisie, repos_defaut_s, animation").in("id", idsExercices)
       : Promise.resolve({ data: [], error: null }),
     ids.length > 0
       ? supabase
@@ -301,6 +305,7 @@ export async function lireRoutine(supabase: Client, id: string): Promise<Routine
       mode: modeOuDefaut(e.mode_saisie),
       reposS: l.repos_s,
       reposExerciceS: e.repos_defaut_s,
+      animation: cleAnimationOuNull(e.animation),
       series: seriesParLigne.get(l.id) ?? [],
     });
   }
@@ -701,7 +706,7 @@ export async function resumeDePeriode(supabase: Client, debut: string, fin: stri
 export async function lireExercice(supabase: Client, id: string): Promise<ExerciceCatalogue | null> {
   const { data, error } = await supabase
     .from("exercices")
-    .select("id, nom, mode_saisie, muscle_principal, materiel, repos_defaut_s")
+    .select("id, nom, mode_saisie, muscle_principal, materiel, repos_defaut_s, animation")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -713,5 +718,6 @@ export async function lireExercice(supabase: Client, id: string): Promise<Exerci
     muscle: estMuscle(data.muscle_principal) ? data.muscle_principal : "corps_entier",
     materiel: data.materiel,
     reposDefautS: data.repos_defaut_s,
+    animation: cleAnimationOuNull(data.animation),
   };
 }

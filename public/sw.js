@@ -1,10 +1,20 @@
-const CACHE_NAME = "nutrition-app-shell-v4";
+const CACHE_NAME = "nutrition-app-shell-v5";
 // Photos reçues par le partage natif (Web Share Target), mises de côté le
 // temps que la page /collection/partage/choisir les compresse côté client
 // (src/lib/images/compression.ts) puis les envoie par lots. Sans ce détour,
 // les photos brutes partaient d'un bloc vers le Route Handler et butaient
 // sur la limite de 4,5 Mo des fonctions Vercel.
 const CACHE_PARTAGE = "kilio-partage-en-attente";
+// Animations des exercices (Musculation) : précachées pour jouer hors ligne.
+// Garder cette liste identique à ANIMATIONS de src/lib/musculation/animations.ts
+// (animations.test.ts compare les deux).
+const CACHE_ANIMATIONS = "kilio-animations-v1";
+const DOSSIER_ANIMATIONS = "/animations/musculation/";
+const ANIMATIONS = ["elevation-laterale", "developpe-couche", "developpe-couche-incline"];
+const FICHIERS_ANIMATIONS = ANIMATIONS.flatMap((cle) => [
+  `${DOSSIER_ANIMATIONS}${cle}.webm`,
+  `${DOSSIER_ANIMATIONS}${cle}.webp`,
+]);
 const APP_SHELL = [
   "/",
   "/manifest.json",
@@ -15,7 +25,15 @@ const APP_SHELL = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    Promise.all([
+      caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
+      // Un échec (réseau coupé à l'installation) ne doit pas bloquer le service
+      // worker : les animations se mettront en cache à la première lecture.
+      caches
+        .open(CACHE_ANIMATIONS)
+        .then((cache) => cache.addAll(FICHIERS_ANIMATIONS))
+        .catch(() => {}),
+    ])
   );
   self.skipWaiting();
 });
@@ -27,7 +45,7 @@ self.addEventListener("activate", (event) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key !== CACHE_NAME && key !== CACHE_PARTAGE)
+            .filter((key) => key !== CACHE_NAME && key !== CACHE_PARTAGE && key !== CACHE_ANIMATIONS)
             .map((key) => caches.delete(key))
         )
       )
@@ -86,6 +104,50 @@ async function mettreDeCotePartage(request) {
   return fetch("/collection/partage", { method: "POST", body: suite, redirect: "manual" });
 }
 
+// Les navigateurs lisent une vidéo par requêtes « Range » (seek, boucle) : une
+// réponse 200 complète tirée du cache ne suffirait pas. On sert donc la tranche
+// demandée (206) à partir du fichier entier mis en cache.
+async function repondreAnimation(request) {
+  const cache = await caches.open(CACHE_ANIMATIONS);
+  let reponse = await cache.match(request.url);
+  if (!reponse) {
+    try {
+      reponse = await fetch(request.url);
+    } catch {
+      return Response.error();
+    }
+    if (!reponse.ok) return reponse;
+    await cache.put(request.url, reponse.clone());
+  }
+  const plage = request.headers.get("range");
+  if (!plage) return reponse;
+
+  const blob = await reponse.blob();
+  const taille = blob.size;
+  const m = /^bytes=(\d*)-(\d*)$/.exec(plage);
+  if (!m || (m[1] === "" && m[2] === "")) return new Response(blob, { status: 200, headers: reponse.headers });
+  let debut;
+  let fin;
+  if (m[1] === "") {
+    debut = Math.max(0, taille - Number(m[2]));
+    fin = taille - 1;
+  } else {
+    debut = Number(m[1]);
+    fin = m[2] === "" ? taille - 1 : Math.min(Number(m[2]), taille - 1);
+  }
+  if (debut >= taille || debut > fin) {
+    return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${taille}` } });
+  }
+  return new Response(blob.slice(debut, fin + 1), {
+    status: 206,
+    headers: {
+      "Content-Type": reponse.headers.get("Content-Type") || "application/octet-stream",
+      "Content-Range": `bytes ${debut}-${fin}/${taille}`,
+      "Content-Length": String(fin - debut + 1),
+    },
+  });
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -101,6 +163,11 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return;
   if (url.origin !== self.location.origin) return;
+
+  if (url.pathname.startsWith(DOSSIER_ANIMATIONS)) {
+    event.respondWith(repondreAnimation(request));
+    return;
+  }
 
   const isStaticAsset =
     url.pathname.startsWith("/_next/static/") ||

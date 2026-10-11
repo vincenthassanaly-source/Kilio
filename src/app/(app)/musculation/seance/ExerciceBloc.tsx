@@ -19,6 +19,7 @@ import {
 } from "@/lib/musculation/seance";
 import { libelleRecords, recordsBattus } from "@/lib/musculation/stats";
 import { deverrouillerAudio } from "@/lib/musculation/useMinuteurRepos";
+import { AnimationMiniature } from "../AnimationExercice";
 import { ChampNombre } from "./ChampNombre";
 import { dangerButton, ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
 
@@ -95,6 +96,7 @@ export function ExerciceBloc({
       aria-label={exercice.nom}
     >
       <header className="flex items-center gap-3">
+        <AnimationMiniature animation={exercice.animation} nom={exercice.nom} />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className={`${nameText} !whitespace-normal`}>{exercice.nom}</span>
           <span className={metaText}>

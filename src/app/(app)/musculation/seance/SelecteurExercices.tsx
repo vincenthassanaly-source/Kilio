@@ -10,6 +10,7 @@ import { filtrerExercices } from "@/lib/musculation/catalogue";
 import { MODE_SAISIE_LABELS, MUSCLES, MUSCLE_LABELS, type Muscle } from "@/lib/musculation/constantes";
 import { queryKeys } from "@/lib/query/keys";
 import type { ExerciceCatalogue } from "@/lib/musculation/serveur";
+import { AnimationVignette } from "../AnimationExercice";
 import { cardTight, errorText, input, metaText, nameText, secondaryButton, zoneTapPill } from "@/lib/ui";
 
 const PAGE = 40;
@@ -95,11 +96,12 @@ function Contenu({ onChoisir }: { onChoisir: (exercice: ExerciceCatalogue) => vo
       ) : (
         <ul className="flex flex-col gap-2">
           {resultats.slice(0, affiches).map((exercice) => (
-            <li key={exercice.id}>
+            <li key={exercice.id} className="flex items-center gap-2">
+              <AnimationVignette animation={exercice.animation} nom={exercice.nom} />
               <button
                 type="button"
                 onClick={() => onChoisir(exercice)}
-                className={`${cardTight} flex w-full flex-col gap-0.5 text-left`}
+                className={`${cardTight} flex min-w-0 flex-1 flex-col gap-0.5 text-left`}
               >
                 <span className={nameText}>{exercice.nom}</span>
                 <span className={`${metaText} truncate`}>
