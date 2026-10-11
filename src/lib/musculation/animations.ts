@@ -63,6 +63,11 @@ export const ANIMATIONS = [
   "superman",
   "dead-bug",
   "sit-up-jackknife",
+  "squat-haltere",
+  "goblet-squat",
+  "split-squat-bulgare-haltere",
+  "fentes-haltere",
+  "souleve-terre-roumain-haltere",
 ] as const;
 
 export type CleAnimation = (typeof ANIMATIONS)[number];
