@@ -136,6 +136,14 @@ const ACTIONS_REPORT_RAPPEL = [
   { action: "reporter-1sem", title: "Semaine prochaine" },
 ];
 
+// Actions proposées sur le rappel d'une séance de sport (data.seanceId présent).
+// « Commencer » ouvre l'écran Aujourd'hui (suite du gestionnaire ci-dessous) ;
+// « Décaler » appelle /api/seances/[id]/decaler (prochain jour libre de la semaine).
+const ACTIONS_SEANCE = [
+  { action: "commencer", title: "Commencer" },
+  { action: "decaler-seance", title: "Décaler" },
+];
+
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
   event.waitUntil(
@@ -143,8 +151,8 @@ self.addEventListener("push", (event) => {
       body: data.body || "",
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-badge-v2.png",
-      data: { url: data.url || "/agenda", tacheId: data.tacheId || null },
-      actions: data.tacheId ? ACTIONS_REPORT_RAPPEL : [],
+      data: { url: data.url || "/agenda", tacheId: data.tacheId || null, seanceId: data.seanceId || null },
+      actions: data.tacheId ? ACTIONS_REPORT_RAPPEL : data.seanceId ? ACTIONS_SEANCE : [],
     })
   );
 });
@@ -153,6 +161,18 @@ self.addEventListener("notificationclick", (event) => {
   const { action, notification } = event;
   const url = notification.data?.url || "/agenda";
   const tacheId = notification.data?.tacheId;
+  const seanceId = notification.data?.seanceId;
+
+  if (action === "decaler-seance" && seanceId) {
+    notification.close();
+    event.waitUntil(
+      fetch(`/api/seances/${seanceId}/decaler`, { method: "POST" }).catch(() => {
+        // Hors-ligne ou requête échouée : la séance reste à son jour, elle
+        // pourra être décalée depuis l'écran Aujourd'hui.
+      })
+    );
+    return;
+  }
 
   if (action === "marquer-fait" && tacheId) {
     notification.close();

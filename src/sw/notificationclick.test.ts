@@ -29,9 +29,10 @@ function chargerServiceWorker() {
     },
     registration: { showNotification: vi.fn() },
   };
+  const fetchFictif = vi.fn().mockResolvedValue({ ok: true });
   const executer = new Function("self", "caches", "fetch", swSource);
-  executer(self, { open: vi.fn(), keys: vi.fn(), delete: vi.fn() }, vi.fn());
-  return { self, listeners };
+  executer(self, { open: vi.fn(), keys: vi.fn(), delete: vi.fn() }, fetchFictif);
+  return { self, listeners, fetchFictif };
 }
 
 function creerNotification(url: string, tacheId: string) {
@@ -94,5 +95,80 @@ describe("sw.js notificationclick (CLICK-PATH-605)", () => {
     expect(fenetreAuPremierPlan.navigate).toHaveBeenCalledWith("/agenda?tache=xyz");
     expect(fenetreAuPremierPlan.focus).toHaveBeenCalled();
     expect(self.clients.openWindow).not.toHaveBeenCalled();
+  });
+});
+
+// Rappel de séance (supabase/functions/envoyer-rappels-seances) : boutons
+// « Commencer » (ouvre Aujourd'hui) et « Décaler » (route de report).
+describe("sw.js rappel de séance", () => {
+  const notification = () => ({ data: { url: "/aujourdhui", tacheId: null, seanceId: "s1" }, close: vi.fn() });
+
+  it("affiche Commencer et Décaler sur une notification de séance, et rien sur une notification neutre", () => {
+    const { self, listeners } = chargerServiceWorker();
+    const evenementPush = (donnees: unknown) => ({
+      data: { json: () => donnees },
+      waitUntil: vi.fn(),
+    });
+
+    listeners.push(evenementPush({ title: "Séance : Renfo", body: "", url: "/aujourdhui", seanceId: "s1" }));
+    listeners.push(evenementPush({ title: "Revue", body: "", url: "/revue" }));
+
+    const [[, avecSeance], [, sansSeance]] = self.registration.showNotification.mock.calls;
+    expect(avecSeance.actions.map((a: { action: string }) => a.action)).toEqual(["commencer", "decaler-seance"]);
+    expect(avecSeance.data.seanceId).toBe("s1");
+    expect(sansSeance.actions).toEqual([]);
+  });
+
+  it("« Décaler » appelle la route de report sans ouvrir de fenêtre", async () => {
+    const { self, listeners, fetchFictif } = chargerServiceWorker();
+    const n = notification();
+    let attendu: Promise<unknown> = Promise.resolve();
+
+    listeners.notificationclick({
+      action: "decaler-seance",
+      notification: n,
+      waitUntil: (promise: Promise<unknown>) => {
+        attendu = promise;
+      },
+    });
+    await attendu;
+
+    expect(fetchFictif).toHaveBeenCalledWith("/api/seances/s1/decaler", { method: "POST" });
+    expect(n.close).toHaveBeenCalled();
+    expect(self.clients.openWindow).not.toHaveBeenCalled();
+  });
+
+  it("« Commencer » ouvre l'écran Aujourd'hui", async () => {
+    const { self, listeners, fetchFictif } = chargerServiceWorker();
+    self.clients.matchAll.mockResolvedValue([]);
+    let attendu: Promise<unknown> = Promise.resolve();
+
+    listeners.notificationclick({
+      action: "commencer",
+      notification: notification(),
+      waitUntil: (promise: Promise<unknown>) => {
+        attendu = promise;
+      },
+    });
+    await attendu;
+
+    expect(self.clients.openWindow).toHaveBeenCalledWith("/aujourdhui");
+    expect(fetchFictif).not.toHaveBeenCalled();
+  });
+
+  it("« Décaler » échoué (hors-ligne) ne lève pas d'exception", async () => {
+    const { listeners, fetchFictif } = chargerServiceWorker();
+    fetchFictif.mockRejectedValue(new Error("offline"));
+    let attendu: Promise<unknown> = Promise.resolve();
+
+    listeners.notificationclick({
+      action: "decaler-seance",
+      notification: notification(),
+      waitUntil: (promise: Promise<unknown>) => {
+        attendu = promise;
+      },
+    });
+
+    await expect(attendu).resolves.toBeUndefined();
   });
 });
