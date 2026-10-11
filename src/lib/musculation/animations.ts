@@ -25,6 +25,20 @@ export const ANIMATIONS = [
   "curl-marteau",
   "curl-biceps",
   "extension-triceps-poulie-haute",
+  "chest-press-machine",
+  "developpe-epaules-machine",
+  "extension-triceps-machine",
+  "butterfly",
+  "curl-biceps-machine",
+  "tirage-poitrine-prise-serree",
+  "releve-genoux-allonge",
+  "toucher-orteils",
+  "developpe-couche-barre",
+  "curl-biceps-barre",
+  "shrug-haltere",
+  "extension-triceps-corde",
+  "curl-marteau-poulie",
+  "tirage-visage",
 ] as const;
 
 export type CleAnimation = (typeof ANIMATIONS)[number];
