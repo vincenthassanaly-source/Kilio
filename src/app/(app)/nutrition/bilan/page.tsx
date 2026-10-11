@@ -4,6 +4,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { card, screenTitle } from "@/lib/ui";
 import { BilanContenu } from "./BilanContenu";
+import { BilanSante } from "./BilanSante";
 
 // Coquille statique (sous-navigation + titre) ; le contenu dépend de la date
 // du jour et de Supabase, il arrive en streaming sous <Suspense>.
@@ -28,6 +29,9 @@ export default function BilanPage() {
       <div className="flex flex-col gap-5">
         <NutritionSubNav />
         <h1 className={screenTitle}>Bilan</h1>
+        <Suspense fallback={<BilanSkeleton />}>
+          <BilanSante />
+        </Suspense>
         <Suspense fallback={<BilanSkeleton />}>
           <BilanContenu />
         </Suspense>

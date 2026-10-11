@@ -3,6 +3,7 @@ import { getEvenements } from "@/app/actions/evenements";
 import { getResumeNutritionJour } from "@/app/actions/journal";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
 import { getJoursLibresAutour } from "@/app/actions/jours-libres";
+import { getMesuresRecentes } from "@/app/actions/sante";
 import { getSemaineSeances } from "@/app/actions/seances";
 import { getHabitudesDuJourEnCache } from "@/lib/habitudes/cache";
 import { queryKeys } from "@/lib/query/keys";
@@ -46,6 +47,10 @@ export default async function AujourdhuiPage() {
     queryClient.prefetchQuery({
       queryKey: queryKeys.joursLibresAutour(today),
       queryFn: () => getJoursLibresAutour(today),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: queryKeys.mesuresRecentes,
+      queryFn: () => getMesuresRecentes(5),
     }),
   ]);
 

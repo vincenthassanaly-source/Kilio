@@ -24,6 +24,7 @@ import { EnRetardSection } from "./EnRetardSection";
 import { EvenementForm } from "./EvenementForm";
 import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/compute";
 import { JourLibreCard } from "./JourLibreCard";
+import { PeseeCard } from "./PeseeCard";
 import { PlanDuJourCard } from "./PlanDuJourCard";
 import { TransitionLink } from "@/components/TransitionLink";
 import { RepasRestantsCard } from "./RepasRestantsCard";
@@ -185,6 +186,8 @@ export function AujourdhuiView({ today }: { today: string }) {
       <RepasRestantsCard today={today} />
 
       <JourLibreCard today={today} />
+
+      <PeseeCard today={today} />
 
       {/* Revue hebdomadaire : mise en avant le dimanche, accessible tous les jours. */}
       <TransitionLink

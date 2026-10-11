@@ -23,6 +23,10 @@ const reglages = {
   rappel_saisie_actif: true,
   rappel_saisie_heure: "20:00:00",
   rappel_saisie_dernier_envoi: null,
+  bilan_actif: true,
+  bilan_jour: 0,
+  bilan_heure: "18:00:00",
+  bilan_dernier_envoi: null,
   updated_at: "2026-10-09T00:00:00Z",
 };
 

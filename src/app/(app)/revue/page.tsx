@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getEvenements } from "@/app/actions/evenements";
+import { getSyntheseSemaine } from "@/app/actions/sante";
 import { shiftDate } from "@/lib/date/iso";
 import { queryKeys } from "@/lib/query/keys";
 import { makeServerQueryClient } from "@/lib/query/server-client";
@@ -26,6 +27,10 @@ export default async function RevuePage() {
     queryClient.prefetchQuery({
       queryKey: queryKeys.evenementsPlage(avenirDebut, avenirFin),
       queryFn: () => getEvenements(avenirDebut, avenirFin),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: queryKeys.syntheseSemaine(today),
+      queryFn: () => getSyntheseSemaine(today),
     }),
   ]);
 

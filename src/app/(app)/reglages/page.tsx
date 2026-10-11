@@ -5,6 +5,7 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { screenTitle, sectionTitle } from "@/lib/ui";
 import { AlertesNutritionRow } from "./AlertesNutritionRow";
 import { AppearanceRow } from "./AppearanceRow";
+import { BilanHebdoRow } from "./BilanHebdoRow";
 import { BriefingRow } from "./BriefingRow";
 import { NettoyageAutoRow } from "./NettoyageAutoRow";
 import { RevueHebdoRow } from "./RevueHebdoRow";
@@ -96,6 +97,7 @@ export default async function ReglagesPage() {
           <RevueHebdoRow reglages={reglagesBriefing} />
           <SeancesRappelRow reglages={reglagesBriefing} />
           <AlertesNutritionRow reglages={reglagesBriefing} />
+          <BilanHebdoRow reglages={reglagesBriefing} />
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
       </div>

@@ -543,6 +543,30 @@ export type Database = {
         }
         Relationships: []
       }
+      mesures_corps: {
+        Row: {
+          created_at: string
+          date: string
+          poids_kg: number | null
+          tour_taille_cm: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          poids_kg?: number | null
+          tour_taille_cm?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          poids_kg?: number | null
+          tour_taille_cm?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       jours_libres: {
         Row: {
           created_at: string
@@ -1676,6 +1700,10 @@ export type Database = {
           actif: boolean
           alerte_kcal_actif: boolean
           alerte_kcal_dernier_envoi: string | null
+          bilan_actif: boolean
+          bilan_dernier_envoi: string | null
+          bilan_heure: string
+          bilan_jour: number
           dernier_envoi: string | null
           heure: string
           id: number
@@ -1693,6 +1721,10 @@ export type Database = {
           actif?: boolean
           alerte_kcal_actif?: boolean
           alerte_kcal_dernier_envoi?: string | null
+          bilan_actif?: boolean
+          bilan_dernier_envoi?: string | null
+          bilan_heure?: string
+          bilan_jour?: number
           dernier_envoi?: string | null
           heure?: string
           id?: number
@@ -1710,6 +1742,10 @@ export type Database = {
           actif?: boolean
           alerte_kcal_actif?: boolean
           alerte_kcal_dernier_envoi?: string | null
+          bilan_actif?: boolean
+          bilan_dernier_envoi?: string | null
+          bilan_heure?: string
+          bilan_jour?: number
           dernier_envoi?: string | null
           heure?: string
           id?: number
