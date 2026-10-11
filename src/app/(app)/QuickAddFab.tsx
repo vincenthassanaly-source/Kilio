@@ -65,8 +65,13 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
   // La lecture et le nettoyage de l'URL sont dans le callback différé : le
   // nettoyage de l'effet l'annule (double rendu de React en dev) avant que
   // l'URL ait été modifiée.
+  // App déjà ouverte en arrière-plan : le raccourci peut revenir sans
+  // remonter le composant (restauration depuis le bfcache, retour au premier
+  // plan). On relit donc aussi l'URL à ces moments-là ; le paramètre étant
+  // retiré dès qu'il est consommé, une relecture sans raccourci ne fait rien.
   useEffect(() => {
-    const timer = window.setTimeout(() => {
+    let timer: number | undefined;
+    function lireRaccourci() {
       const params = new URLSearchParams(window.location.search);
       const demande: Mode =
         params.get("ajout") === "evenement" ? "evenement" : direct && params.get("action") === "new" ? "tache" : null;
@@ -76,8 +81,22 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
       const reste = params.toString();
       history.replaceState(history.state, "", window.location.pathname + (reste ? `?${reste}` : ""));
       setMode(demande);
-    }, 0);
-    return () => window.clearTimeout(timer);
+    }
+    function planifier() {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(lireRaccourci, 0);
+    }
+    function auRetourAuPremierPlan() {
+      if (document.visibilityState === "visible") planifier();
+    }
+    planifier();
+    window.addEventListener("pageshow", planifier);
+    document.addEventListener("visibilitychange", auRetourAuPremierPlan);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("pageshow", planifier);
+      document.removeEventListener("visibilitychange", auRetourAuPremierPlan);
+    };
   }, [direct]);
 
   // The dial's history entry stays pushed for as long as *anything* is
@@ -316,9 +335,12 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
               defaultEcheance={directTask?.defaultEcheance}
               onDone={(id, avertissement) => {
                 if (direct) {
-                  // Un seul niveau d'historique à refermer (pas de menu).
+                  // Fermeture explicite : ne dépend pas d'un retour arrière
+                  // (historique vide ou inattendu après un raccourci d'icône).
+                  // useBackClose retire lui-même l'entrée d'historique du
+                  // formulaire quand `mode` repasse à null.
                   directTask?.onCreated?.(id, avertissement);
-                  goBackSteps(1);
+                  setMode(null);
                 } else {
                   queryClient.invalidateQueries({ queryKey: queryKeys.taches });
                   // Le dashboard n'affichait rien après une création : un
