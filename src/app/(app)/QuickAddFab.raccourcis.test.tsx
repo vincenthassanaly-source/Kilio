@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { QuickAddFab } from "./QuickAddFab";
 
@@ -10,8 +10,14 @@ vi.mock("@/app/actions/taches", () => ({
 }));
 vi.mock("next/dynamic", () => ({
   default: () =>
-    function Formulaire() {
-      return <div data-testid="formulaire-tache" />;
+    function Formulaire({ onDone }: { onDone?: (id?: string) => void }) {
+      return (
+        <div data-testid="formulaire-tache">
+          <button type="button" onClick={() => onDone?.("tache-1")}>
+            Créer
+          </button>
+        </div>
+      );
     },
 }));
 vi.mock("./aujourdhui/EvenementForm", () => ({
@@ -56,6 +62,31 @@ describe("QuickAddFab — raccourcis d'appui long", () => {
 
     await waitFor(() => expect(screen.getByTestId("formulaire-evenement")).toBeTruthy());
     expect(window.location.search).toBe("");
+  });
+
+  it("app déjà montée : le raccourci reçu au retour au premier plan ouvre le formulaire", async () => {
+    window.history.replaceState(null, "", "/taches");
+    monter({ directTask: {} });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(screen.queryByTestId("formulaire-tache")).toBeNull();
+
+    window.history.replaceState(null, "", "/taches?action=new");
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    await waitFor(() => expect(screen.getByTestId("formulaire-tache")).toBeTruthy());
+    expect(window.location.search).toBe("");
+  });
+
+  it("mode direct : après la création, le formulaire se ferme même sans retour arrière possible", async () => {
+    window.history.replaceState(null, "", "/taches?action=new");
+    const onCreated = vi.fn();
+    monter({ directTask: { onCreated } });
+    await waitFor(() => expect(screen.getByTestId("formulaire-tache")).toBeTruthy());
+
+    fireEvent.click(screen.getByText("Créer"));
+
+    expect(onCreated).toHaveBeenCalledWith("tache-1", undefined);
+    await waitFor(() => expect(screen.queryByTestId("formulaire-tache")).toBeNull());
   });
 
   it("sans paramètre, aucun formulaire ne s'ouvre", async () => {
