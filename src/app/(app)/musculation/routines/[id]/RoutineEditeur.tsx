@@ -16,7 +16,6 @@ import {
   type ChampSerie,
   type ModeSaisie,
   type TypeSeance,
-  type TypeSerie,
 } from "@/lib/musculation/constantes";
 import {
   NB_EXERCICES_ROUTINE_MAX,
@@ -34,8 +33,6 @@ import { ChampNombre } from "../../seance/ChampNombre";
 import { SelecteurExercices } from "../../seance/SelecteurExercices";
 
 const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance" } as const;
-const LARGEUR_CHAMP: Record<ChampSerie, string> = { poids_kg: "68px", reps: "60px", duree_s: "68px", distance_m: "72px" };
-const ABREVIATION: Record<TypeSerie, string> = { normale: "N", echauffement: "É", dropset: "D", echec: "F" };
 const REPOS_PAR_DEFAUT_AFFICHE_S = 90;
 
 const serieVide = (): RoutineSerie => ({ type: "normale", poids: null, reps: null, duree: null, distance: null });
@@ -68,6 +65,8 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
   const [selecteur, setSelecteur] = useState(false);
   const [suppression, setSuppression] = useState(false);
   const [enCours, setEnCours] = useState(false);
+  // Série dont le sélecteur de type est ouvert, sous la forme « exercice-rang ».
+  const [typeOuvert, setTypeOuvert] = useState<string | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
 
   const { data: liste } = useQuery({ queryKey: queryKeys.musculationRoutines, queryFn: getRoutines });
@@ -182,9 +181,9 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
 
       {exercices.map((exercice, index) => {
         const champs = CHAMPS_PAR_MODE[exercice.mode];
-        const colonnes = ["40px", ...champs.map((c) => LARGEUR_CHAMP[c])].join(" ");
+        const colonnes = ["44px", ...champs.map(() => "minmax(0,1fr)")].join(" ");
         const repos = exercice.reposS ?? exercice.reposExerciceS ?? REPOS_PAR_DEFAUT_AFFICHE_S;
-        const entete = "text-center text-[11px] font-semibold uppercase tracking-wide text-ink-3";
+        const entete = "text-center text-[12px] font-semibold uppercase tracking-wide text-ink-3";
         return (
           <section key={`${exercice.exerciceId}-${index}`} className={`${card} flex flex-col gap-3`} aria-label={exercice.nom}>
             <header className="flex items-center gap-2">
@@ -220,33 +219,64 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                   </span>
                 ))}
               </div>
-              {exercice.series.map((serie, rang) => (
-                <div key={rang} className="grid items-center gap-2" style={{ gridTemplateColumns: colonnes }}>
-                  <button
-                    type="button"
-                    aria-label={`Type de la série ${rang + 1} : ${TYPE_SERIE_LABELS[serie.type]}. Changer`}
-                    onClick={() => surSerie(index, rang, { type: TYPES_SERIE[(TYPES_SERIE.indexOf(serie.type) + 1) % TYPES_SERIE.length] })}
-                    className={`h-12 rounded-xl text-center text-[14px] font-semibold transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
-                      serie.type === "normale" ? "bg-surface-alt text-ink-2" : "bg-surface-alt text-kcal"
-                    }`}
-                  >
-                    {serie.type === "normale" ? rang + 1 - exercice.series.slice(0, rang).filter((s) => s.type === "echauffement").length : ABREVIATION[serie.type]}
-                  </button>
-                  {champs.map((champ) => {
-                    const cle = CLE_SERIE[champ];
-                    return (
-                      <ChampNombre
-                        key={champ}
-                        valeur={serie[cle]}
-                        entier={champ === "reps" || champ === "duree_s"}
-                        signe={champ === "poids_kg" && exercice.mode === "poids_corps_reps"}
-                        libelle={`${enteteChamp(champ, exercice.mode)} cible de la série ${rang + 1}`}
-                        onChange={(valeur) => surSerie(index, rang, { [cle]: valeur })}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
+              {exercice.series.map((serie, rang) => {
+                const cleType = `${index}-${rang}`;
+                const ouvert = typeOuvert === cleType;
+                // Les échauffements ne comptent pas dans la numérotation (comme en séance).
+                const rangTravail = exercice.series.slice(0, rang + 1).filter((s) => s.type !== "echauffement").length;
+                return (
+                  <div key={rang} className="flex flex-col gap-1.5">
+                    <div className="grid items-center gap-2" style={{ gridTemplateColumns: colonnes }}>
+                      <button
+                        type="button"
+                        aria-expanded={ouvert}
+                        aria-label={`Type de la série ${rang + 1} : ${TYPE_SERIE_LABELS[serie.type]}`}
+                        onClick={() => setTypeOuvert(ouvert ? null : cleType)}
+                        className={`h-12 rounded-xl bg-surface-alt text-center text-[14px] font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                          serie.type === "normale" ? "text-ink-2" : "text-kcal"
+                        }`}
+                      >
+                        {serie.type === "echauffement" ? "É" : rangTravail}
+                        {serie.type === "dropset" && <span aria-hidden="true">↓</span>}
+                        {serie.type === "echec" && <span aria-hidden="true">!</span>}
+                      </button>
+                      {champs.map((champ) => {
+                        const cle = CLE_SERIE[champ];
+                        return (
+                          <ChampNombre
+                            key={champ}
+                            valeur={serie[cle]}
+                            entier={champ === "reps" || champ === "duree_s"}
+                            signe={champ === "poids_kg" && exercice.mode === "poids_corps_reps"}
+                            libelle={`${enteteChamp(champ, exercice.mode)} cible de la série ${rang + 1}`}
+                            onChange={(valeur) => surSerie(index, rang, { [cle]: valeur })}
+                          />
+                        );
+                      })}
+                    </div>
+                    {ouvert && (
+                      <div className="flex flex-wrap gap-2 px-1" role="group" aria-label={`Type de la série ${rang + 1}`}>
+                        {TYPES_SERIE.map((type) => (
+                          <button
+                            key={type}
+                            type="button"
+                            aria-pressed={serie.type === type}
+                            onClick={() => {
+                              surSerie(index, rang, { type });
+                              setTypeOuvert(null);
+                            }}
+                            className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                              serie.type === type ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
+                            }`}
+                          >
+                            {TYPE_SERIE_LABELS[type]}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="flex gap-2">
