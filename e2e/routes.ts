@@ -23,6 +23,7 @@ export const ROUTES: RouteContract[] = [
   { path: "/documents", title: "Documents" },
   { path: "/collection", title: "Collection" },
   { path: "/pharmacie", title: "Pharmacie" },
+  { path: "/musculation", title: "Musculation" },
   { path: "/plus", title: "Plus" },
   { path: "/reglages", title: "Réglages" },
 ];

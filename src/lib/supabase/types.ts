@@ -1695,6 +1695,330 @@ export type Database = {
           },
         ]
       }
+      entrainement_exercices: {
+        Row: {
+          created_at: string
+          entrainement_id: string
+          exercice_id: string
+          id: string
+          ordre: number
+          repos_s: number | null
+        }
+        Insert: {
+          created_at?: string
+          entrainement_id: string
+          exercice_id: string
+          id?: string
+          ordre?: number
+          repos_s?: number | null
+        }
+        Update: {
+          created_at?: string
+          entrainement_id?: string
+          exercice_id?: string
+          id?: string
+          ordre?: number
+          repos_s?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entrainement_exercices_entrainement_id_fkey"
+            columns: ["entrainement_id"]
+            isOneToOne: false
+            referencedRelation: "entrainements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entrainement_exercices_exercice_id_fkey"
+            columns: ["exercice_id"]
+            isOneToOne: false
+            referencedRelation: "exercices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entrainement_series: {
+        Row: {
+          created_at: string
+          distance_m: number | null
+          duree_s: number | null
+          entrainement_exercice_id: string
+          id: string
+          ordre: number
+          poids_kg: number | null
+          reps: number | null
+          type_serie: string
+        }
+        Insert: {
+          created_at?: string
+          distance_m?: number | null
+          duree_s?: number | null
+          entrainement_exercice_id: string
+          id?: string
+          ordre?: number
+          poids_kg?: number | null
+          reps?: number | null
+          type_serie?: string
+        }
+        Update: {
+          created_at?: string
+          distance_m?: number | null
+          duree_s?: number | null
+          entrainement_exercice_id?: string
+          id?: string
+          ordre?: number
+          poids_kg?: number | null
+          reps?: number | null
+          type_serie?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entrainement_series_entrainement_exercice_id_fkey"
+            columns: ["entrainement_exercice_id"]
+            isOneToOne: false
+            referencedRelation: "entrainement_exercices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entrainements: {
+        Row: {
+          created_at: string
+          date: string
+          debut_at: string
+          duree_s: number
+          fin_at: string
+          id: string
+          routine_id: string | null
+          seance_id: string | null
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          debut_at: string
+          duree_s: number
+          fin_at: string
+          id?: string
+          routine_id?: string | null
+          seance_id?: string | null
+          titre?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          debut_at?: string
+          duree_s?: number
+          fin_at?: string
+          id?: string
+          routine_id?: string | null
+          seance_id?: string | null
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entrainements_routine_id_fkey"
+            columns: ["routine_id"]
+            isOneToOne: false
+            referencedRelation: "routines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entrainements_seance_id_fkey"
+            columns: ["seance_id"]
+            isOneToOne: false
+            referencedRelation: "seances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercices: {
+        Row: {
+          created_at: string
+          id: string
+          materiel: string | null
+          mode_saisie: string
+          muscle_principal: string
+          muscles_secondaires: string[]
+          nom: string
+          repos_defaut_s: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          materiel?: string | null
+          mode_saisie?: string
+          muscle_principal: string
+          muscles_secondaires?: string[]
+          nom: string
+          repos_defaut_s?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          materiel?: string | null
+          mode_saisie?: string
+          muscle_principal?: string
+          muscles_secondaires?: string[]
+          nom?: string
+          repos_defaut_s?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      routine_dossiers: {
+        Row: {
+          created_at: string
+          id: string
+          nom: string
+          ordre: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nom: string
+          ordre?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nom?: string
+          ordre?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      routine_exercices: {
+        Row: {
+          created_at: string
+          exercice_id: string
+          id: string
+          ordre: number
+          repos_s: number | null
+          routine_id: string
+        }
+        Insert: {
+          created_at?: string
+          exercice_id: string
+          id?: string
+          ordre?: number
+          repos_s?: number | null
+          routine_id: string
+        }
+        Update: {
+          created_at?: string
+          exercice_id?: string
+          id?: string
+          ordre?: number
+          repos_s?: number | null
+          routine_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routine_exercices_exercice_id_fkey"
+            columns: ["exercice_id"]
+            isOneToOne: false
+            referencedRelation: "exercices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routine_exercices_routine_id_fkey"
+            columns: ["routine_id"]
+            isOneToOne: false
+            referencedRelation: "routines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routine_series: {
+        Row: {
+          created_at: string
+          distance_m: number | null
+          duree_s: number | null
+          id: string
+          ordre: number
+          poids_kg: number | null
+          reps: number | null
+          routine_exercice_id: string
+          type_serie: string
+        }
+        Insert: {
+          created_at?: string
+          distance_m?: number | null
+          duree_s?: number | null
+          id?: string
+          ordre?: number
+          poids_kg?: number | null
+          reps?: number | null
+          routine_exercice_id: string
+          type_serie?: string
+        }
+        Update: {
+          created_at?: string
+          distance_m?: number | null
+          duree_s?: number | null
+          id?: string
+          ordre?: number
+          poids_kg?: number | null
+          reps?: number | null
+          routine_exercice_id?: string
+          type_serie?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routine_series_routine_exercice_id_fkey"
+            columns: ["routine_exercice_id"]
+            isOneToOne: false
+            referencedRelation: "routine_exercices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routines: {
+        Row: {
+          created_at: string
+          dossier_id: string | null
+          id: string
+          nom: string
+          ordre: number
+          type_seance: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dossier_id?: string | null
+          id?: string
+          nom: string
+          ordre?: number
+          type_seance?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dossier_id?: string | null
+          id?: string
+          nom?: string
+          ordre?: number
+          type_seance?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routines_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "routine_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reglages_briefing: {
         Row: {
           actif: boolean
