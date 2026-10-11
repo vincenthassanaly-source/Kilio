@@ -181,6 +181,32 @@ export function retirerExercice(b: Brouillon, cle: string): Brouillon {
   return { ...b, exercices: b.exercices.filter((e) => e.cle !== cle), repos };
 }
 
+/**
+ * Remplace un exercice par un autre du catalogue, à la même place. La clé locale,
+ * le nombre de séries et leur type sont conservés ; valeurs et cases cochées
+ * repartent de la dernière séance du nouvel exercice. Un repos en cours n'est pas touché.
+ */
+export function remplacerExercice(b: Brouillon, cle: string, source: NouvelExercice, genererId: GenererId = uuid): Brouillon {
+  return surExercice(b, cle, (ancien) => {
+    const nouveau = creerExerciceBrouillon(source, genererId);
+    return {
+      ...nouveau,
+      cle: ancien.cle,
+      series: ancien.series.map((s, i) => serieVide(source.precedent[i] ?? source.precedent.at(-1), s.id, s.type)),
+    };
+  });
+}
+
+/** Décale un exercice d'un cran vers le haut (-1) ou le bas (1) ; sans effet aux extrémités. */
+export function deplacerExercice(b: Brouillon, cle: string, sens: -1 | 1): Brouillon {
+  const index = b.exercices.findIndex((e) => e.cle === cle);
+  const cible = index + sens;
+  if (index === -1 || cible < 0 || cible >= b.exercices.length) return b;
+  const exercices = [...b.exercices];
+  [exercices[index], exercices[cible]] = [exercices[cible], exercices[index]];
+  return { ...b, exercices };
+}
+
 /** Nouvelle série : copie les valeurs de la dernière série de l'exercice. */
 export function ajouterSerie(b: Brouillon, cle: string, genererId: GenererId = uuid): Brouillon {
   return surExercice(b, cle, (e) => {
