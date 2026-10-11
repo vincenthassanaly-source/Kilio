@@ -68,6 +68,7 @@ export const ANIMATIONS = [
   "split-squat-bulgare-haltere",
   "fentes-haltere",
   "souleve-terre-roumain-haltere",
+  "marche",
 ] as const;
 
 export type CleAnimation = (typeof ANIMATIONS)[number];
