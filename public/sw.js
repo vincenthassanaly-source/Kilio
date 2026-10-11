@@ -67,6 +67,11 @@ const ANIMATIONS = [
   "superman",
   "dead-bug",
   "sit-up-jackknife",
+  "squat-haltere",
+  "goblet-squat",
+  "split-squat-bulgare-haltere",
+  "fentes-haltere",
+  "souleve-terre-roumain-haltere",
 ];
 const FICHIERS_ANIMATIONS = ANIMATIONS.flatMap((cle) => [
   `${DOSSIER_ANIMATIONS}${cle}.webm`,
