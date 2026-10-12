@@ -234,10 +234,19 @@ export function modifierSerie(
   serieId: string,
   champs: Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "type">>,
 ): Brouillon {
-  return surExercice(b, cle, (e) => ({
-    ...e,
-    series: e.series.map((s) => (s.id === serieId ? { ...s, ...champs } : s)),
-  }));
+  return surExercice(b, cle, (e) => {
+    const index = e.series.findIndex((s) => s.id === serieId);
+    // Un poids saisi se répercute sur les séries suivantes non faites (échauffements exclus).
+    const repercute = "poids" in champs && index >= 0 && (champs.type ?? e.series[index].type) !== "echauffement";
+    return {
+      ...e,
+      series: e.series.map((s, i) => {
+        if (s.id === serieId) return { ...s, ...champs };
+        if (repercute && i > index && !s.fait && s.type !== "echauffement") return { ...s, poids: champs.poids };
+        return s;
+      }),
+    };
+  });
 }
 
 /**
