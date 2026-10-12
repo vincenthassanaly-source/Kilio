@@ -163,7 +163,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
               </button>
             ))}
           </div>
-          <p className={metaText}>Proposée quand tu commences une séance planifiée de ce type.</p>
+          <p className={metaText}>Détermine la ligne Push, Pull ou Legs que cette routine coche dans Aujourd&apos;hui.</p>
         </div>
 
         {dossiers.length > 0 && (

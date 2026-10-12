@@ -5,7 +5,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 import { aujourdhuiParis } from "@/lib/date/paris";
-import { marquerFaite } from "@/lib/seances/serveur";
 import { estTypeSeance } from "@/lib/seances/compute";
 import { cleAnimationOuNull, type CleAnimation } from "./animations";
 import { estModeSaisie, estMuscle, estTypeSerie, type ModeSaisie, type Muscle } from "./constantes";
@@ -136,29 +135,27 @@ export type ResultatEnregistrement = { error: string | null };
  * Enregistre une séance terminée. Idempotent : les identifiants viennent du
  * client, donc renvoyer la même séance (reconnexion après un envoi dont la
  * réponse s'est perdue) la remplace sans créer de doublon.
- * Le jour devient un jour d'entraînement (cible kcal du Journal) ; si la
- * séance réalise une séance planifiée, celle-ci est cochée « faite ».
+ * Le jour devient un jour d'entraînement (cible kcal du Journal). Le type
+ * (Push / Pull / Legs) est celui de la routine suivie, sinon celui choisi à la
+ * fin d'une séance libre : c'est lui qui coche la semaine dans Aujourd'hui.
  */
 export async function enregistrerEntrainement(supabase: Client, payload: EntrainementPayload): Promise<ResultatEnregistrement> {
   const echec = { error: "La séance n'a pas pu être enregistrée. Réessaie." };
   const jour = aujourdhuiParis(new Date(payload.debutA));
   const dureeS = Math.max(0, Math.round((Date.parse(payload.finA) - Date.parse(payload.debutA)) / 1000));
 
-  // Une routine ou une séance planifiée supprimée entre-temps ne doit pas faire échouer l'envoi.
+  // Une routine supprimée entre-temps ne doit pas faire échouer l'envoi.
   let routineId = payload.routineId;
+  let typeSeance = payload.typeSeance ?? null;
   if (routineId) {
-    const { data } = await supabase.from("routines").select("id").eq("id", routineId).maybeSingle();
+    const { data } = await supabase.from("routines").select("id, type_seance").eq("id", routineId).maybeSingle();
     if (!data) routineId = null;
-  }
-  let seanceId = payload.seanceId;
-  if (seanceId) {
-    const { data } = await supabase.from("seances").select("id").eq("id", seanceId).maybeSingle();
-    if (!data) seanceId = null;
+    else if (data.type_seance && estTypeSeance(data.type_seance)) typeSeance = data.type_seance;
   }
 
   const { error: erreurEntrainement } = await supabase.from("entrainements").upsert({
     id: payload.id,
-    seance_id: seanceId,
+    type_seance: typeSeance,
     routine_id: routineId,
     titre: payload.nom.trim(),
     date: jour,
@@ -203,15 +200,10 @@ export async function enregistrerEntrainement(supabase: Client, payload: Entrain
   if (erreurSeries) return echec;
 
   // Best effort : la séance est déjà enregistrée, un échec ici ne doit pas la faire rejouer.
-  if (seanceId) {
-    const resultat = await marquerFaite(supabase, seanceId, true);
-    if (resultat.error) console.error("enregistrerEntrainement: séance planifiée non cochée", resultat.error);
-  } else {
-    const { error } = await supabase
-      .from("jours_entrainement")
-      .upsert({ date: jour, entraine: true, updated_at: new Date().toISOString() }, { onConflict: "date" });
-    if (error) console.error("enregistrerEntrainement: jour d'entraînement non marqué", error);
-  }
+  const { error } = await supabase
+    .from("jours_entrainement")
+    .upsert({ date: jour, entraine: true, updated_at: new Date().toISOString() }, { onConflict: "date" });
+  if (error) console.error("enregistrerEntrainement: jour d'entraînement non marqué", error);
 
   return { error: null };
 }
@@ -477,7 +469,7 @@ export async function listerEntrainements(supabase: Client, limite: number): Pro
 export async function lireEntrainement(supabase: Client, id: string): Promise<EntrainementDetail | null> {
   const { data: e, error } = await supabase
     .from("entrainements")
-    .select("id, titre, date, debut_at, fin_at, duree_s, seance_id, routine_id")
+    .select("id, titre, date, debut_at, fin_at, duree_s, type_seance, routine_id")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -491,12 +483,11 @@ export async function lireEntrainement(supabase: Client, id: string): Promise<En
   if (erreurLignes) throw new Error(erreurLignes.message);
 
   const idsExercices = [...new Set((lignes ?? []).map((l) => l.exercice_id))];
-  const [catalogue, series, seance] = await Promise.all([
+  const [catalogue, series] = await Promise.all([
     idsExercices.length > 0
       ? supabase.from("exercices").select("id, nom, mode_saisie").in("id", idsExercices)
       : Promise.resolve({ data: [], error: null }),
     lireSeriesParLigne(supabase, (lignes ?? []).map((l) => l.id)),
-    e.seance_id ? supabase.from("seances").select("type").eq("id", e.seance_id).maybeSingle() : Promise.resolve({ data: null, error: null }),
   ]);
   if (catalogue.error) throw new Error(catalogue.error.message);
 
@@ -522,14 +513,13 @@ export async function lireEntrainement(supabase: Client, id: string): Promise<En
     debutA: e.debut_at,
     finA: e.fin_at,
     dureeS: e.duree_s,
-    seanceId: e.seance_id,
     routineId: e.routine_id,
-    typeSeance: typeOuNull(seance.data?.type ?? null),
+    typeSeance: typeOuNull(e.type_seance),
     exercices,
   };
 }
 
-/** Supprime la séance (exercices et séries en cascade). La séance planifiée liée n'est pas décochée. */
+/** Supprime la séance (exercices et séries en cascade). Le type fait de la semaine s'en déduit : supprimer l'entraînement décoche. */
 export async function supprimerEntrainement(supabase: Client, id: string): Promise<ResultatRoutine> {
   const { error } = await supabase.from("entrainements").delete().eq("id", id);
   return { error: error ? "La séance n'a pas pu être supprimée. Réessaie." : null };

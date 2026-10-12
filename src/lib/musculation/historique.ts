@@ -34,9 +34,8 @@ export type EntrainementDetail = {
   debutA: string;
   finA: string;
   dureeS: number;
-  seanceId: string | null;
   routineId: string | null;
-  /** Type de la séance planifiée d'origine, s'il y en a une. */
+  /** Type (Push / Pull / Legs) de la séance : celui de sa routine ou choisi en séance libre. */
   typeSeance: TypeSeance | null;
   exercices: EntrainementExerciceDetail[];
 };
@@ -78,7 +77,7 @@ export function brouillonDepuisEntrainement(
     id: detail.id,
     nom: detail.titre,
     routineId: detail.routineId,
-    seanceId: detail.seanceId,
+    typeSeance: detail.typeSeance,
     debutA: detail.debutA,
     repos: null,
     exercices: detail.exercices.map(

@@ -44,8 +44,8 @@ export function SyntheseSemaine({ synthese, lienBilan = false }: { synthese: Syn
         />
         <Tuile
           libelle="Séances"
-          valeur={seances.total > 0 ? `${seances.faites}/${seances.total}` : "—"}
-          detail={seances.total > 0 ? "faites cette semaine" : "Aucune séance planifiée"}
+          valeur={`${seances.faites}/${seances.total}`}
+          detail="types faits cette semaine"
         />
         <Tuile
           libelle="Poids"

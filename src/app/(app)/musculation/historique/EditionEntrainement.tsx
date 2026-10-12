@@ -44,7 +44,7 @@ function Formulaire({ detail }: { detail: EntrainementDetail | null }) {
   const [brouillon, setBrouillon] = useState<Brouillon>(() =>
     detail
       ? brouillonDepuisEntrainement(detail)
-      : { id: crypto.randomUUID(), nom: "Séance", routineId: null, seanceId: null, debutA: new Date().toISOString(), exercices: [], repos: null },
+      : { id: crypto.randomUUID(), nom: "Séance", routineId: null, typeSeance: null, debutA: new Date().toISOString(), exercices: [], repos: null },
   );
   const [date, setDate] = useState(detail?.date ?? aujourdhui);
   const [heure, setHeure] = useState(detail ? heureParisDe(detail.debutA) : heureParis());

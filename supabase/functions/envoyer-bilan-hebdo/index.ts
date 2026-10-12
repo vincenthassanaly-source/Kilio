@@ -100,7 +100,7 @@ Deno.serve(async () => {
     supabase.from("objectifs_nutritionnels").select("jour_type, kcal_cible"),
     supabase.from("jours_entrainement").select("date").eq("entraine", true).gte("date", debut).lte("date", today),
     supabase.from("jours_libres").select("date").gte("date", debut).lte("date", today),
-    supabase.from("seances").select("statut").gte("date_prevue", semaine.debut).lte("date_prevue", semaine.fin),
+    supabase.from("entrainements").select("routine_id, type_seance").gte("date", semaine.debut).lte("date", semaine.fin),
     supabase
       .from("mesures_corps")
       .select("date, poids_kg, tour_taille_cm")
@@ -110,6 +110,20 @@ Deno.serve(async () => {
   ]);
   const erreur = repas.error ?? objectifs.error ?? entrainement.error ?? libres.error ?? seances.error ?? mesures.error;
   if (erreur) return json({ error: erreur.message }, 500);
+
+  // Séances de la semaine : un type (Push / Pull / Legs) est fait dès qu'un entraînement
+  // lui est rattaché, par son type enregistré ou, à défaut, par sa routine.
+  const idsRoutines = [...new Set((seances.data ?? []).map((e) => e.routine_id).filter((id): id is string => id !== null))];
+  const { data: typesRoutines, error: erreurRoutines } = idsRoutines.length
+    ? await supabase.from("routines").select("id, type_seance").in("id", idsRoutines)
+    : { data: [], error: null };
+  if (erreurRoutines) return json({ error: erreurRoutines.message }, 500);
+  const typeDeRoutine = new Map((typesRoutines ?? []).map((r) => [r.id as string, r.type_seance as string | null]));
+  const typesFaits = new Set<string>();
+  for (const e of seances.data ?? []) {
+    const type = e.type_seance ?? (e.routine_id ? typeDeRoutine.get(e.routine_id) : null);
+    if (type) typesFaits.add(type);
+  }
 
   const cibles = new Map((objectifs.data ?? []).map((o) => [o.jour_type as string, o.kcal_cible as number]));
   const joursEntrainement = new Set((entrainement.data ?? []).map((j) => j.date as string));
@@ -137,10 +151,7 @@ Deno.serve(async () => {
   }));
   const message = composerBilanHebdo({
     kcal: syntheseKcal(jours),
-    seances: {
-      faites: (seances.data ?? []).filter((s) => s.statut === "faite").length,
-      total: (seances.data ?? []).length,
-    },
+    seances: { faites: typesFaits.size, total: 3 },
     poids: evolutionPoids(releves, today),
     taille: evolutionTaille(releves, today),
   });

@@ -28,8 +28,3 @@ export function joursKcalDepuisBilan(jours: readonly JourBilan[], today: string)
     aujourdhui: jour.date === today,
   }));
 }
-
-/** Avancement des séances de la semaine : « 2/3 faites ». */
-export function syntheseSeances(seances: readonly { statut: string }[]): { faites: number; total: number } {
-  return { faites: seances.filter((s) => s.statut === "faite").length, total: seances.length };
-}
