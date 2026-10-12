@@ -242,7 +242,7 @@ export function modifierSerie(
       ...e,
       series: e.series.map((s, i) => {
         if (s.id === serieId) return { ...s, ...champs };
-        if (repercute && i > index && !s.fait && s.type !== "echauffement") return { ...s, poids: champs.poids };
+        if (repercute && i > index && !s.fait && s.type !== "echauffement") return { ...s, poids: champs.poids ?? null };
         return s;
       }),
     };
