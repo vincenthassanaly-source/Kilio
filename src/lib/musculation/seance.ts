@@ -439,7 +439,9 @@ export function libellePrecedent(mode: ModeSaisie, p: SeriePrecedente | undefine
   for (const champ of CHAMPS_PAR_MODE[mode]) {
     if (champ === "poids_kg" && p.poids !== null) parties.push(formaterPoids(p.poids));
     if (champ === "reps" && p.reps !== null) parties.push(String(p.reps));
-    if (champ === "duree_s" && p.duree !== null) parties.push(`${p.duree} s`);
+    if (champ === "duree_s" && p.duree !== null) {
+      parties.push(mode === "duree_vitesse" ? `${formaterPoids(p.duree / 60)} min` : `${p.duree} s`);
+    }
     if (champ === "distance_m" && p.distance !== null) parties.push(`${formaterPoids(p.distance)} m`);
     if (champ === "vitesse_kmh" && p.vitesse != null) parties.push(`${formaterPoids(p.vitesse)} km/h`);
   }

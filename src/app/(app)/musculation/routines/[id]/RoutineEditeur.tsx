@@ -10,6 +10,9 @@ import { showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
 import {
   CHAMPS_PAR_MODE,
+  dureeEnMinutes,
+  minutesVersSecondes,
+  secondesVersMinutes,
   TYPES_SEANCE,
   TYPES_SERIE,
   TYPE_SERIE_LABELS,
@@ -41,7 +44,7 @@ const serieVide = (): RoutineSerie => ({ type: "normale", poids: null, reps: nul
 function enteteChamp(champ: ChampSerie, mode: ModeSaisie): string {
   if (champ === "poids_kg") return mode === "poids_corps_reps" ? "+kg" : "kg";
   if (champ === "reps") return "reps";
-  if (champ === "duree_s") return "sec";
+  if (champ === "duree_s") return mode === "duree_vitesse" ? "min" : "sec";
   if (champ === "vitesse_kmh") return "km/h";
   return "m";
 }
@@ -246,14 +249,16 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                       </button>
                       {champs.map((champ) => {
                         const cle = CLE_SERIE[champ];
+                        const enMinutes = dureeEnMinutes(exercice.mode, champ);
+                        const valeurSerie = serie[cle] ?? null;
                         return (
                           <ChampNombre
                             key={champ}
-                            valeur={serie[cle] ?? null}
-                            entier={champ === "reps" || champ === "duree_s"}
+                            valeur={enMinutes ? secondesVersMinutes(valeurSerie) : valeurSerie}
+                            entier={champ === "reps" || (champ === "duree_s" && !enMinutes)}
                             signe={champ === "poids_kg" && exercice.mode === "poids_corps_reps"}
                             libelle={`${enteteChamp(champ, exercice.mode)} cible de la série ${rang + 1}`}
-                            onChange={(valeur) => surSerie(index, rang, { [cle]: valeur })}
+                            onChange={(valeur) => surSerie(index, rang, { [cle]: enMinutes ? minutesVersSecondes(valeur) : valeur })}
                           />
                         );
                       })}
