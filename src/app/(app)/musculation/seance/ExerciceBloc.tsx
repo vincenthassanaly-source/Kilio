@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { showToast } from "@/components/toast/toast-store";
 import { vibrate } from "@/lib/haptics";
 import {
   CHAMPS_PAR_MODE,
@@ -251,6 +252,14 @@ export function ExerciceBloc({
                       if (!serie.fait) {
                         deverrouillerAudio();
                         vibrate(15);
+                        // Série validée = record de charge battu (comme le badge sous la série) : on félicite.
+                        const apresValidation = recordsBattus(
+                          exercice.series.map((s) => (s.fait || s.id === serie.id ? s : { ...s, type: "echauffement" as const })),
+                          exercice.records,
+                        );
+                        if (apresValidation[index]?.includes("poids")) {
+                          showToast(`Record de charge sur ${exercice.nom} 💪`, 3600);
+                        }
                       }
                       onBasculer(cle, serie.id);
                     }}
