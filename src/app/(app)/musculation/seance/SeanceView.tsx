@@ -250,6 +250,12 @@ export function SeanceView() {
         + Ajouter un exercice
       </button>
 
+      {b.exercices.length > 0 && (
+        <button type="button" className={`${primaryButton} h-12`} onClick={demanderFin} disabled={envoi}>
+          Terminer la séance
+        </button>
+      )}
+
       <SelecteurExercices
         ouvert={selecteur}
         onClose={() => setSelecteur(false)}
