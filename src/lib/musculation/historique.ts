@@ -96,6 +96,7 @@ export function brouillonDepuisEntrainement(
             reps: s.reps,
             duree: s.duree,
             distance: s.distance,
+            vitesse: s.vitesse,
             fait: true,
             faitA: detail.debutA,
             reposPris: null,

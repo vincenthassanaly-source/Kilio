@@ -1664,6 +1664,7 @@ export type Database = {
         Row: {
           created_at: string
           distance_m: number | null
+          vitesse_kmh: number | null
           duree_s: number | null
           entrainement_exercice_id: string
           id: string
@@ -1675,6 +1676,7 @@ export type Database = {
         Insert: {
           created_at?: string
           distance_m?: number | null
+          vitesse_kmh?: number | null
           duree_s?: number | null
           entrainement_exercice_id: string
           id?: string
@@ -1686,6 +1688,7 @@ export type Database = {
         Update: {
           created_at?: string
           distance_m?: number | null
+          vitesse_kmh?: number | null
           duree_s?: number | null
           entrainement_exercice_id?: string
           id?: string
@@ -1860,6 +1863,7 @@ export type Database = {
         Row: {
           created_at: string
           distance_m: number | null
+          vitesse_kmh: number | null
           duree_s: number | null
           id: string
           ordre: number
@@ -1871,6 +1875,7 @@ export type Database = {
         Insert: {
           created_at?: string
           distance_m?: number | null
+          vitesse_kmh?: number | null
           duree_s?: number | null
           id?: string
           ordre?: number
@@ -1882,6 +1887,7 @@ export type Database = {
         Update: {
           created_at?: string
           distance_m?: number | null
+          vitesse_kmh?: number | null
           duree_s?: number | null
           id?: string
           ordre?: number
