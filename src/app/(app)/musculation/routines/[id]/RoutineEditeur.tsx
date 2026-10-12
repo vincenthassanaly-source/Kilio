@@ -33,15 +33,16 @@ import { AnimationVignette } from "../../AnimationExercice";
 import { ChampNombre } from "../../seance/ChampNombre";
 import { SelecteurExercices } from "../../seance/SelecteurExercices";
 
-const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance" } as const;
+const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance", vitesse_kmh: "vitesse" } as const;
 const REPOS_PAR_DEFAUT_AFFICHE_S = 90;
 
-const serieVide = (): RoutineSerie => ({ type: "normale", poids: null, reps: null, duree: null, distance: null });
+const serieVide = (): RoutineSerie => ({ type: "normale", poids: null, reps: null, duree: null, distance: null, vitesse: null });
 
 function enteteChamp(champ: ChampSerie, mode: ModeSaisie): string {
   if (champ === "poids_kg") return mode === "poids_corps_reps" ? "+kg" : "kg";
   if (champ === "reps") return "reps";
   if (champ === "duree_s") return "sec";
+  if (champ === "vitesse_kmh") return "km/h";
   return "m";
 }
 
@@ -53,7 +54,7 @@ function exerciceDepuisCatalogue(e: ExerciceCatalogue): RoutineExerciceDetail {
     reposS: null,
     reposExerciceS: e.reposDefautS,
     animation: e.animation,
-    series: [serieVide(), serieVide(), serieVide()],
+    series: e.mode === "duree_vitesse" ? [serieVide()] : [serieVide(), serieVide(), serieVide()],
   };
 }
 
@@ -248,7 +249,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                         return (
                           <ChampNombre
                             key={champ}
-                            valeur={serie[cle]}
+                            valeur={serie[cle] ?? null}
                             entier={champ === "reps" || champ === "duree_s"}
                             signe={champ === "poids_kg" && exercice.mode === "poids_corps_reps"}
                             libelle={`${enteteChamp(champ, exercice.mode)} cible de la série ${rang + 1}`}

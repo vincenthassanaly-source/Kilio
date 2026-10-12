@@ -13,6 +13,7 @@ export type RoutineSerie = {
   reps: number | null;
   duree: number | null;
   distance: number | null;
+  vitesse?: number | null;
 };
 
 /** Exercice d'une routine tel qu'il est envoyé à l'enregistrement. */
@@ -100,6 +101,7 @@ export function exerciceDepuisRoutine(
         reps: cible.reps ?? serie.reps,
         duree: cible.duree ?? serie.duree,
         distance: cible.distance ?? serie.distance,
+        vitesse: cible.vitesse ?? serie.vitesse,
       };
     }),
   };
@@ -155,6 +157,7 @@ export function validerRoutine(routine: unknown): string | null {
       if (!nullOuEntier(serie.reps, 0, 1000)) return "Répétitions invalides (0 à 1000).";
       if (!nullOuEntier(serie.duree, 0, 86400)) return "Durée invalide.";
       if (!nullOuNombre(serie.distance, 0, 1_000_000)) return "Distance invalide.";
+      if (serie.vitesse !== undefined && !nullOuNombre(serie.vitesse, 0, 100)) return "Vitesse invalide (0 à 100 km/h).";
     }
   }
   return null;

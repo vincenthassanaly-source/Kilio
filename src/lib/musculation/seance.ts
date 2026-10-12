@@ -21,6 +21,8 @@ export type SeriePrecedente = {
   reps: number | null;
   duree: number | null;
   distance: number | null;
+  /** Vitesse en km/h (marche). */
+  vitesse?: number | null;
 };
 
 export type SerieBrouillon = {
@@ -33,6 +35,8 @@ export type SerieBrouillon = {
   duree: number | null;
   /** Distance en mètres. */
   distance: number | null;
+  /** Vitesse en km/h (absente des anciens brouillons). */
+  vitesse?: number | null;
   fait: boolean;
   faitA: string | null;
   /** Repos pris APRÈS cette série, connu quand la série suivante est validée. */
@@ -98,6 +102,7 @@ export type EntrainementPayload = {
       reps: number | null;
       duree: number | null;
       distance: number | null;
+      vitesse?: number | null;
     }[];
   }[];
 };
@@ -121,6 +126,7 @@ function serieVide(modele: SeriePrecedente | undefined, id: string, type: TypeSe
     reps: modele?.reps ?? null,
     duree: modele?.duree ?? null,
     distance: modele?.distance ?? null,
+    vitesse: modele?.vitesse ?? null,
     fait: false,
     faitA: null,
     reposPris: null,
@@ -232,7 +238,7 @@ export function modifierSerie(
   b: Brouillon,
   cle: string,
   serieId: string,
-  champs: Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "type">>,
+  champs: Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "vitesse" | "type">>,
 ): Brouillon {
   return surExercice(b, cle, (e) => {
     const index = e.series.findIndex((s) => s.id === serieId);
@@ -381,6 +387,7 @@ export function versPayload(b: Brouillon, finA: string): EntrainementPayload | n
         reps: s.reps,
         duree: s.duree,
         distance: s.distance,
+        vitesse: s.vitesse ?? null,
       }));
     if (series.length > 0) exercices.push({ cle: e.cle, exerciceId: e.exerciceId, reposS: e.reposS, series });
   }
@@ -434,6 +441,7 @@ export function libellePrecedent(mode: ModeSaisie, p: SeriePrecedente | undefine
     if (champ === "reps" && p.reps !== null) parties.push(String(p.reps));
     if (champ === "duree_s" && p.duree !== null) parties.push(`${p.duree} s`);
     if (champ === "distance_m" && p.distance !== null) parties.push(`${formaterPoids(p.distance)} m`);
+    if (champ === "vitesse_kmh" && p.vitesse != null) parties.push(`${formaterPoids(p.vitesse)} km/h`);
   }
   if (parties.length === 0) return "–";
   const poidsEtReps = mode === "poids_reps" || mode === "poids_corps_reps";
@@ -508,6 +516,7 @@ export function validerPayload(payload: unknown): string | null {
       if (!nullOuEntier(serie.reps, 0, 1000)) return "Répétitions invalides (0 à 1000).";
       if (!nullOuEntier(serie.duree, 0, 86400)) return "Durée invalide.";
       if (!nullOuNombre(serie.distance, 0, 1_000_000)) return "Distance invalide.";
+      if (serie.vitesse !== undefined && !nullOuNombre(serie.vitesse, 0, 100)) return "Vitesse invalide (0 à 100 km/h).";
     }
   }
   return null;

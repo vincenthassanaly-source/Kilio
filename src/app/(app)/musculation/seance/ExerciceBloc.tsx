@@ -25,7 +25,7 @@ import { AnimationMiniature } from "../AnimationExercice";
 import { ChampNombre } from "./ChampNombre";
 import { ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
 
-type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "type">>;
+type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "vitesse" | "type">>;
 
 // Ligne du menu d'options : cible tactile de 48 px, séparateur fin entre les lignes.
 const ligneMenu =
@@ -39,13 +39,14 @@ function IconeMenu({ d }: { d: string }) {
   );
 }
 
-const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance" } as const;
-const LARGEUR_CHAMP: Record<ChampSerie, string> = { poids_kg: "68px", reps: "60px", duree_s: "68px", distance_m: "72px" };
+const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance", vitesse_kmh: "vitesse" } as const;
+const LARGEUR_CHAMP: Record<ChampSerie, string> = { poids_kg: "68px", reps: "60px", duree_s: "68px", distance_m: "72px", vitesse_kmh: "72px" };
 
 function enteteChamp(champ: ChampSerie, mode: ModeSaisie): string {
   if (champ === "poids_kg") return mode === "poids_corps_reps" ? "+kg" : "kg";
   if (champ === "reps") return "reps";
   if (champ === "duree_s") return "sec";
+  if (champ === "vitesse_kmh") return "km/h";
   return "m";
 }
 
@@ -57,6 +58,7 @@ function libelleAccessible(champ: ChampSerie, rang: number, mode: ModeSaisie): s
   }
   if (champ === "reps") return `Répétitions de la série ${rang}`;
   if (champ === "duree_s") return `Durée de la série ${rang}, en secondes`;
+  if (champ === "vitesse_kmh") return `Vitesse de la série ${rang}, en kilomètres par heure`;
   return `Distance de la série ${rang}, en mètres`;
 }
 
@@ -103,6 +105,8 @@ export function ExerciceBloc({
   const [typeOuvertPour, setTypeOuvertPour] = useState<string | null>(null);
   const { mode, cle } = exercice;
   const champs = CHAMPS_PAR_MODE[mode];
+  // Marche (durée + vitesse) : une seule ligne, ni ajout de série ni repos.
+  const uneLigne = mode === "duree_vitesse";
 
   const colonnes = ["40px", "minmax(0,1fr)", ...champs.map((c) => LARGEUR_CHAMP[c]), ...(edition ? [] : ["48px"])].join(" ");
   const entete = "text-center text-[12px] font-semibold uppercase tracking-wide text-ink-3";
@@ -152,6 +156,7 @@ export function ExerciceBloc({
           }}
           className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface-alt"
         >
+          {!uneLigne && (
           <div className="flex items-center gap-2 px-3.5 py-2">
             <span className="mr-auto text-[14px] font-medium text-ink">Repos prévu</span>
             <button
@@ -174,6 +179,7 @@ export function ExerciceBloc({
               +15 s
             </button>
           </div>
+          )}
 
           {onDeplacer && (
             <button type="button" role="menuitem" className={ligneMenu} onClick={() => onDeplacer(cle, -1)} disabled={premier}>
@@ -201,16 +207,18 @@ export function ExerciceBloc({
               Remplacer l&apos;exercice
             </button>
           )}
-          <button
-            type="button"
-            role="menuitem"
-            className={ligneMenu}
-            onClick={() => onRetirerDerniereSerie(cle)}
-            disabled={exercice.series.length <= 1}
-          >
-            <IconeMenu d="M5 12h14" />
-            Retirer la dernière série
-          </button>
+          {!uneLigne && (
+            <button
+              type="button"
+              role="menuitem"
+              className={ligneMenu}
+              onClick={() => onRetirerDerniereSerie(cle)}
+              disabled={exercice.series.length <= 1}
+            >
+              <IconeMenu d="M5 12h14" />
+              Retirer la dernière série
+            </button>
+          )}
           <button
             type="button"
             role="menuitem"
@@ -286,7 +294,7 @@ export function ExerciceBloc({
                   return (
                     <ChampNombre
                       key={champ}
-                      valeur={serie[cleSerie]}
+                      valeur={serie[cleSerie] ?? null}
                       entier={champ === "reps" || champ === "duree_s"}
                       signe={champ === "poids_kg" && mode === "poids_corps_reps"}
                       libelle={libelleAccessible(champ, rang, mode)}
@@ -352,9 +360,11 @@ export function ExerciceBloc({
         })}
       </div>
 
-      <button type="button" className={`${secondaryButton} h-11 !py-0 text-[14px]`} onClick={() => onAjouterSerie(cle)}>
-        + Ajouter une série
-      </button>
+      {!uneLigne && (
+        <button type="button" className={`${secondaryButton} h-11 !py-0 text-[14px]`} onClick={() => onAjouterSerie(cle)}>
+          + Ajouter une série
+        </button>
+      )}
     </section>
   );
 }

@@ -382,6 +382,8 @@ describe("affichage", () => {
     expect(libellePrecedent("duree", p)).toBe("45 s");
     expect(libellePrecedent("distance_duree", p)).toBe("500 m · 45 s");
     expect(libellePrecedent("poids_duree", p)).toBe("80 · 45 s");
+    expect(libellePrecedent("duree_vitesse", { ...p, vitesse: 5.5 })).toBe("45 s · 5,5 km/h");
+    expect(libellePrecedent("duree_vitesse", p)).toBe("45 s");
     expect(libellePrecedent("poids_reps", undefined)).toBe("–");
     expect(libellePrecedent("duree", { poids: 80, reps: 8, duree: null, distance: null })).toBe("–");
   });

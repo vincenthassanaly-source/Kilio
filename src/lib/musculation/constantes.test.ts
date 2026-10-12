@@ -15,7 +15,9 @@ import {
   estTypeSerie,
 } from "./constantes";
 
-const migration = readFileSync(join(process.cwd(), "scripts/migration-musculation-2026-10-11.sql"), "utf8");
+const migration = ["migration-musculation-2026-10-11.sql", "migration-musculation-vitesse-2026-10-12.sql"]
+  .map((f) => readFileSync(join(process.cwd(), "scripts", f), "utf8"))
+  .join("\n");
 
 describe("constantes musculation", () => {
   it("fournit un libellé pour chaque valeur", () => {

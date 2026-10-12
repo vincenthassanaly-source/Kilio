@@ -108,7 +108,7 @@ export async function dernieresSeries(supabase: Client, exerciceIds: string[]): 
 
   const { data: series, error: erreurSeries } = await supabase
     .from("entrainement_series")
-    .select("entrainement_exercice_id, ordre, type_serie, poids_kg, reps, duree_s, distance_m")
+    .select("entrainement_exercice_id, ordre, type_serie, poids_kg, reps, duree_s, distance_m, vitesse_kmh")
     .in("entrainement_exercice_id", [...recente.values()].map((r) => r.id))
     .order("ordre");
   if (erreurSeries) throw new Error(erreurSeries.message);
@@ -117,7 +117,7 @@ export async function dernieresSeries(supabase: Client, exerciceIds: string[]): 
   for (const s of series ?? []) {
     if (s.type_serie === "echauffement") continue;
     const liste = parOccurrence.get(s.entrainement_exercice_id) ?? [];
-    liste.push({ poids: s.poids_kg, reps: s.reps, duree: s.duree_s, distance: s.distance_m });
+    liste.push({ poids: s.poids_kg, reps: s.reps, duree: s.duree_s, distance: s.distance_m, vitesse: s.vitesse_kmh });
     parOccurrence.set(s.entrainement_exercice_id, liste);
   }
 
@@ -194,6 +194,7 @@ export async function enregistrerEntrainement(supabase: Client, payload: Entrain
         reps: s.reps,
         duree_s: s.duree,
         distance_m: s.distance,
+        vitesse_kmh: s.vitesse ?? null,
       })),
     ),
   );
@@ -265,7 +266,7 @@ export async function lireRoutine(supabase: Client, id: string): Promise<Routine
     ids.length > 0
       ? supabase
           .from("routine_series")
-          .select("routine_exercice_id, ordre, type_serie, poids_kg, reps, duree_s, distance_m")
+          .select("routine_exercice_id, ordre, type_serie, poids_kg, reps, duree_s, distance_m, vitesse_kmh")
           .in("routine_exercice_id", ids)
           .order("ordre")
       : Promise.resolve({ data: [], error: null }),
@@ -283,6 +284,7 @@ export async function lireRoutine(supabase: Client, id: string): Promise<Routine
       reps: s.reps,
       duree: s.duree_s,
       distance: s.distance_m,
+      vitesse: s.vitesse_kmh,
     });
     seriesParLigne.set(s.routine_exercice_id, liste);
   }
@@ -362,6 +364,7 @@ export async function enregistrerRoutine(supabase: Client, entree: RoutineEntree
         reps: s.reps,
         duree_s: s.duree,
         distance_m: s.distance,
+        vitesse_kmh: s.vitesse ?? null,
       })),
     ),
   );
@@ -402,6 +405,7 @@ type LigneSerie = {
   reps: number | null;
   duree_s: number | null;
   distance_m: number | null;
+  vitesse_kmh: number | null;
 };
 
 function enSerie(l: LigneSerie): RoutineSerie {
@@ -411,6 +415,7 @@ function enSerie(l: LigneSerie): RoutineSerie {
     reps: l.reps,
     duree: l.duree_s,
     distance: l.distance_m,
+    vitesse: l.vitesse_kmh,
   };
 }
 
@@ -420,7 +425,7 @@ async function lireSeriesParLigne(supabase: Client, ids: string[]): Promise<Map<
   if (ids.length === 0) return parLigne;
   const { data, error } = await supabase
     .from("entrainement_series")
-    .select("entrainement_exercice_id, ordre, type_serie, poids_kg, reps, duree_s, distance_m")
+    .select("entrainement_exercice_id, ordre, type_serie, poids_kg, reps, duree_s, distance_m, vitesse_kmh")
     .in("entrainement_exercice_id", ids)
     .order("ordre");
   if (error) throw new Error(error.message);

@@ -48,8 +48,9 @@ export async function exerciceDepuisCatalogue(exercice: ExerciceCatalogue): Prom
     exerciceId: exercice.id,
     nom: exercice.nom,
     mode: exercice.mode,
-    reposS: exercice.reposDefautS ?? REPOS_PAR_DEFAUT_S,
-    nbSeries: NB_SERIES_PAR_DEFAUT,
+    // Marche : une seule ligne (durée + vitesse), sans repos.
+    reposS: exercice.mode === "duree_vitesse" ? 0 : (exercice.reposDefautS ?? REPOS_PAR_DEFAUT_S),
+    nbSeries: exercice.mode === "duree_vitesse" ? 1 : NB_SERIES_PAR_DEFAUT,
     precedent: precedents[exercice.id] ?? [],
     records: records[exercice.id] ?? null,
     animation: exercice.animation,
