@@ -111,6 +111,23 @@ describe("édition", () => {
     expect(ajusterReposExercice(b, cle, 5000).exercices[0].reposS).toBe(1800);
   });
 
+  it("répercute un poids saisi sur les séries suivantes non faites, hors échauffement", () => {
+    let b = brouillon();
+    const { cle } = b.exercices[0];
+    b = ajouterSerie(b, cle, compteur());
+    b = ajouterSerie(b, cle, compteur());
+    const [s0, s1, s2] = b.exercices[0].series;
+    b = modifierSerie(b, cle, s1.id, { type: "echauffement" });
+    b = basculerSerie(b, cle, s2.id, apres(10));
+    b = modifierSerie(b, cle, s0.id, { poids: 90 });
+    const poids = b.exercices[0].series.map((s) => s.poids);
+    expect(poids[0]).toBe(90);
+    expect(poids[1]).not.toBe(90);
+    expect(poids[2]).not.toBe(90);
+    b = modifierSerie(b, cle, s2.id, { poids: 50 });
+    expect(b.exercices[0].series.map((s) => s.poids)[0]).toBe(90);
+  });
+
   it("modifie le type d'une série et retire un exercice avec son repos", () => {
     let b = brouillon();
     const { cle } = b.exercices[0];
