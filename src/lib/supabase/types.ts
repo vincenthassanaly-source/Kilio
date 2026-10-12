@@ -516,6 +516,64 @@ export type Database = {
         }
         Relationships: []
       }
+      menus_repas: {
+        Row: {
+          aliment_id: string | null
+          created_at: string
+          date: string
+          id: string
+          journal_repas_id: string | null
+          mange: boolean
+          moment: Database["public"]["Enums"]["moment_repas"]
+          quantite: number
+          recette_id: string | null
+        }
+        Insert: {
+          aliment_id?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          journal_repas_id?: string | null
+          mange?: boolean
+          moment: Database["public"]["Enums"]["moment_repas"]
+          quantite: number
+          recette_id?: string | null
+        }
+        Update: {
+          aliment_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          journal_repas_id?: string | null
+          mange?: boolean
+          moment?: Database["public"]["Enums"]["moment_repas"]
+          quantite?: number
+          recette_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menus_repas_aliment_id_fkey"
+            columns: ["aliment_id"]
+            isOneToOne: false
+            referencedRelation: "aliments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menus_repas_journal_repas_id_fkey"
+            columns: ["journal_repas_id"]
+            isOneToOne: false
+            referencedRelation: "journal_repas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menus_repas_recette_id_fkey"
+            columns: ["recette_id"]
+            isOneToOne: false
+            referencedRelation: "recettes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mesures_corps: {
         Row: {
           created_at: string

@@ -37,6 +37,18 @@ const SECTIONS = [
       </svg>
     ),
   },
+  {
+    href: "/nutrition/menus",
+    label: "Menus",
+    description: "Repas de la semaine et courses",
+    icon: (c: string) => (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
+        <path d="M3.5 10h17M8 3v4M16 3v4" />
+        <path d="M8 14h3M8 17h6" />
+      </svg>
+    ),
+  },
 ];
 
 export default function NutritionHubPage() {

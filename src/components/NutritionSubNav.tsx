@@ -10,6 +10,7 @@ const TABS = [
   { href: "/nutrition/journal", label: "Journal" },
   { href: "/nutrition/bilan", label: "Bilan" },
   { href: "/nutrition/recettes", label: "Recettes" },
+  { href: "/nutrition/menus", label: "Menus" },
 ];
 
 export function NutritionSubNav() {
