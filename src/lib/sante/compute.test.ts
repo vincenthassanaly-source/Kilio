@@ -16,7 +16,6 @@ import {
   nombreFr,
   poidsLisse,
   syntheseKcal,
-  syntheseSeances,
   type Mesure,
 } from "./compute";
 
@@ -146,7 +145,7 @@ describe("kcalParJour : parité avec le calcul de l'app", () => {
   });
 });
 
-describe("joursKcalDepuisBilan / syntheseSeances", () => {
+describe("joursKcalDepuisBilan", () => {
   const jourBilan = (date: string, statut: JourBilan["statut"]): JourBilan => ({
     date,
     jourType: "repos",
@@ -163,10 +162,6 @@ describe("joursKcalDepuisBilan / syntheseSeances", () => {
       { date: "2026-10-10", kcal: 1800, cible: 2000, nbRepas: 3, libre: true, aujourdhui: false },
       { date: "2026-10-11", kcal: 1800, cible: 2000, nbRepas: 3, libre: false, aujourdhui: true },
     ]);
-  });
-
-  it("compte les séances faites", () => {
-    expect(syntheseSeances([{ statut: "faite" }, { statut: "prevue" }, { statut: "faite" }])).toEqual({ faites: 2, total: 3 });
   });
 });
 

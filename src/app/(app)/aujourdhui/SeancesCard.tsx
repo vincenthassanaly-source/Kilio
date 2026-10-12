@@ -1,61 +1,99 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { AnimatePresence } from "framer-motion";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { decalerSeanceAuProchainJourLibre, getSemaineSeances, marquerSeanceFaite } from "@/app/actions/seances";
-import { CheckToggle } from "@/components/CheckToggle";
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { getRoutine } from "@/app/actions/musculation";
+import { getSemaineSeances } from "@/app/actions/seances";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { showToast } from "@/components/toast/toast-store";
-import { useBackClose } from "@/hooks/useBackClose";
-import { runAction } from "@/lib/actions/runAction";
+import { showErrorToast } from "@/components/toast/toast-store";
+import { demarrerDepuisRoutine } from "@/lib/musculation/demarrer";
 import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { queryKeys } from "@/lib/query/keys";
-import {
-  etatSeance,
-  heureCourte,
-  JOURS_COURTS,
-  JOURS_LONGS,
-  jourDeSemaine,
-  progressionSemaine,
-  type Seance,
-} from "@/lib/seances/compute";
-import type { SemaineSeances } from "@/lib/seances/serveur";
-import { card, ghostButton, primaryButton } from "@/lib/ui";
-import { PlanningSeancesModal } from "./PlanningSeancesModal";
+import { LIBELLES_TYPE, progressionSemaine, type GroupeSemaine, type PastilleRoutine } from "@/lib/seances/compute";
+import { card } from "@/lib/ui";
 
-function libelleJour(seance: Seance, today: string): string {
-  if (seance.date === today) return "Aujourd'hui";
-  return JOURS_COURTS[jourDeSemaine(seance.date)];
+function Coche({ faite }: { faite: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${
+        faite ? "border-kcal bg-kcal text-on-kcal" : "border-line text-transparent"
+      }`}
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
+    </span>
+  );
 }
 
-function precision(seance: Seance, today: string): string {
-  const etat = etatSeance(seance, today);
-  if (etat === "faite") return "Faite";
-  if (etat === "manquee") return "À replacer";
-  return seance.reportee ? "Décalée" : "";
+function Pastille({
+  routine,
+  groupe,
+  desactivee,
+  onDemarrer,
+}: {
+  routine: PastilleRoutine;
+  groupe: GroupeSemaine;
+  desactivee: boolean;
+  onDemarrer: (id: string) => void;
+}) {
+  const vide = routine.nbExercices === 0;
+  return (
+    <button
+      type="button"
+      onClick={() => onDemarrer(routine.id)}
+      disabled={desactivee || vide}
+      aria-label={`Commencer ${routine.nom}${routine.faite ? " (déjà faite cette semaine)" : ""}`}
+      title={vide ? `${LIBELLES_TYPE[groupe.type]} ${routine.pastille} n'a pas d'exercice` : undefined}
+      className={`flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-full px-3.5 text-[14px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-40 ${
+        routine.faite ? "bg-kcal-soft text-kcal" : "bg-surface-alt text-ink-2"
+      }`}
+    >
+      {routine.faite && (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M5 12.5l4.5 4.5L19 7.5" />
+        </svg>
+      )}
+      {routine.pastille}
+    </button>
+  );
 }
 
 /**
- * Séances de sport de la semaine (plan type : créneaux du Planning). Cocher une
- * séance en fait un jour d'entraînement (cible kcal du Journal). « Décaler »
- * replace une séance sur le prochain jour libre de la semaine ; les séances
- * manquées sont déjà replacées à l'ouverture (cf. lireSemaine). Ton neutre :
- * une séance manquée est « à replacer », jamais un échec.
+ * Séances de la semaine : Push, Pull et Legs, chacun avec ses routines A/B/C.
+ * Aucune date ni heure : un type (ou une routine) est « fait » dès qu'un
+ * entraînement correspondant est enregistré depuis lundi. Toucher une pastille
+ * lance la routine. Ton neutre : rien n'est jamais « en retard ».
  */
 export function SeancesCard({ today }: { today: string }) {
-  const queryClient = useQueryClient();
-  const cle = queryKeys.seancesSemaine(today);
-  const [planningOuvert, setPlanningOuvert] = useState(false);
-  const [, startTransition] = useTransition();
+  const router = useRouter();
   const enCours = useBrouillonEnCours();
-  useBackClose(planningOuvert, () => setPlanningOuvert(false));
+  const [demarrage, setDemarrage] = useState(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: cle,
+    queryKey: queryKeys.seancesSemaine(today),
     queryFn: () => getSemaineSeances(today),
   });
+
+  async function demarrer(id: string) {
+    setDemarrage(true);
+    try {
+      const routine = await getRoutine(id);
+      if (!routine) {
+        showErrorToast("Cette routine n'existe plus.");
+        setDemarrage(false);
+        return;
+      }
+      await demarrerDepuisRoutine(routine);
+      router.push("/musculation/seance");
+    } catch {
+      setDemarrage(false);
+      showErrorToast("Impossible de démarrer la routine. Vérifie ta connexion.");
+    }
+  }
 
   if (isLoading || !data) {
     return (
@@ -66,50 +104,17 @@ export function SeancesCard({ today }: { today: string }) {
     );
   }
 
-  const { creneaux, seances } = data;
-  const { faites, total } = progressionSemaine(seances);
-
-  function basculer(seance: Seance) {
-    const faite = seance.statut !== "faite";
-    const precedent = queryClient.getQueryData<SemaineSeances>(cle);
-    queryClient.setQueryData<SemaineSeances>(cle, (courant) =>
-      courant
-        ? {
-            ...courant,
-            seances: courant.seances.map((s) => (s.id === seance.id ? { ...s, statut: faite ? "faite" : "prevue" } : s)),
-          }
-        : courant
-    );
-    startTransition(async () => {
-      const resultat = await runAction(() => marquerSeanceFaite(seance.id, faite), {
-        onError: () => queryClient.setQueryData(cle, precedent),
-      });
-      if (!resultat.ok) return;
-      // Le jour devient (ou cesse d'être) un jour d'entraînement : les cartes
-      // nutrition lues via TanStack Query relisent leur cible.
-      await queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
-    });
-  }
-
-  function decaler(seance: Seance) {
-    startTransition(async () => {
-      const resultat = await runAction(() => decalerSeanceAuProchainJourLibre(seance.id));
-      if (resultat.ok) {
-        showToast(`« ${seance.type} » décalée au ${JOURS_LONGS[jourDeSemaine(resultat.data.date)]}`);
-      }
-      await queryClient.invalidateQueries({ queryKey: queryKeys.seances });
-    });
-  }
+  const groupes = data.groupes.filter((g) => g.routines.length > 0 || g.faite);
+  const { faites, total } = progressionSemaine(data.groupes);
+  const desactivee = Boolean(enCours) || demarrage;
 
   return (
     <section className={`${card} flex flex-col gap-3`} aria-label="Séances de la semaine">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Séances de la semaine</h2>
-        {total > 0 && (
-          <span className="text-[13px] font-semibold tabular-nums text-ink-2">
-            {faites}/{total} faites
-          </span>
-        )}
+        <span className="text-[13px] font-semibold tabular-nums text-ink-2">
+          {faites}/{total} faites
+        </span>
       </div>
 
       {enCours && (
@@ -122,74 +127,28 @@ export function SeancesCard({ today }: { today: string }) {
         </Link>
       )}
 
-      {creneaux.length === 0 ? (
-        <>
-          <p className="text-[13.5px] leading-snug text-ink-2">
-            Planifie tes séances : un rappel t&apos;arrive à l&apos;heure choisie, avec « Commencer » et « Décaler ».
-          </p>
-          <button type="button" onClick={() => setPlanningOuvert(true)} className={`${primaryButton} self-start`}>
-            Planifier mes séances
-          </button>
-        </>
+      {groupes.length === 0 ? (
+        <p className="text-[13.5px] leading-snug text-ink-2">
+          Aucune routine Push, Pull ou Legs : donne un type à tes routines dans Musculation pour les retrouver ici.
+        </p>
       ) : (
-        <>
-          {seances.length === 0 ? (
-            <p className="text-[13.5px] leading-snug text-ink-2">Plus de séance prévue cette semaine.</p>
-          ) : (
-            <ul className="flex flex-col divide-y divide-line">
-              {seances.map((seance) => {
-                const etat = etatSeance(seance, today);
-                const note = precision(seance, today);
-                return (
-                  <li key={seance.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                    <CheckToggle
-                      checked={etat === "faite"}
-                      onToggle={() => basculer(seance)}
-                      label={`Marquer « ${seance.type} » comme ${etat === "faite" ? "non faite" : "faite"}`}
-                      hitSlop={6}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className={`truncate text-[14.5px] font-medium ${etat === "faite" ? "text-ink-2 line-through" : "text-ink"}`}>
-                        {seance.type}
-                      </p>
-                      <p className="text-[12.5px] tabular-nums text-ink-2">
-                        {libelleJour(seance, today)} · {heureCourte(seance.heure)}
-                        {note && ` · ${note}`}
-                      </p>
-                    </div>
-                    {etat !== "faite" && (
-                      <Link
-                        href={`/musculation/seance?seance=${seance.id}`}
-                        aria-label={`Commencer la séance ${seance.type}`}
-                        className={ghostButton}
-                      >
-                        Commencer
-                      </Link>
-                    )}
-                    {etat !== "faite" && (
-                      <button
-                        type="button"
-                        onClick={() => decaler(seance)}
-                        aria-label={`${etat === "manquee" ? "Replacer" : "Décaler"} la séance ${seance.type}`}
-                        className={ghostButton}
-                      >
-                        {etat === "manquee" ? "Replacer" : "Décaler"}
-                      </button>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          <button type="button" onClick={() => setPlanningOuvert(true)} className={`${ghostButton} self-start`}>
-            Planning
-          </button>
-        </>
+        <ul className="flex flex-col divide-y divide-line">
+          {groupes.map((groupe) => (
+            <li key={groupe.type} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+              <Coche faite={groupe.faite} />
+              <div className="min-w-0 flex-1">
+                <p className={`text-[14.5px] font-medium ${groupe.faite ? "text-ink-2" : "text-ink"}`}>{LIBELLES_TYPE[groupe.type]}</p>
+                {groupe.faite && <p className="text-[12.5px] text-ink-2">Faite cette semaine</p>}
+              </div>
+              <div className="flex flex-wrap justify-end gap-1.5">
+                {groupe.routines.map((routine) => (
+                  <Pastille key={routine.id} routine={routine} groupe={groupe} desactivee={desactivee} onDemarrer={(id) => void demarrer(id)} />
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
-
-      <AnimatePresence>
-        {planningOuvert && <PlanningSeancesModal key="planning" creneaux={creneaux} onClose={() => setPlanningOuvert(false)} />}
-      </AnimatePresence>
     </section>
   );
 }

@@ -17,7 +17,6 @@ const reglages = {
   revue_jour: 0,
   revue_heure: "18:00:00",
   revue_dernier_envoi: null,
-  seances_rappel_actif: true,
   alerte_kcal_actif: true,
   alerte_kcal_dernier_envoi: null,
   rappel_saisie_actif: true,

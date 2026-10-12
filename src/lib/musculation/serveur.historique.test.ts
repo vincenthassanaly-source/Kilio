@@ -52,11 +52,11 @@ describe("listerEntrainements", () => {
 });
 
 describe("lireEntrainement", () => {
-  it("assemble la séance avec son type planifié, en ignorant un exercice disparu", async () => {
+  it("assemble la séance avec son type, en ignorant un exercice disparu", async () => {
     const fake = fauxSupabase((a: Appel): Reponse | undefined => {
       if (a.table === "entrainements") {
         return {
-          data: { id: "e1", titre: "Push", date: "2026-10-12", debut_at: "d", fin_at: "f", duree_s: 3600, seance_id: "s1", routine_id: null },
+          data: { id: "e1", titre: "Push", date: "2026-10-12", debut_at: "d", fin_at: "f", duree_s: 3600, type_seance: "PUSH", routine_id: null },
         };
       }
       if (a.table === "entrainement_exercices") {
@@ -66,7 +66,6 @@ describe("lireEntrainement", () => {
       if (a.table === "entrainement_series") {
         return { data: [{ entrainement_exercice_id: "l1", ordre: 0, type_serie: "normale", poids_kg: 80, reps: 8, duree_s: null, distance_m: null }] };
       }
-      if (a.table === "seances") return { data: { type: "PUSH" } };
       return undefined;
     });
 
@@ -79,7 +78,6 @@ describe("lireEntrainement", () => {
       debutA: "d",
       finA: "f",
       dureeS: 3600,
-      seanceId: "s1",
       routineId: null,
       typeSeance: "PUSH",
       exercices: [

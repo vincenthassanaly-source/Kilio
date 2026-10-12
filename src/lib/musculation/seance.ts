@@ -8,8 +8,10 @@ import {
   compteDansLeVolume,
   estTypeSerie,
   type ModeSaisie,
+  type TypeSeance,
   type TypeSerie,
 } from "./constantes";
+import { estTypeSeance } from "@/lib/seances/compute";
 import type { CleAnimation } from "./animations";
 import type { RecordsExercice } from "./stats";
 
@@ -59,8 +61,8 @@ export type Brouillon = {
   id: string;
   nom: string;
   routineId: string | null;
-  /** Séance planifiée (table `seances`) dont cette séance est la réalisation. */
-  seanceId: string | null;
+  /** Type (Push / Pull / Legs) choisi pour une séance libre. Absent des anciens brouillons. */
+  typeSeance?: TypeSeance | null;
   debutA: string;
   exercices: ExerciceBrouillon[];
   repos: Repos | null;
@@ -81,7 +83,8 @@ export type EntrainementPayload = {
   id: string;
   nom: string;
   routineId: string | null;
-  seanceId: string | null;
+  /** Type choisi à la fin d'une séance libre ; pour une routine, le serveur reprend celui de la routine. */
+  typeSeance: TypeSeance | null;
   debutA: string;
   finA: string;
   exercices: {
@@ -149,7 +152,6 @@ export function creerBrouillon(
   entree: {
     nom: string;
     routineId: string | null;
-    seanceId: string | null;
     maintenant: string;
     exercices: NouvelExercice[];
   },
@@ -159,7 +161,7 @@ export function creerBrouillon(
     id: genererId(),
     nom: entree.nom,
     routineId: entree.routineId,
-    seanceId: entree.seanceId,
+    typeSeance: null,
     debutA: entree.maintenant,
     exercices: entree.exercices.map((e) => creerExerciceBrouillon(e, genererId)),
     repos: null,
@@ -378,7 +380,7 @@ export function versPayload(b: Brouillon, finA: string): EntrainementPayload | n
     id: b.id,
     nom: b.nom,
     routineId: b.routineId,
-    seanceId: b.seanceId,
+    typeSeance: b.routineId ? null : (b.typeSeance ?? null),
     debutA: b.debutA,
     finA,
     exercices,
@@ -465,11 +467,12 @@ function dateIso(valeur: unknown): valeur is string {
 /** `null` si l'envoi est valide, sinon le message à renvoyer à l'appelant. */
 export function validerPayload(payload: unknown): string | null {
   if (!estObjet(payload)) return "Séance invalide.";
-  const { id, nom, routineId, seanceId, debutA, finA, exercices } = payload;
+  const { id, nom, routineId, typeSeance, debutA, finA, exercices } = payload;
   if (!estUuid(id)) return "Identifiant de séance invalide.";
   if (typeof nom !== "string" || nom.trim().length < 1 || nom.trim().length > 80) return "Le nom de la séance est invalide.";
   if (routineId !== null && !estUuid(routineId)) return "Routine invalide.";
-  if (seanceId !== null && !estUuid(seanceId)) return "Séance planifiée invalide.";
+  // Absent des envois en attente créés avant ce champ : traité comme « aucun type ».
+  if (typeSeance != null && !(typeof typeSeance === "string" && estTypeSeance(typeSeance))) return "Type de séance invalide.";
   if (!dateIso(debutA) || !dateIso(finA)) return "Dates de séance invalides.";
   if (ms(finA) < ms(debutA) || ms(finA) - ms(debutA) > DUREE_SEANCE_MAX_MS) return "Durée de séance invalide.";
   if (!Array.isArray(exercices) || exercices.length < 1 || exercices.length > NB_EXERCICES_MAX) {

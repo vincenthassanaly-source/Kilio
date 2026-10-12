@@ -97,7 +97,13 @@ describe("getSyntheseSemaine", () => {
       }
       // 1800 kcal le 8, 2200 le 9 (limite 2000) ; le 11 (aujourd'hui) est en cours.
       if (a.table === "journal_repas") return { data: [repas("2026-10-08", 1800), repas("2026-10-09", 2200), repas("2026-10-11", 500)] };
-      if (a.table === "seances") return { data: [{ statut: "faite" }, { statut: "faite" }, { statut: "prevue" }] };
+      // Semaine du 5 au 11 : Push fait via sa routine, Pull fait en séance libre, Legs pas fait.
+      if (a.table === "routines") {
+        return { data: [{ id: "r1", nom: "Push A", type_seance: "PUSH" }, { id: "r2", nom: "Legs A", type_seance: "LEGS" }] };
+      }
+      if (a.table === "entrainements") {
+        return { data: [{ routine_id: "r1", type_seance: "PUSH", date: "2026-10-06" }, { routine_id: null, type_seance: "PULL", date: "2026-10-08" }] };
+      }
       if (a.table === "mesures_corps") {
         return {
           data: [
@@ -129,7 +135,7 @@ describe("getSyntheseSemaine", () => {
     });
     expect(await getSyntheseSemaine("2026-10-11")).toEqual({
       kcal: null,
-      seances: { faites: 0, total: 0 },
+      seances: { faites: 0, total: 3 },
       poids: null,
       taille: null,
       derniereMesure: null,

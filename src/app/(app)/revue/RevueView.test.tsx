@@ -65,7 +65,7 @@ describe("RevueView", () => {
     monter();
     expect(screen.getByText("6. Santé de la semaine")).toBeTruthy();
     expect(screen.getByText("2/3")).toBeTruthy();
-    expect(screen.getByText("faites cette semaine")).toBeTruthy();
+    expect(screen.getByText("types faits cette semaine")).toBeTruthy();
     expect(screen.getByText("Pas de relevé")).toBeTruthy(); // tour de taille
     expect(screen.getByRole("link", { name: "Voir le bilan complet" }).getAttribute("href")).toBe("/nutrition/bilan");
   });

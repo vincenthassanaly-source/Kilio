@@ -516,33 +516,6 @@ export type Database = {
         }
         Relationships: []
       }
-      creneaux_seance: {
-        Row: {
-          actif: boolean
-          created_at: string
-          heure: string
-          id: string
-          jour_semaine: number
-          type: string
-        }
-        Insert: {
-          actif?: boolean
-          created_at?: string
-          heure?: string
-          id?: string
-          jour_semaine: number
-          type: string
-        }
-        Update: {
-          actif?: boolean
-          created_at?: string
-          heure?: string
-          id?: string
-          jour_semaine?: number
-          type?: string
-        }
-        Relationships: []
-      }
       mesures_corps: {
         Row: {
           created_at: string
@@ -1645,56 +1618,6 @@ export type Database = {
         }
         Relationships: []
       }
-      seances: {
-        Row: {
-          created_at: string
-          creneau_id: string | null
-          date: string
-          date_prevue: string
-          heure: string
-          id: string
-          rappel_envoye_le: string | null
-          reportee: boolean
-          statut: string
-          type: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          creneau_id?: string | null
-          date: string
-          date_prevue: string
-          heure: string
-          id?: string
-          rappel_envoye_le?: string | null
-          reportee?: boolean
-          statut?: string
-          type: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          creneau_id?: string | null
-          date?: string
-          date_prevue?: string
-          heure?: string
-          id?: string
-          rappel_envoye_le?: string | null
-          reportee?: boolean
-          statut?: string
-          type?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "seances_creneau_id_fkey"
-            columns: ["creneau_id"]
-            isOneToOne: false
-            referencedRelation: "creneaux_seance"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       entrainement_exercices: {
         Row: {
           created_at: string
@@ -1790,8 +1713,8 @@ export type Database = {
           fin_at: string
           id: string
           routine_id: string | null
-          seance_id: string | null
           titre: string
+          type_seance: string | null
           updated_at: string
         }
         Insert: {
@@ -1802,8 +1725,8 @@ export type Database = {
           fin_at: string
           id?: string
           routine_id?: string | null
-          seance_id?: string | null
           titre?: string
+          type_seance?: string | null
           updated_at?: string
         }
         Update: {
@@ -1814,8 +1737,8 @@ export type Database = {
           fin_at?: string
           id?: string
           routine_id?: string | null
-          seance_id?: string | null
           titre?: string
+          type_seance?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1824,13 +1747,6 @@ export type Database = {
             columns: ["routine_id"]
             isOneToOne: false
             referencedRelation: "routines"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "entrainements_seance_id_fkey"
-            columns: ["seance_id"]
-            isOneToOne: false
-            referencedRelation: "seances"
             referencedColumns: ["id"]
           },
         ]
@@ -2041,7 +1957,6 @@ export type Database = {
           revue_dernier_envoi: string | null
           revue_heure: string
           revue_jour: number
-          seances_rappel_actif: boolean
           updated_at: string
         }
         Insert: {
@@ -2062,7 +1977,6 @@ export type Database = {
           revue_dernier_envoi?: string | null
           revue_heure?: string
           revue_jour?: number
-          seances_rappel_actif?: boolean
           updated_at?: string
         }
         Update: {
@@ -2083,7 +1997,6 @@ export type Database = {
           revue_dernier_envoi?: string | null
           revue_heure?: string
           revue_jour?: number
-          seances_rappel_actif?: boolean
           updated_at?: string
         }
         Relationships: []

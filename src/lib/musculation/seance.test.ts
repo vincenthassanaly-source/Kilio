@@ -48,7 +48,7 @@ const banc: NouvelExercice = {
 
 function brouillon(): Brouillon {
   return creerBrouillon(
-    { nom: "Push", routineId: null, seanceId: null, maintenant: DEBUT, exercices: [banc] },
+    { nom: "Push", routineId: null, maintenant: DEBUT, exercices: [banc] },
     compteur(),
   );
 }
@@ -71,7 +71,6 @@ describe("creerBrouillon", () => {
       {
         nom: "x",
         routineId: null,
-        seanceId: null,
         maintenant: DEBUT,
         exercices: [{ ...banc, precedent: [], nbSeries: 0 }],
       },
@@ -86,7 +85,7 @@ describe("records connus", () => {
   it("garde les records de l'exercice dans le brouillon, null par défaut", () => {
     const records = { poidsMax: { valeur: 90, date: "2026-10-01" } } as never;
     const avec = creerBrouillon(
-      { nom: "x", routineId: null, seanceId: null, maintenant: DEBUT, exercices: [{ ...banc, records }] },
+      { nom: "x", routineId: null, maintenant: DEBUT, exercices: [{ ...banc, records }] },
       compteur(),
     );
     expect(avec.exercices[0].records).toBe(records);
@@ -141,7 +140,7 @@ describe("remplacerExercice", () => {
 
   it("garde place, clé, nombre et type des séries ; valeurs et cases repartent de zéro", () => {
     let b = creerBrouillon(
-      { nom: "Push", routineId: null, seanceId: null, maintenant: DEBUT, exercices: [banc, { ...banc, nom: "Autre" }] },
+      { nom: "Push", routineId: null, maintenant: DEBUT, exercices: [banc, { ...banc, nom: "Autre" }] },
       compteur(),
     );
     const { cle, series } = b.exercices[0];
@@ -173,7 +172,6 @@ describe("deplacerExercice", () => {
       {
         nom: "x",
         routineId: null,
-        seanceId: null,
         maintenant: DEBUT,
         exercices: ["A", "B", "C"].map((nom) => ({ ...banc, nom })),
       },
@@ -271,6 +269,20 @@ describe("versPayload", () => {
     expect(payload.exercices[0].series.map((s) => s.id)).toEqual([series[1].id]);
     expect(validerPayload(payload)).toBeNull();
   });
+
+  it("envoie le type choisi d'une séance libre, mais pas pour une routine (le serveur reprend celui de la routine)", () => {
+    const libre = brouillon();
+    const { cle, series } = libre.exercices[0];
+    const fait = basculerSerie({ ...libre, typeSeance: "LEGS" }, cle, series[0].id, apres(0));
+    expect(versPayload(fait, apres(3600))!.typeSeance).toBe("LEGS");
+    expect(versPayload({ ...fait, routineId: "33333333-3333-4333-8333-333333333333" }, apres(3600))!.typeSeance).toBeNull();
+  });
+
+  it("un ancien brouillon sans type part sans type", () => {
+    const b = brouillon();
+    const { cle, series } = b.exercices[0];
+    expect(versPayload(basculerSerie(b, cle, series[0].id, apres(0)), apres(3600))!.typeSeance).toBeNull();
+  });
 });
 
 describe("validerPayload", () => {
@@ -281,8 +293,19 @@ describe("validerPayload", () => {
     return versPayload(b, apres(1800))!;
   }
 
-  it("accepte un envoi valide, avec séance planifiée", () => {
-    expect(validerPayload({ ...valide(), seanceId: "22222222-2222-4222-8222-222222222222" })).toBeNull();
+  it("accepte un envoi valide, avec un type de séance", () => {
+    expect(validerPayload({ ...valide(), typeSeance: "PUSH" })).toBeNull();
+  });
+
+  it("accepte un envoi sans type, y compris ceux en attente créés avant ce champ", () => {
+    const ancien: Record<string, unknown> = { ...valide() };
+    delete ancien.typeSeance;
+    expect(validerPayload(ancien)).toBeNull();
+    expect(validerPayload({ ...valide(), typeSeance: null })).toBeNull();
+  });
+
+  it("refuse un type de séance inconnu", () => {
+    expect(validerPayload({ ...valide(), typeSeance: "Renfo" })).toBe("Type de séance invalide.");
   });
 
   it.each([

@@ -28,7 +28,6 @@ const detail: EntrainementDetail = {
   debutA: "2026-10-12T16:00:00.000Z",
   finA: "2026-10-12T17:00:00.000Z",
   dureeS: 3600,
-  seanceId: null,
   routineId: null,
   typeSeance: "PUSH",
   exercices: [

@@ -32,15 +32,6 @@ export async function updateReglagesBriefing(actif: boolean, heure: string): Pro
   return ok();
 }
 
-export async function updateReglageRappelsSeances(actif: boolean): Promise<ActionResult> {
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("reglages_briefing").update({ seances_rappel_actif: actif }).eq("id", REGLAGES_ID);
-  if (error) return fail("Le réglage n'a pas pu être enregistré. Réessaie.");
-
-  revalidatePath("/reglages");
-  return ok();
-}
-
 export async function updateReglageAlerteKcal(actif: boolean): Promise<ActionResult> {
   const supabase = createAdminClient();
   const { error } = await supabase.from("reglages_briefing").update({ alerte_kcal_actif: actif }).eq("id", REGLAGES_ID);

@@ -1,39 +1,36 @@
 import { describe, expect, it } from "vitest";
 import {
-  dateDuJour,
-  etatSeance,
+  composerSemaine,
+  estTypeSeance,
   jourDeSemaine,
-  planReports,
-  prochainJourLibre,
+  libellePastille,
   progressionSemaine,
   semaineDe,
-  seancesAMaterialiser,
-  trierSeances,
-  type Creneau,
-  type Seance,
+  type EntrainementSemaine,
+  type RoutineSemaine,
 } from "./compute";
 
 // Semaine du lundi 2026-10-12 au dimanche 2026-10-18.
-const creneau = (id: string, jour: number, extra: Partial<Creneau> = {}): Creneau => ({
+const routine = (id: string, nom: string, type: RoutineSemaine["type"], nbExercices = 5): RoutineSemaine => ({
   id,
-  jour_semaine: jour,
-  heure: "18:00:00",
-  type: "Renfo",
-  actif: true,
-  ...extra,
+  nom,
+  type,
+  nbExercices,
 });
 
-const seance = (id: string, date: string, extra: Partial<Seance> = {}): Seance => ({
-  id,
-  creneau_id: id,
-  date_prevue: date,
+const entrainement = (routine_id: string | null, type_seance: string | null = null, date = "2026-10-13"): EntrainementSemaine => ({
+  routine_id,
+  type_seance,
   date,
-  heure: "18:00:00",
-  type: "Renfo",
-  statut: "prevue",
-  reportee: false,
-  ...extra,
 });
+
+const ROUTINES: RoutineSemaine[] = [
+  routine("l-b", "Legs B", "LEGS"),
+  routine("l-a", "Legs A", "LEGS"),
+  routine("pu-a", "Pull A", "PULL"),
+  routine("ps-a", "Push A", "PUSH"),
+  routine("ps-b", "Push B", "PUSH"),
+];
 
 describe("semaine", () => {
   it("jourDeSemaine : 0 = dimanche", () => {
@@ -46,100 +43,81 @@ describe("semaine", () => {
     expect(semaineDe("2026-10-12")).toEqual({ debut: "2026-10-12", fin: "2026-10-18" });
     expect(semaineDe("2026-10-18")).toEqual({ debut: "2026-10-12", fin: "2026-10-18" });
   });
+});
 
-  it("dateDuJour place le dimanche en fin de semaine", () => {
-    expect(dateDuJour("2026-10-12", 1)).toBe("2026-10-12");
-    expect(dateDuJour("2026-10-12", 0)).toBe("2026-10-18");
+describe("estTypeSeance", () => {
+  it("n'accepte que LEGS, PUSH et PULL", () => {
+    expect(estTypeSeance("PUSH")).toBe(true);
+    expect(estTypeSeance("Renfo")).toBe(false);
   });
 });
 
-describe("seancesAMaterialiser", () => {
-  const creneaux = [creneau("a", 1), creneau("b", 3), creneau("c", 5)];
-
-  it("crée une occurrence par créneau actif de la semaine", () => {
-    const res = seancesAMaterialiser(creneaux, [], "2026-10-12");
-    expect(res.map((s) => s.date)).toEqual(["2026-10-12", "2026-10-14", "2026-10-16"]);
-    expect(res[0]).toMatchObject({ creneau_id: "a", date_prevue: "2026-10-12", heure: "18:00:00", type: "Renfo" });
+describe("libellePastille", () => {
+  it("retire le mot du type, sans tenir compte de la casse", () => {
+    expect(libellePastille("Legs A", "LEGS")).toBe("A");
+    expect(libellePastille("push  b", "PUSH")).toBe("b");
   });
 
-  it("ne recrée pas une occurrence existante, même déplacée", () => {
-    const existantes = [{ creneau_id: "b", date_prevue: "2026-10-14" }];
-    const res = seancesAMaterialiser(creneaux, existantes, "2026-10-12");
-    expect(res.map((s) => s.creneau_id)).toEqual(["a", "c"]);
-  });
-
-  it("ignore les jours déjà passés et les créneaux inactifs", () => {
-    const res = seancesAMaterialiser([...creneaux, creneau("d", 6, { actif: false })], [], "2026-10-15");
-    expect(res.map((s) => s.creneau_id)).toEqual(["c"]);
+  it("garde le nom entier s'il ne reste rien ou si le type n'y figure pas", () => {
+    expect(libellePastille("Legs", "LEGS")).toBe("Legs");
+    expect(libellePastille("Jambes lourdes", "LEGS")).toBe("Jambes lourdes");
   });
 });
 
-describe("prochainJourLibre", () => {
-  const seances = [seance("a", "2026-10-13"), seance("b", "2026-10-14")];
-
-  it("saute les jours occupés", () => {
-    expect(prochainJourLibre(seances, "2026-10-12", "2026-10-18")).toBe("2026-10-15");
-    expect(prochainJourLibre(seances, "2026-10-13", "2026-10-18")).toBe("2026-10-15");
+describe("composerSemaine", () => {
+  it("propose toujours Push, Pull et Legs dans cet ordre, routines triées A, B, C", () => {
+    const { groupes } = composerSemaine(ROUTINES, []);
+    expect(groupes.map((g) => g.type)).toEqual(["PUSH", "PULL", "LEGS"]);
+    expect(groupes[0].routines.map((r) => r.pastille)).toEqual(["A", "B"]);
+    expect(groupes[2].routines.map((r) => r.pastille)).toEqual(["A", "B"]);
   });
 
-  it("exclut la date de départ elle-même", () => {
-    expect(prochainJourLibre([], "2026-10-13", "2026-10-18")).toBe("2026-10-14");
+  it("rien n'est fait sans entraînement", () => {
+    const { groupes } = composerSemaine(ROUTINES, []);
+    expect(groupes.every((g) => !g.faite && g.routines.every((r) => !r.faite))).toBe(true);
+    expect(progressionSemaine(groupes)).toEqual({ faites: 0, total: 3 });
   });
 
-  it("renvoie null sans jour libre avant la fin de semaine", () => {
-    expect(prochainJourLibre([seance("a", "2026-10-18")], "2026-10-17", "2026-10-18")).toBeNull();
+  it("un entraînement suivant une routine coche sa pastille et son type, pas les autres", () => {
+    const { groupes } = composerSemaine(ROUTINES, [entrainement("l-a")]);
+    const legs = groupes.find((g) => g.type === "LEGS");
+    expect(legs?.faite).toBe(true);
+    expect(legs?.routines.map((r) => r.faite)).toEqual([true, false]);
+    expect(groupes.filter((g) => g.faite).map((g) => g.type)).toEqual(["LEGS"]);
+  });
+
+  it("le type enregistré compte même sans routine : séance libre, ou routine supprimée", () => {
+    const { groupes } = composerSemaine(ROUTINES, [entrainement(null, "PULL")]);
+    const pull = groupes.find((g) => g.type === "PULL");
+    expect(pull?.faite).toBe(true);
+    expect(pull?.routines.every((r) => !r.faite)).toBe(true);
+  });
+
+  it("un type invalide est ignoré", () => {
+    const { groupes } = composerSemaine(ROUTINES, [entrainement(null, "Renfo")]);
+    expect(progressionSemaine(groupes)).toEqual({ faites: 0, total: 3 });
+  });
+
+  it("plusieurs entraînements d'un même type comptent une seule fois", () => {
+    const { groupes } = composerSemaine(ROUTINES, [entrainement("ps-a"), entrainement("ps-b", null, "2026-10-15"), entrainement(null, "PUSH")]);
+    expect(progressionSemaine(groupes)).toEqual({ faites: 1, total: 3 });
+    expect(groupes[0].routines.map((r) => r.faite)).toEqual([true, true]);
+  });
+
+  it("un type sans routine reste proposé (3 groupes), vide", () => {
+    const { groupes } = composerSemaine([routine("ps-a", "Push A", "PUSH")], []);
+    expect(groupes).toHaveLength(3);
+    expect(groupes[1].routines).toEqual([]);
+  });
+
+  it("reprend le nombre d'exercices pour désactiver une routine vide", () => {
+    const { groupes } = composerSemaine([routine("ps-a", "Push A", "PUSH", 0)], []);
+    expect(groupes[0].routines[0].nbExercices).toBe(0);
   });
 });
 
-describe("planReports", () => {
-  it("replace une séance manquée sur le prochain jour libre", () => {
-    const seances = [seance("a", "2026-10-12"), seance("b", "2026-10-14"), seance("c", "2026-10-16")];
-    // Mercredi 14 matin : le lundi est manqué ; mercredi est pris, jeudi est libre.
-    expect(planReports(seances, "2026-10-14", "08:00", "2026-10-18")).toEqual([{ id: "a", date: "2026-10-15" }]);
-  });
-
-  it("peut replacer sur aujourd'hui tant que l'heure n'est pas passée", () => {
-    const seances = [seance("a", "2026-10-12")];
-    expect(planReports(seances, "2026-10-13", "09:00", "2026-10-18")).toEqual([{ id: "a", date: "2026-10-13" }]);
-    expect(planReports(seances, "2026-10-13", "19:00", "2026-10-18")).toEqual([{ id: "a", date: "2026-10-14" }]);
-  });
-
-  it("répartit plusieurs séances manquées sur des jours distincts, dans l'ordre", () => {
-    const seances = [seance("a", "2026-10-12"), seance("b", "2026-10-13")];
-    expect(planReports(seances, "2026-10-15", "20:00", "2026-10-18")).toEqual([
-      { id: "a", date: "2026-10-16" },
-      { id: "b", date: "2026-10-17" },
-    ]);
-  });
-
-  it("laisse manquée une séance sans jour libre et ne reporte qu'une fois", () => {
-    expect(planReports([seance("a", "2026-10-17"), seance("b", "2026-10-18")], "2026-10-18", "20:00", "2026-10-18")).toEqual([]);
-    expect(planReports([seance("a", "2026-10-12", { reportee: true })], "2026-10-14", "08:00", "2026-10-18")).toEqual([]);
-  });
-
-  it("ignore les séances faites", () => {
-    expect(planReports([seance("a", "2026-10-12", { statut: "faite" })], "2026-10-14", "08:00", "2026-10-18")).toEqual([]);
-  });
-});
-
-describe("etatSeance / tri / progression", () => {
-  it("classe l'état d'une séance", () => {
-    expect(etatSeance(seance("a", "2026-10-12", { statut: "faite" }), "2026-10-14")).toBe("faite");
-    expect(etatSeance(seance("a", "2026-10-12"), "2026-10-14")).toBe("manquee");
-    expect(etatSeance(seance("a", "2026-10-14"), "2026-10-14")).toBe("aujourdhui");
-    expect(etatSeance(seance("a", "2026-10-15"), "2026-10-14")).toBe("a_venir");
-  });
-
-  it("trie par date puis heure", () => {
-    const tri = trierSeances([
-      seance("b", "2026-10-14", { heure: "19:00:00" }),
-      seance("a", "2026-10-14", { heure: "07:00:00" }),
-      seance("c", "2026-10-13"),
-    ]);
-    expect(tri.map((s) => s.id)).toEqual(["c", "a", "b"]);
-  });
-
-  it("compte les séances faites", () => {
-    expect(progressionSemaine([{ statut: "faite" }, { statut: "prevue" }, { statut: "faite" }])).toEqual({ faites: 2, total: 3 });
+describe("progressionSemaine", () => {
+  it("compte les types faits sur le total", () => {
+    expect(progressionSemaine([{ faite: true }, { faite: false }, { faite: true }])).toEqual({ faites: 2, total: 3 });
   });
 });
