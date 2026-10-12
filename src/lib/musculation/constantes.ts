@@ -55,6 +55,11 @@ export const MODE_SAISIE_LABELS: Record<ModeSaisie, string> = {
   duree_vitesse: "Durée + vitesse",
 };
 
+/** Marche (durée + vitesse) : la durée se saisit en minutes, mais reste stockée en secondes. */
+export const dureeEnMinutes = (mode: ModeSaisie, champ: ChampSerie): boolean => mode === "duree_vitesse" && champ === "duree_s";
+export const secondesVersMinutes = (s: number | null): number | null => (s === null ? null : Math.round((s / 60) * 100) / 100);
+export const minutesVersSecondes = (m: number | null): number | null => (m === null ? null : Math.round(m * 60));
+
 export type ChampSerie = "poids_kg" | "reps" | "duree_s" | "distance_m" | "vitesse_kmh";
 
 /** Colonnes saisies pour une série, selon le mode de saisie de l'exercice. */

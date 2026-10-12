@@ -5,6 +5,9 @@ import { showToast } from "@/components/toast/toast-store";
 import { vibrate } from "@/lib/haptics";
 import {
   CHAMPS_PAR_MODE,
+  dureeEnMinutes,
+  minutesVersSecondes,
+  secondesVersMinutes,
   TYPES_SERIE,
   TYPE_SERIE_LABELS,
   type ChampSerie,
@@ -45,7 +48,7 @@ const LARGEUR_CHAMP: Record<ChampSerie, string> = { poids_kg: "68px", reps: "60p
 function enteteChamp(champ: ChampSerie, mode: ModeSaisie): string {
   if (champ === "poids_kg") return mode === "poids_corps_reps" ? "+kg" : "kg";
   if (champ === "reps") return "reps";
-  if (champ === "duree_s") return "sec";
+  if (champ === "duree_s") return mode === "duree_vitesse" ? "min" : "sec";
   if (champ === "vitesse_kmh") return "km/h";
   return "m";
 }
@@ -57,7 +60,7 @@ function libelleAccessible(champ: ChampSerie, rang: number, mode: ModeSaisie): s
       : `Poids de la série ${rang}, en kilos`;
   }
   if (champ === "reps") return `Répétitions de la série ${rang}`;
-  if (champ === "duree_s") return `Durée de la série ${rang}, en secondes`;
+  if (champ === "duree_s") return `Durée de la série ${rang}, en ${mode === "duree_vitesse" ? "minutes" : "secondes"}`;
   if (champ === "vitesse_kmh") return `Vitesse de la série ${rang}, en kilomètres par heure`;
   return `Distance de la série ${rang}, en mètres`;
 }
@@ -291,14 +294,16 @@ export function ExerciceBloc({
                 </span>
                 {champs.map((champ) => {
                   const cleSerie = CLE_SERIE[champ];
+                  const enMinutes = dureeEnMinutes(mode, champ);
+                  const valeurSerie = serie[cleSerie] ?? null;
                   return (
                     <ChampNombre
                       key={champ}
-                      valeur={serie[cleSerie] ?? null}
-                      entier={champ === "reps" || champ === "duree_s"}
+                      valeur={enMinutes ? secondesVersMinutes(valeurSerie) : valeurSerie}
+                      entier={champ === "reps" || (champ === "duree_s" && !enMinutes)}
                       signe={champ === "poids_kg" && mode === "poids_corps_reps"}
                       libelle={libelleAccessible(champ, rang, mode)}
-                      onChange={(valeur) => onModifierSerie(cle, serie.id, { [cleSerie]: valeur })}
+                      onChange={(valeur) => onModifierSerie(cle, serie.id, { [cleSerie]: enMinutes ? minutesVersSecondes(valeur) : valeur })}
                     />
                   );
                 })}
