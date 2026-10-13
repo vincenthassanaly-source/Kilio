@@ -72,6 +72,7 @@ const ANIMATIONS = [
   "split-squat-bulgare-haltere",
   "fentes-haltere",
   "souleve-terre-roumain-haltere",
+  "traction-verticale-machine",
 ];
 const FICHIERS_ANIMATIONS = ANIMATIONS.flatMap((cle) => [
   `${DOSSIER_ANIMATIONS}${cle}.webm`,
