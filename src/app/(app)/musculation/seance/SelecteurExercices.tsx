@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { getExercices } from "@/app/actions/musculation";
 import { Modal } from "@/components/Modal";
+import { useBackClose } from "@/hooks/useBackClose";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { filtrerExercices } from "@/lib/musculation/catalogue";
 import { MODE_SAISIE_LABELS, MUSCLES, MUSCLE_LABELS, type Muscle } from "@/lib/musculation/constantes";
@@ -127,15 +128,19 @@ export function SelecteurExercices({
   ouvert,
   onChoisir,
   onClose,
+  titre = "Ajouter un exercice",
 }: {
   ouvert: boolean;
   onChoisir: (exercice: ExerciceCatalogue) => void;
   onClose: () => void;
+  titre?: string;
 }) {
+  // Le retour referme la feuille au lieu de quitter la page.
+  useBackClose(ouvert, onClose);
   return (
     <AnimatePresence>
       {ouvert && (
-        <Modal key="selecteur-exercices" title="Ajouter un exercice" onClose={onClose}>
+        <Modal key="selecteur-exercices" title={titre} onClose={onClose}>
           <Contenu onChoisir={onChoisir} />
         </Modal>
       )}

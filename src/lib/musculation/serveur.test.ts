@@ -9,7 +9,6 @@ const ID_EXERCICE = "11111111-1111-4111-8111-111111111111";
 const CLE = "00000000-0000-4000-8000-000000000002";
 const SERIE_1 = "00000000-0000-4000-8000-000000000003";
 const SERIE_2 = "00000000-0000-4000-8000-000000000004";
-const SEANCE = "22222222-2222-4222-8222-222222222222";
 const ROUTINE = "33333333-3333-4333-8333-333333333333";
 
 function payload(extra: Partial<EntrainementPayload> = {}): EntrainementPayload {
@@ -17,7 +16,7 @@ function payload(extra: Partial<EntrainementPayload> = {}): EntrainementPayload 
     id: ID_ENTRAINEMENT,
     nom: " Push ",
     routineId: null,
-    seanceId: null,
+    typeSeance: null,
     debutA: "2026-10-12T16:00:00.000Z",
     finA: "2026-10-12T17:00:00.000Z",
     exercices: [
@@ -48,7 +47,7 @@ describe("enregistrerEntrainement", () => {
       titre: "Push",
       date: "2026-10-12",
       duree_s: 3600,
-      seance_id: null,
+      type_seance: null,
       routine_id: null,
     });
     expect(ecritures(fake.appels, "entrainement_exercices", "delete")[0].filtres).toContainEqual([
@@ -70,37 +69,54 @@ describe("enregistrerEntrainement", () => {
     });
   });
 
-  it("coche la séance planifiée (qui marque aussi son jour) quand elle existe", async () => {
-    const fake = fauxSupabase((a: Appel): Reponse | undefined => {
-      if (a.table === "seances" && a.action === "select") {
-        return { data: { id: SEANCE, date: "2026-10-12", statut: "prevue" } };
-      }
-      return undefined;
-    });
+  it("enregistre le type choisi pour une séance libre", async () => {
+    const fake = fauxSupabase();
 
-    await enregistrerEntrainement(fake.client as never, payload({ seanceId: SEANCE }));
+    await enregistrerEntrainement(fake.client as never, payload({ typeSeance: "PULL" }));
 
-    expect(ecritures(fake.appels, "entrainements", "upsert")[0].payload).toMatchObject({ seance_id: SEANCE });
-    const [maj] = ecritures(fake.appels, "seances", "update");
-    expect(maj.payload).toEqual({ statut: "faite" });
-    expect(maj.filtres).toContainEqual(["eq", "id", SEANCE]);
+    expect(ecritures(fake.appels, "entrainements", "upsert")[0].payload).toMatchObject({ type_seance: "PULL", routine_id: null });
     expect(ecritures(fake.appels, "jours_entrainement", "upsert")[0].payload).toMatchObject({
       date: "2026-10-12",
       entraine: true,
     });
   });
 
-  it("ignore une routine et une séance planifiée supprimées entre-temps", async () => {
+  it("reprend le type de la routine suivie, quel que soit le type envoyé", async () => {
+    const fake = fauxSupabase((a: Appel): Reponse | undefined =>
+      a.table === "routines" && a.action === "select" ? { data: { id: ROUTINE, type_seance: "LEGS" } } : undefined,
+    );
+
+    await enregistrerEntrainement(fake.client as never, payload({ routineId: ROUTINE, typeSeance: "PUSH" }));
+
+    expect(ecritures(fake.appels, "entrainements", "upsert")[0].payload).toMatchObject({
+      routine_id: ROUTINE,
+      type_seance: "LEGS",
+    });
+  });
+
+  it("garde le type d'une routine sans type : celui de la séance, sinon aucun", async () => {
+    const fake = fauxSupabase((a: Appel): Reponse | undefined =>
+      a.table === "routines" && a.action === "select" ? { data: { id: ROUTINE, type_seance: null } } : undefined,
+    );
+
+    await enregistrerEntrainement(fake.client as never, payload({ routineId: ROUTINE }));
+
+    expect(ecritures(fake.appels, "entrainements", "upsert")[0].payload).toMatchObject({
+      routine_id: ROUTINE,
+      type_seance: null,
+    });
+  });
+
+  it("ignore une routine supprimée entre-temps", async () => {
     const fake = fauxSupabase(); // aucune ligne trouvée
 
-    const resultat = await enregistrerEntrainement(fake.client as never, payload({ routineId: ROUTINE, seanceId: SEANCE }));
+    const resultat = await enregistrerEntrainement(fake.client as never, payload({ routineId: ROUTINE }));
 
     expect(resultat.error).toBeNull();
     expect(ecritures(fake.appels, "entrainements", "upsert")[0].payload).toMatchObject({
-      seance_id: null,
       routine_id: null,
+      type_seance: null,
     });
-    expect(ecritures(fake.appels, "seances")).toHaveLength(0);
     expect(ecritures(fake.appels, "jours_entrainement", "upsert")).toHaveLength(1);
   });
 

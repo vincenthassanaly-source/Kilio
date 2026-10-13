@@ -7,6 +7,7 @@ import {
   basculerSerie,
   compterSeries,
   creerBrouillon,
+  deplacerExercice,
   formaterDureeSeance,
   formaterMinutes,
   formaterPoids,
@@ -14,6 +15,7 @@ import {
   libelleSerie,
   lireNombre,
   modifierSerie,
+  remplacerExercice,
   resteRepos,
   retirerExercice,
   retirerSerie,
@@ -46,7 +48,7 @@ const banc: NouvelExercice = {
 
 function brouillon(): Brouillon {
   return creerBrouillon(
-    { nom: "Push", routineId: null, seanceId: null, maintenant: DEBUT, exercices: [banc] },
+    { nom: "Push", routineId: null, maintenant: DEBUT, exercices: [banc] },
     compteur(),
   );
 }
@@ -69,7 +71,6 @@ describe("creerBrouillon", () => {
       {
         nom: "x",
         routineId: null,
-        seanceId: null,
         maintenant: DEBUT,
         exercices: [{ ...banc, precedent: [], nbSeries: 0 }],
       },
@@ -84,7 +85,7 @@ describe("records connus", () => {
   it("garde les records de l'exercice dans le brouillon, null par défaut", () => {
     const records = { poidsMax: { valeur: 90, date: "2026-10-01" } } as never;
     const avec = creerBrouillon(
-      { nom: "x", routineId: null, seanceId: null, maintenant: DEBUT, exercices: [{ ...banc, records }] },
+      { nom: "x", routineId: null, maintenant: DEBUT, exercices: [{ ...banc, records }] },
       compteur(),
     );
     expect(avec.exercices[0].records).toBe(records);
@@ -110,6 +111,23 @@ describe("édition", () => {
     expect(ajusterReposExercice(b, cle, 5000).exercices[0].reposS).toBe(1800);
   });
 
+  it("répercute un poids saisi sur les séries suivantes non faites, hors échauffement", () => {
+    let b = brouillon();
+    const { cle } = b.exercices[0];
+    b = ajouterSerie(b, cle, compteur());
+    b = ajouterSerie(b, cle, compteur());
+    const [s0, s1, s2] = b.exercices[0].series;
+    b = modifierSerie(b, cle, s1.id, { type: "echauffement" });
+    b = basculerSerie(b, cle, s2.id, apres(10));
+    b = modifierSerie(b, cle, s0.id, { poids: 90 });
+    const poids = b.exercices[0].series.map((s) => s.poids);
+    expect(poids[0]).toBe(90);
+    expect(poids[1]).not.toBe(90);
+    expect(poids[2]).not.toBe(90);
+    b = modifierSerie(b, cle, s2.id, { poids: 50 });
+    expect(b.exercices[0].series.map((s) => s.poids)[0]).toBe(90);
+  });
+
   it("modifie le type d'une série et retire un exercice avec son repos", () => {
     let b = brouillon();
     const { cle } = b.exercices[0];
@@ -122,6 +140,74 @@ describe("édition", () => {
     expect(b.exercices).toHaveLength(0);
     expect(b.repos).toBeNull();
     expect(ajouterExercice(b, banc, compteur()).exercices).toHaveLength(1);
+  });
+});
+
+describe("remplacerExercice", () => {
+  const AUTRE = "22222222-2222-4222-8222-222222222222";
+  const planche: NouvelExercice = {
+    exerciceId: AUTRE,
+    nom: "Planche",
+    mode: "duree",
+    reposS: 45,
+    nbSeries: 3,
+    precedent: [{ poids: null, reps: null, duree: 60, distance: null }],
+    animation: "planche",
+  };
+
+  it("garde place, clé, nombre et type des séries ; valeurs et cases repartent de zéro", () => {
+    let b = creerBrouillon(
+      { nom: "Push", routineId: null, maintenant: DEBUT, exercices: [banc, { ...banc, nom: "Autre" }] },
+      compteur(),
+    );
+    const { cle, series } = b.exercices[0];
+    b = modifierSerie(b, cle, series[0].id, { type: "echauffement", poids: 100 });
+    b = basculerSerie(b, cle, series[0].id, apres(10));
+
+    const apresRemplacement = remplacerExercice(b, cle, planche, compteur());
+    const e = apresRemplacement.exercices[0];
+
+    expect(apresRemplacement.exercices).toHaveLength(2);
+    expect(apresRemplacement.exercices[1].nom).toBe("Autre");
+    expect([e.cle, e.exerciceId, e.nom, e.mode, e.reposS, e.animation]).toEqual([cle, AUTRE, "Planche", "duree", 45, "planche"]);
+    expect(e.series.map((s) => s.id)).toEqual(series.map((s) => s.id));
+    expect(e.series.map((s) => s.type)).toEqual(["echauffement", "normale", "normale"]);
+    expect(e.series.every((s) => !s.fait && s.faitA === null && s.poids === null && s.duree === 60)).toBe(true);
+  });
+
+  it("laisse un repos en cours finir", () => {
+    let b = brouillon();
+    const { cle, series } = b.exercices[0];
+    b = basculerSerie(b, cle, series[0].id, apres(10));
+    expect(remplacerExercice(b, cle, planche, compteur()).repos).toEqual(b.repos);
+  });
+});
+
+describe("deplacerExercice", () => {
+  function troisExercices(): Brouillon {
+    return creerBrouillon(
+      {
+        nom: "x",
+        routineId: null,
+        maintenant: DEBUT,
+        exercices: ["A", "B", "C"].map((nom) => ({ ...banc, nom })),
+      },
+      compteur(),
+    );
+  }
+  const noms = (b: Brouillon) => b.exercices.map((e) => e.nom).join("");
+
+  it("monte et descend d'un cran", () => {
+    const b = troisExercices();
+    expect(noms(deplacerExercice(b, b.exercices[1].cle, -1))).toBe("BAC");
+    expect(noms(deplacerExercice(b, b.exercices[1].cle, 1))).toBe("ACB");
+  });
+
+  it("ne bouge pas aux extrémités ni pour une clé inconnue", () => {
+    const b = troisExercices();
+    expect(deplacerExercice(b, b.exercices[0].cle, -1)).toBe(b);
+    expect(deplacerExercice(b, b.exercices[2].cle, 1)).toBe(b);
+    expect(deplacerExercice(b, "inconnue", 1)).toBe(b);
   });
 });
 
@@ -200,6 +286,20 @@ describe("versPayload", () => {
     expect(payload.exercices[0].series.map((s) => s.id)).toEqual([series[1].id]);
     expect(validerPayload(payload)).toBeNull();
   });
+
+  it("envoie le type choisi d'une séance libre, mais pas pour une routine (le serveur reprend celui de la routine)", () => {
+    const libre = brouillon();
+    const { cle, series } = libre.exercices[0];
+    const fait = basculerSerie({ ...libre, typeSeance: "LEGS" }, cle, series[0].id, apres(0));
+    expect(versPayload(fait, apres(3600))!.typeSeance).toBe("LEGS");
+    expect(versPayload({ ...fait, routineId: "33333333-3333-4333-8333-333333333333" }, apres(3600))!.typeSeance).toBeNull();
+  });
+
+  it("un ancien brouillon sans type part sans type", () => {
+    const b = brouillon();
+    const { cle, series } = b.exercices[0];
+    expect(versPayload(basculerSerie(b, cle, series[0].id, apres(0)), apres(3600))!.typeSeance).toBeNull();
+  });
 });
 
 describe("validerPayload", () => {
@@ -210,8 +310,19 @@ describe("validerPayload", () => {
     return versPayload(b, apres(1800))!;
   }
 
-  it("accepte un envoi valide, avec séance planifiée", () => {
-    expect(validerPayload({ ...valide(), seanceId: "22222222-2222-4222-8222-222222222222" })).toBeNull();
+  it("accepte un envoi valide, avec un type de séance", () => {
+    expect(validerPayload({ ...valide(), typeSeance: "PUSH" })).toBeNull();
+  });
+
+  it("accepte un envoi sans type, y compris ceux en attente créés avant ce champ", () => {
+    const ancien: Record<string, unknown> = { ...valide() };
+    delete ancien.typeSeance;
+    expect(validerPayload(ancien)).toBeNull();
+    expect(validerPayload({ ...valide(), typeSeance: null })).toBeNull();
+  });
+
+  it("refuse un type de séance inconnu", () => {
+    expect(validerPayload({ ...valide(), typeSeance: "Renfo" })).toBe("Type de séance invalide.");
   });
 
   it.each([
@@ -271,6 +382,8 @@ describe("affichage", () => {
     expect(libellePrecedent("duree", p)).toBe("45 s");
     expect(libellePrecedent("distance_duree", p)).toBe("500 m · 45 s");
     expect(libellePrecedent("poids_duree", p)).toBe("80 · 45 s");
+    expect(libellePrecedent("duree_vitesse", { ...p, duree: 1800, vitesse: 5.5 })).toBe("30 min · 5,5 km/h");
+    expect(libellePrecedent("duree_vitesse", { ...p, duree: 90 })).toBe("1,5 min");
     expect(libellePrecedent("poids_reps", undefined)).toBe("–");
     expect(libellePrecedent("duree", { poids: 80, reps: 8, duree: null, distance: null })).toBe("–");
   });

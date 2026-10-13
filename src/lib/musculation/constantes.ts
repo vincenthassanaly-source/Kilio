@@ -43,7 +43,7 @@ export const MUSCLE_LABELS: Record<Muscle, string> = {
   corps_entier: "Corps entier",
 };
 
-export const MODES_SAISIE = ["poids_reps", "poids_corps_reps", "duree", "distance_duree", "poids_duree"] as const;
+export const MODES_SAISIE = ["poids_reps", "poids_corps_reps", "duree", "distance_duree", "poids_duree", "duree_vitesse"] as const;
 export type ModeSaisie = (typeof MODES_SAISIE)[number];
 
 export const MODE_SAISIE_LABELS: Record<ModeSaisie, string> = {
@@ -52,9 +52,15 @@ export const MODE_SAISIE_LABELS: Record<ModeSaisie, string> = {
   duree: "Durée",
   distance_duree: "Distance + durée",
   poids_duree: "Poids + durée",
+  duree_vitesse: "Durée + vitesse",
 };
 
-export type ChampSerie = "poids_kg" | "reps" | "duree_s" | "distance_m";
+/** Marche (durée + vitesse) : la durée se saisit en minutes, mais reste stockée en secondes. */
+export const dureeEnMinutes = (mode: ModeSaisie, champ: ChampSerie): boolean => mode === "duree_vitesse" && champ === "duree_s";
+export const secondesVersMinutes = (s: number | null): number | null => (s === null ? null : Math.round((s / 60) * 100) / 100);
+export const minutesVersSecondes = (m: number | null): number | null => (m === null ? null : Math.round(m * 60));
+
+export type ChampSerie = "poids_kg" | "reps" | "duree_s" | "distance_m" | "vitesse_kmh";
 
 /** Colonnes saisies pour une série, selon le mode de saisie de l'exercice. */
 export const CHAMPS_PAR_MODE: Record<ModeSaisie, readonly ChampSerie[]> = {
@@ -63,6 +69,7 @@ export const CHAMPS_PAR_MODE: Record<ModeSaisie, readonly ChampSerie[]> = {
   duree: ["duree_s"],
   distance_duree: ["distance_m", "duree_s"],
   poids_duree: ["poids_kg", "duree_s"],
+  duree_vitesse: ["duree_s", "vitesse_kmh"],
 };
 
 export const TYPES_SERIE = ["normale", "echauffement", "dropset", "echec"] as const;

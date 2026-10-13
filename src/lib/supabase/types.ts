@@ -516,32 +516,63 @@ export type Database = {
         }
         Relationships: []
       }
-      creneaux_seance: {
+      menus_repas: {
         Row: {
-          actif: boolean
+          aliment_id: string | null
           created_at: string
-          heure: string
+          date: string
           id: string
-          jour_semaine: number
-          type: string
+          journal_repas_id: string | null
+          mange: boolean
+          moment: Database["public"]["Enums"]["moment_repas"]
+          quantite: number
+          recette_id: string | null
         }
         Insert: {
-          actif?: boolean
+          aliment_id?: string | null
           created_at?: string
-          heure?: string
+          date: string
           id?: string
-          jour_semaine: number
-          type: string
+          journal_repas_id?: string | null
+          mange?: boolean
+          moment: Database["public"]["Enums"]["moment_repas"]
+          quantite: number
+          recette_id?: string | null
         }
         Update: {
-          actif?: boolean
+          aliment_id?: string | null
           created_at?: string
-          heure?: string
+          date?: string
           id?: string
-          jour_semaine?: number
-          type?: string
+          journal_repas_id?: string | null
+          mange?: boolean
+          moment?: Database["public"]["Enums"]["moment_repas"]
+          quantite?: number
+          recette_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "menus_repas_aliment_id_fkey"
+            columns: ["aliment_id"]
+            isOneToOne: false
+            referencedRelation: "aliments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menus_repas_journal_repas_id_fkey"
+            columns: ["journal_repas_id"]
+            isOneToOne: false
+            referencedRelation: "journal_repas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menus_repas_recette_id_fkey"
+            columns: ["recette_id"]
+            isOneToOne: false
+            referencedRelation: "recettes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mesures_corps: {
         Row: {
@@ -1645,56 +1676,6 @@ export type Database = {
         }
         Relationships: []
       }
-      seances: {
-        Row: {
-          created_at: string
-          creneau_id: string | null
-          date: string
-          date_prevue: string
-          heure: string
-          id: string
-          rappel_envoye_le: string | null
-          reportee: boolean
-          statut: string
-          type: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          creneau_id?: string | null
-          date: string
-          date_prevue: string
-          heure: string
-          id?: string
-          rappel_envoye_le?: string | null
-          reportee?: boolean
-          statut?: string
-          type: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          creneau_id?: string | null
-          date?: string
-          date_prevue?: string
-          heure?: string
-          id?: string
-          rappel_envoye_le?: string | null
-          reportee?: boolean
-          statut?: string
-          type?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "seances_creneau_id_fkey"
-            columns: ["creneau_id"]
-            isOneToOne: false
-            referencedRelation: "creneaux_seance"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       entrainement_exercices: {
         Row: {
           created_at: string
@@ -1741,6 +1722,7 @@ export type Database = {
         Row: {
           created_at: string
           distance_m: number | null
+          vitesse_kmh: number | null
           duree_s: number | null
           entrainement_exercice_id: string
           id: string
@@ -1752,6 +1734,7 @@ export type Database = {
         Insert: {
           created_at?: string
           distance_m?: number | null
+          vitesse_kmh?: number | null
           duree_s?: number | null
           entrainement_exercice_id: string
           id?: string
@@ -1763,6 +1746,7 @@ export type Database = {
         Update: {
           created_at?: string
           distance_m?: number | null
+          vitesse_kmh?: number | null
           duree_s?: number | null
           entrainement_exercice_id?: string
           id?: string
@@ -1790,8 +1774,8 @@ export type Database = {
           fin_at: string
           id: string
           routine_id: string | null
-          seance_id: string | null
           titre: string
+          type_seance: string | null
           updated_at: string
         }
         Insert: {
@@ -1802,8 +1786,8 @@ export type Database = {
           fin_at: string
           id?: string
           routine_id?: string | null
-          seance_id?: string | null
           titre?: string
+          type_seance?: string | null
           updated_at?: string
         }
         Update: {
@@ -1814,8 +1798,8 @@ export type Database = {
           fin_at?: string
           id?: string
           routine_id?: string | null
-          seance_id?: string | null
           titre?: string
+          type_seance?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1824,13 +1808,6 @@ export type Database = {
             columns: ["routine_id"]
             isOneToOne: false
             referencedRelation: "routines"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "entrainements_seance_id_fkey"
-            columns: ["seance_id"]
-            isOneToOne: false
-            referencedRelation: "seances"
             referencedColumns: ["id"]
           },
         ]
@@ -1944,6 +1921,7 @@ export type Database = {
         Row: {
           created_at: string
           distance_m: number | null
+          vitesse_kmh: number | null
           duree_s: number | null
           id: string
           ordre: number
@@ -1955,6 +1933,7 @@ export type Database = {
         Insert: {
           created_at?: string
           distance_m?: number | null
+          vitesse_kmh?: number | null
           duree_s?: number | null
           id?: string
           ordre?: number
@@ -1966,6 +1945,7 @@ export type Database = {
         Update: {
           created_at?: string
           distance_m?: number | null
+          vitesse_kmh?: number | null
           duree_s?: number | null
           id?: string
           ordre?: number
@@ -2041,7 +2021,6 @@ export type Database = {
           revue_dernier_envoi: string | null
           revue_heure: string
           revue_jour: number
-          seances_rappel_actif: boolean
           updated_at: string
         }
         Insert: {
@@ -2062,7 +2041,6 @@ export type Database = {
           revue_dernier_envoi?: string | null
           revue_heure?: string
           revue_jour?: number
-          seances_rappel_actif?: boolean
           updated_at?: string
         }
         Update: {
@@ -2083,7 +2061,6 @@ export type Database = {
           revue_dernier_envoi?: string | null
           revue_heure?: string
           revue_jour?: number
-          seances_rappel_actif?: boolean
           updated_at?: string
         }
         Relationships: []

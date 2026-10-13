@@ -69,6 +69,7 @@ export const ANIMATIONS = [
   "fentes-haltere",
   "souleve-terre-roumain-haltere",
   "marche",
+  "traction-verticale-machine",
 ] as const;
 
 export type CleAnimation = (typeof ANIMATIONS)[number];

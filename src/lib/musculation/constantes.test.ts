@@ -13,9 +13,14 @@ import {
   estModeSaisie,
   estMuscle,
   estTypeSerie,
+  dureeEnMinutes,
+  minutesVersSecondes,
+  secondesVersMinutes,
 } from "./constantes";
 
-const migration = readFileSync(join(process.cwd(), "scripts/migration-musculation-2026-10-11.sql"), "utf8");
+const migration = ["migration-musculation-2026-10-11.sql", "migration-musculation-vitesse-2026-10-12.sql"]
+  .map((f) => readFileSync(join(process.cwd(), "scripts", f), "utf8"))
+  .join("\n");
 
 describe("constantes musculation", () => {
   it("fournit un libellé pour chaque valeur", () => {
@@ -38,6 +43,16 @@ describe("constantes musculation", () => {
     expect(estModeSaisie(null)).toBe(false);
     expect(estTypeSerie("dropset")).toBe(true);
     expect(estTypeSerie("autre")).toBe(false);
+  });
+
+  it("saisit la durée de la marche en minutes (stockée en secondes)", () => {
+    expect(dureeEnMinutes("duree_vitesse", "duree_s")).toBe(true);
+    expect(dureeEnMinutes("duree_vitesse", "vitesse_kmh")).toBe(false);
+    expect(dureeEnMinutes("duree", "duree_s")).toBe(false);
+    expect(secondesVersMinutes(1800)).toBe(30);
+    expect(secondesVersMinutes(null)).toBeNull();
+    expect(minutesVersSecondes(22.5)).toBe(1350);
+    expect(minutesVersSecondes(null)).toBeNull();
   });
 
   it("exclut l'échauffement du volume", () => {

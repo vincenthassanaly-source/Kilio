@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { showToast } from "@/components/toast/toast-store";
 import { vibrate } from "@/lib/haptics";
 import {
   CHAMPS_PAR_MODE,
+  dureeEnMinutes,
+  minutesVersSecondes,
+  secondesVersMinutes,
   TYPES_SERIE,
   TYPE_SERIE_LABELS,
   type ChampSerie,
@@ -19,19 +23,33 @@ import {
 } from "@/lib/musculation/seance";
 import { libelleRecords, recordsBattus } from "@/lib/musculation/stats";
 import { deverrouillerAudio } from "@/lib/musculation/useMinuteurRepos";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { AnimationMiniature } from "../AnimationExercice";
 import { ChampNombre } from "./ChampNombre";
-import { dangerButton, ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
+import { ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
 
-type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "type">>;
+type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "vitesse" | "type">>;
 
-const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance" } as const;
-const LARGEUR_CHAMP: Record<ChampSerie, string> = { poids_kg: "68px", reps: "60px", duree_s: "68px", distance_m: "72px" };
+// Ligne du menu d'options : cible tactile de 48 px, séparateur fin entre les lignes.
+const ligneMenu =
+  "flex min-h-12 items-center gap-3 border-t border-line px-3.5 text-left text-[15px] font-medium text-ink transition hover:bg-surface active:bg-surface disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal";
+
+function IconeMenu({ d }: { d: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+      <path d={d} />
+    </svg>
+  );
+}
+
+const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance", vitesse_kmh: "vitesse" } as const;
+const LARGEUR_CHAMP: Record<ChampSerie, string> = { poids_kg: "68px", reps: "60px", duree_s: "68px", distance_m: "72px", vitesse_kmh: "72px" };
 
 function enteteChamp(champ: ChampSerie, mode: ModeSaisie): string {
   if (champ === "poids_kg") return mode === "poids_corps_reps" ? "+kg" : "kg";
   if (champ === "reps") return "reps";
-  if (champ === "duree_s") return "sec";
+  if (champ === "duree_s") return mode === "duree_vitesse" ? "min" : "sec";
+  if (champ === "vitesse_kmh") return "km/h";
   return "m";
 }
 
@@ -42,7 +60,8 @@ function libelleAccessible(champ: ChampSerie, rang: number, mode: ModeSaisie): s
       : `Poids de la série ${rang}, en kilos`;
   }
   if (champ === "reps") return `Répétitions de la série ${rang}`;
-  if (champ === "duree_s") return `Durée de la série ${rang}, en secondes`;
+  if (champ === "duree_s") return `Durée de la série ${rang}, en ${mode === "duree_vitesse" ? "minutes" : "secondes"}`;
+  if (champ === "vitesse_kmh") return `Vitesse de la série ${rang}, en kilomètres par heure`;
   return `Distance de la série ${rang}, en mètres`;
 }
 
@@ -61,6 +80,10 @@ export function ExerciceBloc({
   onRetirerDerniereSerie,
   onRetirerExercice,
   onReposExercice,
+  onRemplacer,
+  onDeplacer,
+  premier = false,
+  dernier = false,
   edition = false,
 }: {
   exercice: ExerciceBrouillon;
@@ -70,14 +93,23 @@ export function ExerciceBloc({
   onRetirerDerniereSerie: (cle: string) => void;
   onRetirerExercice: (cle: string) => void;
   onReposExercice: (cle: string, deltaS: number) => void;
+  /** Séance en cours : ouvre le catalogue pour remplacer cet exercice. */
+  onRemplacer?: (cle: string) => void;
+  /** Séance en cours : décale l'exercice d'un cran (-1 haut, 1 bas). */
+  onDeplacer?: (cle: string, sens: -1 | 1) => void;
+  premier?: boolean;
+  dernier?: boolean;
   /** Séance passée : toutes les séries sont faites, pas de case à cocher (ni de minuteur). */
   edition?: boolean;
 }) {
   const [options, setOptions] = useState(false);
+  const [confirmerRetrait, setConfirmerRetrait] = useState(false);
   // Série dont le sélecteur de type (normale, échauffement…) est ouvert.
   const [typeOuvertPour, setTypeOuvertPour] = useState<string | null>(null);
   const { mode, cle } = exercice;
   const champs = CHAMPS_PAR_MODE[mode];
+  // Marche (durée + vitesse) : une seule ligne, ni ajout de série ni repos.
+  const uneLigne = mode === "duree_vitesse";
 
   const colonnes = ["40px", "minmax(0,1fr)", ...champs.map((c) => LARGEUR_CHAMP[c]), ...(edition ? [] : ["48px"])].join(" ");
   const entete = "text-center text-[12px] font-semibold uppercase tracking-wide text-ink-3";
@@ -119,32 +151,104 @@ export function ExerciceBloc({
       </header>
 
       {options && (
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-surface-alt p-2.5">
-          <span className="mr-auto text-[13px] font-medium text-ink-2">Repos prévu</span>
-          <button type="button" className={ghostButton} onClick={() => onReposExercice(cle, -15)} aria-label="Retirer 15 secondes de repos">
-            −15 s
-          </button>
-          <span className="min-w-[44px] text-center text-[14px] font-semibold tabular-nums text-ink">
-            {formaterMinutes(exercice.reposS)}
-          </span>
-          <button type="button" className={ghostButton} onClick={() => onReposExercice(cle, 15)} aria-label="Ajouter 15 secondes de repos">
-            +15 s
-          </button>
-          <div className="mt-1 flex w-full gap-2">
+        <div
+          role="menu"
+          aria-label={`Options de ${exercice.nom}`}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOptions(false);
+          }}
+          className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface-alt"
+        >
+          {!uneLigne && (
+          <div className="flex items-center gap-2 px-3.5 py-2">
+            <span className="mr-auto text-[14px] font-medium text-ink">Repos prévu</span>
             <button
               type="button"
-              className={`${ghostButton} flex-1`}
+              className={`${ghostButton} !bg-surface`}
+              onClick={() => onReposExercice(cle, -15)}
+              aria-label="Retirer 15 secondes de repos"
+            >
+              −15 s
+            </button>
+            <span className="min-w-[48px] text-center text-[15px] font-semibold tabular-nums text-ink" aria-live="polite">
+              {formaterMinutes(exercice.reposS)}
+            </span>
+            <button
+              type="button"
+              className={`${ghostButton} !bg-surface`}
+              onClick={() => onReposExercice(cle, 15)}
+              aria-label="Ajouter 15 secondes de repos"
+            >
+              +15 s
+            </button>
+          </div>
+          )}
+
+          {onDeplacer && (
+            <button type="button" role="menuitem" className={ligneMenu} onClick={() => onDeplacer(cle, -1)} disabled={premier}>
+              <IconeMenu d="M12 19V5m0 0-6 6m6-6 6 6" />
+              Monter l&apos;exercice
+            </button>
+          )}
+          {onDeplacer && (
+            <button type="button" role="menuitem" className={ligneMenu} onClick={() => onDeplacer(cle, 1)} disabled={dernier}>
+              <IconeMenu d="M12 5v14m0 0 6-6m-6 6-6-6" />
+              Descendre l&apos;exercice
+            </button>
+          )}
+          {onRemplacer && (
+            <button
+              type="button"
+              role="menuitem"
+              className={ligneMenu}
+              onClick={() => {
+                setOptions(false);
+                onRemplacer(cle);
+              }}
+            >
+              <IconeMenu d="M7 7h11m0 0-3-3m3 3-3 3M17 17H6m0 0 3-3m-3 3 3 3" />
+              Remplacer l&apos;exercice
+            </button>
+          )}
+          {!uneLigne && (
+            <button
+              type="button"
+              role="menuitem"
+              className={ligneMenu}
               onClick={() => onRetirerDerniereSerie(cle)}
               disabled={exercice.series.length <= 1}
             >
+              <IconeMenu d="M5 12h14" />
               Retirer la dernière série
             </button>
-            <button type="button" className={`${dangerButton} flex-1`} onClick={() => onRetirerExercice(cle)}>
-              Retirer l&apos;exercice
-            </button>
-          </div>
+          )}
+          <button
+            type="button"
+            role="menuitem"
+            className={`${ligneMenu} !text-alert`}
+            onClick={() => (faites > 0 ? setConfirmerRetrait(true) : onRetirerExercice(cle))}
+          >
+            <IconeMenu d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
+            Retirer l&apos;exercice
+          </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmerRetrait}
+        titre="Retirer l'exercice ?"
+        confirmer="Retirer l'exercice"
+        onClose={() => setConfirmerRetrait(false)}
+        onConfirm={() => {
+          setConfirmerRetrait(false);
+          onRetirerExercice(cle);
+        }}
+      >
+        <p>
+          {faites} série{faites > 1 ? "s" : ""} validée{faites > 1 ? "s" : ""} sur {exercice.nom} sera
+          {faites > 1 ? "ont" : ""} perdue{faites > 1 ? "s" : ""}.
+        </p>
+      </ConfirmDialog>
 
       <div className="flex flex-col gap-1.5">
         <div className="grid items-end gap-2" style={{ gridTemplateColumns: colonnes }} aria-hidden="true">
@@ -190,14 +294,16 @@ export function ExerciceBloc({
                 </span>
                 {champs.map((champ) => {
                   const cleSerie = CLE_SERIE[champ];
+                  const enMinutes = dureeEnMinutes(mode, champ);
+                  const valeurSerie = serie[cleSerie] ?? null;
                   return (
                     <ChampNombre
                       key={champ}
-                      valeur={serie[cleSerie]}
-                      entier={champ === "reps" || champ === "duree_s"}
+                      valeur={enMinutes ? secondesVersMinutes(valeurSerie) : valeurSerie}
+                      entier={champ === "reps" || (champ === "duree_s" && !enMinutes)}
                       signe={champ === "poids_kg" && mode === "poids_corps_reps"}
                       libelle={libelleAccessible(champ, rang, mode)}
-                      onChange={(valeur) => onModifierSerie(cle, serie.id, { [cleSerie]: valeur })}
+                      onChange={(valeur) => onModifierSerie(cle, serie.id, { [cleSerie]: enMinutes ? minutesVersSecondes(valeur) : valeur })}
                     />
                   );
                 })}
@@ -210,6 +316,14 @@ export function ExerciceBloc({
                       if (!serie.fait) {
                         deverrouillerAudio();
                         vibrate(15);
+                        // Série validée = record de charge battu (comme le badge sous la série) : on félicite.
+                        const apresValidation = recordsBattus(
+                          exercice.series.map((s) => (s.fait || s.id === serie.id ? s : { ...s, type: "echauffement" as const })),
+                          exercice.records,
+                        );
+                        if (apresValidation[index]?.includes("poids")) {
+                          showToast(`Record de charge sur ${exercice.nom} 💪`, 3600);
+                        }
                       }
                       onBasculer(cle, serie.id);
                     }}
@@ -251,9 +365,11 @@ export function ExerciceBloc({
         })}
       </div>
 
-      <button type="button" className={`${secondaryButton} h-11 !py-0 text-[14px]`} onClick={() => onAjouterSerie(cle)}>
-        + Ajouter une série
-      </button>
+      {!uneLigne && (
+        <button type="button" className={`${secondaryButton} h-11 !py-0 text-[14px]`} onClick={() => onAjouterSerie(cle)}>
+          + Ajouter une série
+        </button>
+      )}
     </section>
   );
 }

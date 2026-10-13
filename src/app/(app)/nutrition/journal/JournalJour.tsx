@@ -1,12 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  addNutrition,
-  hasNutritionOverride,
-  nutritionAliment,
-  nutritionFromOverride,
-  nutritionRecette,
-  zeroNutrition,
-} from "@/lib/nutrition/compute";
+import { addNutrition, zeroNutrition } from "@/lib/nutrition/compute";
+import { vueRepas } from "@/lib/nutrition/vue-repas";
 import { card, eyebrow, sectionTitle } from "@/lib/ui";
 import { ObjectifForm } from "./ObjectifForm";
 import { ResumeJour } from "./ResumeJour";
@@ -51,48 +45,11 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
   ]);
 
   // Une entrée sans `aliment` ni `recette` est orpheline (référence supprimée
-  // en base) : on l'ignore plutôt que de planter sur `entry.recette!` plus bas.
-  const views: JournalEntryView[] = (entries ?? [])
-    .filter((entry) => entry.aliment || entry.recette)
-    .map((entry) => {
-      if (entry.aliment) {
-        const { quantite, aliment } = entry;
-        // journal_repas.quantite est toujours en grammes/ml, y compris pour un
-        // aliment "pièce" (converti avant l'insert via poids_unite_g) : on
-        // affiche donc le poids réel, avec l'équivalent en pièces en rappel.
-        const piecesEquivalent =
-          aliment.unite === "piece" && aliment.poids_unite_g
-            ? quantite / aliment.poids_unite_g
-            : null;
-        const detail =
-          piecesEquivalent !== null
-            ? `${quantite} g (≈ ${
-                Number.isInteger(piecesEquivalent)
-                  ? piecesEquivalent
-                  : piecesEquivalent.toFixed(1)
-              } pièce${piecesEquivalent > 1 ? "s" : ""})`
-            : `${quantite} ${aliment.unite === "ml" ? "ml" : "g"}`;
-
-        return {
-          id: entry.id,
-          moment: entry.moment,
-          label: aliment.nom,
-          detail,
-          nutrition: nutritionAliment(aliment, quantite),
-        };
-      }
-
-      const recette = entry.recette!;
-      return {
-        id: entry.id,
-        moment: entry.moment,
-        label: recette.nom,
-        detail: `${entry.quantite} portion${entry.quantite > 1 ? "s" : ""}`,
-        nutrition: hasNutritionOverride(recette)
-          ? nutritionFromOverride(recette, entry.quantite)
-          : nutritionRecette(recette.recette_ingredients, recette.portions, entry.quantite),
-      };
-    });
+  // en base) : vueRepas renvoie null et on l'ignore plutôt que de planter.
+  const views: JournalEntryView[] = (entries ?? []).flatMap((entry) => {
+    const vue = vueRepas(entry);
+    return vue ? [{ id: entry.id, moment: entry.moment, ...vue }] : [];
+  });
 
   const jourType = jourTypePourDate(date, datesEntrainement);
   const objectifRepos = objectifs?.find((o) => o.jour_type === "repos") ?? null;

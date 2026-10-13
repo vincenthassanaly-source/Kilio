@@ -8,8 +8,10 @@ import {
   compteDansLeVolume,
   estTypeSerie,
   type ModeSaisie,
+  type TypeSeance,
   type TypeSerie,
 } from "./constantes";
+import { estTypeSeance } from "@/lib/seances/compute";
 import type { CleAnimation } from "./animations";
 import type { RecordsExercice } from "./stats";
 
@@ -19,6 +21,8 @@ export type SeriePrecedente = {
   reps: number | null;
   duree: number | null;
   distance: number | null;
+  /** Vitesse en km/h (marche). */
+  vitesse?: number | null;
 };
 
 export type SerieBrouillon = {
@@ -31,6 +35,8 @@ export type SerieBrouillon = {
   duree: number | null;
   /** Distance en mètres. */
   distance: number | null;
+  /** Vitesse en km/h (absente des anciens brouillons). */
+  vitesse?: number | null;
   fait: boolean;
   faitA: string | null;
   /** Repos pris APRÈS cette série, connu quand la série suivante est validée. */
@@ -59,8 +65,8 @@ export type Brouillon = {
   id: string;
   nom: string;
   routineId: string | null;
-  /** Séance planifiée (table `seances`) dont cette séance est la réalisation. */
-  seanceId: string | null;
+  /** Type (Push / Pull / Legs) choisi pour une séance libre. Absent des anciens brouillons. */
+  typeSeance?: TypeSeance | null;
   debutA: string;
   exercices: ExerciceBrouillon[];
   repos: Repos | null;
@@ -81,7 +87,8 @@ export type EntrainementPayload = {
   id: string;
   nom: string;
   routineId: string | null;
-  seanceId: string | null;
+  /** Type choisi à la fin d'une séance libre ; pour une routine, le serveur reprend celui de la routine. */
+  typeSeance: TypeSeance | null;
   debutA: string;
   finA: string;
   exercices: {
@@ -95,6 +102,7 @@ export type EntrainementPayload = {
       reps: number | null;
       duree: number | null;
       distance: number | null;
+      vitesse?: number | null;
     }[];
   }[];
 };
@@ -118,6 +126,7 @@ function serieVide(modele: SeriePrecedente | undefined, id: string, type: TypeSe
     reps: modele?.reps ?? null,
     duree: modele?.duree ?? null,
     distance: modele?.distance ?? null,
+    vitesse: modele?.vitesse ?? null,
     fait: false,
     faitA: null,
     reposPris: null,
@@ -149,7 +158,6 @@ export function creerBrouillon(
   entree: {
     nom: string;
     routineId: string | null;
-    seanceId: string | null;
     maintenant: string;
     exercices: NouvelExercice[];
   },
@@ -159,7 +167,7 @@ export function creerBrouillon(
     id: genererId(),
     nom: entree.nom,
     routineId: entree.routineId,
-    seanceId: entree.seanceId,
+    typeSeance: null,
     debutA: entree.maintenant,
     exercices: entree.exercices.map((e) => creerExerciceBrouillon(e, genererId)),
     repos: null,
@@ -179,6 +187,32 @@ export function ajouterExercice(b: Brouillon, source: NouvelExercice, genererId:
 export function retirerExercice(b: Brouillon, cle: string): Brouillon {
   const repos = b.repos?.exerciceCle === cle ? null : b.repos;
   return { ...b, exercices: b.exercices.filter((e) => e.cle !== cle), repos };
+}
+
+/**
+ * Remplace un exercice par un autre du catalogue, à la même place. La clé locale,
+ * le nombre de séries et leur type sont conservés ; valeurs et cases cochées
+ * repartent de la dernière séance du nouvel exercice. Un repos en cours n'est pas touché.
+ */
+export function remplacerExercice(b: Brouillon, cle: string, source: NouvelExercice, genererId: GenererId = uuid): Brouillon {
+  return surExercice(b, cle, (ancien) => {
+    const nouveau = creerExerciceBrouillon(source, genererId);
+    return {
+      ...nouveau,
+      cle: ancien.cle,
+      series: ancien.series.map((s, i) => serieVide(source.precedent[i] ?? source.precedent.at(-1), s.id, s.type)),
+    };
+  });
+}
+
+/** Décale un exercice d'un cran vers le haut (-1) ou le bas (1) ; sans effet aux extrémités. */
+export function deplacerExercice(b: Brouillon, cle: string, sens: -1 | 1): Brouillon {
+  const index = b.exercices.findIndex((e) => e.cle === cle);
+  const cible = index + sens;
+  if (index === -1 || cible < 0 || cible >= b.exercices.length) return b;
+  const exercices = [...b.exercices];
+  [exercices[index], exercices[cible]] = [exercices[cible], exercices[index]];
+  return { ...b, exercices };
 }
 
 /** Nouvelle série : copie les valeurs de la dernière série de l'exercice. */
@@ -204,12 +238,21 @@ export function modifierSerie(
   b: Brouillon,
   cle: string,
   serieId: string,
-  champs: Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "type">>,
+  champs: Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "vitesse" | "type">>,
 ): Brouillon {
-  return surExercice(b, cle, (e) => ({
-    ...e,
-    series: e.series.map((s) => (s.id === serieId ? { ...s, ...champs } : s)),
-  }));
+  return surExercice(b, cle, (e) => {
+    const index = e.series.findIndex((s) => s.id === serieId);
+    // Un poids saisi se répercute sur les séries suivantes non faites (échauffements exclus).
+    const repercute = "poids" in champs && index >= 0 && (champs.type ?? e.series[index].type) !== "echauffement";
+    return {
+      ...e,
+      series: e.series.map((s, i) => {
+        if (s.id === serieId) return { ...s, ...champs };
+        if (repercute && i > index && !s.fait && s.type !== "echauffement") return { ...s, poids: champs.poids ?? null };
+        return s;
+      }),
+    };
+  });
 }
 
 /**
@@ -344,6 +387,7 @@ export function versPayload(b: Brouillon, finA: string): EntrainementPayload | n
         reps: s.reps,
         duree: s.duree,
         distance: s.distance,
+        vitesse: s.vitesse ?? null,
       }));
     if (series.length > 0) exercices.push({ cle: e.cle, exerciceId: e.exerciceId, reposS: e.reposS, series });
   }
@@ -352,7 +396,7 @@ export function versPayload(b: Brouillon, finA: string): EntrainementPayload | n
     id: b.id,
     nom: b.nom,
     routineId: b.routineId,
-    seanceId: b.seanceId,
+    typeSeance: b.routineId ? null : (b.typeSeance ?? null),
     debutA: b.debutA,
     finA,
     exercices,
@@ -395,8 +439,11 @@ export function libellePrecedent(mode: ModeSaisie, p: SeriePrecedente | undefine
   for (const champ of CHAMPS_PAR_MODE[mode]) {
     if (champ === "poids_kg" && p.poids !== null) parties.push(formaterPoids(p.poids));
     if (champ === "reps" && p.reps !== null) parties.push(String(p.reps));
-    if (champ === "duree_s" && p.duree !== null) parties.push(`${p.duree} s`);
+    if (champ === "duree_s" && p.duree !== null) {
+      parties.push(mode === "duree_vitesse" ? `${formaterPoids(p.duree / 60)} min` : `${p.duree} s`);
+    }
     if (champ === "distance_m" && p.distance !== null) parties.push(`${formaterPoids(p.distance)} m`);
+    if (champ === "vitesse_kmh" && p.vitesse != null) parties.push(`${formaterPoids(p.vitesse)} km/h`);
   }
   if (parties.length === 0) return "–";
   const poidsEtReps = mode === "poids_reps" || mode === "poids_corps_reps";
@@ -439,11 +486,12 @@ function dateIso(valeur: unknown): valeur is string {
 /** `null` si l'envoi est valide, sinon le message à renvoyer à l'appelant. */
 export function validerPayload(payload: unknown): string | null {
   if (!estObjet(payload)) return "Séance invalide.";
-  const { id, nom, routineId, seanceId, debutA, finA, exercices } = payload;
+  const { id, nom, routineId, typeSeance, debutA, finA, exercices } = payload;
   if (!estUuid(id)) return "Identifiant de séance invalide.";
   if (typeof nom !== "string" || nom.trim().length < 1 || nom.trim().length > 80) return "Le nom de la séance est invalide.";
   if (routineId !== null && !estUuid(routineId)) return "Routine invalide.";
-  if (seanceId !== null && !estUuid(seanceId)) return "Séance planifiée invalide.";
+  // Absent des envois en attente créés avant ce champ : traité comme « aucun type ».
+  if (typeSeance != null && !(typeof typeSeance === "string" && estTypeSeance(typeSeance))) return "Type de séance invalide.";
   if (!dateIso(debutA) || !dateIso(finA)) return "Dates de séance invalides.";
   if (ms(finA) < ms(debutA) || ms(finA) - ms(debutA) > DUREE_SEANCE_MAX_MS) return "Durée de séance invalide.";
   if (!Array.isArray(exercices) || exercices.length < 1 || exercices.length > NB_EXERCICES_MAX) {
@@ -470,6 +518,7 @@ export function validerPayload(payload: unknown): string | null {
       if (!nullOuEntier(serie.reps, 0, 1000)) return "Répétitions invalides (0 à 1000).";
       if (!nullOuEntier(serie.duree, 0, 86400)) return "Durée invalide.";
       if (!nullOuNombre(serie.distance, 0, 1_000_000)) return "Distance invalide.";
+      if (serie.vitesse !== undefined && !nullOuNombre(serie.vitesse, 0, 100)) return "Vitesse invalide (0 à 100 km/h).";
     }
   }
   return null;

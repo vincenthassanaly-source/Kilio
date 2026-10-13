@@ -30,7 +30,7 @@ export function MusculationSync() {
       const resultat = await synchroniserSeances();
       if (!actif) return;
       if (resultat.envoyees > 0) {
-        // La séance planifiée est cochée et le jour devient un jour d'entraînement.
+        // La semaine d'Aujourd'hui se coche et le jour devient un jour d'entraînement.
         queryClient.invalidateQueries({ queryKey: queryKeys.seances });
         queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
         queryClient.invalidateQueries({ queryKey: ["musculation-historique"] });

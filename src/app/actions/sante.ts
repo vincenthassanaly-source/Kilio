@@ -9,13 +9,13 @@ import { getDatesEntrainement } from "@/app/actions/journal";
 import { getJoursLibres } from "@/app/actions/jours-libres";
 import { construireBilan, type CiblesJour, type JourType } from "@/lib/nutrition/bilan";
 import { estJourType } from "@/lib/nutrition/planning";
-import { semaineDe } from "@/lib/seances/compute";
+import { progressionSemaine } from "@/lib/seances/compute";
+import { lireSemaine } from "@/lib/seances/serveur";
 import {
   evolutionPoids,
   evolutionTaille,
   joursKcalDepuisBilan,
   syntheseKcal,
-  syntheseSeances,
   type Mesure,
   type SyntheseHebdo,
 } from "@/lib/sante/compute";
@@ -60,7 +60,6 @@ export async function getSyntheseSemaine(today: string): Promise<SyntheseSemaine
   if (!DATE_REGEX.test(today)) throw new Error("Date invalide.");
   const supabase = createAdminClient();
   const debut = shiftDate(today, -6);
-  const semaine = semaineDe(today);
 
   const [objectifs, repas, seances, mesures, datesEntrainement, joursLibres] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*"),
@@ -71,7 +70,7 @@ export async function getSyntheseSemaine(today: string): Promise<SyntheseSemaine
       )
       .gte("date", debut)
       .lte("date", today),
-    supabase.from("seances").select("statut").gte("date_prevue", semaine.debut).lte("date_prevue", semaine.fin),
+    lireSemaine(supabase, today),
     supabase
       .from("mesures_corps")
       .select(COLONNES_MESURE)
@@ -81,7 +80,7 @@ export async function getSyntheseSemaine(today: string): Promise<SyntheseSemaine
     getDatesEntrainement(debut, today),
     getJoursLibres(debut, today),
   ]);
-  const erreur = objectifs.error ?? repas.error ?? seances.error ?? mesures.error;
+  const erreur = objectifs.error ?? repas.error ?? mesures.error;
   if (erreur) throw new Error(erreur.message);
 
   const cibles: Record<JourType, CiblesJour | null> = { repos: null, entrainement: null };
@@ -101,7 +100,7 @@ export async function getSyntheseSemaine(today: string): Promise<SyntheseSemaine
 
   return {
     kcal: syntheseKcal(joursKcalDepuisBilan(jours, today)),
-    seances: syntheseSeances(seances.data ?? []),
+    seances: progressionSemaine(seances.groupes),
     poids: evolutionPoids(releves, today),
     taille: evolutionTaille(releves, today),
     derniereMesure: releves.length > 0 ? releves[releves.length - 1].date : null,

@@ -43,13 +43,6 @@ export async function getDernieresSeries(exerciceIds: string[]): Promise<Record<
   return dernieresSeries(createAdminClient(), exerciceIds.filter((id) => typeof id === "string" && estUuid(id)));
 }
 
-/** Séance planifiée à démarrer : son type nomme la séance. `null` si introuvable. */
-export async function getSeancePlanifiee(id: string): Promise<{ id: string; type: string } | null> {
-  if (typeof id !== "string" || !estUuid(id)) return null;
-  const { data } = await createAdminClient().from("seances").select("id, type").eq("id", id).maybeSingle();
-  return data ?? null;
-}
-
 export async function enregistrerEntrainement(payload: EntrainementPayload): Promise<ActionResult> {
   const erreur = validerPayload(payload);
   if (erreur) return fail(erreur);

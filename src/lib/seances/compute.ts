@@ -1,10 +1,10 @@
-// Séances de sport planifiées : fonctions pures (aucun accès réseau), partagées
-// par les Server Actions, la route de report depuis la notification et l'écran
-// Aujourd'hui. La semaine va du lundi au dimanche ; `jour_semaine` suit
-// Date#getDay (0 = dimanche), comme la revue hebdo.
+// Séances de sport de la semaine (Push / Pull / Legs) : fonctions pures (aucun
+// accès réseau), partagées par les Server Actions, le bilan et l'écran
+// Aujourd'hui. La semaine va du lundi au dimanche. Aucune date ni heure par
+// séance : « faite cette semaine » se déduit des entraînements enregistrés.
 import { shiftDate } from "@/lib/date/iso";
 
-/** Types de séance proposés (liste fermée, doublée par une contrainte SQL). */
+/** Types de séance (liste fermée, doublée par une contrainte SQL). */
 export const TYPES_SEANCE = ["LEGS", "PUSH", "PULL"] as const;
 export type TypeSeance = (typeof TYPES_SEANCE)[number];
 
@@ -12,31 +12,10 @@ export function estTypeSeance(valeur: string): valeur is TypeSeance {
   return (TYPES_SEANCE as readonly string[]).includes(valeur);
 }
 
-export type Creneau = {
-  id: string;
-  jour_semaine: number;
-  heure: string; // HH:MM[:SS]
-  type: string;
-  actif: boolean;
-};
+/** Ordre d'affichage des types sur la carte d'Aujourd'hui. */
+export const ORDRE_TYPES: readonly TypeSeance[] = ["PUSH", "PULL", "LEGS"];
 
-export type Seance = {
-  id: string;
-  creneau_id: string | null;
-  date_prevue: string;
-  date: string;
-  heure: string; // HH:MM[:SS]
-  type: string;
-  statut: "prevue" | "faite";
-  reportee: boolean;
-};
-
-export type NouvelleSeance = Pick<Seance, "creneau_id" | "date_prevue" | "date" | "heure" | "type">;
-
-export type EtatSeance = "faite" | "aujourdhui" | "a_venir" | "manquee";
-
-export const JOURS_LONGS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"] as const;
-export const JOURS_COURTS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"] as const;
+export const LIBELLES_TYPE: Record<TypeSeance, string> = { PUSH: "Push", PULL: "Pull", LEGS: "Legs" };
 
 /** Jour de la semaine (0 = dimanche … 6 = samedi) d'une date AAAA-MM-JJ. */
 export function jourDeSemaine(date: string): number {
@@ -51,95 +30,63 @@ export function semaineDe(date: string): { debut: string; fin: string } {
   return { debut, fin: shiftDate(debut, 6) };
 }
 
-/** Date du `jourSemaine` (0 = dimanche) dans la semaine qui commence le lundi `debut`. */
-export function dateDuJour(debut: string, jourSemaine: number): string {
-  return shiftDate(debut, (jourSemaine + 6) % 7);
-}
+/** Routine rattachée à un type de séance. */
+export type RoutineSemaine = { id: string; nom: string; type: TypeSeance; nbExercices: number };
 
-/** « HH:MM » à partir de « HH:MM[:SS] ». */
-export function heureCourte(heure: string): string {
-  return heure.slice(0, 5);
-}
+/** Entraînement enregistré : sa routine, son type (séance libre) et son jour. */
+export type EntrainementSemaine = { routine_id: string | null; type_seance: string | null; date: string };
 
-/**
- * Occurrences manquantes de la semaine en cours : une par créneau actif dont le
- * jour n'est pas encore passé, sauf si elle existe déjà (même créneau, même
- * date prévue). Un créneau ajouté en milieu de semaine ne crée donc jamais de
- * séance « manquée » dans le passé.
- */
-export function seancesAMaterialiser(
-  creneaux: readonly Creneau[],
-  existantes: readonly Pick<Seance, "creneau_id" | "date_prevue">[],
-  today: string
-): NouvelleSeance[] {
-  const { debut } = semaineDe(today);
-  const connues = new Set(existantes.map((s) => `${s.creneau_id}|${s.date_prevue}`));
-  return creneaux
-    .filter((c) => c.actif)
-    .map((c) => ({ creneau: c, date: dateDuJour(debut, c.jour_semaine) }))
-    .filter(({ creneau, date }) => date >= today && !connues.has(`${creneau.id}|${date}`))
-    .map(({ creneau, date }) => ({
-      creneau_id: creneau.id,
-      date_prevue: date,
-      date,
-      heure: creneau.heure,
-      type: creneau.type,
-    }));
-}
+export type PastilleRoutine = { id: string; nom: string; pastille: string; nbExercices: number; faite: boolean };
+export type GroupeSemaine = { type: TypeSeance; faite: boolean; routines: PastilleRoutine[] };
+export type SemaineSeances = { groupes: GroupeSemaine[] };
 
-/** Premier jour de `apres` (exclu) à `fin` (inclus) sans aucune séance, ou null. */
-export function prochainJourLibre(
-  seances: readonly Pick<Seance, "date">[],
-  apres: string,
-  fin: string
-): string | null {
-  const occupes = new Set(seances.map((s) => s.date));
-  for (let jour = shiftDate(apres, 1); jour <= fin; jour = shiftDate(jour, 1)) {
-    if (!occupes.has(jour)) return jour;
-  }
-  return null;
+/** « Legs A » → « A » : le nom de la routine sans le mot du type (nom entier s'il n'en reste rien). */
+export function libellePastille(nom: string, type: TypeSeance): string {
+  const reste = nom.trim().replace(new RegExp(`^${LIBELLES_TYPE[type]}\\s*`, "i"), "").trim();
+  return reste || nom.trim();
 }
 
 /**
- * Report automatique des séances manquées de la semaine : chacune (une seule
- * fois, tant qu'elle n'a pas déjà été déplacée) est replacée sur le premier
- * jour libre à partir d'aujourd'hui, dans l'ordre où elles ont été manquées.
- * Aujourd'hui n'est candidat que si l'heure de la séance n'est pas passée.
- * Sans jour libre avant dimanche, la séance reste manquée.
+ * Trois groupes (Push, Pull, Legs), chacun avec les pastilles de ses routines.
+ * Une pastille est cochée si un entraînement de la semaine suit cette routine ;
+ * un type est fait si un entraînement de la semaine lui est rattaché : par le
+ * type enregistré (choisi à la fin d'une séance libre, ou copié de la routine)
+ * ou, à défaut, par sa routine.
  */
-export function planReports(
-  seances: readonly Seance[],
-  today: string,
-  maintenant: string, // HH:MM
-  fin: string
-): { id: string; date: string }[] {
-  const manquees = seances
-    .filter((s) => s.statut === "prevue" && s.date < today && !s.reportee)
-    .sort((a, b) => a.date.localeCompare(b.date) || a.heure.localeCompare(b.heure));
-  const occupes = new Set(seances.map((s) => s.date));
-  const reports: { id: string; date: string }[] = [];
+export function composerSemaine(
+  routines: readonly RoutineSemaine[],
+  entrainements: readonly EntrainementSemaine[]
+): SemaineSeances {
+  const typeDeRoutine = new Map(routines.map((r) => [r.id, r.type]));
+  const routinesFaites = new Set<string>();
+  const typesFaits = new Set<TypeSeance>();
 
-  for (const seance of manquees) {
-    const aujourdhuiPossible = !occupes.has(today) && heureCourte(seance.heure) > maintenant;
-    const jour = aujourdhuiPossible ? today : prochainJourLibre([...occupes].map((date) => ({ date })), today, fin);
-    if (!jour) continue;
-    occupes.add(jour);
-    reports.push({ id: seance.id, date: jour });
+  for (const e of entrainements) {
+    if (e.routine_id) routinesFaites.add(e.routine_id);
+    const type =
+      e.type_seance && estTypeSeance(e.type_seance) ? e.type_seance : e.routine_id ? typeDeRoutine.get(e.routine_id) : undefined;
+    if (type) typesFaits.add(type);
   }
-  return reports;
+
+  return {
+    groupes: ORDRE_TYPES.map((type) => ({
+      type,
+      faite: typesFaits.has(type),
+      routines: routines
+        .filter((r) => r.type === type)
+        .sort((a, b) => a.nom.localeCompare(b.nom, "fr", { numeric: true }))
+        .map((r) => ({
+          id: r.id,
+          nom: r.nom,
+          pastille: libellePastille(r.nom, type),
+          nbExercices: r.nbExercices,
+          faite: routinesFaites.has(r.id),
+        })),
+    })),
+  };
 }
 
-export function etatSeance(seance: Pick<Seance, "statut" | "date">, today: string): EtatSeance {
-  if (seance.statut === "faite") return "faite";
-  if (seance.date < today) return "manquee";
-  return seance.date === today ? "aujourdhui" : "a_venir";
-}
-
-export function trierSeances<T extends Pick<Seance, "date" | "heure">>(seances: readonly T[]): T[] {
-  return [...seances].sort((a, b) => a.date.localeCompare(b.date) || a.heure.localeCompare(b.heure));
-}
-
-/** Avancement de la semaine : « 1/3 faites ». */
-export function progressionSemaine(seances: readonly Pick<Seance, "statut">[]): { faites: number; total: number } {
-  return { faites: seances.filter((s) => s.statut === "faite").length, total: seances.length };
+/** Avancement de la semaine : « 1/3 » types faits. */
+export function progressionSemaine(groupes: readonly Pick<GroupeSemaine, "faite">[]): { faites: number; total: number } {
+  return { faites: groupes.filter((g) => g.faite).length, total: groupes.length };
 }
