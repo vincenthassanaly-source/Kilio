@@ -68,6 +68,7 @@ export const ANIMATIONS = [
   "split-squat-bulgare-haltere",
   "fentes-haltere",
   "souleve-terre-roumain-haltere",
+  "marche",
   "traction-verticale-machine",
 ] as const;
 
