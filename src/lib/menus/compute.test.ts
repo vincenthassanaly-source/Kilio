@@ -4,6 +4,7 @@ import {
   formaterQuantiteCourses,
   joursDeLaSemaine,
   libellesCoursesDepuisMenu,
+  repasSemaineSuivante,
   semaineDepuisParam,
   type LigneMenuCourses,
 } from "./compute";
@@ -121,5 +122,29 @@ describe("libellesCoursesDepuisMenu", () => {
     expect(
       libellesCoursesDepuisMenu([{ quantite: 1, recette: { portions: 1, ingredients: [], libres: [] }, aliment: null }])
     ).toEqual([]);
+  });
+});
+
+describe("repasSemaineSuivante", () => {
+  it("décale chaque repas de 7 jours en gardant créneau, contenu et quantité", () => {
+    const repas = [
+      { date: "2026-10-26", moment: "dejeuner" as const, aliment_id: null, recette_id: "r1", quantite: 2 },
+      { date: "2026-11-01", moment: "collation" as const, aliment_id: "a1", recette_id: null, quantite: 150 },
+    ];
+    expect(repasSemaineSuivante(repas)).toEqual([
+      { date: "2026-11-02", moment: "dejeuner", aliment_id: null, recette_id: "r1", quantite: 2 },
+      { date: "2026-11-08", moment: "collation", aliment_id: "a1", recette_id: null, quantite: 150 },
+    ]);
+  });
+
+  it("ne reprend aucune autre colonne (id, mange, lien Journal)", () => {
+    const copie = repasSemaineSuivante([
+      { date: "2026-10-12", moment: "diner", aliment_id: "a1", recette_id: null, quantite: 100, id: "x", mange: true } as never,
+    ]);
+    expect(Object.keys(copie[0]).sort()).toEqual(["aliment_id", "date", "moment", "quantite", "recette_id"]);
+  });
+
+  it("renvoie une liste vide pour une semaine vide", () => {
+    expect(repasSemaineSuivante([])).toEqual([]);
   });
 });

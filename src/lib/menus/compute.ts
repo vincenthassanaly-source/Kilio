@@ -29,6 +29,31 @@ export function semaineDepuisParam(param: string | undefined, aujourdhui: string
   return semaineDe(aujourdhui).debut;
 }
 
+// --- Copie de semaine ------------------------------------------------------
+
+export type RepasACopier = {
+  date: string;
+  moment: MomentRepas;
+  aliment_id: string | null;
+  recette_id: string | null;
+  quantite: number;
+};
+
+/**
+ * Repas d'une semaine reportés sur la suivante : même créneau, même contenu,
+ * même quantité, 7 jours plus tard. Aucune validation « mangé » n'est reprise
+ * (les lignes copiées partent toujours « à manger »).
+ */
+export function repasSemaineSuivante(repas: readonly RepasACopier[]): RepasACopier[] {
+  return repas.map((r) => ({
+    date: shiftDate(r.date, 7),
+    moment: r.moment,
+    aliment_id: r.aliment_id,
+    recette_id: r.recette_id,
+    quantite: r.quantite,
+  }));
+}
+
 // --- Courses -------------------------------------------------------------
 
 type Unite = "g" | "ml" | "piece";
