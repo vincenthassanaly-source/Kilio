@@ -14,9 +14,8 @@ import {
   type Nutrition,
   type SaisieRecente,
 } from "@/lib/nutrition/compute";
-import type { Enums } from "@/lib/supabase/types";
 import { jourTypePourDate, type JourType } from "@/lib/nutrition/planning";
-import { aujourdhuiParis } from "@/lib/date/paris";
+import { lireSaisieRepas } from "@/lib/nutrition/saisie-repas";
 
 export type JournalFormState = { error: string | null; ok?: boolean };
 
@@ -151,69 +150,15 @@ export async function getCatalogueJournal(): Promise<CatalogueJournal> {
   return { items, recents: extraireRecents(dernieres.data ?? []) };
 }
 
-const MOMENTS: readonly Enums<"moment_repas">[] = [
-  "petit_dej",
-  "dejeuner",
-  "diner",
-  "collation",
-];
-
 export async function addJournalEntry(
   _prevState: JournalFormState,
   formData: FormData
 ): Promise<JournalFormState> {
-  const type = String(formData.get("type") ?? "");
-  const aliment_id = String(formData.get("aliment_id") ?? "").trim();
-  const recette_id = String(formData.get("recette_id") ?? "").trim();
-  const quantiteSaisie = Number(formData.get("quantite"));
-  const saisieMode = String(formData.get("saisie_mode") ?? "grammes");
-  // Sans date (fiche recette, bouton + du dashboard) : le jour courant côté
-  // serveur, le même que celui qu'ouvre le Journal sans `?date`.
-  const date = String(formData.get("date") ?? "").trim() || aujourdhuiParis();
-  const moment = String(formData.get("moment") ?? "");
-
-  if (type !== "aliment" && type !== "recette") {
-    return { error: "Type d'entrée invalide." };
-  }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: "Date invalide." };
-  if (!MOMENTS.includes(moment as Enums<"moment_repas">)) {
-    return { error: "Moment du repas invalide." };
-  }
-  if (!Number.isFinite(quantiteSaisie) || quantiteSaisie <= 0) {
-    return { error: "La quantité doit être un nombre positif." };
-  }
-  if (type === "aliment" && !aliment_id) return { error: "Aliment requis." };
-  if (type === "recette" && !recette_id) return { error: "Recette requise." };
-  if (saisieMode !== "grammes" && saisieMode !== "piece") {
-    return { error: "Mode de saisie invalide." };
-  }
+  const lecture = await lireSaisieRepas(formData);
+  if ("error" in lecture) return { error: lecture.error };
 
   const supabase = createAdminClient();
-
-  let quantite = quantiteSaisie;
-  if (type === "aliment" && saisieMode === "piece") {
-    const { data: aliment, error: alimentError } = await supabase
-      .from("aliments")
-      .select("poids_unite_g")
-      .eq("id", aliment_id)
-      .single();
-
-    if (alimentError || !aliment) return { error: "Aliment introuvable." };
-    if (aliment.poids_unite_g === null) {
-      return {
-        error: "Cet aliment n'a pas de poids par pièce défini : saisis une quantité en grammes.",
-      };
-    }
-    quantite = quantiteSaisie * aliment.poids_unite_g;
-  }
-
-  const { error } = await supabase.from("journal_repas").insert({
-    aliment_id: type === "aliment" ? aliment_id : null,
-    recette_id: type === "recette" ? recette_id : null,
-    quantite,
-    date,
-    moment: moment as Enums<"moment_repas">,
-  });
+  const { error } = await supabase.from("journal_repas").insert(lecture.saisie);
 
   if (error) return { error: "Le repas n'a pas pu être ajouté. Réessaie." };
 

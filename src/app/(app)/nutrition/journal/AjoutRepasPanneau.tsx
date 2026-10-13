@@ -26,6 +26,11 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
+/** Enregistre la saisie : `addJournalEntry` (Journal) ou `addMenuEntry` (Menus). */
+export type ActionSaisieRepas = (precedent: JournalFormState, formData: FormData) => Promise<JournalFormState>;
+
+const libelleAjoutJournal = (moment: MomentRepas) => `Ajouter ${AJOUT_LABELS[moment]}`;
+
 function arrondir(n: number) {
   return Math.round(n * 10) / 10;
 }
@@ -100,11 +105,13 @@ function LigneCatalogue({
 
 function EtapeChoix({
   moment,
+  momentFige,
   requeteInitiale,
   onMoment,
   onChoisir,
 }: {
   moment: MomentRepas;
+  momentFige: boolean;
   requeteInitiale: string;
   onMoment: (m: MomentRepas) => void;
   onChoisir: (item: CatalogueItem, recent?: SaisieRecente) => void;
@@ -136,7 +143,7 @@ function EtapeChoix({
 
   return (
     <div className="flex flex-col gap-3">
-      <ChoixMoment moment={moment} onChange={onMoment} />
+      {!momentFige && <ChoixMoment moment={moment} onChange={onMoment} />}
 
       <label htmlFor={champId} className="sr-only">
         Rechercher un aliment ou une recette
@@ -216,7 +223,10 @@ function EtapeQuantite({
   item,
   recent,
   moment,
+  momentFige,
   date,
+  action,
+  libelleAjout,
   onMoment,
   onRetour,
   onAjoute,
@@ -224,7 +234,10 @@ function EtapeQuantite({
   item: CatalogueItem;
   recent?: SaisieRecente;
   moment: MomentRepas;
+  momentFige: boolean;
   date?: string;
+  action: ActionSaisieRepas;
+  libelleAjout: (moment: MomentRepas) => string;
   onMoment: (m: MomentRepas) => void;
   onRetour: () => void;
   onAjoute: (item: CatalogueItem, moment: MomentRepas) => void;
@@ -244,7 +257,7 @@ function EtapeQuantite({
   const [etat, formAction, enCours] = useActionState<JournalFormState, FormData>(
     async (precedent, formData) => {
       try {
-        const resultat = await addJournalEntry(precedent, formData);
+        const resultat = await action(precedent, formData);
         if (resultat.ok) onAjoute(item, moment);
         return resultat;
       } catch {
@@ -301,7 +314,7 @@ function EtapeQuantite({
         </div>
       </div>
 
-      <ChoixMoment moment={moment} onChange={onMoment} />
+      {!momentFige && <ChoixMoment moment={moment} onChange={onMoment} />}
 
       {avecPieces && (
         <SegmentedControl
@@ -383,7 +396,7 @@ function EtapeQuantite({
       )}
 
       <button type="submit" disabled={!valide || enCours} className={`${primaryButton} min-h-12 w-full`}>
-        {enCours ? "Ajout…" : `Ajouter ${AJOUT_LABELS[moment]}`}
+        {enCours ? "Ajout…" : libelleAjout(moment)}
       </button>
     </form>
   );
@@ -400,9 +413,18 @@ function EtapeQuantite({
 export function AjoutRepasPanneau({
   date,
   depart,
+  momentFige = false,
+  action = addJournalEntry,
+  libelleAjout = libelleAjoutJournal,
   onAjoute,
 }: {
   date?: string;
+  /** Moment imposé par l'appelant (créneau d'un menu) : le sélecteur de moment est masqué. */
+  momentFige?: boolean;
+  /** Action d'enregistrement ; le Journal par défaut. */
+  action?: ActionSaisieRepas;
+  /** Libellé du bouton de validation, selon le moment. */
+  libelleAjout?: (moment: MomentRepas) => string;
   /**
    * Point de départ : un aliment ou une recette déjà choisi, avec sa quantité, ou une recherche
    * pré-remplie quand rien ne correspond.
@@ -425,7 +447,10 @@ export function AjoutRepasPanneau({
       item={choix.item}
       recent={choix.recent}
       moment={moment}
+      momentFige={momentFige}
       date={date}
+      action={action}
+      libelleAjout={libelleAjout}
       onMoment={setMoment}
       onRetour={() => setChoix(null)}
       onAjoute={onAjoute}
@@ -433,6 +458,7 @@ export function AjoutRepasPanneau({
   ) : (
     <EtapeChoix
       moment={moment}
+      momentFige={momentFige}
       requeteInitiale={depart?.requete ?? ""}
       onMoment={setMoment}
       onChoisir={(item, recent) => setChoix({ item, recent })}
