@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MOMENT_LABELS, type MomentRepas } from "@/lib/nutrition/compute";
+import { MOMENT_LABELS, type MomentRepas, type Nutrition } from "@/lib/nutrition/compute";
 import { card } from "@/lib/ui";
 import { AjoutMenuBouton } from "./AjoutMenuBouton";
+import { BasculeEntrainementJour } from "./BasculeEntrainementJour";
+import { ComparaisonObjectif } from "./ComparaisonObjectif";
 import { LigneMenu, type RepasPlanifie } from "./LigneMenu";
 
 export type CreneauMenu = { moment: MomentRepas; repas: RepasPlanifie[] };
 
 /**
- * Carte d'un jour : en-tête (jour, total kcal prévu) puis les 4 créneaux, le
- * « + » de chacun à portée du pouce. Le jour courant est repéré par son
- * contour et une pastille « Aujourd'hui » ; si la semaine affichée est la
- * semaine courante, la page s'ouvre sur lui.
+ * Carte d'un jour : en-tête (jour, bascule entraînement), menu prévu comparé à
+ * la cible, puis les 4 créneaux, le « + » de chacun à portée du pouce. Le jour
+ * courant est repéré par son contour et une pastille « Aujourd'hui » ; si la
+ * semaine affichée est la semaine courante, la page s'ouvre sur lui.
  */
 export function JourMenu({
   date,
@@ -20,7 +22,10 @@ export function JourMenu({
   jourCourt,
   estAujourdhui,
   defiler,
-  kcal,
+  entraine,
+  libre,
+  prevu,
+  cible,
   creneaux,
 }: {
   date: string;
@@ -29,7 +34,13 @@ export function JourMenu({
   estAujourdhui: boolean;
   /** Fait défiler jusqu'à cette carte à l'ouverture (jour courant, hors lundi). */
   defiler: boolean;
-  kcal: number;
+  /** Jour d'entraînement (sinon repos) : choisit la cible de comparaison. */
+  entraine: boolean;
+  /** Jour libre : la limite kcal est suspendue, pas de comparaison. */
+  libre: boolean;
+  prevu: Nutrition;
+  /** Cible du type de jour, ou null si aucun objectif n'est défini pour ce type. */
+  cible: Nutrition | null;
   creneaux: CreneauMenu[];
 }) {
   const ref = useRef<HTMLElement>(null);
@@ -44,7 +55,7 @@ export function JourMenu({
       aria-labelledby={`menu-${date}`}
       className={`${card} scroll-mt-4 flex flex-col gap-1 ${estAujourdhui ? "border-kcal/60" : ""}`}
     >
-      <header className="flex items-center justify-between gap-3 pb-1">
+      <header className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <h2 id={`menu-${date}`} className="font-display text-[17px] font-semibold capitalize text-ink">
             {jourCourt}
@@ -55,10 +66,12 @@ export function JourMenu({
             </span>
           )}
         </div>
-        <span className="shrink-0 font-display text-[15px] font-semibold tabular-nums text-ink">
-          {kcal > 0 ? `${Math.round(kcal).toLocaleString("fr-FR")} kcal` : "—"}
-        </span>
+        <BasculeEntrainementJour date={date} jourLabel={jourLabel} entraine={entraine} />
       </header>
+
+      <div className="pb-1">
+        <ComparaisonObjectif prevu={prevu} cible={cible} libre={libre} />
+      </div>
 
       {creneaux.map(({ moment, repas }) => (
         <div key={moment} className="border-t border-line pt-1">

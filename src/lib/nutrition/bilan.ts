@@ -17,7 +17,18 @@ import {
 
 // Un dépassement kcal ≤10 % reste « léger » (ambre), au-delà « marqué »
 // (rouge) : même seuil que l'anneau du Journal (ResumeJour.tsx).
-export const SEUIL_DEPASSEMENT_LEGER = 1.1;
+const SEUIL_DEPASSEMENT_LEGER = 1.1;
+
+export type SeveriteDepassement = "ok" | "leger" | "marque";
+
+/**
+ * Gravité d'un dépassement : « ok » sans cible ou sous la cible, « leger »
+ * jusqu'à +10 %, « marque » au-delà. Partagée par le Journal et les Menus.
+ */
+export function severiteDepassement(consomme: number, cible: number): SeveriteDepassement {
+  if (cible <= 0 || consomme <= cible) return "ok";
+  return consomme / cible <= SEUIL_DEPASSEMENT_LEGER ? "leger" : "marque";
+}
 
 export type { JourType };
 

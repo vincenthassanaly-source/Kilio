@@ -23,6 +23,7 @@ export async function setJourEntrainement(date: string, entraine: boolean): Prom
   }
 
   revalidatePath("/nutrition/journal");
+  revalidatePath("/nutrition/menus");
   revalidatePath("/nutrition/bilan");
   revalidatePath("/");
   revalidatePath("/aujourdhui");

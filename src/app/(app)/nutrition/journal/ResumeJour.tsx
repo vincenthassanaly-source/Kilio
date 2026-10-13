@@ -1,5 +1,5 @@
 import type { Nutrition } from "@/lib/nutrition/compute";
-import { SEUIL_DEPASSEMENT_LEGER } from "@/lib/nutrition/bilan";
+import { severiteDepassement, type SeveriteDepassement } from "@/lib/nutrition/bilan";
 import { card } from "@/lib/ui";
 
 const RADIUS = 56;
@@ -13,14 +13,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 // jour, où un cadrage binaire réussi/échec entretient l'anxiété plus qu'il
 // n'aide. Seul un dépassement net (>10 %) mérite l'alerte forte.
 
-type Severite = "ok" | "leger" | "marque";
-
-function severite(consomme: number, cible: number): Severite {
-  if (cible <= 0 || consomme <= cible) return "ok";
-  return consomme / cible <= SEUIL_DEPASSEMENT_LEGER ? "leger" : "marque";
-}
-
-function couleurSeverite(sev: Severite, couleurBase: string): string {
+function couleurSeverite(sev: SeveriteDepassement, couleurBase: string): string {
   if (sev === "marque") return "var(--accent-alert)";
   if (sev === "leger") return "var(--accent-warning)";
   return couleurBase;
@@ -38,7 +31,7 @@ function MacroBar({
   color: string;
 }) {
   const pct = cible > 0 ? Math.min(100, Math.round((consomme / cible) * 100)) : 0;
-  const sev = severite(consomme, cible);
+  const sev = severiteDepassement(consomme, cible);
   const barColor = couleurSeverite(sev, color);
   const texteClass =
     sev === "marque" ? "font-bold text-alert" : sev === "leger" ? "font-semibold text-warning" : "text-ink-3";
@@ -89,7 +82,7 @@ export function ResumeJour({
   }
 
   const reste = cible.kcal - consomme.kcal;
-  const kcalSeverite = severite(consomme.kcal, cible.kcal);
+  const kcalSeverite = severiteDepassement(consomme.kcal, cible.kcal);
   const kcalPct = cible.kcal > 0 ? Math.min(100, Math.round((consomme.kcal / cible.kcal) * 100)) : 0;
   const kcalOffset = CIRCUMFERENCE * (1 - kcalPct / 100);
   const resteLabel =

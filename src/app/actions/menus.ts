@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { PLAFOND_ARTICLES_COURSES } from "@/lib/courses/compute";
-import { joursDeLaSemaine, libellesCoursesDepuisMenu } from "@/lib/menus/compute";
+import { joursDeLaSemaine, libellesCoursesDepuisMenu, repasSemaineSuivante } from "@/lib/menus/compute";
+import { shiftDate } from "@/lib/date/iso";
 import { lireSaisieRepas } from "@/lib/nutrition/saisie-repas";
 import { ajouterArticlesCourses } from "./courses";
 import type { JournalFormState } from "./journal";
@@ -183,4 +184,44 @@ export async function envoyerMenuAuxCourses(lundi: string): Promise<ActionResult
   } catch {
     return fail("Les courses n'ont pas pu être mises à jour. Réessaie.");
   }
+}
+
+export type ResultatCopieSemaine = { copies: number };
+
+/**
+ * Copie les repas de la semaine précédente (`lundi` - 7 jours) sur la semaine
+ * commençant à `lundi`, tous « à manger ». Refusée si la semaine cible contient
+ * déjà des repas : on ne mélange jamais deux plannings. La vérification n'est
+ * pas atomique avec l'insertion ; le double tap est évité côté écran (bouton
+ * inactif pendant l'envoi, voir CopierSemaineBouton).
+ */
+export async function copierSemainePrecedente(lundi: string): Promise<ActionResult<ResultatCopieSemaine>> {
+  if (!DATE_REGEX.test(lundi)) return fail("Semaine invalide.");
+  const jours = joursDeLaSemaine(lundi);
+  const lundiPrecedent = shiftDate(lundi, -7);
+  const joursPrecedents = joursDeLaSemaine(lundiPrecedent);
+
+  const supabase = createAdminClient();
+  const { count, error: erreurCible } = await supabase
+    .from("menus_repas")
+    .select("id", { count: "exact", head: true })
+    .gte("date", jours[0])
+    .lte("date", jours[6]);
+  if (erreurCible) return fail("La semaine n'a pas pu être lue. Réessaie.");
+  if ((count ?? 0) > 0) return fail("Cette semaine contient déjà des repas.");
+
+  const { data, error: erreurSource } = await supabase
+    .from("menus_repas")
+    .select("date, moment, aliment_id, recette_id, quantite")
+    .gte("date", joursPrecedents[0])
+    .lte("date", joursPrecedents[6])
+    .order("created_at");
+  if (erreurSource) return fail("La semaine précédente n'a pas pu être lue. Réessaie.");
+  if (!data || data.length === 0) return fail("La semaine précédente est vide : rien à copier.");
+
+  const { error } = await supabase.from("menus_repas").insert(repasSemaineSuivante(data));
+  if (error) return fail("La copie n'a pas pu être enregistrée. Réessaie.");
+
+  revaliderMenus();
+  return ok({ copies: data.length });
 }

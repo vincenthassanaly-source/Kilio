@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getDatesEntrainement } from "@/app/actions/journal";
+import { getJoursLibres } from "@/app/actions/jours-libres";
 import { CRENEAUX_MENU, joursDeLaSemaine } from "@/lib/menus/compute";
+import { addNutrition, zeroNutrition, type Nutrition } from "@/lib/nutrition/compute";
+import { jourTypePourDate } from "@/lib/nutrition/planning";
 import { vueRepas } from "@/lib/nutrition/vue-repas";
 import { semaineDe } from "@/lib/seances/compute";
 import { card, errorText, linkButton } from "@/lib/ui";
+import { CopierSemaineBouton } from "./CopierSemaineBouton";
 import { EnvoyerCoursesBouton } from "./EnvoyerCoursesBouton";
 import { JourMenu, type CreneauMenu } from "./JourMenu";
 import { hrefSemaineMenus, lireSemaineMenus, type MenusSearchParams } from "./semaine";
@@ -26,16 +31,34 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
   const lundiCourant = semaineDe(aujourdhui).debut;
 
   const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("menus_repas")
-    .select(
-      "id, date, moment, quantite, mange, aliment:aliments(*), recette:recettes(id, nom, portions, kcal_portion, proteines_portion, glucides_portion, lipides_portion, recette_ingredients(quantite, aliment:aliments(kcal_100g, proteines_100g, glucides_100g, lipides_100g)))"
-    )
-    .gte("date", jours[0])
-    .lte("date", jours[6])
-    .order("created_at");
+  const [{ data, error }, { data: objectifs }, datesEntrainement, joursLibres] = await Promise.all([
+    supabase
+      .from("menus_repas")
+      .select(
+        "id, date, moment, quantite, mange, aliment:aliments(*), recette:recettes(id, nom, portions, kcal_portion, proteines_portion, glucides_portion, lipides_portion, recette_ingredients(quantite, aliment:aliments(kcal_100g, proteines_100g, glucides_100g, lipides_100g)))"
+      )
+      .gte("date", jours[0])
+      .lte("date", jours[6])
+      .order("created_at"),
+    supabase.from("objectifs_nutritionnels").select("*"),
+    getDatesEntrainement(jours[0], jours[6]),
+    getJoursLibres(jours[0], jours[6]),
+  ]);
 
   if (error) return <p className={errorText}>Erreur de chargement : {error.message}</p>;
+
+  // Cible par type de jour (repos / entraînement) ; null si aucun objectif défini.
+  const cibleDuType = (jourType: "repos" | "entrainement"): Nutrition | null => {
+    const objectif = objectifs?.find((o) => o.jour_type === jourType);
+    return objectif
+      ? {
+          kcal: objectif.kcal_cible,
+          proteines: objectif.proteines_cible_g,
+          glucides: objectif.glucides_cible_g,
+          lipides: objectif.lipides_cible_g,
+        }
+      : null;
+  };
 
   // Une entrée orpheline (aliment et recette supprimés) est ignorée par vueRepas.
   const repas = (data ?? []).flatMap((entree) => {
@@ -46,6 +69,7 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
             date: entree.date,
             moment: entree.moment,
             mange: entree.mange,
+            nutrition: vue.nutrition,
             planifie: { id: entree.id, label: vue.label, detail: vue.detail, kcal: vue.nutrition.kcal, mange: entree.mange },
           },
         ]
@@ -58,12 +82,22 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
       moment,
       repas: duJour.filter((r) => r.moment === moment).map((r) => r.planifie),
     }));
-    return { date, creneaux, kcal: duJour.reduce((somme, r) => somme + r.planifie.kcal, 0), nb: duJour.length };
+    const prevu = duJour.reduce((somme, r) => addNutrition(somme, r.nutrition), zeroNutrition());
+    const jourType = jourTypePourDate(date, datesEntrainement);
+    return {
+      date,
+      creneaux,
+      prevu,
+      entraine: jourType === "entrainement",
+      libre: joursLibres.includes(date),
+      cible: cibleDuType(jourType),
+      nb: duJour.length,
+    };
   });
 
   const joursRemplis = parJour.filter((j) => j.nb > 0);
   const moyenneKcal =
-    joursRemplis.length > 0 ? joursRemplis.reduce((somme, j) => somme + j.kcal, 0) / joursRemplis.length : null;
+    joursRemplis.length > 0 ? joursRemplis.reduce((somme, j) => somme + j.prevu.kcal, 0) / joursRemplis.length : null;
   const nbAVenir = repas.filter((r) => !r.mange).length;
   const semaineCourante = lundi === lundiCourant;
 
@@ -89,6 +123,7 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
             </Link>
           )}
         </div>
+        {repas.length === 0 && <CopierSemaineBouton lundi={lundi} />}
         <EnvoyerCoursesBouton lundi={lundi} nbAVenir={nbAVenir} />
       </div>
 
@@ -100,7 +135,10 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
           jourCourt={FORMAT_JOUR_COURT.format(utc(jour.date))}
           estAujourdhui={jour.date === aujourdhui}
           defiler={jour.date === aujourdhui && index > 0}
-          kcal={jour.kcal}
+          entraine={jour.entraine}
+          libre={jour.libre}
+          prevu={jour.prevu}
+          cible={jour.cible}
           creneaux={jour.creneaux}
         />
       ))}

@@ -4,6 +4,7 @@ import {
   evaluerJour,
   nutritionEntree,
   serieEnCours,
+  severiteDepassement,
   tauxReussite,
   type EntreeJournal,
   type JourBilan,
@@ -217,5 +218,19 @@ describe("tauxReussite / serieEnCours", () => {
 
   it("série : aucune donnée", () => {
     expect(serieEnCours([jour("vide")])).toEqual({ jours: 0, tronquee: false });
+  });
+});
+
+describe("severiteDepassement", () => {
+  it("reste ok sous la cible, à la cible, ou sans cible", () => {
+    expect(severiteDepassement(1800, 2000)).toBe("ok");
+    expect(severiteDepassement(2000, 2000)).toBe("ok");
+    expect(severiteDepassement(500, 0)).toBe("ok");
+  });
+
+  it("est légère jusqu'à +10 % puis marquée au-delà", () => {
+    expect(severiteDepassement(2100, 2000)).toBe("leger");
+    expect(severiteDepassement(2200, 2000)).toBe("leger");
+    expect(severiteDepassement(2201, 2000)).toBe("marque");
   });
 });
