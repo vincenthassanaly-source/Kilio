@@ -2,8 +2,8 @@
 name: Kilio
 description: App personnelle mono-utilisateur (nutrition, agenda, courses, habitudes...) — mobile d'abord, ton "tableau de bord doux"
 colors:
-  primary: "oklch(0.55 0.14 165)"
-  primary-soft: "oklch(0.55 0.14 165 / 0.12)"
+  primary: "oklch(0.495 0.14 165)"
+  primary-soft: "oklch(0.495 0.14 165 / 0.12)"
   macro-protein: "oklch(0.55 0.13 265)"
   macro-carbs: "oklch(0.58 0.14 85)"
   macro-fat: "oklch(0.56 0.15 340)"
@@ -114,8 +114,8 @@ La densité d'information reste modérée : une carte = une idée (un repas, une
 Palette OKLCH entièrement teintée verte, construite autour d'un unique accent "brand" et de teintes strictement sémantiques.
 
 ### Primary
-- **Vert Olive Kcal** (`oklch(0.55 0.14 165)`, ≈ `#1f9e6e`) : seule couleur "brand"/interactive de l'app — boutons primaires, onglet actif de la nav, anneau de focus, anneau de progression calorique. **The One Accent Rule.** Aucun autre composant interactif (bouton, lien, état actif) n'utilise une autre teinte que celle-ci ; les couleurs de module et de macro restent des indicateurs passifs, jamais des CTA.
-- **Vert Olive Kcal Doux** (`oklch(0.55 0.14 165 / 0.12)`) : fond du pastille active en barre de navigation et du tag kcal — jamais utilisé comme fond de bouton plein.
+- **Vert Olive Kcal** (`oklch(0.495 0.14 165)`, ≈ `#00794d` ; assombri depuis `oklch(0.55 0.14 165)` pour atteindre 4,5:1 en texte) : seule couleur "brand"/interactive de l'app — boutons primaires, onglet actif de la nav, anneau de focus, anneau de progression calorique. **The One Accent Rule.** Aucun autre composant interactif (bouton, lien, état actif) n'utilise une autre teinte que celle-ci ; les couleurs de module et de macro restent des indicateurs passifs, jamais des CTA.
+- **Vert Olive Kcal Doux** (`oklch(0.495 0.14 165 / 0.12)`) : fond du pastille active en barre de navigation et du tag kcal — jamais utilisé comme fond de bouton plein.
 
 ### Secondary — Triade Macro
 - **Bleu Protéines** (`oklch(0.55 0.13 265)`) : barre de progression et libellé "Protéines" uniquement.

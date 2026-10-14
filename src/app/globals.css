@@ -17,7 +17,9 @@
      d'interrupteur éteint) : ≥ 3:1 sur surface (T5), `--line` restant
      réservé aux séparations décoratives. */
   --control-border: oklch(0.64 0.012 150);
-  --accent-kcal: oklch(0.55 0.14 165);
+  /* L 0,495 (et non 0,55 comme les autres accents) : ≥ 4,5:1 pour le texte blanc sur
+     fond vert, pour le texte vert sur ivoire et sur le vert doux (audit 2026-10-14). */
+  --accent-kcal: oklch(0.495 0.14 165);
   /* Texte/icône sur un fond --accent-kcal plein (bouton primaire, segment
      actif, FAB) — T4, calqué sur --on-agenda : blanc en clair, encre très
      sombre en sombre (blanc sur kcal sombre ≈ 2,3:1, encre ≈ 8,3:1). */
@@ -25,7 +27,7 @@
   /* Même règle pour les autres fonds d'accent pleins (couleurs de module,
      alerte) : ils suivent tous la formule L 0,55 (clair) / 0,72 (sombre). */
   --on-accent: oklch(1 0 0);
-  --accent-kcal-soft: oklch(0.55 0.14 165 / 0.12);
+  --accent-kcal-soft: oklch(0.495 0.14 165 / 0.12);
   --accent-protein: oklch(0.55 0.13 265);
   --accent-carbs: oklch(0.58 0.14 85);
   --accent-fat: oklch(0.56 0.15 340);
