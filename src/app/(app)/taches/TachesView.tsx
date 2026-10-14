@@ -236,7 +236,7 @@ export function TachesView() {
           href="/taches/listes"
           aria-label="Gérer les listes"
           title="Gérer les listes"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors hover:bg-surface-alt"
+          className="relative after:absolute after:-inset-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors hover:bg-surface-alt"
         >
           {LISTE_ICON}
         </Link>
@@ -296,7 +296,7 @@ export function TachesView() {
                 type="button"
                 aria-pressed={actif}
                 onClick={() => basculerPriorite(f.value)}
-                className={`min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-[12.5px] font-semibold transition-colors ${
+                className={`relative after:absolute after:inset-x-0 after:-inset-y-1 min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-[12.5px] font-semibold transition-colors ${
                   actif ? "border-kcal bg-kcal-soft text-ink" : "border-line bg-surface text-ink-2"
                 }`}
               >

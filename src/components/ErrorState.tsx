@@ -36,7 +36,7 @@ export function ErrorState({ retry }: { retry: () => void }) {
           <AlertIcon />
         </span>
         <div className="flex flex-col gap-1">
-          <p className="font-display text-[17px] font-semibold text-ink">Une erreur est survenue</p>
+          <h1 className="font-display text-[17px] font-semibold text-ink">Une erreur est survenue</h1>
           <p className={errorText}>
             Quelque chose s&apos;est mal passé de notre côté. Vous pouvez réessayer, ou revenir à l&apos;accueil.
           </p>

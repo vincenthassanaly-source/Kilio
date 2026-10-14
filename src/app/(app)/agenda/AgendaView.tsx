@@ -387,7 +387,7 @@ export function AgendaView() {
               type="button"
               onClick={() => setView(v.key)}
               aria-pressed={view === v.key}
-              className="relative flex-1 rounded-xl py-2 text-[13px] font-semibold"
+              className="relative flex-1 rounded-xl py-2 text-[13px] font-semibold after:absolute after:inset-x-0 after:-inset-y-1"
             >
               {view === v.key && (
                 <motion.div

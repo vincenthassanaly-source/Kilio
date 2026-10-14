@@ -12,7 +12,7 @@ import { card } from "@/lib/ui";
 function Tuile({ libelle, valeur, detail }: { libelle: string; valeur: ReactNode; detail: string }) {
   return (
     <div className="flex flex-col gap-0.5 rounded-xl bg-surface-alt px-3 py-3">
-      <dt className="text-[11.5px] font-semibold text-ink-3">{libelle}</dt>
+      <dt className="text-[11.5px] font-semibold text-ink-2">{libelle}</dt>
       <dd className="font-display text-[20px] font-semibold leading-tight tabular-nums text-ink">{valeur}</dd>
       <dd className="text-[12px] leading-snug text-ink-2 text-pretty">{detail}</dd>
     </div>
