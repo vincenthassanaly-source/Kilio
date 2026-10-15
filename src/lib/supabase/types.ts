@@ -631,24 +631,6 @@ export type Database = {
         }
         Relationships: []
       }
-      inbox_items: {
-        Row: {
-          created_at: string
-          id: string
-          texte: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          texte: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          texte?: string
-        }
-        Relationships: []
-      }
       journal_repas: {
         Row: {
           aliment_id: string | null

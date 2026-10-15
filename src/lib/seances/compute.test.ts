@@ -98,6 +98,13 @@ describe("composerSemaine", () => {
     expect(progressionSemaine(groupes)).toEqual({ faites: 0, total: 3 });
   });
 
+  it("compte les séances enregistrées à la date du jour", () => {
+    const entrainements = [entrainement("ps-a", null, "2026-10-14"), entrainement("ps-b", null, "2026-10-15"), entrainement(null, "PUSH", "2026-10-15")];
+    expect(composerSemaine(ROUTINES, entrainements, "2026-10-15").seancesAujourdhui).toBe(2);
+    expect(composerSemaine(ROUTINES, entrainements, "2026-10-16").seancesAujourdhui).toBe(0);
+    expect(composerSemaine(ROUTINES, entrainements).seancesAujourdhui).toBe(0);
+  });
+
   it("plusieurs entraînements d'un même type comptent une seule fois", () => {
     const { groupes } = composerSemaine(ROUTINES, [entrainement("ps-a"), entrainement("ps-b", null, "2026-10-15"), entrainement(null, "PUSH")]);
     expect(progressionSemaine(groupes)).toEqual({ faites: 1, total: 3 });

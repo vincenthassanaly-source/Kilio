@@ -106,14 +106,6 @@ const NOTES_ICON = (c: string) =>
     createElement("path", { d: "M9 9.5h6M9 13h6M9 16.5h3.5" })
   );
 
-const INBOX_ICON = (c: string) =>
-  createElement(
-    "svg",
-    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
-    createElement("path", { d: "M4 13h4l2 3h4l2-3h4" }),
-    createElement("path", { d: "M5.5 5.5h13l1.5 7.5v5a1.5 1.5 0 0 1-1.5 1.5h-14A1.5 1.5 0 0 1 4 18v-5z" })
-  );
-
 const REGLAGES_ICON = (c: string) =>
   createElement(
     "svg",
@@ -246,13 +238,6 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Séances, routines et progression",
     accentVar: "var(--accent-musculation)",
     icon: MUSCULATION_ICON,
-  },
-  {
-    href: "/inbox",
-    label: "Inbox",
-    description: "Captures rapides à trier : tâche, note ou événement",
-    accentVar: "var(--accent-kcal)",
-    icon: INBOX_ICON,
   },
   {
     href: "/reglages",
