@@ -135,7 +135,8 @@ describe("createNote", () => {
       return undefined;
     });
     expect(await createNote({ error: null }, form(texte))).toEqual({ error: "tags ko" });
-    expect(etat.updateTag).not.toHaveBeenCalled();
+    // La note est déjà écrite : le cache doit être expiré même en cas d'erreur.
+    expect(etat.updateTag).toHaveBeenCalled();
 
     brancher((a) => {
       if (a.table === "notes") return { data: { id: ID } };

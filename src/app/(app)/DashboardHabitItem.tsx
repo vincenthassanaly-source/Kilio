@@ -30,6 +30,9 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
   // sur la même query key : cocher depuis le dashboard ou /habitudes met à
   // jour le même cache.
   const toggleMutation = useMutation({
+    // Sans `always`, TanStack met la mutation en pause hors ligne et le
+    // repli `enqueueAction` ci-dessous n'est jamais atteint.
+    networkMode: "always",
     mutationFn: async (nouvelleValeur: number) => {
       vibrate();
       try {

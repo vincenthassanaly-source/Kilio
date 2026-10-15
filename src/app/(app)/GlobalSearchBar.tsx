@@ -49,6 +49,7 @@ export function GlobalSearchBar() {
       if (q.length < 2) {
         setResultats([]);
         setARecherche(false);
+        setActiveIndex(-1);
         return;
       }
       // Contrat T1 : un échec (hors ligne, Supabase lent) s'affiche dans la
@@ -63,6 +64,7 @@ export function GlobalSearchBar() {
           setErreur(resultat.error);
           setResultats([]);
           setARecherche(true);
+          setActiveIndex(-1);
           return;
         }
         setErreur(null);
@@ -136,7 +138,7 @@ export function GlobalSearchBar() {
           placeholder="Rechercher dans Kilio…"
           aria-expanded={dropdownVisible}
           aria-controls="recherche-globale-listbox"
-          aria-activedescendant={activeIndex >= 0 ? idOption(flatItems[activeIndex]) : undefined}
+          aria-activedescendant={flatItems[activeIndex] ? idOption(flatItems[activeIndex]) : undefined}
           role="combobox"
           aria-autocomplete="list"
           autoComplete="off"

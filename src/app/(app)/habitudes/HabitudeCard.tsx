@@ -34,6 +34,9 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
   // affiché reste celui d'avant le tap le temps du round-trip (recalculé
   // côté serveur, pas approximé ici) — `onSettled` réconcilie.
   const toggleMutation = useMutation({
+    // Sans `always`, TanStack met la mutation en pause hors ligne et le
+    // repli `enqueueAction` ci-dessous n'est jamais atteint.
+    networkMode: "always",
     mutationFn: async (nouvelleValeur: number) => {
       vibrate();
       try {

@@ -130,6 +130,10 @@ export async function createNote(
     const resolvedTagIds = await resolveTagIds(supabase, tagIds, nouveauxNoms);
     await syncNotesTags(supabase, note.id, resolvedTagIds);
   } catch (tagError) {
+    // La note est déjà écrite : sans invalidation, la liste en cache ne la
+    // montre pas et un nouvel essai en créerait un doublon invisible.
+    revalidatePath("/notes");
+    updateTag(NOTES_TAG);
     return { error: tagError instanceof Error ? tagError.message : "Erreur lors des tags." };
   }
 
@@ -142,7 +146,11 @@ export async function createNote(
       const { error: itemsError } = await supabase
         .from("note_items")
         .insert(libelles.map((libelle, position) => ({ note_id: note.id, libelle, position })));
-      if (itemsError) return { error: itemsError.message };
+      if (itemsError) {
+        revalidatePath("/notes");
+        updateTag(NOTES_TAG);
+        return { error: itemsError.message };
+      }
     }
   }
 
@@ -171,6 +179,8 @@ export async function updateNote(
     const resolvedTagIds = await resolveTagIds(supabase, tagIds, nouveauxNoms);
     await syncNotesTags(supabase, id, resolvedTagIds);
   } catch (tagError) {
+    revalidatePath("/notes");
+    updateTag(NOTES_TAG);
     return { error: tagError instanceof Error ? tagError.message : "Erreur lors des tags." };
   }
 
