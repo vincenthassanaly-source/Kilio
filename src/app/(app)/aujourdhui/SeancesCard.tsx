@@ -49,7 +49,7 @@ function Pastille({
       aria-label={`Commencer ${routine.nom}${routine.faite ? " (déjà faite cette semaine)" : ""}`}
       title={vide ? `${LIBELLES_TYPE[groupe.type]} ${routine.pastille} n'a pas d'exercice` : undefined}
       className={`flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-full px-3.5 text-[14px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-40 ${
-        routine.faite ? "bg-kcal-soft text-kcal" : "bg-surface-alt text-ink-2"
+        routine.faite ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
       }`}
     >
       {routine.faite && (
@@ -132,13 +132,19 @@ export function SeancesCard({ today }: { today: string }) {
           Aucune routine Push, Pull ou Legs : donne un type à tes routines dans Musculation pour les retrouver ici.
         </p>
       ) : (
-        <ul className="flex flex-col divide-y divide-line">
+        <ul className="flex flex-col gap-1.5">
           {groupes.map((groupe) => (
-            <li key={groupe.type} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+            <li
+              key={groupe.type}
+              data-faite={groupe.faite}
+              className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${groupe.faite ? "bg-kcal-soft" : ""}`}
+            >
               <Coche faite={groupe.faite} />
               <div className="min-w-0 flex-1">
-                <p className={`text-[14.5px] font-medium ${groupe.faite ? "text-ink-2" : "text-ink"}`}>{LIBELLES_TYPE[groupe.type]}</p>
-                {groupe.faite && <p className="text-[12.5px] text-ink-2">Faite cette semaine</p>}
+                <p className={`text-[14.5px] ${groupe.faite ? "font-semibold text-ink" : "font-medium text-ink"}`}>
+                  {LIBELLES_TYPE[groupe.type]}
+                </p>
+                {groupe.faite && <p className="text-[12.5px] font-medium text-kcal">Faite</p>}
               </div>
               <div className="flex flex-wrap justify-end gap-1.5">
                 {groupe.routines.map((routine) => (
