@@ -57,6 +57,13 @@ function ListeRow({
   // ou une suppression ailleurs) : il est transmis au serveur comme total
   // attendu ; s'il ne correspond plus, rien n'est supprimé et le serveur
   // renvoie les chiffres réels pour une nouvelle confirmation.
+  function reordonner(sens: "haut" | "bas") {
+    startTransition(async () => {
+      await runAction(() => reordonnerListes(liste.id, sens));
+      queryClient.invalidateQueries({ queryKey: queryKeys.listes });
+    });
+  }
+
   function handleDelete() {
     if (!confirmDelete(messageSuppressionListe(liste.nom, compte.total, compte.faites))) return;
     setError(null);
@@ -113,7 +120,7 @@ function ListeRow({
           <button
             type="button"
             disabled={isPending || index === 0}
-            onClick={() => startTransition(async () => void (await runAction(() => reordonnerListes(liste.id, "haut"))))}
+            onClick={() => reordonner("haut")}
             className={flecheOrdre}
             aria-label="Monter"
           >
@@ -122,7 +129,7 @@ function ListeRow({
           <button
             type="button"
             disabled={isPending || index === total - 1}
-            onClick={() => startTransition(async () => void (await runAction(() => reordonnerListes(liste.id, "bas"))))}
+            onClick={() => reordonner("bas")}
             className={flecheOrdre}
             aria-label="Descendre"
           >

@@ -1,6 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/query/keys";
 import { deleteTag } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, listCard, nameText } from "@/lib/ui";
@@ -9,6 +11,7 @@ import { runAction } from "@/lib/actions/runAction";
 
 function TagRow({ tag }: { tag: Tables<"tags"> }) {
   const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
 
   return (
     <li className={`${listCard} flex-row items-center justify-between`}>
@@ -25,6 +28,8 @@ function TagRow({ tag }: { tag: Tables<"tags"> }) {
           if (!confirmDelete(`Supprimer le tag « #${tag.nom} » ?`)) return;
           startTransition(async () => {
             await runAction(() => deleteTag(tag.id), { erreur: `Impossible de supprimer l'étiquette « ${tag.nom} ». Réessaie.` });
+            queryClient.invalidateQueries({ queryKey: queryKeys.tags });
+            queryClient.invalidateQueries({ queryKey: queryKeys.taches });
           });
         }}
         className={dangerButton}
