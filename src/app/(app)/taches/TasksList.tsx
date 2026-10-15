@@ -494,7 +494,16 @@ export const TaskCard = memo(function TaskCard({
     <>
       <div
         className={`flex items-start gap-3 ${selectionMode ? "cursor-pointer" : ""}`}
-        onClick={selectionMode ? () => onToggleSelect?.(tache.id) : undefined}
+        onClick={
+          selectionMode
+            ? (e) => {
+                // Le clic sur la pastille a déjà basculé via son propre
+                // onToggle : sans ce garde, il remonte ici et re-bascule.
+                if ((e.target as HTMLElement).closest("button")) return;
+                onToggleSelect?.(tache.id);
+              }
+            : undefined
+        }
       >
         {selectionMode ? (
           <CheckToggle
