@@ -34,9 +34,6 @@ export const queryKeys = {
   evenements: ["evenements"] as const,
   evenementsDuJour: (date: string) => ["evenements", date] as const,
   evenementsPlage: (debut: string, fin: string) => ["evenements", debut, fin] as const,
-  // Inbox : liste à trier, et son compteur (pastilles « Plus » / « + »).
-  inbox: ["inbox"] as const,
-  inboxCount: ["inbox", "count"] as const,
   // Séances de sport de la semaine en cours (créneaux + occurrences) : clé par
   // jour pour repartir d'une semaine neuve passé minuit.
   // Bilan de la semaine (kcal moyens, séances, poids, taille) et derniers

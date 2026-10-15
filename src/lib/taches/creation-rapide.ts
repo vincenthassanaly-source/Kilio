@@ -6,8 +6,8 @@ export type ResultatCreation = { ok: true; id: string } | { ok: false; error: st
 
 /**
  * Crée une tâche minimale (titre, notes, lien vers une note) dans la première
- * liste, en fin de liste. Sert à transformer une capture d'inbox, une note ou
- * un élément de checklist en tâche sans passer par le formulaire complet.
+ * liste, en fin de liste. Sert à transformer une note ou un élément de
+ * checklist en tâche sans passer par le formulaire complet.
  * Le client est passé en paramètre (même client que l'action appelante).
  * L'appelant revalide les caches (tag des tâches, chemins).
  */

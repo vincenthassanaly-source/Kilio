@@ -1,6 +1,5 @@
 "use client";
 
-import { PastilleInbox } from "@/components/PastilleInbox";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent } from "react";
@@ -105,7 +104,6 @@ function BottomNavSlot({
     >
       {active && <ActivePill reduceMotion={reduceMotion} />}
       {item.icon(color)}
-      {item.href === "/inbox" && <PastilleInbox className="right-1.5 top-0.5" />}
       <span className="text-[11px]" style={{ color, fontWeight: active ? 700 : 500 }}>
         {item.label}
       </span>
@@ -190,8 +188,6 @@ export function BottomNav() {
         >
           {plusActive && <ActivePill reduceMotion={reduceMotion} />}
           {PLUS_ICON(plusActive ? "var(--accent-kcal)" : "var(--ink-3)")}
-          {/* L'inbox est rangée dans « Plus » sauf si on l'a épinglée en barre. */}
-          {!modulesBarreBasse.includes("/inbox") && <PastilleInbox className="right-1.5 top-0.5" />}
           <span
             className="text-[11px]"
             style={{ color: plusActive ? "var(--accent-kcal)" : "var(--ink-3)", fontWeight: plusActive ? 700 : 500 }}

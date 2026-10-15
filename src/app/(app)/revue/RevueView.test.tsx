@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RevueView } from "./RevueView";
 import { queryKeys } from "@/lib/query/keys";
@@ -10,11 +10,6 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/revue",
   useSearchParams: () => new URLSearchParams(),
 }));
-// Compteur de l'inbox : route GET /api/inbox/count.
-vi.stubGlobal(
-  "fetch",
-  vi.fn().mockResolvedValue({ ok: true, json: async () => ({ count: 3 }) })
-);
 vi.mock("@/app/actions/evenements", () => ({ getEvenements: vi.fn().mockResolvedValue([]) }));
 vi.mock("@/app/actions/sante", () => ({ getSyntheseSemaine: vi.fn() }));
 vi.mock("@/app/actions/taches", async (importOriginal) => ({
@@ -63,7 +58,7 @@ describe("RevueView", () => {
 
   it("résume la santé de la semaine avec un lien vers le bilan", () => {
     monter();
-    expect(screen.getByText("6. Santé de la semaine")).toBeTruthy();
+    expect(screen.getByText("4. Santé de la semaine")).toBeTruthy();
     expect(screen.getByText("2/3")).toBeTruthy();
     expect(screen.getByText("types faits cette semaine")).toBeTruthy();
     expect(screen.getByText("Pas de relevé")).toBeTruthy(); // tour de taille
@@ -83,12 +78,6 @@ describe("RevueView", () => {
     expect(screen.getByText("Dentiste")).toBeTruthy();
     expect(screen.getByText("Anniv Léa")).toBeTruthy();
     expect(screen.getByText("Journée")).toBeTruthy();
-  });
-
-  it("propose de trier l'inbox quand elle n'est pas vide", async () => {
-    monter([makeTache({ id: "t1" })]);
-    await waitFor(() => expect(screen.getByText("4. Inbox à trier")).toBeTruthy());
-    expect(screen.getByText(/3 éléments à trier/)).toBeTruthy();
   });
 
   it("chaque jour à venir renvoie vers l'agenda de ce jour", () => {

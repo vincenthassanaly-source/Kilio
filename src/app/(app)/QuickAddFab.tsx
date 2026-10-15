@@ -7,9 +7,6 @@ import { AnimatePresence } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AddCourseForm } from "./courses/AddCourseForm";
 import { EvenementForm } from "./aujourdhui/EvenementForm";
-import { CaptureForm } from "./inbox/CaptureForm";
-import { useInboxCount } from "@/hooks/useInboxCount";
-import { libelleNbInbox, pastilleCompteur } from "@/lib/inbox/compute";
 import { Modal } from "@/components/Modal";
 import { goBackSteps, useBackClose } from "@/hooks/useBackClose";
 import { getListes, getTags } from "@/app/actions/taches";
@@ -29,7 +26,7 @@ const AjoutRepasPanneau = dynamic(
   { ssr: false }
 );
 
-type Mode = null | "menu" | "tache" | "evenement" | "note" | "course" | "repas" | "capture";
+type Mode = null | "menu" | "tache" | "evenement" | "note" | "course" | "repas";
 
 // Mode « direct » : le FAB ouvre tout de suite le formulaire de tâche, sans
 // passer par le menu Tâche/Note/Course (utilisé par /taches). Sans cette
@@ -55,8 +52,6 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
   const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
   const direct = directTask !== undefined;
   const repasTermine = useAjoutRepasTermine();
-  const nbInbox = useInboxCount();
-  const pastille = pastilleCompteur(nbInbox);
 
   // Raccourcis d'appui long sur l'icône (public/manifest.json) : `?action=new`
   // ouvre le formulaire de tâche (mode direct de /taches), `?ajout=evenement`
@@ -109,13 +104,11 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
   // already closed everything (e.g. goBackSteps(2) from onDone). In direct
   // mode, closing the form closes everything (no menu to land on).
   useBackClose(
-    mode === "tache" || mode === "evenement" || mode === "note" || mode === "course" || mode === "repas" || mode === "capture",
+    mode === "tache" || mode === "evenement" || mode === "note" || mode === "course" || mode === "repas",
     () =>
       setMode((m) => {
         if (direct) return null;
-        return m === "tache" || m === "evenement" || m === "note" || m === "course" || m === "repas" || m === "capture"
-          ? "menu"
-          : m;
+        return m === "tache" || m === "evenement" || m === "note" || m === "course" || m === "repas" ? "menu" : m;
       })
   );
 
@@ -148,9 +141,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
             direct
               ? "Ajouter une tâche"
               : mode === null
-                ? pastille
-                  ? `Ajouter (${libelleNbInbox(nbInbox)} dans l'inbox)`
-                  : "Ajouter"
+                ? "Ajouter"
                 : "Fermer"
           }
           aria-expanded={direct ? undefined : mode !== null}
@@ -171,42 +162,11 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           >
             <path d="M12 5v14M5 12h14" />
           </svg>
-          {pastille && !dialOpen && (
-            <span
-              aria-hidden
-              className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-alert px-1 text-[11px] font-bold tabular-nums text-on-accent"
-            >
-              {pastille}
-            </span>
-          )}
         </button>
 
         {/* Entrées du menu : absentes en mode direct (seul le "+" est affiché). */}
         {!direct && (
         <>
-        <button
-          type="button"
-          onClick={() => setMode("capture")}
-          aria-label="Capture rapide"
-          tabIndex={dialInteractive ? 0 : -1}
-          className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
-          style={{
-            opacity: dialOpen ? 1 : 0,
-            transform: dialOpen ? "translateY(0)" : "translateY(12px)",
-            pointerEvents: dialInteractive ? "auto" : "none",
-          }}
-        >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink shadow-card">
-            Capture
-          </span>
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 13h4l2 3h4l2-3h4" />
-              <path d="M5.5 5.5h13l1.5 7.5v5a1.5 1.5 0 0 1-1.5 1.5h-14A1.5 1.5 0 0 1 4 18v-5z" />
-            </svg>
-          </span>
-        </button>
-
         <button
           type="button"
           onClick={() => setMode("repas")}
@@ -391,13 +351,6 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
                 goBackSteps(2);
               }}
             />
-          </Modal>
-        )}
-
-        {mode === "capture" && (
-          <Modal key="capture" title="Capture rapide" onClose={() => history.back()}>
-            {/* Reste ouvert après chaque ajout : on enchaîne les idées. */}
-            <CaptureForm />
           </Modal>
         )}
 
