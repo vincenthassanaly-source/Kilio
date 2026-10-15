@@ -38,7 +38,11 @@ export type EntrainementSemaine = { routine_id: string | null; type_seance: stri
 
 export type PastilleRoutine = { id: string; nom: string; pastille: string; nbExercices: number; faite: boolean };
 export type GroupeSemaine = { type: TypeSeance; faite: boolean; routines: PastilleRoutine[] };
-export type SemaineSeances = { groupes: GroupeSemaine[] };
+export type SemaineSeances = {
+  groupes: GroupeSemaine[];
+  /** Séances enregistrées à la date du jour (score de la journée). */
+  seancesAujourdhui: number;
+};
 
 /** « Legs A » → « A » : le nom de la routine sans le mot du type (nom entier s'il n'en reste rien). */
 export function libellePastille(nom: string, type: TypeSeance): string {
@@ -51,11 +55,12 @@ export function libellePastille(nom: string, type: TypeSeance): string {
  * Une pastille est cochée si un entraînement de la semaine suit cette routine ;
  * un type est fait si un entraînement de la semaine lui est rattaché : par le
  * type enregistré (choisi à la fin d'une séance libre, ou copié de la routine)
- * ou, à défaut, par sa routine.
+ * ou, à défaut, par sa routine. `today` (optionnel) sert à compter les séances du jour.
  */
 export function composerSemaine(
   routines: readonly RoutineSemaine[],
-  entrainements: readonly EntrainementSemaine[]
+  entrainements: readonly EntrainementSemaine[],
+  today?: string
 ): SemaineSeances {
   const typeDeRoutine = new Map(routines.map((r) => [r.id, r.type]));
   const routinesFaites = new Set<string>();
@@ -69,6 +74,7 @@ export function composerSemaine(
   }
 
   return {
+    seancesAujourdhui: today ? entrainements.filter((e) => e.date === today).length : 0,
     groupes: ORDRE_TYPES.map((type) => ({
       type,
       faite: typesFaits.has(type),

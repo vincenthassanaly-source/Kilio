@@ -17,7 +17,7 @@ import {
 
 // Un dépassement kcal ≤10 % reste « léger » (ambre), au-delà « marqué »
 // (rouge) : même seuil que l'anneau du Journal (ResumeJour.tsx).
-const SEUIL_DEPASSEMENT_LEGER = 1.1;
+export const SEUIL_DEPASSEMENT_LEGER = 1.1;
 
 export type SeveriteDepassement = "ok" | "leger" | "marque";
 

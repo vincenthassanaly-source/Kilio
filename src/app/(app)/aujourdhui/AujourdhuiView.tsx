@@ -28,6 +28,7 @@ import { PeseeCard } from "./PeseeCard";
 import { PlanDuJourCard } from "./PlanDuJourCard";
 import { TransitionLink } from "@/components/TransitionLink";
 import { RepasRestantsCard } from "./RepasRestantsCard";
+import { ScoreDuJourCard } from "./ScoreDuJourCard";
 import { SeancesCard } from "./SeancesCard";
 import { TachesDuJour } from "./TachesDuJour";
 import { useHeureCourante } from "./useHeureCourante";
@@ -146,6 +147,8 @@ export function AujourdhuiView({ today }: { today: string }) {
   return (
     <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
       <p className="-mt-3 text-[13.5px] font-medium text-ink-2 first-letter:uppercase">{dateLabel}</p>
+
+      <ScoreDuJourCard today={today} tachesDuJour={duJour} tachesChargent={tachesChargent} />
 
       {tachesChargent ? (
         <Skeleton className="h-24 w-full rounded-[22px]" />

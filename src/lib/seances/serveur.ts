@@ -28,5 +28,5 @@ export async function lireSemaine(supabase: Client, today: string): Promise<Sema
       typees.push({ id: r.id, nom: r.nom, type: r.type_seance, nbExercices: nombre.get(r.id) ?? 0 });
     }
   }
-  return composerSemaine(typees, entrainements.data ?? []);
+  return composerSemaine(typees, entrainements.data ?? [], today);
 }
