@@ -35,6 +35,9 @@ export function PullToRefresh({
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
   const pulling = useRef(false);
+  // Distance courante lue à la fin du geste : un état React ne peut pas servir
+  // à décider d'un effet de bord (un updater doit rester pur).
+  const distanceRef = useRef(0);
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -55,10 +58,12 @@ export function PullToRefresh({
     if (!pulling.current || startY.current === null) return;
     const delta = e.touches[0].clientY - startY.current;
     if (delta <= 0) {
+      distanceRef.current = 0;
       setPullDistance(0);
       return;
     }
-    setPullDistance(Math.min(MAX_PULL, delta * PULL_RESISTANCE));
+    distanceRef.current = Math.min(MAX_PULL, delta * PULL_RESISTANCE);
+    setPullDistance(distanceRef.current);
   }, []);
 
   const handleTouchEnd = useCallback(async () => {
@@ -67,25 +72,36 @@ export function PullToRefresh({
     startY.current = null;
     setIsPulling(false);
 
-    setPullDistance((distance) => {
-      if (distance < PULL_THRESHOLD) return 0;
+    if (distanceRef.current < PULL_THRESHOLD) {
+      distanceRef.current = 0;
+      setPullDistance(0);
+      return;
+    }
 
-      setRefreshing(true);
-      (async () => {
-        try {
-          await onRefresh?.();
-        } finally {
-          router.refresh();
-          window.setTimeout(() => {
-            setRefreshing(false);
-            setPullDistance(0);
-          }, 400);
-        }
-      })();
-
-      return PULL_THRESHOLD;
-    });
+    distanceRef.current = PULL_THRESHOLD;
+    setPullDistance(PULL_THRESHOLD);
+    setRefreshing(true);
+    try {
+      await onRefresh?.();
+    } finally {
+      router.refresh();
+      window.setTimeout(() => {
+        distanceRef.current = 0;
+        setRefreshing(false);
+        setPullDistance(0);
+      }, 400);
+    }
   }, [onRefresh, router]);
+
+  // Geste interrompu (geste système, défilement repris par le navigateur) :
+  // sans cela, l'espace de l'indicateur resterait ouvert en haut de la page.
+  const handleTouchCancel = useCallback(() => {
+    pulling.current = false;
+    startY.current = null;
+    distanceRef.current = 0;
+    setIsPulling(false);
+    setPullDistance(0);
+  }, []);
 
   return (
     <div
@@ -93,6 +109,7 @@ export function PullToRefresh({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
     >
       <div
         className="flex items-center justify-center overflow-hidden"

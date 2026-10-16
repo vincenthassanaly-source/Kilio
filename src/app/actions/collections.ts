@@ -430,9 +430,15 @@ export async function rattacherPhotoACollection(
 
   const supabase = createAdminClient();
   let collectionId: string;
+  let collectionCreee = false;
 
   try {
-    collectionId = collectionIdChoisie || (await creerCollection(supabase, nouvelleCollectionNom));
+    if (collectionIdChoisie) {
+      collectionId = collectionIdChoisie;
+    } else {
+      collectionId = await creerCollection(supabase, nouvelleCollectionNom);
+      collectionCreee = true;
+    }
 
     const { data: derniere } = await supabase
       .from("collection_items")
@@ -464,6 +470,13 @@ export async function rattacherPhotoACollection(
     const { error } = await supabase.from("collection_items").insert(items);
     if (error) throw new Error(error.message);
   } catch (err) {
+    // Collection créée pour l'occasion : sans nettoyage, un nouvel essai en
+    // créerait une seconde du même nom et celle-ci resterait vide.
+    if (collectionCreee) {
+      const { error: nettoyage } = await supabase.from("collections").delete().eq("id", collectionId!);
+      if (nettoyage) console.error("rattacherPhotoACollection: collection vide non supprimée", nettoyage);
+      revalidateCollectionsPaths();
+    }
     return { error: err instanceof Error ? err.message : "Erreur lors de l'ajout." };
   }
 

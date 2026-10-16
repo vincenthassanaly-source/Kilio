@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { showToast } from "@/components/toast/toast-store";
+import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { queryKeys } from "@/lib/query/keys";
 import { EVENEMENT_SEANCE_EN_ATTENTE, synchroniserSeances } from "./brouillon";
 
@@ -35,6 +35,11 @@ export function MusculationSync() {
         queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
         queryClient.invalidateQueries({ queryKey: ["musculation-historique"] });
         if (annoncer) showToast(resultat.envoyees > 1 ? "Séances synchronisées" : "Séance synchronisée");
+      }
+      // Séance refusée par le serveur (ex. exercice retiré du catalogue) : elle
+      // reste sur le téléphone, on le dit une fois au lieu de retenter en silence.
+      if (annoncer && resultat.refus.length > 0) {
+        showErrorToast(`${resultat.refus[0]} La séance reste sur ton téléphone.`);
       }
       if (resultat.restantes > 0 && resultat.refus.length === 0 && tentative < DELAIS_REJEU_MS.length) {
         window.clearTimeout(minuteur);

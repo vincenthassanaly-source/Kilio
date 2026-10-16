@@ -4,6 +4,7 @@ import { memo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { enregistrerEntreeHabitude, type HabitudeDuJour } from "@/app/actions/habitudes";
 import { queryKeys } from "@/lib/query/keys";
+import { restaurerElement } from "@/lib/query/rollback";
 import { showToast } from "@/components/toast/toast-store";
 import { ProgressRing } from "@/components/ProgressRing";
 import { vibrate } from "@/lib/haptics";
@@ -61,7 +62,7 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.habitudes(date), context.previous);
+      restaurerElement(queryClient, queryKeys.habitudes(date), context?.previous, habitude.id);
       showToast("Impossible de mettre à jour l'habitude.");
     },
     onSettled: () => {

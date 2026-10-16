@@ -1,3 +1,5 @@
+import { aujourdhuiParis } from "@/lib/date/paris";
+
 // `T00:00:00` (sans `Z`) est interprété en heure locale du serveur : sur
 // Vercel (UTC) ça ne bouge rien, mais en dev local (Paris) le
 // `toISOString()` qui suit repart de minuit Paris converti en UTC et
@@ -152,7 +154,7 @@ export function progressionObjectif(
   const finObjectif = echeance && echeance < aujourdhui ? echeance : aujourdhui;
 
   const taux = habitudes.map((h) => {
-    const debutHabitude = h.created_at.slice(0, 10);
+    const debutHabitude = aujourdhuiParis(new Date(h.created_at));
     const debut = debutHabitude > debutObjectif ? debutHabitude : debutObjectif;
     const fin = h.archivee_le && h.archivee_le < finObjectif ? h.archivee_le : finObjectif;
     const { faits, attendus } = calculerTauxReussite(h, h.entriesParDate, debut, fin);

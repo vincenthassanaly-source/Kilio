@@ -101,6 +101,33 @@ function ajouterPeriodes(dateISO: string, frequence: FrequenceEvenement, n: numb
   return d.toISOString().slice(0, 10);
 }
 
+/** Indice de la dernière occurrence strictement avant `debut` (0 au minimum) :
+ * toutes les suivantes sont à considérer, les précédentes sont hors plage. */
+function premierIndexPossible(date: string, frequence: FrequenceEvenement, debut: string): number {
+  if (debut <= date) return 0;
+  const [a, m, j] = date.split("-").map(Number);
+  const [da, dm, dj] = debut.split("-").map(Number);
+  const jours = Math.floor((Date.UTC(da, dm - 1, dj) - Date.UTC(a, m - 1, j)) / 86_400_000);
+  const mois = (da - a) * 12 + (dm - m);
+  let n: number;
+  switch (frequence) {
+    case "quotidien":
+      n = jours;
+      break;
+    case "hebdomadaire":
+      n = Math.floor(jours / 7);
+      break;
+    case "mensuel":
+      n = mois;
+      break;
+    case "annuel":
+      n = da - a;
+      break;
+  }
+  // Marge d'une période : l'occurrence peut être juste avant `debut`.
+  return Math.max(0, n - 1);
+}
+
 /**
  * Dates d'un événement dans [debut, fin] (AAAA-MM-JJ, bornes incluses). Un
  * événement non récurrent renvoie sa date si elle est dans la plage.
@@ -110,8 +137,12 @@ export function datesDansPlage(evenement: Recurrent, debut: string, fin: string)
   if (!frequence) return date >= debut && date <= fin ? [date] : [];
   const limite = finRecurrence && finRecurrence < fin ? finRecurrence : fin;
   const dates: string[] = [];
-  // Garde-fou : 5 ans de récurrence quotidienne au plus.
-  for (let n = 0; n < 1830; n++) {
+  // On part de la première occurrence qui peut tomber dans la plage : parcourir
+  // depuis l'origine plafonnait à ~5 ans et faisait disparaître les
+  // événements quotidiens plus anciens.
+  const premier = premierIndexPossible(date, frequence, debut);
+  // Garde-fou : 5 ans de récurrence quotidienne au plus DANS la plage.
+  for (let n = premier; n < premier + 1830; n++) {
     const d = ajouterPeriodes(date, frequence, n);
     if (d > limite) break;
     if (d >= debut) dates.push(d);

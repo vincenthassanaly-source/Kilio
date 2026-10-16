@@ -1,6 +1,6 @@
 "use client";
 
-import { decisionApresEchec, decisionAvantExecution, idsActionsRemplacees } from "./flush-policy";
+import { argumentsAExecuter, decisionApresEchec, decisionAvantExecution, idsActionsRemplacees } from "./flush-policy";
 import { showToast } from "@/components/toast/toast-store";
 import { setTacheFait, deleteTache } from "@/app/actions/taches";
 import { toggleNoteItem, deleteNote } from "@/app/actions/notes";
@@ -122,8 +122,19 @@ export async function flushQueue(): Promise<ResultatFlush> {
         continue;
       }
 
+      const args = argumentsAExecuter(action);
+      if (args === null) {
+        // Lot composé uniquement d'articles temporaires : rien à envoyer.
+        if (action.id !== undefined) await db.pending_actions.delete(action.id);
+        abandoned++;
+        console.warn(
+          `[offline] action abandonnée (ids temporaires jamais synchronisés) : ${action.module}.${action.action_name}`
+        );
+        continue;
+      }
+
       try {
-        await fn(...action.payload);
+        await fn(...args);
         if (action.id !== undefined) await db.pending_actions.delete(action.id);
         synced++;
       } catch (err) {

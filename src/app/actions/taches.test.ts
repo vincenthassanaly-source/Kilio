@@ -72,7 +72,7 @@ describe("setTacheFait", () => {
     await setTacheFait(ID1, true);
 
     const [maj] = ecritures(fake.appels, "taches", "update");
-    expect(maj.payload).toEqual({ fait: false, echeance: "2026-10-10", rappel_envoye_le: null });
+    expect(maj.payload).toEqual({ fait: false, echeance: "2026-10-10", rappel_envoye_le: null, rappel_reporte_jusqua: null });
     const [sous] = ecritures(fake.appels, "sous_taches", "update");
     expect(sous.payload).toEqual({ fait: false, termine_le: null });
     expect(sous.filtres).toContainEqual(["eq", "tache_id", ID1]);
@@ -117,6 +117,14 @@ describe("deleteTache", () => {
     expect(etat.revalidatePath).toHaveBeenCalledWith("/agenda");
   });
 
+  it("retire les images du Storage avant de supprimer la tâche", async () => {
+    const fake = brancher((a) =>
+      a.table === "tache_images" ? { data: [{ url: `https://x/tache-images/${ID1}/a.jpg` }] } : undefined
+    );
+    await deleteTache(ID1);
+    expect(fake.stockage.map((s) => s.chemins)).toEqual([[`${ID1}/a.jpg`]]);
+  });
+
   it("lève l'erreur Supabase", async () => {
     brancher(() => ({ error: { message: "ko" } }));
     await expect(deleteTache(ID1)).rejects.toThrow("ko");
@@ -142,7 +150,7 @@ describe("annulerCochage", () => {
     expect(ecritures(fake.appels, "taches", "update")[0].payload).toEqual({
       fait: false,
       echeance: null,
-      rappel_envoye_le: null,
+      rappel_envoye_le: null, rappel_reporte_jusqua: null,
     });
   });
 
@@ -165,7 +173,7 @@ describe("actions groupées", () => {
     const fake = brancher();
     expect(await reporterTaches([ID1, ID1, ID2], "2026-10-12")).toMatchObject({ ok: true });
     const [maj] = ecritures(fake.appels, "taches", "update");
-    expect(maj.payload).toEqual({ echeance: "2026-10-12", rappel_envoye_le: null });
+    expect(maj.payload).toEqual({ echeance: "2026-10-12", rappel_envoye_le: null, rappel_reporte_jusqua: null });
     expect(maj.filtres).toContainEqual(["in", "id", [ID1, ID2]]);
   });
 
@@ -179,8 +187,24 @@ describe("actions groupées", () => {
     expect(await supprimerTaches([ID1, ID2])).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "taches", "delete")[0].filtres).toContainEqual(["in", "id", [ID1, ID2]]);
 
-    brancher(() => ({ error: { message: "ko" } }));
+    brancher((a) => (a.table === "taches" ? { error: { message: "ko" } } : undefined));
     expect(await supprimerTaches([ID1])).toEqual({ ok: false, error: "ko" });
+  });
+
+  it("supprimerTaches retire d'abord les images du Storage, et s'arrête si cela échoue", async () => {
+    const fake = brancher((a) =>
+      a.table === "tache_images" ? { data: [{ url: `https://x.supabase.co/storage/v1/object/public/tache-images/${ID1}/a.jpg` }] } : undefined
+    );
+    expect(await supprimerTaches([ID1])).toMatchObject({ ok: true });
+    expect(fake.stockage.map((s) => s.chemins)).toEqual([[`${ID1}/a.jpg`]]);
+
+    const echec = fauxSupabase(
+      (a) => (a.table === "tache_images" ? { data: [{ url: `https://x/tache-images/${ID1}/a.jpg` }] } : undefined),
+      () => ({ error: { message: "stockage ko" } })
+    );
+    etat.client = echec.client;
+    expect(await supprimerTaches([ID1])).toMatchObject({ ok: false });
+    expect(ecritures(echec.appels, "taches", "delete")).toHaveLength(0);
   });
 
   it("deplacerTaches range les tâches à la suite de la liste cible en gardant leur ordre", async () => {
@@ -229,8 +253,8 @@ describe("actions groupées", () => {
     ];
     expect(await restaurerTaches(etats)).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "taches", "update").map((m) => m.payload)).toEqual([
-      { echeance: "2026-10-01", liste_id: LISTE, ordre: 2, rappel_envoye_le: null },
-      { echeance: null, liste_id: LISTE, ordre: 3, rappel_envoye_le: null },
+      { echeance: "2026-10-01", liste_id: LISTE, ordre: 2, rappel_envoye_le: null, rappel_reporte_jusqua: null },
+      { echeance: null, liste_id: LISTE, ordre: 3, rappel_envoye_le: null, rappel_reporte_jusqua: null },
     ]);
   });
 
@@ -256,7 +280,7 @@ describe("planification", () => {
       heure: "14:00",
       heure_fin: "14:45",
       toute_la_journee: false,
-      rappel_envoye_le: null,
+      rappel_envoye_le: null, rappel_reporte_jusqua: null,
       duree_minutes: 45,
     });
 
@@ -278,7 +302,7 @@ describe("planification", () => {
     const fake = brancher();
     const base = { echeance: "2026-10-01", heure: null, heure_fin: null, toute_la_journee: true };
     await restaurerPlanification(ID1, base);
-    expect(ecritures(fake.appels, "taches", "update")[0].payload).toEqual({ ...base, rappel_envoye_le: null });
+    expect(ecritures(fake.appels, "taches", "update")[0].payload).toEqual({ ...base, rappel_envoye_le: null, rappel_reporte_jusqua: null });
 
     await restaurerPlanification(ID1, { ...base, duree_minutes: null });
     expect(ecritures(fake.appels, "taches", "update")[1].payload).toMatchObject({ duree_minutes: null });

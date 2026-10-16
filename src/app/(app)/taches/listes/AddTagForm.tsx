@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useActionState, useEffect, useRef } from "react";
+import { useId, useActionState, useEffect, useRef, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createTag, type TagFormState } from "@/app/actions/taches";
 import { queryKeys } from "@/lib/query/keys";
@@ -14,6 +14,7 @@ export function AddTagForm({ onDone }: { onDone?: () => void }) {
   const queryClient = useQueryClient();
   const [state, formAction, pending] = useActionState(createTag, initialState);
   const prevPending = useRef(pending);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     if (prevPending.current && !pending && !state.error) {
@@ -23,8 +24,20 @@ export function AddTagForm({ onDone }: { onDone?: () => void }) {
     prevPending.current = pending;
   }, [pending, state.error, onDone, queryClient]);
 
+  // <form onSubmit> plutôt que <form action> : React 19 réinitialise les champs
+  // non contrôlés d'un formulaire à action même quand elle renvoie une erreur
+  // (la saisie serait perdue). formAction reste appelé dans une transition.
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (pending) return;
+    const formData = new FormData(e.currentTarget);
+    startTransition(() => {
+      formAction(formData);
+    });
+  }
+
   return (
-    <form action={formAction} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
         <label htmlFor={`${uid}-nom`} className={labelClass}>
           Nom

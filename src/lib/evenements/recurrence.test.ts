@@ -42,3 +42,20 @@ describe("journée entière", () => {
     expect(evenementsJourneeEntiere(l)).toHaveLength(1);
   });
 });
+
+describe("datesDansPlage — événement ancien", () => {
+  it("garde un événement quotidien de plus de 5 ans dans la plage affichée", () => {
+    const ev = { date: "2015-01-01", recurrence_frequence: "quotidien" as const, recurrence_fin: null };
+    expect(datesDansPlage(ev, "2026-10-12", "2026-10-14")).toEqual(["2026-10-12", "2026-10-13", "2026-10-14"]);
+  });
+
+  it("garde l'ancrage du jour pour un mensuel ancien (31 → fin de mois)", () => {
+    const ev = { date: "2015-01-31", recurrence_frequence: "mensuel" as const, recurrence_fin: null };
+    expect(datesDansPlage(ev, "2026-02-01", "2026-03-31")).toEqual(["2026-02-28", "2026-03-31"]);
+  });
+
+  it("garde un hebdomadaire ancien sur le bon jour de semaine", () => {
+    const ev = { date: "2015-01-05", recurrence_frequence: "hebdomadaire" as const, recurrence_fin: null };
+    expect(datesDansPlage(ev, "2026-10-12", "2026-10-18")).toEqual(["2026-10-12"]);
+  });
+});

@@ -44,6 +44,9 @@ export function GlobalSearchBar() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Réponse périmée : une recherche lente ("ab") ne doit pas écraser les
+    // résultats d'une frappe plus récente ("abc").
+    let perimee = false;
     const timeout = setTimeout(() => {
       const q = query.trim();
       if (q.length < 2) {
@@ -60,6 +63,7 @@ export function GlobalSearchBar() {
           silencieux: true,
           erreur: "La recherche a échoué. Réessaie dans un instant.",
         });
+        if (perimee) return;
         if (!resultat.ok) {
           setErreur(resultat.error);
           setResultats([]);
@@ -74,7 +78,10 @@ export function GlobalSearchBar() {
       });
     }, 300);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      perimee = true;
+      clearTimeout(timeout);
+    };
   }, [query]);
 
   useEffect(() => {
@@ -103,9 +110,15 @@ export function GlobalSearchBar() {
 
   const flatItems = groupes.flatMap((g) => g.items);
 
-  function selectionner(item: ResultatRecherche) {
+  function fermer() {
     setOuvert(false);
     setQuery("");
+  }
+
+  // Clavier (Entrée) : la navigation est à faire ici. Au clic, c'est le <Link>
+  // qui navigue : un second router.push ouvrirait la page deux fois.
+  function selectionner(item: ResultatRecherche) {
+    fermer();
     router.push(item.href);
   }
 
@@ -184,7 +197,7 @@ export function GlobalSearchBar() {
                         href={item.href}
                         role="option"
                         aria-selected={active}
-                        onClick={() => selectionner(item)}
+                        onClick={fermer}
                         className={`flex flex-col rounded-2xl px-2.5 py-2 transition-colors hover:bg-surface-alt ${
                           active ? "bg-surface-alt" : ""
                         }`}

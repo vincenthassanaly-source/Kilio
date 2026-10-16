@@ -74,6 +74,19 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
         .limit(LIMIT_PAR_SOURCE),
     ]);
 
+  // Une source en échec (table absente, requête invalide) se traduisait par
+  // « aucun résultat » sans aucune trace : on la journalise.
+  const sourcesEnEchec = [
+    notesResult,
+    tachesResult,
+    recettesResult,
+    objectifsResult,
+    coursesResult,
+    evenementsResult,
+    noteItemsResult,
+  ].flatMap((r) => (r.status === "rejected" ? [r.reason] : r.value.error ? [r.value.error] : []));
+  if (sourcesEnEchec.length > 0) console.error("rechercheGlobale : sources en échec", sourcesEnEchec);
+
   const resultats: ResultatRecherche[] = [];
 
   if (notesResult.status === "fulfilled" && notesResult.value.data) {

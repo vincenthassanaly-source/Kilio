@@ -217,7 +217,9 @@ export function ObjectifSuiviValeur({
             Valeur{objectif.unite ? ` (${objectif.unite})` : ""}
           </label>
           <input
-            key={date}
+            // La clé suit aussi la valeur enregistrée : après « Supprimer la mesure »,
+            // le champ non contrôlé doit se vider au lieu de garder l'ancienne saisie.
+            key={`${date}|${valeurExistante ?? ""}`}
             id={valeurId}
             ref={valeurInputRef}
             type="text"

@@ -174,4 +174,6 @@ export async function removeJournalEntry(id: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/nutrition/journal");
+  // Le dashboard affiche le total nutrition : comme addJournalEntry.
+  revalidatePath("/");
 }

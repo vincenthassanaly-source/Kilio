@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
@@ -19,6 +19,7 @@ import {
   type VueTache,
 } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
+import { msAvantMinuitParis } from "@/lib/date/paris";
 import { AddTaskToggle } from "./AddTaskToggle";
 import { SelectionBar } from "./SelectionBar";
 import { TasksList } from "./TasksList";
@@ -80,6 +81,11 @@ const FILTRES_PRIORITE: { value: Priorite; label: string }[] = [
   { value: "aucune", label: "Sans priorité" },
 ];
 
+// Références stables tant que les requêtes n'ont pas répondu : un `= []` neuf à
+// chaque rendu invaliderait le memo des cartes.
+const LISTES_VIDES: Awaited<ReturnType<typeof getListes>> = [];
+const TAGS_VIDES: Awaited<ReturnType<typeof getTags>> = [];
+
 export function TachesView() {
   const [vue, setVue] = useState<VueKey>("toutes");
   const [listeId, setListeId] = useState<string>("toutes");
@@ -95,13 +101,28 @@ export function TachesView() {
   const [selection, setSelection] = useState(false);
   const [selectionIds, setSelectionIds] = useState<ReadonlySet<string>>(() => new Set());
   const queryClient = useQueryClient();
+  // Jour courant : une PWA laissée ouverte la nuit doit basculer « Aujourd'hui »
+  // et « En retard » à minuit, sans attendre une autre interaction.
+  const [aujourdhui, setAujourdhui] = useState(() => aujourdhuiISO());
+  useEffect(() => {
+    const majJour = () => setAujourdhui(aujourdhuiISO());
+    const minuteur = window.setTimeout(majJour, msAvantMinuitParis() + 1000);
+    const auRetour = () => {
+      if (document.visibilityState === "visible") majJour();
+    };
+    document.addEventListener("visibilitychange", auRetour);
+    return () => {
+      window.clearTimeout(minuteur);
+      document.removeEventListener("visibilitychange", auRetour);
+    };
+  }, [aujourdhui]);
 
   const { data: taches, isLoading: tachesLoading, isError: tachesError } = useQuery({
     queryKey: queryKeys.taches,
     queryFn: getTachesAvecRelations,
   });
-  const { data: listes = [] } = useQuery({ queryKey: queryKeys.listes, queryFn: getListes });
-  const { data: tags = [] } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
+  const { data: listes = LISTES_VIDES } = useQuery({ queryKey: queryKeys.listes, queryFn: getListes });
+  const { data: tags = TAGS_VIDES } = useQuery({ queryKey: queryKeys.tags, queryFn: getTags });
 
   // Une actualisation ratée (connexion faible, incident serveur) laisse les
   // données en cache : on garde la liste et on prévient, plutôt que de la
@@ -115,7 +136,7 @@ export function TachesView() {
 
   const filtered = useMemo(() => {
     if (!taches) return [];
-    const today = aujourdhuiISO();
+    const today = aujourdhui;
     const dansSeptJours = format(addDays(new Date(`${today}T00:00:00`), 7), "yyyy-MM-dd");
     const rechercheNormalisee = normalizeSearch(recherche);
 
@@ -138,7 +159,14 @@ export function TachesView() {
       return true;
     });
     return trierTaches(filtrerParPriorite(visibles, priorites), ordre);
-  }, [taches, vue, listeId, recherche, priorites, ordre]);
+  }, [taches, vue, listeId, recherche, priorites, ordre, aujourdhui]);
+
+  // Sélection restreinte aux tâches affichées : changer de vue, de liste ou de
+  // filtre ne doit pas laisser des tâches masquées dans les actions groupées.
+  const selectionVisible = useMemo(() => {
+    const visibles = new Set(filtered.map((t) => t.id));
+    return new Set([...selectionIds].filter((id) => visibles.has(id)));
+  }, [filtered, selectionIds]);
 
   function basculerPriorite(p: Priorite) {
     setPriorites((courantes) => {
@@ -148,13 +176,13 @@ export function TachesView() {
     });
   }
 
-  function basculerSelection(id: string) {
+  const basculerSelection = useCallback((id: string) => {
     setSelectionIds((courants) => {
       const suivants = new Set(courants);
       if (!suivants.delete(id)) suivants.add(id);
       return suivants;
     });
-  }
+  }, []);
 
   function quitterSelection() {
     setSelection(false);
@@ -174,7 +202,7 @@ export function TachesView() {
   // sélectionnée, et l'échéance imposée par l'onglet de vue (sans elle, une
   // tâche créée sous « Aujourd'hui » serait aussitôt filtrée hors de la vue).
   const defaultListeId = listeId !== "toutes" ? listeId : undefined;
-  const defaultEcheance = echeanceParDefaut(vue, aujourdhuiISO());
+  const defaultEcheance = echeanceParDefaut(vue, aujourdhui);
 
   // Point d'entrée unique après une création, quel que soit le bouton utilisé
   // (carte ou FAB). Les filtres de l'utilisateur ne sont jamais modifiés : si
@@ -366,7 +394,7 @@ export function TachesView() {
           reordonnable={reordonnable}
           highlightedId={tacheSurlignee}
           selectionMode={selection}
-          selectionIds={selectionIds}
+          selectionIds={selectionVisible}
           onToggleSelect={basculerSelection}
         />
       )}
@@ -375,7 +403,7 @@ export function TachesView() {
     {/* Hors de PullToRefresh : ni le bouton ni sa feuille de saisie ne doivent
         partager les gestes tactiles du tirer-pour-rafraîchir. */}
     {selection && (
-      <SelectionBar ids={selectionIds} taches={taches ?? []} listes={listes} onDone={quitterSelection} />
+      <SelectionBar ids={selectionVisible} taches={taches ?? []} listes={listes} onDone={quitterSelection} />
     )}
     {!ajoutInlineOuvert && !selection && (
       <QuickAddFab

@@ -121,11 +121,18 @@ export async function modifierHabitude(
 // vue "Aujourd'hui" tout en conservant habitude_entries (ON DELETE CASCADE
 // sinon détruirait l'historique/heatmap). `archivee_le` borne la période
 // comptée dans les objectifs liés (l'habitude cesse de peser dessus).
-export async function supprimerHabitude(id: string) {
+// `archiveeLe` : jour (AAAA-MM-JJ) où l'utilisateur a supprimé l'habitude. Une
+// suppression rejouée depuis la file hors ligne arrive parfois des jours plus
+// tard : sans cette date, la période comptée dans les objectifs serait rallongée.
+export async function supprimerHabitude(id: string, archiveeLe?: string) {
   const supabase = createAdminClient();
+  const jour =
+    typeof archiveeLe === "string" && /^\d{4}-\d{2}-\d{2}$/.test(archiveeLe) && archiveeLe <= aujourdhuiParis()
+      ? archiveeLe
+      : aujourdhuiParis();
   const { error } = await supabase
     .from("habitudes")
-    .update({ actif: false, archivee_le: aujourdhuiParis() })
+    .update({ actif: false, archivee_le: jour })
     .eq("id", id);
 
   if (error) throw new Error(error.message);
@@ -152,6 +159,9 @@ export async function enregistrerEntreeHabitude(
   if (error) throw new Error(error.message);
 
   revalidatePath("/habitudes");
+  // La progression des objectifs par habitudes et le dashboard en dépendent.
+  revalidatePath("/objectifs");
+  revalidatePath("/");
   updateTag(HABITUDES_TAG);
 }
 

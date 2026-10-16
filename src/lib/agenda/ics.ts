@@ -123,11 +123,39 @@ function ligneTexte(nom: string, valeur: string): string {
 
 const FREQ_RRULE = { quotidien: "DAILY", hebdomadaire: "WEEKLY", mensuel: "MONTHLY", annuel: "YEARLY" } as const;
 
-// Récurrence d'un événement. UNTIL en date seule (inclusive) : suffisant pour
-// les clients courants, qu'il s'agisse d'événements horaires ou journée entière.
-function rrule(evenement: EvenementIcs): string[] {
+/** Heure murale de Paris (`dateISO` + `HH:MM`) en instant UTC compact (`AAAAMMJJTHHMMSSZ`). */
+function parisVersUtcCompact(dateISO: string, heure: string): string {
+  const [a, m, j] = dateISO.split("-").map(Number);
+  const [h, min] = heure.slice(0, 5).split(":").map(Number);
+  const mural = Date.UTC(a, m - 1, j, h, min);
+  // Décalage de Paris à cet instant : écart entre l'heure murale lue en Paris et l'instant UTC.
+  const parties = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Paris",
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(new Date(mural));
+  const lire = (type: string) => Number(parties.find((p) => p.type === type)?.value);
+  const lu = Date.UTC(lire("year"), lire("month") - 1, lire("day"), lire("hour"), lire("minute"));
+  const utc = new Date(mural - (lu - mural));
+  return utc.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+
+// Récurrence d'un événement. RFC 5545 : UNTIL doit avoir le même type que
+// DTSTART. Journée entière (DATE) : date seule, inclusive. Événement horaire
+// (DATE-TIME avec TZID) : instant UTC de la dernière occurrence, à l'heure de
+// début, sinon Google Agenda et Etar peuvent ignorer la dernière occurrence.
+function rrule(evenement: EvenementIcs, heureDebut?: string): string[] {
   if (!evenement.recurrence_frequence) return [];
-  const fin = evenement.recurrence_fin && DATE_REGEX.test(evenement.recurrence_fin) ? `;UNTIL=${dateCompacte(evenement.recurrence_fin)}` : "";
+  const finRecurrence = evenement.recurrence_fin && DATE_REGEX.test(evenement.recurrence_fin) ? evenement.recurrence_fin : null;
+  const fin = !finRecurrence
+    ? ""
+    : heureDebut
+      ? `;UNTIL=${parisVersUtcCompact(finRecurrence, heureDebut)}`
+      : `;UNTIL=${dateCompacte(finRecurrence)}`;
   return [`RRULE:FREQ=${FREQ_RRULE[evenement.recurrence_frequence]}${fin}`];
 }
 
@@ -202,7 +230,7 @@ function veventRendezVous(evenement: EvenementIcs): string[] {
     fin,
     evenement.notes,
     evenement.updated_at,
-    rrule(evenement)
+    rrule(evenement, evenement.heure)
   );
 }
 

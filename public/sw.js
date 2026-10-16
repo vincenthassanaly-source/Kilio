@@ -274,7 +274,7 @@ self.addEventListener("push", (event) => {
       body: data.body || "",
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-badge-v2.png",
-      data: { url: data.url || "/agenda", tacheId: data.tacheId || null },
+      data: { url: data.url || "/agenda", tacheId: data.tacheId || null, echeance: data.echeance || null },
       actions: data.tacheId ? ACTIONS_REPORT_RAPPEL : [],
     })
   );
@@ -288,7 +288,13 @@ self.addEventListener("notificationclick", (event) => {
   if (action === "marquer-fait" && tacheId) {
     notification.close();
     event.waitUntil(
-      fetch(`/api/taches/${tacheId}/marquer-fait`, { method: "POST" }).catch(() => {
+      // L'échéance vue dans la notification protège une récurrente d'une
+      // double coche (tap répété, nouvel essai après réponse perdue).
+      fetch(`/api/taches/${tacheId}/marquer-fait`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ echeance: notification.data?.echeance || null }),
+      }).catch(() => {
         // Hors-ligne ou requête échouée : la tâche reste non cochée, elle
         // sera à cocher depuis l'app comme d'habitude.
       })

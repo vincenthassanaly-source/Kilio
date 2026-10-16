@@ -48,6 +48,26 @@ export function decisionAvantExecution(action: ActionEnAttente): DecisionAvantEx
   return ciblesTemporaireCourses ? { type: "purger_immediat" } : { type: "executer" };
 }
 
+/** Actions groupées `courses` dont le premier argument est une liste d'articles
+ * (ids, ou objets portant un `id`) : les `temp-…` y feraient échouer le lot
+ * entier (`22P02`), y compris les vrais ids. */
+const ACTIONS_COURSES_GROUPEES = new Set(["deleteCourseItems", "restoreCourseItems"]);
+
+function idDe(entree: unknown): unknown {
+  return typeof entree === "object" && entree !== null ? (entree as { id?: unknown }).id : entree;
+}
+
+/** Arguments à rejouer pour `action` : pour une action groupée `courses`, la
+ * liste privée de ses articles temporaires (jamais confirmés par le serveur,
+ * donc rien à supprimer ni à restaurer). `null` = plus rien à faire. */
+export function argumentsAExecuter(action: ActionEnAttente): unknown[] | null {
+  if (action.module !== "courses" || !ACTIONS_COURSES_GROUPEES.has(action.action_name)) return action.payload;
+  const [liste, ...reste] = action.payload;
+  if (!Array.isArray(liste)) return action.payload;
+  const gardes = liste.filter((entree) => !estIdTemporaire(idDe(entree)));
+  return gardes.length === 0 ? null : [gardes, ...reste];
+}
+
 export type DecisionApresEchec =
   | { type: "reessayer_plus_tard"; tentatives: number }
   | { type: "abandonner_et_continuer" };

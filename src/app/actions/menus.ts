@@ -109,16 +109,19 @@ export async function annulerValidationMenuEntry(id: string): Promise<ActionResu
   if (erreurLecture) return fail("La validation n'a pas pu être annulée. Réessaie.");
   if (!repas?.mange) return ok(); // déjà annulé (ou retiré) : rien à faire
 
+  // Journal d'abord : si la suppression échoue, le lien reste intact et un
+  // nouvel essai fonctionne (sinon l'entrée serait orpheline et re-valider
+  // le repas compterait ses kcal deux fois).
+  if (repas.journal_repas_id) {
+    const { error: erreurJournal } = await supabase.from("journal_repas").delete().eq("id", repas.journal_repas_id);
+    if (erreurJournal) return fail("La validation n'a pas pu être annulée. Réessaie.");
+  }
+
   const { error: erreurBascule } = await supabase
     .from("menus_repas")
     .update({ mange: false, journal_repas_id: null })
     .eq("id", id);
   if (erreurBascule) return fail("La validation n'a pas pu être annulée. Réessaie.");
-
-  if (repas.journal_repas_id) {
-    const { error: erreurJournal } = await supabase.from("journal_repas").delete().eq("id", repas.journal_repas_id);
-    if (erreurJournal) return fail("Le repas est de nouveau à manger, mais son entrée du Journal n'a pas pu être retirée.");
-  }
 
   revaliderApresValidation();
   return ok();

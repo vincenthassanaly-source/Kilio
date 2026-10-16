@@ -49,13 +49,21 @@ export async function subscribeToPush(): Promise<void> {
 
   const json = subscription.toJSON();
   if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
+    await subscription.unsubscribe().catch(() => undefined);
     throw new Error("Abonnement push invalide.");
   }
 
-  await saveSubscription({
-    endpoint: json.endpoint,
-    keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
-  });
+  try {
+    await saveSubscription({
+      endpoint: json.endpoint,
+      keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+    });
+  } catch (erreur) {
+    // Sans cela, le navigateur garde un abonnement inconnu du serveur :
+    // l'interface croit les notifications actives alors qu'aucune n'arrivera.
+    await subscription.unsubscribe().catch(() => undefined);
+    throw erreur;
+  }
 }
 
 export async function unsubscribeFromPush(): Promise<void> {

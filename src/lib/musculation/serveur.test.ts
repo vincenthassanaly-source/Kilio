@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { ecritures, fauxSupabase, type Appel, type Reponse } from "@/test/fake-supabase";
-import { dernieresSeries, enregistrerEntrainement, listerExercices } from "./serveur";
+import { dernieresSeries, enregistrerEntrainement, listerExercices, supprimerEntrainement } from "./serveur";
 import type { EntrainementPayload } from "./seance";
 
 const ID_ENTRAINEMENT = "00000000-0000-4000-8000-000000000001";
@@ -10,6 +10,12 @@ const CLE = "00000000-0000-4000-8000-000000000002";
 const SERIE_1 = "00000000-0000-4000-8000-000000000003";
 const SERIE_2 = "00000000-0000-4000-8000-000000000004";
 const ROUTINE = "33333333-3333-4333-8333-333333333333";
+
+/** Réponse de base : l'exercice de la séance existe au catalogue. */
+function avecCatalogue(repondre: (a: Appel) => Reponse | undefined = () => undefined) {
+  return (a: Appel): Reponse | undefined =>
+    repondre(a) ?? (a.table === "exercices" && a.action === "select" ? { data: [{ id: ID_EXERCICE }] } : undefined);
+}
 
 function payload(extra: Partial<EntrainementPayload> = {}): EntrainementPayload {
   return {
@@ -36,7 +42,7 @@ function payload(extra: Partial<EntrainementPayload> = {}): EntrainementPayload 
 
 describe("enregistrerEntrainement", () => {
   it("remplace l'entraînement, ses exercices et ses séries, et marque le jour d'entraînement", async () => {
-    const fake = fauxSupabase();
+    const fake = fauxSupabase(avecCatalogue());
 
     const resultat = await enregistrerEntrainement(fake.client as never, payload());
 
@@ -70,7 +76,7 @@ describe("enregistrerEntrainement", () => {
   });
 
   it("enregistre le type choisi pour une séance libre", async () => {
-    const fake = fauxSupabase();
+    const fake = fauxSupabase(avecCatalogue());
 
     await enregistrerEntrainement(fake.client as never, payload({ typeSeance: "PULL" }));
 
@@ -82,9 +88,9 @@ describe("enregistrerEntrainement", () => {
   });
 
   it("reprend le type de la routine suivie, quel que soit le type envoyé", async () => {
-    const fake = fauxSupabase((a: Appel): Reponse | undefined =>
+    const fake = fauxSupabase(avecCatalogue((a: Appel): Reponse | undefined =>
       a.table === "routines" && a.action === "select" ? { data: { id: ROUTINE, type_seance: "LEGS" } } : undefined,
-    );
+    ));
 
     await enregistrerEntrainement(fake.client as never, payload({ routineId: ROUTINE, typeSeance: "PUSH" }));
 
@@ -95,9 +101,9 @@ describe("enregistrerEntrainement", () => {
   });
 
   it("garde le type d'une routine sans type : celui de la séance, sinon aucun", async () => {
-    const fake = fauxSupabase((a: Appel): Reponse | undefined =>
+    const fake = fauxSupabase(avecCatalogue((a: Appel): Reponse | undefined =>
       a.table === "routines" && a.action === "select" ? { data: { id: ROUTINE, type_seance: null } } : undefined,
-    );
+    ));
 
     await enregistrerEntrainement(fake.client as never, payload({ routineId: ROUTINE }));
 
@@ -108,7 +114,7 @@ describe("enregistrerEntrainement", () => {
   });
 
   it("ignore une routine supprimée entre-temps", async () => {
-    const fake = fauxSupabase(); // aucune ligne trouvée
+    const fake = fauxSupabase(avecCatalogue()); // aucune ligne trouvée
 
     const resultat = await enregistrerEntrainement(fake.client as never, payload({ routineId: ROUTINE }));
 
@@ -121,20 +127,44 @@ describe("enregistrerEntrainement", () => {
   });
 
   it("signale un exercice disparu du catalogue", async () => {
-    const fake = fauxSupabase((a: Appel): Reponse | undefined =>
+    const fake = fauxSupabase(avecCatalogue((a: Appel): Reponse | undefined =>
       a.table === "entrainement_exercices" && a.action === "insert" ? { error: { message: "fk" } } : undefined,
-    );
+    ));
 
     const resultat = await enregistrerEntrainement(fake.client as never, payload());
 
     expect(resultat.error).toMatch(/catalogue/);
     expect(ecritures(fake.appels, "entrainement_series")).toHaveLength(0);
+    // Pas de séance fantôme : l'entête est retiré.
+    expect(ecritures(fake.appels, "entrainements", "delete")).toHaveLength(1);
+  });
+
+  it("n'écrit rien quand un exercice n'est plus au catalogue", async () => {
+    const fake = fauxSupabase(); // le catalogue ne renvoie aucun exercice
+
+    const resultat = await enregistrerEntrainement(fake.client as never, payload());
+
+    expect(resultat.error).toMatch(/catalogue/);
+    expect(ecritures(fake.appels, "entrainements")).toHaveLength(0);
+    expect(ecritures(fake.appels, "jours_entrainement")).toHaveLength(0);
+  });
+
+  it("retire la séance incomplète quand l'écriture des séries échoue", async () => {
+    const fake = fauxSupabase(avecCatalogue((a: Appel): Reponse | undefined =>
+      a.table === "entrainement_series" && a.action === "insert" ? { error: { message: "boom" } } : undefined,
+    ));
+
+    const resultat = await enregistrerEntrainement(fake.client as never, payload());
+
+    expect(resultat.error).not.toBeNull();
+    expect(ecritures(fake.appels, "entrainements", "delete")).toHaveLength(1);
+    expect(ecritures(fake.appels, "jours_entrainement")).toHaveLength(0);
   });
 
   it("échoue sans rien marquer quand l'écriture de l'entraînement échoue", async () => {
-    const fake = fauxSupabase((a: Appel): Reponse | undefined =>
+    const fake = fauxSupabase(avecCatalogue((a: Appel): Reponse | undefined =>
       a.table === "entrainements" && a.action === "upsert" ? { error: { message: "boom" } } : undefined,
-    );
+    ));
 
     const resultat = await enregistrerEntrainement(fake.client as never, payload());
 
@@ -196,5 +226,34 @@ describe("listerExercices", () => {
     expect(await listerExercices(fake.client as never)).toEqual([
       { id: ID_EXERCICE, nom: "Squat", mode: "poids_reps", muscle: "corps_entier", materiel: null, reposDefautS: 120, animation: null },
     ]);
+  });
+});
+
+describe("supprimerEntrainement", () => {
+  function repondre(restantes: number) {
+    return (a: Appel): Reponse | undefined => {
+      if (a.table !== "entrainements" || a.action !== "select") return undefined;
+      return a.terminal === "maybeSingle" ? { data: { date: "2026-10-12" } } : { count: restantes };
+    };
+  }
+
+  it("décoche le jour d'entraînement quand c'était la dernière séance du jour", async () => {
+    const fake = fauxSupabase(repondre(0));
+
+    const resultat = await supprimerEntrainement(fake.client as never, ID_ENTRAINEMENT);
+
+    expect(resultat.error).toBeNull();
+    expect(ecritures(fake.appels, "jours_entrainement", "upsert")[0].payload).toMatchObject({
+      date: "2026-10-12",
+      entraine: false,
+    });
+  });
+
+  it("garde le jour d'entraînement s'il reste une séance ce jour-là", async () => {
+    const fake = fauxSupabase(repondre(1));
+
+    await supprimerEntrainement(fake.client as never, ID_ENTRAINEMENT);
+
+    expect(ecritures(fake.appels, "jours_entrainement")).toHaveLength(0);
   });
 });

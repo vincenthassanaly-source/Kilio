@@ -5,21 +5,31 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { enregistrerEntreeHabitude, supprimerHabitude, type HabitudeDuJour } from "@/app/actions/habitudes";
 import { queryKeys } from "@/lib/query/keys";
+import { restaurerElement } from "@/lib/query/rollback";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { HabitudeForm } from "./HabitudeForm";
 import { ProgressRing } from "@/components/ProgressRing";
 import { card, dangerButton, ghostButton, input, listCard, metaText, nameText, pillTag } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { vibrate } from "@/lib/haptics";
+import { aujourdhuiParis } from "@/lib/date/paris";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 
 function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: string }) {
   const [editing, setEditing] = useState(false);
   const reduceMotion = useReducedMotion() ?? false;
   const [isPending, startTransition] = useTransition();
-  const [valeurInput, setValeurInput] = useState(
-    habitude.entreeDuJour ? String(habitude.entreeDuJour.valeur) : ""
-  );
+  const valeurServeur = habitude.entreeDuJour ? String(habitude.entreeDuJour.valeur) : "";
+  const [valeurInput, setValeurInput] = useState(valeurServeur);
+  // Resynchronise la saisie quand le serveur change la valeur (autre appareil,
+  // dashboard) ou que la date affichée change : sinon un blur ultérieur
+  // réécrirait l'ancienne valeur par-dessus.
+  const cleServeur = `${date}|${valeurServeur}`;
+  const [cleVue, setCleVue] = useState(cleServeur);
+  if (cleVue !== cleServeur) {
+    setCleVue(cleServeur);
+    setValeurInput(valeurServeur);
+  }
   const queryClient = useQueryClient();
 
   function invalidate() {
@@ -65,7 +75,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.habitudes(date), context.previous);
+      restaurerElement(queryClient, queryKeys.habitudes(date), context?.previous, habitude.id);
       showToast("Impossible de mettre à jour l'habitude.");
     },
     onSettled: invalidate,
@@ -98,8 +108,12 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
   const pct = habitude.type === "quantifiee" && habitude.valeur_cible ? valeur / habitude.valeur_cible : fait ? 1 : 0;
 
   function enregistrerValeur() {
+    // Champ vide : rien à enregistrer (Number("") vaudrait 0 et écraserait la valeur du jour).
+    if (valeurInput.trim() === "") return;
     const valeur = Number(valeurInput);
     if (!Number.isFinite(valeur) || valeur < 0) return;
+    // Valeur inchangée : pas d'aller-retour serveur à chaque blur.
+    if (habitude.entreeDuJour && habitude.entreeDuJour.valeur === valeur) return;
     // Même patron que le toggle ci-dessus : hors ligne, mise en file ;
     // autre échec, toast `role="alert"` et saisie conservée — plus jamais
     // d'exception vers error.tsx (constat T1).
@@ -129,7 +143,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
           showErrorToast(`Impossible de supprimer « ${habitude.nom} ». Réessaie.`);
           return;
         }
-        await enqueueAction("habitudes", "supprimerHabitude", [habitude.id]);
+        await enqueueAction("habitudes", "supprimerHabitude", [habitude.id, aujourdhuiParis()]);
         showToast("Enregistré, sera synchronisé à la reconnexion");
       }
       invalidate();

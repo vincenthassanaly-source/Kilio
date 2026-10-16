@@ -27,6 +27,7 @@ import {
   type TacheAvecRelations,
 } from "@/app/actions/taches";
 import { queryKeys } from "@/lib/query/keys";
+import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { card, dangerButton, ghostButton, input, kcalPillTag, listCard, metaText, pillTag, zoneTapPill } from "@/lib/ui";
@@ -400,7 +401,7 @@ export const TaskCard = memo(function TaskCard({
       return { previous, avaitFait: tache.fait, echeance: tache.echeance };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.taches, context.previous);
+      restaurerElement(queryClient, queryKeys.taches, context?.previous, tache.id);
       showToast("Impossible de mettre à jour la tâche.");
     },
     // Action en file : l'état optimiste reste affiché jusqu'au rejeu, qui
