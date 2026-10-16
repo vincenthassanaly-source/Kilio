@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { idsActionsRemplacees } from "./flush-policy";
+import { argumentsAExecuter, idsActionsRemplacees } from "./flush-policy";
 
 const coche = (id: number, tacheId: string, fait: boolean) => ({
   id,
@@ -43,5 +43,33 @@ describe("idsActionsRemplacees", () => {
     const enAttente = [{ module: "taches", action_name: "setTacheFait", payload: ["t1", true] }];
     const nouvelle = { module: "taches", action_name: "setTacheFait", payload: ["t1", false] };
     expect(idsActionsRemplacees(enAttente, nouvelle)).toEqual([]);
+  });
+});
+
+describe("argumentsAExecuter", () => {
+  const UUID = "11111111-1111-4111-8111-111111111111";
+
+  it("retire les ids temporaires d'une suppression groupée", () => {
+    const action = { module: "courses", action_name: "deleteCourseItems", payload: [["temp-a", UUID]] };
+    expect(argumentsAExecuter(action)).toEqual([[UUID]]);
+  });
+
+  it("retire les articles temporaires d'une restauration groupée", () => {
+    const action = {
+      module: "courses",
+      action_name: "restoreCourseItems",
+      payload: [[{ id: "temp-a" }, { id: UUID }]],
+    };
+    expect(argumentsAExecuter(action)).toEqual([[{ id: UUID }]]);
+  });
+
+  it("renvoie null quand il ne reste que des ids temporaires", () => {
+    const action = { module: "courses", action_name: "deleteCourseItems", payload: [["temp-a"]] };
+    expect(argumentsAExecuter(action)).toBeNull();
+  });
+
+  it("ne touche pas aux autres actions", () => {
+    const action = { module: "courses", action_name: "toggleCourseItem", payload: [UUID, true] };
+    expect(argumentsAExecuter(action)).toBe(action.payload);
   });
 });

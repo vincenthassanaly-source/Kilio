@@ -142,6 +142,11 @@ export async function supprimerEntrainement(id: string): Promise<ActionResult> {
   if (resultat.error) return fail(resultat.error);
 
   revalidatePath("/musculation");
+  // Le jour d'entraînement peut être décoché : cible kcal du Journal, Bilan, Aujourd'hui.
+  revalidatePath("/aujourdhui");
+  revalidatePath("/nutrition/journal");
+  revalidatePath("/nutrition/bilan");
+  revalidatePath("/");
   return ok();
 }
 

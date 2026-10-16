@@ -5,6 +5,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 import { aujourdhuiParis } from "@/lib/date/paris";
+import { fetchAllRows } from "@/lib/supabase/pagination";
 import { estTypeSeance } from "@/lib/seances/compute";
 import { cleAnimationOuNull, type CleAnimation } from "./animations";
 import { estModeSaisie, estMuscle, estTypeSerie, type ModeSaisie, type Muscle } from "./constantes";
@@ -153,6 +154,17 @@ export async function enregistrerEntrainement(supabase: Client, payload: Entrain
     else if (data.type_seance && estTypeSeance(data.type_seance)) typeSeance = data.type_seance;
   }
 
+  // Valide le catalogue avant d'écrire quoi que ce soit : un exercice supprimé
+  // ne doit pas laisser une séance vide dans l'historique et dans la semaine.
+  const idsExercices = [...new Set(payload.exercices.map((e) => e.exerciceId))];
+  if (idsExercices.length > 0) {
+    const { data: connus, error: erreurCatalogue } = await supabase.from("exercices").select("id").in("id", idsExercices);
+    if (erreurCatalogue) return echec;
+    if ((connus ?? []).length !== idsExercices.length) {
+      return { error: "Un exercice de la séance n'existe plus dans le catalogue." };
+    }
+  }
+
   const { error: erreurEntrainement } = await supabase.from("entrainements").upsert({
     id: payload.id,
     type_seance: typeSeance,
@@ -181,7 +193,10 @@ export async function enregistrerEntrainement(supabase: Client, payload: Entrain
       repos_s: e.reposS,
     })),
   );
-  if (erreurExercices) return { error: "Un exercice de la séance n'existe plus dans le catalogue." };
+  if (erreurExercices) {
+    await supabase.from("entrainements").delete().eq("id", payload.id);
+    return { error: "Un exercice de la séance n'existe plus dans le catalogue." };
+  }
 
   const { error: erreurSeries } = await supabase.from("entrainement_series").insert(
     payload.exercices.flatMap((e) =>
@@ -198,7 +213,12 @@ export async function enregistrerEntrainement(supabase: Client, payload: Entrain
       })),
     ),
   );
-  if (erreurSeries) return echec;
+  if (erreurSeries) {
+    // Séance incomplète : on la retire (cascade) plutôt que de la laisser
+    // cocher la semaine ; le client renvoie la séance complète au prochain essai.
+    await supabase.from("entrainements").delete().eq("id", payload.id);
+    return echec;
+  }
 
   // Best effort : la séance est déjà enregistrée, un échec ici ne doit pas la faire rejouer.
   const { error } = await supabase
@@ -526,14 +546,28 @@ export async function lireEntrainement(supabase: Client, id: string): Promise<En
 
 /** Supprime la séance (exercices et séries en cascade). Le type fait de la semaine s'en déduit : supprimer l'entraînement décoche. */
 export async function supprimerEntrainement(supabase: Client, id: string): Promise<ResultatRoutine> {
+  const { data: seance } = await supabase.from("entrainements").select("date").eq("id", id).maybeSingle();
   const { error } = await supabase.from("entrainements").delete().eq("id", id);
-  return { error: error ? "La séance n'a pas pu être supprimée. Réessaie." : null };
+  if (error) return { error: "La séance n'a pas pu être supprimée. Réessaie." };
+
+  // Le jour n'est plus un jour d'entraînement s'il ne reste aucune séance ce jour-là
+  // (sinon la cible kcal « entraînement » du Journal reste appliquée).
+  if (seance?.date) {
+    const { count } = await supabase
+      .from("entrainements")
+      .select("id", { count: "exact", head: true })
+      .eq("date", seance.date);
+    if (count === 0) {
+      const { error: erreurJour } = await supabase
+        .from("jours_entrainement")
+        .upsert({ date: seance.date, entraine: false, updated_at: new Date().toISOString() }, { onConflict: "date" });
+      if (erreurJour) console.error("supprimerEntrainement: jour d'entraînement non réinitialisé", erreurJour);
+    }
+  }
+  return { error: null };
 }
 
 // --- Statistiques ---------------------------------------------------------
-
-/** Plafond de lignes lues par requête de stats (largement au-dessus d'un usage personnel). */
-const LIMITE_SERIES_STATS = 5000;
 
 type LigneSerieStats = {
   type_serie: string;
@@ -570,13 +604,15 @@ function enSerieHistorique(l: LigneSerieStats): SerieHistorique | null {
 
 /** Toutes les séries enregistrées d'un exercice (pour ses records et sa courbe). */
 export async function seriesDeExercice(supabase: Client, exerciceId: string): Promise<SerieHistorique[]> {
-  const { data, error } = await supabase
-    .from("entrainement_series")
-    .select(COLONNES_STATS)
-    .eq("entrainement_exercices.exercice_id", exerciceId)
-    .limit(LIMITE_SERIES_STATS);
-  if (error) throw new Error(error.message);
-  return ((data ?? []) as unknown as LigneSerieStats[]).flatMap((l) => enSerieHistorique(l) ?? []);
+  const data = await fetchAllRows((from, to) =>
+    supabase
+      .from("entrainement_series")
+      .select(COLONNES_STATS)
+      .eq("entrainement_exercices.exercice_id", exerciceId)
+      .order("id")
+      .range(from, to),
+  );
+  return (data as unknown as LigneSerieStats[]).flatMap((l) => enSerieHistorique(l) ?? []);
 }
 
 /** Records de plusieurs exercices (repère « PR » au démarrage d'une séance). */
@@ -586,15 +622,17 @@ export async function recordsDesExercices(
 ): Promise<Record<string, RecordsExercice>> {
   const ids = [...new Set(exerciceIds)].slice(0, 60);
   if (ids.length === 0) return {};
-  const { data, error } = await supabase
-    .from("entrainement_series")
-    .select(COLONNES_STATS)
-    .in("entrainement_exercices.exercice_id", ids)
-    .limit(LIMITE_SERIES_STATS);
-  if (error) throw new Error(error.message);
+  const data = await fetchAllRows((from, to) =>
+    supabase
+      .from("entrainement_series")
+      .select(COLONNES_STATS)
+      .in("entrainement_exercices.exercice_id", ids)
+      .order("id")
+      .range(from, to),
+  );
 
   const parExercice = new Map<string, SerieHistorique[]>();
-  for (const l of (data ?? []) as unknown as LigneSerieStats[]) {
+  for (const l of data as unknown as LigneSerieStats[]) {
     const s = enSerieHistorique(l);
     if (!s) continue;
     const liste = parExercice.get(s.exerciceId) ?? [];
@@ -608,15 +646,17 @@ export type ExerciceAvecHistorique = { id: string; nom: string; muscle: Muscle; 
 
 /** Exercices déjà réalisés au moins une fois, du plus pratiqué au moins pratiqué. */
 export async function exercicesAvecHistorique(supabase: Client): Promise<ExerciceAvecHistorique[]> {
-  const { data, error } = await supabase
-    .from("entrainement_exercices")
-    .select("exercice_id, entrainement_id, entrainements!inner(date)")
-    .order("created_at", { ascending: false })
-    .limit(LIMITE_SERIES_STATS);
-  if (error) throw new Error(error.message);
+  const data = await fetchAllRows((from, to) =>
+    supabase
+      .from("entrainement_exercices")
+      .select("exercice_id, entrainement_id, entrainements!inner(date)")
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, to),
+  );
 
   const parExercice = new Map<string, { seances: Set<string>; derniere: string }>();
-  for (const l of (data ?? []) as unknown as { exercice_id: string; entrainement_id: string; entrainements: { date: string } | null }[]) {
+  for (const l of data as unknown as { exercice_id: string; entrainement_id: string; entrainements: { date: string } | null }[]) {
     const date = l.entrainements?.date;
     if (!date) continue;
     const courant = parExercice.get(l.exercice_id) ?? { seances: new Set<string>(), derniere: date };
@@ -657,15 +697,17 @@ export async function resumeDePeriode(supabase: Client, debut: string, fin: stri
   if (error) throw new Error(error.message);
   if (!seances || seances.length === 0) return resumerPeriode([], []);
 
-  const { data: lignes, error: erreurLignes } = await supabase
-    .from("entrainement_series")
-    .select(
-      "type_serie, poids_kg, reps, entrainement_exercices!inner(exercice_id, entrainement_id, entrainements!inner(date))",
-    )
-    .gte("entrainement_exercices.entrainements.date", debut)
-    .lte("entrainement_exercices.entrainements.date", fin)
-    .limit(LIMITE_SERIES_STATS);
-  if (erreurLignes) throw new Error(erreurLignes.message);
+  const lignes = await fetchAllRows((from, to) =>
+    supabase
+      .from("entrainement_series")
+      .select(
+        "type_serie, poids_kg, reps, entrainement_exercices!inner(exercice_id, entrainement_id, entrainements!inner(date))",
+      )
+      .gte("entrainement_exercices.entrainements.date", debut)
+      .lte("entrainement_exercices.entrainements.date", fin)
+      .order("id")
+      .range(from, to),
+  );
 
   type Ligne = {
     type_serie: string;
@@ -673,7 +715,7 @@ export async function resumeDePeriode(supabase: Client, debut: string, fin: stri
     reps: number | null;
     entrainement_exercices: { exercice_id: string; entrainement_id: string } | null;
   };
-  const brutes = ((lignes ?? []) as unknown as Ligne[]).filter((l) => l.entrainement_exercices);
+  const brutes = (lignes as unknown as Ligne[]).filter((l) => l.entrainement_exercices);
   const idsExercices = [...new Set(brutes.map((l) => l.entrainement_exercices!.exercice_id))];
   const muscles = new Map<string, Muscle>();
   if (idsExercices.length > 0) {
