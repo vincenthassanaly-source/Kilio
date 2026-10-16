@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import sharp from "sharp";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { fetchAllRows } from "@/lib/supabase/pagination";
 import { NOTES_TAG } from "@/lib/notes/tags";
 import { TACHES_TAG } from "@/lib/taches/tags";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
@@ -334,7 +335,7 @@ export async function updateTache(
       .update({
         ...parsed.value,
         ...champDuree(parsed.duree),
-        ...(rappelObsolete ? { rappel_envoye_le: null } : {}),
+        ...(rappelObsolete ? { rappel_envoye_le: null, rappel_reporte_jusqua: null } : {}),
       })
       .eq("id", id),
     resolveTagIds(supabase, tagIds, nouveauxNoms).then(
@@ -493,6 +494,22 @@ async function supprimerObjetsStorage(supabase: SupabaseClient, chemins: string[
   }
 }
 
+// Supprime du Storage toutes les images rattachées à ces tâches (avant leur
+// suppression en base, qui n'emporte que les lignes par cascade). Lève en cas
+// d'échec : l'appelant s'arrête alors AVANT toute suppression en base.
+async function supprimerImagesStorageDeTaches(supabase: SupabaseClient, tacheIds: string[]) {
+  const chemins: string[] = [];
+  for (const lot of enLots(tacheIds)) {
+    const { data: images, error } = await supabase.from("tache_images").select("url").in("tache_id", lot);
+    if (error) throw new Error(error.message);
+    for (const image of images ?? []) {
+      const chemin = extraireCheminStorage(image.url);
+      if (chemin) chemins.push(chemin);
+    }
+  }
+  await supprimerObjetsStorage(supabase, chemins);
+}
+
 // Supprime des images d'UNE tâche (fichier Storage puis ligne). Seules les
 // images réellement rattachées à `tacheId` sont concernées : un id qui
 // appartient à une autre tâche, ou qui n'existe plus, est ignoré. Le fichier
@@ -565,7 +582,7 @@ export async function setTacheFait(id: string, fait: boolean, echeanceObservee?:
     .update({
       fait: resultat.fait,
       echeance: resultat.echeance,
-      ...(resultat.occurrenceAvancee ? { rappel_envoye_le: null } : {}),
+      ...(resultat.occurrenceAvancee ? { rappel_envoye_le: null, rappel_reporte_jusqua: null } : {}),
     })
     .eq("id", id);
   if (error) throw new Error(error.message);
@@ -586,6 +603,7 @@ export async function setTacheFait(id: string, fait: boolean, echeanceObservee?:
 // cible déjà décidé par l'appelant (voir TasksList.tsx / DashboardTaskItem.tsx).
 export async function deleteTache(id: string) {
   const supabase = createAdminClient();
+  await supprimerImagesStorageDeTaches(supabase, [id]);
   const { error } = await supabase.from("taches").delete().eq("id", id);
 
   if (error) throw new Error(error.message);
@@ -607,7 +625,7 @@ export async function annulerCochage(
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("taches")
-    .update({ fait, ...(echeance !== undefined ? { echeance, rappel_envoye_le: null } : {}) })
+    .update({ fait, ...(echeance !== undefined ? { echeance, rappel_envoye_le: null, rappel_reporte_jusqua: null } : {}) })
     .eq("id", id);
   if (error) return fail(error.message);
   revalidateTachesPaths();
@@ -641,7 +659,7 @@ export async function reporterTaches(ids: string[], echeance: string): Promise<A
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("taches")
-    .update({ echeance, rappel_envoye_le: null })
+    .update({ echeance, rappel_envoye_le: null, rappel_reporte_jusqua: null })
     .in("id", valides);
   if (error) return fail(error.message);
   revalidateTachesPaths();
@@ -691,7 +709,7 @@ export async function restaurerTaches(etats: EtatTacheRestaurable[]): Promise<Ac
     etats.map((e) =>
       supabase
         .from("taches")
-        .update({ echeance: e.echeance, liste_id: e.liste_id, ordre: e.ordre, rappel_envoye_le: null })
+        .update({ echeance: e.echeance, liste_id: e.liste_id, ordre: e.ordre, rappel_envoye_le: null, rappel_reporte_jusqua: null })
         .eq("id", e.id)
     )
   );
@@ -738,7 +756,7 @@ export async function planifierTache(
       heure: heure.slice(0, 5),
       heure_fin: heureFin,
       toute_la_journee: false,
-      rappel_envoye_le: null,
+      rappel_envoye_le: null, rappel_reporte_jusqua: null,
       ...(ecrireDuree ? { duree_minutes: dureeMinutes } : {}),
     })
     .eq("id", id);
@@ -760,7 +778,7 @@ export async function restaurerPlanification(id: string, etat: EtatPlanification
       heure: etat.heure,
       heure_fin: etat.heure_fin,
       toute_la_journee: etat.toute_la_journee,
-      rappel_envoye_le: null,
+      rappel_envoye_le: null, rappel_reporte_jusqua: null,
       ...(etat.duree_minutes !== undefined ? { duree_minutes: etat.duree_minutes } : {}),
     })
     .eq("id", id);
@@ -774,6 +792,12 @@ export async function supprimerTaches(ids: string[]): Promise<ActionResult> {
   const valides = idsValides(ids);
   if (!valides) return fail("Sélection invalide.");
   const supabase = createAdminClient();
+  try {
+    await supprimerImagesStorageDeTaches(supabase, valides);
+  } catch (storageError) {
+    console.error("supprimerTaches : suppression des images impossible", storageError);
+    return fail("La suppression des images a échoué : rien n'a été supprimé. Réessaie.");
+  }
   const { error } = await supabase.from("taches").delete().in("id", valides);
   if (error) return fail(error.message);
   revalidateTachesPaths();
@@ -812,21 +836,25 @@ export type TacheAvecRelations = Tables<"taches"> & {
 export async function getTachesAvecRelations(): Promise<TacheAvecRelations[]> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("taches")
-    .select(
-      "*, liste:listes_taches(id, nom, couleur), sous_taches(id, tache_id, titre, fait, termine_le, ordre, created_at), taches_tags(tag:tags(id, nom, couleur)), tache_images(id, tache_id, url, ordre, created_at)"
-    )
-    .order("fait", { ascending: true })
-    .order("ordre", { ascending: true })
-    .order("echeance", { ascending: true, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .order("ordre", { referencedTable: "sous_taches", ascending: true })
-    .order("ordre", { referencedTable: "tache_images", ascending: true });
+  // PostgREST plafonne à 1000 lignes : pagination, avec `id` en dernier critère
+  // pour un ordre stable d'une page à l'autre.
+  const data = await fetchAllRows((from, to) =>
+    supabase
+      .from("taches")
+      .select(
+        "*, liste:listes_taches(id, nom, couleur), sous_taches(id, tache_id, titre, fait, termine_le, ordre, created_at), taches_tags(tag:tags(id, nom, couleur)), tache_images(id, tache_id, url, ordre, created_at)"
+      )
+      .order("fait", { ascending: true })
+      .order("ordre", { ascending: true })
+      .order("echeance", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: true })
+      .order("ordre", { referencedTable: "sous_taches", ascending: true })
+      .order("ordre", { referencedTable: "tache_images", ascending: true })
+      .range(from, to)
+  );
 
-  if (error) throw new Error(error.message);
-
-  return (data ?? []).map(({ taches_tags, tache_images, ...tache }) => ({
+  return data.map(({ taches_tags, tache_images, ...tache }) => ({
     ...tache,
     tags: taches_tags.map((tt) => tt.tag).filter((tag): tag is Tables<"tags"> => tag !== null),
     images: tache_images,
@@ -1022,11 +1050,12 @@ export async function getComptesTachesParListe(): Promise<
   Record<string, { total: number; faites: number }>
 > {
   const supabase = createAdminClient();
-  const { data, error } = await supabase.from("taches").select("liste_id, fait");
-  if (error) throw new Error(error.message);
+  const data = await fetchAllRows((from, to) =>
+    supabase.from("taches").select("liste_id, fait").order("id", { ascending: true }).range(from, to)
+  );
 
   const comptes: Record<string, { total: number; faites: number }> = {};
-  for (const { liste_id, fait } of data ?? []) {
+  for (const { liste_id, fait } of data) {
     const compte = (comptes[liste_id] ??= { total: 0, faites: 0 });
     compte.total++;
     if (fait) compte.faites++;

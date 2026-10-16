@@ -384,6 +384,23 @@ function parseDocumentInput(formData: FormData): ParseResult {
   };
 }
 
+/** Supprime un document (fichiers en cascade) puis ses objets Storage, au mieux. */
+async function retirerDocumentEtFichiers(supabase: ReturnType<typeof createAdminClient>, id: string) {
+  const { data: fichiers } = await supabase.from("document_fichiers").select("url, apercu_url").eq("document_id", id);
+  const chemins = (fichiers ?? [])
+    .flatMap((f) => [f.url, f.apercu_url])
+    .map((u) => (u ? extraireCheminStorage(u) : null))
+    .filter((c): c is string => c !== null);
+
+  const { error } = await supabase.from("documents").delete().eq("id", id);
+  if (error) console.error("retirerDocumentEtFichiers: document non supprimé", error);
+  if (chemins.length > 0) {
+    const { error: removeError } = await supabase.storage.from(DOCUMENTS_FICHIERS_BUCKET).remove(chemins);
+    if (removeError) console.error("retirerDocumentEtFichiers: fichiers non supprimés", removeError);
+  }
+  revalidateDocumentsPaths();
+}
+
 export async function createDocument(
   _prevState: DocumentFormState,
   formData: FormData
@@ -411,6 +428,9 @@ export async function createDocument(
   try {
     await uploadDocumentFichiers(document.id, formData);
   } catch (err) {
+    // Le document vient d'être créé : sans nettoyage, un nouvel essai en créerait
+    // un second et celui-ci resterait sans fichier (ou avec le seul recto).
+    await retirerDocumentEtFichiers(supabase, document.id);
     return { error: err instanceof Error ? err.message : "Erreur lors de l'envoi des fichiers." };
   }
 

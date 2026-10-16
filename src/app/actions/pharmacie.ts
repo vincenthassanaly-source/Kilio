@@ -48,12 +48,16 @@ export async function noterCarte(carteId: string, note: string, quandISO?: strin
   const supabase = createAdminClient();
   const { data: carte, error } = await supabase
     .from("pharma_cartes")
-    .select("intervalle_jours, facilite, repetitions")
+    .select("intervalle_jours, facilite, repetitions, dernier_passage")
     .eq("id", carteId)
     .maybeSingle();
   if (error) throw new Error(error.message);
   // Carte supprimée entre-temps (notion supprimée) : rien à noter.
   if (!carte) return;
+  // Idempotence : une réponse déjà appliquée (réponse réseau perdue puis rejeu)
+  // ou plus ancienne qu'une révision faite ailleurs ne doit pas avancer la
+  // carte une seconde fois ni écraser un état plus récent.
+  if (carte.dernier_passage && new Date(carte.dernier_passage).getTime() >= quand.getTime()) return;
 
   const suivant = prochainEtatCarte(carte, note, quand);
   const { error: updateError } = await supabase.from("pharma_cartes").update(suivant).eq("id", carteId);

@@ -101,8 +101,8 @@ describe("creerObjectif", () => {
       unite: null, // l'unité n'a de sens que pour un suivi par valeur
       ordre: 3,
     });
-    // Aucune habitude : seul le nettoyage des liens est exécuté.
-    expect(ecritures(fake.appels, "objectif_habitudes", "delete")).toHaveLength(1);
+    // Aucune habitude voulue ni existante : aucune écriture sur les liens.
+    expect(ecritures(fake.appels, "objectif_habitudes", "delete")).toHaveLength(0);
     expect(ecritures(fake.appels, "objectif_habitudes", "insert")).toHaveLength(0);
     expect(etat.updateTag).toHaveBeenCalledWith("habitudes");
     expect(etat.revalidatePath).toHaveBeenCalledWith("/objectifs");
@@ -149,12 +149,16 @@ describe("creerObjectif", () => {
     brancher((a) => (a.table === "objectifs" && a.action === "insert" ? { error: { message: "insert ko" } } : undefined));
     expect(await creerObjectif({ error: null }, form(base))).toEqual({ error: "insert ko" });
 
-    brancher((a) => {
+    const fake = brancher((a) => {
       if (a.table === "objectifs" && a.action === "insert") return { data: { id: ID } };
-      if (a.table === "objectif_habitudes" && a.action === "delete") return { error: { message: "suppression ko" } };
+      if (a.table === "objectif_habitudes" && a.action === "insert") return { error: { message: "rattachement ko" } };
       return undefined;
     });
-    expect(await creerObjectif({ error: null }, form(base))).toEqual({ error: "suppression ko" });
+    expect(
+      await creerObjectif({ error: null }, form({ ...base, type_suivi: "habitudes", habitude_ids: [H1] }))
+    ).toEqual({ error: "rattachement ko" });
+    // L'objectif créé est retiré : un nouvel essai ne crée pas de doublon.
+    expect(ecritures(fake.appels, "objectifs", "delete")).toHaveLength(1);
     expect(etat.updateTag).not.toHaveBeenCalled();
   });
 });

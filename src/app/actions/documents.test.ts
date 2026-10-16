@@ -152,12 +152,13 @@ describe("createDocument", () => {
   });
 
   it("refuse un format non supporté et signale l'erreur", async () => {
-    brancher(reponseCreation);
+    const fake = brancher(reponseCreation);
     const texte = new File([new TextEncoder().encode("bonjour")], "note.txt", { type: "text/plain" });
     expect(await createDocument({ error: null }, form({ nom: "Texte", fichiers: texte }))).toEqual({
       error: "Format de fichier non supporté (image ou PDF uniquement).",
     });
-    expect(etat.revalidatePath).not.toHaveBeenCalled();
+    // Le document créé juste avant est retiré : pas de document sans fichier.
+    expect(ecritures(fake.appels, "documents", "delete")).toHaveLength(1);
   });
 
   it("joint l'aperçu d'un PDF quand il est fourni", async () => {

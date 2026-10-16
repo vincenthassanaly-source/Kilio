@@ -91,18 +91,36 @@ function parseObjectifInput(formData: FormData): ParseResult {
 async function remplacerHabitudesLiees(objectifId: string, habitudeIds: string[]): Promise<string | null> {
   const supabase = createAdminClient();
 
-  const { error: suppression } = await supabase
+  // Différentiel plutôt que « tout supprimer puis réinsérer » : en cas d'échec
+  // à mi-parcours, l'objectif garde ses habitudes au lieu de se retrouver à zéro.
+  const { data: existants, error: lecture } = await supabase
     .from("objectif_habitudes")
-    .delete()
+    .select("habitude_id")
     .eq("objectif_id", objectifId);
-  if (suppression) return suppression.message;
+  if (lecture) return lecture.message;
 
-  if (habitudeIds.length === 0) return null;
+  const voulues = new Set(habitudeIds);
+  const presentes = new Set((existants ?? []).map((l) => l.habitude_id));
+  const aAjouter = [...voulues].filter((id) => !presentes.has(id));
+  const aRetirer = [...presentes].filter((id) => !voulues.has(id));
 
-  const { error: insertion } = await supabase
-    .from("objectif_habitudes")
-    .insert(habitudeIds.map((habitude_id) => ({ objectif_id: objectifId, habitude_id })));
-  return insertion ? insertion.message : null;
+  if (aAjouter.length > 0) {
+    const { error: insertion } = await supabase
+      .from("objectif_habitudes")
+      .insert(aAjouter.map((habitude_id) => ({ objectif_id: objectifId, habitude_id })));
+    if (insertion) return insertion.message;
+  }
+
+  if (aRetirer.length > 0) {
+    const { error: suppression } = await supabase
+      .from("objectif_habitudes")
+      .delete()
+      .eq("objectif_id", objectifId)
+      .in("habitude_id", aRetirer);
+    if (suppression) return suppression.message;
+  }
+
+  return null;
 }
 
 // Habitudes proposées au rattachement dans le formulaire d'objectif.
@@ -174,7 +192,11 @@ export async function creerObjectif(
   if (error) return { error: error.message };
 
   const lien = await remplacerHabitudesLiees(cree.id, habitude_ids);
-  if (lien) return { error: lien };
+  if (lien) {
+    // Création annulée : sinon un nouvel essai créerait un doublon.
+    await supabase.from("objectifs").delete().eq("id", cree.id);
+    return { error: lien };
+  }
 
   revalidatePath("/objectifs");
   revalidatePath("/habitudes");
@@ -204,7 +226,13 @@ export async function modifierObjectif(
   if (error) return { error: error.message };
 
   const lien = await remplacerHabitudesLiees(id, habitude_ids);
-  if (lien) return { error: lien };
+  if (lien) {
+    // Les champs sont déjà enregistrés : le cache doit le refléter.
+    revalidatePath("/objectifs");
+    revalidatePath(`/objectifs/${id}`);
+    updateTag(HABITUDES_TAG);
+    return { error: lien };
+  }
 
   revalidatePath("/objectifs");
   revalidatePath(`/objectifs/${id}`);
