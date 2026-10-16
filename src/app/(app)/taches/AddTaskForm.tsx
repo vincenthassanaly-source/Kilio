@@ -398,6 +398,9 @@ export function AddTaskForm({
           Liste
         </label>
         <select
+          // Clé : si les listes arrivent après l'ouverture du formulaire (démarrage
+          // hors ligne), la valeur par défaut doit être reprise sinon liste_id part vide.
+          key={listes[0]?.id ?? "aucune-liste"}
           id={`${uid}-liste_id`}
           name="liste_id"
           defaultValue={tache?.liste_id ?? defaultListeId ?? listes[0]?.id ?? ""}

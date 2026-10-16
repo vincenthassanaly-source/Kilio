@@ -14,6 +14,7 @@ import {
   type NoteFormState,
 } from "@/app/actions/notes";
 import { queryKeys } from "@/lib/query/keys";
+import { isNetworkError } from "@/lib/network";
 import { runAction } from "@/lib/actions/runAction";
 import { showToast } from "@/components/toast/toast-store";
 import { vibrate } from "@/lib/haptics";
@@ -250,8 +251,21 @@ export function NoteForm({
 }) {
   // Ids uniques par instance (T11) : formulaire rendu en ajout et en édition.
   const uid = useId();
-  const action = note ? updateNote : createNote;
+  const actionServeur = note ? updateNote : createNote;
+  // Envoi impossible (hors ligne, erreur réseau) : erreur de formulaire en
+  // français au lieu d'une exception jusqu'à error.tsx, saisie conservée.
+  const action = async (prevState: NoteFormState, formData: FormData): Promise<NoteFormState> => {
+    const messageReseau = "Connexion impossible : la note n'a pas été enregistrée. Vérifie ta connexion et réessaie.";
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return { error: messageReseau };
+    try {
+      return await actionServeur(prevState, formData);
+    } catch (err) {
+      if (isNetworkError(err)) return { error: messageReseau };
+      throw err;
+    }
+  };
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [, startTransition] = useTransition();
   const prevPending = useRef(pending);
 
   const [type, setType] = useState<Enums<"note_type">>(note?.type ?? initial?.type ?? "texte");
@@ -260,6 +274,8 @@ export function NoteForm({
   );
   const [tagIds, setTagIds] = useState<string[]>(note?.tags.map((t) => t.id) ?? initial?.tagIds ?? []);
   const [draftItems, setDraftItems] = useState<string[]>(initial?.items ?? []);
+  // Contrôlé : passer de Texte à Checklist démonte le champ, la saisie doit survivre.
+  const [contenu, setContenu] = useState(note?.contenu ?? initial?.contenu ?? "");
 
   useEffect(() => {
     if (prevPending.current && !pending && !state.error) {
@@ -272,8 +288,21 @@ export function NoteForm({
     setTagIds((ids) => (ids.includes(id) ? ids.filter((t) => t !== id) : [...ids, id]));
   }
 
+  // <form onSubmit> plutôt que <form action> : React 19 réinitialise les champs
+  // non contrôlés d'un formulaire à action même quand elle renvoie une erreur,
+  // ce qui effaçait titre et nouveaux tags après un échec (même raison que
+  // AddTaskForm). formAction est appelé dans une transition pour garder `pending`.
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (pending) return;
+    const formData = new FormData(e.currentTarget);
+    startTransition(() => {
+      formAction(formData);
+    });
+  }
+
   return (
-    <form action={formAction} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       {note && <input type="hidden" name="id" value={note.id} />}
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="couleur" value={couleur ?? ""} />
@@ -310,7 +339,8 @@ export function NoteForm({
             id={`${uid}-contenu`}
             name="contenu"
             rows={note ? 12 : 5}
-            defaultValue={note?.contenu ?? initial?.contenu}
+            value={contenu}
+            onChange={(e) => setContenu(e.target.value)}
             className={input}
           />
         </div>

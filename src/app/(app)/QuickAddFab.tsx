@@ -172,6 +172,8 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           onClick={() => setMode("repas")}
           aria-label="Ajouter un repas"
           tabIndex={dialInteractive ? 0 : -1}
+          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
+          inert={!dialInteractive}
           className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
           style={{
             opacity: dialOpen ? 1 : 0,
@@ -196,6 +198,8 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           onClick={() => setMode("course")}
           aria-label="Courses"
           tabIndex={dialInteractive ? 0 : -1}
+          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
+          inert={!dialInteractive}
           className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
           style={{
             opacity: dialOpen ? 1 : 0,
@@ -219,6 +223,8 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           onClick={() => setMode("tache")}
           aria-label="Nouvelle tâche"
           tabIndex={dialInteractive ? 0 : -1}
+          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
+          inert={!dialInteractive}
           className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
           style={{
             opacity: dialOpen ? 1 : 0,
@@ -241,6 +247,8 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           onClick={() => setMode("evenement")}
           aria-label="Nouvel événement"
           tabIndex={dialInteractive ? 0 : -1}
+          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
+          inert={!dialInteractive}
           className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
           style={{
             opacity: dialOpen ? 1 : 0,
@@ -264,6 +272,8 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           onClick={() => setMode("note")}
           aria-label="Nouvelle note"
           tabIndex={dialInteractive ? 0 : -1}
+          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
+          inert={!dialInteractive}
           className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
           style={{
             opacity: dialOpen ? 1 : 0,

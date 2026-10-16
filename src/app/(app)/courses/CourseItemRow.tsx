@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { deleteCourseItem, toggleCourseItem, updateCourseItem } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";
+import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, listCard, nameText } from "@/lib/ui";
@@ -67,7 +68,7 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.courses, context.previous);
+      restaurerElement(queryClient, queryKeys.courses, context?.previous, item.id);
       showToast("Impossible de mettre à jour l'article.");
     },
     onSettled: invalidate,
@@ -116,7 +117,7 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
       });
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.courses, context.previous);
+      restaurerElement(queryClient, queryKeys.courses, context?.previous, item.id);
       showToast("Impossible de supprimer l'article.");
     },
     onSettled: invalidate,
@@ -166,7 +167,7 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.courses, context.previous);
+      restaurerElement(queryClient, queryKeys.courses, context?.previous, item.id);
       showToast("Impossible de renommer l'article.");
     },
     onSettled: invalidate,

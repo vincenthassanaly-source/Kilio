@@ -4,6 +4,7 @@ import { memo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setTacheFait, type TacheAvecRelations } from "@/app/actions/taches";
 import { queryKeys } from "@/lib/query/keys";
+import { restaurerElement } from "@/lib/query/rollback";
 import { showToast } from "@/components/toast/toast-store";
 import { CheckToggle } from "@/components/CheckToggle";
 import { vibrate } from "@/lib/haptics";
@@ -61,7 +62,7 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.taches, context.previous);
+      restaurerElement(queryClient, queryKeys.taches, context?.previous, id);
       showToast("Impossible de mettre à jour la tâche.");
     },
     // Action en file : on garde l'état optimiste jusqu'au rejeu (voir TaskCard).
