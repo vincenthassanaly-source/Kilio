@@ -42,6 +42,7 @@ const CODES_TABLE_ABSENTE = ["42P01", "PGRST205"];
 function revalidateEvenements() {
   revalidatePath("/aujourdhui");
   revalidatePath("/agenda");
+  revalidatePath("/");
 }
 
 type EvenementEcrit = Omit<Tables<"evenements">, "id" | "created_at" | "updated_at">;

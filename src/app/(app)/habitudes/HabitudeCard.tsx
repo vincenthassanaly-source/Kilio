@@ -11,6 +11,7 @@ import { ProgressRing } from "@/components/ProgressRing";
 import { card, dangerButton, ghostButton, input, listCard, metaText, nameText, pillTag } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { vibrate } from "@/lib/haptics";
+import { aujourdhuiParis } from "@/lib/date/paris";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 
 function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: string }) {
@@ -129,7 +130,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
           showErrorToast(`Impossible de supprimer « ${habitude.nom} ». Réessaie.`);
           return;
         }
-        await enqueueAction("habitudes", "supprimerHabitude", [habitude.id]);
+        await enqueueAction("habitudes", "supprimerHabitude", [habitude.id, aujourdhuiParis()]);
         showToast("Enregistré, sera synchronisé à la reconnexion");
       }
       invalidate();

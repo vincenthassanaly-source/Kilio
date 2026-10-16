@@ -290,6 +290,7 @@ Deno.serve(async () => {
       body,
       url: `/agenda?tache=${tache.id}`,
       tacheId: tache.id,
+      echeance: tache.echeance,
     });
 
     await envoyerEtMarquer(payload, () =>

@@ -123,9 +123,24 @@ describe("événements enrichis", () => {
     const ics = construireCalendrierIcs([{ ...evenement, toute_la_journee: true }], []);
     expect(ics).toMatch(/DTSTART;VALUE=DATE:\d{8}/);
   });
-  it("récurrence : RRULE avec UNTIL", () => {
+  it("récurrence horaire : UNTIL en UTC à l'heure de début (RFC 5545)", () => {
     const ics = construireCalendrierIcs(
       [{ ...evenement, recurrence_frequence: "hebdomadaire", recurrence_fin: "2026-12-31" }],
+      []
+    );
+    // 14:30 à Paris en décembre (UTC+1) = 13:30Z.
+    expect(ics).toContain("RRULE:FREQ=WEEKLY;UNTIL=20261231T133000Z");
+  });
+  it("récurrence horaire en heure d'été : décalage UTC+2", () => {
+    const ics = construireCalendrierIcs(
+      [{ ...evenement, recurrence_frequence: "quotidien", recurrence_fin: "2026-07-15" }],
+      []
+    );
+    expect(ics).toContain("RRULE:FREQ=DAILY;UNTIL=20260715T123000Z");
+  });
+  it("récurrence journée entière : UNTIL en date", () => {
+    const ics = construireCalendrierIcs(
+      [{ ...evenement, toute_la_journee: true, recurrence_frequence: "hebdomadaire", recurrence_fin: "2026-12-31" }],
       []
     );
     expect(ics).toContain("RRULE:FREQ=WEEKLY;UNTIL=20261231");

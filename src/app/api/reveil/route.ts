@@ -58,7 +58,29 @@ function prompt(heureActuelle: string): string {
   ].join("\n");
 }
 
+// Garde-fous du quota Gemini sur une route sans session (un secret partagé ne
+// peut pas rester dans le navigateur) : refus des appels inter-sites, et
+// plafond de débit par instance (best effort, la mémoire n'est pas partagée
+// entre instances serverless).
+const FENETRE_MS = 60_000;
+const MAX_APPELS_PAR_FENETRE = 6;
+let appelsRecents: number[] = [];
+
+function limiteAtteinte(maintenant: number): boolean {
+  appelsRecents = appelsRecents.filter((t) => maintenant - t < FENETRE_MS);
+  if (appelsRecents.length >= MAX_APPELS_PAR_FENETRE) return true;
+  appelsRecents.push(maintenant);
+  return false;
+}
+
 export async function POST(request: NextRequest) {
+  if (request.headers.get("sec-fetch-site") === "cross-site") {
+    return NextResponse.json({ ok: false, message: "Requête refusée." }, { status: 403 });
+  }
+  if (limiteAtteinte(Date.now())) {
+    return NextResponse.json({ ok: false, message: "Trop de demandes, réessaie dans une minute." }, { status: 429 });
+  }
+
   let corps: unknown;
   try {
     corps = await request.json();

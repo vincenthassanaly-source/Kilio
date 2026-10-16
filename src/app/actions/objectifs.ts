@@ -413,7 +413,7 @@ async function calculerProgressionHabitudes(
   const habitudes = (liens ?? []).flatMap((l) => (l.habitudes ? [l.habitudes] : []));
   if (habitudes.length === 0) return { habitudes: [], progression: 0 };
 
-  const debutObjectif = objectif.created_at.slice(0, 10);
+  const debutObjectif = aujourdhuiParis(new Date(objectif.created_at));
   const { data: entries, error: entriesError } = await supabase
     .from("habitude_entries")
     .select("habitude_id, date, valeur")

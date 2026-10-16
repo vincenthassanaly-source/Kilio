@@ -11,14 +11,19 @@ import { setTacheFait } from "@/app/actions/taches";
 // logique de récurrence que la coche dans l'app (une tâche récurrente
 // repart non cochée sur l'échéance suivante, elle ne reste pas "faite").
 
-export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!estUuid(id)) {
     return NextResponse.json({ error: "Tâche introuvable." }, { status: 404 });
   }
 
+  // Échéance vue dans la notification (absente des anciennes notifications) :
+  // garde d'idempotence pour les récurrentes, voir setTacheFait.
+  const body = await request.json().catch(() => null);
+  const echeance = typeof body?.echeance === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.echeance) ? body.echeance : undefined;
+
   try {
-    await setTacheFait(id, true);
+    await setTacheFait(id, true, echeance);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur inconnue.";
     return NextResponse.json({ error: message }, { status: 500 });
