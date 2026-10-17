@@ -2336,6 +2336,119 @@ export type Database = {
         }
         Relationships: []
       }
+      vinted_annonces: {
+        Row: {
+          categorie: string
+          colis: string
+          couleur: string
+          created_at: string
+          description: string
+          etat: string
+          hashtags: string[]
+          id: string
+          marque: string
+          matiere: string
+          prix: number | null
+          statut: string
+          taille: string
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          categorie?: string
+          colis?: string
+          couleur?: string
+          created_at?: string
+          description?: string
+          etat?: string
+          hashtags?: string[]
+          id?: string
+          marque?: string
+          matiere?: string
+          prix?: number | null
+          statut?: string
+          taille?: string
+          titre?: string
+          updated_at?: string
+        }
+        Update: {
+          categorie?: string
+          colis?: string
+          couleur?: string
+          created_at?: string
+          description?: string
+          etat?: string
+          hashtags?: string[]
+          id?: string
+          marque?: string
+          matiere?: string
+          prix?: number | null
+          statut?: string
+          taille?: string
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      vinted_photos: {
+        Row: {
+          annonce_id: string
+          created_at: string
+          id: string
+          ordre: number
+          url: string
+        }
+        Insert: {
+          annonce_id: string
+          created_at?: string
+          id?: string
+          ordre?: number
+          url: string
+        }
+        Update: {
+          annonce_id?: string
+          created_at?: string
+          id?: string
+          ordre?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vinted_photos_annonce_id_fkey"
+            columns: ["annonce_id"]
+            isOneToOne: false
+            referencedRelation: "vinted_annonces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vinted_reglages: {
+        Row: {
+          colis_defaut: string
+          hashtags_communs: string[]
+          hashtags_par_categorie: Json
+          id: boolean
+          signature: string
+          updated_at: string
+        }
+        Insert: {
+          colis_defaut?: string
+          hashtags_communs?: string[]
+          hashtags_par_categorie?: Json
+          id?: boolean
+          signature?: string
+          updated_at?: string
+        }
+        Update: {
+          colis_defaut?: string
+          hashtags_communs?: string[]
+          hashtags_par_categorie?: Json
+          id?: boolean
+          signature?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
