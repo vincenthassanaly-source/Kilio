@@ -10,8 +10,9 @@ import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
 import { layoutChevauchements } from "@/lib/agenda/compute";
 import { TaskCard } from "../taches/TasksList";
 import { ArchivedTasksSection } from "./ArchivedTasksSection";
+import { FerieBadge } from "@/components/FerieBadge";
 import { PeriodHeader } from "./PeriodHeader";
-import { parseISODate } from "@/lib/date/iso";
+import { parseISODate, toISODate } from "@/lib/date/iso";
 import { sortByHeure } from "./date-utils";
 import {
   computeInitialScrollMinutes,
@@ -34,6 +35,7 @@ export function DayView({
   creneaux,
   exceptions,
   evenements = [],
+  feries,
   selectedDate,
   onChangeDate,
   tacheEnSurbrillanceId = null,
@@ -47,6 +49,8 @@ export function DayView({
   exceptions: Tables<"horaires_travail_exceptions">[];
   // Événements légers de la fenêtre chargée (le jour affiché est filtré ici).
   evenements?: Evenement[];
+  // Jours fériés (date ISO → nom) de la fenêtre chargée, informatifs.
+  feries?: ReadonlyMap<string, string>;
   selectedDate: Date;
   onChangeDate: (date: Date) => void;
   // Tâche visée par un deep-link de notification (cf. AgendaView) : mise en
@@ -84,6 +88,7 @@ export function DayView({
     return { dayTaches, dayTachesArchivees, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, dayJourneeEntiere, positions };
   }, [taches, evenements, selectedDate]);
 
+  const ferieDuJour = feries?.get(toISODate(selectedDate));
   const creneauxJour = getCreneauxDuJour(creneaux, selectedDate, exceptions);
   const { zoom, touchHandlers } = useAgendaZoom();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -104,6 +109,7 @@ export function DayView({
         showToday={!isToday(selectedDate)}
         onToday={() => onChangeDate(startOfToday())}
       />
+      {ferieDuJour && <FerieBadge nom={ferieDuJour} className="self-center" />}
 
       <div className="overflow-hidden rounded-2xl border border-line bg-surface">
         {dayJourneeEntiere.length > 0 && (

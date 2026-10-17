@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getEvenements } from "@/app/actions/evenements";
 import { getResumeNutritionJour } from "@/app/actions/journal";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
+import { getJoursFeries } from "@/app/actions/jours-feries";
 import { getJoursLibresAutour } from "@/app/actions/jours-libres";
 import { getMesuresRecentes } from "@/app/actions/sante";
 import { getSemaineSeances } from "@/app/actions/seances";
@@ -43,6 +44,11 @@ export default async function AujourdhuiPage() {
     queryClient.prefetchQuery({
       queryKey: queryKeys.seancesSemaine(today),
       queryFn: () => getSemaineSeances(today),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: queryKeys.joursFeries(today, today),
+      // Informatif : une panne (base ou API) ne doit pas faire échouer l'écran.
+      queryFn: () => getJoursFeries(today, today).catch(() => []),
     }),
     queryClient.prefetchQuery({
       queryKey: queryKeys.joursLibresAutour(today),

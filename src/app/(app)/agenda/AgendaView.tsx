@@ -20,6 +20,8 @@ import {
 import { getListes, getTachesAvecRelations, getTags } from "@/app/actions/taches";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
 import { deleteEvenement, getEvenements, type Evenement } from "@/app/actions/evenements";
+import { getJoursFeries } from "@/app/actions/jours-feries";
+import { ferieParDate } from "@/lib/feries/compute";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { EvenementForm } from "../aujourdhui/EvenementForm";
 import { queryKeys } from "@/lib/query/keys";
@@ -140,6 +142,14 @@ export function AgendaView() {
     placeholderData: keepPreviousData,
   });
   const evenements = evenementsBruts.filter((e) => !evenementsMasques.has(e.id));
+  // Jours fériés de la même fenêtre : informatifs, une panne de l'API ne bloque rien.
+  const { data: joursFeries = [] } = useQuery({
+    queryKey: queryKeys.joursFeries(fenetreDebut, fenetreFin),
+    queryFn: () => getJoursFeries(fenetreDebut, fenetreFin),
+    placeholderData: keepPreviousData,
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+  const feries = ferieParDate(joursFeries);
   // Tâche ciblée par un deep-link de notification (?tache=<id>, cf.
   // envoyer-rappels-taches). Contrairement à l'ancienne page Server
   // Component, `taches` n'est plus disponible dès le tout premier rendu
@@ -448,6 +458,7 @@ export function AgendaView() {
                     creneaux={creneaux}
                     exceptions={exceptions}
                     evenements={evenements}
+                    feries={feries}
                     selectedDate={selectedDate}
                     onChangeDate={handleChangeDate}
                     tacheEnSurbrillanceId={tacheEnSurbrillanceId}
@@ -461,6 +472,7 @@ export function AgendaView() {
                     creneaux={creneaux}
                     exceptions={exceptions}
                     evenements={evenements}
+                    feries={feries}
                     selectedDate={selectedDate}
                     onChangeDate={handleChangeDate}
                     onSelectDay={selectDay}
@@ -470,6 +482,7 @@ export function AgendaView() {
                   <MonthView
                     taches={taches}
                     evenements={evenements}
+                    feries={feries}
                     creneaux={creneaux}
                     exceptions={exceptions}
                     selectedDate={selectedDate}
@@ -483,6 +496,7 @@ export function AgendaView() {
           {view === "liste" && <ListView
               taches={taches}
               evenements={evenements}
+              feries={feries}
               listes={listes}
               tags={tags}
               onSelectEvenement={(evenement) => setEvenementForm({ evenement })}

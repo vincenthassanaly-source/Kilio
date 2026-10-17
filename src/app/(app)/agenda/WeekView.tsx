@@ -18,7 +18,7 @@ import type { Evenement } from "@/app/actions/evenements";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
 import { layoutChevauchements } from "@/lib/agenda/compute";
 import { PeriodHeader } from "./PeriodHeader";
-import { parseISODate } from "@/lib/date/iso";
+import { parseISODate, toISODate } from "@/lib/date/iso";
 import {
   computeInitialScrollMinutes,
   gridHeight,
@@ -52,6 +52,7 @@ export function WeekView({
   creneaux,
   exceptions,
   evenements = [],
+  feries,
   selectedDate,
   onChangeDate,
   onSelectDay,
@@ -60,6 +61,7 @@ export function WeekView({
   creneaux: Tables<"horaires_travail_creneaux">[];
   exceptions: Tables<"horaires_travail_exceptions">[];
   evenements?: Evenement[];
+  feries?: ReadonlyMap<string, string>;
   selectedDate: Date;
   onChangeDate: (date: Date) => void;
   onSelectDay: (date: Date) => void;
@@ -186,7 +188,16 @@ export function WeekView({
                     }`}
                   >
                     <span className="text-[11px] font-semibold">{format(day, "EEE", { locale: fr })}</span>
-                    <span className="text-[10px] text-ink-2">{format(day, "d MMM", { locale: fr })}</span>
+                    <span
+                      className={`text-[10px] text-ink-2 ${
+                        feries?.has(toISODate(day)) ? "font-semibold underline decoration-2 underline-offset-2" : ""
+                      }`}
+                    >
+                      {format(day, "d MMM", { locale: fr })}
+                    </span>
+                    {feries?.has(toISODate(day)) && (
+                      <span className="sr-only">Jour férié : {feries.get(toISODate(day))}</span>
+                    )}
                   </button>
 
                   <button
