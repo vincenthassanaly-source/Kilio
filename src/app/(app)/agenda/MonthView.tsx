@@ -28,17 +28,24 @@ const WEEKDAY_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
 // existent effectivement ce jour-là (cf. `jourTravaille` ci-dessous) : ne
 // pas l'annoncer par défaut évite de donner une fausse information à un
 // utilisateur de lecteur d'écran un jour sans créneau.
-function monthCellAriaLabel(day: Date, count: number, nbEvenements: number, jourTravaille: boolean): string {
+function monthCellAriaLabel(
+  day: Date,
+  count: number,
+  nbEvenements: number,
+  jourTravaille: boolean,
+  ferie?: string
+): string {
   const dateLabel = format(day, "EEEE d MMMM", { locale: fr });
   const tachesLabel = count === 0 ? "aucune tâche" : count === 1 ? "1 tâche" : `${count} tâches`;
   const evenementsLabel =
     nbEvenements === 0 ? "" : nbEvenements === 1 ? ", 1 événement" : `, ${nbEvenements} événements`;
-  return `${dateLabel}, ${tachesLabel}${evenementsLabel}${jourTravaille ? ", jour travaillé" : ""}`;
+  return `${dateLabel}${ferie ? `, jour férié : ${ferie}` : ""}, ${tachesLabel}${evenementsLabel}${jourTravaille ? ", jour travaillé" : ""}`;
 }
 
 export function MonthView({
   taches,
   evenements = [],
+  feries,
   creneaux,
   exceptions,
   selectedDate,
@@ -47,6 +54,7 @@ export function MonthView({
 }: {
   taches: Tache[];
   evenements?: Evenement[];
+  feries?: ReadonlyMap<string, string>;
   creneaux: Tables<"horaires_travail_creneaux">[];
   exceptions: Tables<"horaires_travail_exceptions">[];
   selectedDate: Date;
@@ -96,20 +104,21 @@ export function MonthView({
           const nbEvenements = evenementsByDay.get(iso) ?? 0;
           const inMonth = isSameMonth(day, selectedDate);
           const jourTravaille = getCreneauxDuJour(creneaux, day, exceptions).length > 0;
+          const ferie = feries?.get(iso);
 
           return (
             <button
               key={day.toISOString()}
               type="button"
               onClick={() => onSelectDay(day)}
-              aria-label={monthCellAriaLabel(day, count, nbEvenements, jourTravaille)}
+              aria-label={monthCellAriaLabel(day, count, nbEvenements, jourTravaille, ferie)}
               aria-current={isToday(day) ? "date" : undefined}
               className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border text-[13px] ${
                 isToday(day) ? "border-agenda" : "border-line"
               } ${inMonth ? "text-ink" : "text-ink-3"} ${jourTravaille ? "" : "bg-surface"}`}
               style={jourTravaille ? { backgroundColor: "var(--accent-planning-travail-soft)" } : undefined}
             >
-              <span>{format(day, "d")}</span>
+              <span className={ferie ? "underline decoration-2 underline-offset-4" : undefined}>{format(day, "d")}</span>
               {(count > 0 || nbEvenements > 0) && (
                 <span className="flex items-center gap-0.5">
                   {count > 0 && <span className="h-1.5 w-1.5 rounded-full bg-agenda" />}
@@ -131,6 +140,11 @@ export function MonthView({
             style={{ backgroundColor: "var(--accent-planning-travail-soft)" }}
           />
           jour travaillé
+        </span>
+        <span>·</span>
+        <span className="flex items-center gap-1">
+          <span className="underline decoration-2 underline-offset-4">12</span>
+          férié
         </span>
         <span>·</span>
         <span className="flex items-center gap-1">

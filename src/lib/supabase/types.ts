@@ -598,6 +598,24 @@ export type Database = {
         }
         Relationships: []
       }
+      jours_feries: {
+        Row: {
+          created_at: string
+          date: string
+          nom: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          nom: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          nom?: string
+        }
+        Relationships: []
+      }
       jours_libres: {
         Row: {
           created_at: string

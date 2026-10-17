@@ -23,6 +23,8 @@ import { DayTimeline } from "./DayTimeline";
 import { EnRetardSection } from "./EnRetardSection";
 import { EvenementForm } from "./EvenementForm";
 import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/compute";
+import { FerieBadge } from "@/components/FerieBadge";
+import { getJoursFeries } from "@/app/actions/jours-feries";
 import { JourLibreCard } from "./JourLibreCard";
 import { PeseeCard } from "./PeseeCard";
 import { PlanDuJourCard } from "./PlanDuJourCard";
@@ -67,6 +69,14 @@ export function AujourdhuiView({ today }: { today: string }) {
     queryFn: getPlanningTravailExceptions,
     staleTime: 0,
   });
+
+  // Jour férié FR du jour : informatif, absent si l'API n'a rien renvoyé.
+  const { data: joursFeries = [] } = useQuery({
+    queryKey: queryKeys.joursFeries(today, today),
+    queryFn: () => getJoursFeries(today, today),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+  const ferieDuJour = joursFeries[0]?.nom;
 
   const creneauxDuJour = useMemo(
     () => getCreneauxDuJour(creneaux, parseISODate(today), exceptions),
@@ -147,6 +157,8 @@ export function AujourdhuiView({ today }: { today: string }) {
   return (
     <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
       <p className="-mt-3 text-[13.5px] font-medium text-ink-2 first-letter:uppercase">{dateLabel}</p>
+
+      {ferieDuJour && <FerieBadge nom={ferieDuJour} className="-mt-2 self-start" />}
 
       <ScoreDuJourCard today={today} tachesDuJour={duJour} tachesChargent={tachesChargent} />
 

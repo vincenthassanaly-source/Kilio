@@ -7,6 +7,7 @@ import type { Tables } from "@/lib/supabase/types";
 import type { Evenement } from "@/app/actions/evenements";
 import { libellePlage } from "@/lib/evenements/compute";
 import { TaskCard } from "../taches/TasksList";
+import { FerieBadge } from "@/components/FerieBadge";
 import { sectionTitle } from "@/lib/ui";
 import { ArchivedTasksSection } from "./ArchivedTasksSection";
 import { parseISODate } from "@/lib/date/iso";
@@ -15,12 +16,14 @@ import { sortByHeure } from "./date-utils";
 export function ListView({
   taches,
   evenements = [],
+  feries,
   listes,
   tags,
   onSelectEvenement,
 }: {
   taches: TacheAvecRelations[];
   evenements?: Evenement[];
+  feries?: ReadonlyMap<string, string>;
   onSelectEvenement?: (evenement: Evenement) => void;
   listes: Tables<"listes_taches">[];
   tags: Tables<"tags">[];
@@ -69,6 +72,7 @@ export function ListView({
             <h2 className={sectionTitle}>
               {format(parseISODate(iso), "EEEE d MMMM yyyy", { locale: fr })}
             </h2>
+            {feries?.has(iso) && <FerieBadge nom={feries.get(iso)!} className="self-start" />}
             <ul className="flex flex-col gap-2.5">
               {dayEvenements.map((evenement) => (
                 <li key={evenement.id}>

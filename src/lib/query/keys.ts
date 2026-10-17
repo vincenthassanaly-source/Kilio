@@ -44,6 +44,8 @@ export const queryKeys = {
   // Jours libres (jetons) autour d'aujourd'hui : posés/retirés depuis Aujourd'hui.
   joursLibres: ["jours-libres"] as const,
   joursLibresAutour: (today: string) => ["jours-libres", today] as const,
+  // Jours fériés FR (lecture seule, copie locale de l'API Etalab) sur une plage.
+  joursFeries: (debut: string, fin: string) => ["jours-feries", debut, fin] as const,
   seances: ["seances"] as const,
   seancesSemaine: (today: string) => ["seances", today] as const,
   musculationExercices: ["musculation-exercices"] as const,
