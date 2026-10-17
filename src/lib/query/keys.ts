@@ -25,6 +25,9 @@ export const queryKeys = {
   // Habitudes proposées au rattachement + habitudes déjà liées à un objectif.
   habitudesActives: ["habitudes-actives"] as const,
   habitudesDeLObjectif: (id: string) => ["habitudes-de-l-objectif", id] as const,
+  vinted: ["vinted"] as const,
+  vintedAnnonce: (id: string) => ["vinted", id] as const,
+  vintedReglages: ["vinted-reglages"] as const,
   collections: ["collections"] as const,
   collection: (id: string) => ["collection", id] as const,
   // Sans mutation côté app (écrites uniquement hors Server Action, cf.
