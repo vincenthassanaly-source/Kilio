@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition, type FormEvent, type ReactNode } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -25,15 +25,12 @@ import {
   LIBELLE_STATUT,
   LIBELLE_THEME,
   POSITION_MAX,
-  SCORE_MAX,
-  SCORE_MIN,
   SOURCE_MAX,
   THEMES,
   champsIdentiques,
   estConviction,
   estTheme,
   formaterScore,
-  libelleScore,
   type Axe,
   type ChampsIdee,
   type Statut,
@@ -52,66 +49,8 @@ import {
   secondaryButton,
   sectionTitle,
 } from "@/lib/ui";
+import { Champ, LigneScore } from "../ChampsFormulaire";
 import { StatutPill } from "../StatutPill";
-
-function Champ({
-  libelle,
-  children,
-  aide,
-}: {
-  libelle: string;
-  children: (id: string) => ReactNode;
-  aide?: ReactNode;
-}) {
-  const id = useId();
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className={label}>
-        {libelle}
-      </label>
-      {children(id)}
-      {aide && <div className="text-xs text-ink-3">{aide}</div>}
-    </div>
-  );
-}
-
-// « Non concerné » (null) est distinct de « Neutre » (0) : l'axe est ignoré du
-// profil dans le premier cas, compté comme une position centrale dans le second.
-const SANS_SCORE = "aucun";
-const VALEURS_SCORE = Array.from({ length: SCORE_MAX - SCORE_MIN + 1 }, (_, i) => SCORE_MIN + i);
-
-function LigneScore({ axe, score, onChange }: { axe: Axe; score: number | null; onChange: (score: number | null) => void }) {
-  const options = [
-    { value: SANS_SCORE, label: "—", ariaLabel: "Non concerné" },
-    ...VALEURS_SCORE.map((valeur) => ({
-      value: String(valeur),
-      label: formaterScore(valeur),
-      ariaLabel: libelleScore(axe, valeur),
-    })),
-  ];
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-baseline justify-between gap-3">
-        <span className={label}>{axe.label}</span>
-        <span className="text-xs text-ink-2" aria-live="polite">
-          {libelleScore(axe, score)}
-        </span>
-      </div>
-      <SegmentedControl
-        options={options}
-        value={score === null ? SANS_SCORE : String(score)}
-        onChange={(valeur) => onChange(valeur === SANS_SCORE ? null : Number(valeur))}
-        ariaLabel={`Position sur l'axe ${axe.label}`}
-        taille="sm"
-      />
-      <div className="flex justify-between text-xs text-ink-3" aria-hidden="true">
-        <span>‹ {axe.gauche}</span>
-        <span>{axe.droite} ›</span>
-      </div>
-    </div>
-  );
-}
 
 function resumeScores(version: VersionIdee): string {
   const parties = AXES.flatMap((axe) => {
@@ -217,6 +156,16 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
           <StatutPill statut={statut} />
         </div>
       </div>
+
+      {idee.origine && (
+        <section className={`${card} flex flex-col gap-1`}>
+          <p className="text-xs font-semibold text-ink-3">Reprise d&apos;une proposition de parti</p>
+          <p className="text-[14.5px] leading-snug text-ink">« {idee.origine.proposition} »</p>
+          <p className="text-xs text-ink-2">
+            {idee.origine.parti} · {idee.origine.echeance}
+          </p>
+        </section>
+      )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <section className={`${card} flex flex-col gap-3`}>

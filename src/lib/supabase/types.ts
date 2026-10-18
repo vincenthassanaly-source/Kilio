@@ -1014,6 +1014,7 @@ export type Database = {
           created_at: string
           id: string
           position: string
+          proposition_id: string | null
           score_autorite: number | null
           score_ecologie: number | null
           score_economique: number | null
@@ -1031,6 +1032,7 @@ export type Database = {
           created_at?: string
           id?: string
           position: string
+          proposition_id?: string | null
           score_autorite?: number | null
           score_ecologie?: number | null
           score_economique?: number | null
@@ -1048,6 +1050,7 @@ export type Database = {
           created_at?: string
           id?: string
           position?: string
+          proposition_id?: string | null
           score_autorite?: number | null
           score_ecologie?: number | null
           score_economique?: number | null
@@ -1058,7 +1061,136 @@ export type Database = {
           theme?: string | null
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "opinions_idees_proposition_id_fkey"
+            columns: ["proposition_id"]
+            isOneToOne: false
+            referencedRelation: "opinions_propositions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opinions_partis: {
+        Row: {
+          created_at: string
+          id: string
+          nom: string
+          sigle: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nom: string
+          sigle?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nom?: string
+          sigle?: string
+        }
         Relationships: []
+      }
+      opinions_priorites: {
+        Row: {
+          niveau: string
+          theme: string
+          updated_at: string
+        }
+        Insert: {
+          niveau: string
+          theme: string
+          updated_at?: string
+        }
+        Update: {
+          niveau?: string
+          theme?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      opinions_programmes: {
+        Row: {
+          created_at: string
+          date_programme: string | null
+          echeance: string
+          id: string
+          parti_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_programme?: string | null
+          echeance: string
+          id?: string
+          parti_id: string
+        }
+        Update: {
+          created_at?: string
+          date_programme?: string | null
+          echeance?: string
+          id?: string
+          parti_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opinions_programmes_parti_id_fkey"
+            columns: ["parti_id"]
+            isOneToOne: false
+            referencedRelation: "opinions_partis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opinions_propositions: {
+        Row: {
+          created_at: string
+          id: string
+          position: string
+          programme_id: string
+          score_autorite: number | null
+          score_ecologie: number | null
+          score_economique: number | null
+          score_identite: number | null
+          score_societal: number | null
+          theme: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          position: string
+          programme_id: string
+          score_autorite?: number | null
+          score_ecologie?: number | null
+          score_economique?: number | null
+          score_identite?: number | null
+          score_societal?: number | null
+          theme: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          position?: string
+          programme_id?: string
+          score_autorite?: number | null
+          score_ecologie?: number | null
+          score_economique?: number | null
+          score_identite?: number | null
+          score_societal?: number | null
+          theme?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opinions_propositions_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "opinions_programmes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       opinions_versions: {
         Row: {

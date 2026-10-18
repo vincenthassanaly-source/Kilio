@@ -19,7 +19,9 @@ import { estUuid } from "@/lib/uuid";
 export type Idee = ChampsIdee & { id: string; statut: Statut; created_at: string; updated_at: string };
 /** Ancienne version d'une idée ; `created_at` = date à laquelle elle a été remplacée. */
 export type VersionIdee = ChampsIdee & { id: string; created_at: string };
-export type IdeeAvecVersions = Idee & { versions: VersionIdee[] };
+/** Proposition de parti dont une idée est reprise. */
+type OrigineIdee ={ proposition: string; parti: string; echeance: string };
+export type IdeeAvecVersions = Idee & { versions: VersionIdee[]; origine: OrigineIdee | null };
 
 function revalider(id?: string) {
   revalidatePath("/opinions");
@@ -60,9 +62,25 @@ export async function getIdee(id: string): Promise<IdeeAvecVersions | null> {
     .order("created_at", { ascending: false });
   if (erreurVersions) throw new Error(erreurVersions.message);
 
+  let origine: OrigineIdee | null = null;
+  if (ligne.proposition_id) {
+    const { data: proposition, error: erreurOrigine } = await supabase
+      .from("opinions_propositions")
+      .select("position, opinions_programmes(echeance, opinions_partis(nom, sigle))")
+      .eq("id", ligne.proposition_id)
+      .maybeSingle();
+    if (erreurOrigine) throw new Error(erreurOrigine.message);
+    const programme = proposition?.opinions_programmes;
+    const parti = programme?.opinions_partis;
+    if (proposition && programme && parti) {
+      origine = { proposition: proposition.position, parti: parti.sigle.trim() || parti.nom, echeance: programme.echeance };
+    }
+  }
+
   return {
     ...versIdee(ligne),
     versions: (versions ?? []).map((v) => ({ id: v.id, created_at: v.created_at, ...champsDepuisLigne(v) })),
+    origine,
   };
 }
 

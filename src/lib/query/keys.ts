@@ -30,6 +30,9 @@ export const queryKeys = {
   vintedReglages: ["vinted-reglages"] as const,
   opinions: ["opinions"] as const,
   opinionsIdee: (id: string) => ["opinions", id] as const,
+  // Sous la racine `opinions` : un tirer-pour-rafraîchir invalide aussi partis et priorités.
+  opinionsPartis: ["opinions", "partis"] as const,
+  opinionsPriorites: ["opinions", "priorites"] as const,
   collections: ["collections"] as const,
   collection: (id: string) => ["collection", id] as const,
   // Sans mutation côté app (écrites uniquement hors Server Action, cf.
