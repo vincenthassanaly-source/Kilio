@@ -152,6 +152,15 @@ const VINTED_ICON = (c: string) =>
     createElement("circle", { cx: 8, cy: 8, r: 1.3, fill: c, stroke: "none" })
   );
 
+const OPINIONS_ICON = (c: string) =>
+  createElement(
+    "svg",
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    createElement("path", { d: "M12 4v15.5M8 19.5h8" }),
+    createElement("path", { d: "M5 7.5h14" }),
+    createElement("path", { d: "M5 7.5 2.8 13a2.9 2.9 0 0 0 4.4 0zM19 7.5 16.8 13a2.9 2.9 0 0 0 4.4 0z" })
+  );
+
 // Ordre canonique : les 4 modules primaires (épinglés en barre du bas par
 // défaut) puis les 7 modules secondaires. La grille "Plus" liste TOUJOURS
 // les 11 items (voir resolveOrdreGrillePlus dans
@@ -253,6 +262,13 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Brouillons d'annonces et kit de publication",
     accentVar: "var(--accent-vinted)",
     icon: VINTED_ICON,
+  },
+  {
+    href: "/opinions",
+    label: "Opinions",
+    description: "Idées politiques, positions et profil",
+    accentVar: "var(--accent-opinions)",
+    icon: OPINIONS_ICON,
   },
   {
     href: "/reglages",

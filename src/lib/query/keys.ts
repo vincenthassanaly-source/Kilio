@@ -28,6 +28,8 @@ export const queryKeys = {
   vinted: ["vinted"] as const,
   vintedAnnonce: (id: string) => ["vinted", id] as const,
   vintedReglages: ["vinted-reglages"] as const,
+  opinions: ["opinions"] as const,
+  opinionsIdee: (id: string) => ["opinions", id] as const,
   collections: ["collections"] as const,
   collection: (id: string) => ["collection", id] as const,
   // Sans mutation côté app (écrites uniquement hors Server Action, cf.
