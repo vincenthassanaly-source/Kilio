@@ -46,8 +46,8 @@ const cleTerme = (terme: Terme) => terme.terme.toLocaleLowerCase("fr");
 
 /**
  * Texte d'une proposition avec ses mots-clés surlignés (fond léger à la teinte du
- * thème). Un terme défini est aussi souligné en pointillé : un tap ouvre sa
- * définition sous le texte, un second tap ou Échap la referme. La définition est
+ * thème). Un terme défini a un fond un peu plus soutenu, sans soulignement : un tap
+ * ouvre sa définition sous le texte, un second tap ou Échap la referme. La définition est
  * placée dans le flux (pas flottante) pour ne jamais déborder de l'écran.
  */
 export function TexteProposition({ texte, termes, theme }: { texte: string; termes: readonly Terme[]; theme: Theme }) {
@@ -91,8 +91,8 @@ export function TexteProposition({ texte, termes, theme }: { texte: string; term
               aria-controls={idBulle}
               aria-label={`${segment.texte}, définition`}
               onClick={() => setOuvert(actif ? null : cle)}
-              className="rounded px-0.5 text-inherit underline decoration-dotted decoration-2 underline-offset-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal motion-reduce:transition-none"
-              style={{ backgroundColor: fondLeger(teinte, actif ? 40 : 24) }}
+              className="rounded px-0.5 text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal motion-reduce:transition-none"
+              style={{ backgroundColor: fondLeger(teinte, actif ? 48 : 34) }}
             >
               {segment.texte}
             </button>
