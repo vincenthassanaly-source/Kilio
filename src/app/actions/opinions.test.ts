@@ -160,6 +160,24 @@ describe("supprimerIdee et getIdee", () => {
     expect(idee?.position).toBe("Retraite à points");
     expect(idee?.versions).toHaveLength(1);
     expect(idee?.scores.economique).toBe(-1);
+    expect(idee?.origine).toBeNull();
     expect(await getIdee("nope")).toBeNull();
+  });
+
+  it("retrouve la proposition de parti dont l'idée est reprise", async () => {
+    brancher((a) => {
+      if (a.table === "opinions_idees") return { data: { ...LIGNE, proposition_id: ID } };
+      if (a.table === "opinions_propositions") {
+        return {
+          data: {
+            id: ID,
+            position: "Baisser la TVA",
+            opinions_programmes: { echeance: "Présidentielle 2027", opinions_partis: { nom: "Parti A", sigle: "PA" } },
+          },
+        };
+      }
+    });
+    const idee = await getIdee(ID);
+    expect(idee?.origine).toEqual({ proposition: "Baisser la TVA", parti: "PA", echeance: "Présidentielle 2027" });
   });
 });

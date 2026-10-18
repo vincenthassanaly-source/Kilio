@@ -23,15 +23,18 @@ import {
 } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
 import { cardTight, errorText, input, label, metaText, pillTag, primaryButton } from "@/lib/ui";
+import { PartisView } from "./PartisView";
+import { PrioritesEditor } from "./PrioritesEditor";
 import { ProfilView } from "./ProfilView";
 import { StatutPill } from "./StatutPill";
 
-type Onglet = "idees" | "profil";
+type Onglet = "idees" | "partis" | "profil";
 type Filtre = "tous" | Statut;
 type FiltreTheme = "tous" | Theme;
 
 const ONGLETS: { value: Onglet; label: string }[] = [
   { value: "idees", label: "Idées" },
+  { value: "partis", label: "Partis" },
   { value: "profil", label: "Profil" },
 ];
 
@@ -124,8 +127,13 @@ export function OpinionsView() {
           <p className={errorText} role="alert">
             Erreur de chargement des idées. Réessaie.
           </p>
+        ) : onglet === "partis" ? (
+          <PartisView idees={idees} />
         ) : onglet === "profil" ? (
-          <ProfilView idees={idees} />
+          <div className="flex flex-col gap-4">
+            <ProfilView idees={idees} />
+            <PrioritesEditor />
+          </div>
         ) : (
           <>
             <form onSubmit={ajouter} className="flex flex-col gap-1.5">

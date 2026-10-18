@@ -6,15 +6,25 @@ import { card, cardTight, metaText, pillTag, sectionTitle } from "@/lib/ui";
 // Barre divergente : le centre est « équilibré », la barre part du centre vers
 // le pôle de gauche (-2) ou de droite (+2). Le texte (description + nombre
 // d'idées) double toujours la barre : la couleur ne porte jamais seule le sens.
-function AxeBarre({ profil }: { profil: AxeProfil }) {
+export function AxeBarre({
+  profil,
+  unite = "idée",
+  qualificatif = "validée",
+}: {
+  profil: AxeProfil;
+  unite?: string;
+  qualificatif?: string;
+}) {
   const { axe, moyenne, nombre } = profil;
+  const pluriel = nombre > 1 ? "s" : "";
+  const comptage = `${nombre} ${unite}${pluriel}`;
   const description = decrireMoyenne(axe, moyenne);
   const demiLargeur = moyenne === null ? 0 : (Math.abs(moyenne) / 2) * 50;
   const gauche = moyenne === null ? 50 : moyenne < 0 ? 50 - demiLargeur : 50;
   const ariaLabel =
     moyenne === null
-      ? `${axe.label} : aucune idée validée ne touche cet axe`
-      : `${axe.label} : ${description}, sur ${nombre} idée${nombre > 1 ? "s" : ""} validée${nombre > 1 ? "s" : ""}`;
+      ? `${axe.label} : aucune donnée sur cet axe`
+      : `${axe.label} : ${description}, sur ${comptage}${qualificatif ? ` ${qualificatif}${pluriel}` : ""}`;
 
   return (
     <li className="flex flex-col gap-1.5">
@@ -22,7 +32,7 @@ function AxeBarre({ profil }: { profil: AxeProfil }) {
         <span className="text-[15px] font-semibold text-ink">{axe.label}</span>
         <span className={`${metaText} text-right`}>
           {description}
-          {nombre > 0 && ` · ${nombre} idée${nombre > 1 ? "s" : ""}`}
+          {nombre > 0 && ` · ${comptage}`}
         </span>
       </div>
       <div role="img" aria-label={ariaLabel} className="relative h-3 rounded-full bg-surface-alt">

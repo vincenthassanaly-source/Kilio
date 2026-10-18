@@ -12,7 +12,7 @@ export type IdeePourProfil = {
   scores: Scores;
 };
 
-const POIDS: Record<Conviction, number> = { hesitant: 0.5, plutot: 1, certain: 1.5 };
+export const POIDS_CONVICTION: Record<Conviction, number> = { hesitant: 0.5, plutot: 1, certain: 1.5 };
 
 export type AxeProfil = {
   axe: Axe;
@@ -31,8 +31,8 @@ export function calculerProfil(idees: readonly IdeePourProfil[]): AxeProfil[] {
     for (const idee of validees) {
       const score = idee.scores[axe.id];
       if (score === null) continue;
-      somme += score * POIDS[idee.conviction];
-      poids += POIDS[idee.conviction];
+      somme += score * POIDS_CONVICTION[idee.conviction];
+      poids += POIDS_CONVICTION[idee.conviction];
       nombre += 1;
     }
     return { axe, moyenne: poids === 0 ? null : somme / poids, nombre };
