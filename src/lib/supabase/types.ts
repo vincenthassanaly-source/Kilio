@@ -1006,6 +1006,119 @@ export type Database = {
         }
         Relationships: []
       }
+      opinions_idees: {
+        Row: {
+          arguments_contre: string
+          arguments_pour: string
+          conviction: string
+          created_at: string
+          id: string
+          position: string
+          score_autorite: number | null
+          score_ecologie: number | null
+          score_economique: number | null
+          score_identite: number | null
+          score_societal: number | null
+          source: string
+          statut: string
+          theme: string | null
+          updated_at: string
+        }
+        Insert: {
+          arguments_contre?: string
+          arguments_pour?: string
+          conviction?: string
+          created_at?: string
+          id?: string
+          position: string
+          score_autorite?: number | null
+          score_ecologie?: number | null
+          score_economique?: number | null
+          score_identite?: number | null
+          score_societal?: number | null
+          source?: string
+          statut?: string
+          theme?: string | null
+          updated_at?: string
+        }
+        Update: {
+          arguments_contre?: string
+          arguments_pour?: string
+          conviction?: string
+          created_at?: string
+          id?: string
+          position?: string
+          score_autorite?: number | null
+          score_ecologie?: number | null
+          score_economique?: number | null
+          score_identite?: number | null
+          score_societal?: number | null
+          source?: string
+          statut?: string
+          theme?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      opinions_versions: {
+        Row: {
+          arguments_contre: string
+          arguments_pour: string
+          conviction: string
+          created_at: string
+          id: string
+          idee_id: string
+          position: string
+          score_autorite: number | null
+          score_ecologie: number | null
+          score_economique: number | null
+          score_identite: number | null
+          score_societal: number | null
+          source: string
+          theme: string | null
+        }
+        Insert: {
+          arguments_contre?: string
+          arguments_pour?: string
+          conviction: string
+          created_at?: string
+          id?: string
+          idee_id: string
+          position: string
+          score_autorite?: number | null
+          score_ecologie?: number | null
+          score_economique?: number | null
+          score_identite?: number | null
+          score_societal?: number | null
+          source?: string
+          theme?: string | null
+        }
+        Update: {
+          arguments_contre?: string
+          arguments_pour?: string
+          conviction?: string
+          created_at?: string
+          id?: string
+          idee_id?: string
+          position?: string
+          score_autorite?: number | null
+          score_ecologie?: number | null
+          score_economique?: number | null
+          score_identite?: number | null
+          score_societal?: number | null
+          source?: string
+          theme?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opinions_versions_idee_id_fkey"
+            columns: ["idee_id"]
+            isOneToOne: false
+            referencedRelation: "opinions_idees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pharma_chapitres: {
         Row: {
           created_at: string
