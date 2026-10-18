@@ -1,7 +1,8 @@
 -- Module Vinted : brouillons d'annonces, leurs photos et les réglages
--- réutilisables (signature, colis par défaut, hashtags). Même pattern que
--- collections / tache_images : pas de RLS, pas de user_id (app mono-utilisateur),
--- photos supprimées en cascade avec l'annonce.
+-- réutilisables (signature, colis par défaut, hashtags). Pas de user_id (app
+-- mono-utilisateur) ; RLS activée sans politique, comme les autres tables
+-- (l'app passe par la clé service role) ; photos supprimées en cascade avec
+-- l'annonce.
 --
 -- Les fichiers des photos vivent dans le bucket public `vinted-images`
 -- (supprimés par l'action supprimerAnnonce, pas par la cascade SQL).
@@ -51,6 +52,10 @@ create table vinted_reglages (
 );
 
 insert into vinted_reglages (id) values (true) on conflict do nothing;
+
+alter table vinted_annonces enable row level security;
+alter table vinted_photos enable row level security;
+alter table vinted_reglages enable row level security;
 
 insert into storage.buckets (id, name, public)
 values ('vinted-images', 'vinted-images', true)
