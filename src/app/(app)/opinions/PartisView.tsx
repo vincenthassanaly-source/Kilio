@@ -40,7 +40,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
       for (const { parti, programme } of classement) {
         if (!programme) continue;
         const moyenne = moyennesParAxe(programme.propositions).find((p) => p.axe.id === axe.id)?.moyenne ?? null;
-        if (moyenne !== null) marqueurs.push({ id: parti.id, libelle: libelleParti(parti), valeur: moyenne });
+        if (moyenne !== null) marqueurs.push({ id: parti.id, libelle: libelleParti(parti), valeur: moyenne, couleur: parti.couleur });
       }
       marqueursParAxe[axe.id] = marqueurs;
     }
@@ -113,6 +113,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
         {ajout && (
           <PartiFormModal
             key="ajout"
+            couleursUtilisees={partis.data.map((p) => p.couleur)}
             onClose={() => setAjout(false)}
             onSaved={() => {
               setAjout(false);

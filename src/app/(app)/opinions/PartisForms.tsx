@@ -21,8 +21,10 @@ import {
   type PropositionParti,
 } from "@/lib/opinions/partis";
 import { AXES, LIBELLE_THEME, POSITION_MAX, THEMES, estTheme, scoresVides, type Axe, type Scores, type Theme } from "@/lib/opinions/types";
-import { dangerButton, errorText, input, primaryButton } from "@/lib/ui";
+import { dangerButton, errorText, ghostButton, input, label, primaryButton } from "@/lib/ui";
+import { TERMES_MAX, TERME_MAX, DEFINITION_MAX, couleurSuivante, termeDansTexte, type CouleurParti } from "@/lib/opinions/couleurs";
 import { Champ, LigneScore } from "./ChampsFormulaire";
+import { SelecteurCouleur } from "./CouleursOpinions";
 
 type Props = { onClose: () => void; onSaved: () => void };
 
@@ -70,14 +72,24 @@ function Pied({ erreur, enCours }: { erreur: string | null; enCours: boolean }) 
 
 // --- Parti -------------------------------------------------------------------------
 
-export function PartiFormModal({ parti, onClose, onSaved }: { parti?: Pick<PartiComplet, "id" | "nom" | "sigle"> } & Props) {
+export function PartiFormModal({
+  parti,
+  couleursUtilisees,
+  onClose,
+  onSaved,
+}: {
+  parti?: Pick<PartiComplet, "id" | "nom" | "sigle" | "couleur">;
+  /** Teintes des autres partis : un nouveau parti reçoit la première libre. */
+  couleursUtilisees?: readonly string[];
+} & Props) {
   const [nom, setNom] = useState(parti?.nom ?? "");
   const [sigle, setSigle] = useState(parti?.sigle ?? "");
+  const [couleur, setCouleur] = useState<CouleurParti>(() => parti?.couleur ?? couleurSuivante(couleursUtilisees ?? []));
   const { erreur, enCours, enregistrer } = useEnregistrement(onSaved, parti ? "Parti modifié" : "Parti ajouté");
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    enregistrer(() => (parti ? modifierParti(parti.id, nom, sigle) : creerParti(nom, sigle)));
+    enregistrer(() => (parti ? modifierParti(parti.id, nom, sigle, couleur) : creerParti(nom, sigle, couleur)));
   }
 
   return (
@@ -93,6 +105,11 @@ export function PartiFormModal({ parti, onClose, onSaved }: { parti?: Pick<Parti
             <input id={id} className={input} value={sigle} onChange={(e) => setSigle(e.target.value)} maxLength={SIGLE_MAX} autoComplete="off" autoCapitalize="characters" />
           )}
         </Champ>
+        <SelecteurCouleur
+          valeur={couleur}
+          onChange={setCouleur}
+          utilisees={(couleursUtilisees ?? []).filter((c) => c !== parti?.couleur)}
+        />
         <Pied erreur={erreur} enCours={enCours} />
       </form>
     </Modal>
@@ -157,6 +174,11 @@ export function ProgrammeFormModal({
 
 // --- Proposition ---------------------------------------------------------------------
 
+// `cle` : identité stable d'une ligne de mot (l'index changerait en cas de retrait).
+type LigneTerme = { cle: number; terme: string; definition: string };
+let compteurCles = 0;
+const nouvelleCle = () => ++compteurCles;
+
 export function PropositionFormModal({
   programmeId,
   proposition,
@@ -167,7 +189,14 @@ export function PropositionFormModal({
   const [position, setPosition] = useState(proposition?.position ?? "");
   const [theme, setTheme] = useState<Theme | "">(proposition?.theme ?? "");
   const [scores, setScores] = useState<Scores>(proposition?.scores ?? scoresVides());
+  const [termes, setTermes] = useState<LigneTerme[]>(() =>
+    (proposition?.termes ?? []).map((t) => ({ cle: nouvelleCle(), terme: t.terme, definition: t.definition ?? "" }))
+  );
   const { erreur, enCours, enregistrer } = useEnregistrement(onSaved, proposition ? "Proposition modifiée" : "Proposition ajoutée");
+
+  function majTerme(cle: number, champ: "terme" | "definition", valeur: string) {
+    setTermes((lignes) => lignes.map((l) => (l.cle === cle ? { ...l, [champ]: valeur } : l)));
+  }
 
   function majScore(axe: Axe, score: number | null) {
     setScores((s) => ({ ...s, [axe.id]: score }));
@@ -175,7 +204,12 @@ export function PropositionFormModal({
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const champs = { position, theme: theme === "" ? null : theme, scores };
+    const champs = {
+      position,
+      theme: theme === "" ? null : theme,
+      scores,
+      termes: termes.map(({ terme, definition }) => ({ terme, definition })),
+    };
     enregistrer(() => (proposition ? modifierProposition(proposition.id, champs) : creerProposition(programmeId, champs)));
   }
 
@@ -194,6 +228,54 @@ export function PropositionFormModal({
             />
           )}
         </Champ>
+        <fieldset className="flex flex-col gap-3">
+          <legend className={label}>Mots à surligner (facultatif)</legend>
+          <p className="text-xs text-ink-3">
+            Chaque mot doit être écrit tel quel dans la proposition. Avec une définition, il devient cliquable.
+          </p>
+          {termes.map((ligne, index) => {
+            const absent = ligne.terme.trim() !== "" && !termeDansTexte(ligne.terme.trim(), position);
+            return (
+              <div key={ligne.cle} className="flex flex-col gap-2 rounded-2xl border border-line p-3">
+                <input
+                  className={input}
+                  aria-label={`Mot ${index + 1}`}
+                  aria-invalid={absent}
+                  placeholder="Mot ou expression"
+                  value={ligne.terme}
+                  maxLength={TERME_MAX}
+                  autoComplete="off"
+                  onChange={(e) => majTerme(ligne.cle, "terme", e.target.value)}
+                />
+                {absent && <p className="text-xs text-alert">Ce mot n&apos;apparaît pas dans la proposition.</p>}
+                <textarea
+                  className={`${input} min-h-16 resize-y`}
+                  aria-label={`Définition du mot ${index + 1} (facultative)`}
+                  placeholder="Définition courte (facultative)"
+                  value={ligne.definition}
+                  maxLength={DEFINITION_MAX}
+                  onChange={(e) => majTerme(ligne.cle, "definition", e.target.value)}
+                />
+                <button
+                  type="button"
+                  className={`${dangerButton} self-start`}
+                  onClick={() => setTermes((lignes) => lignes.filter((l) => l.cle !== ligne.cle))}
+                >
+                  Retirer ce mot
+                </button>
+              </div>
+            );
+          })}
+          {termes.length < TERMES_MAX && (
+            <button
+              type="button"
+              className={`${ghostButton} self-start`}
+              onClick={() => setTermes((lignes) => [...lignes, { cle: nouvelleCle(), terme: "", definition: "" }])}
+            >
+              Ajouter un mot
+            </button>
+          )}
+        </fieldset>
         <Champ libelle="Thème">
           {(id) => (
             <select id={id} className={input} value={theme} onChange={(e) => setTheme(estTheme(e.target.value) ? e.target.value : "")} required>

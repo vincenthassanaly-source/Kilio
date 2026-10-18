@@ -27,7 +27,7 @@ function idee(theme: Theme, s: Partial<Scores>, surcharge: Partial<IdeePourProfi
 }
 
 function proposition(theme: Theme, s: Partial<Scores>): PropositionParti {
-  return { id: `${theme}-${JSON.stringify(s)}`, position: "p", theme, scores: scores(s) };
+  return { id: `${theme}-${JSON.stringify(s)}`, position: "p", theme, scores: scores(s), termes: [] };
 }
 
 function programme(id: string, date: string | null, createdAt: string, propositions: PropositionParti[] = []): ProgrammeParti {
@@ -107,9 +107,9 @@ describe("classerPartis", () => {
   it("classe du plus proche au plus éloigné, sans donnée en dernier", () => {
     const moi = [idee("economie", { economique: -2 })];
     const partis: PartiComplet[] = [
-      { id: "1", nom: "Loin", sigle: "LO", programmes: [programme("p", null, "2026-01-01", [proposition("economie", { economique: 2 })])] },
-      { id: "2", nom: "Sans", sigle: "", programmes: [] },
-      { id: "3", nom: "Proche", sigle: "PR", programmes: [programme("p", null, "2026-01-01", [proposition("economie", { economique: -2 })])] },
+      { id: "1", nom: "Loin", sigle: "LO", couleur: "indigo", programmes: [programme("p", null, "2026-01-01", [proposition("economie", { economique: 2 })])] },
+      { id: "2", nom: "Sans", sigle: "", couleur: "corail", programmes: [] },
+      { id: "3", nom: "Proche", sigle: "PR", couleur: "olive", programmes: [programme("p", null, "2026-01-01", [proposition("economie", { economique: -2 })])] },
     ];
     expect(classerPartis(partis, moi).map((c) => c.parti.id)).toEqual(["3", "1", "2"]);
   });
@@ -164,9 +164,18 @@ describe("nettoyage des saisies", () => {
       position: "Baisser la TVA",
       theme: "fiscalite",
       scores: scores({ economique: 1 }),
+      termes: [],
     });
     expect(nettoyerProposition({ position: "x", theme: null, scores: scoresVides() })).toBe("Choisis un thème.");
     expect(nettoyerProposition({ position: " ", theme: "sante", scores: scoresVides() })).toBe("La proposition est requise.");
     expect(nettoyerProposition({ position: "x", theme: "sante", scores: scores({ societal: 3 }) })).toMatch(/Sociétal/);
+  });
+
+  it("nettoie les mots-clés d'une proposition et refuse un mot absent du texte", () => {
+    const base = { theme: "fiscalite" as const, scores: scoresVides() };
+    expect(
+      nettoyerProposition({ ...base, position: "Baisser la TVA", termes: [{ terme: " TVA ", definition: " un impôt " }, { terme: "", definition: "" }] })
+    ).toMatchObject({ termes: [{ terme: "TVA", definition: "un impôt" }] });
+    expect(nettoyerProposition({ ...base, position: "Baisser la TVA", termes: [{ terme: "ISF", definition: "" }] })).toMatch(/n'apparaît pas/);
   });
 });

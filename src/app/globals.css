@@ -71,6 +71,31 @@
   --classe-6: oklch(0.5 0.09 200);
   --classe-7: oklch(0.5 0.16 350);
   --classe-8: oklch(0.5 0.12 125);
+  /* Opinions : une teinte par parti (marqueurs, pastilles, barres ; texte
+     --on-accent par-dessus) et une par thème (pastilles et fonds légers). Elles
+     distinguent, elles ne jugent pas : aucune n'est liée à un score. */
+  --parti-indigo: oklch(0.5 0.15 265);
+  --parti-corail: oklch(0.5 0.16 35);
+  --parti-olive: oklch(0.5 0.11 120);
+  --parti-prune: oklch(0.5 0.14 335);
+  --parti-turquoise: oklch(0.5 0.1 195);
+  --parti-ambre: oklch(0.5 0.12 75);
+  --parti-ardoise: oklch(0.5 0.04 245);
+  --parti-rose: oklch(0.5 0.16 5);
+  --parti-vert: oklch(0.5 0.12 155);
+  --parti-violet: oklch(0.5 0.15 300);
+  --theme-economie: oklch(0.5 0.12 255);
+  --theme-fiscalite: oklch(0.5 0.12 90);
+  --theme-travail: oklch(0.5 0.12 55);
+  --theme-immigration: oklch(0.5 0.12 30);
+  --theme-sante: oklch(0.5 0.12 5);
+  --theme-culture: oklch(0.5 0.12 340);
+  --theme-education: oklch(0.5 0.12 300);
+  --theme-institutions: oklch(0.5 0.04 240);
+  --theme-securite: oklch(0.5 0.1 215);
+  --theme-international: oklch(0.5 0.1 190);
+  --theme-numerique: oklch(0.5 0.1 170);
+  --theme-ecologie: oklch(0.5 0.12 145);
   --nav-bg: oklch(0.995 0.006 95 / 0.78);
   --shadow-card:
     0 1px 2px oklch(0.3 0.03 150 / 0.05),
@@ -137,6 +162,31 @@
   --classe-6: oklch(0.76 0.09 200);
   --classe-7: oklch(0.76 0.13 350);
   --classe-8: oklch(0.77 0.13 125);
+  /* Opinions : une teinte par parti (marqueurs, pastilles, barres ; texte
+     --on-accent par-dessus) et une par thème (pastilles et fonds légers). Elles
+     distinguent, elles ne jugent pas : aucune n'est liée à un score. */
+  --parti-indigo: oklch(0.76 0.15 265);
+  --parti-corail: oklch(0.76 0.16 35);
+  --parti-olive: oklch(0.76 0.11 120);
+  --parti-prune: oklch(0.76 0.14 335);
+  --parti-turquoise: oklch(0.76 0.1 195);
+  --parti-ambre: oklch(0.76 0.12 75);
+  --parti-ardoise: oklch(0.76 0.04 245);
+  --parti-rose: oklch(0.76 0.16 5);
+  --parti-vert: oklch(0.76 0.12 155);
+  --parti-violet: oklch(0.76 0.15 300);
+  --theme-economie: oklch(0.76 0.12 255);
+  --theme-fiscalite: oklch(0.76 0.12 90);
+  --theme-travail: oklch(0.76 0.12 55);
+  --theme-immigration: oklch(0.76 0.12 30);
+  --theme-sante: oklch(0.76 0.12 5);
+  --theme-culture: oklch(0.76 0.12 340);
+  --theme-education: oklch(0.76 0.12 300);
+  --theme-institutions: oklch(0.76 0.04 240);
+  --theme-securite: oklch(0.76 0.1 215);
+  --theme-international: oklch(0.76 0.1 190);
+  --theme-numerique: oklch(0.76 0.1 170);
+  --theme-ecologie: oklch(0.76 0.12 145);
   --nav-bg: oklch(0.22 0.018 195 / 0.72);
   --shadow-card:
     0 1px 0 oklch(1 0 0 / 0.04) inset,
