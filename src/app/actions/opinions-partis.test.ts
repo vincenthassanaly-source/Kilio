@@ -201,7 +201,19 @@ describe("getPartis", () => {
               date_programme: "2027-01-15",
               created_at: "2026-10-18T10:00:00Z",
               opinions_propositions: [
-                { id: "p1", position: "Une", theme: "sante", score_economique: -1, score_societal: null, score_autorite: null, score_ecologie: null, score_identite: 9 },
+                {
+                  id: "p1",
+                  position: "Une",
+                  theme: "sante",
+                  explication_concret: "Elle change X.",
+                  explication_pour: "Pour : Y.",
+                  explication_contre: "",
+                  score_economique: -1,
+                  score_societal: null,
+                  score_autorite: null,
+                  score_ecologie: null,
+                  score_identite: 9,
+                },
                 { id: "p2", position: "Deux", theme: "zzz", score_economique: 1, score_societal: null, score_autorite: null, score_ecologie: null, score_identite: null },
               ],
             },
@@ -216,5 +228,6 @@ describe("getPartis", () => {
     expect(propositions[0]).toMatchObject({ id: "p1", theme: "sante" });
     expect(propositions[0].scores.economique).toBe(-1);
     expect(propositions[0].scores.identite).toBeNull();
+    expect(propositions[0].explication).toEqual({ concret: "Elle change X.", pour: "Pour : Y.", contre: "" });
   });
 });

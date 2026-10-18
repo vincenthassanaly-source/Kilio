@@ -1148,6 +1148,9 @@ export type Database = {
       opinions_propositions: {
         Row: {
           created_at: string
+          explication_concret: string
+          explication_contre: string
+          explication_pour: string
           id: string
           position: string
           programme_id: string
@@ -1162,6 +1165,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          explication_concret?: string
+          explication_contre?: string
+          explication_pour?: string
           id?: string
           position: string
           programme_id: string
@@ -1176,6 +1182,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          explication_concret?: string
+          explication_contre?: string
+          explication_pour?: string
           id?: string
           position?: string
           programme_id?: string

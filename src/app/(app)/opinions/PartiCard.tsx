@@ -29,6 +29,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { dangerButton, ghostButton, input, label, metaText, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
 import { varCouleurParti } from "@/lib/opinions/couleurs";
 import { EtiquetteTheme, PastilleParti, TexteProposition } from "./CouleursOpinions";
+import { ExplicationProposition } from "./ExplicationProposition";
 import { PartiFormModal, ProgrammeFormModal, PropositionFormModal } from "./PartisForms";
 import { AxeBarre } from "./ProfilView";
 
@@ -260,6 +261,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
                                 ];
                           })}
                         </ul>
+                        <ExplicationProposition explication={proposition.explication} />
                         <div className="flex flex-wrap gap-2">
                           <button type="button" className={ghostButton} disabled={enCours} onClick={() => reprendre(proposition)}>
                             Reprendre dans mes idées
