@@ -24,9 +24,11 @@ import {
   type Proximite,
   type PropositionParti,
 } from "@/lib/opinions/partis";
-import { AXES, LIBELLE_THEME, THEMES, formaterScore } from "@/lib/opinions/types";
+import { AXES, THEMES, formaterScore } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
 import { dangerButton, ghostButton, input, label, metaText, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
+import { varCouleurParti } from "@/lib/opinions/couleurs";
+import { EtiquetteTheme, PastilleParti, TexteProposition } from "./CouleursOpinions";
 import { PartiFormModal, ProgrammeFormModal, PropositionFormModal } from "./PartisForms";
 import { AxeBarre } from "./ProfilView";
 
@@ -147,7 +149,10 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
   const nombreTotal = parti.programmes.length;
 
   return (
-    <section className="rounded-[22px] border border-line bg-surface shadow-card">
+    <section
+      className="rounded-[22px] border border-l-4 border-line bg-surface shadow-card"
+      style={{ borderLeftColor: varCouleurParti(parti.couleur) }}
+    >
       <button
         type="button"
         aria-expanded={ouvert}
@@ -156,7 +161,10 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
         className="flex min-h-14 w-full items-center gap-3 rounded-[22px] p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="text-[15px] font-semibold text-ink">{libelleParti(parti)}</span>
+          <span className="flex items-center gap-2 text-[15px] font-semibold text-ink">
+            <PastilleParti couleur={parti.couleur} />
+            {libelleParti(parti)}
+          </span>
           <span className={metaText}>
             {parti.sigle ? `${parti.nom} · ` : ""}
             {nombreTotal === 0
@@ -233,11 +241,13 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
 
               {parTheme.map(({ theme, items }) => (
                 <div key={theme} className="flex flex-col gap-3">
-                  <h3 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">{LIBELLE_THEME[theme]}</h3>
+                  <h3 className="flex">
+                    <EtiquetteTheme theme={theme} />
+                  </h3>
                   <ul className="flex flex-col gap-3">
                     {items.map((proposition) => (
                       <li key={proposition.id} className="flex flex-col gap-2 border-t border-line pt-3 first:border-t-0 first:pt-0">
-                        <p className="text-[14.5px] leading-snug text-ink">{proposition.position}</p>
+                        <TexteProposition texte={proposition.position} termes={proposition.termes} theme={proposition.theme} />
                         <ul className="flex flex-wrap gap-1.5">
                           {AXES.flatMap((axe) => {
                             const score = proposition.scores[axe.id];

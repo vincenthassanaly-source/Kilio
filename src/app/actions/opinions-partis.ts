@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
+import { couleurOuDefaut, couleurSuivante, estCouleur, termesDepuisJson } from "@/lib/opinions/couleurs";
 import {
   colonnesDepuisScores,
   estNiveau,
@@ -32,7 +33,7 @@ export async function getPartis(): Promise<PartiComplet[]> {
   const { data, error } = await supabase
     .from("opinions_partis")
     .select(
-      "id, nom, sigle, opinions_programmes(id, echeance, date_programme, created_at, opinions_propositions(id, position, theme, score_economique, score_societal, score_autorite, score_ecologie, score_identite))"
+      "id, nom, sigle, couleur, opinions_programmes(id, echeance, date_programme, created_at, opinions_propositions(id, position, theme, termes, score_economique, score_societal, score_autorite, score_ecologie, score_identite))"
     )
     .order("nom");
   if (error) throw new Error(error.message);
@@ -41,6 +42,7 @@ export async function getPartis(): Promise<PartiComplet[]> {
     id: parti.id,
     nom: parti.nom,
     sigle: parti.sigle,
+    couleur: couleurOuDefaut(parti.couleur),
     programmes: parti.opinions_programmes.map((programme) => ({
       id: programme.id,
       echeance: programme.echeance,
@@ -49,7 +51,15 @@ export async function getPartis(): Promise<PartiComplet[]> {
       propositions: programme.opinions_propositions.flatMap((ligne): PropositionParti[] =>
         // Un thème hors liste n'a pas de place dans les comparaisons : ligne ignorée.
         estTheme(ligne.theme)
-          ? [{ id: ligne.id, position: ligne.position, theme: ligne.theme, scores: scoresDepuisColonnes(ligne) }]
+          ? [
+              {
+                id: ligne.id,
+                position: ligne.position,
+                theme: ligne.theme,
+                scores: scoresDepuisColonnes(ligne),
+                termes: termesDepuisJson(ligne.termes),
+              },
+            ]
           : []
       ),
     })),
@@ -70,25 +80,37 @@ export async function getPriorites(): Promise<Priorites> {
 
 // --- Partis ---
 
-export async function creerParti(nom: string, sigle: string): Promise<ActionResult> {
+/** `couleur` absente : la première teinte de la palette pas encore prise. */
+export async function creerParti(nom: string, sigle: string, couleur?: string | null): Promise<ActionResult> {
   const propres = nettoyerParti(nom, sigle);
   if (typeof propres === "string") return fail(propres);
+  if (couleur != null && !estCouleur(couleur)) return fail("Couleur invalide.");
 
   const supabase = createAdminClient();
-  const { error } = await supabase.from("opinions_partis").insert(propres);
+  let teinte = couleur;
+  if (teinte == null) {
+    const { data, error: erreurCouleurs } = await supabase.from("opinions_partis").select("couleur");
+    if (erreurCouleurs) return fail(erreurCouleurs.message);
+    teinte = couleurSuivante((data ?? []).map((ligne) => ligne.couleur));
+  }
+  const { error } = await supabase.from("opinions_partis").insert({ ...propres, couleur: teinte });
   if (error) return fail(error.code === CODE_DOUBLON ? "Ce parti existe déjà." : error.message);
 
   revalider();
   return ok();
 }
 
-export async function modifierParti(id: string, nom: string, sigle: string): Promise<ActionResult> {
+export async function modifierParti(id: string, nom: string, sigle: string, couleur?: string): Promise<ActionResult> {
   if (!estUuid(id)) return fail("Parti introuvable.");
   const propres = nettoyerParti(nom, sigle);
   if (typeof propres === "string") return fail(propres);
+  if (couleur !== undefined && !estCouleur(couleur)) return fail("Couleur invalide.");
 
   const supabase = createAdminClient();
-  const { error } = await supabase.from("opinions_partis").update(propres).eq("id", id);
+  const { error } = await supabase
+    .from("opinions_partis")
+    .update(couleur === undefined ? propres : { ...propres, couleur })
+    .eq("id", id);
   if (error) return fail(error.code === CODE_DOUBLON ? "Ce parti existe déjà." : error.message);
 
   revalider();
@@ -159,6 +181,7 @@ export async function creerProposition(programmeId: string, champs: ChampsPropos
     programme_id: programmeId,
     position: propres.position,
     theme: propres.theme,
+    termes: propres.termes,
     ...colonnesDepuisScores(propres.scores),
   });
   if (error) return fail(error.message);
@@ -178,6 +201,7 @@ export async function modifierProposition(id: string, champs: ChampsProposition)
     .update({
       position: propres.position,
       theme: propres.theme,
+      termes: propres.termes,
       ...colonnesDepuisScores(propres.scores),
       updated_at: new Date().toISOString(),
     })

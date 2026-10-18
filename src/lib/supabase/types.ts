@@ -1073,18 +1073,21 @@ export type Database = {
       }
       opinions_partis: {
         Row: {
+          couleur: string
           created_at: string
           id: string
           nom: string
           sigle: string
         }
         Insert: {
+          couleur?: string
           created_at?: string
           id?: string
           nom: string
           sigle?: string
         }
         Update: {
+          couleur?: string
           created_at?: string
           id?: string
           nom?: string
@@ -1153,6 +1156,7 @@ export type Database = {
           score_economique: number | null
           score_identite: number | null
           score_societal: number | null
+          termes: Json
           theme: string
           updated_at: string
         }
@@ -1166,6 +1170,7 @@ export type Database = {
           score_economique?: number | null
           score_identite?: number | null
           score_societal?: number | null
+          termes?: Json
           theme: string
           updated_at?: string
         }
@@ -1179,6 +1184,7 @@ export type Database = {
           score_economique?: number | null
           score_identite?: number | null
           score_societal?: number | null
+          termes?: Json
           theme?: string
           updated_at?: string
         }

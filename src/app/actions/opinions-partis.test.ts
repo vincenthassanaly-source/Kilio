@@ -36,9 +36,23 @@ beforeEach(() => {
 describe("creerParti", () => {
   it("nettoie le nom et le sigle puis écrit", async () => {
     const fake = brancher();
-    expect(await creerParti("  Renaissance ", " RE ")).toEqual({ ok: true, data: undefined });
-    expect(ecritures(fake.appels, "opinions_partis", "insert")[0].payload).toEqual({ nom: "Renaissance", sigle: "RE" });
+    expect(await creerParti("  Renaissance ", " RE ", "corail")).toEqual({ ok: true, data: undefined });
+    expect(ecritures(fake.appels, "opinions_partis", "insert")[0].payload).toEqual({
+      nom: "Renaissance",
+      sigle: "RE",
+      couleur: "corail",
+    });
     expect(etat.revalidatePath).toHaveBeenCalledWith("/opinions");
+  });
+
+  it("attribue la première teinte libre quand aucune n'est choisie, et refuse une teinte inconnue", async () => {
+    const fake = brancher((a) => (a.table === "opinions_partis" && a.action === "select" ? { data: [{ couleur: "indigo" }] } : undefined));
+    expect((await creerParti("Les Verts", "", null)).ok).toBe(true);
+    expect(ecritures(fake.appels, "opinions_partis", "insert")[0].payload).toMatchObject({ couleur: "corail" });
+
+    const autre = brancher();
+    expect(await creerParti("X", "", "rouge")).toEqual({ ok: false, error: "Couleur invalide." });
+    expect(ecritures(autre.appels, "opinions_partis")).toHaveLength(0);
   });
 
   it("refuse un nom vide sans écrire et nomme le doublon", async () => {
@@ -78,6 +92,20 @@ describe("programmes et propositions", () => {
       theme: "fiscalite",
       score_economique: 1,
       score_societal: null,
+    });
+  });
+
+  it("enregistre les mots-clés d'une proposition", async () => {
+    const fake = brancher();
+    const resultat = await creerProposition(ID, {
+      position: "Baisser la TVA",
+      theme: "fiscalite",
+      scores: scoresVides(),
+      termes: [{ terme: "TVA", definition: "un impôt sur ce qu'on achète" }],
+    });
+    expect(resultat.ok).toBe(true);
+    expect(ecritures(fake.appels, "opinions_propositions", "insert")[0].payload).toMatchObject({
+      termes: [{ terme: "TVA", definition: "un impôt sur ce qu'on achète" }],
     });
   });
 

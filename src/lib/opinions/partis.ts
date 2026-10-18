@@ -4,6 +4,7 @@
 //
 // Règle d'équité : une proposition est notée sur ce que dit le programme,
 // avec les mêmes pôles d'axes pour tous les partis (voir AXES dans types.ts).
+import { nettoyerTermes, type CouleurParti, type Terme } from "./couleurs";
 import { POIDS_CONVICTION, type AxeProfil, type IdeePourProfil } from "./profil";
 import { AXES, POSITION_MAX, estScore, estTheme, scoresVides, type AxeId, type Scores, type Theme } from "./types";
 
@@ -30,7 +31,7 @@ export type Priorites = Partial<Record<Theme, Niveau>>;
 
 // --- Données -----------------------------------------------------------------
 
-export type PropositionParti = { id: string; position: string; theme: Theme; scores: Scores };
+export type PropositionParti = { id: string; position: string; theme: Theme; scores: Scores; termes: Terme[] };
 
 export type ProgrammeParti = {
   id: string;
@@ -41,7 +42,7 @@ export type ProgrammeParti = {
   propositions: PropositionParti[];
 };
 
-export type PartiComplet = { id: string; nom: string; sigle: string; programmes: ProgrammeParti[] };
+export type PartiComplet = { id: string; nom: string; sigle: string; couleur: CouleurParti; programmes: ProgrammeParti[] };
 
 /** Le sigle quand il existe (court, tient dans un marqueur), sinon le nom. */
 export function libelleParti(parti: Pick<PartiComplet, "nom" | "sigle">): string {
@@ -221,7 +222,7 @@ export function classerPartis(
 
 // --- Marqueurs sur une piste d'axe ------------------------------------------------
 
-export type Marqueur = { id: string; libelle: string; valeur: number; moi?: boolean };
+export type Marqueur = { id: string; libelle: string; valeur: number; moi?: boolean; couleur?: CouleurParti };
 export type MarqueurPlace = Marqueur & { pourcent: number; ligne: number };
 
 // Estimation de la piste (mobile) pour éviter que deux étiquettes se chevauchent :
@@ -282,11 +283,17 @@ export function nettoyerProgramme(
   return { echeance: echeancePropre, date_programme: datePropre };
 }
 
-export type ChampsProposition = { position: string; theme: Theme | null; scores: Scores };
+/** `termes` : lignes de saisie brutes (terme + définition, chaînes vides permises). */
+export type ChampsProposition = {
+  position: string;
+  theme: Theme | null;
+  scores: Scores;
+  termes?: readonly { terme: string; definition: string }[];
+};
 
 export function nettoyerProposition(
   champs: ChampsProposition
-): { position: string; theme: Theme; scores: Scores } | string {
+): { position: string; theme: Theme; scores: Scores; termes: Terme[] } | string {
   const position = champs.position.trim();
   if (!position) return "La proposition est requise.";
   if (position.length > POSITION_MAX) return `La proposition dépasse ${POSITION_MAX} caractères.`;
@@ -298,5 +305,8 @@ export function nettoyerProposition(
     if (score !== null && !estScore(score)) return `Score invalide pour l'axe « ${axe.label} ».`;
     scores[axe.id] = score;
   }
-  return { position, theme: champs.theme, scores };
+
+  const termes = nettoyerTermes(champs.termes ?? [], position);
+  if (typeof termes === "string") return termes;
+  return { position, theme: champs.theme, scores, termes };
 }
