@@ -31,7 +31,22 @@ export type Priorites = Partial<Record<Theme, Niveau>>;
 
 // --- Données -----------------------------------------------------------------
 
-export type PropositionParti = { id: string; position: string; theme: Theme; scores: Scores; termes: Terme[] };
+/**
+ * Explication en mots simples, écrite par le skill après relecture : ce que la
+ * mesure change, puis le meilleur argument de chaque camp. Aucune source n'est
+ * conservée (choix assumé) : le texte du programme reste la référence.
+ */
+export type ExplicationProposition = { concret: string; pour: string; contre: string };
+
+export type PropositionParti = {
+  id: string;
+  position: string;
+  theme: Theme;
+  scores: Scores;
+  termes: Terme[];
+  /** `null` : pas encore expliquée. */
+  explication: ExplicationProposition | null;
+};
 
 export type ProgrammeParti = {
   id: string;
@@ -47,6 +62,23 @@ export type PartiComplet = { id: string; nom: string; sigle: string; couleur: Co
 /** Le sigle quand il existe (court, tient dans un marqueur), sinon le nom. */
 export function libelleParti(parti: Pick<PartiComplet, "nom" | "sigle">): string {
   return parti.sigle.trim() || parti.nom;
+}
+
+type ColonnesExplication = {
+  explication_concret?: string | null;
+  explication_pour?: string | null;
+  explication_contre?: string | null;
+};
+
+/**
+ * Lecture tolérante : les trois champs vides valent « pas encore expliquée ».
+ * Une explication partielle reste affichée (le composant saute les champs vides).
+ */
+export function explicationDepuisColonnes(ligne: ColonnesExplication): ExplicationProposition | null {
+  const concret = (ligne.explication_concret ?? "").trim();
+  const pour = (ligne.explication_pour ?? "").trim();
+  const contre = (ligne.explication_contre ?? "").trim();
+  return concret || pour || contre ? { concret, pour, contre } : null;
 }
 
 type ColonnesScores = {

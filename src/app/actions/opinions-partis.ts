@@ -6,6 +6,7 @@ import { couleurOuDefaut, couleurSuivante, estCouleur, termesDepuisJson } from "
 import {
   colonnesDepuisScores,
   estNiveau,
+  explicationDepuisColonnes,
   nettoyerParti,
   nettoyerProgramme,
   nettoyerProposition,
@@ -33,7 +34,7 @@ export async function getPartis(): Promise<PartiComplet[]> {
   const { data, error } = await supabase
     .from("opinions_partis")
     .select(
-      "id, nom, sigle, couleur, opinions_programmes(id, echeance, date_programme, created_at, opinions_propositions(id, position, theme, termes, score_economique, score_societal, score_autorite, score_ecologie, score_identite))"
+      "id, nom, sigle, couleur, opinions_programmes(id, echeance, date_programme, created_at, opinions_propositions(id, position, theme, termes, explication_concret, explication_pour, explication_contre, score_economique, score_societal, score_autorite, score_ecologie, score_identite))"
     )
     .order("nom");
   if (error) throw new Error(error.message);
@@ -58,6 +59,7 @@ export async function getPartis(): Promise<PartiComplet[]> {
                 theme: ligne.theme,
                 scores: scoresDepuisColonnes(ligne),
                 termes: termesDepuisJson(ligne.termes),
+                explication: explicationDepuisColonnes(ligne),
               },
             ]
           : []

@@ -3,6 +3,7 @@ import {
   calculerProximite,
   classerPartis,
   colonnesDepuisScores,
+  explicationDepuisColonnes,
   formaterMoyenne,
   moyennesParAxe,
   nettoyerParti,
@@ -27,12 +28,27 @@ function idee(theme: Theme, s: Partial<Scores>, surcharge: Partial<IdeePourProfi
 }
 
 function proposition(theme: Theme, s: Partial<Scores>): PropositionParti {
-  return { id: `${theme}-${JSON.stringify(s)}`, position: "p", theme, scores: scores(s), termes: [] };
+  return { id: `${theme}-${JSON.stringify(s)}`, position: "p", theme, scores: scores(s), termes: [], explication: null };
 }
 
 function programme(id: string, date: string | null, createdAt: string, propositions: PropositionParti[] = []): ProgrammeParti {
   return { id, echeance: id, date_programme: date, created_at: createdAt, propositions };
 }
+
+describe("explicationDepuisColonnes", () => {
+  it("vaut null quand rien n'est écrit (colonnes vides, absentes ou nulles)", () => {
+    expect(explicationDepuisColonnes({})).toBeNull();
+    expect(explicationDepuisColonnes({ explication_concret: "", explication_pour: " ", explication_contre: null })).toBeNull();
+  });
+
+  it("garde une explication partielle et nettoie les espaces", () => {
+    expect(explicationDepuisColonnes({ explication_concret: " Elle change X. ", explication_pour: "", explication_contre: "Contre." })).toEqual({
+      concret: "Elle change X.",
+      pour: "",
+      contre: "Contre.",
+    });
+  });
+});
 
 describe("programmeRecent", () => {
   it("préfère la date de publication la plus récente, puis la création", () => {
