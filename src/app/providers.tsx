@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig } from "framer-motion";
 import { ToastHost } from "@/components/toast/ToastHost";
 import { MusculationSync } from "@/lib/musculation/MusculationSync";
+import { VidageSync } from "@/lib/vidage/VidageSync";
 import { useOnlineSync } from "@/lib/offline/useOnlineSync";
 
 // Import dynamique plutôt que statique : `process.env.NODE_ENV` est figé au
@@ -66,6 +67,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       {children}
       <MusculationSync />
+      <VidageSync />
       <ToastHost />
       {ReactQueryDevtools && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
