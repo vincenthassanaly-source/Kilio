@@ -27,6 +27,7 @@ import {
   volumeTotal,
   type Brouillon,
 } from "@/lib/musculation/seance";
+import { synchroniserRappelRepos } from "@/lib/musculation/rappelRepos";
 import { signalerFinRepos, useMinuteurRepos } from "@/lib/musculation/useMinuteurRepos";
 import { useWakeLock } from "@/lib/musculation/useWakeLock";
 import { queryKeys } from "@/lib/query/keys";
@@ -99,6 +100,12 @@ export function SeanceView() {
     if (brouillon === null) router.replace("/musculation");
   }, [brouillon, router]);
 
+  // Notification push de fin de repos (téléphone verrouillé) : suit le repos en cours,
+  // l'annule quand il est passé, ajusté ou que la séance disparaît.
+  useEffect(() => {
+    if (brouillon !== undefined && !clos.current) synchroniserRappelRepos(brouillon);
+  }, [brouillon]);
+
   useWakeLock(Boolean(brouillon));
   const restant = useMinuteurRepos(brouillon?.repos ?? null, signalerFinRepos);
 
@@ -129,6 +136,7 @@ export function SeanceView() {
       showErrorToast("La séance n'a pas pu être enregistrée sur le téléphone. Réessaie.");
       return;
     }
+    synchroniserRappelRepos(null);
     const resultat = await synchroniserSeances();
     if (resultat.restantes === 0) {
       queryClient.invalidateQueries({ queryKey: queryKeys.seances });
@@ -149,6 +157,7 @@ export function SeanceView() {
   async function abandonner() {
     clos.current = true;
     await effacerBrouillon();
+    synchroniserRappelRepos(null);
     setBrouillon(null);
   }
 

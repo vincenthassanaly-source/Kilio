@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BackNavigationHandler } from "@/components/BackNavigationHandler";
+import { SeanceFlottante } from "@/components/SeanceFlottante";
 import { Providers } from "@/app/providers";
 import { TabSwipeWrapper } from "@/components/TabSwipeWrapper";
 import { NavigationEditProvider } from "@/lib/navigation/NavigationEditContext";
@@ -42,6 +43,7 @@ export default async function AppLayout({
           <NavigationEditProvider initialOrdreGrillePlus={ordreGrillePlus} initialModulesBarreBasse={modulesBarreBasse}>
             <TabSwipeWrapper>{children}</TabSwipeWrapper>
             <BottomNav />
+            <SeanceFlottante />
             <BackNavigationHandler />
           </NavigationEditProvider>
         </Suspense>

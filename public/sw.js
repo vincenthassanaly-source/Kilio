@@ -267,8 +267,30 @@ const ACTIONS_REPORT_RAPPEL = [
   { action: "reporter-1sem", title: "Semaine prochaine" },
 ];
 
+// Fin de repos de la séance de musculation (voir supabase/functions/envoyer-rappel-repos).
+// Si l'app est visible, elle sonne et vibre déjà elle-même : pas de doublon. Chrome
+// autorise de ne rien afficher quand une fenêtre du site est au premier plan.
+function notifierFinRepos(data) {
+  return self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+    if (clients.some((c) => c.visibilityState === "visible")) return undefined;
+    return self.registration.showNotification(data.title || "Repos terminé", {
+      body: data.body || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-badge-v2.png",
+      tag: "repos",
+      renotify: true,
+      vibrate: [220, 90, 220],
+      data: { url: data.url || "/musculation/seance" },
+    });
+  });
+}
+
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
+  if (data.type === "repos") {
+    event.waitUntil(notifierFinRepos(data));
+    return;
+  }
   event.waitUntil(
     self.registration.showNotification(data.title || "Kilio", {
       body: data.body || "",

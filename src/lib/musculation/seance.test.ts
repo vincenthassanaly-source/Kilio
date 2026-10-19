@@ -15,6 +15,7 @@ import {
   libelleSerie,
   lireNombre,
   modifierSerie,
+  prochaineSerie,
   remplacerExercice,
   resteRepos,
   retirerExercice,
@@ -244,6 +245,31 @@ describe("basculerSerie et repos", () => {
     expect(ajusterRepos(b, -1000).repos?.dureeS).toBe(5);
     expect(terminerRepos(b).repos).toBeNull();
     expect(ajusterRepos({ ...b, repos: null }, 15).repos).toBeNull();
+  });
+});
+
+describe("prochaineSerie", () => {
+  it("vise la première série non cochée, dans l'ordre des exercices", () => {
+    let b = ajouterExercice(brouillon(), { ...banc, nom: "Squat", nbSeries: 2 }, compteur());
+    const [premier, second] = b.exercices;
+    expect(prochaineSerie(b)).toMatchObject({ cle: premier.cle, serieId: premier.series[0].id, nom: "Développé couché", rang: 1, nbSeries: 3 });
+
+    for (const serie of premier.series) b = basculerSerie(b, premier.cle, serie.id, apres(0));
+    expect(prochaineSerie(b)).toMatchObject({ cle: second.cle, serieId: second.series[0].id, nom: "Squat", rang: 1, nbSeries: 2 });
+  });
+
+  it("revient sur une série décochée avant les suivantes, et vaut null quand tout est validé", () => {
+    let b = brouillon();
+    const { cle, series } = b.exercices[0];
+    b = basculerSerie(b, cle, series[0].id, apres(0));
+    b = basculerSerie(b, cle, series[1].id, apres(60));
+    expect(prochaineSerie(b)?.rang).toBe(3);
+    b = basculerSerie(b, cle, series[0].id, apres(70));
+    expect(prochaineSerie(b)?.rang).toBe(1);
+    b = basculerSerie(b, cle, series[0].id, apres(80));
+    b = basculerSerie(b, cle, series[2].id, apres(90));
+    expect(prochaineSerie(b)).toBeNull();
+    expect(prochaineSerie({ ...b, exercices: [] })).toBeNull();
   });
 });
 
