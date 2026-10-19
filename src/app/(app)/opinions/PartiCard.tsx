@@ -106,10 +106,24 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
     queryClient.invalidateQueries({ queryKey: queryKeys.opinionsPartis });
   }
 
+  /** Position de la cible dans le conteneur qui défile (`<main>`), marge de défilement déduite. */
+  function positionDansConteneur(cible: HTMLElement, conteneur: HTMLElement) {
+    const marge = parseFloat(getComputedStyle(cible).scrollMarginTop) || 0;
+    const haut = cible.getBoundingClientRect().top - conteneur.getBoundingClientRect().top;
+    return { haut, marge, cible: haut + conteneur.scrollTop - marge };
+  }
+
   function defiler(id: string) {
     const cible = document.getElementById(id);
     if (!cible) return;
     const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const conteneur = cible.closest("main");
+    // `<main>` est le conteneur qui défile : on le pilote directement plutôt
+    // que de dépendre de `scrollIntoView` (sans effet sur certains mobiles).
+    if (conteneur) {
+      conteneur.scrollTo({ top: Math.max(0, positionDansConteneur(cible, conteneur).cible), behavior: reduit ? "auto" : "smooth" });
+      return;
+    }
     cible.scrollIntoView({ behavior: reduit ? "auto" : "smooth", block: "start" });
   }
 
@@ -119,12 +133,21 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
   }
 
   function prochaineNonLue() {
-    const suivante = parTheme.flatMap(({ items }) => items).find((p) => !p.lu);
-    if (!suivante) {
+    const nonLues = parTheme.flatMap(({ items }) => items).filter((p) => !p.lu);
+    if (nonLues.length === 0) {
       showToast("Aucune proposition non lue dans cette vue", 2200);
       return;
     }
-    defiler(`${idPanneau}-prop-${suivante.id}`);
+    // Première non lue située sous la position de lecture (haut de l'écran),
+    // sinon retour à la toute première.
+    const apresPosition = nonLues.find((p) => {
+      const el = document.getElementById(`${idPanneau}-prop-${p.id}`);
+      const conteneur = el?.closest("main");
+      if (!el || !conteneur) return false;
+      const { haut, marge } = positionDansConteneur(el, conteneur);
+      return haut > marge + 8;
+    });
+    defiler(`${idPanneau}-prop-${(apresPosition ?? nonLues[0]).id}`);
   }
 
   // Mise à jour optimiste du cache : la case réagit tout de suite, l'écriture suit.
