@@ -1,5 +1,6 @@
 "use client";
 
+import type { Ref } from "react";
 import { varCouleurTheme } from "@/lib/opinions/couleurs";
 import type { FiltreSuivi } from "@/lib/opinions/partis";
 import { LIBELLE_THEME, type Theme } from "@/lib/opinions/types";
@@ -7,20 +8,21 @@ import { ghostButton } from "@/lib/ui";
 
 export type StatTheme = { theme: Theme; lues: number; total: number };
 
-/** Sous le bouton du thème fixe (ThemeToggle) posé en haut à droite par le layout. */
-export const DECALAGE_BARRE = "calc(env(safe-area-inset-top) + 60px)";
-/** Marge de défilement : la barre collante (≈ 8 rem) ne doit pas cacher la cible. */
-export const MARGE_DEFILEMENT = "scroll-mt-[calc(env(safe-area-inset-top)+10.5rem)]";
+/** Marge de défilement : la cible ne se cale pas sous le bouton du thème fixe (haut à droite). */
+export const MARGE_DEFILEMENT = "scroll-mt-[calc(env(safe-area-inset-top)+5rem)]";
 
 const chip =
   "inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold tabular-nums transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 /**
- * Barre collante d'un programme : progression « lues / total », saut vers la
+ * En-tête d'un programme : progression « lues / total », saut vers la
  * prochaine proposition non lue, filtres cumulables (non lues, favoris) et
- * saut par thème. Une seule rangée défile à l'horizontale (pas de scroll de page).
+ * saut par thème. Volontairement pas collant : pendant la lecture rien ne
+ * recouvre le texte (un bouton flottant, côté PartiCard, ramène ici).
+ * Une seule rangée défile à l'horizontale (pas de scroll de page).
  */
 export function BarreSuiviLecture({
+  ref,
   lues,
   total,
   filtre,
@@ -29,6 +31,7 @@ export function BarreSuiviLecture({
   onTheme,
   onProchaine,
 }: {
+  ref?: Ref<HTMLDivElement>;
   lues: number;
   total: number;
   filtre: FiltreSuivi;
@@ -41,10 +44,7 @@ export function BarreSuiviLecture({
   const toutLu = total > 0 && lues === total;
 
   return (
-    <div
-      className="sticky z-30 -mx-4 flex flex-col gap-1 border-b border-line bg-surface px-4 pb-2 pt-2"
-      style={{ top: DECALAGE_BARRE }}
-    >
+    <div ref={ref} className={`flex flex-col gap-1 border-b border-line pb-2 ${MARGE_DEFILEMENT}`}>
       <div className="flex items-center gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <p className="text-[13px] font-semibold text-ink tabular-nums" aria-live="polite">

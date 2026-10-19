@@ -34,12 +34,28 @@ export function SuiviProposition({
   return (
     <div className="flex items-center justify-between gap-2">
       <label className="flex min-h-11 cursor-pointer items-center gap-2.5 pr-3 text-sm font-medium text-ink">
-        <input
-          type="checkbox"
-          checked={proposition.lu}
-          onChange={() => onBasculer("lu")}
-          className="h-5 w-5 shrink-0 cursor-pointer accent-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
-        />
+        <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
+          <input
+            type="checkbox"
+            checked={proposition.lu}
+            onChange={() => onBasculer("lu")}
+            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-ink-3 bg-surface-alt transition-colors checked:border-kcal checked:bg-kcal motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          />
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="pointer-events-none absolute hidden text-on-kcal peer-checked:block"
+          >
+            <path d="m5 12 5 5 9-10" />
+          </svg>
+        </span>
         Lu
       </label>
       <button
