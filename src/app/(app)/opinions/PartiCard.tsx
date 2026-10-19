@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState, useTransition } from "react";
+import { useId, useMemo, useRef, useState, useTransition } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
@@ -33,6 +33,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { dangerButton, ghostButton, input, label, metaText, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
 import { varCouleurParti } from "@/lib/opinions/couleurs";
 import { BarreSuiviLecture, MARGE_DEFILEMENT } from "./BarreSuiviLecture";
+import { BoutonRetourBarre } from "./BoutonRetourBarre";
 import { EtiquetteTheme, PastilleParti, TexteProposition } from "./CouleursOpinions";
 import { SuiviProposition } from "./SuiviProposition";
 import { ExplicationProposition } from "./ExplicationProposition";
@@ -75,6 +76,8 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
   const queryClient = useQueryClient();
   const navigate = useViewTransitionNavigate();
   const idPanneau = useId();
+  const panneauRef = useRef<HTMLDivElement>(null);
+  const barreRef = useRef<HTMLDivElement>(null);
   const [ouvert, setOuvert] = useState(false);
   const [choix, setChoix] = useState<string | null>(null);
   const [filtre, setFiltre] = useState<FiltreSuivi>({ nonLues: false, favoris: false });
@@ -108,6 +111,11 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
     if (!cible) return;
     const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     cible.scrollIntoView({ behavior: reduit ? "auto" : "smooth", block: "start" });
+  }
+
+  function remonterALaBarre() {
+    const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    barreRef.current?.scrollIntoView({ behavior: reduit ? "auto" : "smooth", block: "start" });
   }
 
   function prochaineNonLue() {
@@ -234,7 +242,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
       </button>
 
       {ouvert && (
-        <div id={idPanneau} className="flex flex-col gap-4 border-t border-line p-4">
+        <div ref={panneauRef} id={idPanneau} className="flex flex-col gap-4 border-t border-line p-4">
           {programme === null ? (
             <p className="text-sm text-ink-2">
               Aucun programme pour l&apos;instant. Ajoute-en un, puis demande à Claude d&apos;importer ses propositions.
@@ -284,6 +292,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
           {propositions.length > 0 && (
             <>
               <BarreSuiviLecture
+                ref={barreRef}
                 lues={lues}
                 total={propositions.length}
                 filtre={filtre}
@@ -292,6 +301,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
                 onTheme={(theme: Theme) => defiler(`${idPanneau}-theme-${theme}`)}
                 onProchaine={prochaineNonLue}
               />
+              <BoutonRetourBarre barreRef={barreRef} panneauRef={panneauRef} onClick={remonterALaBarre} />
 
               <div className="flex flex-col gap-3">
                 <h3 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">
