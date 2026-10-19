@@ -20,7 +20,9 @@ type Etat = { actif: boolean; heure: string };
 
 /** Push du soir « Vider ta tête ? », envoyé seulement si la feuille du jour est encore vide. */
 export function VidageRow({ reglages }: { reglages: Tables<"reglages_briefing"> }) {
-  const initial: Etat = { actif: reglages.vidage_actif, heure: reglages.vidage_heure.slice(0, 5) };
+  // `??` : tant que la migration du rappel n'est pas appliquée, les colonnes vidage_*
+  // sont absentes de la ligne ; la page Réglages ne doit pas planter pour autant.
+  const initial: Etat = { actif: reglages.vidage_actif ?? false, heure: (reglages.vidage_heure ?? "21:00:00").slice(0, 5) };
   const [etat, setEtat] = useState<Etat>(initial);
   // Dernier état enregistré : référence pour le retour arrière après un échec.
   const [enregistre, setEnregistre] = useState<Etat>(initial);

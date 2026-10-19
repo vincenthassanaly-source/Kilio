@@ -197,7 +197,11 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
     if (e.pointerType === "mouse" && e.button !== 0) return;
     // Bouton gomme du stylet (ou bouton latéral du S Pen) : gomme le temps du contact.
     const gomme = v.outil === "gomme" || (e.buttons & 32) !== 0 || (e.pointerType === "pen" && (e.buttons & 2) !== 0);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Pointeur déjà relâché : le trait s'écrit quand même, sans capture.
+    }
     e.preventDefault();
     const { x, y } = versLogique(e);
     const point: PointBrut = { x, y, pression: pression(e) };

@@ -8,16 +8,16 @@
 
 export const LARGEUR_LOGIQUE = 1000;
 export const HAUTEUR_MIN = 2000;
-export const HAUTEUR_MAX = 30_000;
+const HAUTEUR_MAX = 30_000;
 export const MAX_TRAITS = 3000;
 export const MAX_POINTS_PAR_TRAIT = 2000;
-export const MAX_POINTS_TOTAL = 150_000;
+const MAX_POINTS_TOTAL = 150_000;
 
 export type Epaisseur = 1 | 2 | 3;
 export const EPAISSEURS: readonly Epaisseur[] = [1, 2, 3];
 
 /** Largeur de base du trait, en unités logiques, par épaisseur. */
-export const LARGEUR_BASE: Record<Epaisseur, number> = { 1: 2.5, 2: 4.5, 3: 8 };
+const LARGEUR_BASE: Record<Epaisseur, number> = { 1: 2.5, 2: 4.5, 3: 8 };
 
 export type Trait = { e: Epaisseur; p: number[] };
 export type PointBrut = { x: number; y: number; pression: number };

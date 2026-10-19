@@ -234,7 +234,7 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
         <Skeleton className="h-[60vh] w-full rounded-[22px]" />
       )}
 
-      <p className={`${eyebrow} min-h-5 text-center`} role="status" aria-live="polite">
+      <p className={`${eyebrow} min-h-5 text-center`} role="status" aria-live="polite" data-testid="vidage-statut">
         {statut}
       </p>
 

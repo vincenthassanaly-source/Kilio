@@ -20,7 +20,7 @@ export function preparer(ctx: CanvasRenderingContext2D, rendu: Rendu): void {
   ctx.lineJoin = "round";
 }
 
-export function dessinerTrait(ctx: CanvasRenderingContext2D, trait: Trait): void {
+function dessinerTrait(ctx: CanvasRenderingContext2D, trait: Trait): void {
   const { p, e } = trait;
   let uniforme = true;
   for (let i = 5; i < p.length; i += 3) {

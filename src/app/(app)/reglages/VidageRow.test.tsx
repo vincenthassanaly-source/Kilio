@@ -40,6 +40,15 @@ describe("VidageRow", () => {
     expect((screen.getByLabelText("Heure du rappel") as HTMLInputElement).value).toBe("21:00");
   });
 
+  it("ne plante pas tant que la migration n'a pas ajouté les colonnes vidage_*", () => {
+    const sansMigration: Partial<typeof reglages> = { ...reglages };
+    delete sansMigration.vidage_actif;
+    delete sansMigration.vidage_heure;
+    delete sansMigration.vidage_dernier_envoi;
+    render(<VidageRow reglages={sansMigration as typeof reglages} />);
+    expect(screen.getByRole("switch", { name: "Rappel du soir pour vider ma tête" })).toHaveAttribute("aria-checked", "false");
+  });
+
   it("masque le champ d'heure quand le rappel est désactivé", () => {
     render(<VidageRow reglages={{ ...reglages, vidage_actif: false }} />);
     expect(screen.queryByLabelText("Heure du rappel")).toBeNull();
