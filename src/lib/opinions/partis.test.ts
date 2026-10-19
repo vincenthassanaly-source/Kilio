@@ -3,7 +3,9 @@ import {
   calculerProximite,
   classerPartis,
   colonnesDepuisScores,
+  compterLues,
   explicationDepuisColonnes,
+  filtrerSuivi,
   formaterMoyenne,
   moyennesParAxe,
   nettoyerParti,
@@ -28,7 +30,7 @@ function idee(theme: Theme, s: Partial<Scores>, surcharge: Partial<IdeePourProfi
 }
 
 function proposition(theme: Theme, s: Partial<Scores>): PropositionParti {
-  return { id: `${theme}-${JSON.stringify(s)}`, position: "p", theme, scores: scores(s), termes: [], explication: null };
+  return { id: `${theme}-${JSON.stringify(s)}`, position: "p", theme, scores: scores(s), termes: [], explication: null, lu: false, favori: false };
 }
 
 function programme(id: string, date: string | null, createdAt: string, propositions: PropositionParti[] = []): ProgrammeParti {
@@ -193,5 +195,28 @@ describe("nettoyage des saisies", () => {
       nettoyerProposition({ ...base, position: "Baisser la TVA", termes: [{ terme: " TVA ", definition: " un impôt " }, { terme: "", definition: "" }] })
     ).toMatchObject({ termes: [{ terme: "TVA", definition: "un impôt" }] });
     expect(nettoyerProposition({ ...base, position: "Baisser la TVA", termes: [{ terme: "ISF", definition: "" }] })).toMatch(/n'apparaît pas/);
+  });
+});
+
+describe("suivi de lecture", () => {
+  const lue = { ...proposition("sante", {}), id: "a", lu: true, favori: false };
+  const luFavori = { ...proposition("sante", {}), id: "b", lu: true, favori: true };
+  const neuve = { ...proposition("sante", {}), id: "c", lu: false, favori: false };
+  const neuveFavorite = { ...proposition("sante", {}), id: "d", lu: false, favori: true };
+  const toutes = [lue, luFavori, neuve, neuveFavorite];
+
+  it("compte les propositions lues", () => {
+    expect(compterLues(toutes)).toBe(2);
+    expect(compterLues([])).toBe(0);
+  });
+
+  it("filtre sans rien retirer quand aucun filtre n'est actif", () => {
+    expect(filtrerSuivi(toutes, { nonLues: false, favoris: false })).toEqual(toutes);
+  });
+
+  it("cumule « non lues » et « favoris » (ET)", () => {
+    expect(filtrerSuivi(toutes, { nonLues: true, favoris: false }).map((p) => p.id)).toEqual(["c", "d"]);
+    expect(filtrerSuivi(toutes, { nonLues: false, favoris: true }).map((p) => p.id)).toEqual(["b", "d"]);
+    expect(filtrerSuivi(toutes, { nonLues: true, favoris: true }).map((p) => p.id)).toEqual(["d"]);
   });
 });

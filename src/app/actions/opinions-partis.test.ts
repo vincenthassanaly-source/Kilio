@@ -13,6 +13,7 @@ import {
   creerProgramme,
   creerProposition,
   definirPriorite,
+  definirSuiviProposition,
   getPartis,
   getPriorites,
   modifierProposition,
@@ -208,6 +209,8 @@ describe("getPartis", () => {
                   explication_concret: "Elle change X.",
                   explication_pour: "Pour : Y.",
                   explication_contre: "",
+                  lu: true,
+                  favori: false,
                   score_economique: -1,
                   score_societal: null,
                   score_autorite: null,
@@ -228,6 +231,29 @@ describe("getPartis", () => {
     expect(propositions[0]).toMatchObject({ id: "p1", theme: "sante" });
     expect(propositions[0].scores.economique).toBe(-1);
     expect(propositions[0].scores.identite).toBeNull();
+    expect(propositions[0]).toMatchObject({ lu: true, favori: false });
     expect(propositions[0].explication).toEqual({ concret: "Elle change X.", pour: "Pour : Y.", contre: "" });
+  });
+});
+
+describe("definirSuiviProposition", () => {
+  it("écrit lu ou favori sur la proposition", async () => {
+    const fake = brancher();
+    expect(await definirSuiviProposition(ID, "lu", true)).toEqual({ ok: true, data: undefined });
+    const ecriture = ecritures(fake.appels, "opinions_propositions", "update")[0];
+    expect(ecriture.payload).toEqual({ lu: true });
+    expect(ecriture.filtres).toContainEqual(["eq", "id", ID]);
+    expect(etat.revalidatePath).toHaveBeenCalledWith("/opinions");
+
+    await definirSuiviProposition(ID, "favori", false);
+    expect(ecritures(fake.appels, "opinions_propositions", "update")[1].payload).toEqual({ favori: false });
+  });
+
+  it("refuse un identifiant, un champ ou une valeur invalides sans écrire", async () => {
+    const fake = brancher();
+    expect((await definirSuiviProposition("nope", "lu", true)).ok).toBe(false);
+    expect((await definirSuiviProposition(ID, "position" as "lu", true)).ok).toBe(false);
+    expect((await definirSuiviProposition(ID, "lu", "oui" as unknown as boolean)).ok).toBe(false);
+    expect(ecritures(fake.appels, "opinions_propositions")).toHaveLength(0);
   });
 });

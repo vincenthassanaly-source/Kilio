@@ -46,7 +46,25 @@ export type PropositionParti = {
   termes: Terme[];
   /** `null` : pas encore expliquée. */
   explication: ExplicationProposition | null;
+  /** Suivi de lecture : coché à la main. */
+  lu: boolean;
+  /** Étoile « à relire / à garder ». */
+  favori: boolean;
 };
+
+export type FiltreSuivi = { nonLues: boolean; favoris: boolean };
+
+/** Propositions retenues par les chips « Non lues » / « Favoris » (cumulables : ET). */
+export function filtrerSuivi<T extends Pick<PropositionParti, "lu" | "favori">>(
+  propositions: readonly T[],
+  filtre: FiltreSuivi
+): T[] {
+  return propositions.filter((p) => (!filtre.nonLues || !p.lu) && (!filtre.favoris || p.favori));
+}
+
+export function compterLues(propositions: readonly Pick<PropositionParti, "lu">[]): number {
+  return propositions.filter((p) => p.lu).length;
+}
 
 export type ProgrammeParti = {
   id: string;

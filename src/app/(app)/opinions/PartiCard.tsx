@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
+  definirSuiviProposition,
   reprendreProposition,
   supprimerParti,
   supprimerProgramme,
@@ -16,19 +17,24 @@ import { showActionToast, showToast } from "@/components/toast/toast-store";
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate";
 import { runAction } from "@/lib/actions/runAction";
 import {
+  compterLues,
+  filtrerSuivi,
   libelleParti,
   moyennesParAxe,
   programmesParRecence,
+  type FiltreSuivi,
   type PartiComplet,
   type ProgrammeParti,
   type Proximite,
   type PropositionParti,
 } from "@/lib/opinions/partis";
-import { AXES, THEMES, formaterScore } from "@/lib/opinions/types";
+import { AXES, THEMES, formaterScore, type Theme } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
 import { dangerButton, ghostButton, input, label, metaText, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
 import { varCouleurParti } from "@/lib/opinions/couleurs";
+import { BarreSuiviLecture, MARGE_DEFILEMENT } from "./BarreSuiviLecture";
 import { EtiquetteTheme, PastilleParti, TexteProposition } from "./CouleursOpinions";
+import { SuiviProposition } from "./SuiviProposition";
 import { ExplicationProposition } from "./ExplicationProposition";
 import { PartiFormModal, ProgrammeFormModal, PropositionFormModal } from "./PartisForms";
 import { AxeBarre } from "./ProfilView";
@@ -71,6 +77,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
   const idPanneau = useId();
   const [ouvert, setOuvert] = useState(false);
   const [choix, setChoix] = useState<string | null>(null);
+  const [filtre, setFiltre] = useState<FiltreSuivi>({ nonLues: false, favoris: false });
   const [formulaire, setFormulaire] = useState<Formulaire>(null);
   // `"nouvelle"` : formulaire de création ; une proposition : modification.
   const [propositionEditee, setPropositionEditee] = useState<PropositionParti | "nouvelle" | null>(null);
@@ -80,13 +87,59 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
   const programmes = useMemo(() => programmesParRecence(parti.programmes), [parti.programmes]);
   const programme = programmes.find((p) => p.id === choix) ?? programmes[0] ?? null;
   const propositions = programme?.propositions ?? [];
+  const visibles = filtrerSuivi(propositions, filtre);
   const parTheme = THEMES.flatMap((theme) => {
-    const items = propositions.filter((p) => p.theme === theme);
+    const items = visibles.filter((p) => p.theme === theme);
     return items.length > 0 ? [{ theme, items }] : [];
+  });
+  const lues = compterLues(propositions);
+  // Chips de thème : seuls les thèmes qui ont encore des propositions sous le filtre.
+  const statsThemes = parTheme.map(({ theme }) => {
+    const duTheme = propositions.filter((p) => p.theme === theme);
+    return { theme, lues: compterLues(duTheme), total: duTheme.length };
   });
 
   function invalidatePartis() {
     queryClient.invalidateQueries({ queryKey: queryKeys.opinionsPartis });
+  }
+
+  function defiler(id: string) {
+    const cible = document.getElementById(id);
+    if (!cible) return;
+    const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    cible.scrollIntoView({ behavior: reduit ? "auto" : "smooth", block: "start" });
+  }
+
+  function prochaineNonLue() {
+    const suivante = parTheme.flatMap(({ items }) => items).find((p) => !p.lu);
+    if (!suivante) {
+      showToast("Aucune proposition non lue dans cette vue", 2200);
+      return;
+    }
+    defiler(`${idPanneau}-prop-${suivante.id}`);
+  }
+
+  // Mise à jour optimiste du cache : la case réagit tout de suite, l'écriture suit.
+  function basculerSuivi(proposition: PropositionParti, champ: "lu" | "favori") {
+    const valeur = !proposition[champ];
+    queryClient.setQueryData<PartiComplet[]>(queryKeys.opinionsPartis, (anciens) =>
+      anciens?.map((p) =>
+        p.id !== parti.id
+          ? p
+          : {
+              ...p,
+              programmes: p.programmes.map((pr) => ({
+                ...pr,
+                propositions: pr.propositions.map((x) => (x.id === proposition.id ? { ...x, [champ]: valeur } : x)),
+              })),
+            }
+      )
+    );
+    void runAction(() => definirSuiviProposition(proposition.id, champ, valeur), {
+      onError: invalidatePartis,
+    }).then((resultat) => {
+      if (!resultat.ok) invalidatePartis();
+    });
   }
 
   function apresEcriture() {
@@ -171,6 +224,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
             {nombreTotal === 0
               ? "Aucun programme"
               : `${nombreTotal} programme${nombreTotal > 1 ? "s" : ""}`}
+            {propositions.length > 0 && ` · ${lues}/${propositions.length} lues`}
           </span>
         </span>
         {proximite && (
@@ -229,6 +283,16 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
 
           {propositions.length > 0 && (
             <>
+              <BarreSuiviLecture
+                lues={lues}
+                total={propositions.length}
+                filtre={filtre}
+                onFiltre={setFiltre}
+                themes={statsThemes}
+                onTheme={(theme: Theme) => defiler(`${idPanneau}-theme-${theme}`)}
+                onProchaine={prochaineNonLue}
+              />
+
               <div className="flex flex-col gap-3">
                 <h3 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">
                   Ses positions ({propositions.length} proposition{propositions.length > 1 ? "s" : ""})
@@ -240,14 +304,31 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
                 </ul>
               </div>
 
+              {visibles.length === 0 && (
+                <div className="flex flex-col items-start gap-2">
+                  <p className="text-sm text-ink-2">Aucune proposition ne correspond à ces filtres.</p>
+                  <button
+                    type="button"
+                    className={ghostButton}
+                    onClick={() => setFiltre({ nonLues: false, favoris: false })}
+                  >
+                    Réinitialiser les filtres
+                  </button>
+                </div>
+              )}
+
               {parTheme.map(({ theme, items }) => (
                 <div key={theme} className="flex flex-col gap-3">
-                  <h3 className="flex">
+                  <h3 id={`${idPanneau}-theme-${theme}`} className={`flex ${MARGE_DEFILEMENT}`}>
                     <EtiquetteTheme theme={theme} />
                   </h3>
                   <ul className="flex flex-col gap-3">
                     {items.map((proposition) => (
-                      <li key={proposition.id} className="flex flex-col gap-2 border-t border-line pt-3 first:border-t-0 first:pt-0">
+                      <li
+                        key={proposition.id}
+                        id={`${idPanneau}-prop-${proposition.id}`}
+                        className={`flex flex-col gap-2 border-t border-line pt-3 first:border-t-0 first:pt-0 ${MARGE_DEFILEMENT}`}
+                      >
                         <TexteProposition texte={proposition.position} termes={proposition.termes} theme={proposition.theme} />
                         <ul className="flex flex-wrap gap-1.5">
                           {AXES.flatMap((axe) => {
@@ -262,6 +343,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
                           })}
                         </ul>
                         <ExplicationProposition explication={proposition.explication} />
+                        <SuiviProposition proposition={proposition} onBasculer={(champ) => basculerSuivi(proposition, champ)} />
                         <div className="flex flex-wrap gap-2">
                           <button type="button" className={ghostButton} disabled={enCours} onClick={() => reprendre(proposition)}>
                             Reprendre dans mes idées

@@ -34,7 +34,7 @@ export async function getPartis(): Promise<PartiComplet[]> {
   const { data, error } = await supabase
     .from("opinions_partis")
     .select(
-      "id, nom, sigle, couleur, opinions_programmes(id, echeance, date_programme, created_at, opinions_propositions(id, position, theme, termes, explication_concret, explication_pour, explication_contre, score_economique, score_societal, score_autorite, score_ecologie, score_identite))"
+      "id, nom, sigle, couleur, opinions_programmes(id, echeance, date_programme, created_at, opinions_propositions(id, position, theme, termes, explication_concret, explication_pour, explication_contre, lu, favori, score_economique, score_societal, score_autorite, score_ecologie, score_identite))"
     )
     .order("nom");
   if (error) throw new Error(error.message);
@@ -60,6 +60,8 @@ export async function getPartis(): Promise<PartiComplet[]> {
                 scores: scoresDepuisColonnes(ligne),
                 termes: termesDepuisJson(ligne.termes),
                 explication: explicationDepuisColonnes(ligne),
+                lu: ligne.lu === true,
+                favori: ligne.favori === true,
               },
             ]
           : []
@@ -221,6 +223,25 @@ export async function supprimerProposition(id: string): Promise<ActionResult> {
   const { error } = await supabase.from("opinions_propositions").delete().eq("id", id);
   if (error) return fail(error.message);
 
+  revalider();
+  return ok();
+}
+
+/** Coche / décoche « lu » ou l'étoile « favori » d'une proposition. */
+export async function definirSuiviProposition(
+  propositionId: string,
+  champ: "lu" | "favori",
+  valeur: boolean
+): Promise<ActionResult> {
+  if (!estUuid(propositionId)) return fail("Proposition introuvable.");
+  if (champ !== "lu" && champ !== "favori") return fail("Champ inconnu.");
+  if (typeof valeur !== "boolean") return fail("Valeur invalide.");
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("opinions_propositions")
+    .update(champ === "lu" ? { lu: valeur } : { favori: valeur })
+    .eq("id", propositionId);
+  if (error) return fail(error.message);
   revalider();
   return ok();
 }

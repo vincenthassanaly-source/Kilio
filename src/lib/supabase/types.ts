@@ -1151,7 +1151,9 @@ export type Database = {
           explication_concret: string
           explication_contre: string
           explication_pour: string
+          favori: boolean
           id: string
+          lu: boolean
           position: string
           programme_id: string
           score_autorite: number | null
@@ -1168,7 +1170,9 @@ export type Database = {
           explication_concret?: string
           explication_contre?: string
           explication_pour?: string
+          favori?: boolean
           id?: string
+          lu?: boolean
           position: string
           programme_id: string
           score_autorite?: number | null
@@ -1185,7 +1189,9 @@ export type Database = {
           explication_concret?: string
           explication_contre?: string
           explication_pour?: string
+          favori?: boolean
           id?: string
+          lu?: boolean
           position?: string
           programme_id?: string
           score_autorite?: number | null
