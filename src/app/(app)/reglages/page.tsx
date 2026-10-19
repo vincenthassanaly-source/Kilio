@@ -10,6 +10,7 @@ import { BriefingRow } from "./BriefingRow";
 import { NettoyageAutoRow } from "./NettoyageAutoRow";
 import { RevueHebdoRow } from "./RevueHebdoRow";
 import { NotificationsRow } from "./NotificationsRow";
+import { VidageRow } from "./VidageRow";
 
 const INFO_ICON_PROPS = {
   width: 16,
@@ -96,6 +97,7 @@ export default async function ReglagesPage() {
           <RevueHebdoRow reglages={reglagesBriefing} />
           <AlertesNutritionRow reglages={reglagesBriefing} />
           <BilanHebdoRow reglages={reglagesBriefing} />
+          <VidageRow reglages={reglagesBriefing} />
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
       </div>
