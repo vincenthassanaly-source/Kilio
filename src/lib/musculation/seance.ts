@@ -335,6 +335,28 @@ export function resteRepos(repos: Repos, maintenant: string): number {
   return Math.max(0, Math.ceil((ms(repos.finA) - ms(maintenant)) / 1000));
 }
 
+/**
+ * Première série pas encore cochée, exercices pris dans l'ordre de la séance.
+ * `rang` est 1-based dans l'exercice (« série 3/4 ») ; `null` si tout est validé.
+ */
+export type ProchaineSerie = { cle: string; serieId: string; nom: string; rang: number; nbSeries: number };
+
+export function prochaineSerie(b: Brouillon): ProchaineSerie | null {
+  for (const exercice of b.exercices) {
+    const index = exercice.series.findIndex((s) => !s.fait);
+    if (index !== -1) {
+      return {
+        cle: exercice.cle,
+        serieId: exercice.series[index].id,
+        nom: exercice.nom,
+        rang: index + 1,
+        nbSeries: exercice.series.length,
+      };
+    }
+  }
+  return null;
+}
+
 // --- Synthèse -------------------------------------------------------------
 
 export function compterSeries(b: Brouillon): { faites: number; total: number } {

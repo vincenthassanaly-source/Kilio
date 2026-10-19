@@ -12,6 +12,8 @@ const CLE_BROUILLON = "courant";
 
 /** Émis quand le brouillon change (début, abandon, fin) : voir useBrouillonEnCours. */
 export const EVENEMENT_BROUILLON = "kilio:musculation-brouillon";
+/** Émis après CHAQUE écriture du brouillon (séance en direct comprise) : voir SeanceFlottante. */
+export const EVENEMENT_BROUILLON_MAJ = "kilio:musculation-brouillon-maj";
 /** Émis quand une séance terminée est mise en attente d'envoi (voir MusculationSync). */
 export const EVENEMENT_SEANCE_EN_ATTENTE = "kilio:musculation-seance-en-attente";
 
@@ -36,6 +38,7 @@ export async function lireBrouillon(): Promise<Brouillon | null> {
 /** Écrit le brouillon. `signal` : prévient les autres écrans (bannière « séance en cours »). */
 export async function ecrireBrouillon(valeur: Brouillon, signal = false): Promise<void> {
   await (await base()).musculation_brouillon.put({ cle: CLE_BROUILLON, valeur });
+  signaler(EVENEMENT_BROUILLON_MAJ);
   if (signal) signaler(EVENEMENT_BROUILLON);
 }
 

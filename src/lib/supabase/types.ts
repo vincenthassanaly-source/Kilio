@@ -1737,6 +1737,36 @@ export type Database = {
         }
         Relationships: []
       }
+      rappels_repos: {
+        Row: {
+          corps: string
+          envoye: boolean
+          fin_a: string
+          id: string
+          titre: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          corps?: string
+          envoye?: boolean
+          fin_a: string
+          id?: string
+          titre?: string
+          updated_at?: string
+          url?: string
+        }
+        Update: {
+          corps?: string
+          envoye?: boolean
+          fin_a?: string
+          id?: string
+          titre?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       recette_etapes: {
         Row: {
           astuce: string | null

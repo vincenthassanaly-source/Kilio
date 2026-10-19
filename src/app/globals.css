@@ -418,11 +418,13 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
    la barre s'anime alors normalement, en direct). Bouton flottant : fondu
    par défaut, utile quand il n'existe que sur l'une des deux pages. */
 ::view-transition-old(bottom-nav),
-::view-transition-old(theme-toggle) {
+::view-transition-old(theme-toggle),
+::view-transition-old(seance-flottante) {
   display: none;
 }
 ::view-transition-new(bottom-nav),
-::view-transition-new(theme-toggle) {
+::view-transition-new(theme-toggle),
+::view-transition-new(seance-flottante) {
   animation: none;
 }
 
