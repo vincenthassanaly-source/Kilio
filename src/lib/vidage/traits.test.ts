@@ -6,6 +6,7 @@ import {
   compterPoints,
   creerTrait,
   hauteurRequise,
+  intersecteBande,
   simplifier,
   traitsTouches,
   validerFeuille,
@@ -68,6 +69,24 @@ describe("traitsTouches", () => {
   it("gère un trait réduit à un point", () => {
     const point: Trait = { e: 1, p: [50, 50, 50, 50, 50, 50] };
     expect(traitsTouches([point], 52, 51, 5)).toEqual([0]);
+  });
+});
+
+describe("intersecteBande", () => {
+  const trait: Trait = { e: 1, p: [0, 100, 50, 10, 300, 50] };
+
+  it("détecte un trait qui traverse la bande sans avoir de point dedans", () => {
+    expect(intersecteBande(trait, 150, 250)).toBe(true);
+  });
+
+  it("ignore un trait entièrement au-dessus ou en dessous", () => {
+    expect(intersecteBande(trait, 400, 500)).toBe(false);
+    expect(intersecteBande(trait, 0, 50)).toBe(false);
+  });
+
+  it("garde une marge égale à l'épaisseur du trait", () => {
+    const epais: Trait = { e: 3, p: [0, 100, 50, 10, 100, 50] };
+    expect(intersecteBande(epais, 102, 200)).toBe(true);
   });
 });
 

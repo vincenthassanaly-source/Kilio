@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { showErrorToast } from "@/components/toast/toast-store";
-import { queryKeys } from "@/lib/query/keys";
 import { EVENEMENT_FEUILLE_EN_ATTENTE, synchroniserFeuilles } from "./local";
 
 // Envoi différé après la dernière écriture : on n'envoie pas la feuille entière

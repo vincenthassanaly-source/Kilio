@@ -105,6 +105,33 @@ export function traitsTouches(traits: Trait[], x: number, y: number, rayon: numb
   return touches;
 }
 
+// Étendue verticale [min, max] de chaque trait, calculée une fois (les traits
+// ne sont jamais modifiés après création) : le canvas redessine la fenêtre
+// visible à chaque défilement, sans reparcourir tous les points.
+const etendues = new WeakMap<Trait, [number, number]>();
+
+function etendueY(trait: Trait): [number, number] {
+  let e = etendues.get(trait);
+  if (!e) {
+    let min = Infinity;
+    let max = -Infinity;
+    for (let i = 1; i < trait.p.length; i += 3) {
+      min = Math.min(min, trait.p[i]);
+      max = Math.max(max, trait.p[i]);
+    }
+    e = [min, max];
+    etendues.set(trait, e);
+  }
+  return e;
+}
+
+/** Le trait (épaisseur comprise) touche-t-il la bande verticale [yMin, yMax] ? */
+export function intersecteBande(trait: Trait, yMin: number, yMax: number): boolean {
+  const [min, max] = etendueY(trait);
+  const marge = LARGEUR_BASE[trait.e];
+  return max + marge >= yMin && min - marge <= yMax;
+}
+
 /** Place laissée sous le trait le plus bas : la feuille s'agrandit avant que le stylet n'arrive en bas. */
 const MARGE_BAS = 1000;
 const PAS_HAUTEUR = 500;

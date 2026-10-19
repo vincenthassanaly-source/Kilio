@@ -152,6 +152,14 @@ const VINTED_ICON = (c: string) =>
     createElement("circle", { cx: 8, cy: 8, r: 1.3, fill: c, stroke: "none" })
   );
 
+const VIDAGE_ICON = (c: string) =>
+  createElement(
+    "svg",
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    createElement("path", { d: "M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1z" }),
+    createElement("path", { d: "M14.5 6.5l3 3" })
+  );
+
 const OPINIONS_ICON = (c: string) =>
   createElement(
     "svg",
@@ -269,6 +277,13 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Idées politiques, positions et profil",
     accentVar: "var(--accent-opinions)",
     icon: OPINIONS_ICON,
+  },
+  {
+    href: "/vider-ma-tete",
+    label: "Vider ma tête",
+    description: "Écrire à la main pour poser la journée",
+    accentVar: "var(--accent-vidage)",
+    icon: VIDAGE_ICON,
   },
   {
     href: "/reglages",

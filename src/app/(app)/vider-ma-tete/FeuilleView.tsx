@@ -1,0 +1,253 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { enregistrerApercu, getFeuille, type FeuilleVidage } from "@/app/actions/vidage";
+import { Skeleton } from "@/components/skeletons/Skeleton";
+import { Switch } from "@/components/Switch";
+import { TransitionLink } from "@/components/TransitionLink";
+import { genererApercu } from "@/lib/vidage/apercu";
+import {
+  ajouter,
+  annuler,
+  gommer,
+  historiqueVide,
+  peutAnnuler,
+  peutRetablir,
+  retablir,
+  type Historique,
+} from "@/lib/vidage/historique";
+import {
+  EVENEMENT_FEUILLE_EN_ATTENTE,
+  choisirFeuille,
+  compterFeuillesEnAttente,
+  ecrireFeuilleLocale,
+  lireFeuilleLocale,
+  memoriserFeuilleServeur,
+  synchroniserFeuilles,
+} from "@/lib/vidage/local";
+import { HAUTEUR_MIN, hauteurRequise, type Epaisseur, type Trait } from "@/lib/vidage/traits";
+import { eyebrow, ghostButton, linkButton, screenTitle } from "@/lib/ui";
+import { BarreOutils } from "./BarreOutils";
+import { FeuilleCanvas, type Outil } from "./FeuilleCanvas";
+
+type Props = {
+  jour: string;
+  aujourdhui: string;
+  retour: { href: string; libelle: string };
+};
+
+const CLE_DOIGT = "kilio:vidage-doigt";
+// Au-delà, on affiche la feuille locale (ou vide) sans attendre le serveur.
+const DELAI_SERVEUR_MS = 4_000;
+// Pause d'écriture avant de régénérer l'aperçu image du calendrier.
+const DELAI_APERCU_MS = 8_000;
+
+// Préférence « écrire aussi au doigt » : localStorage via useSyncExternalStore (jamais lue au
+// rendu serveur), avec une copie en mémoire si le stockage est indisponible.
+let doigtMemoire: boolean | null = null;
+const ecouteursDoigt = new Set<() => void>();
+
+function lireDoigt(): boolean {
+  if (doigtMemoire !== null) return doigtMemoire;
+  try {
+    return localStorage.getItem(CLE_DOIGT) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function ecrireDoigt(valeur: boolean) {
+  doigtMemoire = valeur;
+  try {
+    localStorage.setItem(CLE_DOIGT, valeur ? "1" : "0");
+  } catch {
+    // Préférence non mémorisée : valable jusqu'à la fermeture de l'application.
+  }
+  ecouteursDoigt.forEach((ecouteur) => ecouteur());
+}
+
+function abonnerDoigt(ecouteur: () => void) {
+  ecouteursDoigt.add(ecouteur);
+  return () => {
+    ecouteursDoigt.delete(ecouteur);
+  };
+}
+
+function libelleJour(jour: string): string {
+  const texte = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(
+    new Date(`${jour}T12:00:00Z`)
+  );
+  return texte.charAt(0).toUpperCase() + texte.slice(1);
+}
+
+async function chargerServeur(jour: string): Promise<FeuilleVidage | null> {
+  let minuteur: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const attente = new Promise<null>((resolve) => {
+      minuteur = setTimeout(() => resolve(null), DELAI_SERVEUR_MS);
+    });
+    const resultat = await Promise.race([getFeuille(jour), attente]);
+    return resultat?.ok ? resultat.data : null;
+  } catch {
+    // Hors ligne : la copie locale prend le relais.
+    return null;
+  } finally {
+    clearTimeout(minuteur);
+  }
+}
+
+/** Envoie l'aperçu une fois la feuille reçue par le serveur (sinon il n'y aurait rien à relier). */
+async function envoyerApercu(jour: string, traits: Trait[]): Promise<void> {
+  if (traits.length === 0 || !navigator.onLine) return;
+  try {
+    const { restantes } = await synchroniserFeuilles();
+    if (restantes > 0) return;
+    const blob = await genererApercu(traits);
+    if (!blob) return;
+    const formData = new FormData();
+    formData.set("apercu", new File([blob], `${jour}.png`, { type: "image/png" }));
+    await enregistrerApercu(jour, formData);
+  } catch {
+    // L'aperçu n'est qu'une vignette : on réessaiera à la prochaine pause d'écriture.
+  }
+}
+
+/**
+ * Feuille du soir : écriture manuscrite, sauvegarde locale à chaque trait (la
+ * synchronisation vers le serveur est faite par VidageSync). Des modifications
+ * locales non envoyées priment toujours sur la version du serveur.
+ */
+export function FeuilleView({ jour, aujourdhui, retour }: Props) {
+  const [pret, setPret] = useState(false);
+  const [historique, setHistorique] = useState<Historique>(() => historiqueVide());
+  const [outil, setOutil] = useState<Outil>("stylo");
+  const [epaisseur, setEpaisseur] = useState<Epaisseur>(2);
+  const [enAttente, setEnAttente] = useState(0);
+
+  const derniersEcrits = useRef<Trait[] | null>(null);
+  const traitsCourants = useRef<Trait[]>([]);
+  const minuteurApercu = useRef<number | undefined>(undefined);
+  const apercuAFaire = useRef(false);
+
+  const traits = historique.traits;
+  const hauteur = useMemo(() => hauteurRequise(traits), [traits]);
+
+  const ecritAuDoigt = useSyncExternalStore(abonnerDoigt, lireDoigt, () => false);
+
+  // Chargement : la copie locale non envoyée prime ; sinon le serveur, avec repli local.
+  useEffect(() => {
+    let annule = false;
+    (async () => {
+      const local = await lireFeuilleLocale(jour);
+      let serveur: FeuilleVidage | null = null;
+      if (local?.a_envoyer !== 1) {
+        serveur = await chargerServeur(jour);
+        if (serveur) void memoriserFeuilleServeur(serveur);
+      }
+      if (annule) return;
+      const choix = choisirFeuille(local, serveur, HAUTEUR_MIN);
+      derniersEcrits.current = choix.traits;
+      traitsCourants.current = choix.traits;
+      setHistorique(historiqueVide(choix.traits));
+      setPret(true);
+    })();
+    return () => {
+      annule = true;
+    };
+  }, [jour]);
+
+  // Chaque modification est écrite sur le téléphone aussitôt ; VidageSync l'envoie après une pause.
+  useEffect(() => {
+    if (!pret || traits === derniersEcrits.current) return;
+    derniersEcrits.current = traits;
+    traitsCourants.current = traits;
+    void ecrireFeuilleLocale(jour, traits, hauteur);
+    apercuAFaire.current = true;
+    window.clearTimeout(minuteurApercu.current);
+    minuteurApercu.current = window.setTimeout(() => {
+      apercuAFaire.current = false;
+      void envoyerApercu(jour, traitsCourants.current);
+    }, DELAI_APERCU_MS);
+  }, [pret, traits, hauteur, jour]);
+
+  // En quittant l'écran, l'aperçu en attente part tout de suite.
+  useEffect(
+    () => () => {
+      window.clearTimeout(minuteurApercu.current);
+      if (apercuAFaire.current) void envoyerApercu(jour, traitsCourants.current);
+    },
+    [jour]
+  );
+
+  // Indicateur d'envoi : relevé à chaque écriture, puis à intervalle régulier.
+  useEffect(() => {
+    let actif = true;
+    const relever = () => void compterFeuillesEnAttente().then((n) => actif && setEnAttente(n));
+    relever();
+    const intervalle = window.setInterval(relever, 2_500);
+    window.addEventListener(EVENEMENT_FEUILLE_EN_ATTENTE, relever);
+    return () => {
+      actif = false;
+      window.clearInterval(intervalle);
+      window.removeEventListener(EVENEMENT_FEUILLE_EN_ATTENTE, relever);
+    };
+  }, []);
+
+  const surTrait = useCallback((trait: Trait) => setHistorique((h) => ajouter(h, trait)), []);
+  const surGomme = useCallback((indices: number[]) => setHistorique((h) => gommer(h, indices)), []);
+
+  const estAujourdhui = jour === aujourdhui;
+  const statut = enAttente > 0 ? "Gardé sur ton téléphone, envoi en attente" : traits.length > 0 ? "Enregistré" : "";
+
+  return (
+    <div className="flex flex-col gap-4">
+      <TransitionLink href={retour.href} className={`${linkButton} self-start`}>
+        ← {retour.libelle}
+      </TransitionLink>
+
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h1 className={screenTitle}>{estAujourdhui ? "Vider ma tête" : "Feuille du soir"}</h1>
+          <p className={eyebrow}>{libelleJour(jour)}</p>
+        </div>
+        <TransitionLink href="/vider-ma-tete/calendrier" className={`${ghostButton} shrink-0`}>
+          Relire
+        </TransitionLink>
+      </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-medium text-ink">Écrire aussi au doigt</span>
+        <Switch checked={ecritAuDoigt} onToggle={() => ecrireDoigt(!ecritAuDoigt)} label="Écrire aussi au doigt" />
+      </div>
+
+      {pret ? (
+        <FeuilleCanvas
+          traits={traits}
+          hauteur={hauteur}
+          outil={outil}
+          epaisseur={epaisseur}
+          ecritAuDoigt={ecritAuDoigt}
+          onTrait={surTrait}
+          onGomme={surGomme}
+        />
+      ) : (
+        <Skeleton className="h-[60vh] w-full rounded-[22px]" />
+      )}
+
+      <p className={`${eyebrow} min-h-5 text-center`} role="status" aria-live="polite">
+        {statut}
+      </p>
+
+      <BarreOutils
+        outil={outil}
+        onOutil={setOutil}
+        epaisseur={epaisseur}
+        onEpaisseur={setEpaisseur}
+        peutAnnuler={peutAnnuler(historique)}
+        peutRetablir={peutRetablir(historique)}
+        onAnnuler={() => setHistorique(annuler)}
+        onRetablir={() => setHistorique(retablir)}
+      />
+    </div>
+  );
+}

@@ -4,6 +4,7 @@ const FICHE_REFERENTIEL = /^\/pharmacie\/referentiel\/(classe|medicament|patholo
 // L'éditeur de routine (/musculation/routines/<id>) n'a pas de page « /musculation/routines » :
 // son parent est l'accueil du module.
 const EDITEUR_ROUTINE = /^\/musculation\/routines\/[^/]+$/;
+const FEUILLE_VIDAGE = /^\/vider-ma-tete\/\d{4}-\d{2}-\d{2}$/;
 
 /**
  * Exception au retour « parent logique » : un jour du Journal ouvert depuis le
@@ -61,6 +62,9 @@ export function parentRoute(pathname: string, modulesBarreBasse: readonly string
   }
 
   if (EDITEUR_ROUTINE.test(chemin)) return "/musculation";
+
+  // Une feuille d'un autre jour s'ouvre depuis le calendrier de relecture.
+  if (FEUILLE_VIDAGE.test(chemin)) return "/vider-ma-tete/calendrier";
 
   const segments = chemin.split("/").filter(Boolean);
   segments.pop();

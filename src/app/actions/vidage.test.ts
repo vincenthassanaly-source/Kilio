@@ -135,10 +135,18 @@ describe("listerJoursEcrits", () => {
     expect((await listerJoursEcrits("2026-13")).ok).toBe(false);
   });
 
-  it("borne la requête au mois et renvoie les jours", async () => {
-    const fake = brancher(() => ({ data: [{ jour: "2026-10-03" }, { jour: "2026-10-19" }] }));
+  it("borne la requête au mois et renvoie les jours avec une vignette signée quand elle existe", async () => {
+    const fake = brancher(() => ({
+      data: [
+        { jour: "2026-10-03", apercu_path: null },
+        { jour: "2026-10-19", apercu_path: "2026-10-19.png" },
+      ],
+    }));
     const r = await listerJoursEcrits("2026-10");
-    expect(r).toEqual({ ok: true, data: ["2026-10-03", "2026-10-19"] });
+    expect(r.ok && r.data).toEqual([
+      { jour: "2026-10-03", apercuUrl: null },
+      { jour: "2026-10-19", apercuUrl: expect.stringContaining("/object/sign/vider-tete/2026-10-19.png") },
+    ]);
     expect(fake.appels[0].filtres).toEqual([
       ["gte", "jour", "2026-10-01"],
       ["lte", "jour", "2026-10-31"],

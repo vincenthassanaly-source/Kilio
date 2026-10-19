@@ -98,18 +98,29 @@ export async function enregistrerApercu(jour: string, formData: FormData): Promi
   return ok();
 }
 
-/** Jours écrits d'un mois (AAAA-MM), pour le calendrier de relecture. */
-export async function listerJoursEcrits(mois: string): Promise<ActionResult<string[]>> {
+export type JourEcrit = { jour: string; apercuUrl: string | null };
+
+/** Jours écrits d'un mois (AAAA-MM) avec leur vignette signée, pour le calendrier de relecture. */
+export async function listerJoursEcrits(mois: string): Promise<ActionResult<JourEcrit[]>> {
   if (!estMoisValide(mois)) return fail("Mois invalide.");
   const [premier, dernier] = premierEtDernierJour(mois);
-  const { data, error } = await createAdminClient()
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
     .from("feuilles_vidage")
-    .select("jour")
+    .select("jour, apercu_path")
     .gte("jour", premier)
     .lte("jour", dernier)
     .order("jour", { ascending: true });
   if (error) return fail("Le calendrier n'a pas pu être chargé. Réessaie.");
-  return ok((data ?? []).map((ligne) => ligne.jour));
+
+  const lignes = data ?? [];
+  const chemins = lignes.flatMap((ligne) => (ligne.apercu_path ? [ligne.apercu_path] : []));
+  const urls = new Map<string, string>();
+  if (chemins.length > 0) {
+    const signees = await supabase.storage.from(BUCKET).createSignedUrls(chemins, APERCU_URL_SECONDES);
+    for (const s of signees.data ?? []) if (s.path && s.signedUrl) urls.set(s.path, s.signedUrl);
+  }
+  return ok(lignes.map((ligne) => ({ jour: ligne.jour, apercuUrl: (ligne.apercu_path && urls.get(ligne.apercu_path)) || null })));
 }
 
 export async function updateReglagesVidage(actif: boolean, heure: string): Promise<ActionResult> {
