@@ -94,6 +94,8 @@ export function fauxSupabase(repondre: Repondre = () => undefined, repondreStock
           stockage.push(op);
           return Promise.resolve({ data: null, error: repondreStockage(op)?.error ?? null });
         },
+        createSignedUrl: (chemin: string, _secondes: number) =>
+          Promise.resolve({ data: { signedUrl: `https://stockage.test/storage/v1/object/sign/${bucket}/${chemin}?token=t` }, error: null }),
         getPublicUrl: (chemin: string) => ({
           data: { publicUrl: `https://stockage.test/storage/v1/object/public/${bucket}/${chemin}` },
         }),
