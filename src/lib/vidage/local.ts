@@ -22,6 +22,12 @@ export type FeuilleLocale = {
 
 /** Émis après chaque écriture locale en attente d'envoi : voir VidageSync. */
 export const EVENEMENT_FEUILLE_EN_ATTENTE = "kilio:vidage-en-attente";
+/**
+ * Émis quand au moins une feuille vient d'arriver sur le serveur, QUEL QUE SOIT
+ * l'appelant de synchroniserFeuilles (synchro de fond ou envoi de l'aperçu en
+ * quittant la feuille) : le calendrier de relecture se rafraîchit dessus.
+ */
+export const EVENEMENT_FEUILLES_ENVOYEES = "kilio:vidage-envoyees";
 
 // Une feuille déjà envoyée n'est gardée localement que quelques jours (lecture
 // hors ligne des dernières soirées) ; le serveur garde tout.
@@ -151,6 +157,7 @@ async function envoyerEnAttente(): Promise<ResultatEnvoi> {
   }
 
   await purgerAnciennes();
+  if (envoyees > 0 && typeof window !== "undefined") window.dispatchEvent(new Event(EVENEMENT_FEUILLES_ENVOYEES));
   return { envoyees, restantes: await compterFeuillesEnAttente(), refus };
 }
 
