@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 function rendre(surcharges: Partial<React.ComponentProps<typeof MenuFeuille>> = {}) {
   const props = {
-    aTranscription: false,
+    aTexte: false,
     enTranscription: false,
     peutTranscrire: true,
     peutEffacer: true,
@@ -41,11 +41,11 @@ describe("MenuFeuille", () => {
     expect(screen.queryByRole("menuitem", { name: "Voir le texte" })).toBeNull();
   });
 
-  it("propose Retranscrire et Voir le texte quand la feuille est déjà transcrite", async () => {
-    const props = rendre({ aTranscription: true });
+  it("propose Voir le texte quand le jour a déjà du texte, sans jamais proposer « Retranscrire »", async () => {
+    const props = rendre({ aTexte: true });
     await ouvrir();
-    expect(screen.queryByRole("menuitem", { name: "Transcrire" })).toBeNull();
-    expect(screen.getByRole("menuitem", { name: "Retranscrire" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Transcrire" })).toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: "Retranscrire" })).toBeNull();
     await userEvent.click(screen.getByRole("menuitem", { name: "Voir le texte" }));
     expect(props.onVoirTexte).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("menu")).toBeNull();
