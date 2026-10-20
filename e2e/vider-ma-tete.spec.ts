@@ -100,6 +100,49 @@ test("la feuille écrite est retrouvée après un rechargement", async ({ page }
   await expect.poll(() => pixelsEncres(apres)).toBeGreaterThan(50);
 });
 
+const defilement = (page: import("@playwright/test").Page) => page.locator("main").evaluate((m) => m.scrollTop);
+
+test("le stylet n'a jamais le droit de faire défiler la page, le doigt si", async ({ page }) => {
+  const canvas = await ouvrir(page);
+  const defilable = await page.locator("main").evaluate((m) => m.scrollHeight > m.clientHeight + 200);
+  expect(defilable).toBe(true);
+  const depart = await defilement(page);
+
+  // Trait vertical au stylet : la feuille écrit, la page ne bouge pas.
+  await tracer(canvas, "pen", [{ x: 60, y: 100 }, { x: 62, y: 180 }, { x: 64, y: 260 }, { x: 66, y: 340 }], 7);
+  await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
+  expect(await defilement(page)).toBe(depart);
+
+  // Glissé du doigt vers le haut : la page défile (recréé par l'app, sans défilement natif).
+  await tracer(canvas, "touch", [{ x: 150, y: 500 }, { x: 150, y: 420 }, { x: 150, y: 340 }, { x: 150, y: 260 }], 21);
+  await expect.poll(() => defilement(page)).toBeGreaterThan(depart + 100);
+});
+
+test("effacer la feuille demande confirmation puis se laisse annuler", async ({ page }) => {
+  const canvas = await ouvrir(page);
+  await expect(page.getByRole("button", { name: "Effacer la feuille" })).toBeDisabled();
+  await tracer(canvas, "pen", diagonale);
+  await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
+
+  // « Garder » referme sans rien effacer.
+  await page.getByRole("button", { name: "Effacer la feuille" }).click();
+  const dialogue = page.getByRole("dialog");
+  await expect(dialogue).toContainText("Tu pourras revenir en arrière");
+  await dialogue.getByRole("button", { name: "Garder" }).click();
+  await expect(dialogue).toHaveCount(0);
+  expect(await pixelsEncres(canvas)).toBeGreaterThan(50);
+
+  // Confirmer vide la feuille ; le serveur reçoit la suppression de la ligne du jour.
+  await page.getByRole("button", { name: "Effacer la feuille" }).click();
+  await dialogue.getByRole("button", { name: "Effacer la feuille" }).click();
+  await expect.poll(() => pixelsEncres(canvas)).toBe(0);
+  await expect.poll(async () => (await ecritures("feuilles_vidage", "DELETE")).length, { timeout: 15_000 }).toBeGreaterThan(0);
+
+  // Annuler restaure toute la feuille.
+  await page.getByRole("button", { name: "Annuler" }).click();
+  await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
+});
+
 test("la barre du bas est masquée sur la feuille du soir mais pas sur le calendrier", async ({ page }) => {
   await ouvrir(page);
   await expect(page.getByRole("toolbar", { name: "Outils d'écriture" })).toBeVisible();
