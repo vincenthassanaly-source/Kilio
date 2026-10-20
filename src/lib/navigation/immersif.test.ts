@@ -7,6 +7,12 @@ describe("barreBasseMasquee", () => {
     expect(barreBasseMasquee("/musculation/seance/")).toBe(true);
   });
 
+  it("masque la barre sur la feuille du soir et sur celle d'un autre jour, mais pas sur le calendrier", () => {
+    expect(barreBasseMasquee("/vider-ma-tete")).toBe(true);
+    expect(barreBasseMasquee("/vider-ma-tete/2026-10-12")).toBe(true);
+    expect(barreBasseMasquee("/vider-ma-tete/calendrier")).toBe(false);
+  });
+
   it("la garde partout ailleurs, y compris dans le reste du module", () => {
     for (const chemin of ["/", "/musculation", "/musculation/historique", "/musculation/routines/abc", "/musculation/stats", "/plus"]) {
       expect(barreBasseMasquee(chemin)).toBe(false);

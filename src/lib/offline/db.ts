@@ -28,11 +28,25 @@ type CacheLecture = { cle: string; valeur: unknown; enregistre_le: string };
 type MusculationBrouillon = { cle: string; valeur: unknown };
 type MusculationAEnvoyer = { id: string; payload: unknown; cree_le: string; erreur?: string };
 
+// Module « Vider ma tête » : une feuille manuscrite par jour, écrite localement
+// à chaque trait puis envoyée au serveur. `a_envoyer` vaut 1 tant que la
+// dernière version n'est pas partie (Dexie n'indexe pas les booléens). `traits`
+// est typé côté lib/vidage (Trait[]) ; ici `unknown` comme pour la musculation.
+type VidageFeuilleLocale = {
+  jour: string;
+  traits: unknown;
+  hauteur: number;
+  modifie_le: string;
+  a_envoyer: 0 | 1;
+  erreur?: string;
+};
+
 class OfflineDB extends Dexie {
   pending_actions!: Table<PendingAction, number>;
   cache_lecture!: Table<CacheLecture, string>;
   musculation_brouillon!: Table<MusculationBrouillon, string>;
   musculation_a_envoyer!: Table<MusculationAEnvoyer, string>;
+  vidage_feuilles!: Table<VidageFeuilleLocale, string>;
 
   constructor() {
     super("kilio-offline");
@@ -62,6 +76,13 @@ class OfflineDB extends Dexie {
       cache_lecture: "cle",
       musculation_brouillon: "cle",
       musculation_a_envoyer: "id, cree_le",
+    });
+    this.version(6).stores({
+      pending_actions: "++id, created_at",
+      cache_lecture: "cle",
+      musculation_brouillon: "cle",
+      musculation_a_envoyer: "id, cree_le",
+      vidage_feuilles: "jour",
     });
   }
 }

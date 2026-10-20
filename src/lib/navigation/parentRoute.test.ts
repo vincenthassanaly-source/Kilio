@@ -36,6 +36,12 @@ describe("parentRoute", () => {
   it("ramène l'éditeur de routine à l'accueil Musculation, et la séance en direct aussi", () => {
     expect(parentRoute("/musculation/routines/abc", BARRE)).toBe("/musculation");
     expect(parentRoute("/musculation/routines/nouvelle", BARRE)).toBe("/musculation");
+  });
+
+  it("ramène une feuille d'un autre jour au calendrier de relecture, et le calendrier à la feuille du soir", () => {
+    expect(parentRoute("/vider-ma-tete/2026-10-12", BARRE)).toBe("/vider-ma-tete/calendrier");
+    expect(parentRoute("/vider-ma-tete/calendrier", BARRE)).toBe("/vider-ma-tete");
+    expect(parentRoute("/vider-ma-tete", BARRE)).toBe("/plus");
     expect(parentRoute("/musculation/seance", BARRE)).toBe("/musculation");
   });
 

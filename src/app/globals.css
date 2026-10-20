@@ -52,6 +52,7 @@
   --accent-musculation: oklch(0.55 0.14 20);
   --accent-vinted: oklch(0.55 0.14 190);
   --accent-opinions: oklch(0.55 0.14 315);
+  --accent-vidage: oklch(0.55 0.14 250);
   /* Balises de catégorie du module Pharmacie (violet, rose, jaune…) : barre
      et pictogramme ≥ 3:1 sur surface (les 5 niveaux historiques : 4,1 à 5,3:1). */
   --niveau-violet: oklch(0.52 0.16 300);
@@ -147,6 +148,7 @@
   --accent-musculation: oklch(0.72 0.13 20);
   --accent-vinted: oklch(0.72 0.13 190);
   --accent-opinions: oklch(0.72 0.13 315);
+  --accent-vidage: oklch(0.72 0.13 250);
   --niveau-violet: oklch(0.72 0.13 300);
   --niveau-rose: oklch(0.73 0.14 350);
   --niveau-jaune: oklch(0.79 0.14 95);
@@ -234,6 +236,7 @@
   --color-musculation: var(--accent-musculation);
   --color-vinted: var(--accent-vinted);
   --color-opinions: var(--accent-opinions);
+  --color-vidage: var(--accent-vidage);
   --color-nav: var(--nav-bg);
   --shadow-card: var(--shadow-card);
   --font-display: var(--font-sora);

@@ -157,6 +157,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 - **Agenda** : le bleu `--accent-agenda` sert de couleur interactive **à l'intérieur de l'Agenda uniquement** (sélecteur Jour/Semaine/Mois glissant, FAB, anneau de focus des blocs, « Aujourd'hui »), avec `--on-agenda` pour le texte posé dessus. Motif : l'Agenda superpose tâches, planning de travail et créneaux, et le bleu y distingue l'action du contenu. Aucun autre module n'a cette exception.
 - **Échelle de priorité des tâches** : les badges et blocs de priorité (basse / moyenne / haute) utilisent `agenda` / `carbs` / `alert` en **teinte de fond à 10-15 %**, toujours doublée d'un marqueur non chromatique (glyphe ou libellé). Ce sont des indicateurs passifs, jamais des contrôles ; le sélecteur de priorité, lui, est un contrôle segmenté standard (actif en vert Kcal).
 - **Barre de navigation** : les labels de la barre du bas sont en 11px (plancher du système).
+- **Vider ma tête** : teinte `--accent-vidage` (`oklch(0.55 0.14 250)`, identité du module et vignette du calendrier). L'écran d'écriture est **immersif** : pas de barre du bas, une barre d'outils flottante à sa place (stylo, gomme, 3 épaisseurs, annuler/rétablir, cibles 44 px). L'encre est `--ink` (suit clair/sombre) sur la surface, avec des lignes d'écriture `--line` ; les aperçus PNG du calendrier restent en encre sombre sur papier clair quel que soit le thème (image opaque).
 ## Typography
 
 **Display Font:** Sora (600/700/800), fallback `ui-sans-serif, system-ui`

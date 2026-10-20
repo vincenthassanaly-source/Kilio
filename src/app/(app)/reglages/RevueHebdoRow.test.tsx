@@ -26,6 +26,9 @@ const reglages = {
   bilan_jour: 0,
   bilan_heure: "18:00:00",
   bilan_dernier_envoi: null,
+  vidage_actif: false,
+  vidage_heure: "21:00:00",
+  vidage_dernier_envoi: null,
   updated_at: "2026-10-09T00:00:00Z",
 };
 

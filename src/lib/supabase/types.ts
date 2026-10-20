@@ -417,6 +417,33 @@ export type Database = {
           },
         ]
       }
+      feuilles_vidage: {
+        Row: {
+          apercu_path: string | null
+          created_at: string
+          hauteur: number
+          jour: string
+          traits: Json
+          updated_at: string
+        }
+        Insert: {
+          apercu_path?: string | null
+          created_at?: string
+          hauteur?: number
+          jour: string
+          traits?: Json
+          updated_at?: string
+        }
+        Update: {
+          apercu_path?: string | null
+          created_at?: string
+          hauteur?: number
+          jour?: string
+          traits?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       habitudes: {
         Row: {
           actif: boolean
@@ -2318,6 +2345,9 @@ export type Database = {
           revue_heure: string
           revue_jour: number
           updated_at: string
+          vidage_actif: boolean
+          vidage_dernier_envoi: string | null
+          vidage_heure: string
         }
         Insert: {
           actif?: boolean
@@ -2338,6 +2368,9 @@ export type Database = {
           revue_heure?: string
           revue_jour?: number
           updated_at?: string
+          vidage_actif?: boolean
+          vidage_dernier_envoi?: string | null
+          vidage_heure?: string
         }
         Update: {
           actif?: boolean
@@ -2358,6 +2391,9 @@ export type Database = {
           revue_heure?: string
           revue_jour?: number
           updated_at?: string
+          vidage_actif?: boolean
+          vidage_dernier_envoi?: string | null
+          vidage_heure?: string
         }
         Relationships: []
       }
