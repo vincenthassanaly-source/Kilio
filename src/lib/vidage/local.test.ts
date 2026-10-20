@@ -48,7 +48,6 @@ const serveur = (traits: Trait[] = [T]): FeuilleVidage => ({
   apercuUrl: null,
   updatedAt: "2026-10-19T19:00:00.000Z",
   transcription: null,
-  transcriptionModifiee: false,
 });
 
 beforeEach(() => {

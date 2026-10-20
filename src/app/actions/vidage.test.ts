@@ -11,12 +11,14 @@ vi.mock("@/lib/gemini/appel", () => ({ appelerGemini: etat.gemini, MESSAGE_QUOTA
 import {
   enregistrerApercu,
   enregistrerFeuille,
+  ajouterTexte,
   enregistrerTranscription,
   getFeuille,
   listerJoursEcrits,
   supprimerTranscription,
   transcrireFeuille,
   updateReglagesVidage,
+  validerTranscription,
 } from "./vidage";
 import type { Trait } from "@/lib/vidage/traits";
 
@@ -55,7 +57,7 @@ describe("getFeuille", () => {
     const r = await getFeuille(JOUR);
     expect(r).toEqual({
       ok: true,
-      data: { jour: JOUR, traits: [], hauteur: 2000, apercuUrl: null, updatedAt: null, transcription: null, transcriptionModifiee: false },
+      data: { jour: JOUR, traits: [], hauteur: 2000, apercuUrl: null, updatedAt: null, transcription: null },
     });
   });
 
@@ -181,52 +183,39 @@ describe("updateReglagesVidage", () => {
   });
 });
 
-describe("getFeuille : transcription", () => {
-  it("renvoie le texte transcrit et s'il a été corrigé à la main", async () => {
+describe("getFeuille : texte du jour", () => {
+  it("renvoie le texte du jour", async () => {
     brancher(() => ({
-      data: { jour: JOUR, traits: [TRAIT], hauteur: 2000, apercu_path: null, updated_at: "x", transcription: "Bonjour", transcription_modifiee: true },
+      data: { jour: JOUR, traits: [TRAIT], hauteur: 2000, apercu_path: null, updated_at: "x", transcription: "10:00\nBonjour" },
     }));
     const r = await getFeuille(JOUR);
-    expect(r.ok && r.data.transcription).toBe("Bonjour");
-    expect(r.ok && r.data.transcriptionModifiee).toBe(true);
+    expect(r.ok && r.data.transcription).toBe("10:00\nBonjour");
   });
 
-  it("renvoie « pas de transcription » pour une feuille vide ou jamais transcrite", async () => {
+  it("renvoie « pas de texte » pour une feuille vide ou sans texte", async () => {
     brancher();
     const vide = await getFeuille(JOUR);
-    expect(vide.ok && vide.data).toMatchObject({ transcription: null, transcriptionModifiee: false });
+    expect(vide.ok && vide.data).toMatchObject({ transcription: null });
     brancher(() => ({ data: { jour: JOUR, traits: [TRAIT], hauteur: 2000, apercu_path: null, updated_at: "x" } }));
     const jamais = await getFeuille(JOUR);
     expect(jamais.ok && jamais.data.transcription).toBeNull();
   });
 });
 
-describe("enregistrerFeuille : le texte suit la feuille", () => {
-  const payloadUpsert = (fake: ReturnType<typeof brancher>) =>
-    ecritures(fake.appels, "feuilles_vidage", "upsert")[0].payload as Record<string, unknown>;
-
-  it("efface la transcription quand les traits changent", async () => {
-    const fake = brancher((a) => (a.action === "select" ? { data: { traits: [TRAIT] } } : undefined));
-    await enregistrerFeuille(JOUR, [TRAIT, TRAIT], 2000);
-    expect(payloadUpsert(fake)).toMatchObject({ transcription: null, transcription_modifiee: false });
-  });
-
-  it("garde la transcription quand la même feuille est renvoyée (reprise après coupure)", async () => {
-    const fake = brancher((a) => (a.action === "select" ? { data: { traits: [{ p: TRAIT.p, e: TRAIT.e }] } } : undefined));
-    await enregistrerFeuille(JOUR, [TRAIT], 2000);
-    expect(payloadUpsert(fake)).not.toHaveProperty("transcription");
-  });
-
-  it("n'écrit pas de transcription pour une feuille neuve", async () => {
+describe("enregistrerFeuille : le texte du jour survit à la feuille", () => {
+  it("ne touche pas au texte quand les traits changent", async () => {
     const fake = brancher();
-    await enregistrerFeuille(JOUR, [TRAIT], 2000);
-    expect(payloadUpsert(fake)).not.toHaveProperty("transcription");
+    await enregistrerFeuille(JOUR, [TRAIT, TRAIT], 2000);
+    expect(ecritures(fake.appels, "feuilles_vidage", "upsert")[0].payload).not.toHaveProperty("transcription");
   });
 
-  it("efface le texte par précaution si la feuille existante est illisible", async () => {
-    const fake = brancher((a) => (a.action === "select" ? { error: { message: "boom" } } : undefined));
-    await enregistrerFeuille(JOUR, [TRAIT], 2000);
-    expect(payloadUpsert(fake)).toMatchObject({ transcription: null });
+  it("garde la ligne, sans traits ni aperçu, quand la feuille est vidée mais qu'il y a du texte", async () => {
+    const fake = brancher((a) => (a.action === "select" ? { data: { transcription: "10:00\nBonjour" } } : undefined));
+    const r = await enregistrerFeuille(JOUR, [], 2000);
+    expect(r.ok).toBe(true);
+    expect(ecritures(fake.appels, "feuilles_vidage", "delete")).toHaveLength(0);
+    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toMatchObject({ traits: [], apercu_path: null });
+    expect(fake.stockage).toContainEqual({ bucket: "vider-tete", action: "remove", chemins: [`${JOUR}.png`] });
   });
 });
 
@@ -237,7 +226,7 @@ describe("transcrireFeuille", () => {
     fichiers.forEach((fichier) => f.append("tranche", fichier));
     return f;
   };
-  const ligne = (a: { action: string }) => (a.action === "select" ? { data: { updated_at: "2026-10-19T19:00:00Z" } } : undefined);
+  const ligne = (a: { action: string }) => (a.action === "select" ? { data: { jour: JOUR } } : undefined);
 
   it("refuse un jour invalide, l'absence d'image, un mauvais type et trop d'images", async () => {
     brancher(ligne);
@@ -262,11 +251,9 @@ describe("transcrireFeuille", () => {
     expect(etat.gemini).not.toHaveBeenCalled();
   });
 
-  it("envoie les tranches en base64 à Gemini et enregistre le texte lu", async () => {
+  it("envoie les tranches en base64 à Gemini et renvoie le texte lu sans l'enregistrer", async () => {
     etat.gemini.mockResolvedValue({ ok: true, brut: { texte: "  Ma journée  " } });
-    const fake = brancher((a) =>
-      a.action === "select" ? { data: { updated_at: "2026-10-19T19:00:00Z" } } : a.action === "update" ? { data: [{ jour: JOUR }] } : undefined
-    );
+    const fake = brancher(ligne);
     const r = await transcrireFeuille(JOUR, formulaire(tranche(3), tranche(3)));
     expect(r).toEqual({ ok: true, data: { texte: "Ma journée" } });
 
@@ -276,17 +263,8 @@ describe("transcrireFeuille", () => {
       { mimeType: "image/png", data: "AQEB" },
     ]);
     expect(appel.temperature).toBe(0);
-    const maj = ecritures(fake.appels, "feuilles_vidage", "update")[0];
-    expect(maj.payload).toEqual({ transcription: "Ma journée", transcription_modifiee: false });
-    // N'écrit que si la feuille n'a pas changé pendant l'appel.
-    expect(maj.filtres).toContainEqual(["eq", "updated_at", "2026-10-19T19:00:00Z"]);
-  });
-
-  it("refuse d'enregistrer si la feuille a changé pendant la transcription", async () => {
-    etat.gemini.mockResolvedValue({ ok: true, brut: { texte: "Ancien texte" } });
-    brancher((a) => (a.action === "select" ? { data: { updated_at: "x" } } : a.action === "update" ? { data: [] } : undefined));
-    const r = await transcrireFeuille(JOUR, formulaire(tranche()));
-    expect(r).toEqual({ ok: false, error: "La feuille a changé pendant la transcription. Relance-la." });
+    // Seule la validation (validerTranscription) enregistre le texte.
+    expect(ecritures(fake.appels, "feuilles_vidage")).toHaveLength(0);
   });
 
   it("signale le quota atteint, un échec de Gemini et une réponse illisible, sans rien enregistrer", async () => {
@@ -312,24 +290,66 @@ describe("transcrireFeuille", () => {
   });
 });
 
-describe("enregistrerTranscription et supprimerTranscription", () => {
-  it("enregistre le texte corrigé et le marque comme modifié à la main", async () => {
-    const fake = brancher();
-    const r = await enregistrerTranscription(JOUR, "Texte corrigé");
+describe("validerTranscription et ajouterTexte", () => {
+  // 20:00 UTC le 19 octobre 2026 = 22:00 à Paris.
+  it("refuse un jour invalide, un texte vide ou un texte du jour qui deviendrait trop long", async () => {
+    const fake = brancher((a) => (a.action === "select" ? { data: { transcription: "a".repeat(49_990) } } : undefined));
+    expect((await validerTranscription("hier", "x")).ok).toBe(false);
+    expect((await ajouterTexte(JOUR, "   ")).ok).toBe(false);
+    expect((await ajouterTexte(JOUR, "b".repeat(20))).ok).toBe(false);
+    expect(ecritures(fake.appels, "feuilles_vidage")).toHaveLength(0);
+  });
+
+  it("valider ajoute le texte avec l'heure, vide la feuille et supprime l'aperçu", async () => {
+    const fake = brancher((a) => (a.action === "select" ? { data: { transcription: "09:00\nMatin" } } : undefined));
+    const r = await validerTranscription(JOUR, "  Soir  ");
     expect(r.ok).toBe(true);
-    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toEqual({
-      transcription: "Texte corrigé",
-      transcription_modifiee: true,
+    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toMatchObject({
+      transcription: "09:00\nMatin\n\n22:00\nSoir",
+      traits: [],
+      apercu_path: null,
+    });
+    expect(fake.stockage).toContainEqual({ bucket: "vider-tete", action: "remove", chemins: [`${JOUR}.png`] });
+  });
+
+  it("ajouter une note tapée garde la feuille et son aperçu", async () => {
+    const fake = brancher((a) => (a.action === "select" ? { data: { transcription: null } } : undefined));
+    const r = await ajouterTexte(JOUR, "Une idée");
+    expect(r.ok).toBe(true);
+    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toEqual({ transcription: "22:00\nUne idée" });
+    expect(fake.stockage).toHaveLength(0);
+  });
+
+  it("crée la ligne du jour, sans traits, quand il n'y en a pas encore", async () => {
+    const fake = brancher();
+    const r = await ajouterTexte(JOUR, "Première note");
+    expect(r.ok).toBe(true);
+    expect(ecritures(fake.appels, "feuilles_vidage", "insert")[0].payload).toMatchObject({
+      jour: JOUR,
+      transcription: "22:00\nPremière note",
+      traits: [],
     });
   });
 
-  it("traite un texte vidé comme une suppression", async () => {
+  it("signale un échec de base", async () => {
+    brancher(() => ({ error: { message: "boom" } }));
+    expect((await ajouterTexte(JOUR, "x")).ok).toBe(false);
+  });
+});
+
+describe("enregistrerTranscription et supprimerTranscription", () => {
+  it("enregistre le texte du jour corrigé à la main", async () => {
     const fake = brancher();
+    const r = await enregistrerTranscription(JOUR, "Texte corrigé");
+    expect(r.ok).toBe(true);
+    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toEqual({ transcription: "Texte corrigé" });
+  });
+
+  it("traite un texte vidé comme une suppression, et retire la ligne s'il ne reste pas d'écriture", async () => {
+    const fake = brancher((a) => (a.action === "select" ? { data: { traits: [] } } : undefined));
     await enregistrerTranscription(JOUR, "   ");
-    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toEqual({
-      transcription: null,
-      transcription_modifiee: false,
-    });
+    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toEqual({ transcription: null });
+    expect(ecritures(fake.appels, "feuilles_vidage", "delete")).toHaveLength(1);
   });
 
   it("refuse un jour invalide ou un texte plus long que la limite", async () => {
@@ -339,13 +359,11 @@ describe("enregistrerTranscription et supprimerTranscription", () => {
   });
 
   it("supprime le texte sans toucher aux traits", async () => {
-    const fake = brancher();
+    const fake = brancher((a) => (a.action === "select" ? { data: { traits: [TRAIT] } } : undefined));
     const r = await supprimerTranscription(JOUR);
     expect(r.ok).toBe(true);
-    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toEqual({
-      transcription: null,
-      transcription_modifiee: false,
-    });
+    expect(ecritures(fake.appels, "feuilles_vidage", "update")[0].payload).toEqual({ transcription: null });
+    expect(ecritures(fake.appels, "feuilles_vidage", "delete")).toHaveLength(0);
   });
 
   it("signale un échec de base", async () => {

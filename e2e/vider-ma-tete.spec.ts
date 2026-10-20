@@ -169,6 +169,40 @@ test("Transcrire : l'échec de Gemini est annoncé et la feuille reste intacte",
   expect(await pixelsEncres(canvas)).toBeGreaterThan(50);
 });
 
+test("Clavier : la note tapée rejoint le texte du jour avec l'heure, la feuille de stylo est remplacée", async ({ page }) => {
+  await ouvrir(page);
+  await page.getByRole("button", { name: "Clavier", exact: true }).click();
+  // La feuille et ses outils laissent la place à la zone de texte.
+  await expect(page.getByRole("img", { name: /Feuille du soir/ })).toHaveCount(0);
+  await expect(page.getByRole("toolbar", { name: "Outils d'écriture" })).toHaveCount(0);
+
+  const champ = page.getByRole("textbox", { name: "Ce que tu as en tête" });
+  const ajouter = page.getByRole("button", { name: "Ajouter", exact: true });
+  await expect(ajouter).toBeDisabled();
+  await champ.fill("Une idée");
+  await expect(ajouter).toBeEnabled();
+  await ajouter.click();
+
+  await expect(page.getByText("Texte ajouté à ta journée")).toBeVisible();
+  await expect(champ).toHaveValue("");
+  await expect
+    .poll(async () => (await ecritures("feuilles_vidage", "POST")).some((l) => /^\d{2}:\d{2}\nUne idée$/.test(String(l.transcription))), {
+      timeout: 15_000,
+    })
+    .toBe(true);
+
+  // Le texte du jour est consultable depuis le menu ; il n'y a rien à transcrire sur une feuille vide.
+  await ouvrirMenu(page);
+  await expect(page.getByRole("menuitem", { name: "Transcrire" })).toBeDisabled();
+  await page.getByRole("menuitem", { name: "Voir le texte" }).click();
+  await expect(page.getByRole("textbox", { name: "Texte du jour" })).toHaveValue(/^\d{2}:\d{2}\nUne idée$/);
+
+  // Revenir au stylo retrouve la feuille.
+  await page.getByRole("button", { name: "Fermer" }).click();
+  await page.getByRole("button", { name: "Stylo", exact: true }).click();
+  await expect(page.getByRole("img", { name: /Feuille du soir/ })).toBeVisible();
+});
+
 test("le calendrier montre la feuille qu'on vient d'écrire, même si on l'ouvre aussitôt", async ({ page }) => {
   // Régression : le calendrier lu avant l'arrivée de la feuille sur le serveur restait « vide » en cache.
   const canvas = await ouvrir(page);

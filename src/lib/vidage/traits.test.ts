@@ -8,7 +8,6 @@ import {
   hauteurRequise,
   intersecteBande,
   simplifier,
-  traitsIdentiques,
   traitsTouches,
   validerFeuille,
   type Trait,
@@ -70,31 +69,6 @@ describe("traitsTouches", () => {
   it("gère un trait réduit à un point", () => {
     const point: Trait = { e: 1, p: [50, 50, 50, 50, 50, 50] };
     expect(traitsTouches([point], 52, 51, 5)).toEqual([0]);
-  });
-});
-
-describe("traitsIdentiques", () => {
-  const a: Trait = { e: 2, p: [10, 20, 50, 30, 40, 60] };
-
-  it("reconnaît deux feuilles identiques, même relues depuis la base", () => {
-    expect(traitsIdentiques([a], [{ e: 2, p: [10, 20, 50, 30, 40, 60] }])).toBe(true);
-    // jsonb ne garantit pas l'ordre des clés
-    expect(traitsIdentiques([{ p: [10, 20, 50, 30, 40, 60], e: 2 }], [a])).toBe(true);
-    expect(traitsIdentiques([], [])).toBe(true);
-  });
-
-  it("détecte un trait en plus, en moins, ou modifié", () => {
-    expect(traitsIdentiques([a], [a, a])).toBe(false);
-    expect(traitsIdentiques([a, a], [a])).toBe(false);
-    expect(traitsIdentiques([a], [{ ...a, e: 3 }])).toBe(false);
-    expect(traitsIdentiques([a], [{ e: 2, p: [10, 20, 50, 30, 41, 60] }])).toBe(false);
-    expect(traitsIdentiques([a], [{ e: 2, p: [10, 20, 50] }])).toBe(false);
-  });
-
-  it("traite toute donnée illisible comme différente", () => {
-    expect(traitsIdentiques(null, [a])).toBe(false);
-    expect(traitsIdentiques("abc", [])).toBe(false);
-    expect(traitsIdentiques([{ e: 2 }], [a])).toBe(false);
   });
 });
 

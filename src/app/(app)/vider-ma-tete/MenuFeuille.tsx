@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type Props = {
-  /** La feuille a déjà un texte transcrit : « Retranscrire » et « Voir le texte ». */
-  aTranscription: boolean;
+  /** Le jour a déjà un texte (transcriptions validées, notes tapées) : « Voir le texte ». */
+  aTexte: boolean;
   enTranscription: boolean;
   /** Faux sur une feuille vide : rien à transcrire. */
   peutTranscrire: boolean;
@@ -39,7 +39,7 @@ function Rotation() {
  * Menu « … » de l'en-tête : les actions rares de la feuille (transcrire, relire le texte,
  * effacer), rangées loin de la zone d'écriture pour qu'un geste de paume ne les déclenche pas.
  */
-export function MenuFeuille({ aTranscription, enTranscription, peutTranscrire, peutEffacer, onTranscrire, onVoirTexte, onEffacer }: Props) {
+export function MenuFeuille({ aTexte, enTranscription, peutTranscrire, peutEffacer, onTranscrire, onVoirTexte, onEffacer }: Props) {
   const [ouvert, setOuvert] = useState(false);
   const racine = useRef<HTMLDivElement>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
@@ -87,7 +87,7 @@ export function MenuFeuille({ aTranscription, enTranscription, peutTranscrire, p
     choix[suivant].focus();
   }
 
-  const libelleTranscrire = enTranscription ? "Transcription en cours…" : aTranscription ? "Retranscrire" : "Transcrire";
+  const libelleTranscrire = enTranscription ? "Transcription en cours…" : "Transcrire";
 
   return (
     <div ref={racine} className="relative" onKeyDown={auClavier}>
@@ -135,7 +135,7 @@ export function MenuFeuille({ aTranscription, enTranscription, peutTranscrire, p
             )}
             {libelleTranscrire}
           </button>
-          {aTranscription && (
+          {aTexte && (
             <button type="button" role="menuitem" onClick={() => choisir(onVoirTexte)} className={`${item} text-ink`}>
               <Icone>
                 <path d="M6 3h9l4 4v14H6z" />
