@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { genererApercu } from "./apercu";
+import { genererApercu, genererTranches } from "./apercu";
 import type { Trait } from "./traits";
 
 type Appel = [string, ...unknown[]];
@@ -46,5 +46,37 @@ describe("genererApercu", () => {
     expect(appels[remplissage]).toEqual(["fillRect", 0, 0, canvas.width, canvas.height]);
     const dernierRepere = appels.slice(0, remplissage).reverse().find(([nom]) => nom === "setTransform");
     expect(dernierRepere).toEqual(["setTransform", 1, 0, 0, 1, 0, 0]);
+  });
+});
+
+describe("genererTranches", () => {
+  const traitBas: Trait = { e: 2, p: [100, 100, 50, 300, 3000, 50] };
+
+  it("ne génère rien pour une feuille vide", async () => {
+    expect(await genererTranches([])).toBeNull();
+  });
+
+  it("rend une image par tranche, à l'échelle 1 (1000 px de large), lisible pour Gemini", async () => {
+    const creations: Array<{ width: number; height: number }> = [];
+    vi.spyOn(document, "createElement").mockImplementation(() => {
+      const f = fauxCanvas();
+      creations.push(f.canvas);
+      return f.canvas as unknown as HTMLCanvasElement;
+    });
+    const r = await genererTranches([traitBas]);
+    expect(r?.blobs.length).toBe(3);
+    expect(r?.tronquee).toBe(false);
+    expect(creations).toHaveLength(3);
+    for (const c of creations) expect([c.width, c.height]).toEqual([1000, 1400]);
+  });
+
+  it("peint un fond opaque sur toute chaque tranche", async () => {
+    const f = fauxCanvas();
+    vi.spyOn(document, "createElement").mockReturnValue(f.canvas as unknown as HTMLCanvasElement);
+    await genererTranches([{ e: 1, p: [10, 10, 50, 20, 20, 50] }]);
+    const remplissage = f.appels.findIndex(([nom]) => nom === "fillRect");
+    expect(f.appels[remplissage]).toEqual(["fillRect", 0, 0, 1000, 1400]);
+    const repere = f.appels.slice(0, remplissage).reverse().find(([nom]) => nom === "setTransform");
+    expect(repere).toEqual(["setTransform", 1, 0, 0, 1, 0, 0]);
   });
 });

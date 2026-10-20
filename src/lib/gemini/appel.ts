@@ -21,8 +21,16 @@ export type ResultatGemini =
   | { ok: true; brut: unknown }
   | { ok: false; code: "quota" | "echec"; detail: string };
 
+type ImageGemini = {
+  mimeType: string;
+  /** Contenu de l'image en base64 (sans préfixe `data:`). */
+  data: string;
+};
+
 export type AppelGemini = {
   prompt: string;
+  /** Images jointes, envoyées AVANT le texte (lecture d'écriture manuscrite, etc.). */
+  images?: ImageGemini[];
   /** Schéma de réponse (sous-ensemble OpenAPI de Gemini). */
   schema: unknown;
   timeoutMs: number;
@@ -59,7 +67,7 @@ async function messageGoogle(res: Response): Promise<string> {
 }
 
 export async function appelerGemini(appel: AppelGemini): Promise<ResultatGemini> {
-  const { prompt, schema, timeoutMs, temperature, etiquette } = appel;
+  const { prompt, images, schema, timeoutMs, temperature, etiquette } = appel;
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return echec(etiquette, "Clé GEMINI_API_KEY absente sur le serveur.");
 
@@ -72,7 +80,14 @@ export async function appelerGemini(appel: AppelGemini): Promise<ResultatGemini>
         // dans un message d'erreur ni dans un journal de requêtes.
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
+          contents: [
+            {
+              parts: [
+                ...(images ?? []).map(({ mimeType, data }) => ({ inlineData: { mimeType, data } })),
+                { text: prompt },
+              ],
+            },
+          ],
           generationConfig: {
             responseMimeType: "application/json",
             responseSchema: schema,
