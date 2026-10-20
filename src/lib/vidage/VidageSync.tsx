@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { showErrorToast } from "@/components/toast/toast-store";
-import { EVENEMENT_FEUILLE_EN_ATTENTE, synchroniserFeuilles } from "./local";
+import { EVENEMENT_FEUILLE_EN_ATTENTE, EVENEMENT_FEUILLES_ENVOYEES, synchroniserFeuilles } from "./local";
 
 // Envoi différé après la dernière écriture : on n'envoie pas la feuille entière
 // à chaque trait, seulement quand l'écriture marque une pause.
@@ -31,10 +31,6 @@ export function VidageSync() {
     async function envoyer() {
       const resultat = await synchroniserFeuilles();
       if (!actif) return;
-      if (resultat.envoyees > 0) {
-        // Le calendrier de relecture doit voir le jour écrit (ou vidé).
-        queryClient.invalidateQueries({ queryKey: ["vidage", "mois"] });
-      }
       // Feuille refusée par le serveur : elle reste sur le téléphone, on le dit une fois.
       if (resultat.refus.length > 0 && !refusAnnonce) {
         refusAnnonce = true;
@@ -65,7 +61,12 @@ export function VidageSync() {
       relancer();
     };
 
+    // Le calendrier de relecture doit voir le jour écrit (ou vidé), même quand l'envoi est
+    // parti d'ailleurs que d'ici (aperçu envoyé en quittant la feuille).
+    const apresEnvoi = () => queryClient.invalidateQueries({ queryKey: ["vidage", "mois"] });
+
     relancer();
+    window.addEventListener(EVENEMENT_FEUILLES_ENVOYEES, apresEnvoi);
     window.addEventListener(EVENEMENT_FEUILLE_EN_ATTENTE, apresEcriture);
     window.addEventListener("online", auRetourReseau);
     window.addEventListener("pagehide", auChangementDeVisibilite);
@@ -74,6 +75,7 @@ export function VidageSync() {
       actif = false;
       window.clearTimeout(pause);
       window.clearTimeout(rejeu);
+      window.removeEventListener(EVENEMENT_FEUILLES_ENVOYEES, apresEnvoi);
       window.removeEventListener(EVENEMENT_FEUILLE_EN_ATTENTE, apresEcriture);
       window.removeEventListener("online", auRetourReseau);
       window.removeEventListener("pagehide", auChangementDeVisibilite);

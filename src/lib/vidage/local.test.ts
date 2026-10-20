@@ -31,6 +31,7 @@ vi.mock("@/lib/offline/db", () => {
 vi.mock("@/app/actions/vidage", () => ({ enregistrerFeuille: etat.enregistrerFeuille }));
 
 import {
+  EVENEMENT_FEUILLES_ENVOYEES,
   choisirFeuille,
   compterFeuillesEnAttente,
   ecrireFeuilleLocale,
@@ -117,6 +118,26 @@ describe("synchroniserFeuilles", () => {
     expect(r).toEqual({ envoyees: 2, restantes: 0, refus: [] });
     expect(etat.enregistrerFeuille.mock.calls.map((c) => c[0])).toEqual(["2026-10-18", "2026-10-19"]);
     expect((await lireFeuilleLocale("2026-10-18"))!.a_envoyer).toBe(0);
+  });
+
+  it("annonce l'envoi par un évènement, quel que soit l'appelant, pour rafraîchir le calendrier", async () => {
+    // Régression : seule la synchronisation de fond prévenait le calendrier ; quand l'envoi
+    // partait en quittant la feuille (aperçu), il restait périmé.
+    const ecouteur = vi.fn();
+    window.addEventListener(EVENEMENT_FEUILLES_ENVOYEES, ecouteur);
+    try {
+      await synchroniserFeuilles();
+      expect(ecouteur).not.toHaveBeenCalled();
+
+      await ecrireFeuilleLocale("2026-10-19", [T], 2000);
+      await synchroniserFeuilles();
+      expect(ecouteur).toHaveBeenCalledTimes(1);
+
+      await synchroniserFeuilles();
+      expect(ecouteur).toHaveBeenCalledTimes(1);
+    } finally {
+      window.removeEventListener(EVENEMENT_FEUILLES_ENVOYEES, ecouteur);
+    }
   });
 
   it("s'arrête sur une erreur réseau et garde tout en attente", async () => {

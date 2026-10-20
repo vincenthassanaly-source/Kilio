@@ -143,6 +143,18 @@ test("effacer la feuille demande confirmation puis se laisse annuler", async ({ 
   await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
 });
 
+test("le calendrier montre la feuille qu'on vient d'écrire, même si on l'ouvre aussitôt", async ({ page }) => {
+  // Régression : le calendrier lu avant l'arrivée de la feuille sur le serveur restait « vide » en cache.
+  const canvas = await ouvrir(page);
+  await tracer(canvas, "pen", diagonale);
+  await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
+
+  await page.getByRole("link", { name: "Relire", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Relire" })).toBeVisible();
+  await expect(page.locator('a[href="/vider-ma-tete"][aria-label^="Relire le"]')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("1 soir écrit ce mois-ci.")).toBeVisible();
+});
+
 test("la barre du bas est masquée sur la feuille du soir mais pas sur le calendrier", async ({ page }) => {
   await ouvrir(page);
   await expect(page.getByRole("toolbar", { name: "Outils d'écriture" })).toBeVisible();

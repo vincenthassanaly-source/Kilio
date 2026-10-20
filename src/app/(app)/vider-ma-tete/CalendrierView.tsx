@@ -10,8 +10,6 @@ import { eyebrow, linkButton, navArrowButton, screenTitle } from "@/lib/ui";
 import { premierEtDernierJour } from "@/lib/vidage/jours";
 
 const JOURS_SEMAINE = ["L", "M", "M", "J", "V", "S", "D"] as const;
-// Les URL signées durent 1 h : on ne réutilise pas un cache plus vieux que 30 min.
-const FRAICHEUR_MS = 30 * 60 * 1000;
 
 function decaler(mois: string, delta: number): string {
   const [annee, m] = mois.split("-").map(Number);
@@ -36,7 +34,11 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
       if (!resultat.ok) throw new Error(resultat.error);
       return resultat.data;
     },
-    staleTime: FRAICHEUR_MS,
+    // Toujours recharger à l'ouverture : un mois lu juste avant l'arrivée d'une feuille sur
+    // le serveur restait « vide » en cache. L'appel est court, et les URL signées (1 h) sont
+    // ainsi toujours neuves.
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const ecrits = new Map((data ?? []).map((j) => [j.jour, j]));
