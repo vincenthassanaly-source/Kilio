@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { enregistrerApercu, getFeuille, type FeuilleVidage } from "@/app/actions/vidage";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { Switch } from "@/components/Switch";
 import { TransitionLink } from "@/components/TransitionLink";
@@ -26,7 +27,7 @@ import {
   synchroniserFeuilles,
 } from "@/lib/vidage/local";
 import { HAUTEUR_MIN, hauteurRequise, type Epaisseur, type Trait } from "@/lib/vidage/traits";
-import { eyebrow, ghostButton, linkButton, screenTitle } from "@/lib/ui";
+import { dangerButton, eyebrow, ghostButton, linkButton, screenTitle } from "@/lib/ui";
 import { BarreOutils } from "./BarreOutils";
 import { FeuilleCanvas, type Outil } from "./FeuilleCanvas";
 
@@ -123,6 +124,7 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
   const [outil, setOutil] = useState<Outil>("stylo");
   const [epaisseur, setEpaisseur] = useState<Epaisseur>(2);
   const [enAttente, setEnAttente] = useState(0);
+  const [confirmerEffacement, setConfirmerEffacement] = useState(false);
 
   const derniersEcrits = useRef<Trait[] | null>(null);
   const traitsCourants = useRef<Trait[]>([]);
@@ -150,6 +152,9 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
       traitsCourants.current = choix.traits;
       setHistorique(historiqueVide(choix.traits));
       setPret(true);
+      // À chaque ouverture : l'aperçu du calendrier se refait à partir des traits, donc
+      // une vignette abîmée (ou d'une ancienne version) se répare en ouvrant la feuille.
+      if (choix.traits.length > 0) void envoyerApercu(jour, choix.traits);
     })();
     return () => {
       annule = true;
@@ -196,6 +201,13 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
   const surTrait = useCallback((trait: Trait) => setHistorique((h) => ajouter(h, trait)), []);
   const surGomme = useCallback((indices: number[]) => setHistorique((h) => gommer(h, indices)), []);
 
+  // Effacer toute la feuille = gommer tous les traits : annulable (« Annuler ») tant que
+  // l'écran reste ouvert, et la feuille vide est supprimée côté serveur par la synchro.
+  function effacerFeuille() {
+    setHistorique((h) => gommer(h, h.traits.map((_, indice) => indice)));
+    setConfirmerEffacement(false);
+  }
+
   const estAujourdhui = jour === aujourdhui;
   const statut = enAttente > 0 ? "Gardé sur ton téléphone, envoi en attente" : traits.length > 0 ? "Enregistré" : "";
 
@@ -210,9 +222,20 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
           <h1 className={screenTitle}>{estAujourdhui ? "Vider ma tête" : "Feuille du soir"}</h1>
           <p className={eyebrow}>{libelleJour(jour)}</p>
         </div>
-        <TransitionLink href="/vider-ma-tete/calendrier" className={`${ghostButton} shrink-0`}>
-          Relire
-        </TransitionLink>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            aria-label="Effacer la feuille"
+            disabled={traits.length === 0}
+            onClick={() => setConfirmerEffacement(true)}
+            className={dangerButton}
+          >
+            Effacer
+          </button>
+          <TransitionLink href="/vider-ma-tete/calendrier" className={ghostButton}>
+            Relire
+          </TransitionLink>
+        </div>
       </div>
 
       <div className="flex items-center justify-between gap-3">
@@ -237,6 +260,17 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
       <p className={`${eyebrow} min-h-5 text-center`} role="status" aria-live="polite" data-testid="vidage-statut">
         {statut}
       </p>
+
+      <ConfirmDialog
+        open={confirmerEffacement}
+        titre="Effacer la feuille ?"
+        confirmer="Effacer la feuille"
+        onConfirm={effacerFeuille}
+        onClose={() => setConfirmerEffacement(false)}
+      >
+        <p>Tout ce que tu as écrit sur la feuille du {libelleJour(jour).toLowerCase()} sera retiré.</p>
+        <p>Tu pourras revenir en arrière avec « Annuler » tant que tu restes sur cet écran.</p>
+      </ConfirmDialog>
 
       <BarreOutils
         outil={outil}

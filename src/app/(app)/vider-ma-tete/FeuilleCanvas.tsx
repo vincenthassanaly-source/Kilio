@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { dessinerFeuille, dessinerSegmentEnCours, preparer, type Rendu } from "@/lib/vidage/dessin";
+import { lisserVitesse, pasInertie } from "@/lib/vidage/inertie";
 import {
   LARGEUR_LOGIQUE,
   creerTrait,
@@ -49,8 +50,10 @@ const borner = (v: number, min: number, max: number) => Math.min(max, Math.max(m
  * défilement lui-même reste fluide (composé par le navigateur).
  *
  * Le stylet écrit ; le doigt fait défiler (sauf option « écrire au doigt »).
- * `touch-action` s'applique aussi au stylet : pour qu'il écrive au lieu de
- * faire défiler, les touchers de type « stylus » sont interceptés en natif.
+ * `touch-action` s'applique aussi au stylet, et Chrome fait défiler la page au
+ * trait même quand on intercepte les touchers : le défilement natif est donc
+ * coupé sur toute la feuille (`touch-action: none`), et le glissé du doigt, avec
+ * son inertie, est recréé ici (voir lib/vidage/inertie.ts).
  */
 export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt, onTrait, onGomme }: Props) {
   const conteneurRef = useRef<HTMLDivElement>(null);
@@ -65,6 +68,9 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
   const trace = useRef<Trace | null>(null);
   const rafDefilement = useRef(0);
   const rafGomme = useRef(0);
+  // Doigt qui fait défiler la page, et inertie qui lui succède.
+  const defile = useRef<{ id: number; dernierY: number; dernierT: number; vitesse: number | null } | null>(null);
+  const rafInertie = useRef(0);
 
   const rafraichir = useCallback((force: boolean) => {
     const canvas = canvasRef.current;
@@ -145,16 +151,16 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
       theme.disconnect();
       cancelAnimationFrame(rafDefilement.current);
       cancelAnimationFrame(rafGomme.current);
+      cancelAnimationFrame(rafInertie.current);
     };
   }, [rafraichir]);
 
-  // Touchers du stylet : ni défilement de la page, ni balayage entre onglets.
+  // Touchers : jamais de défilement natif ni de balayage entre onglets sur la feuille
+  // (le défilement au doigt est fait par l'app, voir glisserDoigt).
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const intercepter = (ev: TouchEvent) => {
-      const touches = Array.from(ev.changedTouches) as Array<Touch & { touchType?: string }>;
-      if (!vue.current.ecritAuDoigt && !touches.some((t) => t.touchType === "stylus")) return;
       if (ev.cancelable) ev.preventDefault();
       ev.stopPropagation();
     };
@@ -190,10 +196,56 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
     });
   }
 
+  const parentDefilant = () => conteneurRef.current?.closest("main") ?? null;
+
+  function commencerDefilement(e: React.PointerEvent<HTMLCanvasElement>) {
+    cancelAnimationFrame(rafInertie.current);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Pointeur déjà relâché : le défilement se fait quand même, sans capture.
+    }
+    defile.current = { id: e.pointerId, dernierY: e.clientY, dernierT: e.timeStamp, vitesse: null };
+  }
+
+  function glisserDoigt(e: React.PointerEvent<HTMLCanvasElement>) {
+    const d = defile.current;
+    const parent = parentDefilant();
+    if (!d || !parent) return;
+    const deplacement = d.dernierY - e.clientY;
+    parent.scrollTop += deplacement;
+    d.vitesse = lisserVitesse(d.vitesse, deplacement, e.timeStamp - d.dernierT);
+    d.dernierY = e.clientY;
+    d.dernierT = e.timeStamp;
+  }
+
+  function finirDefilement(e: React.PointerEvent<HTMLCanvasElement>, annule: boolean) {
+    const d = defile.current;
+    defile.current = null;
+    const parent = parentDefilant();
+    // Doigt immobile avant le lever : pas de lancer.
+    const arrete = e.timeStamp - (d?.dernierT ?? 0) > 80;
+    if (!d || !parent || annule || arrete || d.vitesse === null) return;
+    let vitesse = d.vitesse;
+    let precedent = performance.now();
+    const pas = (maintenant: number) => {
+      const duree = Math.min(32, maintenant - precedent);
+      precedent = maintenant;
+      const r = pasInertie(vitesse, duree);
+      parent.scrollTop += r.delta;
+      vitesse = r.vitesse;
+      if (!r.fini) rafInertie.current = requestAnimationFrame(pas);
+    };
+    rafInertie.current = requestAnimationFrame(pas);
+  }
+
   function auContact(e: React.PointerEvent<HTMLCanvasElement>) {
     const v = vue.current;
     if (trace.current) return;
-    if (e.pointerType === "touch" && !v.ecritAuDoigt) return;
+    if (e.pointerType === "touch" && !v.ecritAuDoigt) {
+      commencerDefilement(e);
+      return;
+    }
     if (e.pointerType === "mouse" && e.button !== 0) return;
     // Bouton gomme du stylet (ou bouton latéral du S Pen) : gomme le temps du contact.
     const gomme = v.outil === "gomme" || (e.buttons & 32) !== 0 || (e.pointerType === "pen" && (e.buttons & 2) !== 0);
@@ -225,6 +277,10 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
   }
 
   function enMouvement(e: React.PointerEvent<HTMLCanvasElement>) {
+    if (defile.current?.id === e.pointerId) {
+      glisserDoigt(e);
+      return;
+    }
     const t = trace.current;
     if (!t || t.id !== e.pointerId) return;
     const groupe = e.nativeEvent.getCoalescedEvents?.() ?? [];
@@ -246,6 +302,10 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
   }
 
   function aLaFin(e: React.PointerEvent<HTMLCanvasElement>, annule: boolean) {
+    if (defile.current?.id === e.pointerId) {
+      finirDefilement(e, annule);
+      return;
+    }
     const t = trace.current;
     if (!t || t.id !== e.pointerId) return;
     trace.current = null;
@@ -283,7 +343,7 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
         aria-label="Feuille du soir : écris ici au stylet"
         className="absolute left-0 top-0 select-none text-ink"
         style={{
-          touchAction: ecritAuDoigt ? "none" : "pan-y",
+          touchAction: "none",
           WebkitTouchCallout: "none",
           WebkitUserSelect: "none",
         }}
