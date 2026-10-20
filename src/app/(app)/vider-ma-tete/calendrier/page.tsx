@@ -3,9 +3,14 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { screenTitle } from "@/lib/ui";
 import { getToday } from "../../today";
 import { CalendrierView } from "../CalendrierView";
+import { VerrouGate } from "../VerrouGate";
 
 async function CalendrierDuJour() {
-  return <CalendrierView aujourdhui={await getToday()} />;
+  return (
+    <VerrouGate>
+      <CalendrierView aujourdhui={await getToday()} />
+    </VerrouGate>
+  );
 }
 
 export default function VidageCalendrierPage() {
