@@ -424,6 +424,8 @@ export type Database = {
           hauteur: number
           jour: string
           traits: Json
+          transcription: string | null
+          transcription_modifiee: boolean
           updated_at: string
         }
         Insert: {
@@ -432,6 +434,8 @@ export type Database = {
           hauteur?: number
           jour: string
           traits?: Json
+          transcription?: string | null
+          transcription_modifiee?: boolean
           updated_at?: string
         }
         Update: {
@@ -440,6 +444,8 @@ export type Database = {
           hauteur?: number
           jour?: string
           traits?: Json
+          transcription?: string | null
+          transcription_modifiee?: boolean
           updated_at?: string
         }
         Relationships: []

@@ -145,6 +145,21 @@ export function hauteurRequise(traits: Trait[]): number {
   return Math.min(HAUTEUR_MAX, Math.max(HAUTEUR_MIN, besoin));
 }
 
+/**
+ * Une feuille relue de la base (`stockees`, type inconnu) est-elle identique aux
+ * traits donnés ? Comparaison valeur par valeur, indépendante de l'ordre des clés
+ * (jsonb ne le garantit pas) ; toute donnée illisible compte comme différente.
+ */
+export function traitsIdentiques(stockees: unknown, traits: Trait[]): boolean {
+  if (!Array.isArray(stockees) || stockees.length !== traits.length) return false;
+  return traits.every((trait, i) => {
+    const s = stockees[i] as { e?: unknown; p?: unknown } | null;
+    if (typeof s !== "object" || s === null || s.e !== trait.e || !Array.isArray(s.p)) return false;
+    const p: unknown[] = s.p;
+    return p.length === trait.p.length && trait.p.every((valeur, j) => p[j] === valeur);
+  });
+}
+
 export function compterPoints(traits: Trait[]): number {
   return traits.reduce((total, trait) => total + trait.p.length / 3, 0);
 }

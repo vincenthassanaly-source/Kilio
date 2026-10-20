@@ -118,14 +118,20 @@ test("le stylet n'a jamais le droit de faire défiler la page, le doigt si", asy
   await expect.poll(() => defilement(page)).toBeGreaterThan(depart + 100);
 });
 
+const ouvrirMenu = (page: import("@playwright/test").Page) => page.getByRole("button", { name: "Plus d'actions" }).click();
+
 test("effacer la feuille demande confirmation puis se laisse annuler", async ({ page }) => {
   const canvas = await ouvrir(page);
-  await expect(page.getByRole("button", { name: "Effacer la feuille" })).toBeDisabled();
+  await ouvrirMenu(page);
+  await expect(page.getByRole("menuitem", { name: "Effacer la feuille" })).toBeDisabled();
+  await expect(page.getByRole("menuitem", { name: "Transcrire" })).toBeDisabled();
+  await page.keyboard.press("Escape");
   await tracer(canvas, "pen", diagonale);
   await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
 
   // « Garder » referme sans rien effacer.
-  await page.getByRole("button", { name: "Effacer la feuille" }).click();
+  await ouvrirMenu(page);
+  await page.getByRole("menuitem", { name: "Effacer la feuille" }).click();
   const dialogue = page.getByRole("dialog");
   await expect(dialogue).toContainText("Tu pourras revenir en arrière");
   await dialogue.getByRole("button", { name: "Garder" }).click();
@@ -133,7 +139,8 @@ test("effacer la feuille demande confirmation puis se laisse annuler", async ({ 
   expect(await pixelsEncres(canvas)).toBeGreaterThan(50);
 
   // Confirmer vide la feuille ; le serveur reçoit la suppression de la ligne du jour.
-  await page.getByRole("button", { name: "Effacer la feuille" }).click();
+  await ouvrirMenu(page);
+  await page.getByRole("menuitem", { name: "Effacer la feuille" }).click();
   await dialogue.getByRole("button", { name: "Effacer la feuille" }).click();
   await expect.poll(() => pixelsEncres(canvas)).toBe(0);
   await expect.poll(async () => (await ecritures("feuilles_vidage", "DELETE")).length, { timeout: 15_000 }).toBeGreaterThan(0);
@@ -141,6 +148,25 @@ test("effacer la feuille demande confirmation puis se laisse annuler", async ({ 
   // Annuler restaure toute la feuille.
   await page.getByRole("button", { name: "Annuler" }).click();
   await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
+});
+
+test("Transcrire : l'échec de Gemini est annoncé et la feuille reste intacte", async ({ page }) => {
+  // Le rig n'a pas de clé GEMINI_API_KEY : l'appel échoue côté serveur, ce qui exerce tout le
+  // chemin (envoi de la feuille, rendu des tranches, action serveur, message d'erreur).
+  const canvas = await ouvrir(page);
+  await tracer(canvas, "pen", diagonale);
+  await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
+
+  await ouvrirMenu(page);
+  await page.getByRole("menuitem", { name: "Transcrire" }).click();
+
+  await expect(page.getByText(/La transcription a échoué/)).toBeVisible({ timeout: 20_000 });
+  // Le bouton « … » est de nouveau disponible, sans texte transcrit.
+  await expect(page.getByRole("button", { name: "Plus d'actions" })).toBeVisible();
+  await ouvrirMenu(page);
+  await expect(page.getByRole("menuitem", { name: "Voir le texte" })).toHaveCount(0);
+  await expect(page.getByRole("menuitem", { name: "Transcrire" })).toBeEnabled();
+  expect(await pixelsEncres(canvas)).toBeGreaterThan(50);
 });
 
 test("le calendrier montre la feuille qu'on vient d'écrire, même si on l'ouvre aussitôt", async ({ page }) => {

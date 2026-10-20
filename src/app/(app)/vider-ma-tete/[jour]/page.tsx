@@ -5,6 +5,9 @@ import { getToday } from "../../today";
 import { FeuilleChargement } from "../FeuilleChargement";
 import { FeuilleView } from "../FeuilleView";
 
+// Voir ../page.tsx : la transcription par Gemini dépasse les 10 s par défaut.
+export const maxDuration = 60;
+
 async function FeuilleDuJourChoisi({ params }: { params: Promise<{ jour: string }> }) {
   const { jour } = await params;
   if (!estJourValide(jour)) notFound();

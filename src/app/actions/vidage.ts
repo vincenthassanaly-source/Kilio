@@ -3,8 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
+import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { estJourValide, estMoisValide, premierEtDernierJour } from "@/lib/vidage/jours";
-import { HAUTEUR_MIN, validerFeuille, type Trait } from "@/lib/vidage/traits";
+import {
+  LONGUEUR_MAX_TEXTE,
+  MAX_TRANCHES,
+  PROMPT_TRANSCRIPTION,
+  SCHEMA_TRANSCRIPTION,
+  lireTranscription,
+} from "@/lib/vidage/transcription";
+import { HAUTEUR_MIN, traitsIdentiques, validerFeuille, type Trait } from "@/lib/vidage/traits";
 
 // « Vider ma tête » : une feuille manuscrite par jour (table feuilles_vidage,
 // scripts/migration-vider-tete-2026-10-19.sql). Une feuille vide n'existe pas :
@@ -25,6 +33,10 @@ export type FeuilleVidage = {
   hauteur: number;
   apercuUrl: string | null;
   updatedAt: string | null;
+  /** Texte lu par Gemini (éventuellement corrigé) ; null tant que la feuille n'est pas transcrite. */
+  transcription: string | null;
+  /** Vrai quand le texte a été corrigé à la main : confirmer avant de le remplacer. */
+  transcriptionModifiee: boolean;
 };
 
 const cheminApercu = (jour: string) => `${jour}.png`;
@@ -34,11 +46,13 @@ export async function getFeuille(jour: string): Promise<ActionResult<FeuilleVida
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("feuilles_vidage")
-    .select("jour, traits, hauteur, apercu_path, updated_at")
+    .select("jour, traits, hauteur, apercu_path, updated_at, transcription, transcription_modifiee")
     .eq("jour", jour)
     .maybeSingle();
   if (error) return fail("La feuille n'a pas pu être chargée. Réessaie.");
-  if (!data) return ok({ jour, traits: [], hauteur: HAUTEUR_MIN, apercuUrl: null, updatedAt: null });
+  if (!data) {
+    return ok({ jour, traits: [], hauteur: HAUTEUR_MIN, apercuUrl: null, updatedAt: null, transcription: null, transcriptionModifiee: false });
+  }
 
   const valide = validerFeuille({ traits: data.traits, hauteur: data.hauteur });
   if (!valide.ok) return fail("La feuille est illisible.");
@@ -48,7 +62,15 @@ export async function getFeuille(jour: string): Promise<ActionResult<FeuilleVida
     const signee = await supabase.storage.from(BUCKET).createSignedUrl(data.apercu_path, APERCU_URL_SECONDES);
     apercuUrl = signee.data?.signedUrl ?? null;
   }
-  return ok({ jour, traits: valide.traits, hauteur: valide.hauteur, apercuUrl, updatedAt: data.updated_at });
+  return ok({
+    jour,
+    traits: valide.traits,
+    hauteur: valide.hauteur,
+    apercuUrl,
+    updatedAt: data.updated_at,
+    transcription: data.transcription ?? null,
+    transcriptionModifiee: data.transcription_modifiee ?? false,
+  });
 }
 
 /** Remplace toute la feuille du jour (dernier écrit gagne : app mono-utilisateur). */
@@ -72,9 +94,23 @@ export async function enregistrerFeuille(
     return ok({ updatedAt });
   }
 
-  const { error } = await supabase
+  // Le texte transcrit décrit la feuille telle qu'elle était : dès que les traits changent, il
+  // est effacé. Renvoyer la même feuille (reprise après coupure) le laisse en place. En cas
+  // de doute (lecture de l'existant impossible), on l'efface plutôt que de le garder faux.
+  const { data: existante, error: lectureError } = await supabase
     .from("feuilles_vidage")
-    .upsert({ jour, traits: valide.traits, hauteur: valide.hauteur, updated_at: updatedAt });
+    .select("traits")
+    .eq("jour", jour)
+    .maybeSingle();
+  const effacerTexte = Boolean(lectureError) || (existante != null && !traitsIdentiques(existante.traits, valide.traits));
+
+  const { error } = await supabase.from("feuilles_vidage").upsert({
+    jour,
+    traits: valide.traits,
+    hauteur: valide.hauteur,
+    updated_at: updatedAt,
+    ...(effacerTexte ? { transcription: null, transcription_modifiee: false } : {}),
+  });
   if (error) return fail("La feuille n'a pas pu être enregistrée. Réessaie.");
   return ok({ updatedAt });
 }
@@ -95,6 +131,88 @@ export async function enregistrerApercu(jour: string, formData: FormData): Promi
 
   const { error } = await supabase.from("feuilles_vidage").update({ apercu_path: chemin }).eq("jour", jour);
   if (error) return fail("L'aperçu n'a pas pu être enregistré.");
+  return ok();
+}
+
+// Transcription par Gemini : le client rend la feuille en tranches PNG (voir apercu.ts) et les
+// envoie ici ; le texte lu est enregistré avec la feuille. La limite de requête des Server
+// Actions est de 4 Mo (next.config.ts) : on garde de la marge pour l'enveloppe multipart.
+const TRANCHE_MAX_OCTETS = 1_500_000;
+const TRANCHES_TOTAL_MAX_OCTETS = 3_500_000;
+const TRANSCRIPTION_DELAI_MS = 50_000;
+
+export async function transcrireFeuille(jour: string, formData: FormData): Promise<ActionResult<{ texte: string }>> {
+  if (!estJourValide(jour)) return fail("Jour invalide.");
+  const tranches = formData.getAll("tranche");
+  if (tranches.length === 0 || tranches.length > MAX_TRANCHES) return fail("Images de la feuille invalides.");
+  let total = 0;
+  const fichiers: File[] = [];
+  for (const tranche of tranches) {
+    if (!(tranche instanceof File) || tranche.type !== "image/png" || tranche.size === 0 || tranche.size > TRANCHE_MAX_OCTETS) {
+      return fail("Images de la feuille invalides.");
+    }
+    total += tranche.size;
+    fichiers.push(tranche);
+  }
+  if (total > TRANCHES_TOTAL_MAX_OCTETS) return fail("La feuille est trop dense pour être envoyée en une fois.");
+
+  const supabase = createAdminClient();
+  const { data: ligne, error } = await supabase.from("feuilles_vidage").select("updated_at").eq("jour", jour).maybeSingle();
+  if (error) return fail("La feuille n'a pas pu être lue. Réessaie.");
+  if (!ligne) return fail("La feuille n'est pas encore enregistrée. Réessaie dans un instant.");
+
+  const images = await Promise.all(
+    fichiers.map(async (f) => ({ mimeType: "image/png", data: Buffer.from(await f.arrayBuffer()).toString("base64") }))
+  );
+  const resultat = await appelerGemini({
+    prompt: PROMPT_TRANSCRIPTION,
+    images,
+    schema: SCHEMA_TRANSCRIPTION,
+    timeoutMs: TRANSCRIPTION_DELAI_MS,
+    // Recopie, pas création : aucune fantaisie.
+    temperature: 0,
+    etiquette: "transcription-feuille",
+  });
+  if (!resultat.ok) return fail(resultat.code === "quota" ? MESSAGE_QUOTA_GEMINI : `La transcription a échoué : ${resultat.detail}`);
+
+  const texte = lireTranscription(resultat.brut);
+  if (texte === null) return fail("La réponse de Gemini est illisible. Réessaie.");
+  if (texte === "") return fail("Aucune écriture lisible sur la feuille.");
+
+  // N'écrit que si la feuille n'a pas bougé pendant l'appel : sinon le texte décrirait
+  // une feuille qui n'existe plus.
+  const { data: maj, error: majError } = await supabase
+    .from("feuilles_vidage")
+    .update({ transcription: texte, transcription_modifiee: false })
+    .eq("jour", jour)
+    .eq("updated_at", ligne.updated_at)
+    .select("jour");
+  if (majError) return fail("Le texte n'a pas pu être enregistré. Réessaie.");
+  if (!maj || maj.length === 0) return fail("La feuille a changé pendant la transcription. Relance-la.");
+  return ok({ texte });
+}
+
+/** Texte corrigé à la main. Vide = suppression. */
+export async function enregistrerTranscription(jour: string, texte: string): Promise<ActionResult> {
+  if (!estJourValide(jour)) return fail("Jour invalide.");
+  if (typeof texte !== "string" || texte.length > LONGUEUR_MAX_TEXTE) return fail("Le texte est trop long.");
+  const propre = texte.trim();
+  const { error } = await createAdminClient()
+    .from("feuilles_vidage")
+    .update(propre ? { transcription: propre, transcription_modifiee: true } : { transcription: null, transcription_modifiee: false })
+    .eq("jour", jour);
+  if (error) return fail("Le texte n'a pas pu être enregistré. Réessaie.");
+  return ok();
+}
+
+/** Retire le texte transcrit sans toucher à l'écriture. */
+export async function supprimerTranscription(jour: string): Promise<ActionResult> {
+  if (!estJourValide(jour)) return fail("Jour invalide.");
+  const { error } = await createAdminClient()
+    .from("feuilles_vidage")
+    .update({ transcription: null, transcription_modifiee: false })
+    .eq("jour", jour);
+  if (error) return fail("Le texte n'a pas pu être supprimé. Réessaie.");
   return ok();
 }
 
