@@ -2,9 +2,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ecritures, fauxSupabase, type Repondre } from "@/test/fake-supabase";
 
-const etat = vi.hoisted(() => ({ client: null as unknown, revalidatePath: vi.fn(), gemini: vi.fn() }));
+const etat = vi.hoisted(() => ({ client: null as unknown, revalidatePath: vi.fn(), gemini: vi.fn(), session: vi.fn() }));
 
 vi.mock("next/cache", () => ({ revalidatePath: etat.revalidatePath }));
+vi.mock("@/lib/vidage/verrou", () => ({ exigerSession: etat.session }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client }));
 vi.mock("@/lib/gemini/appel", () => ({ appelerGemini: etat.gemini, MESSAGE_QUOTA_GEMINI: "Quota atteint." }));
 
@@ -39,10 +40,43 @@ const png = (octets = 3) => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  etat.session.mockResolvedValue({ ok: true, data: undefined });
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-10-19T20:00:00Z"));
 });
 afterEach(() => vi.useRealTimers());
+
+describe("verrou : module fermé", () => {
+  it("refuse chaque action du module sans toucher à la base ni à Gemini", async () => {
+    const verrouille = { ok: false, error: "Le module est verrouillé." };
+    etat.session.mockResolvedValue(verrouille);
+    const fake = brancher();
+    const formulaire = new FormData();
+    formulaire.append("tranche", new File([new Uint8Array(3)], "t.png", { type: "image/png" }));
+
+    const resultats = await Promise.all([
+      getFeuille(JOUR),
+      enregistrerFeuille(JOUR, [TRAIT], 2000),
+      enregistrerApercu(JOUR, png()),
+      transcrireFeuille(JOUR, formulaire),
+      validerTranscription(JOUR, "texte"),
+      ajouterTexte(JOUR, "texte"),
+      enregistrerTranscription(JOUR, "texte"),
+      supprimerTranscription(JOUR),
+      listerJoursEcrits("2026-10"),
+    ]);
+    for (const r of resultats) expect(r).toEqual(verrouille);
+    expect(fake.appels).toHaveLength(0);
+    expect(fake.stockage).toHaveLength(0);
+    expect(etat.gemini).not.toHaveBeenCalled();
+  });
+
+  it("laisse le réglage du rappel accessible : il ne révèle rien du journal", async () => {
+    etat.session.mockResolvedValue({ ok: false, error: "Le module est verrouillé." });
+    brancher();
+    expect((await updateReglagesVidage(true, "21:30")).ok).toBe(true);
+  });
+});
 
 describe("getFeuille", () => {
   it("refuse un jour invalide sans interroger la base", async () => {

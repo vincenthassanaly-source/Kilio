@@ -2787,6 +2787,33 @@ export type Database = {
         }
         Relationships: []
       }
+      vidage_passkey: {
+        Row: {
+          counter: number
+          created_at: string
+          credential_id: string
+          id: number
+          public_key: string
+          transports: string[] | null
+        }
+        Insert: {
+          counter?: number
+          created_at?: string
+          credential_id: string
+          id?: number
+          public_key: string
+          transports?: string[] | null
+        }
+        Update: {
+          counter?: number
+          created_at?: string
+          credential_id?: string
+          id?: number
+          public_key?: string
+          transports?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

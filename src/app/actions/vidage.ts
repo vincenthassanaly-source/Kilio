@@ -7,6 +7,7 @@ import { heureParis } from "@/lib/date/paris";
 import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { estJourValide, estMoisValide, premierEtDernierJour } from "@/lib/vidage/jours";
 import { ajouterBloc, depasseLimite } from "@/lib/vidage/texte";
+import { exigerSession } from "@/lib/vidage/verrou";
 import {
   LONGUEUR_MAX_TEXTE,
   MAX_TRANCHES,
@@ -44,6 +45,8 @@ export type FeuilleVidage = {
 const cheminApercu = (jour: string) => `${jour}.png`;
 
 export async function getFeuille(jour: string): Promise<ActionResult<FeuilleVidage>> {
+  const session = await exigerSession();
+  if (!session.ok) return session;
   if (!estJourValide(jour)) return fail("Jour invalide.");
   const supabase = createAdminClient();
   const { data, error } = await supabase
@@ -80,6 +83,8 @@ export async function enregistrerFeuille(
   traits: Trait[],
   hauteur: number
 ): Promise<ActionResult<{ updatedAt: string }>> {
+  const session = await exigerSession();
+  if (!session.ok) return session;
   if (!estJourValide(jour)) return fail("Jour invalide.");
   const valide = validerFeuille({ traits, hauteur });
   if (!valide.ok) return fail(valide.error);
@@ -120,6 +125,8 @@ export async function enregistrerFeuille(
 
 /** Aperçu image (PNG) de la feuille, envoyé par le client après la sauvegarde des traits. */
 export async function enregistrerApercu(jour: string, formData: FormData): Promise<ActionResult> {
+  const session = await exigerSession();
+  if (!session.ok) return session;
   if (!estJourValide(jour)) return fail("Jour invalide.");
   const fichier = formData.get("apercu");
   if (!(fichier instanceof File) || fichier.type !== "image/png") return fail("Aperçu invalide.");
@@ -145,6 +152,8 @@ const TRANCHES_TOTAL_MAX_OCTETS = 3_500_000;
 const TRANSCRIPTION_DELAI_MS = 50_000;
 
 export async function transcrireFeuille(jour: string, formData: FormData): Promise<ActionResult<{ texte: string }>> {
+  const session = await exigerSession();
+  if (!session.ok) return session;
   if (!estJourValide(jour)) return fail("Jour invalide.");
   const tranches = formData.getAll("tranche");
   if (tranches.length === 0 || tranches.length > MAX_TRANCHES) return fail("Images de la feuille invalides.");
@@ -193,6 +202,8 @@ type Client = ReturnType<typeof createAdminClient>;
  * en plus la feuille et son aperçu : le manuscrit n'est pas gardé, seul le texte l'est.
  */
 async function ajouterAuTexteDuJour(jour: string, texte: string, viderFeuille: boolean): Promise<ActionResult<{ texte: string }>> {
+  const session = await exigerSession();
+  if (!session.ok) return session;
   if (!estJourValide(jour)) return fail("Jour invalide.");
   if (typeof texte !== "string" || texte.trim() === "") return fail("Il n'y a rien à ajouter.");
 
@@ -246,6 +257,8 @@ async function supprimerLigneVide(supabase: Client, jour: string): Promise<boole
 
 /** Texte du jour corrigé à la main. Vide = suppression. */
 export async function enregistrerTranscription(jour: string, texte: string): Promise<ActionResult> {
+  const session = await exigerSession();
+  if (!session.ok) return session;
   if (!estJourValide(jour)) return fail("Jour invalide.");
   if (typeof texte !== "string" || texte.length > LONGUEUR_MAX_TEXTE) return fail("Le texte est trop long.");
   const propre = texte.trim();
@@ -261,6 +274,8 @@ export async function enregistrerTranscription(jour: string, texte: string): Pro
 
 /** Retire le texte du jour sans toucher à l'écriture. */
 export async function supprimerTranscription(jour: string): Promise<ActionResult> {
+  const session = await exigerSession();
+  if (!session.ok) return session;
   if (!estJourValide(jour)) return fail("Jour invalide.");
   const supabase = createAdminClient();
   const { error } = await supabase.from("feuilles_vidage").update({ transcription: null }).eq("jour", jour);
@@ -272,6 +287,8 @@ export type JourEcrit = { jour: string; apercuUrl: string | null };
 
 /** Jours écrits d'un mois (AAAA-MM) avec leur vignette signée, pour le calendrier de relecture. */
 export async function listerJoursEcrits(mois: string): Promise<ActionResult<JourEcrit[]>> {
+  const session = await exigerSession();
+  if (!session.ok) return session;
   if (!estMoisValide(mois)) return fail("Mois invalide.");
   const [premier, dernier] = premierEtDernierJour(mois);
   const supabase = createAdminClient();

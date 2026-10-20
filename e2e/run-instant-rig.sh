@@ -9,6 +9,8 @@ MOCK_PORT="${MOCK_SUPABASE_PORT:-54321}"
 export E2E_SUPABASE_URL="http://localhost:${MOCK_PORT}"
 export SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-e2e-dummy}"
 export EXPOSE_TESTING_API=1
+# Le verrou biométrique de « Vider ma tête » ne se simule pas dans un navigateur de test.
+export E2E_VERROU_DESACTIVE=1
 export NEXT_TELEMETRY_DISABLED=1
 
 if ! curl -sf -o /dev/null "http://localhost:${MOCK_PORT}/__reset"; then
