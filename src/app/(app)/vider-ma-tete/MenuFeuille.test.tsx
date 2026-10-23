@@ -9,9 +9,7 @@ function rendre(surcharges: Partial<React.ComponentProps<typeof MenuFeuille>> = 
   const props = {
     aTexte: false,
     enTranscription: false,
-    peutTranscrire: true,
     peutEffacer: true,
-    onTranscrire: vi.fn(),
     onVoirTexte: vi.fn(),
     onEffacer: vi.fn(),
     ...surcharges,
@@ -33,19 +31,17 @@ describe("MenuFeuille", () => {
     expect(screen.getByRole("menu", { name: "Actions de la feuille" })).toBeInTheDocument();
   });
 
-  it("propose Transcrire et Effacer, sans « Voir le texte » tant qu'il n'y a pas de texte", async () => {
+  it("propose Effacer, sans « Voir le texte » tant qu'il n'y a pas de texte, et ne propose plus Transcrire", async () => {
     rendre();
     await ouvrir();
-    expect(screen.getByRole("menuitem", { name: "Transcrire" })).toBeEnabled();
     expect(screen.getByRole("menuitem", { name: "Effacer la feuille" })).toBeEnabled();
     expect(screen.queryByRole("menuitem", { name: "Voir le texte" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Transcrire" })).toBeNull();
   });
 
-  it("propose Voir le texte quand le jour a déjà du texte, sans jamais proposer « Retranscrire »", async () => {
+  it("propose Voir le texte quand le jour a déjà du texte", async () => {
     const props = rendre({ aTexte: true });
     await ouvrir();
-    expect(screen.getByRole("menuitem", { name: "Transcrire" })).toBeInTheDocument();
-    expect(screen.queryByRole("menuitem", { name: "Retranscrire" })).toBeNull();
     await userEvent.click(screen.getByRole("menuitem", { name: "Voir le texte" }));
     expect(props.onVoirTexte).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("menu")).toBeNull();
@@ -54,28 +50,20 @@ describe("MenuFeuille", () => {
   it("lance l'action choisie puis se referme", async () => {
     const props = rendre();
     await ouvrir();
-    await userEvent.click(screen.getByRole("menuitem", { name: "Transcrire" }));
-    expect(props.onTranscrire).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole("menu")).toBeNull();
-
-    await ouvrir();
     await userEvent.click(screen.getByRole("menuitem", { name: "Effacer la feuille" }));
     expect(props.onEffacer).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("menu")).toBeNull();
   });
 
-  it("désactive Transcrire et Effacer sur une feuille vide", async () => {
-    rendre({ peutTranscrire: false, peutEffacer: false });
+  it("désactive Effacer sur une feuille vide", async () => {
+    rendre({ peutEffacer: false });
     await ouvrir();
-    expect(screen.getByRole("menuitem", { name: "Transcrire" })).toBeDisabled();
     expect(screen.getByRole("menuitem", { name: "Effacer la feuille" })).toBeDisabled();
   });
 
-  it("empêche de relancer une transcription déjà en cours et le dit", async () => {
-    const props = rendre({ enTranscription: true });
-    expect(screen.getByRole("button", { name: "Transcription en cours…" })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Transcription en cours…" }));
-    expect(screen.getByRole("menuitem", { name: "Transcription en cours…" })).toBeDisabled();
-    expect(props.onTranscrire).not.toHaveBeenCalled();
+  it("signale une transcription en cours sur le bouton « … »", () => {
+    rendre({ enTranscription: true });
+    expect(screen.getByRole("button", { name: "Transcription en cours…" })).toHaveAttribute("aria-busy", "true");
   });
 
   it("se ferme avec Échap et rend le focus au bouton", async () => {

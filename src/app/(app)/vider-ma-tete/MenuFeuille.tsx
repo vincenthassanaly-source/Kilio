@@ -6,11 +6,8 @@ type Props = {
   /** Le jour a déjà un texte (transcriptions validées, notes tapées) : « Voir le texte ». */
   aTexte: boolean;
   enTranscription: boolean;
-  /** Faux sur une feuille vide : rien à transcrire. */
-  peutTranscrire: boolean;
   /** Faux sur une feuille vide : rien à effacer. */
   peutEffacer: boolean;
-  onTranscrire: () => void;
   onVoirTexte: () => void;
   onEffacer: () => void;
 };
@@ -36,10 +33,11 @@ function Rotation() {
 }
 
 /**
- * Menu « … » de l'en-tête : les actions rares de la feuille (transcrire, relire le texte,
- * effacer), rangées loin de la zone d'écriture pour qu'un geste de paume ne les déclenche pas.
+ * Menu « … » de l'en-tête : les actions rares de la feuille (relire le texte, effacer),
+ * rangées loin de la zone d'écriture pour qu'un geste de paume ne les déclenche pas.
+ * « Transcrire », d'usage courant, vit dans la barre d'outils du bas.
  */
-export function MenuFeuille({ aTexte, enTranscription, peutTranscrire, peutEffacer, onTranscrire, onVoirTexte, onEffacer }: Props) {
+export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte, onEffacer }: Props) {
   const [ouvert, setOuvert] = useState(false);
   const racine = useRef<HTMLDivElement>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
@@ -87,8 +85,6 @@ export function MenuFeuille({ aTexte, enTranscription, peutTranscrire, peutEffac
     choix[suivant].focus();
   }
 
-  const libelleTranscrire = enTranscription ? "Transcription en cours…" : "Transcrire";
-
   return (
     <div ref={racine} className="relative" onKeyDown={auClavier}>
       <button
@@ -119,32 +115,18 @@ export function MenuFeuille({ aTexte, enTranscription, peutTranscrire, peutEffac
           aria-label="Actions de la feuille"
           className="absolute right-0 top-[calc(100%+8px)] z-30 flex w-60 flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-card"
         >
-          <button
-            type="button"
-            role="menuitem"
-            disabled={!peutTranscrire || enTranscription}
-            onClick={() => choisir(onTranscrire)}
-            className={`${item} text-ink`}
-          >
-            {enTranscription ? (
-              <Rotation />
-            ) : (
-              <Icone>
-                <path d="M5 6h14M5 12h14M5 18h9" />
-              </Icone>
-            )}
-            {libelleTranscrire}
-          </button>
           {aTexte && (
-            <button type="button" role="menuitem" onClick={() => choisir(onVoirTexte)} className={`${item} text-ink`}>
-              <Icone>
-                <path d="M6 3h9l4 4v14H6z" />
-                <path d="M14 3v5h5M9 13h6M9 17h6" />
-              </Icone>
-              Voir le texte
-            </button>
+            <>
+              <button type="button" role="menuitem" onClick={() => choisir(onVoirTexte)} className={`${item} text-ink`}>
+                <Icone>
+                  <path d="M6 3h9l4 4v14H6z" />
+                  <path d="M14 3v5h5M9 13h6M9 17h6" />
+                </Icone>
+                Voir le texte
+              </button>
+              <span className="mx-3.5 my-1 h-px bg-line" role="separator" />
+            </>
           )}
-          <span className="mx-3.5 my-1 h-px bg-line" role="separator" />
           <button type="button" role="menuitem" disabled={!peutEffacer} onClick={() => choisir(onEffacer)} className={`${item} text-alert`}>
             <Icone>
               <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />

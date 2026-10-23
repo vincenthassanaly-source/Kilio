@@ -347,9 +347,7 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
           <MenuFeuille
             aTexte={transcription !== null}
             enTranscription={enTranscription}
-            peutTranscrire={traits.length > 0}
             peutEffacer={traits.length > 0}
-            onTranscrire={() => void transcrire()}
             onVoirTexte={() => setDialogue("texte")}
             onEffacer={() => setDialogue("effacer")}
           />
@@ -441,6 +439,9 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
           peutRetablir={peutRetablir(historique)}
           onAnnuler={() => setHistorique(annuler)}
           onRetablir={() => setHistorique(retablir)}
+          peutTranscrire={traits.length > 0}
+          enTranscription={enTranscription}
+          onTranscrire={() => void transcrire()}
         />
       )}
     </div>

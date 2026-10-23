@@ -13,6 +13,9 @@ function rendre(surcharges: Partial<React.ComponentProps<typeof BarreOutils>> = 
     peutRetablir: false,
     onAnnuler: vi.fn(),
     onRetablir: vi.fn(),
+    peutTranscrire: true,
+    enTranscription: false,
+    onTranscrire: vi.fn(),
     ...surcharges,
   };
   render(<BarreOutils {...props} />);
@@ -42,5 +45,28 @@ describe("BarreOutils", () => {
     expect(screen.getByRole("button", { name: "Rétablir" })).toBeDisabled();
     await userEvent.click(screen.getByRole("button", { name: "Annuler" }));
     expect(props.onAnnuler).toHaveBeenCalledTimes(1);
+  });
+
+  it("lance la transcription depuis la barre", async () => {
+    const props = rendre();
+    await userEvent.click(screen.getByRole("button", { name: "Transcrire" }));
+    expect(props.onTranscrire).toHaveBeenCalledTimes(1);
+  });
+
+  it("grise Transcrire sur une feuille vide", async () => {
+    const props = rendre({ peutTranscrire: false });
+    const bouton = screen.getByRole("button", { name: "Transcrire" });
+    expect(bouton).toBeDisabled();
+    await userEvent.click(bouton);
+    expect(props.onTranscrire).not.toHaveBeenCalled();
+  });
+
+  it("empêche de relancer une transcription en cours et le dit", async () => {
+    const props = rendre({ enTranscription: true });
+    const bouton = screen.getByRole("button", { name: "Transcription en cours…" });
+    expect(bouton).toBeDisabled();
+    expect(bouton).toHaveAttribute("aria-busy", "true");
+    await userEvent.click(bouton);
+    expect(props.onTranscrire).not.toHaveBeenCalled();
   });
 });

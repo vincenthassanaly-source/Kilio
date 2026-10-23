@@ -122,9 +122,9 @@ const ouvrirMenu = (page: import("@playwright/test").Page) => page.getByRole("bu
 
 test("effacer la feuille demande confirmation puis se laisse annuler", async ({ page }) => {
   const canvas = await ouvrir(page);
+  await expect(page.getByRole("button", { name: "Transcrire" })).toBeDisabled();
   await ouvrirMenu(page);
   await expect(page.getByRole("menuitem", { name: "Effacer la feuille" })).toBeDisabled();
-  await expect(page.getByRole("menuitem", { name: "Transcrire" })).toBeDisabled();
   await page.keyboard.press("Escape");
   await tracer(canvas, "pen", diagonale);
   await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
@@ -157,15 +157,14 @@ test("Transcrire : l'échec de Gemini est annoncé et la feuille reste intacte",
   await tracer(canvas, "pen", diagonale);
   await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
 
-  await ouvrirMenu(page);
-  await page.getByRole("menuitem", { name: "Transcrire" }).click();
+  // Le bouton est dans la barre du bas : pas besoin de remonter en haut de la page.
+  await page.getByRole("toolbar", { name: "Outils d'écriture" }).getByRole("button", { name: "Transcrire" }).click();
 
   await expect(page.getByText(/La transcription a échoué/)).toBeVisible({ timeout: 20_000 });
-  // Le bouton « … » est de nouveau disponible, sans texte transcrit.
-  await expect(page.getByRole("button", { name: "Plus d'actions" })).toBeVisible();
+  // Le bouton Transcrire est de nouveau disponible, sans texte transcrit.
+  await expect(page.getByRole("button", { name: "Transcrire" })).toBeEnabled();
   await ouvrirMenu(page);
   await expect(page.getByRole("menuitem", { name: "Voir le texte" })).toHaveCount(0);
-  await expect(page.getByRole("menuitem", { name: "Transcrire" })).toBeEnabled();
   expect(await pixelsEncres(canvas)).toBeGreaterThan(50);
 });
 
@@ -191,9 +190,9 @@ test("Clavier : la note tapée rejoint le texte du jour avec l'heure, la feuille
     })
     .toBe(true);
 
-  // Le texte du jour est consultable depuis le menu ; il n'y a rien à transcrire sur une feuille vide.
+  // Le texte du jour est consultable depuis le menu ; « Transcrire » n'existe qu'en mode Stylo.
+  await expect(page.getByRole("button", { name: "Transcrire" })).toHaveCount(0);
   await ouvrirMenu(page);
-  await expect(page.getByRole("menuitem", { name: "Transcrire" })).toBeDisabled();
   await page.getByRole("menuitem", { name: "Voir le texte" }).click();
   await expect(page.getByRole("textbox", { name: "Texte du jour" })).toHaveValue(/^\d{2}:\d{2}\nUne idée$/);
 
