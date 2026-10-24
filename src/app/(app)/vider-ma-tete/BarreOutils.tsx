@@ -12,6 +12,10 @@ type Props = {
   peutRetablir: boolean;
   onAnnuler: () => void;
   onRetablir: () => void;
+  /** Faux sur une feuille vide : rien à transcrire. */
+  peutTranscrire: boolean;
+  enTranscription: boolean;
+  onTranscrire: () => void;
 };
 
 // Diamètre du point qui représente chaque épaisseur (px).
@@ -29,8 +33,29 @@ function Icone({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Barre d'outils flottante en bas de l'écran : stylo, gomme, épaisseur, annuler / rétablir. */
-export function BarreOutils({ outil, onOutil, epaisseur, onEpaisseur, peutAnnuler, peutRetablir, onAnnuler, onRetablir }: Props) {
+function Rotation() {
+  return (
+    <svg className="animate-spin motion-reduce:animate-none" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+      <path d="M12 3a9 9 0 1 0 9 9" />
+    </svg>
+  );
+}
+
+/** Barre d'outils flottante en bas de l'écran : stylo, gomme, épaisseur, annuler / rétablir, transcrire. */
+export function BarreOutils({
+  outil,
+  onOutil,
+  epaisseur,
+  onEpaisseur,
+  peutAnnuler,
+  peutRetablir,
+  onAnnuler,
+  onRetablir,
+  peutTranscrire,
+  enTranscription,
+  onTranscrire,
+}: Props) {
+  const libelleTranscrire = enTranscription ? "Transcription en cours…" : "Transcrire";
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+14px)]">
       <div
@@ -91,6 +116,27 @@ export function BarreOutils({ outil, onOutil, epaisseur, onEpaisseur, peutAnnule
             <path d="M15 14l5-5-5-5" />
             <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" />
           </Icone>
+        </button>
+
+        <span className="mx-1 h-6 w-px bg-line" aria-hidden="true" />
+
+        {/* Le mot s'affiche quand la barre a la place ; sur un petit écran, l'icône seule garde le nom accessible. */}
+        <button
+          type="button"
+          aria-label={libelleTranscrire}
+          aria-busy={enTranscription}
+          disabled={!peutTranscrire || enTranscription}
+          onClick={onTranscrire}
+          className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-full bg-ink px-3 text-sm font-medium text-surface transition active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal min-[30rem]:px-4"
+        >
+          {enTranscription ? (
+            <Rotation />
+          ) : (
+            <Icone>
+              <path d="M5 6h14M5 12h14M5 18h9" />
+            </Icone>
+          )}
+          <span className="hidden min-[30rem]:inline">{libelleTranscrire}</span>
         </button>
       </div>
     </div>
