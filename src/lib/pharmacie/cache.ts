@@ -1,8 +1,10 @@
+import type { HuilesSnapshot } from "./huiles";
 import type { PharmaRefSnapshot } from "./referentiel";
 import type { PharmaSnapshot } from "./types";
 
 const CLE = "pharmacie-snapshot";
 const CLE_REFERENTIEL = "pharmacie-referentiel-snapshot";
+const CLE_HUILES = "pharmacie-huiles-snapshot";
 
 // Copie locale (Dexie, chargé à la demande comme pour la file hors ligne) :
 // toute erreur est avalée, le cache n'est qu'un repli de confort.
@@ -43,6 +45,27 @@ export async function lireReferentielLocal(): Promise<PharmaRefSnapshot | null> 
     const db = await preloadOfflineDb();
     const ligne = await db.cache_lecture.get(CLE_REFERENTIEL);
     return (ligne?.valeur as PharmaRefSnapshot | undefined) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function enregistrerHuilesLocal(snapshot: HuilesSnapshot): Promise<void> {
+  try {
+    const { preloadOfflineDb } = await import("@/lib/offline/queue");
+    const db = await preloadOfflineDb();
+    await db.cache_lecture.put({ cle: CLE_HUILES, valeur: snapshot, enregistre_le: new Date().toISOString() });
+  } catch {
+    // stockage indisponible : le cache n'est qu'un repli de confort
+  }
+}
+
+export async function lireHuilesLocal(): Promise<HuilesSnapshot | null> {
+  try {
+    const { preloadOfflineDb } = await import("@/lib/offline/queue");
+    const db = await preloadOfflineDb();
+    const ligne = await db.cache_lecture.get(CLE_HUILES);
+    return (ligne?.valeur as HuilesSnapshot | undefined) ?? null;
   } catch {
     return null;
   }

@@ -9,6 +9,7 @@ export const queryKeys = {
   notes: ["notes"] as const,
   pharmacie: ["pharmacie"] as const,
   pharmacieReferentiel: ["pharmacie-referentiel"] as const,
+  pharmacieHuiles: ["pharmacie-huiles"] as const,
   courses: ["courses"] as const,
   habitudes: (date: string) => ["habitudes", date] as const,
   // Historique mensuel d'une habitude (vue calendrier) : clé par habitude +
