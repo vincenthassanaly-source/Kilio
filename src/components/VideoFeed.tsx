@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
+import { idVideoTiktok } from "@/app/actions/collections";
 import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import { Portal } from "@/components/Portal";
 import { indexApresPas, indexDepuisScroll } from "@/lib/collection/fil";
-import { extraireIdVideoTiktok } from "@/lib/collection/tiktok";
 import { extraireIdVideoYoutube } from "@/lib/collection/youtube";
 import type { Tables } from "@/lib/supabase/types";
 
@@ -20,10 +20,12 @@ function Lecteur({ video, muet }: { video: Video; muet: boolean }) {
   useEffect(() => {
     if (!estTiktok) return;
     let annule = false;
-    extraireIdVideoTiktok(video.url).then((id) => {
+    idVideoTiktok(video.url).then((id) => {
       if (annule) return;
       if (id) setIdTiktok(id);
       else setErreur(true);
+    }, () => {
+      if (!annule) setErreur(true);
     });
     return () => {
       annule = true;

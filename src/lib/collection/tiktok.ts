@@ -26,7 +26,7 @@ function parserUrlTiktok(url: string): URL | null {
 // Les liens courts (vm.tiktok.com/..., vt.tiktok.com/...) ne portent pas
 // l'id vidéo dans l'URL : on suit la redirection pour obtenir la forme
 // canonique (`.../@compte/video/<id>`) avant d'en extraire quoi que ce soit.
-async function resoudreUrlCanoniqueTiktok(url: string): Promise<URL | null> {
+export async function resoudreUrlCanoniqueTiktok(url: string): Promise<URL | null> {
   const parsed = parserUrlTiktok(url);
   if (!parsed) return null;
   if (VIDEO_ID_PATTERN.test(parsed.pathname)) return parsed;

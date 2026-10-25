@@ -3,7 +3,7 @@
 // dédiée (tiktok.ts / youtube.ts). Permet un champ d'ajout unique et un
 // partage natif commun aux deux plateformes.
 
-import { estHoteTiktok, recupererMetadonneesTiktok, TIKTOK_URL_IN_TEXT_PATTERN } from "./tiktok";
+import { estHoteTiktok, recupererMetadonneesTiktok, resoudreUrlCanoniqueTiktok, TIKTOK_URL_IN_TEXT_PATTERN } from "./tiktok";
 import { estHoteYoutube, recupererMetadonneesYoutube, YOUTUBE_URL_IN_TEXT_PATTERN } from "./youtube";
 
 export type TypeVideo = "tiktok" | "youtube";
@@ -60,5 +60,9 @@ export async function recupererMetadonneesVideoOuLien(url: string): Promise<Meta
   const metadonnees = await recupererMetadonneesVideo(url);
   if (metadonnees) return metadonnees;
   const type = detecterTypeVideo(url);
-  return type ? { type, url, thumbnailUrl: "", titre: "" } : null;
+  if (!type) return null;
+  // Un lien court TikTok ne peut pas être lu par le lecteur : on enregistre
+  // l'URL complète quand elle se résout.
+  const canonique = type === "tiktok" ? await resoudreUrlCanoniqueTiktok(url) : null;
+  return { type, url: canonique?.href ?? url, thumbnailUrl: "", titre: "" };
 }

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { estMiniatureStockee, estUrlMiniatureTiktokCopiable } from "@/lib/collection/miniature";
-import { recupererMetadonneesTiktok } from "@/lib/collection/tiktok";
+import { extraireIdVideoTiktok, recupererMetadonneesTiktok } from "@/lib/collection/tiktok";
 import { estTypeVideo, recupererMetadonneesVideo, recupererMetadonneesVideoOuLien } from "@/lib/collection/video";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
@@ -398,6 +398,12 @@ export async function televerserPhotosPartagees(formData: FormData): Promise<Act
 // YouTube) partagé : récupère
 // ses métadonnées immédiatement (sans les rattacher à une collection), pour
 // que route.ts les propage en query params vers /collection/partage/choisir.
+// Le lecteur ne peut pas résoudre lui-même un lien court TikTok (CORS) : il
+// passe par le serveur.
+export async function idVideoTiktok(url: string): Promise<string | null> {
+  return extraireIdVideoTiktok(url);
+}
+
 export async function recupererLienVideoPartage(url: string) {
   return recupererMetadonneesVideoOuLien(url);
 }

@@ -14,6 +14,18 @@ describe("recupererMetadonneesVideoOuLien", () => {
     });
   });
 
+  it("enregistre l'URL complète du lien court quand elle se résout", async () => {
+    const complete = "https://www.tiktok.com/@a/video/123";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(async (u: string) => {
+        if (u.includes("oembed")) throw new Error("bloqué");
+        return { url: complete };
+      })
+    );
+    expect(await recupererMetadonneesVideoOuLien("https://vm.tiktok.com/ZMabc/")).toMatchObject({ url: complete });
+  });
+
   it("renvoie null pour une plateforme inconnue", async () => {
     expect(await recupererMetadonneesVideoOuLien("https://exemple.com/v/1")).toBeNull();
   });
