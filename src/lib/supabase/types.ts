@@ -1346,6 +1346,8 @@ export type Database = {
           dernier_passage: string | null
           echeance: string
           facilite: number
+          he_type: string | null
+          huile_id: string | null
           id: string
           intervalle_jours: number
           molecule_id: string | null
@@ -1359,6 +1361,8 @@ export type Database = {
           dernier_passage?: string | null
           echeance?: string
           facilite?: number
+          he_type?: string | null
+          huile_id?: string | null
           id?: string
           intervalle_jours?: number
           molecule_id?: string | null
@@ -1372,6 +1376,8 @@ export type Database = {
           dernier_passage?: string | null
           echeance?: string
           facilite?: number
+          he_type?: string | null
+          huile_id?: string | null
           id?: string
           intervalle_jours?: number
           molecule_id?: string | null
@@ -1381,6 +1387,13 @@ export type Database = {
           reponse?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pharma_cartes_huile_id_fkey"
+            columns: ["huile_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_he_huiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pharma_cartes_molecule_id_fkey"
             columns: ["molecule_id"]
@@ -1396,6 +1409,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pharma_he_huiles: {
+        Row: {
+          chemotype: string | null
+          created_at: string
+          dermocaustique: boolean
+          dosage: string | null
+          famille: string | null
+          id: string
+          indications: string[]
+          mode_emploi: string | null
+          nom_fr: string
+          nom_latin: string | null
+          notes: string | null
+          partie_distillee: string | null
+          photosensibilisante: boolean
+          precautions: string[]
+          precautions_details: string | null
+          proprietes: string[]
+          sources: string | null
+          updated_at: string
+          voies: string[]
+        }
+        Insert: {
+          chemotype?: string | null
+          created_at?: string
+          dermocaustique?: boolean
+          dosage?: string | null
+          famille?: string | null
+          id?: string
+          indications?: string[]
+          mode_emploi?: string | null
+          nom_fr: string
+          nom_latin?: string | null
+          notes?: string | null
+          partie_distillee?: string | null
+          photosensibilisante?: boolean
+          precautions?: string[]
+          precautions_details?: string | null
+          proprietes?: string[]
+          sources?: string | null
+          updated_at?: string
+          voies?: string[]
+        }
+        Update: {
+          chemotype?: string | null
+          created_at?: string
+          dermocaustique?: boolean
+          dosage?: string | null
+          famille?: string | null
+          id?: string
+          indications?: string[]
+          mode_emploi?: string | null
+          nom_fr?: string
+          nom_latin?: string | null
+          notes?: string | null
+          partie_distillee?: string | null
+          photosensibilisante?: boolean
+          precautions?: string[]
+          precautions_details?: string | null
+          proprietes?: string[]
+          sources?: string | null
+          updated_at?: string
+          voies?: string[]
+        }
+        Relationships: []
       }
       pharma_historique: {
         Row: {
