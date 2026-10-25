@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { estMiniatureStockee, estUrlMiniatureTiktokCopiable } from "@/lib/collection/miniature";
 import { recupererMetadonneesTiktok } from "@/lib/collection/tiktok";
-import { estTypeVideo, recupererMetadonneesVideo } from "@/lib/collection/video";
+import { estTypeVideo, recupererMetadonneesVideo, recupererMetadonneesVideoOuLien } from "@/lib/collection/video";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import type { Tables, TablesInsert } from "@/lib/supabase/types";
@@ -399,7 +399,7 @@ export async function televerserPhotosPartagees(formData: FormData): Promise<Act
 // ses métadonnées immédiatement (sans les rattacher à une collection), pour
 // que route.ts les propage en query params vers /collection/partage/choisir.
 export async function recupererLienVideoPartage(url: string) {
-  return recupererMetadonneesVideo(url);
+  return recupererMetadonneesVideoOuLien(url);
 }
 
 export type RattacherPhotoFormState = { error: string | null };

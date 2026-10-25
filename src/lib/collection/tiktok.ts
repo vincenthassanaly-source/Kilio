@@ -31,17 +31,21 @@ async function resoudreUrlCanoniqueTiktok(url: string): Promise<URL | null> {
   if (!parsed) return null;
   if (VIDEO_ID_PATTERN.test(parsed.pathname)) return parsed;
 
-  try {
-    const response = await fetch(url, {
-      method: "HEAD",
-      redirect: "follow",
-      signal: AbortSignal.timeout(DELAI_REQUETE_MS),
-    });
-    const resolue = parserUrlTiktok(response.url);
-    return resolue && VIDEO_ID_PATTERN.test(resolue.pathname) ? resolue : null;
-  } catch {
-    return null;
+  // Certains liens courts refusent le HEAD : on retente en GET avant d'abandonner.
+  for (const method of ["HEAD", "GET"] as const) {
+    try {
+      const response = await fetch(url, {
+        method,
+        redirect: "follow",
+        signal: AbortSignal.timeout(DELAI_REQUETE_MS),
+      });
+      const resolue = parserUrlTiktok(response.url);
+      if (resolue && VIDEO_ID_PATTERN.test(resolue.pathname)) return resolue;
+    } catch {
+      // essai suivant
+    }
   }
+  return null;
 }
 
 /** Valide un lien TikTok et en extrait l'id vidéo, en suivant la

@@ -8,6 +8,7 @@ const etat = vi.hoisted(() => ({
   revalidatePath: vi.fn(),
   redirect: vi.fn(),
   metadonnees: vi.fn(),
+  metadonneesOuLien: vi.fn(),
   metadonneesTiktok: vi.fn(),
 }));
 
@@ -17,6 +18,7 @@ vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client })
 vi.mock("@/lib/collection/video", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/collection/video")>()),
   recupererMetadonneesVideo: etat.metadonnees,
+  recupererMetadonneesVideoOuLien: etat.metadonneesOuLien,
 }));
 vi.mock("@/lib/collection/tiktok", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/collection/tiktok")>()),
@@ -418,7 +420,7 @@ describe("partage natif", () => {
   });
 
   it("recupererLienVideoPartage délègue au dispatcher vidéo", async () => {
-    etat.metadonnees.mockResolvedValue({ type: "tiktok" });
+    etat.metadonneesOuLien.mockResolvedValue({ type: "tiktok" });
     expect(await recupererLienVideoPartage("https://vm.tiktok.com/x")).toEqual({ type: "tiktok" });
   });
 });

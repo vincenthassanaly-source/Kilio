@@ -13,7 +13,7 @@ export function estTypeVideo(type: string): type is TypeVideo {
 }
 
 /** Détecte la plateforme d'un lien vidéo par son hostname. */
-function detecterTypeVideo(url: string): TypeVideo | null {
+export function detecterTypeVideo(url: string): TypeVideo | null {
   let hostname: string;
   try {
     hostname = new URL(url).hostname;
@@ -49,4 +49,16 @@ const VIDEO_URL_IN_TEXT_PATTERN = new RegExp(
  * lien). */
 export function extraireLienVideoDuTexte(texte: string): string | null {
   return texte.match(VIDEO_URL_IN_TEXT_PATTERN)?.[0] ?? null;
+}
+
+/** Comme `recupererMetadonneesVideo`, mais ne perd jamais le lien : si la
+ * récupération des métadonnées échoue (timeout, blocage réseau de la
+ * plateforme), renvoie le lien brut avec une miniature et un titre vides pour
+ * qu'il puisse quand même être rangé dans une collection. `null` seulement si
+ * la plateforme n'est pas reconnue. */
+export async function recupererMetadonneesVideoOuLien(url: string): Promise<MetadonneesVideo | null> {
+  const metadonnees = await recupererMetadonneesVideo(url);
+  if (metadonnees) return metadonnees;
+  const type = detecterTypeVideo(url);
+  return type ? { type, url, thumbnailUrl: "", titre: "" } : null;
 }

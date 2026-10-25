@@ -37,8 +37,8 @@ export default async function ChoisirCollectionPage({
       : null;
   const photos = photo === undefined ? [] : Array.isArray(photo) ? photo : [photo];
   const video =
-    video_url && video_thumbnail && video_type && estTypeVideo(video_type)
-      ? { url: video_url, thumbnailUrl: video_thumbnail, titre: video_titre ?? "", type: video_type }
+    video_url && video_type && estTypeVideo(video_type)
+      ? { url: video_url, thumbnailUrl: video_thumbnail ?? "", titre: video_titre ?? "", type: video_type }
       : null;
   const [collections, listes, tags] = await Promise.all([getCollections(), getListes(), getTags()]);
   const texte = { titre: tache_titre ?? "", notes: tache_notes ?? "" };
@@ -81,14 +81,18 @@ export default async function ChoisirCollectionPage({
               ))}
               {video && (
                 <div className="relative h-24 w-24 shrink-0">
-                  <FadeInImage
-                    src={video.thumbnailUrl}
-                    alt=""
-                    width={96}
-                    height={96}
-                    unoptimized
-                    className="h-24 w-24 rounded-2xl object-cover"
-                  />
+                  {video.thumbnailUrl ? (
+                    <FadeInImage
+                      src={video.thumbnailUrl}
+                      alt=""
+                      width={96}
+                      height={96}
+                      unoptimized
+                      className="h-24 w-24 rounded-2xl object-cover"
+                    />
+                  ) : (
+                    <div className="h-24 w-24 rounded-2xl bg-surface-alt" aria-hidden />
+                  )}
                   <span className="absolute bottom-1 right-1 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
                     {video.type === "youtube" ? "YouTube" : "TikTok"}
                   </span>
