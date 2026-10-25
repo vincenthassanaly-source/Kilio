@@ -426,6 +426,7 @@ export type Database = {
           traits: Json
           transcription: string | null
           transcription_modifiee: boolean
+          trie_le: string | null
           updated_at: string
         }
         Insert: {
@@ -436,6 +437,7 @@ export type Database = {
           traits?: Json
           transcription?: string | null
           transcription_modifiee?: boolean
+          trie_le?: string | null
           updated_at?: string
         }
         Update: {
@@ -446,6 +448,7 @@ export type Database = {
           traits?: Json
           transcription?: string | null
           transcription_modifiee?: boolean
+          trie_le?: string | null
           updated_at?: string
         }
         Relationships: []
