@@ -60,11 +60,28 @@ async function reserver(colonne: Colonne, today: string): Promise<boolean> {
   return !error && (data?.length ?? 0) > 0;
 }
 
-async function envoyerATous(message: { title: string; body: string }, url: string): Promise<{ sent: number; expired: number }> {
-  const { data: subscriptions } = await supabase.from("push_subscriptions").select("id, endpoint, p256dh, auth");
+/** Rend le jour réservé (valeur d'avant) : à appeler quand rien n'a pu être envoyé. */
+async function liberer(colonne: Colonne, today: string, precedent: string | null): Promise<void> {
+  await supabase.from("reglages_briefing").update({ [colonne]: precedent }).eq("id", 1).eq(colonne, today);
+}
+
+/** `echecs` : envois refusés pour une autre raison qu'un abonnement expiré (404/410),
+ * ou lecture des abonnements impossible. */
+async function envoyerATous(
+  message: { title: string; body: string },
+  url: string
+): Promise<{ sent: number; expired: number; echecs: number }> {
+  const { data: subscriptions, error: subsError } = await supabase
+    .from("push_subscriptions")
+    .select("id, endpoint, p256dh, auth");
+  if (subsError) {
+    console.error("envoyer-alertes-nutrition: lecture des abonnements impossible", subsError.message);
+    return { sent: 0, expired: 0, echecs: 1 };
+  }
   const payload = JSON.stringify({ title: message.title, body: message.body, url });
   let sent = 0;
   let expired = 0;
+  let echecs = 0;
   for (const sub of subscriptions ?? []) {
     try {
       await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload);
@@ -74,10 +91,13 @@ async function envoyerATous(message: { title: string; body: string }, url: strin
       if (statusCode === 404 || statusCode === 410) {
         await supabase.from("push_subscriptions").delete().eq("id", sub.id);
         expired++;
+      } else {
+        echecs++;
+        console.error("envoyer-alertes-nutrition: échec d'envoi push", statusCode ?? err);
       }
     }
   }
-  return { sent, expired };
+  return { sent, expired, echecs };
 }
 
 Deno.serve(async () => {
@@ -126,7 +146,11 @@ Deno.serve(async () => {
     const cible = objectif?.kcal_cible ?? null;
     const niveau = alerteKcalDue({ kcal, cible, jourLibre: libre.data !== null, dejaEnvoyee: false });
     if (niveau && cible && (await reserver("alerte_kcal_dernier_envoi", today))) {
-      resultat.alerte = { niveau, ...(await envoyerATous(composerAlerteKcal({ niveau, kcal, cible }), "/nutrition/journal")) };
+      const envoi = await envoyerATous(composerAlerteKcal({ niveau, kcal, cible }), "/nutrition/journal");
+      if (envoi.sent === 0 && envoi.echecs > 0) {
+        await liberer("alerte_kcal_dernier_envoi", today, reglages.alerte_kcal_dernier_envoi);
+      }
+      resultat.alerte = { niveau, ...envoi };
     }
   }
 
@@ -141,7 +165,11 @@ Deno.serve(async () => {
     }) &&
     (await reserver("rappel_saisie_dernier_envoi", today))
   ) {
-    resultat.saisie = await envoyerATous(composerRappelSaisie(), "/nutrition/journal");
+    const envoi = await envoyerATous(composerRappelSaisie(), "/nutrition/journal");
+    if (envoi.sent === 0 && envoi.echecs > 0) {
+      await liberer("rappel_saisie_dernier_envoi", today, reglages.rappel_saisie_dernier_envoi);
+    }
+    resultat.saisie = envoi;
   }
 
   return json({ kcal: Math.round(kcal), nbRepas, ...resultat });

@@ -1,5 +1,48 @@
 import { describe, expect, it } from "vitest";
-import { argumentsAExecuter, idsActionsRemplacees } from "./flush-policy";
+import { argumentsAExecuter, decisionApresEchec, idsActionsRemplacees } from "./flush-policy";
+
+describe("decisionApresEchec", () => {
+  const action = { module: "taches", action_name: "setTacheFait", payload: ["t1", true] };
+  const T0 = Date.parse("2026-10-26T10:00:00.000Z");
+
+  it("garde l'action tant que le premier échec date de moins de 10 min, même au 3e échec", () => {
+    const decision = decisionApresEchec(
+      { ...action, tentatives: 2, premier_echec_le: new Date(T0).toISOString() },
+      false,
+      T0 + 2 * 60_000
+    );
+    expect(decision).toMatchObject({ type: "reessayer_plus_tard", tentatives: 3 });
+  });
+
+  it("abandonne au 3e échec une fois 10 min écoulées depuis le premier", () => {
+    const decision = decisionApresEchec(
+      { ...action, tentatives: 2, premier_echec_le: new Date(T0).toISOString() },
+      false,
+      T0 + 10 * 60_000
+    );
+    expect(decision).toEqual({ type: "abandonner_et_continuer" });
+  });
+
+  it("pose la date du premier échec au premier échec non réseau", () => {
+    expect(decisionApresEchec(action, false, T0)).toEqual({
+      type: "reessayer_plus_tard",
+      tentatives: 1,
+      premier_echec_le: new Date(T0).toISOString(),
+    });
+  });
+
+  it("n'abandonne rien quand la date du premier échec est illisible", () => {
+    const decision = decisionApresEchec({ ...action, tentatives: 5, premier_echec_le: "n'importe quoi" }, false, T0);
+    expect(decision.type).toBe("reessayer_plus_tard");
+  });
+
+  it("ne compte pas une erreur réseau", () => {
+    expect(decisionApresEchec({ ...action, tentatives: 2 }, true, T0)).toMatchObject({
+      type: "reessayer_plus_tard",
+      tentatives: 2,
+    });
+  });
+});
 
 const coche = (id: number, tacheId: string, fait: boolean) => ({
   id,

@@ -15,6 +15,9 @@ type PendingAction = {
   // nécessaire pour l'ajouter, Dexie stocke l'objet entier quel que soit le
   // schéma déclaré ci-dessous.
   tentatives?: number;
+  // ISO : premier échec non réseau de l'action. L'abandon exige aussi un délai
+  // écoulé depuis cet instant (voir flush-policy.ts, DELAI_MIN_ABANDON_MS).
+  premier_echec_le?: string;
 };
 
 // Copie locale en lecture du module Pharmacie (un seul enregistrement, clé

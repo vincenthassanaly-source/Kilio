@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-type Ligne = { id?: number; module: string; action_name: string; payload: unknown[]; created_at: string; tentatives?: number };
+type Ligne = { id?: number; module: string; action_name: string; payload: unknown[]; created_at: string; tentatives?: number; premier_echec_le?: string };
 
 // Faux Dexie en mémoire : seule la surface utilisée par queue.ts.
 const etat = vi.hoisted(() => ({ lignes: [] as Ligne[], prochainId: 1 }));
@@ -51,6 +51,9 @@ import { toggleCourseItem } from "@/app/actions/courses";
 import { enqueueAction, EVENEMENT_FILE_AJOUT, flushQueue } from "./queue";
 
 let horloge = 0;
+// Premier échec ancien : l'abandon exige aussi 10 min écoulées (flush-policy.ts).
+const PREMIER_ECHEC_ANCIEN = "2020-01-01T00:00:00.000Z";
+
 function ajouter(module: string, action_name: string, payload: unknown[], tentatives?: number) {
   // created_at croissant et déterministe pour fixer l'ordre de rejeu.
   etat.lignes.push({
@@ -59,7 +62,7 @@ function ajouter(module: string, action_name: string, payload: unknown[], tentat
     action_name,
     payload,
     created_at: new Date(1_700_000_000_000 + horloge++ * 1000).toISOString(),
-    ...(tentatives === undefined ? {} : { tentatives }),
+    ...(tentatives === undefined ? {} : { tentatives, premier_echec_le: PREMIER_ECHEC_ANCIEN }),
   });
 }
 
@@ -163,12 +166,23 @@ describe("flushQueue", () => {
     expect(toggleCourseItem).not.toHaveBeenCalled();
   });
 
-  it("supprime sans bruit une action dont le module ou le nom est inconnu", async () => {
+  it("conserve en file une action dont le module ou le nom est inconnu et continue", async () => {
     ajouter("inconnu", "nimporte", []);
     ajouter("taches", "actionDisparue", []);
+    ajouter("notes", "toggleNoteItem", ["n1", true]);
 
-    expect(await flushQueue()).toEqual({ synced: 0, abandoned: 0, restantes: 0 });
-    expect(showToast).not.toHaveBeenCalled();
+    expect(await flushQueue()).toEqual({ synced: 1, abandoned: 0, restantes: 2 });
+    expect(toggleNoteItem).toHaveBeenCalledWith("n1", true);
+    expect(etat.lignes.map((l) => l.action_name)).toEqual(["nimporte", "actionDisparue"]);
+  });
+
+  it("n'abandonne pas au 3e échec non réseau tant que 10 min ne se sont pas écoulées", async () => {
+    ajouter("taches", "setTacheFait", ["t1", true], 2);
+    etat.lignes[0].premier_echec_le = new Date().toISOString();
+    vi.mocked(setTacheFait).mockRejectedValue(new Error("Erreur serveur"));
+
+    expect(await flushQueue()).toEqual({ synced: 0, abandoned: 0, restantes: 1 });
+    expect(etat.lignes[0].tentatives).toBe(3);
   });
 
   it("pluralise le message d'abandon", async () => {
