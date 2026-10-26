@@ -95,6 +95,9 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
   });
 
   const itemMutation = useMutation({
+    // Hors ligne, la mutation doit s'exécuter quand même pour atteindre la file
+    // Dexie : sinon TanStack la met en pause et elle est perdue si l'app est fermée.
+    networkMode: "always",
     mutationFn: async ({ itemId, coche }: { itemId: string; coche: boolean }) => {
       vibrate();
       try {
@@ -138,6 +141,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
   });
 
   const deleteMutation = useMutation({
+    networkMode: "always",
     mutationFn: async () => {
       try {
         await deleteNote(note.id);

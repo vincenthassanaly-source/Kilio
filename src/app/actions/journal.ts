@@ -53,7 +53,11 @@ export async function getResumeNutritionJour(date: string): Promise<ResumeNutrit
   const supabase = createAdminClient();
   const jourType = jourTypePourDate(date, await getDatesEntrainement(date, date));
 
-  const [{ data: objectif }, { data: entries }, { data: jourLibre }] = await Promise.all([
+  const [
+    { data: objectif, error: erreurObjectif },
+    { data: entries, error: erreurJournal },
+    { data: jourLibre, error: erreurJourLibre },
+  ] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*").eq("jour_type", jourType).maybeSingle(),
     supabase
       .from("journal_repas")
@@ -63,6 +67,12 @@ export async function getResumeNutritionJour(date: string): Promise<ResumeNutrit
       .eq("date", date),
     supabase.from("jours_libres").select("date").eq("date", date).maybeSingle(),
   ]);
+
+  // Une panne Supabase ne doit pas passer pour un « journal vide » (0 kcal,
+  // pas d'objectif) : on lève, TanStack Query garde alors les données déjà
+  // affichées et les écrans montrent leur état d'erreur.
+  const erreur = erreurObjectif ?? erreurJournal ?? erreurJourLibre;
+  if (erreur) throw new Error(erreur.message);
 
   // Même filtre des entrées orphelines que JournalJour.tsx (constat J-P1-5).
   const consomme = (entries ?? []).reduce((acc, entry) => {
@@ -169,10 +179,28 @@ export async function addJournalEntry(
 
 export async function removeJournalEntry(id: string) {
   const supabase = createAdminClient();
+  // Un repas de Menu validé pointe vers cette entrée (clé étrangère `on delete
+  // set null`) : sans ceci il resterait « mangé » alors que le Journal n'a plus
+  // la ligne (kcal sous-comptés, repas exclu des Courses). On le remet « à manger ».
+  const { data: menusLies, error: erreurMenu } = await supabase
+    .from("menus_repas")
+    .update({ mange: false, journal_repas_id: null })
+    .eq("journal_repas_id", id)
+    .select("id");
+  if (erreurMenu) throw new Error(erreurMenu.message);
+
   const { error } = await supabase.from("journal_repas").delete().eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    // Suppression refusée : on rétablit le lien du menu pour rester cohérent.
+    const idsMenu = (menusLies ?? []).map((menu) => menu.id);
+    if (idsMenu.length > 0) {
+      await supabase.from("menus_repas").update({ mange: true, journal_repas_id: id }).in("id", idsMenu);
+    }
+    throw new Error(error.message);
+  }
 
+  revalidatePath("/nutrition/menus");
   revalidatePath("/nutrition/journal");
   // Le dashboard affiche le total nutrition : comme addJournalEntry.
   revalidatePath("/");

@@ -113,6 +113,10 @@ describe("choisirFeuille", () => {
 
 describe("synchroniserFeuilles", () => {
   it("envoie les feuilles en attente dans l'ordre des jours puis les marque envoyées", async () => {
+    // Date figée : la synchro purge les feuilles envoyées de plus de 7 jours, le
+    // test ne doit donc pas dépendre du jour où il tourne.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-19T20:00:00Z"));
     await ecrireFeuilleLocale("2026-10-19", [T], 2000);
     await ecrireFeuilleLocale("2026-10-18", [T], 2000);
     const r = await synchroniserFeuilles();

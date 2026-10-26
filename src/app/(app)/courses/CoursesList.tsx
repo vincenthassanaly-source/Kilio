@@ -23,7 +23,9 @@ export function CoursesList() {
   const [cleAffichage] = useState(creerAttributeurDeCles);
 
   if (isLoading) return <ListItemSkeletonGroup count={4} />;
-  if (isError) return <p className={errorText}>Erreur de chargement des courses. Réessaie.</p>;
+  // Un rechargement qui échoue (réseau instable en magasin) garde les articles
+  // déjà chargés : l'erreur ne remplace la liste que s'il n'y a rien à montrer.
+  if (isError && !items) return <p className={errorText}>Erreur de chargement des courses. Réessaie.</p>;
   if (!items || items.length === 0) {
     return <p className="text-ink-2">Aucun article pour l&apos;instant.</p>;
   }

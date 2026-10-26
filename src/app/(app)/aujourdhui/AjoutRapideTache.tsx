@@ -34,7 +34,14 @@ export function AjoutRapideTache({
   const [heure, setHeure] = useState("");
   const [heureOuverte, setHeureOuverte] = useState(false);
   const [enCours, setEnCours] = useState(false);
-  const { data: listes = [] } = useQuery({ queryKey: queryKeys.listes, queryFn: getListes });
+  const {
+    data: listes = [],
+    isPending: listesEnChargement,
+    isError: listesEnErreur,
+  } = useQuery({
+    queryKey: queryKeys.listes,
+    queryFn: getListes,
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +53,15 @@ export function AjoutRapideTache({
     }
     const listeId = listes[0]?.id;
     if (!listeId) {
-      showToast("Crée d'abord une liste de tâches.", undefined, "error");
+      // Listes pas encore chargées (réseau lent ou coupé) : ce n'est pas qu'il
+      // n'y en a aucune.
+      showToast(
+        listesEnChargement || listesEnErreur
+          ? "Les listes ne sont pas encore chargées. Réessaie dans un instant."
+          : "Crée d'abord une liste de tâches.",
+        undefined,
+        "error"
+      );
       return;
     }
 
