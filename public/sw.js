@@ -270,18 +270,42 @@ const ACTIONS_REPORT_RAPPEL = [
 // Fin de repos de la séance de musculation (voir supabase/functions/envoyer-rappel-repos).
 // Si l'app est visible, elle sonne et vibre déjà elle-même : pas de doublon. Chrome
 // autorise de ne rien afficher quand une fenêtre du site est au premier plan.
+// Trace de diagnostic lisible par la page (src/lib/musculation/diagnosticRepos.ts) :
+// le service worker n'a pas localStorage, on garde les 20 dernières entrées en cache.
+function journaliserRepos(entree) {
+  return caches
+    .open("kilio-diag")
+    .then((cache) =>
+      cache
+        .match("/diag-repos.json")
+        .then((r) => (r ? r.json() : []))
+        .catch(() => [])
+        .then((journal) => {
+          const suite = (Array.isArray(journal) ? journal : []).concat([{ source: "push", a: new Date().toISOString(), ...entree }]);
+          return cache.put("/diag-repos.json", new Response(JSON.stringify(suite.slice(-20)), { headers: { "Content-Type": "application/json" } }));
+        })
+    )
+    .catch(() => undefined);
+}
+
 function notifierFinRepos(data) {
   return self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
-    if (clients.some((c) => c.visibilityState === "visible")) return undefined;
-    return self.registration.showNotification(data.title || "Repos terminé", {
-      body: data.body || "",
-      icon: "/icons/icon-192.png",
-      badge: "/icons/icon-badge-v2.png",
-      tag: "repos",
-      renotify: true,
-      vibrate: [220, 90, 220],
-      data: { url: data.url || "/musculation/seance" },
-    });
+    if (clients.some((c) => c.visibilityState === "visible")) {
+      return journaliserRepos({ affichee: false, appVisible: true });
+    }
+    return self.registration
+      .showNotification(data.title || "Repos terminé", {
+        body: data.body || "",
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-badge-v2.png",
+        tag: "repos",
+        renotify: true,
+        // Son explicite : sans lui, la notification suit le canal Android de la PWA.
+        silent: false,
+        vibrate: [220, 90, 220],
+        data: { url: data.url || "/musculation/seance" },
+      })
+      .then(() => journaliserRepos({ affichee: true, appVisible: false }));
   });
 }
 

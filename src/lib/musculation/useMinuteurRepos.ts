@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { vibrate } from "@/lib/haptics";
+import { ecrireDiagnosticRepos, type EtatAudio } from "./diagnosticRepos";
 import type { Repos } from "./seance";
 
 // Un signal de fin plus ancien que ça n'est plus annoncé : rouvrir l'app après
@@ -28,6 +29,10 @@ export function deverrouillerAudio(): void {
   }
 }
 
+function etatAudio(): EtatAudio {
+  return contexteAudio?.state ?? "absent";
+}
+
 function bip(frequence: number, debutS: number, dureeS: number): void {
   const contexte = contexteAudio;
   if (!contexte || contexte.state !== "running") return;
@@ -42,11 +47,38 @@ function bip(frequence: number, debutS: number, dureeS: number): void {
   oscillateur.stop(contexte.currentTime + debutS + dureeS + 0.05);
 }
 
-/** Fin de repos : deux bips et une vibration (quand l'appareil les permet). */
+/**
+ * Écran verrouillé, Android suspend (ou ferme) l'AudioContext : sans le relancer, les
+ * bips ne jouaient pas et seule la vibration passait. Retourne vrai si l'audio tourne.
+ */
+async function reveillerAudio(): Promise<boolean> {
+  try {
+    if (contexteAudio?.state === "closed") contexteAudio = null;
+    deverrouillerAudio();
+    if (contexteAudio && contexteAudio.state !== "running") await contexteAudio.resume();
+  } catch {
+    // Relance refusée (aucune activation récente) : on consigne l'échec plus bas.
+  }
+  return contexteAudio?.state === "running";
+}
+
+/** Fin de repos : vibration et deux bips (quand l'appareil les permet), avec trace de diagnostic. */
 export function signalerFinRepos(): void {
+  const audioAvant = etatAudio();
   vibrate([220, 90, 220]);
-  bip(880, 0, 0.18);
-  bip(1175, 0.26, 0.28);
+  void reveillerAudio().then((tourne) => {
+    if (tourne) {
+      bip(880, 0, 0.18);
+      bip(1175, 0.26, 0.28);
+    }
+    ecrireDiagnosticRepos({
+      audioAvant,
+      audioApres: etatAudio(),
+      bips: tourne,
+      vibration: typeof navigator !== "undefined" && "vibrate" in navigator,
+      visible: document.visibilityState === "visible",
+    });
+  });
 }
 
 /**
