@@ -42,10 +42,15 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
   // motif que TaskCard, src/app/(app)/taches/TasksList.tsx).
   const toggleMutation = useMutation({
     networkMode: "always",
-    mutationFn: async () => {
+    // `enfile` : la coche est partie en file hors ligne au lieu du serveur. Dans
+    // ce cas on n'invalide pas la liste : un refetch réussi relirait l'ancien
+    // état serveur et la coche sauterait en arrière jusqu'au rejeu (même garde
+    // que TaskCard, taches/TasksList.tsx).
+    mutationFn: async (): Promise<{ enfile: boolean }> => {
       vibrate();
       try {
         await toggleCourseItem(item.id, !item.coche);
+        return { enfile: false };
       } catch (err) {
         if (!isNetworkError(err)) throw err;
         // Défense en profondeur : le bouton est déjà désactivé tant que
@@ -57,6 +62,7 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
         if (enAttenteDeCreation) throw err;
         await enqueueAction("courses", "toggleCourseItem", [item.id, !item.coche]);
         showToast("Enregistré, sera synchronisé à la reconnexion");
+        return { enfile: true };
       }
     },
     onMutate: async () => {
@@ -71,7 +77,9 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
       restaurerElement(queryClient, queryKeys.courses, context?.previous, item.id);
       showToast("Impossible de mettre à jour l'article.");
     },
-    onSettled: invalidate,
+    onSettled: (resultat) => {
+      if (!resultat?.enfile) invalidate();
+    },
   });
 
   // Suppression immédiate (plus de `window.confirm`, décision actée : voir

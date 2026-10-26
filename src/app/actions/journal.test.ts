@@ -135,6 +135,30 @@ describe("removeJournalEntry", () => {
     brancher(() => ({ error: { message: "ko" } }));
     await expect(removeJournalEntry(ID)).rejects.toThrow("ko");
   });
+
+  it("remet « à manger » le repas de Menu lié et revalide les Menus", async () => {
+    const fake = brancher();
+    await removeJournalEntry(ID);
+    const menu = ecritures(fake.appels, "menus_repas", "update")[0];
+    expect(menu.payload).toEqual({ mange: false, journal_repas_id: null });
+    expect(menu.filtres).toContainEqual(["eq", "journal_repas_id", ID]);
+    expect(etat.revalidatePath).toHaveBeenCalledWith("/nutrition/menus");
+  });
+
+  it("rétablit le lien du Menu si la suppression du Journal échoue", async () => {
+    const MENU = "33333333-3333-4333-8333-333333333333";
+    const fake = brancher((a) => {
+      if (a.table === "menus_repas" && a.action === "update" && a.filtres.some((f) => f[0] === "eq")) {
+        return { data: [{ id: MENU }] };
+      }
+      if (a.table === "journal_repas" && a.action === "delete") return { error: { message: "ko" } };
+      return undefined;
+    });
+    await expect(removeJournalEntry(ID)).rejects.toThrow("ko");
+    const restauration = ecritures(fake.appels, "menus_repas", "update")[1];
+    expect(restauration.payload).toEqual({ mange: true, journal_repas_id: ID });
+    expect(restauration.filtres).toContainEqual(["in", "id", [MENU]]);
+  });
 });
 
 describe("getDatesEntrainement", () => {
@@ -181,6 +205,16 @@ describe("getResumeNutritionJour", () => {
     expect(res.macroGoals).toEqual({ proteines: 150, glucides: 300, lipides: 70 });
     const objectif = fake.appels.find((a) => a.table === "objectifs_nutritionnels")!;
     expect(objectif.filtres).toContainEqual(["eq", "jour_type", "entrainement"]);
+  });
+
+  it("lève sur erreur Supabase au lieu de renvoyer un faux « journal vide »", async () => {
+    brancher((a) => (a.table === "journal_repas" ? { error: { message: "panne" } } : undefined));
+    await expect(getResumeNutritionJour("2026-10-09")).rejects.toThrow("panne");
+  });
+
+  it("lève sur erreur Supabase au lieu de renvoyer un faux « journal vide »", async () => {
+    brancher((a) => (a.table === "journal_repas" ? { error: { message: "panne" } } : undefined));
+    await expect(getResumeNutritionJour("2026-10-09")).rejects.toThrow("panne");
   });
 
   it("signale un jour libre (jeton posé) et lit la date demandée", async () => {

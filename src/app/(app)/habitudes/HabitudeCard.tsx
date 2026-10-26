@@ -47,14 +47,19 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
     // Sans `always`, TanStack met la mutation en pause hors ligne et le
     // repli `enqueueAction` ci-dessous n'est jamais atteint.
     networkMode: "always",
-    mutationFn: async (nouvelleValeur: number) => {
+    // `enfile` : pas d'invalidation quand la coche est partie en file hors
+    // ligne, sinon un refetch réussi relirait l'ancien état serveur et la coche
+    // sauterait en arrière jusqu'au rejeu.
+    mutationFn: async (nouvelleValeur: number): Promise<{ enfile: boolean }> => {
       vibrate();
       try {
         await enregistrerEntreeHabitude(habitude.id, date, nouvelleValeur);
+        return { enfile: false };
       } catch (err) {
         if (!isNetworkError(err)) throw err;
         await enqueueAction("habitudes", "enregistrerEntreeHabitude", [habitude.id, date, nouvelleValeur]);
         showToast("Enregistré, sera synchronisé à la reconnexion");
+        return { enfile: true };
       }
     },
     onMutate: async (nouvelleValeur) => {
@@ -78,7 +83,9 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
       restaurerElement(queryClient, queryKeys.habitudes(date), context?.previous, habitude.id);
       showToast("Impossible de mettre à jour l'habitude.");
     },
-    onSettled: invalidate,
+    onSettled: (resultat) => {
+      if (!resultat?.enfile) invalidate();
+    },
   });
 
   if (editing) {
