@@ -99,7 +99,7 @@ export function estConviction(valeur: unknown): valeur is Conviction {
 
 // --- Statut -----------------------------------------------------------------
 
-export const STATUTS = ["brouillon", "validee", "rejetee"] as const;
+const STATUTS = ["brouillon", "validee", "rejetee"] as const;
 export type Statut = (typeof STATUTS)[number];
 
 export const LIBELLE_STATUT: Record<Statut, string> = {

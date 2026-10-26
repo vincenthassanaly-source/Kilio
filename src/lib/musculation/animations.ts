@@ -76,7 +76,7 @@ export type CleAnimation = (typeof ANIMATIONS)[number];
 
 const DOSSIER = "/animations/musculation";
 
-export function estCleAnimation(valeur: unknown): valeur is CleAnimation {
+function estCleAnimation(valeur: unknown): valeur is CleAnimation {
   return typeof valeur === "string" && (ANIMATIONS as readonly string[]).includes(valeur);
 }
 

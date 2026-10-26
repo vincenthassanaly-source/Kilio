@@ -17,7 +17,7 @@ export type EntrainementResume = {
   volume: number;
 };
 
-export type EntrainementExerciceDetail = {
+type EntrainementExerciceDetail = {
   /** Identifiant de la ligne `entrainement_exercices`, repris comme clé locale. */
   cle: string;
   exerciceId: string;

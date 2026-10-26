@@ -17,7 +17,7 @@ export type RoutineSerie = {
 };
 
 /** Exercice d'une routine tel qu'il est envoyé à l'enregistrement. */
-export type RoutineExerciceEntree = {
+type RoutineExerciceEntree = {
   exerciceId: string;
   /** Repos propre à cette routine ; null = repos de l'exercice (puis global). */
   reposS: number | null;

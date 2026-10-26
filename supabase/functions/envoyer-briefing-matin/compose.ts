@@ -1,7 +1,7 @@
 // Composition du briefing du matin : logique pure (aucune API Deno ni réseau),
 // testée côté app (src/lib/briefing/compose.test.ts).
 
-export type Frequence = "quotidien" | "hebdomadaire" | "mensuel" | "annuel";
+type Frequence ="quotidien" | "hebdomadaire" | "mensuel" | "annuel";
 
 export type TacheBriefing = {
   titre: string;

@@ -76,7 +76,7 @@ export function estTitreSection(texte: string): boolean {
   return (t.match(/\p{L}/gu)?.length ?? 0) >= 3 && t === t.toUpperCase();
 }
 
-export type LigneSection = { niveau: Niveau; texte: string; sousTitre: boolean };
+type LigneSection = { niveau: Niveau; texte: string; sousTitre: boolean };
 
 export type ElementContenu =
   | { type: "texte"; texte: string }
