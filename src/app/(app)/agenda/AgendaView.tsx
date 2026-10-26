@@ -340,6 +340,7 @@ export function AgendaView() {
         type="button"
         onClick={() => setFabOpen(true)}
         aria-label="Ajouter une tâche"
+        data-masquer-saisie
         className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full text-on-agenda shadow-card"
         style={{ background: "var(--accent-agenda)", bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
       >

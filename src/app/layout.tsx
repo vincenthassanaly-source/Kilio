@@ -32,6 +32,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Chrome Android : le clavier redimensionne la page (dvh compris) au lieu de
+  // se superposer, donc les feuilles et formulaires restent entièrement visibles.
+  // Sans effet sur iOS Safari, qui garde son comportement natif.
+  interactiveWidget: "resizes-content",
   themeColor: [
     // Fond réel de l'app (T16) ; themeInitScript et basculerTheme alignent
     // ensuite ces balises sur le thème choisi dans l'app.

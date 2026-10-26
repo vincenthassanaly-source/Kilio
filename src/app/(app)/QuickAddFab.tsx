@@ -129,6 +129,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           dont la chaîne de scroll saute `<main>` : la page ne défile plus.
           Chaque bouton réactive ses propres événements. */}
       <div
+        data-masquer-saisie
         className="pointer-events-none fixed right-4 z-40 flex flex-col-reverse items-center gap-3"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)", viewTransitionName: "fab" }}
       >
