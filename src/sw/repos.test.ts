@@ -28,7 +28,7 @@ function charger(clientsVisibles: boolean) {
     registration: { showNotification },
   };
   new Function("self", "caches", "fetch", swSource)(self, caches, vi.fn());
-  return { listeners, showNotification, cache };
+  return { listeners, showNotification, cache, caches };
 }
 
 async function pousser(listeners: Record<string, (e: unknown) => unknown>) {
@@ -56,6 +56,17 @@ describe("service worker : fin de repos", () => {
     expect(String(cle)).toContain("diag-repos");
     const journal = await (reponse as Response).json();
     expect(journal.at(-1)).toMatchObject({ source: "push", affichee: true });
+  });
+
+  it("garde le journal de diagnostic quand le service worker s'active", async () => {
+    const { listeners, caches } = charger(false);
+    caches.keys.mockResolvedValue(["kilio-diag", "ancien-cache"]);
+    let attente: Promise<unknown> = Promise.resolve();
+    listeners.activate({ waitUntil: (p: Promise<unknown>) => (attente = p) });
+    await attente;
+    const supprimes = caches.delete.mock.calls.map((c: unknown[]) => c[0]);
+    expect(supprimes).toContain("ancien-cache");
+    expect(supprimes).not.toContain("kilio-diag");
   });
 
   it("note aussi quand l'app visible évite la notification", async () => {

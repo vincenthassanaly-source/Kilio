@@ -8,6 +8,7 @@ import type { Repos } from "./seance";
 // Un signal de fin plus ancien que ça n'est plus annoncé : rouvrir l'app après
 // une longue pause ne doit pas faire sonner un repos terminé depuis longtemps.
 const FENETRE_SIGNAL_MS = 10_000;
+const ATTENTE_RELANCE_AUDIO_MS = 500;
 
 let contexteAudio: AudioContext | null = null;
 
@@ -55,7 +56,11 @@ async function reveillerAudio(): Promise<boolean> {
   try {
     if (contexteAudio?.state === "closed") contexteAudio = null;
     deverrouillerAudio();
-    if (contexteAudio && contexteAudio.state !== "running") await contexteAudio.resume();
+    // resume() peut rester en attente écran verrouillé : on n'attend pas plus longtemps
+    // que ça pour consigner l'état réel plutôt que de ne rien écrire.
+    if (contexteAudio && contexteAudio.state !== "running") {
+      await Promise.race([contexteAudio.resume(), new Promise((resolve) => setTimeout(resolve, ATTENTE_RELANCE_AUDIO_MS))]);
+    }
   } catch {
     // Relance refusée (aucune activation récente) : on consigne l'échec plus bas.
   }

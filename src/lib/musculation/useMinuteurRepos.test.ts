@@ -88,6 +88,19 @@ describe("signalerFinRepos", () => {
     });
   });
 
+  it("consigne l'échec même si resume() ne répond jamais (écran verrouillé)", async () => {
+    const { instances } = installerAudioContext("running");
+    const { deverrouillerAudio, signalerFinRepos } = await charger();
+    deverrouillerAudio();
+    instances[0].state = "suspended";
+    instances[0].resume = vi.fn(() => new Promise<void>(() => {}));
+
+    signalerFinRepos();
+    const { lireDiagnosticRepos } = await import("./diagnosticRepos");
+    await vi.waitFor(() => expect(lireDiagnosticRepos().length).toBe(1), { timeout: 2000 });
+    expect(lireDiagnosticRepos()[0]).toMatchObject({ audioAvant: "suspended", bips: false });
+  });
+
   it("note un signal réussi avec l'état de l'audio", async () => {
     installerAudioContext("running");
     const { deverrouillerAudio, signalerFinRepos } = await charger();
