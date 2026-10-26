@@ -9,6 +9,8 @@ const CACHE_PARTAGE = "kilio-partage-en-attente";
 // Garder cette liste identique à ANIMATIONS de src/lib/musculation/animations.ts
 // (animations.test.ts compare les deux).
 const CACHE_ANIMATIONS = "kilio-animations-v1";
+// Journal de diagnostic de la fin de repos : doit survivre aux mises à jour du SW.
+const CACHE_DIAG = "kilio-diag";
 const DOSSIER_ANIMATIONS = "/animations/musculation/";
 const ANIMATIONS = [
   "elevation-laterale",
@@ -109,7 +111,7 @@ self.addEventListener("activate", (event) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key !== CACHE_NAME && key !== CACHE_PARTAGE && key !== CACHE_ANIMATIONS)
+            .filter((key) => key !== CACHE_NAME && key !== CACHE_PARTAGE && key !== CACHE_ANIMATIONS && key !== CACHE_DIAG)
             .map((key) => caches.delete(key))
         )
       )
@@ -267,21 +269,45 @@ const ACTIONS_REPORT_RAPPEL = [
   { action: "reporter-1sem", title: "Semaine prochaine" },
 ];
 
+// Trace de diagnostic lisible par la page (src/lib/musculation/diagnosticRepos.ts) :
+// le service worker n'a pas localStorage, on garde les 20 dernières entrées en cache.
+function journaliserRepos(entree) {
+  return caches
+    .open(CACHE_DIAG)
+    .then((cache) =>
+      cache
+        .match("/diag-repos.json")
+        .then((r) => (r ? r.json() : []))
+        .catch(() => [])
+        .then((journal) => {
+          const suite = (Array.isArray(journal) ? journal : []).concat([{ source: "push", a: new Date().toISOString(), ...entree }]);
+          return cache.put("/diag-repos.json", new Response(JSON.stringify(suite.slice(-20)), { headers: { "Content-Type": "application/json" } }));
+        })
+    )
+    .catch(() => undefined);
+}
+
 // Fin de repos de la séance de musculation (voir supabase/functions/envoyer-rappel-repos).
 // Si l'app est visible, elle sonne et vibre déjà elle-même : pas de doublon. Chrome
 // autorise de ne rien afficher quand une fenêtre du site est au premier plan.
 function notifierFinRepos(data) {
   return self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
-    if (clients.some((c) => c.visibilityState === "visible")) return undefined;
-    return self.registration.showNotification(data.title || "Repos terminé", {
-      body: data.body || "",
-      icon: "/icons/icon-192.png",
-      badge: "/icons/icon-badge-v2.png",
-      tag: "repos",
-      renotify: true,
-      vibrate: [220, 90, 220],
-      data: { url: data.url || "/musculation/seance" },
-    });
+    if (clients.some((c) => c.visibilityState === "visible")) {
+      return journaliserRepos({ affichee: false, appVisible: true });
+    }
+    return self.registration
+      .showNotification(data.title || "Repos terminé", {
+        body: data.body || "",
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-badge-v2.png",
+        tag: "repos",
+        renotify: true,
+        // Son explicite : sans lui, la notification suit le canal Android de la PWA.
+        silent: false,
+        vibrate: [220, 90, 220],
+        data: { url: data.url || "/musculation/seance" },
+      })
+      .then(() => journaliserRepos({ affichee: true, appVisible: false }));
   });
 }
 
