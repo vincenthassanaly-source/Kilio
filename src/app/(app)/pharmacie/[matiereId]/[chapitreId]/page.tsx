@@ -48,7 +48,7 @@ function Chapitre({
         <TransitionLink href="/pharmacie" className={`${linkButton} self-start`}>
           ← Pharmacie
         </TransitionLink>
-        <IntrouvableCarte message="Ce chapitre n'existe plus : il a peut-être été renommé ou fusionné." />
+        <IntrouvableCarte titre="Chapitre introuvable" message="Ce chapitre n'existe plus : il a peut-être été renommé ou fusionné." />
       </>
     );
   }

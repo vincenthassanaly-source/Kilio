@@ -5,8 +5,9 @@ import { getAnnonce, getReglagesVinted } from "@/app/actions/vinted";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { TransitionLink } from "@/components/TransitionLink";
 import { queryKeys } from "@/lib/query/keys";
-import { errorText, linkButton } from "@/lib/ui";
+import { linkButton } from "@/lib/ui";
 import { AnnonceEditor } from "./AnnonceEditor";
+import { ErrorInline } from "@/components/ErrorInline";
 
 export function AnnonceView({ id }: { id: string }) {
   const annonce = useQuery({ queryKey: queryKeys.vintedAnnonce(id), queryFn: () => getAnnonce(id) });
@@ -28,9 +29,18 @@ export function AnnonceView({ id }: { id: string }) {
         <TransitionLink href="/vinted" className={linkButton}>
           ‹ Vinted
         </TransitionLink>
-        <p className={errorText} role="alert">
-          {annonce.isError || reglages.isError ? "Erreur de chargement de l'annonce." : "Annonce introuvable."}
-        </p>
+        {annonce.isError || reglages.isError ? (
+          <ErrorInline
+            titre="Chargement impossible"
+            message="L'annonce n'a pas pu être chargée."
+            retry={() => {
+              annonce.refetch();
+              reglages.refetch();
+            }}
+          />
+        ) : (
+          <ErrorInline titre="Annonce introuvable" message="Elle a peut-être été supprimée." />
+        )}
       </div>
     );
   }

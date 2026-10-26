@@ -9,8 +9,9 @@ import { formaterDateLongue } from "@/lib/musculation/historique";
 import { formaterPoids } from "@/lib/musculation/seance";
 import type { MetriqueProgression, RecordsExercice, ValeurRecord } from "@/lib/musculation/stats";
 import { queryKeys } from "@/lib/query/keys";
-import { card, errorText, metaText, nameText, screenTitle, sectionTitle, zoneTapPill } from "@/lib/ui";
+import { card, metaText, screenTitle, sectionTitle, zoneTapPill } from "@/lib/ui";
 import { GraphiqueProgression } from "../GraphiqueProgression";
+import { ErrorInline } from "@/components/ErrorInline";
 
 const METRIQUES: { value: MetriqueProgression; label: string; titre: string }[] = [
   { value: "e1rm", label: "1RM estimé", titre: "1RM estimé par séance" },
@@ -41,7 +42,7 @@ function CarteRecord({ libelle, unite, record }: { libelle: string; unite: strin
 }
 
 export function FicheExercice({ exerciceId }: { exerciceId: string }) {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.musculationStatsExercice(exerciceId),
     queryFn: () => getStatsExercice(exerciceId),
   });
@@ -55,8 +56,10 @@ export function FicheExercice({ exerciceId }: { exerciceId: string }) {
       </div>
     );
   }
-  if (isError) return <p className={errorText}>Impossible de charger l&apos;exercice. Vérifie ta connexion.</p>;
-  if (!data) return <p className={nameText}>Cet exercice n&apos;existe pas.</p>;
+  if (isError) {
+    return <ErrorInline titre="Chargement impossible" message="Impossible de charger l'exercice. Vérifie ta connexion." retry={() => refetch()} />;
+  }
+  if (!data) return <ErrorInline titre="Exercice introuvable" message="Cet exercice n'existe pas." />;
 
   const { exercice, stats } = data;
   const disponibles = METRIQUES.filter((m) => stats.progression[m.value].length > 0);

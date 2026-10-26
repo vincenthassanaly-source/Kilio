@@ -21,6 +21,7 @@ import type { DossierRoutines, RoutineResume } from "@/lib/musculation/routines"
 import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { queryKeys } from "@/lib/query/keys";
 import { card, dangerButton, errorText, eyebrow, ghostButton, input, metaText, nameText, primaryButton, secondaryButton, sectionTitle } from "@/lib/ui";
+import { ErrorInline } from "@/components/ErrorInline";
 
 function LigneRoutine({
   routine,
@@ -127,7 +128,7 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
   const [demarrage, setDemarrage] = useState(false);
   // undefined : fermé ; null : nouveau dossier ; sinon dossier à modifier.
   const [dossierOuvert, setDossierOuvert] = useState<DossierRoutines | null | undefined>(undefined);
-  const { data, isLoading, isError } = useQuery({ queryKey: queryKeys.musculationRoutines, queryFn: getRoutines });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.musculationRoutines, queryFn: getRoutines });
 
   async function demarrer(id: string) {
     setDemarrage(true);
@@ -154,7 +155,9 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
       </div>
     );
   }
-  if (isError || !data) return <p className={errorText}>Impossible de charger les routines. Vérifie ta connexion.</p>;
+  if (isError || !data) {
+    return <ErrorInline message="Impossible de charger les routines. Vérifie ta connexion." retry={() => refetch()} />;
+  }
 
   // Sans exercice au catalogue on ne peut rien composer : la page l'explique déjà, inutile d'empiler une seconde carte vide.
   if (catalogueVide && data.routines.length === 0 && data.dossiers.length === 0) return null;

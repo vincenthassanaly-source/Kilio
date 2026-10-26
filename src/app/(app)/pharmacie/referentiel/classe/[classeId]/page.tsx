@@ -30,7 +30,7 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
             return (
               <>
                 <RetourReferentiel />
-                <IntrouvableCarte message="Cette classe n'existe plus : elle a peut-être été renommée ou fusionnée." />
+                <IntrouvableCarte titre="Classe introuvable" message="Cette classe n'existe plus : elle a peut-être été renommée ou fusionnée." />
               </>
             );
           }

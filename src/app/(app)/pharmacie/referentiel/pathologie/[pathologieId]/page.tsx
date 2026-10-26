@@ -123,7 +123,7 @@ function PathologieContenu({ pathologieId }: { pathologieId: string }) {
             return (
               <>
                 <RetourReferentiel />
-                <IntrouvableCarte message="Cette pathologie n'existe plus : elle a peut-être été renommée ou fusionnée." />
+                <IntrouvableCarte titre="Pathologie introuvable" message="Cette pathologie n'existe plus : elle a peut-être été renommée ou fusionnée." />
               </>
             );
           }

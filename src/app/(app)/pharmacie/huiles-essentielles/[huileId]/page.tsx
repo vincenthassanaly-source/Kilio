@@ -70,7 +70,7 @@ export default function HuilePage({ params }: { params: Promise<{ huileId: strin
             return (
               <>
                 <Retour />
-                <IntrouvableCarte message="Cette huile n'existe plus : elle a peut-être été supprimée." />
+                <IntrouvableCarte titre="Huile introuvable" message="Cette huile n'existe plus : elle a peut-être été supprimée." />
               </>
             );
           }

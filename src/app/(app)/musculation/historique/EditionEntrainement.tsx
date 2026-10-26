@@ -25,6 +25,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { card, errorText, input, label, nameText, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
 import { ExerciceBloc } from "../seance/ExerciceBloc";
 import { SelecteurExercices } from "../seance/SelecteurExercices";
+import { ErrorInline } from "@/components/ErrorInline";
 
 /** Toutes les séries d'une séance passée sont faites, horodatées au début de la séance. */
 function toutFait(b: Brouillon): Brouillon {
@@ -167,7 +168,7 @@ function Formulaire({ detail }: { detail: EntrainementDetail | null }) {
 
 /** Modification d'une séance enregistrée (`id`) ou saisie d'une séance passée (`id` null). */
 export function EditionEntrainement({ id }: { id: string | null }) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.musculationEntrainement(id ?? "nouvelle"),
     queryFn: () => getEntrainement(id!),
     enabled: id !== null,
@@ -182,6 +183,9 @@ export function EditionEntrainement({ id }: { id: string | null }) {
       </div>
     );
   }
-  if (!data) return <p className={errorText}>Cette séance n&apos;existe plus.</p>;
+  if (isError) {
+    return <ErrorInline titre="Chargement impossible" message="Impossible de charger la séance. Vérifie ta connexion." retry={() => refetch()} />;
+  }
+  if (!data) return <ErrorInline titre="Séance introuvable" message="Cette séance n'existe plus." />;
   return <Formulaire detail={data} />;
 }

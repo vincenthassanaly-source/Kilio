@@ -5,8 +5,9 @@ import { getIdee } from "@/app/actions/opinions";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { TransitionLink } from "@/components/TransitionLink";
 import { queryKeys } from "@/lib/query/keys";
-import { errorText, linkButton } from "@/lib/ui";
+import { linkButton } from "@/lib/ui";
 import { IdeeEditor } from "./IdeeEditor";
+import { ErrorInline } from "@/components/ErrorInline";
 
 export function IdeeView({ id }: { id: string }) {
   const idee = useQuery({ queryKey: queryKeys.opinionsIdee(id), queryFn: () => getIdee(id) });
@@ -27,9 +28,11 @@ export function IdeeView({ id }: { id: string }) {
         <TransitionLink href="/opinions" className={linkButton}>
           ‹ Opinions
         </TransitionLink>
-        <p className={errorText} role="alert">
-          {idee.isError ? "Erreur de chargement de l'idée." : "Idée introuvable."}
-        </p>
+        {idee.isError ? (
+          <ErrorInline titre="Chargement impossible" message="L'idée n'a pas pu être chargée." retry={() => idee.refetch()} />
+        ) : (
+          <ErrorInline titre="Idée introuvable" message="Elle a peut-être été supprimée." />
+        )}
       </div>
     );
   }

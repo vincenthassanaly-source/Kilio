@@ -31,6 +31,7 @@ import { showToast } from "@/components/toast/toast-store";
 import { QuickAddFab } from "../QuickAddFab";
 import { preloadAddTaskFormWhenIdle } from "./preloadAddTaskForm";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { ErrorInline } from "@/components/ErrorInline";
 
 const LISTE_ICON = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -117,7 +118,7 @@ export function TachesView() {
     };
   }, [aujourdhui]);
 
-  const { data: taches, isLoading: tachesLoading, isError: tachesError } = useQuery({
+  const { data: taches, isLoading: tachesLoading, isError: tachesError, refetch: refetchTaches } = useQuery({
     queryKey: queryKeys.taches,
     queryFn: getTachesAvecRelations,
   });
@@ -381,7 +382,7 @@ export function TachesView() {
           <ListItemSkeletonGroup count={5} />
         </div>
       ) : etatListe === "erreur" ? (
-        <p className={errorText}>Erreur de chargement des tâches. Réessaie.</p>
+        <ErrorInline message="Impossible de charger les tâches." retry={() => refetchTaches()} />
       ) : recherche.trim() && filtered.length === 0 ? (
         <p className="py-6 text-center text-[13.5px] text-ink-2">
           Aucune tâche ne correspond à « {recherche.trim()} ».

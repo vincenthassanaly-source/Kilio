@@ -6,14 +6,15 @@ import { AnimatePresence } from "framer-motion";
 import { getCoursesItems } from "@/app/actions/courses";
 import { creerAttributeurDeCles } from "@/lib/courses/cles-affichage";
 import { queryKeys } from "@/lib/query/keys";
-import { errorText, eyebrow } from "@/lib/ui";
+import { eyebrow } from "@/lib/ui";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { compterProgression, grouperItemsCourses, grouperParRayon } from "@/lib/courses/compute";
 import { CourseItemRow } from "./CourseItemRow";
 import { ArchivedCoursesSection } from "./ArchivedCoursesSection";
+import { ErrorInline } from "@/components/ErrorInline";
 
 export function CoursesList() {
-  const { data: items, isLoading, isError } = useQuery({
+  const { data: items, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.courses,
     queryFn: getCoursesItems,
   });
@@ -25,7 +26,7 @@ export function CoursesList() {
   if (isLoading) return <ListItemSkeletonGroup count={4} />;
   // Un rechargement qui échoue (réseau instable en magasin) garde les articles
   // déjà chargés : l'erreur ne remplace la liste que s'il n'y a rien à montrer.
-  if (isError && !items) return <p className={errorText}>Erreur de chargement des courses. Réessaie.</p>;
+  if (isError && !items) return <ErrorInline message="Impossible de charger les courses." retry={() => refetch()} />;
   if (!items || items.length === 0) {
     return <p className="text-ink-2">Aucun article pour l&apos;instant.</p>;
   }

@@ -16,7 +16,7 @@ export default function NotFound() {
     >
       <div className="flex flex-col items-center gap-4 py-10 text-center">
         <div className={`${card} flex w-full max-w-sm flex-col items-center gap-3`}>
-          <p className="font-display text-[17px] font-semibold text-ink">Page introuvable</p>
+          <h1 className="font-display text-[17px] font-semibold text-ink">Page introuvable</h1>
           <p className="text-sm text-ink-3">
             Cette page n&apos;existe pas ou a été supprimée.
           </p>

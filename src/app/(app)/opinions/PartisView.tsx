@@ -10,11 +10,12 @@ import { classerPartis, libelleParti, moyennesParAxe, type Marqueur } from "@/li
 import { calculerProfil } from "@/lib/opinions/profil";
 import { AXES, type AxeId } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
-import { addCard, addCardIcon, card, errorText, sectionTitle } from "@/lib/ui";
+import { addCard, addCardIcon, card, sectionTitle } from "@/lib/ui";
 import { ClassementProximite } from "./ClassementProximite";
 import { MarqueursAxes } from "./MarqueursAxes";
 import { PartiCard } from "./PartiCard";
 import { PartiFormModal } from "./PartisForms";
+import { ErrorInline } from "@/components/ErrorInline";
 
 export function PartisView({ idees }: { idees: readonly Idee[] }) {
   const queryClient = useQueryClient();
@@ -50,9 +51,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
   if (partis.isLoading) return <ListItemSkeletonGroup withSubtitle />;
   if (partis.isError || !partis.data) {
     return (
-      <p className={errorText} role="alert">
-        Erreur de chargement des partis. Réessaie.
-      </p>
+      <ErrorInline message="Impossible de charger les partis." retry={() => partis.refetch()} />
     );
   }
 

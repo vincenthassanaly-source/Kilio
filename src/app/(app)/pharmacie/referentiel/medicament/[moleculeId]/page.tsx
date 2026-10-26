@@ -41,7 +41,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
             return (
               <>
                 <RetourReferentiel />
-                <IntrouvableCarte message="Ce médicament n'existe plus : il a peut-être été renommé ou fusionné." />
+                <IntrouvableCarte titre="Médicament introuvable" message="Ce médicament n'existe plus : il a peut-être été renommé ou fusionné." />
               </>
             );
           }

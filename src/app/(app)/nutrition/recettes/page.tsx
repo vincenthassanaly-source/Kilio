@@ -7,9 +7,10 @@ import {
   nutritionFromOverride,
   nutritionRecette,
 } from "@/lib/nutrition/compute";
-import { errorText, screenTitle } from "@/lib/ui";
+import { screenTitle } from "@/lib/ui";
 import { NutritionSubNav } from "@/components/NutritionSubNav";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ErrorInlineRefresh } from "@/components/ErrorInlineRefresh";
 
 export default async function RecettesPage() {
   await connection();
@@ -17,8 +18,14 @@ export default async function RecettesPage() {
   try {
     recettes = await getRecettesListeEnCache();
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erreur inconnue.";
-    return <p className={errorText}>Erreur de chargement : {message}</p>;
+    console.error("Recettes : lecture impossible", error);
+    return (
+      <div className="flex flex-col gap-4">
+        <NutritionSubNav />
+        <h1 className={screenTitle}>Recettes</h1>
+        <ErrorInlineRefresh message="Impossible de charger les recettes." />
+      </div>
+    );
   }
 
   const views = recettes.map((recette) => {

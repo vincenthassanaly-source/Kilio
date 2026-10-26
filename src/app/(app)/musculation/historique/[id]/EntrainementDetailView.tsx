@@ -23,7 +23,8 @@ import {
 import type { RoutineDetail } from "@/lib/musculation/routines";
 import { formaterPoids, libellePrecedent } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
-import { card, dangerButton, errorText, input, metaText, nameText, primaryButton, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
+import { card, dangerButton, input, metaText, primaryButton, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
+import { ErrorInline } from "@/components/ErrorInline";
 
 function Contenu({ detail }: { detail: EntrainementDetail }) {
   const router = useRouter();
@@ -205,7 +206,7 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
 }
 
 export function EntrainementDetailView({ id }: { id: string }) {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.musculationEntrainement(id),
     queryFn: () => getEntrainement(id),
   });
@@ -218,7 +219,9 @@ export function EntrainementDetailView({ id }: { id: string }) {
       </div>
     );
   }
-  if (isError) return <p className={errorText}>Impossible de charger la séance. Vérifie ta connexion.</p>;
-  if (!data) return <p className={nameText}>Cette séance n&apos;existe plus.</p>;
+  if (isError) {
+    return <ErrorInline titre="Chargement impossible" message="Impossible de charger la séance. Vérifie ta connexion." retry={() => refetch()} />;
+  }
+  if (!data) return <ErrorInline titre="Séance introuvable" message="Cette séance n'existe plus." />;
   return <Contenu detail={data} />;
 }

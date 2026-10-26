@@ -116,7 +116,14 @@ export function DayTimeline({
             ))}
           </div>
         )}
-        <div ref={scrollRef} className="max-h-[52vh] overflow-auto" data-swipe-ignore>
+        <div
+          ref={scrollRef}
+          tabIndex={0}
+          role="region"
+          aria-label="Grille horaire du jour"
+          className="max-h-[52vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          data-swipe-ignore
+        >
           <div className="flex">
             <TimeGutter zoom={ZOOM} creneaux={creneaux} />
             <div className="relative flex-1" style={{ height: gridHeight(ZOOM) }}>

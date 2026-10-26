@@ -44,7 +44,7 @@ export default async function ChoisirCollectionPage({
   const texte = { titre: tache_titre ?? "", notes: tache_notes ?? "" };
 
   return (
-    <div
+    <main
       className="flex-1 overflow-y-auto px-4"
       style={{
         paddingTop: "calc(env(safe-area-inset-top) + 24px)",
@@ -110,6 +110,6 @@ export default async function ChoisirCollectionPage({
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }

@@ -21,7 +21,7 @@ export default function MatierePage({ params }: { params: Promise<{ matiereId: s
                 <TransitionLink href="/pharmacie" className={linkButton}>
                   ← Pharmacie
                 </TransitionLink>
-                <IntrouvableCarte message="Cette matière n'existe plus : elle a peut-être été renommée ou fusionnée." />
+                <IntrouvableCarte titre="Matière introuvable" message="Cette matière n'existe plus : elle a peut-être été renommée ou fusionnée." />
               </>
             );
           }

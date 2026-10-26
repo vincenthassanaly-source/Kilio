@@ -12,9 +12,10 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
-import { addCard, addCardIcon, cardTight, errorText, linkButton, metaText, nameText } from "@/lib/ui";
+import { addCard, addCardIcon, cardTight, linkButton, metaText, nameText } from "@/lib/ui";
 import { estStatut, type Statut } from "@/lib/vinted/types";
 import { StatutPill } from "./StatutPill";
+import { ErrorInline } from "@/components/ErrorInline";
 
 type Filtre = "tous" | "brouillon" | "pret" | "publie" | "vendu";
 
@@ -70,7 +71,7 @@ export function VintedList() {
   const navigate = useViewTransitionNavigate();
   const [filtre, setFiltre] = useState<Filtre>("tous");
   const [creationEnCours, startCreation] = useTransition();
-  const { data: annonces, isLoading, isError } = useQuery({ queryKey: queryKeys.vinted, queryFn: getAnnonces });
+  const { data: annonces, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.vinted, queryFn: getAnnonces });
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: queryKeys.vinted });
@@ -106,9 +107,7 @@ export function VintedList() {
         {isLoading ? (
           <ListItemSkeletonGroup withSubtitle />
         ) : isError ? (
-          <p className={errorText} role="alert">
-            Erreur de chargement des annonces. Réessaie.
-          </p>
+          <ErrorInline message="Impossible de charger les annonces." retry={() => refetch()} />
         ) : visibles.length === 0 ? (
           <p className="text-ink-2">
             {filtre === "tous" ? "Aucune annonce pour l'instant." : "Aucune annonce avec ce statut."}

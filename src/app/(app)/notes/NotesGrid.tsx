@@ -10,8 +10,9 @@ import { queryKeys } from "@/lib/query/keys";
 import { NoteCard } from "./NoteCard";
 import { AddNoteToggle } from "./AddNoteToggle";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
-import { errorText, input, pillTag, sectionTitle } from "@/lib/ui";
+import { input, pillTag, sectionTitle } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ErrorInline } from "@/components/ErrorInline";
 
 // Tag des idées : sa pastille passe en tête.
 const CLE_TAG_IDEES = normalizeSearch("idées");
@@ -23,7 +24,7 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
   const [choixTags, setChoixTags] = useState<string[] | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: notes, isLoading, isError } = useQuery({
+  const { data: notes, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.notes,
     queryFn: getNotesAvecRelations,
   });
@@ -91,7 +92,7 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
       {isLoading ? (
         <GridSkeleton />
       ) : isError ? (
-        <p className={errorText}>Erreur de chargement des notes. Réessaie.</p>
+        <ErrorInline message="Impossible de charger les notes." retry={() => refetch()} />
       ) : !notes || notes.length === 0 ? (
         <p className="text-ink-2">Aucune note pour l&apos;instant.</p>
       ) : (

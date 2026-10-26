@@ -18,7 +18,7 @@ L'app est mature sur les fondamentaux : **0 débordement horizontal et 0 violati
 
 ### Majeurs
 
-**M1 — Erreurs sans bouton « Réessayer » (≈ 18 écrans).** Un simple `<p class="text-alert">Erreur de chargement … Réessaie.</p>` : `courses/CoursesList.tsx:28`, `taches/TachesView.tsx:384`, `agenda/AgendaView.tsx:441`, `habitudes/HabitudesView.tsx:56`, `notes/NotesGrid.tsx:94`, `objectifs/ObjectifsList.tsx:84`, `collection/CollectionsGrid.tsx:66`, `vinted/VintedList.tsx:110`, `opinions/OpinionsView.tsx:128`, `opinions/PartisView.tsx:54`, et les pages de détail (`CollectionDetailView:43`, `ObjectifDetailView:49`, `AnnonceView:32`, `IdeeView:31`). Le composant `ErrorState` (bouton + retour accueil) n'est utilisé que par les `error.tsx`. Règle ui-ux-pro-max « Error Recovery » : donner une étape suivante, pas un message seul. Aussi : `role="alert"` n'est posé que sur 64 des 88 usages de `errorText` (les 24 autres ne sont pas annoncés aux lecteurs d'écran).
+**M1 — Erreurs sans bouton « Réessayer » (≈ 17 écrans ; l'Agenda, lui, avait déjà son bouton).** Un simple `<p class="text-alert">Erreur de chargement … Réessaie.</p>` : `courses/CoursesList.tsx:28`, `taches/TachesView.tsx:384`, `habitudes/HabitudesView.tsx:56`, `notes/NotesGrid.tsx:94`, `objectifs/ObjectifsList.tsx:84`, `collection/CollectionsGrid.tsx:66`, `vinted/VintedList.tsx:110`, `opinions/OpinionsView.tsx:128`, `opinions/PartisView.tsx:54`, et les pages de détail (`CollectionDetailView:43`, `ObjectifDetailView:49`, `AnnonceView:32`, `IdeeView:31`). Le composant `ErrorState` (bouton + retour accueil) n'est utilisé que par les `error.tsx`. Règle ui-ux-pro-max « Error Recovery » : donner une étape suivante, pas un message seul. Aussi : `role="alert"` n'est posé que sur 64 des 88 usages de `errorText` (les 24 autres ne sont pas annoncés aux lecteurs d'écran).
 
 **M2 — Message technique affiché + page entière remplacée.** `nutrition/recettes/page.tsx:21` et `nutrition/menus/MenusSemaine.tsx:48` rendent `Erreur de chargement : {error.message}` (observé à l'écran : « Invalid API key »). Sur `/nutrition/recettes` l'erreur remplace toute la page : plus de titre ni de sous-navigation Nutrition. `/nutrition/bilan` affiche une erreur sans bouton.
 
@@ -31,7 +31,7 @@ L'app est mature sur les fondamentaux : **0 débordement horizontal et 0 violati
 - Retours : glyphes différents (`‹ Recettes`, `‹ Opinions`, `‹ Vinted`, `← Pharmacie`, `← Retour aux tâches`, `← Plus` sur Vider ma tête), libellés de 17 à 20 px de haut (zones de tap étendues par `linkButton`, donc cible OK).
 - `<nav>` de la barre du bas sans `aria-label` alors que les deux autres `<nav>` du projet en ont un.
 
-**Y2 — Écran de partage hors layout.** `app/collection/partage/choisir/page.tsx` : pas de `<main>`, pas de `h1`, contenu hors landmarks (axe `landmark-one-main`, `region`, 3 pages). Il vit hors du groupe `(app)`.
+**Y2 — Écran de partage hors layout.** `app/collection/partage/choisir/page.tsx` : pas de `<main>` (le `h1` existe), contenu hors landmarks (axe `landmark-one-main`, `region`, 3 pages). Il vit hors du groupe `(app)`.
 
 **Y3 — États « introuvable » / détail sans titre de niveau 1.** 15 routes de détail (`/collection/1`, `/objectifs/1`, `/opinions/1`, `/pharmacie/…/1`, `/vinted/1`…) rendues avec l'id `1` n'ont aucun `h1` (axe `page-has-heading-one`). C'est attendu pour un id inexistant, mais le message « introuvable » devrait aussi porter un `h1`, comme l'a fait l'audit du 14 octobre pour l'écran d'erreur. À recontrôler avec des ids réels.
 
@@ -73,3 +73,8 @@ Ordre conseillé : 2 → 1 → 3 → 4 → 5, puis 6. Les lots 1 à 3 apportent 
 ## Annexe — reproduction
 
 Faux Supabase : `node e2e/mock-supabase.mjs` ; serveur : `E2E_SUPABASE_URL=http://localhost:54321 SUPABASE_SERVICE_ROLE_KEY=e2e-dummy EXPOSE_TESTING_API=1 E2E_VERROU_DESACTIVE=1 next dev -p 3100` ; ouvrir **`localhost`** (pas `127.0.0.1`). Le script d'audit (Playwright + `node_modules/axe-core/axe.min.js`, injection par page, mesures DOM) n'est pas versionné ; les 156 captures restent en local.
+
+## Suivi
+
+- **Lot 2 et lot 1 réalisés le 2026-10-26** (voir `reports/2026-10-26-lots-1-2-etats-erreur-accessibilite.md`).
+- Corrections de cet audit après relecture du code : l'Agenda avait déjà un bouton « Réessayer » (`AgendaView.tsx:441`), et l'écran de partage avait déjà un `h1` (seul le `<main>` manquait). Le tutoiement est déjà homogène dans les messages ; seul `ErrorState` vouvoie encore.
