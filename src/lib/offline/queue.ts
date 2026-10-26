@@ -118,7 +118,10 @@ export async function flushQueue(): Promise<ResultatFlush> {
 
       const fn = ACTIONS[action.module]?.[action.action_name];
       if (!fn) {
-        if (action.id !== undefined) await db.pending_actions.delete(action.id);
+        // Action inconnue de cette version de l'app (renommée ou retirée après un
+        // déploiement) : on la GARDE au lieu de la supprimer sans trace, une
+        // version qui la connaît pourra la rejouer ; on continue avec les suivantes.
+        console.warn(`[offline] action inconnue conservée en file : ${action.module}.${action.action_name}`);
         continue;
       }
 
@@ -150,7 +153,10 @@ export async function flushQueue(): Promise<ResultatFlush> {
         }
 
         if (action.id !== undefined && decision.tentatives !== (action.tentatives ?? 0)) {
-          await db.pending_actions.update(action.id, { tentatives: decision.tentatives });
+          await db.pending_actions.update(action.id, {
+            tentatives: decision.tentatives,
+            premier_echec_le: decision.premier_echec_le,
+          });
         }
         break;
       }

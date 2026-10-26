@@ -87,6 +87,17 @@ Deno.serve(async () => {
   if (reserveError) return json({ error: reserveError.message }, 500);
   if (!reserve || reserve.length === 0) return json({ sent: 0, raison: "deja-envoye" });
 
+  // La réservation protège des invocations simultanées, mais elle ne doit pas
+  // faire perdre le bilan de la semaine : on rend le jour quand rien n'a pu partir
+  // (erreur de lecture, aucun envoi réussi), pour que la prochaine invocation retente.
+  const dernierEnvoiPrecedent = reglages.bilan_dernier_envoi;
+  const liberer = () =>
+    supabase.from("reglages_briefing").update({ bilan_dernier_envoi: dernierEnvoiPrecedent }).eq("id", 1).eq("bilan_dernier_envoi", today);
+  const echec = async (message: string) => {
+    await liberer();
+    return json({ error: message }, 500);
+  };
+
   const debut = decalerDate(today, -6);
   const semaine = semaineDe(today);
   const [repas, objectifs, entrainement, libres, seances, mesures] = await Promise.all([
@@ -109,7 +120,7 @@ Deno.serve(async () => {
       .order("date"),
   ]);
   const erreur = repas.error ?? objectifs.error ?? entrainement.error ?? libres.error ?? seances.error ?? mesures.error;
-  if (erreur) return json({ error: erreur.message }, 500);
+  if (erreur) return echec(erreur.message);
 
   // Séances de la semaine : un type (Push / Pull / Legs) est fait dès qu'un entraînement
   // lui est rattaché, par son type enregistré ou, à défaut, par sa routine.
@@ -117,7 +128,7 @@ Deno.serve(async () => {
   const { data: typesRoutines, error: erreurRoutines } = idsRoutines.length
     ? await supabase.from("routines").select("id, type_seance").in("id", idsRoutines)
     : { data: [], error: null };
-  if (erreurRoutines) return json({ error: erreurRoutines.message }, 500);
+  if (erreurRoutines) return echec(erreurRoutines.message);
   const typeDeRoutine = new Map((typesRoutines ?? []).map((r) => [r.id as string, r.type_seance as string | null]));
   const typesFaits = new Set<string>();
   for (const e of seances.data ?? []) {
@@ -159,11 +170,12 @@ Deno.serve(async () => {
   const { data: subscriptions, error: subsError } = await supabase
     .from("push_subscriptions")
     .select("id, endpoint, p256dh, auth");
-  if (subsError) return json({ error: subsError.message }, 500);
+  if (subsError) return echec(subsError.message);
 
   const payload = JSON.stringify({ title: message.title, body: message.body, url: "/nutrition/bilan" });
   let sent = 0;
   let expired = 0;
+  let echecs = 0;
   for (const sub of subscriptions ?? []) {
     try {
       await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload);
@@ -173,9 +185,16 @@ Deno.serve(async () => {
       if (statusCode === 404 || statusCode === 410) {
         await supabase.from("push_subscriptions").delete().eq("id", sub.id);
         expired++;
+      } else {
+        echecs++;
+        console.error("envoyer-bilan-hebdo: échec d'envoi push", statusCode ?? err);
       }
     }
   }
 
-  return json({ sent, expired });
+  // Aucun envoi réussi alors que des appareils étaient joignables en principe :
+  // on libère le jour pour retenter à la prochaine invocation.
+  if (sent === 0 && echecs > 0) await liberer();
+
+  return json({ sent, expired, echecs });
 });

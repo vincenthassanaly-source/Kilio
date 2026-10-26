@@ -10,6 +10,8 @@ export type ActionEnAttente = {
   action_name: string;
   payload: unknown[];
   tentatives?: number;
+  /** ISO : premier échec non réseau de cette action (voir DELAI_MIN_ABANDON_MS). */
+  premier_echec_le?: string;
 };
 
 /** Nombre d'échecs non réseau consécutifs avant qu'une action ne soit
@@ -22,6 +24,12 @@ export type ActionEnAttente = {
  * identifier"), donc son texte ne permet pas de distinguer une erreur
  * permanente d'un incident transitoire. */
 const SEUIL_ABANDON_TENTATIVES = 3;
+
+/** Durée minimale écoulée depuis le premier échec non réseau avant d'abandonner.
+ * Les rejeux automatiques s'enchaînent à 5 s, 20 s et 60 s : sans ce délai,
+ * trois échecs suffisaient pour détruire une saisie en attente lors d'une panne
+ * serveur de moins de deux minutes. */
+const DELAI_MIN_ABANDON_MS = 10 * 60_000;
 
 export type DecisionAvantExecution = { type: "purger_immediat" } | { type: "executer" };
 
@@ -69,7 +77,7 @@ export function argumentsAExecuter(action: ActionEnAttente): unknown[] | null {
 }
 
 export type DecisionApresEchec =
-  | { type: "reessayer_plus_tard"; tentatives: number }
+  | { type: "reessayer_plus_tard"; tentatives: number; premier_echec_le?: string }
   | { type: "abandonner_et_continuer" };
 
 /** Décide quoi faire après l'échec d'exécution d'une action déjà envoyée au
@@ -79,16 +87,23 @@ export type DecisionApresEchec =
  * compteur ; en dessous du seuil on s'arrête aussi (ordre de rejeu
  * préservé), au seuil on abandonne l'action et on continue avec les
  * suivantes de la même file. */
-export function decisionApresEchec(action: ActionEnAttente, estErreurReseau: boolean): DecisionApresEchec {
+export function decisionApresEchec(
+  action: ActionEnAttente,
+  estErreurReseau: boolean,
+  maintenant: number = Date.now()
+): DecisionApresEchec {
   if (estErreurReseau) {
-    return { type: "reessayer_plus_tard", tentatives: action.tentatives ?? 0 };
+    return { type: "reessayer_plus_tard", tentatives: action.tentatives ?? 0, premier_echec_le: action.premier_echec_le };
   }
 
   const tentatives = (action.tentatives ?? 0) + 1;
-  if (tentatives >= SEUIL_ABANDON_TENTATIVES) {
+  const premierEchec = action.premier_echec_le ?? new Date(maintenant).toISOString();
+  const ecoule = maintenant - Date.parse(premierEchec);
+  // Date illisible (NaN) : on ne détruit rien, on retentera plus tard.
+  if (tentatives >= SEUIL_ABANDON_TENTATIVES && ecoule >= DELAI_MIN_ABANDON_MS) {
     return { type: "abandonner_et_continuer" };
   }
-  return { type: "reessayer_plus_tard", tentatives };
+  return { type: "reessayer_plus_tard", tentatives, premier_echec_le: premierEchec };
 }
 
 /** Actions qui posent un état absolu sur une cible (premier argument) : seule
