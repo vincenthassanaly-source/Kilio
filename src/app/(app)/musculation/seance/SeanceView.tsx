@@ -137,7 +137,16 @@ export function SeanceView() {
       return;
     }
     synchroniserRappelRepos(null);
-    const resultat = await synchroniserSeances();
+    let resultat: Awaited<ReturnType<typeof synchroniserSeances>>;
+    try {
+      resultat = await synchroniserSeances();
+    } catch {
+      // La séance est déjà en sécurité sur le téléphone (terminerSeance) : on
+      // quitte l'écran proprement, MusculationSync réessaiera.
+      showToast("Séance gardée sur ton téléphone : envoi dès que possible.", 4500);
+      router.replace("/musculation");
+      return;
+    }
     if (resultat.restantes === 0) {
       queryClient.invalidateQueries({ queryKey: queryKeys.seances });
       queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });

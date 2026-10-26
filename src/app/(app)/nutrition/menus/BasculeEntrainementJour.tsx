@@ -4,6 +4,7 @@ import { useOptimistic, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { setJourEntrainement } from "@/app/actions/entrainement";
 import { showErrorToast } from "@/components/toast/toast-store";
+import { MESSAGE_HORS_LIGNE, estErreurReseau } from "@/lib/actions/runAction";
 
 /**
  * Bouton haltère d'un jour du menu : vert quand ce jour est un jour
@@ -28,7 +29,15 @@ export function BasculeEntrainementJour({
     const suivant = !actif;
     startTransition(async () => {
       setActif(suivant);
-      const resultat = await setJourEntrainement(date, suivant);
+      // Une exception levée ici (réseau coupé) irait jusqu'à error.tsx et
+      // remplacerait tout l'écran : on la transforme en toast.
+      let resultat: Awaited<ReturnType<typeof setJourEntrainement>>;
+      try {
+        resultat = await setJourEntrainement(date, suivant);
+      } catch (err) {
+        showErrorToast(estErreurReseau(err) ? MESSAGE_HORS_LIGNE : "L'enregistrement a échoué. Réessaie.");
+        return;
+      }
       if (resultat.error) {
         showErrorToast(resultat.error);
         return;

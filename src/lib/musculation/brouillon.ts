@@ -110,7 +110,11 @@ async function envoyerEnAttente(): Promise<ResultatEnvoi> {
       }
     } catch (erreur) {
       if (!isNetworkError(erreur)) {
-        await db.musculation_a_envoyer.update(seance.id, { erreur: "Le serveur n'a pas pu enregistrer la séance." });
+        // Remontée comme un refus : l'écran dit la vérité au lieu d'annoncer un
+        // envoi « dès que le réseau revient » qui n'aura pas lieu.
+        const message = "Le serveur n'a pas pu enregistrer la séance.";
+        await db.musculation_a_envoyer.update(seance.id, { erreur: message });
+        refus.push(message);
       }
       break;
     }
