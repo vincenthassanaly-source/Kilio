@@ -62,7 +62,7 @@ export async function terminerSeance(payload: EntrainementPayload): Promise<void
   signaler(EVENEMENT_SEANCE_EN_ATTENTE);
 }
 
-export async function compterSeancesEnAttente(): Promise<number> {
+async function compterSeancesEnAttente(): Promise<number> {
   try {
     return await (await base()).musculation_a_envoyer.count();
   } catch {

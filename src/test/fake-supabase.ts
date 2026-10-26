@@ -31,7 +31,7 @@ export type Reponse = { data?: unknown; error?: { message: string; code?: string
 export type Repondre = (appel: Appel) => Reponse | undefined;
 
 /** Opération de stockage (`supabase.storage.from(bucket)…`). */
-export type OperationStockage = {
+type OperationStockage = {
   bucket: string;
   action: "upload" | "remove";
   /** `upload` : chemin du fichier. */
