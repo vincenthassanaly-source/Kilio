@@ -4,6 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig } from "framer-motion";
+import { MasquageSaisie } from "@/components/MasquageSaisie";
 import { ToastHost } from "@/components/toast/ToastHost";
 import { MusculationSync } from "@/lib/musculation/MusculationSync";
 import { VidageSync } from "@/lib/vidage/VidageSync";
@@ -69,6 +70,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <MusculationSync />
       <VidageSync />
       <ToastHost />
+      <MasquageSaisie />
       {ReactQueryDevtools && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
     </MotionConfig>

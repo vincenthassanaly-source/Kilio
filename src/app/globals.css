@@ -267,6 +267,12 @@ textarea::placeholder {
   color: var(--ink-3);
 }
 
+/* Clavier virtuel ouvert (MasquageSaisie pose data-saisie sur <html>) : la barre
+   du bas et les boutons flottants s'effacent pour ne pas couvrir la saisie. */
+html[data-saisie] [data-masquer-saisie] {
+  display: none;
+}
+
 ::-webkit-scrollbar {
   width: 0;
   height: 0;

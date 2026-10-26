@@ -48,6 +48,7 @@ export function AjoutRepasBouton({ date, variante = "flottant" }: { date: string
           onPointerDown={prechargerPanneau}
           onFocus={prechargerPanneau}
           aria-haspopup="dialog"
+          data-masquer-saisie
           className="fixed right-4 z-40 flex h-14 items-center gap-2 rounded-full bg-kcal pl-4 pr-5 font-semibold text-on-kcal shadow-card transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
         >

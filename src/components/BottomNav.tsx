@@ -160,7 +160,10 @@ export function BottomNav() {
   if (barreBasseMasquee(pathname)) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+14px)]">
+    <div
+      data-masquer-saisie
+      className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+14px)]"
+    >
       {/* `view-transition-name` : sort la barre de la transition "root" (sinon elle
           glisse et se dédouble avec la page, voir globals.css) — elle reste
           fixe pendant que seule la page change. */}
