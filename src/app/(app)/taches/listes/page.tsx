@@ -1,11 +1,11 @@
 import { connection } from "next/server";
 import { getComptesTachesParListe, getListes, getTags } from "@/app/actions/taches";
-import { TransitionLink } from "@/components/TransitionLink";
-import { eyebrow, linkButton, screenTitle, sectionTitle } from "@/lib/ui";
+import { eyebrow, screenTitle, sectionTitle } from "@/lib/ui";
 import { AddListeToggle } from "./AddListeToggle";
 import { ListesManager } from "./ListesManager";
 import { AddTagToggle } from "./AddTagToggle";
 import { TagsManager } from "./TagsManager";
+import { BackLink } from "@/components/BackLink";
 
 export default async function ListesTachesPage() {
   await connection();
@@ -16,9 +16,7 @@ export default async function ListesTachesPage() {
       <div>
         <p className={eyebrow}>Tâches</p>
         <h1 className={screenTitle}>Listes &amp; tags</h1>
-        <TransitionLink href="/taches" className={linkButton}>
-          ← Retour aux tâches
-        </TransitionLink>
+        <BackLink href="/taches">Tâches</BackLink>
       </div>
 
       <div className="flex flex-col gap-2.5">

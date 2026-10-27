@@ -3,7 +3,6 @@
 import { use, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Modal } from "@/components/Modal";
-import { TransitionLink } from "@/components/TransitionLink";
 import { useBackClose } from "@/hooks/useBackClose";
 import { card, linkButton, pillTag, screenTitle, secondaryButton } from "@/lib/ui";
 import { notionsDeChapitre } from "@/lib/pharmacie/selecteurs";
@@ -12,6 +11,7 @@ import type { PharmaNotion, PharmaSnapshot } from "@/lib/pharmacie/types";
 import { AvecSnapshot, IntrouvableCarte } from "../../EtatSnapshot";
 import { ContenuColore } from "../../ContenuColore";
 import { NotionEditeur } from "./NotionEditeur";
+import { BackLink } from "@/components/BackLink";
 
 export default function ChapitrePage({ params }: { params: Promise<{ matiereId: string; chapitreId: string }> }) {
   const { matiereId, chapitreId } = use(params);
@@ -45,9 +45,7 @@ function Chapitre({
   if (!matiere || !chapitre) {
     return (
       <>
-        <TransitionLink href="/pharmacie" className={`${linkButton} self-start`}>
-          ← Pharmacie
-        </TransitionLink>
+        <BackLink href="/pharmacie">Pharmacie</BackLink>
         <IntrouvableCarte titre="Chapitre introuvable" message="Ce chapitre n'existe plus : il a peut-être été renommé ou fusionné." />
       </>
     );
@@ -66,9 +64,7 @@ function Chapitre({
   return (
     <>
       <div className="flex flex-col gap-1">
-        <TransitionLink href={`/pharmacie/${matiere.id}`} className={`${linkButton} self-start`}>
-          ← {matiere.nom}
-        </TransitionLink>
+        <BackLink href={`/pharmacie/${matiere.id}`}>{matiere.nom}</BackLink>
         <div className="flex items-start justify-between gap-3">
           <h1 className={screenTitle}>{chapitre.nom}</h1>
           {notions.length > 1 && (

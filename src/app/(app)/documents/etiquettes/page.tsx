@@ -1,9 +1,9 @@
 import { connection } from "next/server";
 import { getEtiquettes } from "@/app/actions/documents";
-import { TransitionLink } from "@/components/TransitionLink";
-import { eyebrow, linkButton, screenTitle } from "@/lib/ui";
+import { eyebrow, screenTitle } from "@/lib/ui";
 import { AddEtiquetteToggle } from "./AddEtiquetteToggle";
 import { EtiquettesManager } from "./EtiquettesManager";
+import { BackLink } from "@/components/BackLink";
 
 export default async function EtiquettesPage() {
   await connection();
@@ -14,9 +14,7 @@ export default async function EtiquettesPage() {
       <div>
         <p className={eyebrow}>Documents</p>
         <h1 className={screenTitle}>Étiquettes</h1>
-        <TransitionLink href="/documents" className={linkButton}>
-          ‹ Retour aux documents
-        </TransitionLink>
+        <BackLink href="/documents">Documents</BackLink>
       </div>
 
       <AddEtiquetteToggle />

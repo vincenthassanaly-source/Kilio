@@ -6,7 +6,7 @@ import { noterCarte } from "@/app/actions/pharmacie";
 import { TransitionLink } from "@/components/TransitionLink";
 import { showErrorToast } from "@/components/toast/toast-store";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
-import { card, linkButton, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
+import { card, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
 import { formaterDelai } from "@/lib/pharmacie/format";
 import { cartesARevoir } from "@/lib/pharmacie/selecteurs";
 import { NOTES_REVISION, prochainEtatCarte, type NoteRevision } from "@/lib/pharmacie/srs";
@@ -14,6 +14,7 @@ import { modifierSnapshot } from "@/lib/pharmacie/useSnapshotPharmacie";
 import type { PharmaSnapshot } from "@/lib/pharmacie/types";
 import { AvecSnapshot } from "../EtatSnapshot";
 import { ContenuColore } from "../ContenuColore";
+import { BackLink } from "@/components/BackLink";
 
 // Taille d'une séance : assez pour être utile, assez court pour se faire en
 // pause. Les cartes « À revoir » repassent en fin de séance.
@@ -30,9 +31,7 @@ export function RevisionView() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <TransitionLink href="/pharmacie" className={`${linkButton} self-start`}>
-          ← Pharmacie
-        </TransitionLink>
+        <BackLink href="/pharmacie">Pharmacie</BackLink>
         <h1 className={screenTitle}>Révision</h1>
       </div>
       <AvecSnapshot>{(snapshot) => <Seance snapshot={snapshot} />}</AvecSnapshot>

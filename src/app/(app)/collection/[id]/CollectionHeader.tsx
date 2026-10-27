@@ -6,10 +6,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { deleteCollection, renameCollection } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
 import { useBackClose } from "@/hooks/useBackClose";
-import { TransitionLink } from "@/components/TransitionLink";
 import type { Tables } from "@/lib/supabase/types";
-import { dangerButton, errorText, ghostButton, input, linkButton } from "@/lib/ui";
+import { dangerButton, errorText, ghostButton, input } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
+import { BackLink } from "@/components/BackLink";
 
 export function CollectionHeader({ collection }: { collection: Tables<"collections"> }) {
   const router = useRouter();
@@ -58,9 +58,7 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
 
   return (
     <div className="flex flex-col gap-2">
-      <TransitionLink href="/collection" className={linkButton}>
-        ‹ Collection
-      </TransitionLink>
+      <BackLink href="/collection">Collection</BackLink>
 
       <div className="flex items-start justify-between gap-3">
         {editing ? (

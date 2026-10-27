@@ -8,8 +8,8 @@ import { instant } from "@next/playwright";
 const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
 const DETAILS = [
-  { path: `/collection/${uuid(1001)}`, retour: "‹ Collection", titre: "Voyage Lisbonne" },
-  { path: `/objectifs/${uuid(1101)}`, retour: "‹ Objectifs", titre: "Courir un semi-marathon" },
+  { path: `/collection/${uuid(1001)}`, retour: "Retour vers Collection", titre: "Voyage Lisbonne" },
+  { path: `/objectifs/${uuid(1101)}`, retour: "Retour vers Objectifs", titre: "Courir un semi-marathon" },
 ];
 
 for (const detail of DETAILS) {

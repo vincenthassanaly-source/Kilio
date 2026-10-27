@@ -3,8 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getObjectif } from "@/app/actions/objectifs";
 import { queryKeys } from "@/lib/query/keys";
-import { TransitionLink } from "@/components/TransitionLink";
-import { card, linkButton } from "@/lib/ui";
+import { card } from "@/lib/ui";
 import { ObjectifHeader } from "./ObjectifHeader";
 import { ObjectifSuiviBinaire } from "./ObjectifSuiviBinaire";
 import { ObjectifSuiviEtapes } from "./ObjectifSuiviEtapes";
@@ -14,6 +13,7 @@ import { ObjectifSuiviNutrition } from "./ObjectifSuiviNutrition";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { ErrorInline } from "@/components/ErrorInline";
+import { BackLink } from "@/components/BackLink";
 
 // Vue client : la donnée est préchargée côté serveur (page.tsx, patron de
 // objectifs/page.tsx) puis relue ici via TanStack Query, pour partager le cache
@@ -43,9 +43,7 @@ export function ObjectifDetailView({ id }: { id: string }) {
   if (isError || !detail) {
     return (
       <div className="flex flex-col gap-3">
-        <TransitionLink href="/objectifs" className={linkButton}>
-          ‹ Objectifs
-        </TransitionLink>
+        <BackLink href="/objectifs">Objectifs</BackLink>
         {isError ? (
           <ErrorInline titre="Chargement impossible" message="L'objectif n'a pas pu être chargé." retry={() => refetch()} />
         ) : (

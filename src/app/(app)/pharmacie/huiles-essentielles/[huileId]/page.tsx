@@ -4,22 +4,20 @@ import { use, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { supprimerHuile } from "@/app/actions/huiles";
-import { TransitionLink } from "@/components/TransitionLink";
 import { showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
-import { card, dangerButton, eyebrow, linkButton, pillIndication, pillTag, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
+import { card, dangerButton, eyebrow, pillIndication, pillTag, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
 import { huileParId, libelleVoie, type PharmaHuile } from "@/lib/pharmacie/huiles";
 import { IntrouvableCarte } from "../../EtatSnapshot";
 import { BadgeComestible, BadgeDermocaustique, BadgePhotosensibilisante, BadgePrecaution } from "../BadgesHuile";
 import { AvecHuiles } from "../EtatHuiles";
 import { HuileEditeur } from "../HuileEditeur";
+import { BackLink } from "@/components/BackLink";
 
 function Retour() {
   return (
-    <TransitionLink href="/pharmacie/huiles-essentielles" className={`${linkButton} self-start`}>
-      ← Huiles essentielles
-    </TransitionLink>
+    <BackLink href="/pharmacie/huiles-essentielles">Huiles essentielles</BackLink>
   );
 }
 

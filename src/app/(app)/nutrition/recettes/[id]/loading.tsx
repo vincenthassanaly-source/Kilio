@@ -1,16 +1,14 @@
-import Link from "next/link";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { CardSkeleton } from "@/components/skeletons/CardSkeleton";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
-import { linkButton, sectionTitle } from "@/lib/ui";
+import { sectionTitle } from "@/lib/ui";
+import { BackLink } from "@/components/BackLink";
 
 export default function RecetteDetailLoading() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Link href="/nutrition/recettes" className={linkButton}>
-          ‹ Recettes
-        </Link>
+        <BackLink href="/nutrition/recettes">Recettes</BackLink>
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-1 flex-col gap-1.5">
             <Skeleton className="mt-1 h-6 w-3/5" />

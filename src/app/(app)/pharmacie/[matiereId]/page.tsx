@@ -2,10 +2,11 @@
 
 import { use } from "react";
 import { TransitionLink } from "@/components/TransitionLink";
-import { cardTight, eyebrow, linkButton, screenTitle } from "@/lib/ui";
+import { cardTight, eyebrow, screenTitle } from "@/lib/ui";
 import { chapitresDeMatiere, notionsDeChapitre } from "@/lib/pharmacie/selecteurs";
 import { pluriel } from "@/lib/pharmacie/format";
 import { AvecSnapshot, IntrouvableCarte } from "../EtatSnapshot";
+import { BackLink } from "@/components/BackLink";
 
 export default function MatierePage({ params }: { params: Promise<{ matiereId: string }> }) {
   const { matiereId } = use(params);
@@ -18,9 +19,7 @@ export default function MatierePage({ params }: { params: Promise<{ matiereId: s
           if (!matiere) {
             return (
               <>
-                <TransitionLink href="/pharmacie" className={linkButton}>
-                  ← Pharmacie
-                </TransitionLink>
+                <BackLink href="/pharmacie">Pharmacie</BackLink>
                 <IntrouvableCarte titre="Matière introuvable" message="Cette matière n'existe plus : elle a peut-être été renommée ou fusionnée." />
               </>
             );
@@ -29,9 +28,7 @@ export default function MatierePage({ params }: { params: Promise<{ matiereId: s
           return (
             <>
               <div className="flex flex-col gap-1">
-                <TransitionLink href="/pharmacie" className={`${linkButton} self-start`}>
-                  ← Pharmacie
-                </TransitionLink>
+                <BackLink href="/pharmacie">Pharmacie</BackLink>
                 <h1 className={screenTitle}>{matiere.nom}</h1>
               </div>
               {chapitres.length === 0 ? (
