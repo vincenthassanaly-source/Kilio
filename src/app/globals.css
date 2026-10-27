@@ -123,7 +123,7 @@
   --line: oklch(0.3 0.022 195);
   --ink: oklch(0.95 0.008 195);
   --ink-2: oklch(0.72 0.014 195);
-  --ink-3: oklch(0.64 0.014 195);
+  --ink-3: oklch(0.66 0.014 195);
   --control-border: oklch(0.54 0.02 195);
   --accent-kcal: oklch(0.72 0.13 165);
   --on-kcal: oklch(0.17 0.02 165);
@@ -133,7 +133,7 @@
   --accent-carbs: oklch(0.75 0.13 85);
   --accent-fat: oklch(0.72 0.14 340);
   --accent-warning: oklch(0.75 0.14 55);
-  --accent-alert: oklch(0.7 0.17 25);
+  --accent-alert: oklch(0.74 0.17 25);
   --accent-agenda: oklch(0.72 0.13 230);
   --on-agenda: oklch(0.16 0.02 230);
   --accent-planning-travail: oklch(0.5 0.1 150);

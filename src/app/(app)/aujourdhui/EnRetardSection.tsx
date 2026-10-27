@@ -48,7 +48,7 @@ function LigneRetard({ tache, today }: { tache: TacheAvecRelations; today: strin
         echeance={tache.echeance}
         detail={libelleRetard(tache.echeance!, today)}
       />
-      <div className="flex items-center gap-1.5 pl-[34px]" role="group" aria-label={`Reporter « ${tache.titre} »`}>
+      <div className="flex flex-wrap items-center gap-1.5 pl-[34px]" role="group" aria-label={`Reporter « ${tache.titre} »`}>
         <span className="mr-0.5 text-ink-3" title="Reporter à">
           {REPORT_ICON}
         </span>
