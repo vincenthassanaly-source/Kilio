@@ -22,6 +22,7 @@ import {
 import { queryKeys } from "@/lib/query/keys";
 import { card, errorText, sectionTitle } from "@/lib/ui";
 import { PHOTOS_MAX } from "@/lib/vinted/types";
+import { CrossIcon } from "@/components/icons";
 
 const BOUTON_AJOUT =
   "flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-[13px] font-semibold text-kcal transition-colors hover:bg-kcal-soft focus-within:ring-2 focus-within:ring-kcal focus-within:ring-offset-2";
@@ -148,7 +149,7 @@ export function PhotosEditor({ annonceId, photos }: { annonceId: string; photos:
             <li key={photo.id} className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface-alt">
               <div className="relative aspect-square">
                 <FadeInImage src={photo.url} alt={`Photo ${index + 1}`} fill sizes="33vw" className="object-cover" />
-                <span className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white">
+                <span className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-bold text-white">
                   {index === 0 ? "Couverture" : index + 1}
                 </span>
               </div>
@@ -160,7 +161,7 @@ export function PhotosEditor({ annonceId, photos }: { annonceId: string; photos:
                   ›
                 </button>
                 <button type="button" className={`${BOUTON_TUILE} text-alert`} onClick={() => retirer(photo)} aria-label={`Supprimer la photo ${index + 1}`}>
-                  ✕
+                  <CrossIcon size={14} />
                 </button>
               </div>
             </li>

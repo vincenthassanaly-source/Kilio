@@ -9,6 +9,7 @@ import { showToast } from "@/components/toast/toast-store";
 import { ProgressRing } from "@/components/ProgressRing";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
+import { CheckIcon, FlameIcon } from "@/components/icons";
 
 export const DashboardHabitItem = memo(function DashboardHabitItem({
   habitude,
@@ -84,11 +85,15 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
       className="flex w-[60px] shrink-0 flex-col items-center gap-1.5"
     >
       <ProgressRing size={50} strokeWidth={5} pct={pct} color="var(--accent-habitudes)">
-        <span className="text-base leading-none">{habitude.icone || "✓"}</span>
+        <span className="text-base leading-none">{habitude.icone || <CheckIcon size={16} />}</span>
       </ProgressRing>
       <span className="max-w-full truncate text-[11px] font-semibold text-ink-2">{habitude.nom}</span>
       {(habitude.type === "streak" || habitude.frequence_hebdo != null) && habitude.streak > 0 && (
-        <span className="text-[11px] font-bold text-habitudes">🔥{habitude.streak}</span>
+        <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-habitudes">
+          <FlameIcon size={12} />
+          <span className="sr-only">Série : </span>
+          {habitude.streak}
+        </span>
       )}
     </button>
   );

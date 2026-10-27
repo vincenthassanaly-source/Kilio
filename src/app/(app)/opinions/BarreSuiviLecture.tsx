@@ -5,6 +5,7 @@ import { varCouleurTheme } from "@/lib/opinions/couleurs";
 import type { FiltreSuivi } from "@/lib/opinions/partis";
 import { LIBELLE_THEME, type Theme } from "@/lib/opinions/types";
 import { ghostButton } from "@/lib/ui";
+import { StarIcon } from "@/components/icons";
 
 export type StatTheme = { theme: Theme; lues: number; total: number };
 
@@ -88,7 +89,7 @@ export function BarreSuiviLecture({
           onClick={() => onFiltre({ ...filtre, favoris: !filtre.favoris })}
           className={`${chip} ${filtre.favoris ? "border-kcal bg-kcal text-on-kcal" : "border-line bg-surface text-ink"}`}
         >
-          {filtre.favoris ? "★" : "☆"} Favoris
+          <StarIcon filled={filtre.favoris} size={14} /> Favoris
         </button>
         <span aria-hidden="true" className="h-6 w-px shrink-0 bg-line" />
         {themes.map(({ theme, lues: l, total: t }) => (

@@ -171,7 +171,7 @@ export function ObjectifSuiviEtapes({
           placeholder="Nouvelle étape…"
           value={titre}
           onChange={(e) => setTitre(e.target.value)}
-          className={`${input} flex-1`}
+          className={`${input} min-w-0 flex-1`}
         />
         <button type="submit" disabled={isPending} className={ghostButton}>
           Ajouter

@@ -27,6 +27,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { AnimationMiniature } from "../AnimationExercice";
 import { ChampNombre } from "./ChampNombre";
 import { ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
+import { CheckIcon } from "@/components/icons";
 
 type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "vitesse" | "type">>;
 
@@ -259,7 +260,12 @@ export function ExerciceBloc({
               {enteteChamp(c, mode)}
             </span>
           ))}
-          {!edition && <span className={entete}>✓</span>}
+          {!edition && (
+            <span className={entete}>
+              <CheckIcon size={12} />
+              <span className="sr-only">Fait</span>
+            </span>
+          )}
         </div>
 
         {exercice.series.map((serie, index) => {

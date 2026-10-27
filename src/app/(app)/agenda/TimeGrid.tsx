@@ -177,7 +177,7 @@ export function TimeGutter({ zoom, creneaux = [] }: { zoom: number; creneaux?: C
       {hours.map(({ hour, top }) => (
         <span
           key={`h-${hour}`}
-          className="absolute right-1 -translate-y-1/2 text-[10px] font-medium text-ink-2"
+          className="absolute right-1 -translate-y-1/2 text-[11px] font-medium text-ink-2"
           style={{ top }}
         >
           {String(hour).padStart(2, "0")}h
@@ -186,7 +186,7 @@ export function TimeGutter({ zoom, creneaux = [] }: { zoom: number; creneaux?: C
       {workMarks.map((mark) => (
         <span
           key={`w-${mark.minutes}`}
-          className="absolute right-1 -translate-y-1/2 whitespace-nowrap text-[10px] font-semibold text-planning-travail"
+          className="absolute right-1 -translate-y-1/2 whitespace-nowrap text-[11px] font-semibold text-planning-travail"
           style={{ top: mark.top }}
         >
           {mark.label}

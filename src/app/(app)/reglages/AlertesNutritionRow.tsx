@@ -35,7 +35,7 @@ const HEURE_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 /** Alerte à l'approche de la limite kcal (85 %) et rappel de saisie du soir. */
 export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_briefing"> }) {
   const [alerteKcal, setAlerteKcal] = useState(reglages.alerte_kcal_actif);
-  const initialSaisie = { actif: reglages.rappel_saisie_actif, heure: reglages.rappel_saisie_heure.slice(0, 5) };
+  const initialSaisie = { actif: reglages.rappel_saisie_actif, heure: (reglages.rappel_saisie_heure ?? "20:00").slice(0, 5) };
   const [saisie, setSaisie] = useState(initialSaisie);
   // Dernier état enregistré : référence pour le retour arrière après un échec.
   const [saisieEnregistree, setSaisieEnregistree] = useState(initialSaisie);

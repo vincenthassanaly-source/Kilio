@@ -14,6 +14,7 @@ import { confirmDelete } from "@/lib/confirm";
 import { vibrate } from "@/lib/haptics";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
+import { CheckIcon, FlameIcon } from "@/components/icons";
 
 function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: string }) {
   const [editing, setEditing] = useState(false);
@@ -193,8 +194,10 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
               {habitude.nom}
             </p>
             {habitude.streak > 0 && (habitude.type === "streak" || habitude.frequence_hebdo != null) && (
-              <span className={`${pillTag} tabular-nums`}>
-                🔥 {habitude.streak}
+              <span className={`${pillTag} inline-flex items-center gap-1 tabular-nums`}>
+                <FlameIcon size={12} />
+                <span className="sr-only">Série : </span>
+                {habitude.streak}
                 {habitude.frequence_hebdo != null ? " sem." : "j"}
               </span>
             )}
@@ -227,7 +230,12 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
                 {habitude.unite}
                 {habitude.valeur_cible != null && ` / ${habitude.valeur_cible}`}
               </span>
-              {atteint && <span className={metaText}>✓ objectif atteint</span>}
+              {atteint && (
+                <span className={`${metaText} inline-flex items-center gap-1`}>
+                  <CheckIcon size={12} />
+                  objectif atteint
+                </span>
+              )}
             </div>
           )}
         </div>

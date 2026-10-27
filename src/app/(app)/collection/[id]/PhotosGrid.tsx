@@ -41,7 +41,7 @@ function YoutubeIcon() {
 function VideoBadge({ type }: { type: string }) {
   const estYoutube = type === "youtube";
   return (
-    <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white">
+    <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-bold text-white">
       {estYoutube ? <YoutubeIcon /> : <TiktokIcon />}
       {estYoutube ? "YouTube" : "TikTok"}
     </span>
