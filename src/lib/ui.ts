@@ -30,6 +30,11 @@ export const input = `rounded-2xl border border-line bg-surface-alt px-3.5 py-2.
 export const label = "text-sm font-medium text-ink";
 export const errorText = "text-sm text-alert";
 
+// Couleur proposée par défaut aux listes et étiquettes (`<input type="color">` exige
+// un hex). Équivalent sRGB de `--accent-agenda` (oklch 0,55 0,14 230) : plus de
+// second bleu hors palette.
+export const COULEUR_PAR_DEFAUT = "#007eb3";
+
 export const primaryButton =
   `rounded-2xl bg-kcal px-4 py-2.5 font-semibold text-on-kcal transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 export const secondaryButton =

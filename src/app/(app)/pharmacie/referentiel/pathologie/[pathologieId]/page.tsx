@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, use } from "react";
+import { Suspense, use, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { TransitionLink } from "@/components/TransitionLink";
 import { card, eyebrow, screenTitle } from "@/lib/ui";
@@ -16,13 +16,14 @@ import {
 import { IntrouvableCarte, PharmacieSkeleton } from "../../../EtatSnapshot";
 import { RetourReferentiel } from "../../RetourReferentiel";
 import { AvecReferentiel } from "../../EtatReferentiel";
+import { CheckIcon, CrossIcon } from "@/components/icons";
 
 // Le rôle est dit en toutes lettres et par un pictogramme : la couleur
 // n'est jamais le seul vecteur d'information.
-const STYLE_ROLE: Record<RoleItem, { bordure: string; pastille: string; signe: string }> = {
-  traitement: { bordure: "border-l-kcal", pastille: "bg-kcal-soft text-kcal", signe: "✓" },
+const STYLE_ROLE: Record<RoleItem, { bordure: string; pastille: string; signe: ReactNode }> = {
+  traitement: { bordure: "border-l-kcal", pastille: "bg-kcal-soft text-kcal", signe: <CheckIcon size={12} /> },
   association: { bordure: "border-l-warning", pastille: "bg-surface-alt text-ink-2", signe: "+" },
-  eviter: { bordure: "border-l-alert", pastille: "bg-surface-alt text-alert", signe: "✕" },
+  eviter: { bordure: "border-l-alert", pastille: "bg-surface-alt text-alert", signe: <CrossIcon size={12} /> },
 };
 
 const ORDRE_ROLE: RoleItem[] = ["traitement", "association", "eviter"];

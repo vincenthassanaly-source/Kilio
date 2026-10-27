@@ -133,7 +133,7 @@ export function MonthView({
       {/* Légende décorative : le statut "jour travaillé"/nombre de tâches
           est déjà annoncé par case via monthCellAriaLabel ci-dessus, donc
           masquée aux lecteurs d'écran pour ne pas doubler l'annonce. */}
-      <div aria-hidden className="flex items-center justify-center gap-1.5 text-[10px] font-medium text-ink-2">
+      <div aria-hidden className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-ink-2">
         <span className="flex items-center gap-1">
           <span
             className="h-2.5 w-2.5 rounded-[3px]"
