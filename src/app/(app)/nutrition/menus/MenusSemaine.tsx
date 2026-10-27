@@ -7,11 +7,12 @@ import { addNutrition, zeroNutrition, type Nutrition } from "@/lib/nutrition/com
 import { jourTypePourDate } from "@/lib/nutrition/planning";
 import { vueRepas } from "@/lib/nutrition/vue-repas";
 import { semaineDe } from "@/lib/seances/compute";
-import { card, errorText, linkButton } from "@/lib/ui";
+import { card, linkButton } from "@/lib/ui";
 import { CopierSemaineBouton } from "./CopierSemaineBouton";
 import { EnvoyerCoursesBouton } from "./EnvoyerCoursesBouton";
 import { JourMenu, type CreneauMenu } from "./JourMenu";
 import { hrefSemaineMenus, lireSemaineMenus, type MenusSearchParams } from "./semaine";
+import { ErrorInlineRefresh } from "@/components/ErrorInlineRefresh";
 
 const FORMAT_JOUR_LONG = new Intl.DateTimeFormat("fr-FR", {
   weekday: "long",
@@ -45,7 +46,10 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
     getJoursLibres(jours[0], jours[6]),
   ]);
 
-  if (error) return <p className={errorText}>Erreur de chargement : {error.message}</p>;
+  if (error) {
+    console.error("Menus de la semaine : lecture impossible", error);
+    return <ErrorInlineRefresh message="Impossible de charger les menus de la semaine." />;
+  }
 
   // Cible par type de jour (repos / entraînement) ; null si aucun objectif défini.
   const cibleDuType = (jourType: "repos" | "entrainement"): Nutrition | null => {

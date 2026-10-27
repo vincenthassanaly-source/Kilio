@@ -7,9 +7,10 @@ import { queryKeys } from "@/lib/query/keys";
 import { CollectionMosaic } from "./CollectionMosaic";
 import { AddCollectionToggle } from "./AddCollectionToggle";
 import { TransitionLink } from "@/components/TransitionLink";
-import { errorText, nameText } from "@/lib/ui";
+import { nameText } from "@/lib/ui";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ErrorInline } from "@/components/ErrorInline";
 
 function CollectionsMosaic({ collections }: { collections: CollectionAvecApercu[] }) {
   if (collections.length === 0) {
@@ -47,7 +48,7 @@ function CollectionsMosaic({ collections }: { collections: CollectionAvecApercu[
 
 export function CollectionsGrid() {
   const queryClient = useQueryClient();
-  const { data: collections, isLoading, isError } = useQuery({
+  const { data: collections, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.collections,
     queryFn: getCollectionsAvecApercu,
   });
@@ -63,7 +64,7 @@ export function CollectionsGrid() {
         {isLoading ? (
           <GridSkeleton />
         ) : isError ? (
-          <p className={errorText}>Erreur de chargement des collections. Réessaie.</p>
+          <ErrorInline message="Impossible de charger les collections." retry={() => refetch()} />
         ) : (
           <CollectionsMosaic collections={collections ?? []} />
         )}

@@ -13,7 +13,7 @@ import {
 import { getDatesEntrainement } from "@/app/actions/journal";
 import { getJoursLibres } from "@/app/actions/jours-libres";
 import { estJourType } from "@/lib/nutrition/planning";
-import { card, errorText, linkButton } from "@/lib/ui";
+import { card, linkButton } from "@/lib/ui";
 import {
   BandeSemaine,
   CalendrierMois,
@@ -24,6 +24,7 @@ import {
   SectionBilan,
   carteBilan,
 } from "./BilanVues";
+import { ErrorInlineRefresh } from "@/components/ErrorInlineRefresh";
 
 // Fenêtre chargée : assez large pour que la série ne soit pas tronquée trop
 // tôt, assez courte pour rester loin de la limite de 1000 lignes par requête
@@ -57,11 +58,7 @@ export async function BilanContenu() {
   if (erreur) {
     // Message brut du driver jamais affiché (loggé pour le diagnostic).
     console.error("BilanContenu: échec de chargement", erreur);
-    return (
-      <p role="alert" className={errorText}>
-        Impossible de charger le bilan. Réessaie dans un instant.
-      </p>
-    );
+    return <ErrorInlineRefresh message="Impossible de charger le bilan." />;
   }
 
   const cibles: Record<JourType, CiblesJour | null> = { repos: null, entrainement: null };

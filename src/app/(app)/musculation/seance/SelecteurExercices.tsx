@@ -12,7 +12,8 @@ import { MODE_SAISIE_LABELS, MUSCLES, MUSCLE_LABELS, type Muscle } from "@/lib/m
 import { queryKeys } from "@/lib/query/keys";
 import type { ExerciceCatalogue } from "@/lib/musculation/serveur";
 import { AnimationVignette } from "../AnimationExercice";
-import { cardTight, errorText, input, metaText, nameText, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { cardTight, input, metaText, nameText, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { ErrorInline } from "@/components/ErrorInline";
 
 const PAGE = 40;
 
@@ -36,7 +37,7 @@ function Contenu({ onChoisir }: { onChoisir: (exercice: ExerciceCatalogue) => vo
   const [muscle, setMuscle] = useState<Muscle | null>(null);
   const [affiches, setAffiches] = useState(PAGE);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.musculationExercices,
     queryFn: getExercices,
     staleTime: 5 * 60_000,
@@ -49,7 +50,9 @@ function Contenu({ onChoisir }: { onChoisir: (exercice: ExerciceCatalogue) => vo
   );
 
   if (isLoading) return <ListItemSkeletonGroup count={5} withSubtitle />;
-  if (isError || !data) return <p className={errorText}>Impossible de charger les exercices. Vérifie ta connexion.</p>;
+  if (isError || !data) {
+    return <ErrorInline message="Impossible de charger les exercices. Vérifie ta connexion." retry={() => refetch()} />;
+  }
   if (data.length === 0) {
     return <p className={metaText}>Aucun exercice pour l&apos;instant : le catalogue arrive bientôt.</p>;
   }

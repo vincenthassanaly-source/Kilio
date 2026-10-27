@@ -168,6 +168,7 @@ export function BottomNav() {
           glisse et se dédouble avec la page, voir globals.css) — elle reste
           fixe pendant que seule la page change. */}
       <nav
+        aria-label="Navigation principale"
         className="flex items-center gap-0.5 rounded-[26px] border border-line bg-nav p-[7px] shadow-card backdrop-blur-xl"
         style={{ viewTransitionName: "bottom-nav" }}
       >

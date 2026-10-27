@@ -5,11 +5,12 @@ import { AnimatePresence } from "framer-motion";
 import { getObjectifs } from "@/app/actions/objectifs";
 import { queryKeys } from "@/lib/query/keys";
 import type { Enums, Tables } from "@/lib/supabase/types";
-import { errorText, eyebrow, sectionTitle } from "@/lib/ui";
+import { eyebrow, sectionTitle } from "@/lib/ui";
 import { AddObjectifToggle } from "./AddObjectifToggle";
 import { ObjectifCard } from "./ObjectifCard";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ErrorInline } from "@/components/ErrorInline";
 
 const CATEGORIE_LABELS: Record<Enums<"categorie_objectif">, string> = {
   perso: "Personnel",
@@ -65,7 +66,7 @@ function ObjectifsGroupes({ objectifs }: { objectifs: Tables<"objectifs">[] }) {
 
 export function ObjectifsList() {
   const queryClient = useQueryClient();
-  const { data: objectifs, isLoading, isError } = useQuery({
+  const { data: objectifs, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.objectifs,
     queryFn: getObjectifs,
   });
@@ -81,7 +82,7 @@ export function ObjectifsList() {
         {isLoading ? (
           <ListItemSkeletonGroup count={4} withSubtitle />
         ) : isError ? (
-          <p className={errorText}>Erreur de chargement des objectifs. Réessaie.</p>
+          <ErrorInline message="Impossible de charger les objectifs." retry={() => refetch()} />
         ) : (
           <ObjectifsGroupes objectifs={objectifs ?? []} />
         )}

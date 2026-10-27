@@ -10,6 +10,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { card, errorText, input, label, primaryButton, sectionTitle } from "@/lib/ui";
 import { parserHashtags } from "@/lib/vinted/kit";
 import { COLIS_VINTED, type ReglagesVinted } from "@/lib/vinted/types";
+import { ErrorInline } from "@/components/ErrorInline";
 
 type Saisie = { signature: string; colis: string; communs: string; parCategorie: string };
 
@@ -159,7 +160,7 @@ function Formulaire({ reglages }: { reglages: ReglagesVinted }) {
 }
 
 export function ReglagesForm() {
-  const { data, isLoading, isError } = useQuery({ queryKey: queryKeys.vintedReglages, queryFn: getReglagesVinted });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.vintedReglages, queryFn: getReglagesVinted });
 
   if (isLoading) {
     return (
@@ -172,11 +173,7 @@ export function ReglagesForm() {
   }
 
   if (isError || !data) {
-    return (
-      <p className={errorText} role="alert">
-        Erreur de chargement des réglages. Réessaie.
-      </p>
-    );
+    return <ErrorInline message="Impossible de charger les réglages." retry={() => refetch()} />;
   }
 
   return <Formulaire reglages={data} />;

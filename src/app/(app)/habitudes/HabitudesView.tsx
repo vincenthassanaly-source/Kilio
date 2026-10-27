@@ -9,9 +9,9 @@ import { AddHabitudeToggle } from "./AddHabitudeToggle";
 import { HabitudeCard } from "./HabitudeCard";
 import { HistoriqueView } from "./HistoriqueView";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
-import { errorText } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { ErrorInline } from "@/components/ErrorInline";
 
 type ViewKey = "aujourdhui" | "historique";
 
@@ -24,7 +24,7 @@ export function HabitudesView({ today }: { today: string }) {
   const [view, setView] = useState<ViewKey>("aujourdhui");
   const queryClient = useQueryClient();
 
-  const { data: habitudes = [], isLoading, isError } = useQuery({
+  const { data: habitudes = [], isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.habitudes(today),
     queryFn: () => getHabitudesDuJour(today),
   });
@@ -53,7 +53,7 @@ export function HabitudesView({ today }: { today: string }) {
           {isLoading ? (
             <ListItemSkeletonGroup count={3} withSubtitle />
           ) : isError ? (
-            <p className={errorText}>Erreur de chargement des habitudes. Réessaie.</p>
+            <ErrorInline message="Impossible de charger les habitudes." retry={() => refetch()} />
           ) : habitudes.length === 0 ? (
             <p className="text-ink-2">Aucune habitude pour l&apos;instant.</p>
           ) : (

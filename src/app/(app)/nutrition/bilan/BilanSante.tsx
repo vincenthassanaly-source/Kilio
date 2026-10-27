@@ -1,10 +1,11 @@
 import { connection } from "next/server";
 import { getMesuresRecentes, getSyntheseSemaine } from "@/app/actions/sante";
 import { aujourdhuiParis } from "@/lib/date/paris";
-import { card, errorText } from "@/lib/ui";
+import { card } from "@/lib/ui";
 import { SectionBilan } from "./BilanVues";
 import { PeseeForm } from "./PeseeForm";
 import { SyntheseSemaine } from "./SyntheseSemaine";
+import { ErrorInlineRefresh } from "@/components/ErrorInlineRefresh";
 
 // Synthèse de la semaine et pesée, en tête du Bilan. Sous <Suspense> dans
 // page.tsx : dépend de « aujourd'hui » (donnée de requête, d'où `connection()`).
@@ -18,11 +19,7 @@ export async function BilanSante() {
   } catch (erreur) {
     // Message brut du driver jamais affiché (loggé pour le diagnostic).
     console.error("BilanSante: échec de chargement", erreur);
-    return (
-      <p role="alert" className={errorText}>
-        Impossible de charger la synthèse de la semaine. Réessaie dans un instant.
-      </p>
-    );
+    return <ErrorInlineRefresh message="Impossible de charger la synthèse de la semaine." />;
   }
   const [synthese, mesures] = donnees;
 

@@ -2,9 +2,10 @@
 
 import type { ReactNode } from "react";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { card, errorText } from "@/lib/ui";
+import { card, screenTitle } from "@/lib/ui";
 import { useSnapshotPharmacie } from "@/lib/pharmacie/useSnapshotPharmacie";
 import type { PharmaSnapshot } from "@/lib/pharmacie/types";
+import { ErrorInline } from "@/components/ErrorInline";
 
 export function PharmacieSkeleton() {
   return (
@@ -20,19 +21,24 @@ export function PharmacieSkeleton() {
 // Coquille commune aux écrans du module : chargement, erreur, puis rendu du
 // contenu avec l'instantané (jamais de rendu partiel).
 export function AvecSnapshot({ children }: { children: (snapshot: PharmaSnapshot) => ReactNode }) {
-  const { data, isLoading, isError } = useSnapshotPharmacie();
+  const { data, isLoading, isError, refetch } = useSnapshotPharmacie();
 
   if (isLoading) return <PharmacieSkeleton />;
   if (isError || !data) {
-    return <p className={errorText}>Impossible de charger la Pharmacie. Réessaie une fois en ligne.</p>;
+    return <ErrorInline message="Impossible de charger la Pharmacie. Vérifie ta connexion." retry={() => refetch()} />;
   }
   return <>{children(data)}</>;
 }
 
-export function IntrouvableCarte({ message }: { message: string }) {
+/** Carte d'état vide ou « introuvable ». `titre` ajoute le `<h1>` de la page
+ * quand elle remplace un écran de détail (sans lui, la page n'aurait aucun titre). */
+export function IntrouvableCarte({ message, titre }: { message: string; titre?: string }) {
   return (
-    <div className={`${card} text-[14.5px] text-ink-2`} role="status">
-      {message}
-    </div>
+    <>
+      {titre && <h1 className={screenTitle}>{titre}</h1>}
+      <div className={`${card} text-[14.5px] text-ink-2`} role="status">
+        {message}
+      </div>
+    </>
   );
 }

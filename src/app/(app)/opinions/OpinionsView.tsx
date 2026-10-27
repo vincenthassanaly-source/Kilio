@@ -27,6 +27,7 @@ import { PartisView } from "./PartisView";
 import { PrioritesEditor } from "./PrioritesEditor";
 import { ProfilView } from "./ProfilView";
 import { StatutPill } from "./StatutPill";
+import { ErrorInline } from "@/components/ErrorInline";
 
 type Onglet = "idees" | "partis" | "profil";
 type Filtre = "tous" | Statut;
@@ -88,7 +89,7 @@ export function OpinionsView() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [ajoutEnCours, startAjout] = useTransition();
   const champRef = useRef<HTMLInputElement>(null);
-  const { data: idees, isLoading, isError } = useQuery({ queryKey: queryKeys.opinions, queryFn: getIdees });
+  const { data: idees, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.opinions, queryFn: getIdees });
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: queryKeys.opinions });
@@ -124,9 +125,7 @@ export function OpinionsView() {
         {isLoading ? (
           <ListItemSkeletonGroup withSubtitle />
         ) : isError || !idees ? (
-          <p className={errorText} role="alert">
-            Erreur de chargement des idées. Réessaie.
-          </p>
+          <ErrorInline message="Impossible de charger les idées." retry={() => refetch()} />
         ) : onglet === "partis" ? (
           <PartisView idees={idees} />
         ) : onglet === "profil" ? (

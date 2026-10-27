@@ -11,7 +11,8 @@ import { formaterDateLongue, formaterDureeS } from "@/lib/musculation/historique
 import { formaterPoids } from "@/lib/musculation/seance";
 import { joursDePeriode, type TypePeriode } from "@/lib/musculation/stats";
 import { queryKeys } from "@/lib/query/keys";
-import { card, cardTight, errorText, metaText, nameText, navArrowButton, screenTitle, sectionTitle } from "@/lib/ui";
+import { card, cardTight, metaText, nameText, navArrowButton, screenTitle, sectionTitle } from "@/lib/ui";
+import { ErrorInline } from "@/components/ErrorInline";
 
 const OPTIONS = [
   { value: "semaine", label: "Semaine" },
@@ -137,7 +138,7 @@ export function StatsView() {
         </button>
       </div>
 
-      {periode.isError && <p className={errorText}>Impossible de charger les statistiques. Vérifie ta connexion.</p>}
+      {periode.isError && <ErrorInline message="Impossible de charger les statistiques. Vérifie ta connexion." retry={() => periode.refetch()} />}
       {!donnees && periode.isLoading && <Skeleton className="h-40 w-full rounded-[22px]" />}
 
       {donnees && (

@@ -54,13 +54,14 @@ describe("TachesView : actualisation en échec (CLICK-PATH T03)", () => {
 
     expect(await screen.findByText("Actualisation impossible : dernières données affichées.")).toBeTruthy();
     expect(screen.getByText("Payer le loyer")).toBeTruthy();
-    expect(screen.queryByText("Erreur de chargement des tâches. Réessaie.")).toBeNull();
+    expect(screen.queryByText("Impossible de charger les tâches.")).toBeNull();
   });
 
   it("affiche l'erreur de chargement quand il n'y a aucune donnée à montrer", async () => {
     monter(false);
 
-    expect(await screen.findByText("Erreur de chargement des tâches. Réessaie.")).toBeTruthy();
+    expect(await screen.findByText("Impossible de charger les tâches.")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Réessayer" })).toBeTruthy();
     expect(screen.queryByText(/Actualisation impossible/)).toBeNull();
   });
 
@@ -71,6 +72,6 @@ describe("TachesView : actualisation en échec (CLICK-PATH T03)", () => {
     expect(await screen.findByText("Payer le loyer")).toBeTruthy();
     await waitFor(() => expect(getTachesAvecRelations).toHaveBeenCalled());
     expect(screen.queryByText(/Actualisation impossible/)).toBeNull();
-    expect(screen.queryByText("Erreur de chargement des tâches. Réessaie.")).toBeNull();
+    expect(screen.queryByText("Impossible de charger les tâches.")).toBeNull();
   });
 });

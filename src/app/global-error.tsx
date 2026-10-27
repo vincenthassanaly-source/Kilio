@@ -24,7 +24,7 @@ export default function GlobalError({
         <title>Kilio — erreur</title>
         <p className="text-lg font-semibold">Une erreur est survenue</p>
         <p className="max-w-sm text-sm text-ink-3">
-          Quelque chose s&apos;est mal passé de notre côté. Vous pouvez réessayer.
+          Quelque chose s&apos;est mal passé de notre côté. Tu peux réessayer.
         </p>
         <button
           type="button"

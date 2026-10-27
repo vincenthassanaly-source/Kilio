@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getObjectif } from "@/app/actions/objectifs";
 import { queryKeys } from "@/lib/query/keys";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, errorText, linkButton } from "@/lib/ui";
+import { card, linkButton } from "@/lib/ui";
 import { ObjectifHeader } from "./ObjectifHeader";
 import { ObjectifSuiviBinaire } from "./ObjectifSuiviBinaire";
 import { ObjectifSuiviEtapes } from "./ObjectifSuiviEtapes";
@@ -13,13 +13,14 @@ import { ObjectifSuiviHabitudes } from "./ObjectifSuiviHabitudes";
 import { ObjectifSuiviNutrition } from "./ObjectifSuiviNutrition";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
+import { ErrorInline } from "@/components/ErrorInline";
 
 // Vue client : la donnée est préchargée côté serveur (page.tsx, patron de
 // objectifs/page.tsx) puis relue ici via TanStack Query, pour partager le cache
 // avec les mutations optimistes. `notFound()` n'étant documenté que pour les
 // Server Components, un élément introuvable affiche un message inline.
 export function ObjectifDetailView({ id }: { id: string }) {
-  const { data: detail, isLoading, isError } = useQuery({
+  const { data: detail, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.objectif(id),
     queryFn: () => getObjectif(id),
   });
@@ -45,9 +46,11 @@ export function ObjectifDetailView({ id }: { id: string }) {
         <TransitionLink href="/objectifs" className={linkButton}>
           ‹ Objectifs
         </TransitionLink>
-        <p className={errorText}>
-          {isError ? "Erreur de chargement de l'objectif." : "Objectif introuvable."}
-        </p>
+        {isError ? (
+          <ErrorInline titre="Chargement impossible" message="L'objectif n'a pas pu être chargé." retry={() => refetch()} />
+        ) : (
+          <ErrorInline titre="Objectif introuvable" message="Il a peut-être été supprimé." />
+        )}
       </div>
     );
   }

@@ -1,20 +1,21 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { errorText, titreBlocClasse } from "@/lib/ui";
+import { titreBlocClasse } from "@/lib/ui";
 import { useReferentielPharmacie } from "@/lib/pharmacie/useReferentielPharmacie";
 import type { PharmaRefSnapshot } from "@/lib/pharmacie/referentiel";
 import { PharmacieSkeleton } from "../EtatSnapshot";
 import { ContenuColore } from "../ContenuColore";
+import { ErrorInline } from "@/components/ErrorInline";
 
 // Coquille commune aux écrans du référentiel : chargement, erreur, puis rendu
 // avec l'instantané (jamais de rendu partiel).
 export function AvecReferentiel({ children }: { children: (snapshot: PharmaRefSnapshot) => ReactNode }) {
-  const { data, isLoading, isError } = useReferentielPharmacie();
+  const { data, isLoading, isError, refetch } = useReferentielPharmacie();
 
   if (isLoading) return <PharmacieSkeleton />;
   if (isError || !data) {
-    return <p className={errorText}>Impossible de charger le référentiel. Réessaie une fois en ligne.</p>;
+    return <ErrorInline message="Impossible de charger le référentiel. Vérifie ta connexion." retry={() => refetch()} />;
   }
   return <>{children(data)}</>;
 }

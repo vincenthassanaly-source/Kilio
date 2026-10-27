@@ -7,16 +7,17 @@ import { AddPhotoButton } from "./AddPhotoButton";
 import { CollectionHeader } from "./CollectionHeader";
 import { PhotosGrid } from "./PhotosGrid";
 import { TransitionLink } from "@/components/TransitionLink";
-import { errorText, linkButton } from "@/lib/ui";
+import { linkButton } from "@/lib/ui";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
+import { ErrorInline } from "@/components/ErrorInline";
 
 // Vue client : la donnée est préchargée côté serveur (page.tsx, patron de
 // objectifs/page.tsx) puis relue ici via TanStack Query, pour partager le cache
 // avec les mutations optimistes. `notFound()` n'étant documenté que pour les
 // Server Components, un élément introuvable affiche un message inline.
 export function CollectionDetailView({ id }: { id: string }) {
-  const { data: collection, isLoading, isError } = useQuery({
+  const { data: collection, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.collection(id),
     queryFn: () => getCollectionAvecPhotos(id),
   });
@@ -39,9 +40,11 @@ export function CollectionDetailView({ id }: { id: string }) {
         <TransitionLink href="/collection" className={linkButton}>
           ‹ Collection
         </TransitionLink>
-        <p className={errorText}>
-          {isError ? "Erreur de chargement de la collection." : "Collection introuvable."}
-        </p>
+        {isError ? (
+          <ErrorInline titre="Chargement impossible" message="La collection n'a pas pu être chargée." retry={() => refetch()} />
+        ) : (
+          <ErrorInline titre="Collection introuvable" message="Elle a peut-être été supprimée." />
+        )}
       </div>
     );
   }

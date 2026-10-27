@@ -8,7 +8,8 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { formaterDateLongue, formaterDureeS, type EntrainementResume } from "@/lib/musculation/historique";
 import { formaterPoids } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
-import { card, cardTight, errorText, ghostButton, metaText, nameText, screenTitle, secondaryButton } from "@/lib/ui";
+import { card, cardTight, ghostButton, metaText, nameText, screenTitle, secondaryButton } from "@/lib/ui";
+import { ErrorInline } from "@/components/ErrorInline";
 
 const PAGE = 30;
 
@@ -30,7 +31,7 @@ export function LigneEntrainement({ entrainement: e }: { entrainement: Entrainem
 
 export function HistoriqueView() {
   const [limite, setLimite] = useState(PAGE);
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.musculationHistorique(limite),
     queryFn: () => getEntrainements(limite),
     placeholderData: keepPreviousData,
@@ -51,7 +52,7 @@ export function HistoriqueView() {
           <Skeleton className="h-20 w-full rounded-[20px]" />
         </div>
       )}
-      {isError && <p className={errorText}>Impossible de charger l&apos;historique. Vérifie ta connexion.</p>}
+      {isError && <ErrorInline message="Impossible de charger l'historique. Vérifie ta connexion." retry={() => refetch()} />}
       {data && data.length === 0 && (
         <section className={`${card} flex flex-col gap-1.5`}>
           <p className={metaText}>Aucune séance enregistrée pour l&apos;instant.</p>

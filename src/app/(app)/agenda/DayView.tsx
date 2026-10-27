@@ -141,7 +141,10 @@ export function DayView({
         )}
         <div
           ref={scrollRef}
-          className="max-h-[55vh] overflow-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Grille horaire du jour"
+          className="max-h-[55vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
           style={{ touchAction: "pan-x pan-y" }}
           {...touchHandlers}
         >
