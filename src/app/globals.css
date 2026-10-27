@@ -12,7 +12,7 @@
   /* Vague 2 (T5) : 0,64 → 0,55 ; ≈ 4,7:1 sur surface (3,3:1 avant).
      Polish premium : 0,55 → 0,54 pour compenser l'éclaircissement de
      `--line` (contraste conservé sur surface et sur fond). */
-  --ink-3: oklch(0.54 0.014 150);
+  --ink-3: oklch(0.52 0.014 150);
   /* Bordure des contrôles non textuels (cercle non coché, piste
      d'interrupteur éteint) : ≥ 3:1 sur surface (T5), `--line` restant
      réservé aux séparations décoratives. */
@@ -28,11 +28,11 @@
      alerte) : ils suivent tous la formule L 0,55 (clair) / 0,72 (sombre). */
   --on-accent: oklch(1 0 0);
   --accent-kcal-soft: oklch(0.495 0.14 165 / 0.12);
-  --accent-protein: oklch(0.55 0.13 265);
-  --accent-carbs: oklch(0.58 0.14 85);
-  --accent-fat: oklch(0.56 0.15 340);
+  --accent-protein: oklch(0.52 0.13 265);
+  --accent-carbs: oklch(0.52 0.14 85);
+  --accent-fat: oklch(0.53 0.15 340);
   --accent-warning: oklch(0.6 0.15 55);
-  --accent-alert: oklch(0.55 0.19 25);
+  --accent-alert: oklch(0.52 0.19 25);
   --accent-agenda: oklch(0.55 0.14 230);
   /* Texte/icône posés sur un fond --accent-agenda plein (segment actif du
      sélecteur de vues, icône du FAB) : blanc en clair (≥4,5:1 sur

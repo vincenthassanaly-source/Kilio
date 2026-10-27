@@ -253,13 +253,13 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                 // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md.
                 hitSlop={2}
               />
-              <span className={`text-sm ${item.coche ? "text-ink-3 line-through" : "text-ink-2"}`}>
+              <span className={`text-sm ${item.coche ? "text-ink-2 line-through" : "text-ink-2"}`}>
                 {item.libelle}
               </span>
             </div>
           ))}
           {itemsRestants > 0 && (
-            <button type="button" onClick={() => setMode("view")} className="self-start text-xs text-ink-3">
+            <button type="button" onClick={() => setMode("view")} className="self-start text-xs text-ink-2">
               +{itemsRestants} autres
             </button>
           )}
@@ -298,7 +298,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                 note.contenu ? (
                   <p className="whitespace-pre-wrap break-words text-base leading-relaxed text-ink">{note.contenu}</p>
                 ) : (
-                  <p className="text-sm text-ink-3">Note vide.</p>
+                  <p className="text-sm text-ink-2">Note vide.</p>
                 )
               ) : (
                 <div className="flex flex-col gap-3">
@@ -316,7 +316,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                         size={22}
                         hitSlop={6}
                       />
-                      <span className={`min-w-0 flex-1 text-base ${item.coche ? "text-ink-3 line-through" : "text-ink"}`}>
+                      <span className={`min-w-0 flex-1 text-base ${item.coche ? "text-ink-2 line-through" : "text-ink"}`}>
                         {item.libelle}
                       </span>
                       <button
