@@ -86,7 +86,7 @@ const PRIORITE_BADGE: Record<Enums<"priorite_tache">, string> = {
 
 function couleurStyle(couleur: string | null): React.CSSProperties | undefined {
   if (!couleur) return undefined;
-  return { backgroundColor: `${couleur}1a`, color: couleur };
+  return { backgroundColor: `${couleur}1a`, color: `color-mix(in oklch, ${couleur} 55%, var(--ink))` };
 }
 
 // Accent de carte par couleur de liste (Agenda uniquement, cf. prop

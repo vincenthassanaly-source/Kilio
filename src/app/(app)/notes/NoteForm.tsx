@@ -113,7 +113,7 @@ function NoteItemsEditor({ noteId, items }: { noteId: string; items: Tables<"not
                 );
               }
             }}
-            className={`${input} flex-1 py-1.5 ${item.coche ? "text-ink-3 line-through" : ""}`}
+            className={`${input} flex-1 py-1.5 ${item.coche ? "text-ink-2 line-through" : ""}`}
           />
           <button
             type="button"

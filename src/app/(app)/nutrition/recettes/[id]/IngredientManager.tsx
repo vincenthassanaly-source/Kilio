@@ -156,6 +156,7 @@ function AddIngredientForm({
       <div className="flex gap-2">
         <select
           name="aliment_id"
+          aria-label="Ingrédient"
           value={alimentId}
           onChange={(e) => setAlimentId(e.target.value)}
           required

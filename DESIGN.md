@@ -4,18 +4,18 @@ description: App personnelle mono-utilisateur (nutrition, agenda, courses, habit
 colors:
   primary: "oklch(0.495 0.14 165)"
   primary-soft: "oklch(0.495 0.14 165 / 0.12)"
-  macro-protein: "oklch(0.55 0.13 265)"
-  macro-carbs: "oklch(0.58 0.14 85)"
-  macro-fat: "oklch(0.56 0.15 340)"
+  macro-protein: "oklch(0.52 0.13 265)"
+  macro-carbs: "oklch(0.52 0.14 85)"
+  macro-fat: "oklch(0.53 0.15 340)"
   warning: "oklch(0.6 0.15 55)"
-  alert: "oklch(0.55 0.19 25)"
+  alert: "oklch(0.52 0.19 25)"
   background: "oklch(0.97 0.012 95)"
   surface: "oklch(0.995 0.006 95)"
   surface-alt: "oklch(0.935 0.012 95)"
   line: "oklch(0.9 0.012 95)"
   ink: "oklch(0.22 0.02 150)"
   ink-2: "oklch(0.5 0.018 150)"
-  ink-3: "oklch(0.55 0.014 150)"
+  ink-3: "oklch(0.52 0.014 150)"
   on-kcal: "oklch(1 0 0)"
   on-accent: "oklch(1 0 0)"
   control-border: "oklch(0.64 0.012 150)"
@@ -118,13 +118,13 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - **Vert Olive Kcal Doux** (`oklch(0.495 0.14 165 / 0.12)`) : fond du pastille active en barre de navigation et du tag kcal — jamais utilisé comme fond de bouton plein.
 
 ### Secondary — Triade Macro
-- **Bleu Protéines** (`oklch(0.55 0.13 265)`) : barre de progression et libellé "Protéines" uniquement.
-- **Jaune Glucides** (`oklch(0.58 0.14 85)`) : barre de progression et libellé "Glucides" uniquement.
-- **Magenta Lipides** (`oklch(0.56 0.15 340)`) : barre de progression et libellé "Lipides" uniquement.
+- **Bleu Protéines** (`oklch(0.52 0.13 265)`) : barre de progression et libellé "Protéines" uniquement.
+- **Jaune Glucides** (`oklch(0.52 0.14 85)`) : barre de progression et libellé "Glucides" uniquement.
+- **Magenta Lipides** (`oklch(0.53 0.15 340)`) : barre de progression et libellé "Lipides" uniquement.
 
 ### Tertiary
 - **Ambre Avertissement** (`oklch(0.6 0.15 55)`) : dépassement léger d'un objectif nutritionnel (≤10% au-delà de la cible kcal ou macro) — ton informatif, jamais alarmant. N'est utilisé nulle part ailleurs que ce cas précis.
-- **Rouge Alerte** (`oklch(0.55 0.19 25)`) : dépassement net d'un objectif (>10% au-delà de la cible), texte et bouton "Supprimer" uniquement. Un dépassement léger passe par l'Ambre Avertissement ci-dessus, pas directement par le rouge — voir The Graduated Alert Rule.
+- **Rouge Alerte** (`oklch(0.52 0.19 25)`) : dépassement net d'un objectif (>10% au-delà de la cible), texte et bouton "Supprimer" uniquement. Un dépassement léger passe par l'Ambre Avertissement ci-dessus, pas directement par le rouge — voir The Graduated Alert Rule.
 
 ### Neutral
 - **Fond Ivoire Chaud** (`oklch(0.97 0.012 95)`, teinte 95 = légèrement jaune) : fond de page.
@@ -132,8 +132,10 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - **Surface Alt** (`oklch(0.935 0.012 95)`) : fond des inputs, segmented control, pastilles/chips — un cran plus sombre que la carte.
 - **Ligne** (`oklch(0.9 0.012 95)`) : bordures hairline (1px) des cartes et inputs.
 - **Encre** (`oklch(0.22 0.02 150)`, teinte 150 = vert) : texte principal — pas de noir pur, toujours teinté vert comme le logo.
-- **Encre 2 / Encre 3** (`oklch(0.5 0.018 150)` / `oklch(0.55 0.014 150)`) : texte secondaire et tertiaire (labels, meta, placeholders). Encre 3 a été assombrie en septembre 2026 (0,64 → 0,55 en clair, 0,54 → 0,64 en sombre) pour passer ≥ 4,5:1 sur `surface` ; elle ne descend jamais sous 11px.
+- **Encre 2 / Encre 3** (`oklch(0.5 0.018 150)` / `oklch(0.52 0.014 150)`) : texte secondaire et tertiaire (labels, meta, placeholders). Encre 3 a été assombrie en septembre 2026 (0,64 → 0,55 en clair, 0,54 → 0,64 en sombre) pour passer ≥ 4,5:1 sur `surface` ; elle ne descend jamais sous 11px. Lot 6 (octobre 2026) : 0,52 en clair et 0,66 en sombre, pour atteindre 4,5:1 aussi sur `surface-alt`.
 - **Bordure de contrôle** (`--control-border`, `oklch(0.64 0.012 150)` / sombre `oklch(0.54 0.02 195)`) : contour des contrôles non textuels à l'état « off » (cercle non coché de `CheckToggle`, piste d'interrupteur éteint) — ≥ 3:1 sur `surface`. `--line` reste réservé aux séparations décoratives.
+
+**Contraste sur surfaces teintées (octobre 2026, lot 6).** `--ink-3`, `--accent-alert` (clair et sombre) et les trois teintes de macro (clair) atteignent désormais 4,5:1 sur `surface-alt` (et pas seulement sur `surface`) : l'audit avec données avait relevé 4,1 à 4,2:1 sur les pastilles et tuiles de `surface-alt`. Sur les teintes de notes (`--note-*`), le texte secondaire reste en `ink-2` (`ink-3` n'y atteint pas 4,5:1). Le texte d'une étiquette colorée par l'utilisateur est mélangé à 45 % d'`--ink` pour rester lisible quelle que soit la couleur choisie.
 
 ### Texte sur accent
 - **`--on-kcal`** : texte et icône posés sur un fond `--accent-kcal` plein (bouton primaire, segment actif, FAB). Blanc en clair, encre très sombre (`oklch(0.17 0.02 165)`) en sombre — le blanc sur le vert sombre ne fait que 2,3:1. Classe `text-on-kcal`.

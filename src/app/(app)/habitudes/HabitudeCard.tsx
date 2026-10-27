@@ -220,6 +220,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
                 type="number"
                 min="0"
                 step="any"
+                aria-label={`Valeur de ${habitude.nom}`}
                 value={valeurInput}
                 onChange={(e) => setValeurInput(e.target.value)}
                 onBlur={enregistrerValeur}
