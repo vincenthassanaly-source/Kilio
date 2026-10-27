@@ -8,6 +8,7 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { queryKeys } from "@/lib/query/keys";
 import { eyebrow, linkButton, navArrowButton, screenTitle } from "@/lib/ui";
 import { premierEtDernierJour } from "@/lib/vidage/jours";
+import { BackLink } from "@/components/BackLink";
 
 const JOURS_SEMAINE = ["L", "M", "M", "J", "V", "S", "D"] as const;
 
@@ -50,9 +51,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <TransitionLink href="/vider-ma-tete" className={`${linkButton} self-start`}>
-        ← Feuille du soir
-      </TransitionLink>
+      <BackLink href="/vider-ma-tete">Feuille du soir</BackLink>
       <h1 className={screenTitle}>Relire</h1>
 
       <div className="flex items-center justify-between gap-3">

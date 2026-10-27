@@ -6,11 +6,10 @@ import { queryKeys } from "@/lib/query/keys";
 import { AddPhotoButton } from "./AddPhotoButton";
 import { CollectionHeader } from "./CollectionHeader";
 import { PhotosGrid } from "./PhotosGrid";
-import { TransitionLink } from "@/components/TransitionLink";
-import { linkButton } from "@/lib/ui";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
 import { ErrorInline } from "@/components/ErrorInline";
+import { BackLink } from "@/components/BackLink";
 
 // Vue client : la donnée est préchargée côté serveur (page.tsx, patron de
 // objectifs/page.tsx) puis relue ici via TanStack Query, pour partager le cache
@@ -37,9 +36,7 @@ export function CollectionDetailView({ id }: { id: string }) {
   if (isError || !collection) {
     return (
       <div className="flex flex-col gap-3">
-        <TransitionLink href="/collection" className={linkButton}>
-          ‹ Collection
-        </TransitionLink>
+        <BackLink href="/collection">Collection</BackLink>
         {isError ? (
           <ErrorInline titre="Chargement impossible" message="La collection n'a pas pu être chargée." retry={() => refetch()} />
         ) : (

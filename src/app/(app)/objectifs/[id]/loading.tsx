@@ -1,15 +1,13 @@
-import Link from "next/link";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
-import { card, linkButton } from "@/lib/ui";
+import { card } from "@/lib/ui";
+import { BackLink } from "@/components/BackLink";
 
 export default function ObjectifDetailLoading() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <Link href="/objectifs" className={linkButton}>
-          ‹ Objectifs
-        </Link>
+        <BackLink href="/objectifs">Objectifs</BackLink>
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-1 flex-col gap-1.5">
             <Skeleton className="mt-1 h-6 w-3/5" />

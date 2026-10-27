@@ -38,12 +38,13 @@ import {
   synchroniserFeuilles,
 } from "@/lib/vidage/local";
 import { HAUTEUR_MIN, hauteurRequise, type Epaisseur, type Trait } from "@/lib/vidage/traits";
-import { eyebrow, ghostButton, linkButton, screenTitle } from "@/lib/ui";
+import { eyebrow, ghostButton, screenTitle } from "@/lib/ui";
 import { BarreOutils } from "./BarreOutils";
 import { FeuilleCanvas, type Outil } from "./FeuilleCanvas";
 import { MenuFeuille } from "./MenuFeuille";
 import { SaisieClavier } from "./SaisieClavier";
 import { TranscriptionDialog } from "./TranscriptionDialog";
+import { BackLink } from "@/components/BackLink";
 
 type Dialogue = "proposition" | "texte" | "effacer" | "supprimer-texte" | null;
 type Mode = "stylo" | "clavier";
@@ -331,9 +332,7 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <TransitionLink href={retour.href} className={`${linkButton} self-start`}>
-        ← {retour.libelle}
-      </TransitionLink>
+      <BackLink href={retour.href}>{retour.libelle}</BackLink>
 
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">

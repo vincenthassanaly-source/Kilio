@@ -3,11 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAnnonce, getReglagesVinted } from "@/app/actions/vinted";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { TransitionLink } from "@/components/TransitionLink";
 import { queryKeys } from "@/lib/query/keys";
-import { linkButton } from "@/lib/ui";
 import { AnnonceEditor } from "./AnnonceEditor";
 import { ErrorInline } from "@/components/ErrorInline";
+import { BackLink } from "@/components/BackLink";
 
 export function AnnonceView({ id }: { id: string }) {
   const annonce = useQuery({ queryKey: queryKeys.vintedAnnonce(id), queryFn: () => getAnnonce(id) });
@@ -26,9 +25,7 @@ export function AnnonceView({ id }: { id: string }) {
   if (annonce.isError || reglages.isError || !annonce.data || !reglages.data) {
     return (
       <div className="flex flex-col gap-3">
-        <TransitionLink href="/vinted" className={linkButton}>
-          ‹ Vinted
-        </TransitionLink>
+        <BackLink href="/vinted">Vinted</BackLink>
         {annonce.isError || reglages.isError ? (
           <ErrorInline
             titre="Chargement impossible"

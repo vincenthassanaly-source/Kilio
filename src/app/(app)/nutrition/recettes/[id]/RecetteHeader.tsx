@@ -5,9 +5,9 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { useState, useTransition } from "react";
 import { deleteRecette } from "@/app/actions/recettes";
 import type { Tables } from "@/lib/supabase/types";
-import { TransitionLink } from "@/components/TransitionLink";
-import { card, dangerButton, errorText, ghostButton, linkButton } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
+import { BackLink } from "@/components/BackLink";
 
 const RecetteForm = dynamic(() => import("../RecetteForm").then((m) => m.RecetteForm), { ssr: false });
 
@@ -38,9 +38,7 @@ export function RecetteHeader({
 
   return (
     <div className="flex flex-col gap-2">
-      <TransitionLink href="/nutrition/recettes" className={linkButton}>
-        ‹ Recettes
-      </TransitionLink>
+      <BackLink href="/nutrition/recettes">Recettes</BackLink>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h1

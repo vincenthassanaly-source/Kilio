@@ -8,21 +8,11 @@ import { DocumentForm } from "../DocumentForm";
 import { formatEcheance, niveauAlerte } from "../echeance";
 import { formatMois } from "../champs";
 import { ImageLightbox } from "@/components/ImageLightbox";
-import { TransitionLink } from "@/components/TransitionLink";
 import type { Tables } from "@/lib/supabase/types";
-import {
-  card,
-  dangerButton,
-  errorText,
-  ghostButton,
-  kcalPillTag,
-  linkButton,
-  pillTag,
-  primaryButton,
-  secondaryButton,
-} from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton, kcalPillTag, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { chargerFichiers, nomDeFichier, partager, peutPartager, telecharger } from "@/lib/documents/partage";
+import { BackLink } from "@/components/BackLink";
 
 function PdfIcon() {
   return (
@@ -109,9 +99,7 @@ export function DocumentDetail({
 
   return (
     <div className="flex flex-col gap-4">
-      <TransitionLink href="/documents" className={linkButton}>
-        ‹ Documents
-      </TransitionLink>
+      <BackLink href="/documents">Documents</BackLink>
 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">

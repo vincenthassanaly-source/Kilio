@@ -5,12 +5,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { changerStatutObjectif, supprimerObjectif } from "@/app/actions/objectifs";
 import { queryKeys } from "@/lib/query/keys";
 import { ObjectifForm } from "../ObjectifForm";
-import { TransitionLink } from "@/components/TransitionLink";
 import type { Enums, Tables } from "@/lib/supabase/types";
-import { card, dangerButton, errorText, ghostButton, linkButton } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { runAction } from "@/lib/actions/runAction";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { BackLink } from "@/components/BackLink";
 
 const STATUT_LABELS: Record<Enums<"statut_objectif">, string> = {
   en_cours: "En cours",
@@ -65,9 +65,7 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
 
   return (
     <div className="flex flex-col gap-2">
-      <TransitionLink href="/objectifs" className={linkButton}>
-        ‹ Objectifs
-      </TransitionLink>
+      <BackLink href="/objectifs">Objectifs</BackLink>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h1

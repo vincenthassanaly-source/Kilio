@@ -10,11 +10,10 @@ import {
 } from "@/app/actions/vinted";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { showToast } from "@/components/toast/toast-store";
-import { TransitionLink } from "@/components/TransitionLink";
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
-import { card, dangerButton, errorText, input, label, linkButton, primaryButton, screenTitle, sectionTitle } from "@/lib/ui";
+import { card, dangerButton, errorText, input, label, primaryButton, screenTitle, sectionTitle } from "@/lib/ui";
 import { champsManquants, depasseLimites, descriptionFinale, hashtagsSuggeres, messageManquants, parserHashtags, parserPrix } from "@/lib/vinted/kit";
 import {
   COLIS_VINTED,
@@ -30,6 +29,7 @@ import {
 } from "@/lib/vinted/types";
 import { KitPublication } from "./KitPublication";
 import { PhotosEditor } from "./PhotosEditor";
+import { BackLink } from "@/components/BackLink";
 
 type Saisie = Omit<ChampsAnnonce, "prix" | "hashtags"> & { prix: string; hashtags: string };
 
@@ -161,9 +161,7 @@ export function AnnonceEditor({ annonce, reglages }: { annonce: AnnonceVinted; r
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <TransitionLink href="/vinted" className={`${linkButton} self-start`}>
-          ‹ Vinted
-        </TransitionLink>
+        <BackLink href="/vinted">Vinted</BackLink>
         <h1 className={screenTitle}>{saisie.titre.trim() || "Nouvelle annonce"}</h1>
       </div>
 

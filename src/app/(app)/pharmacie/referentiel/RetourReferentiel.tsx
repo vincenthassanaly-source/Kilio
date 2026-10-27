@@ -2,9 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
-import { TransitionLink } from "@/components/TransitionLink";
 import { retourHistoriqueAutorise } from "@/lib/navigation/parentRoute";
-import { linkButton } from "@/lib/ui";
+import { BackLink } from "@/components/BackLink";
 
 type NavigationApi = {
   currentEntry: { index: number } | null;
@@ -38,8 +37,6 @@ export function RetourReferentiel({ href = "/pharmacie/referentiel" }: { href?: 
   }
 
   return (
-    <TransitionLink href={href} onClick={handleClick} className={`${linkButton} self-start`}>
-      ← Retour
-    </TransitionLink>
+    <BackLink href={href} onClick={handleClick} sansPrefixe>Retour</BackLink>
   );
 }

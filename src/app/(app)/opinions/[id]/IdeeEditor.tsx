@@ -14,7 +14,6 @@ import {
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { showToast } from "@/components/toast/toast-store";
-import { TransitionLink } from "@/components/TransitionLink";
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate";
 import { runAction } from "@/lib/actions/runAction";
 import {
@@ -36,21 +35,10 @@ import {
   type Statut,
 } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
-import {
-  card,
-  dangerButton,
-  errorText,
-  input,
-  label,
-  linkButton,
-  pillTag,
-  primaryButton,
-  screenTitle,
-  secondaryButton,
-  sectionTitle,
-} from "@/lib/ui";
+import { card, dangerButton, errorText, input, label, pillTag, primaryButton, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
 import { Champ, LigneScore } from "../ChampsFormulaire";
 import { StatutPill } from "../StatutPill";
+import { BackLink } from "@/components/BackLink";
 
 function resumeScores(version: VersionIdee): string {
   const parties = AXES.flatMap((axe) => {
@@ -148,9 +136,7 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <TransitionLink href="/opinions" className={`${linkButton} self-start`}>
-          ‹ Opinions
-        </TransitionLink>
+        <BackLink href="/opinions">Opinions</BackLink>
         <div className="flex items-center justify-between gap-3">
           <h1 className={screenTitle}>Idée</h1>
           <StatutPill statut={statut} />
