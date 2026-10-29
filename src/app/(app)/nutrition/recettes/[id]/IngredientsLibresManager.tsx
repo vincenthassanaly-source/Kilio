@@ -8,7 +8,16 @@ import {
   type IngredientLibreFormState,
 } from "@/app/actions/recette-ingredients-libres";
 import type { Tables } from "@/lib/supabase/types";
-import { cardTight, dangerButton, errorText, ghostButton, input, nameText, primaryButton } from "@/lib/ui";
+import {
+  actionsLigne,
+  cardTight,
+  dangerButton,
+  errorText,
+  ghostButton,
+  input,
+  nameTextComplet,
+  primaryButton,
+} from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 
 type IngredientLibreRow = Tables<"recette_ingredients_libres">;
@@ -27,8 +36,8 @@ function IngredientLibreLine({
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <li className={`${cardTight} flex items-center justify-between gap-3`}>
-      <div className="min-w-0 flex-1">
+    <li className={`${cardTight} flex flex-col gap-2`}>
+      <div className="min-w-0">
         {editing ? (
           <div className="flex flex-col gap-2">
             <input
@@ -47,13 +56,13 @@ function IngredientLibreLine({
           </div>
         ) : (
           <>
-            <p className={nameText}>{ingredient.nom}</p>
+            <p className={nameTextComplet}>{ingredient.nom}</p>
             {ingredient.quantite && <p className="text-xs text-ink-2">{ingredient.quantite}</p>}
           </>
         )}
         {error && <p className={errorText}>{error}</p>}
       </div>
-      <div className="flex shrink-0 gap-2">
+      <div className={actionsLigne}>
         {editing ? (
           <>
             <button

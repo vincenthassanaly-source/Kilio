@@ -13,6 +13,7 @@ import type { ActionResult } from "@/lib/actions/result";
 import { confirmDelete } from "@/lib/confirm";
 import { CATEGORIE_MAX } from "@/lib/documents/tri";
 import {
+  actionsLigne,
   card,
   dangerButton,
   errorText,
@@ -20,7 +21,7 @@ import {
   input,
   listCard,
   metaText,
-  nameText,
+  nameTextComplet,
   primaryButton,
 } from "@/lib/ui";
 
@@ -195,14 +196,14 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
 
   return (
     <li className={`${listCard} gap-2`}>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2">
         <div className="flex min-w-0 flex-col">
           {/* L'état local (déjà enregistré côté serveur), pas la prop : même
               raison que EtiquetteRow (CLICK-PATH-702). */}
-          <p className={nameText}>{nom}</p>
+          <p className={nameTextComplet}>{nom}</p>
           <span className={metaText}>{libelleNombre(categorie.nb)}</span>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className={actionsLigne}>
           <button type="button" onClick={() => setMode("renommer")} className={ghostButton}>
             Modifier
           </button>

@@ -8,7 +8,16 @@ import {
   type IngredientFormState,
 } from "@/app/actions/recette-ingredients";
 import type { Tables } from "@/lib/supabase/types";
-import { cardTight, dangerButton, errorText, ghostButton, input, nameText, primaryButton } from "@/lib/ui";
+import {
+  actionsLigne,
+  cardTight,
+  dangerButton,
+  errorText,
+  ghostButton,
+  input,
+  nameTextComplet,
+  primaryButton,
+} from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 
 const UNITE_LABEL: Record<string, string> = { g: "g", ml: "ml", piece: "pièce" };
@@ -30,9 +39,9 @@ function IngredientLine({
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <li className={`${cardTight} flex items-center justify-between gap-3`}>
+    <li className={`${cardTight} flex flex-col gap-2`}>
       <div className="min-w-0">
-        <p className={nameText}>{ingredient.aliment.nom}</p>
+        <p className={nameTextComplet}>{ingredient.aliment.nom}</p>
         {editing ? (
           <div className="mt-1 flex items-center gap-2">
             <input
@@ -52,7 +61,7 @@ function IngredientLine({
         )}
         {error && <p className={errorText}>{error}</p>}
       </div>
-      <div className="flex shrink-0 gap-2">
+      <div className={actionsLigne}>
         {editing ? (
           <>
             <button

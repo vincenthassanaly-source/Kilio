@@ -8,7 +8,16 @@ import {
 } from "@/app/actions/documents";
 import { TYPE_CHAMPS_LABELS } from "../champs";
 import type { Tables } from "@/lib/supabase/types";
-import { dangerButton, errorText, ghostButton, input, listCard, metaText, nameText } from "@/lib/ui";
+import {
+  actionsLigne,
+  dangerButton,
+  errorText,
+  ghostButton,
+  input,
+  listCard,
+  metaText,
+  nameTextComplet,
+} from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 
 function EtiquetteRow({ etiquette }: { etiquette: Tables<"etiquettes"> }) {
@@ -94,16 +103,16 @@ function EtiquetteRow({ etiquette }: { etiquette: Tables<"etiquettes"> }) {
 
   return (
     <li className={`${listCard} gap-2`}>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex flex-col">
+      <div className="flex flex-col gap-2">
+        <div className="flex min-w-0 flex-col">
           {/* Affiche l'état local (déjà enregistré côté serveur), pas la prop
               `etiquette` : `revalidatePath` n'entraîne aucun nouveau rendu de
               cet arbre déjà monté, donc lire la prop ferait réapparaître
               l'ancien nom juste après un "Enregistrer" réussi (CLICK-PATH-702). */}
-          <p className={nameText}>{nom}</p>
+          <p className={nameTextComplet}>{nom}</p>
           <span className={metaText}>{TYPE_CHAMPS_LABELS[typeChamps]}</span>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className={actionsLigne}>
           <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
             Modifier
           </button>
