@@ -142,3 +142,27 @@ classé avec Gemini. Aucune migration : seul le drapeau `en_vrac` change
 - Pas de confirmation avant (geste sans risque) : un message propose
   « Annuler » (`remettreEnVrac.ts`), qui remet le drapeau à faux.
 - Un document retrié ne se signale jamais comme doublon de lui-même.
+
+## Correctif — « 1 document n'a pas pu être trié » avec une catégorie nouvelle (même jour)
+
+Premier tri réel avec la nouvelle consigne : Gemini a proposé « Travail » pour un
+bulletin de salaire, l'application a échoué.
+
+- **Cause** : la table `documents` avait une contrainte CHECK
+  `documents_categorie_check` qui n'acceptait que les 6 catégories d'origine.
+  `appliquerTriVrac` créait « Travail » dans `documents_categories`, puis la base
+  refusait de l'écrire sur le document. Omission de ma migration initiale : les
+  tests simulent la base et ne contiennent pas ses contraintes. La même
+  contrainte aurait bloqué le renommage et la fusion de catégories, et le
+  formulaire avec une catégorie nouvelle.
+- **Base** (appliquée via le connecteur Supabase, vérifiée en lecture, aucune
+  donnée modifiée) : `scripts/migration-documents-categorie-libre-2026-10-29.sql`
+  supprime la contrainte ; l'application valide déjà la catégorie contre la table.
+- **Code** : si l'application échoue, les catégories créées pendant l'essai et
+  restées inutilisées sont retirées (plus de catégorie orpheline) ; le message
+  d'échec donne la raison (« catégorie refusée par la base », « déjà sorti du
+  vrac ou supprimé », « erreur de la base »). Tests de régression ajoutés.
+- La catégorie « Travail » créée lors du premier essai reste valide et sera
+  réutilisée au prochain tri.
+- **Leçon** : vérifier les contraintes et déclencheurs d'une table
+  (`pg_constraint`, `pg_trigger`) avant de changer le modèle de ses valeurs.

@@ -265,7 +265,8 @@ export async function definirDocumentEnVrac(id: string, enVrac: boolean): Promis
 // --- Application (écriture) ---
 
 export type ElementTriValide = { id: string; nom: string; categorie: string | null };
-export type ResultatApplication = { appliques: number; echecs: number };
+/** `raison` : pourquoi le premier document a échoué (null s'il n'y a aucun échec). */
+export type ResultatApplication = { appliques: number; echecs: number; raison: string | null };
 
 export async function appliquerTriVrac(elements: ElementTriValide[]): Promise<ActionResult<ResultatApplication>> {
   if (!Array.isArray(elements) || elements.length === 0) return fail("Rien à appliquer.");
@@ -297,18 +298,41 @@ export async function appliquerTriVrac(elements: ElementTriValide[]): Promise<Ac
   const toutes = [...connues, ...aCreer];
 
   let appliques = 0;
+  let raison: string | null = null;
+  const utilisees: string[] = [];
   for (const { id, nom, categorie } of valides) {
+    const categorieFinale = categorie ? (trouverCategorie(categorie, toutes) ?? categorie) : null;
     const { data, error } = await supabase
       .from("documents")
-      .update({ nom, categorie: categorie ? (trouverCategorie(categorie, toutes) ?? categorie) : null, en_vrac: false })
+      .update({ nom, categorie: categorieFinale, en_vrac: false })
       .eq("id", id)
       .eq("en_vrac", true)
       .select("id");
-    if (!error && (data?.length ?? 0) > 0) appliques += 1;
+    if (error) {
+      // 23514 = check_violation : la base refuse la valeur (ex. une contrainte
+      // sur `categorie`, qui avait bloqué le tri des catégories nouvelles).
+      console.error("appliquerTriVrac: mise à jour refusée", error);
+      raison ??= error.code === "23514" ? "catégorie refusée par la base" : "erreur de la base";
+      continue;
+    }
+    if ((data?.length ?? 0) === 0) {
+      raison ??= "déjà sorti du vrac ou supprimé";
+      continue;
+    }
+    appliques += 1;
+    if (categorieFinale) utilisees.push(categorieFinale);
+  }
+
+  // Catégories créées pendant cet essai mais finalement jamais utilisées (échec
+  // d'application) : retirées, pour ne pas laisser de catégories orphelines.
+  const inutilisees = aCreer.filter((nom) => !trouverCategorie(nom, utilisees));
+  if (inutilisees.length > 0) {
+    const { error } = await supabase.from("documents_categories").delete().in("nom", inutilisees);
+    if (error) console.error("appliquerTriVrac: catégories inutilisées non retirées", error);
   }
 
   revalidateVrac(valides.map((v) => v.id));
-  return ok({ appliques, echecs: valides.length - appliques });
+  return ok({ appliques, echecs: valides.length - appliques, raison });
 }
 
 // --- Arrivée dans le vrac (partage Android, upload direct) ---
