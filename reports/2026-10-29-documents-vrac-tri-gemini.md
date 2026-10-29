@@ -75,3 +75,22 @@ entretien (décisions ci-dessous).
   l'envoi par URL signée vers le vrai bucket (pas d'accès Supabase/Gemini
   dans cet environnement). À contrôler sur téléphone après l'application de la
   migration.
+
+## Correctif — tri figé à « 0 / 1 » (même jour)
+
+Premier essai réel : l'écran « Gemini lit tes documents… » restait à 0 / 1.
+
+- **Cause** : `analyserDocumentVrac` renvoyait `{ ok: true, proposition }`.
+  `runAction` prend toute réponse `{ ok: true, … }` pour son propre contrat
+  `ActionResult` et la renvoie telle quelle, sans `data` ; le modal lisait
+  `resultat.data.ok`, levait une `TypeError` dans une boucle async sans
+  `try/catch`, et l'écran ne bougeait plus. Seul le cas de succès cassait.
+- **Correctif** : discriminant `statut` (`"ok"` / `"echec"`) au lieu de `ok`
+  pour cette réponse ; boucle d'analyse sous `try/catch` (une erreur imprévue
+  devient une ligne « reste en vrac ») ; annulation propre à chaque exécution de
+  l'effet (le `ref` partagé relançait la première boucle en StrictMode).
+- **Pourquoi les tests ne l'avaient pas vu** : ils appelaient l'action seule,
+  jamais à travers `runAction`. Deux tests de régression passent maintenant par
+  `runAction` (`documents-vrac.test.ts`).
+- Audit `click-path-audit` du parcours : aucun autre contrat de réponse
+  incompatible (partage Android, catégories, application du tri).

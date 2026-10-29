@@ -77,37 +77,57 @@ export function TriVracModal({
   const arret = useRef(false);
 
   useEffect(() => {
-    arret.current = false;
+    // Annulation propre à CETTE exécution de l'effet : un `ref` partagé serait
+    // remis à `false` par la seconde exécution (StrictMode en développement) et
+    // ferait repartir la première boucle en parallèle.
+    let annule = false;
     const nouvelles: string[] = [];
+    const echec = (document: DocumentAvecFichiers, erreur: string): Ligne => ({
+      id: document.id,
+      document,
+      nom: document.nom,
+      categorie: null,
+      coche: false,
+      erreur,
+    });
     (async () => {
       const resultats: Ligne[] = [];
       for (const [index, document] of lot.entries()) {
-        if (arret.current) return;
-        const resultat = await runAction(() => analyserDocumentVrac(document.id, nouvelles), {
-          silencieux: true,
-        });
-        if (arret.current) return;
-        if (!resultat.ok) {
-          resultats.push({ id: document.id, document, nom: document.nom, categorie: null, coche: false, erreur: resultat.error });
-        } else if (!resultat.data.ok) {
-          resultats.push({ id: document.id, document, nom: document.nom, categorie: null, coche: false, erreur: resultat.data.erreur });
-          if (resultat.data.quota) {
-            setAvertissement("Quota Gemini atteint : les documents restants n'ont pas été analysés. Relance le tri plus tard.");
-            setAnalyses(index + 1);
-            break;
+        if (annule || arret.current) return;
+        let stop = false;
+        try {
+          const resultat = await runAction(() => analyserDocumentVrac(document.id, nouvelles), {
+            silencieux: true,
+          });
+          if (annule || arret.current) return;
+          if (!resultat.ok) {
+            resultats.push(echec(document, resultat.error));
+          } else if (resultat.data.statut === "echec") {
+            resultats.push(echec(document, resultat.data.erreur));
+            if (resultat.data.quota) {
+              setAvertissement("Quota Gemini atteint : les documents restants n'ont pas été analysés. Relance le tri plus tard.");
+              stop = true;
+            }
+          } else {
+            const { nom, categorie } = resultat.data.proposition;
+            if (categorie && !categories.includes(categorie) && !nouvelles.includes(categorie)) nouvelles.push(categorie);
+            resultats.push({ id: document.id, document, nom, categorie, coche: true, erreur: null });
           }
-        } else {
-          const { nom, categorie } = resultat.data.proposition;
-          if (categorie && !categories.includes(categorie) && !nouvelles.includes(categorie)) nouvelles.push(categorie);
-          resultats.push({ id: document.id, document, nom, categorie, coche: true, erreur: null });
+        } catch {
+          // Filet de sécurité : une erreur imprévue ne doit jamais laisser
+          // l'écran figé sur « Gemini lit tes documents… ».
+          if (annule || arret.current) return;
+          resultats.push(echec(document, "L'analyse a échoué de façon inattendue."));
         }
         setAnalyses(index + 1);
+        if (stop) break;
       }
+      if (annule || arret.current) return;
       setLignes(resultats);
       setEtape("apercu");
     })();
     return () => {
-      arret.current = true;
+      annule = true;
     };
     // Le lot est figé à l'ouverture de la fenêtre.
     // eslint-disable-next-line react-hooks/exhaustive-deps
