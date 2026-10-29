@@ -188,10 +188,14 @@ export function TriVracModal({
       setEtape("apercu");
       return;
     }
-    const { appliques, echecs } = resultat.data;
+    const { appliques, echecs, raison } = resultat.data;
     const restes = lignes.filter((l) => !l.coche || l.erreur).map((l) => l.id);
     if (restes.length > 0) onIgnores(restes);
-    if (echecs > 0) showErrorToast(`${pluriel(echecs, "document")} n'${echecs > 1 ? "ont" : "a"} pas pu être trié${echecs > 1 ? "s" : ""}.`);
+    if (echecs > 0) {
+      showErrorToast(
+        `${pluriel(echecs, "document")} n'${echecs > 1 ? "ont" : "a"} pas pu être trié${echecs > 1 ? "s" : ""}${raison ? ` (${raison})` : ""}.`
+      );
+    }
     if (appliques > 0) showToast(`${pluriel(appliques, "document")} trié${appliques > 1 ? "s" : ""}`);
     onClose();
   }

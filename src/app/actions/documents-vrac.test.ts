@@ -381,7 +381,7 @@ describe("appliquerTriVrac", () => {
       { id: ID2, nom: "Avis", categorie: "banque" },
     ]);
 
-    expect(resultat).toEqual({ ok: true, data: { appliques: 2, echecs: 0 } });
+    expect(resultat).toEqual({ ok: true, data: { appliques: 2, echecs: 0, raison: null } });
     expect(ecritures(fake.appels, "documents_categories", "insert")[0].payload).toEqual([{ nom: "Banque" }]);
     const misesAJour = ecritures(fake.appels, "documents", "update");
     expect(misesAJour[0].payload).toEqual({ nom: "Relevé bancaire", categorie: "Banque", en_vrac: false });
@@ -426,8 +426,51 @@ describe("appliquerTriVrac", () => {
 
     expect(await appliquerTriVrac([{ id: ID, nom: "Déjà trié", categorie: "Santé" }])).toEqual({
       ok: true,
-      data: { appliques: 0, echecs: 1 },
+      data: { appliques: 0, echecs: 1, raison: "déjà sorti du vrac ou supprimé" },
     });
+  });
+
+  // Régression : une contrainte CHECK de la base n'acceptait que les 6 catégories
+  // d'origine. La catégorie « Travail » était créée puis l'écriture du document
+  // refusée ; le message ne disait pas pourquoi et la catégorie restait orpheline.
+  it("explique un refus de la base et retire la catégorie créée mais inutilisée", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const fake = brancher((a) => {
+      if (a.table === "documents_categories" && a.action === "select") return { data: CATEGORIES };
+      if (a.table === "documents" && a.action === "update") {
+        return { error: { message: 'violates check constraint "documents_categorie_check"', code: "23514" } };
+      }
+      return undefined;
+    });
+
+    const resultat = await appliquerTriVrac([{ id: ID, nom: "Bulletin de salaire", categorie: "Travail" }]);
+
+    expect(resultat).toEqual({
+      ok: true,
+      data: { appliques: 0, echecs: 1, raison: "catégorie refusée par la base" },
+    });
+    const retrait = ecritures(fake.appels, "documents_categories", "delete")[0];
+    expect(retrait.filtres).toContainEqual(["in", "nom", ["Travail"]]);
+  });
+
+  it("garde une catégorie créée quand au moins un document l'utilise", async () => {
+    let miseAJour = 0;
+    const fake = brancher((a) => {
+      if (a.table === "documents_categories" && a.action === "select") return { data: CATEGORIES };
+      if (a.table === "documents" && a.action === "update") {
+        miseAJour += 1;
+        return miseAJour === 1 ? { data: [{ id: "x" }] } : { data: [] };
+      }
+      return undefined;
+    });
+
+    const resultat = await appliquerTriVrac([
+      { id: ID, nom: "Bulletin de salaire", categorie: "Travail" },
+      { id: ID2, nom: "Contrat", categorie: "Travail" },
+    ]);
+
+    expect(resultat).toMatchObject({ ok: true, data: { appliques: 1, echecs: 1 } });
+    expect(ecritures(fake.appels, "documents_categories", "delete")).toHaveLength(0);
   });
 
   it("refuse un nom vide, un identifiant invalide ou une liste vide sans rien écrire", async () => {
