@@ -44,9 +44,11 @@ function PdfIcon() {
 export function DocumentCard({
   document,
   etiquettes,
+  categories,
 }: {
   document: DocumentAvecFichiers;
   etiquettes: Tables<"etiquettes">[];
+  categories: string[];
 }) {
   const [editing, setEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -74,6 +76,7 @@ export function DocumentCard({
         <DocumentForm
           document={document}
           etiquettes={etiquettes}
+          categories={categories}
           onDone={() => setEditing(false)}
         />
         <button

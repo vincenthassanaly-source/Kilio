@@ -5,14 +5,13 @@ import { televerserPhotosPartagees } from "@/app/actions/collections";
 import { runAction } from "@/lib/actions/runAction";
 import { compresserImages, fichiersTropLourds, repartirEnLots } from "@/lib/images/compression";
 import type { TypeVideo } from "@/lib/collection/video";
+import { lireFichiersEnAttente, lireTypesEnAttente, oublierFichiersEnAttente } from "@/lib/partage/enAttente";
 import type { Tables } from "@/lib/supabase/types";
 import { errorText, secondaryButton } from "@/lib/ui";
 import { ChoisirCollectionForm } from "./ChoisirCollectionForm";
 import { DestinationPartage } from "./DestinationPartage";
+import { EnvoiVersDocuments } from "./EnvoiVersDocuments";
 import type { TexteTache } from "@/lib/partage/tache";
-
-// Même nom que dans public/sw.js.
-const CACHE_PARTAGE = "kilio-partage-en-attente";
 
 type Etat =
   | { phase: "lecture" }
@@ -20,28 +19,11 @@ type Etat =
   | { phase: "pret"; urls: string[]; avertissement: string | null }
   | { phase: "erreur"; message: string };
 
-async function lireFichiersEnAttente(id: string, nb: number): Promise<File[]> {
-  const cache = await caches.open(CACHE_PARTAGE);
-  const fichiers: File[] = [];
-  for (let i = 0; i < nb; i++) {
-    const reponse = await cache.match(`/__partage/${id}/${i}`);
-    if (!reponse) continue;
-    const blob = await reponse.blob();
-    const nom = decodeURIComponent(reponse.headers.get("X-Nom-Fichier") ?? `photo-${i + 1}.jpg`);
-    fichiers.push(new File([blob], nom, { type: blob.type || "image/jpeg" }));
-  }
-  return fichiers;
-}
-
-async function oublierFichiersEnAttente(id: string, nb: number) {
-  const cache = await caches.open(CACHE_PARTAGE);
-  await Promise.all(Array.from({ length: nb }, (_, i) => cache.delete(`/__partage/${id}/${i}`)));
-}
-
 /**
- * Choix de destination des photos mises de côté par le service worker :
- * collection (envoi par lots, ci-dessous) ou nouvelle tâche (fichiers
- * compressés puis joints au formulaire de tâche, envoyés à sa validation).
+ * Choix de destination des fichiers mis de côté par le service worker :
+ * collection (envoi par lots, ci-dessous), nouvelle tâche (fichiers
+ * compressés puis joints au formulaire de tâche, envoyés à sa validation) ou
+ * documents (envoi direct vers le stockage, en vrac à trier).
  */
 export function PhotosPartageesEnAttente({
   id,
@@ -61,11 +43,28 @@ export function PhotosPartageesEnAttente({
   video: { url: string; thumbnailUrl: string; titre: string; type: TypeVideo } | null;
 }) {
   const collectionContenu = <EnvoiVersCollection id={id} nb={nb} collections={collections} video={video} />;
+  // Un PDF (ou tout fichier qui n'est pas une image) ne peut aller que dans
+  // les documents : lu dans les en-têtes du cache, sans charger les fichiers.
+  const [contientNonImage, setContientNonImage] = useState(false);
+  useEffect(() => {
+    let annule = false;
+    lireTypesEnAttente(id, nb).then(
+      (types) => {
+        if (!annule) setContientNonImage(types.some((t) => !t.startsWith("image/")));
+      },
+      () => {}
+    );
+    return () => {
+      annule = true;
+    };
+  }, [id, nb]);
   // Un lien vidéo est réservé aux collections : pas de choix.
   if (video) return collectionContenu;
   return (
     <DestinationPartage
       collectionContenu={collectionContenu}
+      documentsContenu={<EnvoiVersDocuments id={id} nb={nb} />}
+      seulementDocuments={contientNonImage}
       obtenirFichiers={async () => compresserImages(await lireFichiersEnAttente(id, nb))}
       apresTache={() => void oublierFichiersEnAttente(id, nb).catch(() => {})}
       listes={listes}

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { recupererLienVideoPartage, uploaderPhotosPartagees } from "@/app/actions/collections";
+import { creerDocumentsVrac } from "@/app/actions/documents";
 import { extraireLienVideoDuTexte } from "@/lib/collection/video";
 import { texteTacheDepuisPartage } from "@/lib/partage/tache";
 
@@ -17,7 +18,13 @@ import { texteTacheDepuisPartage } from "@/lib/partage/tache";
 // chemin de secours (premier lancement, service worker absent).
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
-  const fichiers = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+  const recus = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+  // Les PDF (et tout fichier qui n'est pas une image) ne vont pas en
+  // collection : sans service worker, ils deviennent directement des documents
+  // « en vrac » (plafond Vercel de 4,5 Mo ici ; le chemin normal passe par
+  // l'écran de choix et un envoi direct vers le stockage).
+  const fichiers = recus.filter((f) => f.type.startsWith("image/"));
+  const autres = recus.filter((f) => !f.type.startsWith("image/"));
 
   // TikTok et YouTube envoient le lien partagé via `text` ou `url` selon les
   // versions Android, et le champ texte peut contenir d'autres mots autour du lien.
@@ -25,6 +32,13 @@ export async function POST(request: NextRequest) {
     .map((v) => (typeof v === "string" ? v : ""))
     .join(" ");
   const lienVideo = extraireLienVideoDuTexte(texteRecu);
+
+  if (autres.length > 0) {
+    await creerDocumentsVrac(autres);
+    if (fichiers.length === 0 && !lienVideo) {
+      return NextResponse.redirect(new URL("/documents?vrac=1", request.url), 303);
+    }
+  }
 
   const url = new URL("/collection/partage/choisir", request.url);
 

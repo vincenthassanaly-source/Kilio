@@ -210,6 +210,7 @@ export type Database = {
           created_at: string
           date_echeance: string | null
           derniere_alerte_envoyee_le: string | null
+          en_vrac: boolean
           etiquette_id: string | null
           id: string
           nom: string
@@ -222,6 +223,7 @@ export type Database = {
           created_at?: string
           date_echeance?: string | null
           derniere_alerte_envoyee_le?: string | null
+          en_vrac?: boolean
           etiquette_id?: string | null
           id?: string
           nom: string
@@ -234,6 +236,7 @@ export type Database = {
           created_at?: string
           date_echeance?: string | null
           derniere_alerte_envoyee_le?: string | null
+          en_vrac?: boolean
           etiquette_id?: string | null
           id?: string
           nom?: string
@@ -250,6 +253,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      documents_categories: {
+        Row: {
+          created_at: string
+          id: string
+          nom: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nom: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nom?: string
+        }
+        Relationships: []
       }
       documents_dossiers: {
         Row: {

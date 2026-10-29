@@ -11,8 +11,10 @@ const DocumentForm = dynamic(() => import("./DocumentForm").then((m) => m.Docume
 
 export function AddDocumentToggle({
   etiquettes,
+  categories,
 }: {
   etiquettes: Tables<"etiquettes">[];
+  categories: string[];
 }) {
   const [open, setOpen] = useState(false);
   useBackClose(open, () => setOpen(false));
@@ -36,7 +38,7 @@ export function AddDocumentToggle({
   return (
     <AnimatedAddCard open={open} trigger={trigger}>
       <div className={card}>
-        <DocumentForm etiquettes={etiquettes} onDone={() => setOpen(false)} />
+        <DocumentForm etiquettes={etiquettes} categories={categories} onDone={() => setOpen(false)} />
         <button type="button" onClick={() => setOpen(false)} className="mt-2 text-sm text-ink-2 underline">
           Annuler
         </button>

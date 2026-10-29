@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { detecterFormat } from "@/lib/documents/detecterFormat";
+import { CATEGORIE_MAX, CATEGORIES_PAR_DEFAUT, nomDepuisFichier } from "@/lib/documents/tri";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types";
 
@@ -13,9 +14,6 @@ export type DocumentFormState = { error: string | null };
 const DOCUMENTS_FICHIERS_BUCKET = "documents-fichiers";
 const DOCUMENT_IMAGE_MAX_DIMENSION = 1600;
 const DOCUMENT_IMAGE_JPEG_QUALITY = 75;
-
-const CATEGORIES = ["Identité", "Véhicule", "Logement", "Santé", "Assurance", "Autre"] as const;
-type DocumentCategorie = (typeof CATEGORIES)[number];
 
 function revalidateDocumentsPaths(id?: string) {
   revalidatePath("/documents");
@@ -347,7 +345,7 @@ export async function deleteEtiquette(id: string) {
 
 type DocumentInput = {
   nom: string;
-  categorie: DocumentCategorie | null;
+  categorie: string | null;
   etiquette_id: string | null;
   date_echeance: string | null;
   periode_mois: string | null;
@@ -367,21 +365,30 @@ function parseDocumentInput(formData: FormData): ParseResult {
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!nom) return { ok: false, error: "Le nom est requis." };
-  if (categorie && !CATEGORIES.includes(categorie as DocumentCategorie)) {
-    return { ok: false, error: "Catégorie invalide." };
-  }
+  if (categorie.length > CATEGORIE_MAX) return { ok: false, error: "Catégorie invalide." };
 
   return {
     ok: true,
     value: {
       nom,
-      categorie: categorie ? (categorie as DocumentCategorie) : null,
+      categorie: categorie || null,
       etiquette_id: etiquette_id || null,
       date_echeance: date_echeance || null,
       periode_mois: periode_mois_brute ? `${periode_mois_brute}-01` : null,
       notes: notes || null,
     },
   };
+}
+
+// Les catégories sont gérables (table documents_categories) : une catégorie
+// absente de la table est refusée, comme l'était une valeur hors de l'ancienne
+// liste fixe. Un seul aller-retour, seulement quand une catégorie est choisie.
+async function categorieInconnue(supabase: SupabaseClient, categorie: string | null): Promise<boolean> {
+  if (!categorie) return false;
+  const { data, error } = await supabase.from("documents_categories").select("id").eq("nom", categorie).maybeSingle();
+  // Table absente (migration pas encore appliquée) : les catégories d'origine restent valides.
+  if (error) return !(CATEGORIES_PAR_DEFAUT as readonly string[]).includes(categorie);
+  return !data;
 }
 
 /** Supprime un document (fichiers en cascade) puis ses objets Storage, au mieux. */
@@ -408,6 +415,9 @@ export async function createDocument(
   const parsed = parseDocumentInput(formData);
   if (!parsed.ok) return { error: parsed.error };
 
+  const supabase = createAdminClient();
+  if (await categorieInconnue(supabase, parsed.value.categorie)) return { error: "Catégorie invalide." };
+
   const fichiers = formData.getAll("fichiers").filter((f): f is File => f instanceof File && f.size > 0);
   const rectoOuVerso = [formData.get("fichier_recto"), formData.get("fichier_verso")].some(
     (f) => f instanceof File && f.size > 0
@@ -416,7 +426,6 @@ export async function createDocument(
     return { error: "Au moins un fichier (photo ou PDF) est requis." };
   }
 
-  const supabase = createAdminClient();
   const { data: document, error } = await supabase
     .from("documents")
     .insert(parsed.value)
@@ -449,6 +458,7 @@ export async function updateDocument(
   if (!parsed.ok) return { error: parsed.error };
 
   const supabase = createAdminClient();
+  if (await categorieInconnue(supabase, parsed.value.categorie)) return { error: "Catégorie invalide." };
 
   const { data: existant, error: fetchError } = await supabase
     .from("documents")
@@ -510,6 +520,44 @@ export async function deleteDocument(id: string) {
   // c'est un no-op, et depuis le détail, où ça ramène à la liste).
   revalidateDocumentsPaths();
   redirect("/documents");
+}
+
+// Chemin de secours du partage Android (service worker absent, voir
+// src/app/collection/partage/route.ts) : les fichiers arrivent directement
+// dans la requête, sans passer par l'écran de choix. Chaque fichier devient un
+// document « en vrac », nommé d'après le fichier, à trier plus tard. Un fichier
+// de format inconnu est ignoré ; renvoie le nombre de documents créés.
+export async function creerDocumentsVrac(fichiers: File[]): Promise<number> {
+  const supabase = createAdminClient();
+  let crees = 0;
+  for (const fichier of fichiers) {
+    let uploade: FichierUploade;
+    try {
+      uploade = await uploaderFichier(supabase, fichier);
+    } catch {
+      continue;
+    }
+    const { data: document, error } = await supabase
+      .from("documents")
+      .insert({ nom: nomDepuisFichier(fichier.name), en_vrac: true })
+      .select("id")
+      .single();
+    if (error || !document) continue;
+    const { error: fichierError } = await supabase.from("document_fichiers").insert({
+      document_id: document.id,
+      url: uploade.url,
+      fichier_type: uploade.fichier_type,
+      apercu_url: uploade.apercu_url,
+      ordre: 0,
+    });
+    if (fichierError) {
+      await retirerDocumentEtFichiers(supabase, document.id);
+      continue;
+    }
+    crees += 1;
+  }
+  if (crees > 0) revalidateDocumentsPaths();
+  return crees;
 }
 
 export type DocumentAvecFichiers = Tables<"documents"> & {

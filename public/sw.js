@@ -149,7 +149,9 @@ async function mettreDeCotePartage(request) {
             new Response(fichier, {
               headers: {
                 "Content-Type": fichier.type || "application/octet-stream",
-                "X-Nom-Fichier": encodeURIComponent(fichier.name || `photo-${i + 1}.jpg`),
+                "X-Nom-Fichier": encodeURIComponent(
+                  fichier.name || (fichier.type === "application/pdf" ? `document-${i + 1}.pdf` : `photo-${i + 1}.jpg`)
+                ),
               },
             })
           )
