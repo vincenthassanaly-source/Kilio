@@ -7,7 +7,7 @@ import type { DocumentAvecFichiers } from "@/app/actions/documents";
 import { Modal } from "@/components/Modal";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
-import { CATEGORIE_MAX, NOM_MAX } from "@/lib/documents/tri";
+import { CATEGORIE_MAX, NOM_MAX, cleTitre, type DoublonDetecte } from "@/lib/documents/tri";
 import { errorText, input, primaryButton, secondaryButton } from "@/lib/ui";
 
 type Ligne = {
@@ -19,6 +19,8 @@ type Ligne = {
   coche: boolean;
   /** Analyse impossible : le document reste en vrac. */
   erreur: string | null;
+  /** Même fichier ou même titre qu'un document existant : décoché par défaut. */
+  doublon: DoublonDetecte | null;
 };
 
 type Etape = "analyse" | "apercu" | "application";
@@ -89,6 +91,7 @@ export function TriVracModal({
       categorie: null,
       coche: false,
       erreur,
+      doublon: null,
     });
     (async () => {
       const resultats: Ligne[] = [];
@@ -110,8 +113,10 @@ export function TriVracModal({
             }
           } else {
             const { nom, categorie } = resultat.data.proposition;
+            const { doublon } = resultat.data;
             if (categorie && !categories.includes(categorie) && !nouvelles.includes(categorie)) nouvelles.push(categorie);
-            resultats.push({ id: document.id, document, nom, categorie, coche: true, erreur: null });
+            // Un doublon est décoché : il reste en vrac tant que tu ne le coches pas.
+            resultats.push({ id: document.id, document, nom, categorie, coche: doublon === null, erreur: null, doublon });
           }
         } catch {
           // Filet de sécurité : une erreur imprévue ne doit jamais laisser
@@ -123,6 +128,21 @@ export function TriVracModal({
         if (stop) break;
       }
       if (annule || arret.current) return;
+      // Deux documents du même lot qui reçoivent le même titre : le second est
+      // un doublon probable du premier (les titres du lot ne sont pas encore
+      // en base, le serveur ne peut pas les comparer).
+      const titresVus = new Map<string, Ligne>();
+      for (const ligne of resultats) {
+        if (ligne.erreur) continue;
+        const cle = cleTitre(ligne.nom);
+        const premiere = cle ? titresVus.get(cle) : undefined;
+        if (premiere && !ligne.doublon) {
+          ligne.doublon = { type: "titre", documentId: premiere.id, nom: premiere.nom };
+          ligne.coche = false;
+        } else if (cle && !premiere) {
+          titresVus.set(cle, ligne);
+        }
+      }
       setLignes(resultats);
       setEtape("apercu");
     })();
@@ -267,6 +287,24 @@ export function TriVracModal({
                   </p>
                 ) : (
                   <div className="flex flex-col gap-2">
+                    {ligne.doublon && (
+                      <p className="rounded-xl bg-surface-alt px-3 py-2 text-[13px] text-ink">
+                        <span aria-hidden="true">⚠ </span>
+                        <span className="font-semibold">
+                          {ligne.doublon.type === "fichier" ? "Même fichier que" : "Titre identique à"}
+                        </span>{" "}
+                        « {ligne.doublon.nom} »{ligne.doublon.type === "titre" ? " : doublon probable" : ""}.{" "}
+                        {ligne.coche ? "" : "Décoché : il reste en vrac. "}
+                        <a
+                          href={`/documents/${ligne.doublon.documentId}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-semibold text-ink underline"
+                        >
+                          Ouvrir l&apos;existant
+                        </a>
+                      </p>
+                    )}
                     <input
                       value={ligne.nom}
                       maxLength={NOM_MAX}

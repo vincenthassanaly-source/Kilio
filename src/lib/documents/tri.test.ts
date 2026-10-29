@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   NOM_MAX,
+  cleTitre,
   construirePromptTri,
   lireReponseTri,
   nomDepuisFichier,
   trouverCategorie,
+  trouverDoublonParTitre,
 } from "./tri";
 
 const CATEGORIES = ["Identité", "Véhicule", "Logement", "Santé", "Assurance", "Autre"];
@@ -18,6 +20,38 @@ describe("trouverCategorie", () => {
   it("rend null pour une catégorie inconnue ou vide", () => {
     expect(trouverCategorie("Banque", CATEGORIES)).toBeNull();
     expect(trouverCategorie("  ", CATEGORIES)).toBeNull();
+  });
+});
+
+describe("cleTitre", () => {
+  it("ignore la casse, les accents et la ponctuation", () => {
+    expect(cleTitre("Carte d'identité - Vincent")).toBe(cleTitre("carte d identite  VINCENT"));
+    expect(cleTitre("Facture EDF – mars 2026")).toBe("facture edf mars 2026");
+  });
+
+  it("distingue deux titres réellement différents", () => {
+    expect(cleTitre("Fiche de paie - mars 2026")).not.toBe(cleTitre("Fiche de paie - avril 2026"));
+  });
+});
+
+describe("trouverDoublonParTitre", () => {
+  const EXISTANTS = [
+    { id: "D1", nom: "Facture EDF - mars 2026" },
+    { id: "D2", nom: "Carte d'identité - Vincent" },
+  ];
+
+  it("repère un titre identique malgré la casse et la ponctuation", () => {
+    expect(trouverDoublonParTitre("carte d identite vincent", EXISTANTS)).toEqual({
+      type: "titre",
+      documentId: "D2",
+      nom: "Carte d'identité - Vincent",
+    });
+  });
+
+  it("ne signale rien pour un titre différent ou vide", () => {
+    expect(trouverDoublonParTitre("Facture EDF - avril 2026", EXISTANTS)).toBeNull();
+    expect(trouverDoublonParTitre("   ", EXISTANTS)).toBeNull();
+    expect(trouverDoublonParTitre("Facture EDF - mars 2026", [])).toBeNull();
   });
 });
 
@@ -40,6 +74,21 @@ describe("construirePromptTri", () => {
     const prompt = construirePromptTri(CATEGORIES, "scan0042");
     expect(prompt).toContain("« Santé »");
     expect(prompt).toContain("scan0042");
+  });
+
+  it("demande de créer une catégorie large quand aucune ne convient franchement", () => {
+    const prompt = construirePromptTri(CATEGORIES, "scan");
+    expect(prompt).toContain("CRÉE une nouvelle catégorie");
+    expect(prompt).toContain("un ou deux mots");
+    // Catégorie large, pas un type de document.
+    expect(prompt).toContain("pas « Fiche de paie »");
+  });
+
+  it("réserve « Autre » au dernier recours", () => {
+    const prompt = construirePromptTri(CATEGORIES, "scan");
+    expect(prompt).toContain("« Autre » est un dernier recours");
+    expect(prompt).toContain("illisible ou impossible à classer");
+    expect(prompt).not.toContain("même approximativement");
   });
 });
 

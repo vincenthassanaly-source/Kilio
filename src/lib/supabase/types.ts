@@ -168,6 +168,7 @@ export type Database = {
           apercu_url: string | null
           created_at: string
           document_id: string
+          empreinte: string | null
           fichier_type: string
           id: string
           ordre: number
@@ -178,6 +179,7 @@ export type Database = {
           apercu_url?: string | null
           created_at?: string
           document_id: string
+          empreinte?: string | null
           fichier_type: string
           id?: string
           ordre?: number
@@ -188,6 +190,7 @@ export type Database = {
           apercu_url?: string | null
           created_at?: string
           document_id?: string
+          empreinte?: string | null
           fichier_type?: string
           id?: string
           ordre?: number

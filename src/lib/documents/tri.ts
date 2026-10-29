@@ -41,6 +41,28 @@ export function nettoyerTexte(valeur: unknown): string {
   return typeof valeur === "string" ? valeur.replace(/\s+/g, " ").trim() : "";
 }
 
+/**
+ * Doublon repéré pendant le tri : le même fichier (octet pour octet, certain)
+ * ou un titre identique à celui d'un document existant (probable).
+ */
+export type DoublonDetecte = { type: "fichier" | "titre"; documentId: string; nom: string };
+
+/** Clé de comparaison de deux titres : casse, accents et ponctuation ignorés. */
+export function cleTitre(nom: string): string {
+  return normalizeSearch(nom).replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+/** Premier document de `existants` portant le même titre que `nom`, ou null. */
+export function trouverDoublonParTitre(
+  nom: string,
+  existants: readonly { id: string; nom: string }[]
+): DoublonDetecte | null {
+  const cle = cleTitre(nom);
+  if (!cle) return null;
+  const trouve = existants.find((document) => cleTitre(document.nom) === cle);
+  return trouve ? { type: "titre", documentId: trouve.id, nom: trouve.nom } : null;
+}
+
 /** Catégorie de la liste équivalente à `nom` (casse et accents ignorés), ou null. */
 export function trouverCategorie(nom: string, categories: readonly string[]): string | null {
   const cle = normalizeSearch(nom);
@@ -65,8 +87,9 @@ export function construirePromptTri(categories: readonly string[], nomActuel: st
     "",
     "Réponds avec :",
     "- nom : un titre descriptif court (60 caractères maximum) qui dit ce qu'est le document, en général type + émetteur + période ou personne si utile. Exemples : « Facture EDF - mars 2026 », « Carte d'identité - Vincent », « Attestation mutuelle 2026 ». Pas d'extension, pas de guillemets, pas de numéro de dossier ni de référence interminable.",
-    `- categorie : UNE catégorie, de préférence choisie telle quelle dans cette liste : ${categories.map((c) => `« ${c} »`).join(", ")}.`,
-    "  Réutilise toujours une catégorie de la liste quand elle convient, même approximativement. N'en invente une nouvelle (un ou deux mots, au singulier, commençant par une majuscule) que si aucune de la liste ne peut raisonnablement convenir. Si le document est illisible ou ambigu, choisis « Autre » s'il est dans la liste.",
+    `- categorie : UNE catégorie. Choisis-la telle quelle dans cette liste si l'une correspond franchement au document : ${categories.map((c) => `« ${c} »`).join(", ")}.`,
+    "  Si aucune ne correspond franchement, CRÉE une nouvelle catégorie : un ou deux mots, large, commençant par une majuscule, qui peut regrouper plusieurs types de documents (ex. « Travail », « Banque », « Impôts », « Scolarité », « Voyage »). Ce n'est pas un type de document : écris « Travail », pas « Fiche de paie ». Une catégorie qui a le même sens qu'une catégorie de la liste doit réutiliser celle de la liste, pas en créer une voisine.",
+    "  « Autre » est un dernier recours : seulement si le document est illisible ou impossible à classer. Ne l'utilise jamais simplement parce qu'aucune catégorie de la liste ne convient exactement : crée alors une catégorie.",
   ].join("\n");
 }
 

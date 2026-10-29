@@ -94,3 +94,36 @@ Premier essai réel : l'écran « Gemini lit tes documents… » restait à 0 / 
   `runAction` (`documents-vrac.test.ts`).
 - Audit `click-path-audit` du parcours : aucun autre contrat de réponse
   incompatible (partage Android, catégories, application du tri).
+
+## Évolution — création de catégories et détection des doublons (même jour)
+
+**Catégories.** Les 6 catégories d'origine n'avaient jamais été complétées : la
+consigne demandait de réutiliser une existante « même approximativement » et de
+choisir « Autre » en cas de doute, donc Gemini ne créait rien. Nouvelle
+consigne (`construirePromptTri`) : choisir dans la liste si une catégorie
+correspond franchement, sinon **créer** une catégorie large (1 ou 2 mots :
+« Travail », « Banque »…, pas un type de document) ; « Autre » en dernier
+recours seulement (illisible ou impossible à classer). Pas de plafond ; les
+nouvelles catégories restent signalées « (nouvelle) » dans l'aperçu.
+
+**Doublons** (`scripts/migration-documents-empreinte-2026-10-29.sql`, colonne
+nullable `document_fichiers.empreinte`) :
+
+- *Même fichier* (certain) : empreinte SHA-256, calculée par
+  `analyserDocumentVrac` quand le tri télécharge déjà le fichier pour Gemini et
+  mémorisée. Comparée aux fichiers de tous les autres documents, classés ou
+  déjà analysés dans le vrac. Les fichiers classés sans empreinte sont
+  complétés au fil des tris (15 au plus par analyse). Un doublon exact saute
+  l'appel à Gemini (la proposition reprend le nom et la catégorie de l'original).
+- *Même titre* (probable) : le titre proposé par Gemini est comparé (casse,
+  accents et ponctuation ignorés) aux titres des documents classés, et dans
+  l'aperçu, entre documents du même lot.
+- Dans l'aperçu : message « Même fichier que… » / « Titre identique à… », lien
+  « Ouvrir l'existant », case **décochée par défaut** (le document reste en vrac,
+  rien n'est supprimé sans action de ta part).
+- Les fichiers du vrac pas encore analysés ne sont pas complétés : le premier
+  analysé d'un lot de copies reste l'original, les suivants sont signalés.
+- Sans la migration, le tri fonctionne comme avant et ne détecte que par titre.
+- Limite : une photo ajoutée par le formulaire (compression serveur) puis
+  partagée depuis le téléphone (compression navigateur) n'a pas les mêmes
+  octets ; seul le titre peut la repérer.

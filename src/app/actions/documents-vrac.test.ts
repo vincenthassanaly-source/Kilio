@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { runAction } from "@/lib/actions/runAction";
 import { ecritures, fauxSupabase, type Repondre } from "@/test/fake-supabase";
@@ -43,10 +44,25 @@ function documentEnVrac(extra: Record<string, unknown> = {}) {
   };
 }
 
-function reponseLecture(document: unknown): Repondre {
+type Extras = {
+  /** Documents classés (comparaison des titres). */
+  classes?: { id: string; nom: string }[];
+  /** Fichiers des autres documents (comparaison des empreintes) ; `erreur` simule la colonne absente. */
+  fichiers?: unknown[] | { erreur: string };
+};
+
+function reponseLecture(document: unknown, extras: Extras = {}): Repondre {
   return (a) => {
-    if (a.table === "documents" && a.action === "select") return { data: document };
+    // Le document analysé se lit avec `.maybeSingle()` ; la liste des documents classés, sans.
+    if (a.table === "documents" && a.action === "select") {
+      return a.terminal === "maybeSingle" ? { data: document } : { data: extras.classes ?? [] };
+    }
     if (a.table === "documents_categories") return { data: CATEGORIES };
+    if (a.table === "document_fichiers" && a.action === "select") {
+      const fichiers = extras.fichiers;
+      if (fichiers && !Array.isArray(fichiers)) return { error: { message: fichiers.erreur } };
+      return { data: fichiers ?? [] };
+    }
     return undefined;
   };
 }
@@ -83,6 +99,7 @@ describe("analyserDocumentVrac", () => {
     expect(resultat).toEqual({
       statut: "ok",
       proposition: { nom: "Facture EDF - mars 2026", categorie: "Logement", nouvelleCategorie: false },
+      doublon: null,
     });
     const appel = etat.gemini.mock.calls[0][0];
     expect(appel.images).toEqual([
@@ -155,6 +172,120 @@ describe("analyserDocumentVrac", () => {
   });
 });
 
+describe("analyserDocumentVrac : doublons", () => {
+  const OCTETS = "%PDF-1.4 contenu identique";
+  const EMPREINTE = createHash("sha256").update(OCTETS).digest("hex");
+  const ORIGINAL = { nom: "Facture EDF - mars 2026", categorie: "Logement", en_vrac: false };
+  const fichierExistant = (extra: Record<string, unknown> = {}) => ({
+    id: "F9",
+    url: "https://stockage.test/documents-fichiers/original.pdf",
+    empreinte: EMPREINTE,
+    document_id: ID2,
+    documents: ORIGINAL,
+    ...extra,
+  });
+
+  it("mémorise l'empreinte SHA-256 du fichier analysé", async () => {
+    const fake = brancher(reponseLecture(documentEnVrac({ document_fichiers: [{ id: "F1", url: "https://stockage.test/a.pdf", fichier_type: "pdf", ordre: 0 }] })));
+    fichierTelecharge(OCTETS);
+    etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "Contrat", categorie: "Autre" } });
+
+    await analyserDocumentVrac(ID);
+
+    const ecriture = ecritures(fake.appels, "document_fichiers", "update")[0];
+    expect(ecriture.payload).toEqual({ empreinte: EMPREINTE });
+    expect(ecriture.filtres).toContainEqual(["eq", "id", "F1"]);
+  });
+
+  it("signale le même fichier qu'un document existant, sans appeler Gemini", async () => {
+    brancher(reponseLecture(documentEnVrac(), { fichiers: [fichierExistant()] }));
+    fichierTelecharge(OCTETS);
+
+    const resultat = await analyserDocumentVrac(ID);
+
+    expect(resultat).toEqual({
+      statut: "ok",
+      proposition: { nom: "Facture EDF - mars 2026", categorie: "Logement", nouvelleCategorie: false },
+      doublon: { type: "fichier", documentId: ID2, nom: "Facture EDF - mars 2026" },
+    });
+    expect(etat.gemini).not.toHaveBeenCalled();
+  });
+
+  it("complète l'empreinte d'un document classé qui n'en a pas, puis compare", async () => {
+    const fake = brancher(reponseLecture(documentEnVrac(), { fichiers: [fichierExistant({ empreinte: null })] }));
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(() => Promise.resolve(new Response(OCTETS, { headers: { "content-type": "application/pdf" } }))));
+
+    const resultat = await analyserDocumentVrac(ID);
+
+    expect(resultat).toMatchObject({ statut: "ok", doublon: { type: "fichier", documentId: ID2 } });
+    const ecritureExistant = ecritures(fake.appels, "document_fichiers", "update").find((a) =>
+      a.filtres.some((f) => f[0] === "eq" && f[2] === "F9")
+    );
+    expect(ecritureExistant?.payload).toEqual({ empreinte: EMPREINTE });
+  });
+
+  it("ne complète pas le fichier d'un document du vrac pas encore analysé", async () => {
+    // Sinon deux copies arrivées ensemble se désigneraient l'une l'autre comme originale.
+    brancher(
+      reponseLecture(documentEnVrac(), {
+        fichiers: [fichierExistant({ empreinte: null, documents: { nom: "scan0043", categorie: null, en_vrac: true } })],
+      })
+    );
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(OCTETS, { headers: { "content-type": "application/pdf" } })));
+    vi.stubGlobal("fetch", fetchMock);
+    etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "Contrat", categorie: "Autre" } });
+
+    const resultat = await analyserDocumentVrac(ID);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1); // seulement son propre fichier
+    expect(resultat).toMatchObject({ statut: "ok", doublon: null });
+  });
+
+  it("repère une copie arrivée plus tôt dans le vrac (empreinte déjà mémorisée)", async () => {
+    brancher(
+      reponseLecture(documentEnVrac(), {
+        fichiers: [fichierExistant({ documents: { nom: "scan0043", categorie: null, en_vrac: true } })],
+      })
+    );
+    fichierTelecharge(OCTETS);
+
+    expect(await analyserDocumentVrac(ID)).toMatchObject({
+      statut: "ok",
+      doublon: { type: "fichier", documentId: ID2, nom: "scan0043" },
+    });
+  });
+
+  it("signale un titre identique à celui d'un document classé", async () => {
+    brancher(reponseLecture(documentEnVrac(), { classes: [{ id: ID2, nom: "Facture EDF – mars 2026" }] }));
+    fichierTelecharge(OCTETS);
+    etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "facture edf mars 2026", categorie: "Logement" } });
+
+    const resultat = await analyserDocumentVrac(ID);
+
+    expect(resultat).toMatchObject({
+      statut: "ok",
+      doublon: { type: "titre", documentId: ID2, nom: "Facture EDF – mars 2026" },
+    });
+    expect(etat.gemini).toHaveBeenCalledTimes(1);
+  });
+
+  it("garde une détection par titre seul quand la colonne d'empreinte n'existe pas encore", async () => {
+    brancher(
+      reponseLecture(documentEnVrac(), {
+        fichiers: { erreur: 'column "empreinte" does not exist' },
+        classes: [{ id: ID2, nom: "Contrat" }],
+      })
+    );
+    fichierTelecharge(OCTETS);
+    etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "Contrat", categorie: "Autre" } });
+
+    expect(await analyserDocumentVrac(ID)).toMatchObject({
+      statut: "ok",
+      doublon: { type: "titre", documentId: ID2 },
+    });
+  });
+});
+
 // Régression « tri bloqué à 0 / 1 » : l'action est appelée par le navigateur
 // à travers runAction, qui reconnaît `{ ok: true, data }` comme son propre
 // contrat. Une réponse `{ ok: true, proposition }` passait sans `data` et
@@ -172,6 +303,7 @@ describe("analyserDocumentVrac à travers runAction (contrat avec le navigateur)
     expect(resultat.data).toEqual({
       statut: "ok",
       proposition: { nom: "Fiche de paie - mars 2026", categorie: "Autre", nouvelleCategorie: false },
+      doublon: null,
     });
   });
 
