@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { runAction } from "@/lib/actions/runAction";
 import { ecritures, fauxSupabase, type Repondre } from "@/test/fake-supabase";
 
 const etat = vi.hoisted(() => ({
@@ -62,13 +63,13 @@ beforeEach(() => {
 describe("analyserDocumentVrac", () => {
   it("refuse un identifiant invalide sans toucher à la base", async () => {
     const fake = brancher();
-    expect(await analyserDocumentVrac("pas-un-uuid")).toEqual({ ok: false, erreur: "Document introuvable.", quota: false });
+    expect(await analyserDocumentVrac("pas-un-uuid")).toEqual({ statut: "echec", erreur: "Document introuvable.", quota: false });
     expect(fake.appels).toHaveLength(0);
   });
 
   it("refuse un document qui n'est plus en vrac", async () => {
     brancher(reponseLecture(documentEnVrac({ en_vrac: false })));
-    expect(await analyserDocumentVrac(ID)).toMatchObject({ ok: false, erreur: "Ce document n'est plus en vrac." });
+    expect(await analyserDocumentVrac(ID)).toMatchObject({ statut: "echec", erreur: "Ce document n'est plus en vrac." });
     expect(etat.gemini).not.toHaveBeenCalled();
   });
 
@@ -80,7 +81,7 @@ describe("analyserDocumentVrac", () => {
     const resultat = await analyserDocumentVrac(ID, ["Logement", "identite"]);
 
     expect(resultat).toEqual({
-      ok: true,
+      statut: "ok",
       proposition: { nom: "Facture EDF - mars 2026", categorie: "Logement", nouvelleCategorie: false },
     });
     const appel = etat.gemini.mock.calls[0][0];
@@ -100,7 +101,7 @@ describe("analyserDocumentVrac", () => {
     etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "Relevé", categorie: "Banque" } });
 
     expect(await analyserDocumentVrac(ID)).toMatchObject({
-      ok: true,
+      statut: "ok",
       proposition: { categorie: "Banque", nouvelleCategorie: true },
     });
   });
@@ -111,7 +112,7 @@ describe("analyserDocumentVrac", () => {
     etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "Carte vitale", categorie: "santé" } });
 
     expect(await analyserDocumentVrac(ID)).toMatchObject({
-      ok: true,
+      statut: "ok",
       proposition: { categorie: "Santé", nouvelleCategorie: false },
     });
   });
@@ -121,7 +122,7 @@ describe("analyserDocumentVrac", () => {
     fichierTelecharge("%PDF-1.4");
     etat.gemini.mockResolvedValue({ ok: false, code: "quota", detail: "429" });
 
-    expect(await analyserDocumentVrac(ID)).toEqual({ ok: false, erreur: "Quota atteint.", quota: true });
+    expect(await analyserDocumentVrac(ID)).toEqual({ statut: "echec", erreur: "Quota atteint.", quota: true });
   });
 
   it("rapporte un échec Gemini sans le faire passer pour un quota", async () => {
@@ -130,8 +131,8 @@ describe("analyserDocumentVrac", () => {
     etat.gemini.mockResolvedValue({ ok: false, code: "echec", detail: "Délai dépassé" });
 
     const resultat = await analyserDocumentVrac(ID);
-    expect(resultat).toMatchObject({ ok: false, quota: false });
-    expect(resultat.ok === false && resultat.erreur).toContain("Délai dépassé");
+    expect(resultat).toMatchObject({ statut: "echec", quota: false });
+    expect(resultat.statut === "echec" && resultat.erreur).toContain("Délai dépassé");
   });
 
   it("laisse en vrac un fichier trop volumineux, sans appeler Gemini", async () => {
@@ -139,7 +140,7 @@ describe("analyserDocumentVrac", () => {
     fichierTelecharge("%PDF-1.4", { "content-type": "application/pdf", "content-length": String(30 * 1024 * 1024) });
 
     expect(await analyserDocumentVrac(ID)).toMatchObject({
-      ok: false,
+      statut: "echec",
       erreur: "Trop volumineux pour l'analyse : classe-le à la main.",
     });
     expect(etat.gemini).not.toHaveBeenCalled();
@@ -149,8 +150,40 @@ describe("analyserDocumentVrac", () => {
     brancher(reponseLecture(documentEnVrac()));
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 404 })));
 
-    expect(await analyserDocumentVrac(ID)).toMatchObject({ ok: false });
+    expect(await analyserDocumentVrac(ID)).toMatchObject({ statut: "echec" });
     expect(etat.gemini).not.toHaveBeenCalled();
+  });
+});
+
+// Régression « tri bloqué à 0 / 1 » : l'action est appelée par le navigateur
+// à travers runAction, qui reconnaît `{ ok: true, data }` comme son propre
+// contrat. Une réponse `{ ok: true, proposition }` passait sans `data` et
+// faisait planter le modal. On teste donc le passage par runAction, pas
+// seulement l'action seule.
+describe("analyserDocumentVrac à travers runAction (contrat avec le navigateur)", () => {
+  it("livre la proposition dans `data`, lisible par le modal", async () => {
+    brancher(reponseLecture(documentEnVrac()));
+    fichierTelecharge("%PDF-1.4");
+    etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "Fiche de paie - mars 2026", categorie: "Autre" } });
+
+    const resultat = await runAction(() => analyserDocumentVrac(ID), { silencieux: true });
+
+    expect(resultat.ok).toBe(true);
+    expect(resultat.data).toEqual({
+      statut: "ok",
+      proposition: { nom: "Fiche de paie - mars 2026", categorie: "Autre", nouvelleCategorie: false },
+    });
+  });
+
+  it("livre un échec d'analyse dans `data`, avec son message et le drapeau quota", async () => {
+    brancher(reponseLecture(documentEnVrac()));
+    fichierTelecharge("%PDF-1.4");
+    etat.gemini.mockResolvedValue({ ok: false, code: "quota", detail: "429" });
+
+    const resultat = await runAction(() => analyserDocumentVrac(ID), { silencieux: true });
+
+    expect(resultat.ok).toBe(true);
+    expect(resultat.data).toEqual({ statut: "echec", erreur: "Quota atteint.", quota: true });
   });
 });
 

@@ -39,12 +39,17 @@ function revalidateVrac(ids: string[] = []) {
 
 // --- Analyse (lecture seule) ---
 
+// Discriminant `statut` et non `ok` : l'action est appelée à travers
+// `runAction` (src/lib/actions/runAction.ts), qui prend toute réponse
+// `{ ok: true, … }` pour son propre contrat `ActionResult` et la renvoie telle
+// quelle, sans `data`. Avec `ok`, le modal de tri lisait `data` indéfini et
+// restait figé à « 0 / 1 ».
 export type ResultatAnalyse =
-  | { ok: true; proposition: PropositionTri }
-  | { ok: false; erreur: string; quota: boolean };
+  | { statut: "ok"; proposition: PropositionTri }
+  | { statut: "echec"; erreur: string; quota: boolean };
 
 function echecAnalyse(erreur: string, quota = false): ResultatAnalyse {
-  return { ok: false, erreur, quota };
+  return { statut: "echec", erreur, quota };
 }
 
 type EntreeFichier = { url: string; fichier_type: string };
@@ -112,7 +117,7 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
       ? echecAnalyse(MESSAGE_QUOTA_GEMINI, true)
       : echecAnalyse(`Gemini n'a pas pu lire ce document (${resultat.detail})`);
   }
-  return { ok: true, proposition: lireReponseTri(resultat.brut, categories, document.nom) };
+  return { statut: "ok", proposition: lireReponseTri(resultat.brut, categories, document.nom) };
 }
 
 // --- Application (écriture) ---
