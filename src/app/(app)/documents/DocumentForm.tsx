@@ -9,6 +9,7 @@ import {
   type DocumentAvecFichiers,
   type DocumentFormState,
 } from "@/app/actions/documents";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import type { Tables } from "@/lib/supabase/types";
 import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
@@ -99,8 +100,8 @@ function FichierThumb({
   );
 }
 
-// Un emplacement de fichier dédié (Recto ou Verso), pour les étiquettes de
-// type "recto_verso". L'input file reste toujours monté (avec son `name`)
+// Un emplacement de fichier dédié (Recto ou Verso), pour le mode
+// « Recto / verso ». L'input file reste toujours monté (avec son `name`)
 // pour faire partie du FormData soumis, seul son affichage change selon
 // qu'un fichier existant, une sélection locale en attente, ou rien n'est
 // présent.
@@ -169,14 +170,14 @@ function RectoVersoSlot({
   );
 }
 
+type ModeFichiers = "document" | "recto_verso";
+
 export function DocumentForm({
   document,
-  etiquettes,
   categories,
   onDone,
 }: {
   document?: DocumentAvecFichiers;
-  etiquettes: Tables<"etiquettes">[];
   /** Noms des catégories (table documents_categories). */
   categories: string[];
   onDone?: () => void;
@@ -220,8 +221,12 @@ export function DocumentForm({
   const prevPending = useRef(pending);
   const erreurRef = useRef<HTMLParagraphElement>(null);
 
-  const [etiquetteId, setEtiquetteId] = useState(document?.etiquette?.id ?? "");
-  const typeChamps = etiquettes.find((e) => e.id === etiquetteId)?.type_champs ?? "standard";
+  // « Document » : plusieurs fichiers libres ; « Recto / verso » : deux
+  // emplacements dédiés (carte d'identité…). Présélectionné quand le document a
+  // déjà des fichiers recto/verso.
+  const [modeFichiers, setModeFichiers] = useState<ModeFichiers>(
+    document?.fichiers.some((f) => f.role === "recto" || f.role === "verso") ? "recto_verso" : "document"
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -288,8 +293,8 @@ export function DocumentForm({
   const fichiersVisibles = existingFichiers.filter((f) => !fichiersMasques.has(f.id));
   const existingRecto = fichiersVisibles.find((f) => f.role === "recto") ?? null;
   const existingVerso = fichiersVisibles.find((f) => f.role === "verso") ?? null;
-  // Fichiers "orphelins" d'un rôle recto/verso si l'étiquette a été changée
-  // après coup : gardés visibles (pas perdus) via la liste générique.
+  // Fichiers sans rôle recto/verso (ajoutés avant, ou en mode « Document »)
+  // dans un document passé en mode recto/verso : gardés visibles (pas perdus).
   const existingHorsRectoVerso = fichiersVisibles.filter((f) => f.role !== "recto" && f.role !== "verso");
 
   const aucunFichier =
@@ -318,74 +323,43 @@ export function DocumentForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${uid}-etiquette_id`} className={labelClass}>
-          Étiquette (optionnel)
+        <label htmlFor={`${uid}-categorie`} className={labelClass}>
+          Catégorie (optionnel)
         </label>
-        <select
-          id={`${uid}-etiquette_id`}
-          name="etiquette_id"
-          value={etiquetteId}
-          onChange={(e) => setEtiquetteId(e.target.value)}
-          className={input}
-        >
+        <select id={`${uid}-categorie`} name="categorie" defaultValue={document?.categorie ?? ""} className={input}>
           <option value="">—</option>
-          {etiquettes.map((etiquette) => (
-            <option key={etiquette.id} value={etiquette.id}>
-              {etiquette.nom}
+          {/* Catégorie actuelle d'abord si elle a disparu de la liste (fusion
+              dans un autre onglet) : l'enregistrer ne la perd pas en silence. */}
+          {(document?.categorie && !categories.includes(document.categorie)
+            ? [document.categorie, ...categories]
+            : categories
+          ).map((c) => (
+            <option key={c} value={c}>
+              {c}
             </option>
           ))}
         </select>
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <label htmlFor={`${uid}-categorie`} className={labelClass}>
-            Catégorie (optionnel)
-          </label>
-          <select id={`${uid}-categorie`} name="categorie" defaultValue={document?.categorie ?? ""} className={input}>
-            <option value="">—</option>
-            {/* Catégorie actuelle d'abord si elle a disparu de la liste (fusion
-                dans un autre onglet) : l'enregistrer ne la perd pas en silence. */}
-            {(document?.categorie && !categories.includes(document.categorie)
-              ? [document.categorie, ...categories]
-              : categories
-            ).map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <label htmlFor={`${uid}-date_echeance`} className={labelClass}>
-            Échéance (optionnel)
-          </label>
-          <input
-            id={`${uid}-date_echeance`}
-            name="date_echeance"
-            type="date"
-            defaultValue={document?.date_echeance ?? ""}
-            className={`${input} w-full min-w-0`}
-          />
-        </div>
+      <div className="flex flex-col gap-1.5">
+        <span className={labelClass}>Type de fichiers</span>
+        <SegmentedControl<ModeFichiers>
+          ariaLabel="Type de fichiers"
+          value={modeFichiers}
+          onChange={(mode) => {
+            // Les deux modes n'ont pas les mêmes champs de fichier : la sélection
+            // en attente de l'autre mode est abandonnée (son input disparaît).
+            if (mode !== modeFichiers) setSelectedFiles([]);
+            setModeFichiers(mode);
+          }}
+          options={[
+            { value: "document", label: "Document" },
+            { value: "recto_verso", label: "Recto / verso" },
+          ]}
+        />
       </div>
 
-      {typeChamps === "periode_mensuelle" && (
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-periode_mois`} className={labelClass}>
-            Mois concerné
-          </label>
-          <input
-            id={`${uid}-periode_mois`}
-            name="periode_mois"
-            type="month"
-            defaultValue={document?.periode_mois ? document.periode_mois.slice(0, 7) : ""}
-            className={input}
-          />
-        </div>
-      )}
-
-      {typeChamps === "recto_verso" ? (
+      {modeFichiers === "recto_verso" ? (
         <div className="flex flex-col gap-1">
           <span className={labelClass}>Recto / Verso</span>
           <div className="flex flex-wrap items-start gap-4">

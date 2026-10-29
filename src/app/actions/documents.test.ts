@@ -11,16 +11,12 @@ vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client })
 
 import {
   createDocument,
-  createEtiquette,
   deleteDocument,
   deleteDocumentFichier,
-  deleteEtiquette,
   enregistrerApercuPdf,
   getDocument,
   getDocuments,
-  getEtiquettes,
   updateDocument,
-  updateEtiquette,
 } from "./documents";
 
 const ID = "11111111-1111-4111-8111-111111111111";
@@ -128,9 +124,6 @@ describe("createDocument", () => {
       form({
         nom: " Assurance auto ",
         categorie: "Assurance",
-        etiquette_id: "E1",
-        date_echeance: "2027-01-31",
-        periode_mois: "2026-09",
         notes: "  contrat n°12  ",
         fichiers: [fichierPdf()],
       })
@@ -140,9 +133,6 @@ describe("createDocument", () => {
     expect(ecritures(fake.appels, "documents", "insert")[0].payload).toEqual({
       nom: "Assurance auto",
       categorie: "Assurance",
-      etiquette_id: "E1",
-      date_echeance: "2027-01-31",
-      periode_mois: "2026-09-01",
       notes: "contrat n°12",
     });
     expect(fake.stockage).toHaveLength(1);
@@ -160,9 +150,6 @@ describe("createDocument", () => {
     expect(ecritures(fake.appels, "documents", "insert")[0].payload).toEqual({
       nom: "CNI",
       categorie: null,
-      etiquette_id: null,
-      date_echeance: null,
-      periode_mois: null,
       notes: null,
     });
   });
@@ -265,7 +252,9 @@ describe("createDocument", () => {
 });
 
 describe("updateDocument", () => {
-  const base = { id: ID, nom: "CNI", date_echeance: "2027-01-01" };
+  const base = { id: ID, nom: "CNI" };
+  // La mise à jour renvoie la ligne modifiée (`.select("id")`) : vide = document introuvable.
+  const trouve: Repondre = (a) => (a.table === "documents" && a.action === "update" ? { data: [{ id: ID }] } : undefined);
 
   it("refuse sans id ou avec un nom vide", async () => {
     brancher();
@@ -273,24 +262,41 @@ describe("updateDocument", () => {
     expect(await updateDocument({ error: null }, form({ id: ID, nom: "" }))).toEqual({ error: "Le nom est requis." });
   });
 
-  it("remet à zéro l'alerte déjà envoyée quand l'échéance change", async () => {
-    const fake = brancher((a) => (a.action === "select" ? { data: { date_echeance: "2026-12-01" } } : undefined));
-    expect(await updateDocument({ error: null }, form(base))).toEqual({ error: null });
-    expect(ecritures(fake.appels, "documents", "update")[0].payload).toMatchObject({
-      date_echeance: "2027-01-01",
-      derniere_alerte_envoyee_le: null,
+  it("met à jour le nom, la catégorie et les notes, et revalide la page du document", async () => {
+    const fake = brancher((a) => {
+      if (a.table === "documents_categories") return { data: { id: "C1" } };
+      return trouve(a);
+    });
+    const res = await updateDocument(
+      { error: null },
+      form({ ...base, nom: " Carte d'identité ", categorie: "Identité", notes: " recto-verso " })
+    );
+    expect(res).toEqual({ error: null });
+    expect(ecritures(fake.appels, "documents", "update")[0].payload).toEqual({
+      nom: "Carte d'identité",
+      categorie: "Identité",
+      notes: "recto-verso",
     });
     expect(etat.revalidatePath).toHaveBeenCalledWith(`/documents/${ID}`);
   });
 
-  it("conserve l'alerte quand l'échéance est inchangée", async () => {
-    const fake = brancher((a) => (a.action === "select" ? { data: { date_echeance: "2027-01-01" } } : undefined));
-    await updateDocument({ error: null }, form(base));
-    expect(ecritures(fake.appels, "documents", "update")[0].payload).not.toHaveProperty("derniere_alerte_envoyee_le");
+  it("ne touche plus à l'étiquette, à l'échéance ni au mois concerné", async () => {
+    const fake = brancher(trouve);
+    await updateDocument(
+      { error: null },
+      form({ ...base, etiquette_id: "E1", date_echeance: "2027-01-01", periode_mois: "2026-09" })
+    );
+    const payload = ecritures(fake.appels, "documents", "update")[0].payload as Record<string, unknown>;
+    expect(Object.keys(payload).sort()).toEqual(["categorie", "nom", "notes"]);
+  });
+
+  it("signale un document introuvable", async () => {
+    brancher((a) => (a.table === "documents" && a.action === "update" ? { data: [] } : undefined));
+    expect(await updateDocument({ error: null }, form(base))).toEqual({ error: "Document introuvable." });
   });
 
   it("ajoute de nouveaux fichiers sans en exiger en édition", async () => {
-    const fake = brancher((a) => (a.action === "select" ? { data: { date_echeance: "2027-01-01" } } : undefined));
+    const fake = brancher(trouve);
     await updateDocument({ error: null }, form(base));
     expect(fake.stockage).toHaveLength(0);
 
@@ -298,16 +304,11 @@ describe("updateDocument", () => {
     expect(fake.stockage).toHaveLength(1);
   });
 
-  it("renvoie l'erreur de lecture, de mise à jour et d'envoi", async () => {
-    brancher((a) => (a.action === "select" ? { error: { message: "lecture ko" } } : undefined));
-    expect(await updateDocument({ error: null }, form(base))).toEqual({ error: "lecture ko" });
-
-    brancher((a) => (a.action === "select" ? { data: { date_echeance: null } } : { error: { message: "maj ko" } }));
+  it("renvoie l'erreur de mise à jour et d'envoi", async () => {
+    brancher((a) => (a.action === "update" ? { error: { message: "maj ko" } } : undefined));
     expect(await updateDocument({ error: null }, form(base))).toEqual({ error: "maj ko" });
 
-    brancher((a) => (a.action === "select" && a.table === "documents" ? { data: { date_echeance: null } } : undefined), () => ({
-      error: { message: "envoi ko" },
-    }));
+    brancher(trouve, () => ({ error: { message: "envoi ko" } }));
     expect(await updateDocument({ error: null }, form({ ...base, fichiers: fichierPdf() }))).toEqual({ error: "envoi ko" });
   });
 });
@@ -426,85 +427,31 @@ describe("enregistrerApercuPdf", () => {
   });
 });
 
-describe("étiquettes", () => {
-  it("createEtiquette valide le nom et le type de champs", async () => {
-    const fake = brancher();
-    expect(await createEtiquette({ error: null }, form({ nom: " " }))).toEqual({ error: "Le nom est requis." });
-    expect(await createEtiquette({ error: null }, form({ nom: "Permis", type_champs: "inconnu" }))).toEqual({
-      error: "Type de champs invalide.",
-    });
-    expect(fake.appels).toHaveLength(0);
-  });
-
-  it("createEtiquette crée avec le type standard par défaut et revalide", async () => {
-    const fake = brancher();
-    expect(await createEtiquette({ error: null }, form({ nom: " Permis " }))).toEqual({ error: null });
-    expect(ecritures(fake.appels, "etiquettes", "insert")[0].payload).toEqual({ nom: "Permis", type_champs: "standard" });
-    expect(etat.revalidatePath).toHaveBeenCalledWith("/documents/etiquettes");
-
-    await createEtiquette({ error: null }, form({ nom: "CNI", type_champs: "recto_verso" }));
-    expect(ecritures(fake.appels, "etiquettes", "insert")[1].payload).toMatchObject({ type_champs: "recto_verso" });
-  });
-
-  it("createEtiquette renvoie l'erreur Supabase", async () => {
-    brancher(() => ({ error: { message: "ko" } }));
-    expect(await createEtiquette({ error: null }, form({ nom: "x" }))).toEqual({ error: "ko" });
-  });
-
-  it("updateEtiquette valide, met à jour et lève sur erreur", async () => {
-    const fake = brancher();
-    await expect(updateEtiquette(ID, " ", "standard")).rejects.toThrow("Le nom est requis.");
-    await expect(updateEtiquette(ID, "x", "autre" as never)).rejects.toThrow("Type de champs invalide.");
-    expect(fake.appels).toHaveLength(0);
-
-    await updateEtiquette(ID, " Fiche de paie ", "periode_mensuelle");
-    expect(ecritures(fake.appels, "etiquettes", "update")[0].payload).toEqual({
-      nom: "Fiche de paie",
-      type_champs: "periode_mensuelle",
-    });
-
-    brancher(() => ({ error: { message: "ko" } }));
-    await expect(updateEtiquette(ID, "x", "standard")).rejects.toThrow("ko");
-  });
-
-  it("deleteEtiquette supprime et lève sur erreur", async () => {
-    const fake = brancher();
-    await deleteEtiquette(ID);
-    expect(ecritures(fake.appels, "etiquettes", "delete")[0].filtres).toContainEqual(["eq", "id", ID]);
-    brancher(() => ({ error: { message: "ko" } }));
-    await expect(deleteEtiquette(ID)).rejects.toThrow("ko");
-  });
-
-  it("getEtiquettes liste par nom", async () => {
-    const fake = brancher(() => ({ data: [{ id: "e1" }] }));
-    expect(await getEtiquettes()).toEqual([{ id: "e1" }]);
-    expect(fake.appels[0].modificateurs).toContainEqual(["order", "nom", { ascending: true }]);
-    brancher();
-    expect(await getEtiquettes()).toEqual([]);
-    brancher(() => ({ error: { message: "ko" } }));
-    await expect(getEtiquettes()).rejects.toThrow("ko");
-  });
-});
-
 describe("getDocuments et getDocument", () => {
   const ligne = {
     id: ID,
     nom: "CNI",
     document_fichiers: [{ id: "f1" }],
-    etiquette: { id: "e1", nom: "Identité" },
   };
 
-  it("renomme les fichiers et conserve l'étiquette", async () => {
+  it("renomme les fichiers", async () => {
     brancher(() => ({ data: [ligne] }));
     const [doc] = await getDocuments();
-    expect(doc).toMatchObject({ id: ID, fichiers: [{ id: "f1" }], etiquette: { id: "e1", nom: "Identité" } });
+    expect(doc).toMatchObject({ id: ID, fichiers: [{ id: "f1" }] });
     expect(doc).not.toHaveProperty("document_fichiers");
   });
 
-  it("trie les échéances proches d'abord, sans échéance en dernier", async () => {
+  it("ne lit plus les étiquettes", async () => {
     const fake = brancher();
     await getDocuments();
-    expect(fake.appels[0].modificateurs).toContainEqual(["order", "date_echeance", { ascending: true, nullsFirst: false }]);
+    expect(JSON.stringify(fake.appels[0])).not.toContain("etiquette");
+  });
+
+  it("trie les plus récents d'abord", async () => {
+    const fake = brancher();
+    await getDocuments();
+    expect(fake.appels[0].modificateurs).toContainEqual(["order", "created_at", { ascending: false }]);
+    expect(fake.appels[0].modificateurs).not.toContainEqual(expect.arrayContaining(["date_echeance"]));
   });
 
   it("getDocument renvoie null si absent, le document sinon, et lève sur erreur", async () => {

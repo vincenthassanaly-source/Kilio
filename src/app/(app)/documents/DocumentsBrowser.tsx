@@ -4,37 +4,26 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { DocumentAvecFichiers } from "@/app/actions/documents";
-import type { Tables } from "@/lib/supabase/types";
 import { AddDocumentToggle } from "./AddDocumentToggle";
 import { DocumentsList } from "./DocumentsList";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { TAILLE_LOT_TRI } from "@/lib/documents/tri";
 import { normalizeSearch } from "@/lib/normalize";
-import { card, input, kcalPillTag, pillTag, primaryButton } from "@/lib/ui";
+import { card, input, kcalPillTag, pillTag, primaryButton, zoneTapPill } from "@/lib/ui";
 
 const TriVracModal = dynamic(() => import("./TriVracModal").then((m) => m.TriVracModal), { ssr: false });
 
-type TriCle = "echeance" | "nom" | "recent" | "etiquette";
+type TriCle = "recent" | "nom" | "categorie";
 type Onglet = "documents" | "vrac";
 
 const TRI_LABELS: Record<TriCle, string> = {
-  echeance: "Échéance ↑",
-  nom: "Nom A→Z",
   recent: "Récent",
-  etiquette: "Étiquette A→Z",
+  nom: "Nom A→Z",
+  categorie: "Catégorie A→Z",
 };
 
 const BOUTON_ICONE =
   "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors hover:bg-surface-alt";
-
-function EtiquetteIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M11.5 3.5h6a2 2 0 0 1 2 2v6a2 2 0 0 1-.6 1.4l-8 8a2 2 0 0 1-2.8 0l-6-6a2 2 0 0 1 0-2.8l8-8a2 2 0 0 1 1.4-.6z" />
-      <circle cx="15.5" cy="7.5" r="1.2" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
 
 function CategorieIcon() {
   return (
@@ -55,19 +44,21 @@ function EtincelleIcon() {
 
 export function DocumentsBrowser({
   documents,
-  etiquettes,
   categories,
   vracInitial = false,
+  categoriesInitiales = [],
 }: {
   documents: DocumentAvecFichiers[];
-  etiquettes: Tables<"etiquettes">[];
+  /** Noms des catégories (table documents_categories). */
   categories: string[];
   /** Ouvre l'onglet Vrac (arrivée depuis le partage Android). */
   vracInitial?: boolean;
+  /** Catégories présélectionnées (`?categorie=` : lien depuis l'écran Catégories). */
+  categoriesInitiales?: string[];
 }) {
   const [search, setSearch] = useState("");
-  const [etiquetteFilter, setEtiquetteFilter] = useState<string[]>([]);
-  const [tri, setTri] = useState<TriCle>("echeance");
+  const [categorieFilter, setCategorieFilter] = useState<string[]>(categoriesInitiales);
+  const [tri, setTri] = useState<TriCle>("recent");
   const [onglet, setOnglet] = useState<Onglet>(vracInitial ? "vrac" : "documents");
   const [triOuvert, setTriOuvert] = useState(false);
   // Documents restés en vrac lors d'un tri précédent (échec, décochés) : le
@@ -80,55 +71,59 @@ export function DocumentsBrowser({
   );
   // Un onglet Vrac vide n'a rien à montrer : retour automatique aux documents.
   const ongletActif: Onglet = onglet === "vrac" && vrac.length > 0 ? "vrac" : "documents";
-  const base = useMemo(
-    () => (ongletActif === "vrac" ? vrac : documents.filter((d) => !d.en_vrac)),
-    [ongletActif, vrac, documents]
-  );
+  const classes = useMemo(() => documents.filter((d) => !d.en_vrac), [documents]);
+  const base = ongletActif === "vrac" ? vrac : classes;
 
-  function toggleEtiquetteFilter(id: string) {
-    setEtiquetteFilter((ids) => (ids.includes(id) ? ids.filter((e) => e !== id) : [...ids, id]));
+  // Pastilles : les catégories qui ont au moins un document classé (une
+  // catégorie vide n'apporte rien à filtrer), plus celles déjà sélectionnées
+  // pour que l'on voie pourquoi la liste est vide.
+  const pastilles = useMemo(() => {
+    const comptes = new Map<string, number>();
+    for (const document of classes) {
+      if (document.categorie) comptes.set(document.categorie, (comptes.get(document.categorie) ?? 0) + 1);
+    }
+    const noms = new Set<string>([...comptes.keys(), ...categorieFilter]);
+    // Ordre de la liste des catégories, puis celles qui n'y figurent plus.
+    const ordonnees = [...categories.filter((c) => noms.has(c)), ...[...noms].filter((c) => !categories.includes(c))];
+    return ordonnees.map((nom) => ({ nom, nb: comptes.get(nom) ?? 0 }));
+  }, [classes, categories, categorieFilter]);
+
+  function toggleCategorie(nom: string) {
+    setCategorieFilter((noms) => (noms.includes(nom) ? noms.filter((n) => n !== nom) : [...noms, nom]));
   }
 
-  // Recherche client-side (nom, notes, catégorie, étiquette) : même approche
-  // que NotesGrid, le volume mono-utilisateur ne justifie pas une recherche
+  // Recherche client-side (nom, notes, catégorie) : même approche que
+  // NotesGrid, le volume mono-utilisateur ne justifie pas une recherche
   // full-text Postgres.
   const filtres = useMemo(() => {
     const term = normalizeSearch(search);
+    const filtrer = ongletActif === "documents" && categorieFilter.length > 0;
     return base.filter((document) => {
       const matchesSearch =
         term === "" ||
         normalizeSearch(document.nom).includes(term) ||
         normalizeSearch(document.notes ?? "").includes(term) ||
-        normalizeSearch(document.categorie ?? "").includes(term) ||
-        (document.etiquette ? normalizeSearch(document.etiquette.nom).includes(term) : false);
-      const matchesEtiquette =
-        etiquetteFilter.length === 0 ||
-        (document.etiquette !== null && etiquetteFilter.includes(document.etiquette.id));
-      return matchesSearch && matchesEtiquette;
+        normalizeSearch(document.categorie ?? "").includes(term);
+      const matchesCategorie = !filtrer || (document.categorie !== null && categorieFilter.includes(document.categorie));
+      return matchesSearch && matchesCategorie;
     });
-  }, [base, search, etiquetteFilter]);
+  }, [base, search, categorieFilter, ongletActif]);
 
   const tries = useMemo(() => {
     const copie = [...filtres];
     switch (tri) {
       case "nom":
         return copie.sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
-      case "recent":
-        return copie.sort((a, b) => b.created_at.localeCompare(a.created_at));
-      case "etiquette":
-        return copie.sort((a, b) =>
-          (a.etiquette?.nom ?? "").localeCompare(b.etiquette?.nom ?? "", "fr")
-        );
-      case "echeance":
-      default:
-        // L'ordre déjà renvoyé par getDocuments() (échéance croissante,
-        // nulls en dernier) est préservé par ce tri stable.
+      case "categorie":
         return copie.sort((a, b) => {
-          if (a.date_echeance === b.date_echeance) return 0;
-          if (a.date_echeance === null) return 1;
-          if (b.date_echeance === null) return -1;
-          return a.date_echeance.localeCompare(b.date_echeance);
+          if (a.categorie === b.categorie) return a.nom.localeCompare(b.nom, "fr");
+          if (a.categorie === null) return 1;
+          if (b.categorie === null) return -1;
+          return a.categorie.localeCompare(b.categorie, "fr");
         });
+      case "recent":
+      default:
+        return copie.sort((a, b) => b.created_at.localeCompare(a.created_at));
     }
   }, [filtres, tri]);
 
@@ -143,7 +138,7 @@ export function DocumentsBrowser({
 
   return (
     <div className="flex flex-col gap-4">
-      {ongletActif === "documents" && <AddDocumentToggle etiquettes={etiquettes} categories={categories} />}
+      {ongletActif === "documents" && <AddDocumentToggle categories={categories} />}
 
       {vrac.length > 0 && (
         <SegmentedControl<Onglet>
@@ -183,7 +178,10 @@ export function DocumentsBrowser({
       {!aucunDocument && (
         <>
           {ongletActif === "documents" && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore>
+            // Les pastilles passent à la ligne au lieu de défiler dans une seule
+            // rangée coupée : toutes les catégories restent visibles. 16 px
+            // entre les rangées pour que les zones de toucher ne se chevauchent pas.
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-4" role="group" aria-label="Filtrer par catégorie">
               <Link
                 href="/documents/categories"
                 aria-label="Gérer les catégories"
@@ -192,26 +190,22 @@ export function DocumentsBrowser({
               >
                 <CategorieIcon />
               </Link>
-              <Link
-                href="/documents/etiquettes"
-                aria-label="Gérer les étiquettes"
-                title="Gérer les étiquettes"
-                className={BOUTON_ICONE}
-              >
-                <EtiquetteIcon />
-              </Link>
-              {etiquettes.map((etiquette) => (
-                <button
-                  key={etiquette.id}
-                  type="button"
-                  onClick={() => toggleEtiquetteFilter(etiquette.id)}
-                  className={
-                    etiquetteFilter.includes(etiquette.id) ? `${kcalPillTag} shrink-0` : `${pillTag} shrink-0`
-                  }
-                >
-                  {etiquette.nom}
-                </button>
-              ))}
+              {pastilles.map(({ nom, nb }) => {
+                const actif = categorieFilter.includes(nom);
+                return (
+                  <button
+                    key={nom}
+                    type="button"
+                    aria-pressed={actif}
+                    onClick={() => toggleCategorie(nom)}
+                    className={`${actif ? kcalPillTag : pillTag} ${zoneTapPill}`}
+                  >
+                    {/* L'état ne tient pas qu'à la couleur : coche + aria-pressed. */}
+                    {actif && <span aria-hidden="true">✓ </span>}
+                    {nom} <span className="tabular-nums opacity-70">{nb}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -242,14 +236,18 @@ export function DocumentsBrowser({
               Tous tes documents sont en vrac : trie-les depuis l&apos;onglet Vrac.
             </p>
           ) : filtres.length === 0 ? (
-            <p className="py-5 text-center text-sm text-ink-3">Aucun document ne correspond à ta recherche.</p>
+            <p className="py-5 text-center text-sm text-ink-3">
+              {ongletActif === "documents" && categorieFilter.length > 0 && search === ""
+                ? "Aucun document dans cette catégorie."
+                : "Aucun document ne correspond à ta recherche."}
+            </p>
           ) : (
-            <DocumentsList documents={tries} etiquettes={etiquettes} categories={categories} />
+            <DocumentsList documents={tries} categories={categories} />
           )}
         </>
       )}
 
-      {aucunDocument && <DocumentsList documents={documents} etiquettes={etiquettes} categories={categories} />}
+      {aucunDocument && <DocumentsList documents={documents} categories={categories} />}
 
       {triOuvert && (
         <TriVracModal

@@ -2,7 +2,6 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Les Server Actions importent Supabase, sharp… : inutiles pour un test de mise en page.
-vi.mock("@/app/actions/documents", () => ({ updateEtiquette: vi.fn(), deleteEtiquette: vi.fn() }));
 vi.mock("@/app/actions/documents-categories", () => ({
   creerCategorie: vi.fn(),
   fusionnerCategories: vi.fn(),
@@ -22,15 +21,14 @@ vi.mock("@/app/actions/recette-ingredients", () => ({
 }));
 
 import { CategoriesManager } from "@/app/(app)/documents/categories/CategoriesManager";
-import { EtiquettesManager } from "@/app/(app)/documents/etiquettes/EtiquettesManager";
 import { EtapesManager } from "@/app/(app)/nutrition/recettes/[id]/EtapesManager";
 import { IngredientsLibresManager } from "@/app/(app)/nutrition/recettes/[id]/IngredientsLibresManager";
 
-// Régression : sur l'écran Étiquettes, un nom long (« Attestation d'assurance
-// habitation ») repoussait « Modifier » et « Suppr. » hors de la carte, où ils
-// étaient coupés. Le nom passe maintenant à la ligne, en entier (deux noms qui
-// ne diffèrent qu'à la fin restent distinguables), et les boutons forment une
-// rangée alignée à droite sous le texte.
+// Régression : sur l'ancien écran Étiquettes, un nom long (« Attestation
+// d'assurance habitation ») repoussait « Modifier » et « Suppr. » hors de la
+// carte, où ils étaient coupés. Le nom passe maintenant à la ligne, en entier
+// (deux noms qui ne diffèrent qu'à la fin restent distinguables), et les boutons
+// forment une rangée alignée à droite sous le texte (Catégories, Recettes).
 const NOM_LONG = "Attestation d'assurance habitation avec un nom vraiment très très long";
 
 /** Vérifie la disposition d'une ligne : nom complet, boutons dans une rangée dédiée. */
@@ -51,18 +49,6 @@ function verifierLigne(nom: HTMLElement, boutons: string[]) {
 afterEach(cleanup);
 
 describe("lignes de gestion avec un nom long", () => {
-  it("Étiquettes : le nom reste entier et les boutons ne sortent pas de la carte", () => {
-    render(
-      <EtiquettesManager
-        etiquettes={[{ id: "E1", nom: NOM_LONG, type_champs: "standard", created_at: "", updated_at: "" }]}
-      />
-    );
-    const nom = screen.getByText(NOM_LONG);
-    verifierLigne(nom, ["Modifier", "Suppr."]);
-    // Le conteneur du texte peut rétrécir : sans min-w-0 il repousse les boutons.
-    expect((nom.parentElement as HTMLElement).className).toContain("min-w-0");
-  });
-
   it("Catégories : trois boutons dans la même rangée sous le nom", () => {
     render(
       <CategoriesManager
