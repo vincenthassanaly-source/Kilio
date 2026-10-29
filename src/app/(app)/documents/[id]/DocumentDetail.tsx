@@ -26,9 +26,11 @@ function PdfIcon() {
 export function DocumentDetail({
   document,
   etiquettes,
+  categories,
 }: {
   document: DocumentAvecFichiers;
   etiquettes: Tables<"etiquettes">[];
+  categories: string[];
 }) {
   const [editing, setEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -86,6 +88,7 @@ export function DocumentDetail({
         <DocumentForm
           document={document}
           etiquettes={etiquettes}
+          categories={categories}
           onDone={() => setEditing(false)}
         />
         <button type="button" onClick={() => setEditing(false)} className="mt-2 text-sm text-ink-2 underline">

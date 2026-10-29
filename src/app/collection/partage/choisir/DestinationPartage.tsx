@@ -7,16 +7,22 @@ import type { Tables } from "@/lib/supabase/types";
 import type { TexteTache } from "@/lib/partage/tache";
 import { card, errorText, secondaryButton } from "@/lib/ui";
 
-type Destination = "collection" | "tache";
+type Destination = "collection" | "tache" | "documents";
 
 /**
- * Écran de choix après un partage d'image : « Ajouter à une collection » ou
- * « Nouvelle tâche ». Rien n'est envoyé avant le choix : la collection monte
- * son contenu (upload éventuel + formulaire) seulement une fois choisie, la
- * tâche récupère les fichiers puis ouvre le formulaire de tâche pré-rempli.
+ * Écran de choix après un partage d'image : « Ajouter à une collection »,
+ * « Nouvelle tâche » ou, quand `documentsContenu` est fourni, « Documents
+ * (vrac) ». Rien n'est envoyé avant le choix : la collection et les documents
+ * montent leur contenu (upload + suite) seulement une fois choisis, la tâche
+ * récupère les fichiers puis ouvre le formulaire de tâche pré-rempli.
+ *
+ * `seulementDocuments` : le partage contient autre chose que des images (un
+ * PDF) ; collection et tâche ne savent pas le traiter, elles sont désactivées.
  */
 export function DestinationPartage({
   collectionContenu,
+  documentsContenu,
+  seulementDocuments = false,
   obtenirFichiers,
   apresTache,
   listes,
@@ -24,6 +30,8 @@ export function DestinationPartage({
   texte,
 }: {
   collectionContenu: ReactNode;
+  documentsContenu?: ReactNode;
+  seulementDocuments?: boolean;
   obtenirFichiers: () => Promise<File[]>;
   apresTache?: () => void;
   listes: Tables<"listes_taches">[];
@@ -33,6 +41,7 @@ export function DestinationPartage({
   const [destination, setDestination] = useState<Destination | null>(null);
 
   if (destination === "collection") return <>{collectionContenu}</>;
+  if (destination === "documents") return <>{documentsContenu}</>;
   if (destination === "tache") {
     return (
       <CreerTacheDepuisPartage
@@ -46,16 +55,38 @@ export function DestinationPartage({
     );
   }
 
+  const documents = documentsContenu ? (
+    <button type="button" onClick={() => setDestination("documents")} className={`${card} text-left`}>
+      <span className="font-semibold text-ink">Documents (vrac)</span>
+      <span className="block text-sm text-ink-2">Photo ou PDF, à trier plus tard avec Gemini</span>
+    </button>
+  ) : null;
+  const indisponible = "pointer-events-none opacity-50";
+
   return (
     <div className="flex flex-col gap-2">
-      <button type="button" onClick={() => setDestination("collection")} className={`${card} text-left`}>
+      {documents}
+      <button
+        type="button"
+        onClick={() => setDestination("collection")}
+        disabled={seulementDocuments}
+        className={`${card} text-left ${seulementDocuments ? indisponible : ""}`}
+      >
         <span className="font-semibold text-ink">Ajouter à une collection</span>
         <span className="block text-sm text-ink-2">Photos, inspirations, idées</span>
       </button>
-      <button type="button" onClick={() => setDestination("tache")} className={`${card} text-left`}>
+      <button
+        type="button"
+        onClick={() => setDestination("tache")}
+        disabled={seulementDocuments}
+        className={`${card} text-left ${seulementDocuments ? indisponible : ""}`}
+      >
         <span className="font-semibold text-ink">Nouvelle tâche</span>
         <span className="block text-sm text-ink-2">L&apos;image est jointe à la tâche</span>
       </button>
+      {seulementDocuments && (
+        <p className="text-sm text-ink-2">Un PDF ne peut aller que dans les documents.</p>
+      )}
     </div>
   );
 }

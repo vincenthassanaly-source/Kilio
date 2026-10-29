@@ -55,7 +55,13 @@ function form(champs: Record<string, string | File | (string | File)[]>) {
   return f;
 }
 
-const reponseCreation: Repondre = (a) => (a.table === "documents" && a.action === "insert" ? { data: { id: ID } } : undefined);
+const reponseCreation: Repondre = (a) =>
+  a.table === "documents" && a.action === "insert"
+    ? { data: { id: ID } }
+    : // « Assurance » existe dans documents_categories ; « Loisir » (test de validation) non.
+      a.table === "documents_categories" && a.filtres.some((f) => f[0] === "eq" && f[2] === "Assurance")
+      ? { data: { id: "C1" } }
+      : undefined;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -74,7 +80,9 @@ describe("createDocument : validation", () => {
     expect(await createDocument({ error: null }, form({ nom: "CNI" }))).toEqual({
       error: "Au moins un fichier (photo ou PDF) est requis.",
     });
-    expect(fake.appels).toHaveLength(0);
+    // Seule la vérification de la catégorie interroge la base : rien n'est écrit.
+    expect(ecritures(fake.appels, "documents")).toHaveLength(0);
+    expect(fake.appels.filter((a) => a.table !== "documents_categories")).toHaveLength(0);
   });
 
   it("ignore un fichier vide", async () => {
@@ -84,6 +92,30 @@ describe("createDocument : validation", () => {
       error: "Au moins un fichier (photo ou PDF) est requis.",
     });
     expect(fake.appels).toHaveLength(0);
+  });
+});
+
+describe("createDocument : migration des catégories pas encore appliquée", () => {
+  it("accepte une catégorie d'origine quand la table documents_categories est absente", async () => {
+    const fake = brancher((a) => {
+      if (a.table === "documents_categories") return { error: { message: 'relation "documents_categories" does not exist' } };
+      return reponseCreation(a);
+    });
+
+    const res = await createDocument({ error: null }, form({ nom: "Contrat", categorie: "Assurance", fichiers: fichierPdf() }));
+
+    expect(res).toEqual({ error: null });
+    expect(ecritures(fake.appels, "documents", "insert")[0].payload).toMatchObject({ categorie: "Assurance" });
+  });
+
+  it("refuse toujours une catégorie inconnue quand la table est absente", async () => {
+    brancher((a) =>
+      a.table === "documents_categories" ? { error: { message: "relation does not exist" } } : reponseCreation(a)
+    );
+
+    expect(await createDocument({ error: null }, form({ nom: "CNI", categorie: "Loisir", fichiers: fichierPdf() }))).toEqual({
+      error: "Catégorie invalide.",
+    });
   });
 });
 

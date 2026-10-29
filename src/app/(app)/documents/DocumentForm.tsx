@@ -36,8 +36,6 @@ async function ajouterApercusPdf(formData: FormData) {
   for (const [index, fichier] of fichiers.entries()) await ajouter(fichier, `apercu:fichiers:${index}`);
 }
 
-const CATEGORIES = ["Identité", "Véhicule", "Logement", "Santé", "Assurance", "Autre"] as const;
-
 function FichierIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -174,10 +172,13 @@ function RectoVersoSlot({
 export function DocumentForm({
   document,
   etiquettes,
+  categories,
   onDone,
 }: {
   document?: DocumentAvecFichiers;
   etiquettes: Tables<"etiquettes">[];
+  /** Noms des catégories (table documents_categories). */
+  categories: string[];
   onDone?: () => void;
 }) {
   // Ids uniques par instance (T11) : formulaire rendu en ajout et en édition.
@@ -343,7 +344,12 @@ export function DocumentForm({
           </label>
           <select id={`${uid}-categorie`} name="categorie" defaultValue={document?.categorie ?? ""} className={input}>
             <option value="">—</option>
-            {CATEGORIES.map((c) => (
+            {/* Catégorie actuelle d'abord si elle a disparu de la liste (fusion
+                dans un autre onglet) : l'enregistrer ne la perd pas en silence. */}
+            {(document?.categorie && !categories.includes(document.categorie)
+              ? [document.categorie, ...categories]
+              : categories
+            ).map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

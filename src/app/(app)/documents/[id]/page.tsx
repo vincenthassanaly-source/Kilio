@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getDocument, getEtiquettes } from "@/app/actions/documents";
+import { getCategories } from "@/app/actions/documents-categories";
 import { DocumentDetail } from "./DocumentDetail";
 
 export default async function DocumentDetailPage({
@@ -8,11 +9,11 @@ export default async function DocumentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [document, etiquettes] = await Promise.all([getDocument(id), getEtiquettes()]);
+  const [document, etiquettes, categories] = await Promise.all([getDocument(id), getEtiquettes(), getCategories()]);
 
   if (!document) {
     notFound();
   }
 
-  return <DocumentDetail document={document} etiquettes={etiquettes} />;
+  return <DocumentDetail document={document} etiquettes={etiquettes} categories={categories.map((c) => c.nom)} />;
 }
