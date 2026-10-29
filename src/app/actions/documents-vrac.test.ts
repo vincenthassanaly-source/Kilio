@@ -20,6 +20,7 @@ vi.mock("@/lib/gemini/appel", () => ({
 import {
   analyserDocumentVrac,
   appliquerTriVrac,
+  definirDocumentEnVrac,
   enregistrerDocumentsVrac,
   preparerUploadsVrac,
 } from "./documents-vrac";
@@ -316,6 +317,54 @@ describe("analyserDocumentVrac à travers runAction (contrat avec le navigateur)
 
     expect(resultat.ok).toBe(true);
     expect(resultat.data).toEqual({ statut: "echec", erreur: "Quota atteint.", quota: true });
+  });
+});
+
+describe("definirDocumentEnVrac", () => {
+  const reponseMiseAJour: Repondre = (a) =>
+    a.table === "documents" && a.action === "update" ? { data: [{ id: ID }] } : undefined;
+
+  it("remet un document en vrac sans toucher à ses autres champs", async () => {
+    const fake = brancher(reponseMiseAJour);
+
+    expect(await definirDocumentEnVrac(ID, true)).toEqual({ ok: true, data: undefined });
+
+    const [miseAJour] = ecritures(fake.appels, "documents", "update");
+    expect(miseAJour.payload).toEqual({ en_vrac: true });
+    expect(miseAJour.filtres).toContainEqual(["eq", "id", ID]);
+    expect(etat.revalidatePath).toHaveBeenCalledWith("/documents");
+    expect(etat.revalidatePath).toHaveBeenCalledWith(`/documents/${ID}`);
+  });
+
+  it("l'annulation remet le drapeau à faux", async () => {
+    const fake = brancher(reponseMiseAJour);
+
+    expect(await definirDocumentEnVrac(ID, false)).toEqual({ ok: true, data: undefined });
+    expect(ecritures(fake.appels, "documents", "update")[0].payload).toEqual({ en_vrac: false });
+  });
+
+  it("refuse un identifiant invalide sans toucher à la base", async () => {
+    const fake = brancher();
+    expect(await definirDocumentEnVrac("pas-un-uuid", true)).toEqual({ ok: false, error: "Document introuvable." });
+    expect(fake.appels).toHaveLength(0);
+  });
+
+  it("signale un document introuvable (supprimé entre-temps)", async () => {
+    brancher((a) => (a.table === "documents" && a.action === "update" ? { data: [] } : undefined));
+    expect(await definirDocumentEnVrac(ID, true)).toEqual({ ok: false, error: "Document introuvable." });
+    expect(etat.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("donne un message propre à chaque sens quand la base échoue", async () => {
+    brancher((a) => (a.action === "update" ? { error: { message: "boom" } } : undefined));
+    expect(await definirDocumentEnVrac(ID, true)).toEqual({
+      ok: false,
+      error: "Le document n'a pas pu être remis en vrac. Réessaie.",
+    });
+    expect(await definirDocumentEnVrac(ID, false)).toEqual({
+      ok: false,
+      error: "La remise en vrac n'a pas pu être annulée. Réessaie.",
+    });
   });
 });
 

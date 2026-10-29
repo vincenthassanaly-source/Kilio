@@ -240,6 +240,28 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
   return { statut: "ok", proposition, doublon: trouverDoublonParTitre(proposition.nom, classes ?? []) };
 }
 
+// --- Remise en vrac (bouton « Remettre en vrac », et son annulation) ---
+// Ne change que le drapeau : nom, catégorie, étiquette, échéance et notes restent
+// en place jusqu'à un éventuel tri, dont seuls le nom et la catégorie sont remplacés.
+
+export async function definirDocumentEnVrac(id: string, enVrac: boolean): Promise<ActionResult<undefined>> {
+  if (!UUID.test(id)) return fail("Document introuvable.");
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.from("documents").update({ en_vrac: enVrac }).eq("id", id).select("id");
+  if (error) {
+    return fail(
+      enVrac
+        ? "Le document n'a pas pu être remis en vrac. Réessaie."
+        : "La remise en vrac n'a pas pu être annulée. Réessaie."
+    );
+  }
+  if (!data || data.length === 0) return fail("Document introuvable.");
+
+  revalidateVrac([id]);
+  return ok();
+}
+
 // --- Application (écriture) ---
 
 export type ElementTriValide = { id: string; nom: string; categorie: string | null };

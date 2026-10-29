@@ -14,6 +14,7 @@ import type { Tables } from "@/lib/supabase/types";
 import { card, dangerButton, ghostButton, kcalPillTag, listCard, metaText, nameText, pillTag } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { runAction } from "@/lib/actions/runAction";
+import { remettreEnVrac } from "./remettreEnVrac";
 
 const DocumentForm = dynamic(() => import("./DocumentForm").then((m) => m.DocumentForm), { ssr: false });
 
@@ -168,6 +169,20 @@ export function DocumentCard({
         </TransitionLink>
       </div>
       <div className="flex justify-end gap-2">
+        {!document.en_vrac && (
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={() => {
+              startTransition(async () => {
+                await remettreEnVrac(document);
+              });
+            }}
+            className={ghostButton}
+          >
+            Remettre en vrac
+          </button>
+        )}
         <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
           Modifier
         </button>

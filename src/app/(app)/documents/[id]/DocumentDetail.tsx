@@ -12,6 +12,7 @@ import type { Tables } from "@/lib/supabase/types";
 import { card, dangerButton, errorText, ghostButton, kcalPillTag, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { chargerFichiers, nomDeFichier, partager, peutPartager, telecharger } from "@/lib/documents/partage";
+import { remettreEnVrac } from "../remettreEnVrac";
 import { BackLink } from "@/components/BackLink";
 
 function PdfIcon() {
@@ -145,6 +146,23 @@ export function DocumentDetail({
           </button>
         </div>
       </div>
+
+      {document.en_vrac ? (
+        <p className="text-sm text-ink-2">En vrac : à trier depuis l&apos;onglet Vrac de la liste des documents.</p>
+      ) : (
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => {
+            startTransition(async () => {
+              await remettreEnVrac(document);
+            });
+          }}
+          className={`${ghostButton} self-start`}
+        >
+          Remettre en vrac
+        </button>
+      )}
 
       {document.date_echeance && (
         <span
