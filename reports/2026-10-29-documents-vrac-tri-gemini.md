@@ -127,3 +127,18 @@ nullable `document_fichiers.empreinte`) :
 - Limite : une photo ajoutée par le formulaire (compression serveur) puis
   partagée depuis le téléphone (compression navigateur) n'a pas les mêmes
   octets ; seul le titre peut la repérer.
+
+## Évolution — remettre n'importe quel document en vrac (même jour)
+
+Bouton **« Remettre en vrac »** sur chaque carte de document et sur la page de
+détail (masqué pour un document déjà en vrac), pour retrier un document déjà
+classé avec Gemini. Aucune migration : seul le drapeau `en_vrac` change
+(`definirDocumentEnVrac`).
+
+- Le document garde nom, catégorie, étiquette, échéance et notes jusqu'au tri ;
+  le tri ne remplace que le nom et la catégorie, après l'aperçu.
+- Il n'apparaît plus que dans l'onglet Vrac (comme les documents partagés) ; la
+  page de détail indique « En vrac » à la place du bouton.
+- Pas de confirmation avant (geste sans risque) : un message propose
+  « Annuler » (`remettreEnVrac.ts`), qui remet le drapeau à faux.
+- Un document retrié ne se signale jamais comme doublon de lui-même.
