@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import {
@@ -13,6 +14,8 @@ import {
   nettoyerTexte,
   nomDepuisFichier,
   trouverCategorie,
+  trouverDoublonParTitre,
+  type DoublonDetecte,
   type PropositionTri,
 } from "@/lib/documents/tri";
 import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
@@ -45,18 +48,104 @@ function revalidateVrac(ids: string[] = []) {
 // quelle, sans `data`. Avec `ok`, le modal de tri lisait `data` indéfini et
 // restait figé à « 0 / 1 ».
 export type ResultatAnalyse =
-  | { statut: "ok"; proposition: PropositionTri }
+  | { statut: "ok"; proposition: PropositionTri; doublon: DoublonDetecte | null }
   | { statut: "echec"; erreur: string; quota: boolean };
 
 function echecAnalyse(erreur: string, quota = false): ResultatAnalyse {
   return { statut: "echec", erreur, quota };
 }
 
-type EntreeFichier = { url: string; fichier_type: string };
+type EntreeFichier = { id: string; url: string; fichier_type: string };
 
-function typeMime(fichier: EntreeFichier, typeReponse: string | null): string {
+function typeMime(fichier: Pick<EntreeFichier, "fichier_type">, typeReponse: string | null): string {
   if (typeReponse?.startsWith("image/") || typeReponse === "application/pdf") return typeReponse;
   return fichier.fichier_type === "pdf" ? "application/pdf" : "image/jpeg";
+}
+
+// --- Doublons ---
+// Un fichier est un doublon s'il a la même empreinte SHA-256 qu'un fichier
+// d'un autre document : octet pour octet, donc certain. L'empreinte est
+// calculée ici, quand le tri télécharge déjà le fichier pour Gemini, et
+// mémorisée dans document_fichiers.empreinte (scripts/migration-documents-
+// empreinte-2026-10-29.sql). Les fichiers des documents classés qui n'en ont
+// pas encore sont complétés au fil des tris, par petits paquets.
+
+const EMPREINTES_RATTRAPAGE_MAX = 15;
+const RATTRAPAGE_PARALLELE = 5;
+const RATTRAPAGE_TAILLE_MAX_OCTETS = 30 * 1024 * 1024;
+
+function empreinteSha256(octets: Buffer): string {
+  return createHash("sha256").update(octets).digest("hex");
+}
+
+type LigneFichier = {
+  id: string;
+  url: string;
+  empreinte: string | null;
+  document_id: string;
+  documents: { nom: string; categorie: string | null; en_vrac: boolean } | null;
+};
+
+type SupabaseAdmin = ReturnType<typeof createAdminClient>;
+
+/** Complète l'empreinte d'un fichier déjà stocké ; sans effet (null) au moindre souci. */
+async function calculerEmpreinteExistante(supabase: SupabaseAdmin, ligne: LigneFichier): Promise<string | null> {
+  try {
+    const reponse = await fetch(ligne.url, { signal: AbortSignal.timeout(TELECHARGEMENT_TIMEOUT_MS) });
+    if (!reponse.ok) return null;
+    if (Number(reponse.headers.get("content-length")) > RATTRAPAGE_TAILLE_MAX_OCTETS) return null;
+    const empreinte = empreinteSha256(Buffer.from(await reponse.arrayBuffer()));
+    await supabase.from("document_fichiers").update({ empreinte }).eq("id", ligne.id);
+    return empreinte;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Document dont un fichier est identique à l'un des fichiers analysés, parmi
+ * tous les autres documents (classés ou déjà analysés dans le vrac). Les
+ * fichiers du vrac pas encore analysés ne sont pas complétés ici : le premier
+ * analysé d'un lot de copies reste l'original, les suivants sont les doublons.
+ * Renvoie null (pas de détection par fichier) si la colonne n'existe pas encore.
+ */
+async function chercherDoublonFichier(
+  supabase: SupabaseAdmin,
+  documentId: string,
+  empreintes: string[]
+): Promise<{ detecte: DoublonDetecte; categorie: string | null } | null> {
+  const { data, error } = await supabase
+    .from("document_fichiers")
+    .select("id, url, empreinte, document_id, documents(nom, categorie, en_vrac)")
+    .neq("document_id", documentId);
+  if (error) return null;
+  const lignes = (data ?? []) as unknown as LigneFichier[];
+
+  const connues = new Map<string, LigneFichier>();
+  for (const ligne of lignes) if (ligne.empreinte) connues.set(ligne.empreinte, ligne);
+
+  const manquantes = lignes
+    .filter((ligne) => !ligne.empreinte && ligne.documents && !ligne.documents.en_vrac)
+    .slice(0, EMPREINTES_RATTRAPAGE_MAX);
+  for (let i = 0; i < manquantes.length; i += RATTRAPAGE_PARALLELE) {
+    const paquet = manquantes.slice(i, i + RATTRAPAGE_PARALLELE);
+    const calculees = await Promise.all(paquet.map((ligne) => calculerEmpreinteExistante(supabase, ligne)));
+    paquet.forEach((ligne, index) => {
+      const empreinte = calculees[index];
+      if (empreinte) connues.set(empreinte, { ...ligne, empreinte });
+    });
+  }
+
+  for (const empreinte of empreintes) {
+    const trouvee = connues.get(empreinte);
+    if (trouvee) {
+      return {
+        detecte: { type: "fichier", documentId: trouvee.document_id, nom: trouvee.documents?.nom ?? "" },
+        categorie: trouvee.documents?.categorie ?? null,
+      };
+    }
+  }
+  return null;
 }
 
 export async function analyserDocumentVrac(id: string, categoriesSupplementaires: string[] = []): Promise<ResultatAnalyse> {
@@ -65,7 +154,7 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
   const supabase = createAdminClient();
   const { data: document, error } = await supabase
     .from("documents")
-    .select("nom, en_vrac, document_fichiers(url, fichier_type, ordre)")
+    .select("nom, en_vrac, document_fichiers(id, url, fichier_type, ordre)")
     .eq("id", id)
     .order("ordre", { referencedTable: "document_fichiers", ascending: true })
     .maybeSingle();
@@ -85,6 +174,7 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
   }
 
   const images: { mimeType: string; data: string }[] = [];
+  const empreintes: { id: string; empreinte: string }[] = [];
   let total = 0;
   for (const fichier of fichiers) {
     let reponse: Response;
@@ -102,6 +192,30 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
     total += octets.length;
     if (total > TAILLE_MAX_ANALYSE_OCTETS) return echecAnalyse("Trop volumineux pour l'analyse : classe-le à la main.");
     images.push({ mimeType: typeMime(fichier, reponse.headers.get("content-type")), data: octets.toString("base64") });
+    empreintes.push({ id: fichier.id, empreinte: empreinteSha256(octets) });
+  }
+
+  // Mémorise l'empreinte (au mieux : sans la colonne, l'écriture échoue sans
+  // conséquence) avant de chercher un doublon, pour que les documents
+  // analysés ensuite dans le même lot retrouvent celui-ci.
+  await Promise.all(
+    empreintes.map(({ id: fichierId, empreinte }) =>
+      supabase.from("document_fichiers").update({ empreinte }).eq("id", fichierId)
+    )
+  );
+  const doublonFichier = await chercherDoublonFichier(
+    supabase,
+    id,
+    empreintes.map((e) => e.empreinte)
+  );
+  if (doublonFichier) {
+    // Même fichier qu'un document existant : inutile de consommer le quota Gemini.
+    // La proposition reprend le nom et la catégorie de l'original.
+    return {
+      statut: "ok",
+      proposition: { nom: doublonFichier.detecte.nom || document.nom, categorie: doublonFichier.categorie, nouvelleCategorie: false },
+      doublon: doublonFichier.detecte,
+    };
   }
 
   const resultat = await appelerGemini({
@@ -117,7 +231,13 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
       ? echecAnalyse(MESSAGE_QUOTA_GEMINI, true)
       : echecAnalyse(`Gemini n'a pas pu lire ce document (${resultat.detail})`);
   }
-  return { statut: "ok", proposition: lireReponseTri(resultat.brut, categories, document.nom) };
+  const proposition = lireReponseTri(resultat.brut, categories, document.nom);
+
+  // Titre identique à celui d'un document déjà classé : doublon probable (le
+  // même document peut avoir été renvoyé sous une autre forme, ex. une photo
+  // au lieu du PDF). Le vrac est exclu : ses noms sont ceux des fichiers reçus.
+  const { data: classes } = await supabase.from("documents").select("id, nom").eq("en_vrac", false).neq("id", id);
+  return { statut: "ok", proposition, doublon: trouverDoublonParTitre(proposition.nom, classes ?? []) };
 }
 
 // --- Application (écriture) ---
