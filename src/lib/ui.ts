@@ -88,6 +88,15 @@ export const checkCircle =
   "flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-2";
 
 export const nameText = "text-[15px] font-medium text-ink truncate";
+// Variante pour un nom qui distingue l'élément des autres (étiquette,
+// catégorie, ingrédient…) : « Attestation d'assurance habitation » et
+// « …véhicule » ne diffèrent qu'à la fin, un « … » les rendrait identiques.
+// Le nom passe à la ligne ; le conteneur du texte doit porter `min-w-0`.
+export const nameTextComplet = "text-[15px] font-medium text-ink break-words";
+// Rangée d'actions d'une ligne de gestion (Modifier, Supprimer…), sous le
+// texte et alignée à droite : le nom garde toute la largeur de la carte au lieu
+// de pousser les boutons hors de l'écran.
+export const actionsLigne = "flex flex-wrap justify-end gap-2";
 export const metaText = "text-[12.5px] text-ink-2 tabular-nums";
 
 // Teinte d'une classe thérapeutique : exige `--classe` posé par un ancêtre

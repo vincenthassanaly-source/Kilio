@@ -3,7 +3,16 @@
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { addEtape, removeEtape, updateEtape, type EtapeFormState } from "@/app/actions/recette-etapes";
 import type { Tables } from "@/lib/supabase/types";
-import { cardTight, dangerButton, errorText, ghostButton, input, nameText, primaryButton } from "@/lib/ui";
+import {
+  actionsLigne,
+  cardTight,
+  dangerButton,
+  errorText,
+  ghostButton,
+  input,
+  nameTextComplet,
+  primaryButton,
+} from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 
 type EtapeRow = Tables<"recette_etapes">;
@@ -18,8 +27,8 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
 
   return (
     <li className={`${cardTight} flex flex-col gap-2`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col gap-2">
+        <div className="min-w-0">
           {editing ? (
             <div className="flex flex-col gap-2">
               <input
@@ -46,7 +55,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
             </div>
           ) : (
             <>
-              <p className={nameText}>
+              <p className={nameTextComplet}>
                 Étape {index + 1}
                 {etape.titre ? ` — ${etape.titre}` : ""}
               </p>
@@ -58,7 +67,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
           )}
           {error && <p className={errorText}>{error}</p>}
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className={actionsLigne}>
           {editing ? (
             <>
               <button
