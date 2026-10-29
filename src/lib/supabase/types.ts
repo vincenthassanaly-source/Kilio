@@ -211,51 +211,31 @@ export type Database = {
         Row: {
           categorie: string | null
           created_at: string
-          date_echeance: string | null
-          derniere_alerte_envoyee_le: string | null
           en_vrac: boolean
-          etiquette_id: string | null
           id: string
           nom: string
           notes: string | null
-          periode_mois: string | null
           updated_at: string
         }
         Insert: {
           categorie?: string | null
           created_at?: string
-          date_echeance?: string | null
-          derniere_alerte_envoyee_le?: string | null
           en_vrac?: boolean
-          etiquette_id?: string | null
           id?: string
           nom: string
           notes?: string | null
-          periode_mois?: string | null
           updated_at?: string
         }
         Update: {
           categorie?: string | null
           created_at?: string
-          date_echeance?: string | null
-          derniere_alerte_envoyee_le?: string | null
           en_vrac?: boolean
-          etiquette_id?: string | null
           id?: string
           nom?: string
           notes?: string | null
-          periode_mois?: string | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "documents_etiquette_id_fkey"
-            columns: ["etiquette_id"]
-            isOneToOne: false
-            referencedRelation: "etiquettes"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       documents_categories: {
         Row: {
@@ -336,30 +316,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      etiquettes: {
-        Row: {
-          created_at: string
-          id: string
-          nom: string
-          type_champs: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          nom: string
-          type_champs?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          nom?: string
-          type_champs?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       evenements: {
         Row: {

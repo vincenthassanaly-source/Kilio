@@ -260,95 +260,13 @@ export async function enregistrerApercuPdf(fichierId: string, formData: FormData
   return ok();
 }
 
-// --- Étiquettes ---
-// Liste gérable à affectation exclusive — un document a au plus une
-// étiquette, comme listes_taches pour les tâches. Complète la catégorie
-// large existante par un type précis (ex. "Permis de conduire"), choisi à
-// la création du document.
-
-export type EtiquetteFormState = { error: string | null };
-
-// Détermine les champs supplémentaires affichés dans DocumentForm quand
-// cette étiquette est sélectionnée (cf. le pattern déjà utilisé par
-// objectifs.type_suivi pour changer les champs de suivi affichés) :
-// - "standard" : aucun champ en plus (comportement d'origine).
-// - "recto_verso" : deux emplacements de fichier dédiés (Recto/Verso) au
-//   lieu du sélecteur générique multi-fichiers.
-// - "periode_mensuelle" : un champ "mois concerné" en plus (documents.
-//   periode_mois).
-const TYPES_CHAMPS = ["standard", "recto_verso", "periode_mensuelle"] as const;
-export type TypeChampsEtiquette = (typeof TYPES_CHAMPS)[number];
-
-function revalidateEtiquettesPaths() {
-  revalidatePath("/documents");
-  revalidatePath("/documents/etiquettes");
-}
-
-export async function getEtiquettes(): Promise<Tables<"etiquettes">[]> {
-  const supabase = createAdminClient();
-  const { data, error } = await supabase.from("etiquettes").select("*").order("nom", { ascending: true });
-
-  if (error) throw new Error(error.message);
-  return data ?? [];
-}
-
-function parseTypeChamps(formData: FormData): TypeChampsEtiquette | null {
-  const value = String(formData.get("type_champs") ?? "standard");
-  return TYPES_CHAMPS.includes(value as TypeChampsEtiquette) ? (value as TypeChampsEtiquette) : null;
-}
-
-export async function createEtiquette(
-  _prevState: EtiquetteFormState,
-  formData: FormData
-): Promise<EtiquetteFormState> {
-  const nom = String(formData.get("nom") ?? "").trim();
-  if (!nom) return { error: "Le nom est requis." };
-
-  const typeChamps = parseTypeChamps(formData);
-  if (!typeChamps) return { error: "Type de champs invalide." };
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("etiquettes").insert({ nom, type_champs: typeChamps });
-
-  if (error) return { error: error.message };
-
-  revalidateEtiquettesPaths();
-  return { error: null };
-}
-
-export async function updateEtiquette(id: string, nom: string, typeChamps: TypeChampsEtiquette) {
-  const trimmed = nom.trim();
-  if (!trimmed) throw new Error("Le nom est requis.");
-  if (!TYPES_CHAMPS.includes(typeChamps)) throw new Error("Type de champs invalide.");
-
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("etiquettes")
-    .update({ nom: trimmed, type_champs: typeChamps })
-    .eq("id", id);
-
-  if (error) throw new Error(error.message);
-
-  revalidateEtiquettesPaths();
-}
-
-// Les documents portant cette étiquette la perdent (`on delete set null`)
-// sans être supprimés.
-export async function deleteEtiquette(id: string) {
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("etiquettes").delete().eq("id", id);
-
-  if (error) throw new Error(error.message);
-
-  revalidateEtiquettesPaths();
-}
-
+// Un document a un nom, une catégorie (table documents_categories), des
+// fichiers et des notes. Les étiquettes, l'échéance et le « mois concerné »
+// ont été retirés (voir scripts/migration-documents-suppression-etiquettes-
+// echeance-2026-10-29.sql).
 type DocumentInput = {
   nom: string;
   categorie: string | null;
-  etiquette_id: string | null;
-  date_echeance: string | null;
-  periode_mois: string | null;
   notes: string | null;
 };
 
@@ -357,11 +275,6 @@ type ParseResult = { ok: true; value: DocumentInput } | { ok: false; error: stri
 function parseDocumentInput(formData: FormData): ParseResult {
   const nom = String(formData.get("nom") ?? "").trim();
   const categorie = String(formData.get("categorie") ?? "").trim();
-  const etiquette_id = String(formData.get("etiquette_id") ?? "").trim();
-  const date_echeance = String(formData.get("date_echeance") ?? "").trim();
-  // Un <input type="month"> soumet "AAAA-MM" : stocké comme le 1er jour du
-  // mois (documents.periode_mois est une colonne date).
-  const periode_mois_brute = String(formData.get("periode_mois") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!nom) return { ok: false, error: "Le nom est requis." };
@@ -372,9 +285,6 @@ function parseDocumentInput(formData: FormData): ParseResult {
     value: {
       nom,
       categorie: categorie || null,
-      etiquette_id: etiquette_id || null,
-      date_echeance: date_echeance || null,
-      periode_mois: periode_mois_brute ? `${periode_mois_brute}-01` : null,
       notes: notes || null,
     },
   };
@@ -460,27 +370,9 @@ export async function updateDocument(
   const supabase = createAdminClient();
   if (await categorieInconnue(supabase, parsed.value.categorie)) return { error: "Catégorie invalide." };
 
-  const { data: existant, error: fetchError } = await supabase
-    .from("documents")
-    .select("date_echeance")
-    .eq("id", id)
-    .single();
-  if (fetchError) return { error: fetchError.message };
-
-  // Une échéance déplacée invalide une alerte déjà "acquise" pour l'ancien
-  // seuil : sans ça, un document repoussé ne renverrait plus jamais
-  // d'alerte (même logique que rappelObsolete dans src/app/actions/taches.ts).
-  const echeanceChangee = existant.date_echeance !== parsed.value.date_echeance;
-
-  const { error } = await supabase
-    .from("documents")
-    .update({
-      ...parsed.value,
-      ...(echeanceChangee ? { derniere_alerte_envoyee_le: null } : {}),
-    })
-    .eq("id", id);
-
+  const { data, error } = await supabase.from("documents").update(parsed.value).eq("id", id).select("id");
   if (error) return { error: error.message };
+  if (!data || data.length === 0) return { error: "Document introuvable." };
 
   try {
     await uploadDocumentFichiers(id, formData);
@@ -562,23 +454,15 @@ export async function creerDocumentsVrac(fichiers: File[]): Promise<number> {
 
 export type DocumentAvecFichiers = Tables<"documents"> & {
   fichiers: Tables<"document_fichiers">[];
-  etiquette: Tables<"etiquettes"> | null;
 };
 
-const SELECT_DOCUMENT_AVEC_RELATIONS = "*, document_fichiers(*), etiquette:etiquettes(*)";
+const SELECT_DOCUMENT_AVEC_RELATIONS = "*, document_fichiers(*)";
 
 function mapDocumentAvecRelations(
-  row: Tables<"documents"> & {
-    document_fichiers: Tables<"document_fichiers">[];
-    etiquette: Tables<"etiquettes"> | null;
-  }
+  row: Tables<"documents"> & { document_fichiers: Tables<"document_fichiers">[] }
 ): DocumentAvecFichiers {
-  const { document_fichiers, etiquette, ...document } = row;
-  return {
-    ...document,
-    fichiers: document_fichiers,
-    etiquette,
-  };
+  const { document_fichiers, ...document } = row;
+  return { ...document, fichiers: document_fichiers };
 }
 
 export async function getDocuments(): Promise<DocumentAvecFichiers[]> {
@@ -587,7 +471,6 @@ export async function getDocuments(): Promise<DocumentAvecFichiers[]> {
   const { data, error } = await supabase
     .from("documents")
     .select(SELECT_DOCUMENT_AVEC_RELATIONS)
-    .order("date_echeance", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false })
     .order("ordre", { referencedTable: "document_fichiers", ascending: true });
 

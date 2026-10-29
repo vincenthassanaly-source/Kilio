@@ -6,15 +6,12 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { deleteDocument, enregistrerApercuPdf, type DocumentAvecFichiers } from "@/app/actions/documents";
 import { genererApercuPdf } from "@/lib/pdf/apercuPdf";
-import { formatEcheance, niveauAlerte } from "./echeance";
-import { formatMois } from "./champs";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { TransitionLink } from "@/components/TransitionLink";
-import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, ghostButton, kcalPillTag, listCard, metaText, nameText, pillTag } from "@/lib/ui";
+import { card, dangerButton, ghostButton, listCard, nameText, pillTag } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { runAction } from "@/lib/actions/runAction";
-import { remettreEnVrac } from "./remettreEnVrac";
+import { BoutonRemettreEnVrac } from "./BoutonRemettreEnVrac";
 
 const DocumentForm = dynamic(() => import("./DocumentForm").then((m) => m.DocumentForm), { ssr: false });
 
@@ -44,11 +41,9 @@ function PdfIcon() {
 
 export function DocumentCard({
   document,
-  etiquettes,
   categories,
 }: {
   document: DocumentAvecFichiers;
-  etiquettes: Tables<"etiquettes">[];
   categories: string[];
 }) {
   const [editing, setEditing] = useState(false);
@@ -76,7 +71,6 @@ export function DocumentCard({
       >
         <DocumentForm
           document={document}
-          etiquettes={etiquettes}
           categories={categories}
           onDone={() => setEditing(false)}
         />
@@ -91,7 +85,6 @@ export function DocumentCard({
     );
   }
 
-  const alerte = niveauAlerte(document.date_echeance);
   const apercu = document.fichiers[0] ?? null;
 
   return (
@@ -147,42 +140,12 @@ export function DocumentCard({
             <p className={nameText} style={{ viewTransitionName: `document-title-${document.id}` }}>
               {document.nom}
             </p>
-            <div className="flex shrink-0 gap-1.5">
-              {document.etiquette && <span className={kcalPillTag}>{document.etiquette.nom}</span>}
-              {document.categorie && <span className={pillTag}>{document.categorie}</span>}
-            </div>
+            {document.categorie && <span className={pillTag}>{document.categorie}</span>}
           </div>
-          {document.date_echeance && (
-            <span
-              className={
-                alerte === "aucun"
-                  ? metaText
-                  : "w-fit rounded-full bg-alert/10 px-2 py-0.5 text-xs font-semibold text-alert"
-              }
-            >
-              Échéance : {formatEcheance(document.date_echeance)}
-            </span>
-          )}
-          {document.periode_mois && (
-            <span className={metaText}>Période : {formatMois(document.periode_mois)}</span>
-          )}
         </TransitionLink>
       </div>
-      <div className="flex justify-end gap-2">
-        {!document.en_vrac && (
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => {
-              startTransition(async () => {
-                await remettreEnVrac(document);
-              });
-            }}
-            className={ghostButton}
-          >
-            Remettre en vrac
-          </button>
-        )}
+      <div className="flex items-center justify-end gap-2">
+        {!document.en_vrac && <BoutonRemettreEnVrac document={document} />}
         <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
           Modifier
         </button>

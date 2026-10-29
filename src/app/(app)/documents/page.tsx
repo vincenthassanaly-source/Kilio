@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { getDocuments, getEtiquettes } from "@/app/actions/documents";
+import { getDocuments } from "@/app/actions/documents";
 import { getCategories } from "@/app/actions/documents-categories";
 import { screenTitle } from "@/lib/ui";
 import { DocumentsBrowser } from "./DocumentsBrowser";
@@ -12,15 +12,13 @@ export const maxDuration = 60;
 export default async function DocumentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vrac?: string }>;
+  searchParams: Promise<{ vrac?: string; categorie?: string | string[] }>;
 }) {
   await connection();
-  const { vrac } = await searchParams;
-  const [documents, etiquettes, categories] = await Promise.all([
-    getDocuments(),
-    getEtiquettes(),
-    getCategories(),
-  ]);
+  const { vrac, categorie } = await searchParams;
+  const [documents, categories] = await Promise.all([getDocuments(), getCategories()]);
+  // `?categorie=Santé` (lien depuis l'écran Catégories) présélectionne le filtre.
+  const categoriesInitiales = categorie === undefined ? [] : Array.isArray(categorie) ? categorie : [categorie];
 
   return (
     <PullToRefresh>
@@ -28,9 +26,9 @@ export default async function DocumentsPage({
         <h1 className={screenTitle}>Documents</h1>
         <DocumentsBrowser
           documents={documents}
-          etiquettes={etiquettes}
           categories={categories.map((c) => c.nom)}
           vracInitial={vrac === "1"}
+          categoriesInitiales={categoriesInitiales}
         />
       </div>
     </PullToRefresh>

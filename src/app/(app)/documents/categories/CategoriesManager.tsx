@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import {
   creerCategorie,
   fusionnerCategories,
@@ -197,12 +198,33 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
   return (
     <li className={`${listCard} gap-2`}>
       <div className="flex flex-col gap-2">
-        <div className="flex min-w-0 flex-col">
-          {/* L'état local (déjà enregistré côté serveur), pas la prop : même
-              raison que EtiquetteRow (CLICK-PATH-702). */}
-          <p className={nameTextComplet}>{nom}</p>
-          <span className={metaText}>{libelleNombre(categorie.nb)}</span>
-        </div>
+        {/* Toucher le nom ouvre la liste des documents de la catégorie (page
+            Documents filtrée). L'état local (déjà enregistré côté serveur), pas la
+            prop : un renommage réussi doit s'afficher tout de suite (CLICK-PATH-702). */}
+        <Link
+          href={`/documents?categorie=${encodeURIComponent(nom)}`}
+          aria-label={`Voir les documents de la catégorie ${nom} (${libelleNombre(categorie.nb).toLowerCase()})`}
+          className="flex min-w-0 items-center justify-between gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        >
+          <div className="flex min-w-0 flex-col">
+            <p className={nameTextComplet}>{nom}</p>
+            <span className={metaText}>{libelleNombre(categorie.nb)}</span>
+          </div>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0 text-ink-3"
+            aria-hidden="true"
+          >
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        </Link>
         <div className={actionsLigne}>
           <button type="button" onClick={() => setMode("renommer")} className={ghostButton}>
             Modifier

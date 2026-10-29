@@ -5,14 +5,11 @@ import Image from "next/image";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { deleteDocument, type DocumentAvecFichiers } from "@/app/actions/documents";
 import { DocumentForm } from "../DocumentForm";
-import { formatEcheance, niveauAlerte } from "../echeance";
-import { formatMois } from "../champs";
 import { ImageLightbox } from "@/components/ImageLightbox";
-import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, errorText, ghostButton, kcalPillTag, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { chargerFichiers, nomDeFichier, partager, peutPartager, telecharger } from "@/lib/documents/partage";
-import { remettreEnVrac } from "../remettreEnVrac";
+import { BoutonRemettreEnVrac } from "../BoutonRemettreEnVrac";
 import { BackLink } from "@/components/BackLink";
 
 function PdfIcon() {
@@ -26,11 +23,9 @@ function PdfIcon() {
 
 export function DocumentDetail({
   document,
-  etiquettes,
   categories,
 }: {
   document: DocumentAvecFichiers;
-  etiquettes: Tables<"etiquettes">[];
   categories: string[];
 }) {
   const [editing, setEditing] = useState(false);
@@ -88,7 +83,6 @@ export function DocumentDetail({
       <div className={card}>
         <DocumentForm
           document={document}
-          etiquettes={etiquettes}
           categories={categories}
           onDone={() => setEditing(false)}
         />
@@ -98,8 +92,6 @@ export function DocumentDetail({
       </div>
     );
   }
-
-  const alerte = niveauAlerte(document.date_echeance);
 
   return (
     <div className="flex flex-col gap-4">
@@ -114,11 +106,11 @@ export function DocumentDetail({
             {document.nom}
           </h1>
           <div className="mt-1 flex flex-wrap gap-1.5">
-            {document.etiquette && <span className={kcalPillTag}>{document.etiquette.nom}</span>}
             {document.categorie && <span className={pillTag}>{document.categorie}</span>}
           </div>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 items-center gap-2">
+          {!document.en_vrac && <BoutonRemettreEnVrac document={document} />}
           <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
             Éditer
           </button>
@@ -147,37 +139,8 @@ export function DocumentDetail({
         </div>
       </div>
 
-      {document.en_vrac ? (
+      {document.en_vrac && (
         <p className="text-sm text-ink-2">En vrac : à trier depuis l&apos;onglet Vrac de la liste des documents.</p>
-      ) : (
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() => {
-            startTransition(async () => {
-              await remettreEnVrac(document);
-            });
-          }}
-          className={`${ghostButton} self-start`}
-        >
-          Remettre en vrac
-        </button>
-      )}
-
-      {document.date_echeance && (
-        <span
-          className={
-            alerte === "aucun"
-              ? "text-sm text-ink-2"
-              : "w-fit rounded-full bg-alert/10 px-2.5 py-1 text-sm font-semibold text-alert"
-          }
-        >
-          Échéance : {formatEcheance(document.date_echeance)}
-        </span>
-      )}
-
-      {document.periode_mois && (
-        <span className="text-sm text-ink-2">Période : {formatMois(document.periode_mois)}</span>
       )}
 
       {document.notes && <p className="whitespace-pre-wrap text-sm text-ink">{document.notes}</p>}
