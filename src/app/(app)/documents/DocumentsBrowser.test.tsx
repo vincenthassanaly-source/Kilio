@@ -1,6 +1,14 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+// `useSearchParams` vaut null hors de l'app router : les tests existants passent par
+// les props et l'état local. Les tests « adresse » y mettent de vraies URLSearchParams.
+const adresse = vi.hoisted(() => ({ params: null as URLSearchParams | null }));
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/navigation")>()),
+  useSearchParams: () => adresse.params,
+}));
+
 // Les composants lourds (formulaire, cartes, modal de tri) sont remplacés : on teste
 // ici le filtrage par catégorie et le tri de la page Documents, pas leur rendu.
 vi.mock("./AddDocumentToggle", () => ({ AddDocumentToggle: () => null }));
@@ -56,7 +64,11 @@ function noms() {
     .map((li) => li.textContent);
 }
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  adresse.params = null;
+  vi.restoreAllMocks();
+});
 
 describe("DocumentsBrowser : catégories", () => {
   it("propose une pastille par catégorie qui a des documents classés, avec leur nombre", () => {
@@ -182,5 +194,78 @@ describe("DocumentsBrowser : réorganiser", () => {
     );
 
     expect(screen.queryByRole("button", { name: "Réorganiser" })).toBeNull();
+  });
+});
+
+describe("DocumentsBrowser : l'adresse fait foi", () => {
+  it("applique le filtre de `?categorie=` même si l'écran était déjà affiché sans filtre", () => {
+    adresse.params = new URLSearchParams();
+    const { rerender } = render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+    expect(noms()).toEqual(expect.arrayContaining(["Carte d'identité", "Facture EDF", "Bail"]));
+
+    // Même écran conservé par Next : seul le lien depuis Catégories change l'adresse.
+    adresse.params = new URLSearchParams("categorie=Logement");
+    rerender(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+
+    expect(noms()).toEqual(expect.arrayContaining(["Facture EDF", "Bail"]));
+    expect(noms()).toHaveLength(2);
+    expect(screen.getByRole("button", { name: /Logement/ })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("passe d'une catégorie à une autre quand l'adresse change", () => {
+    adresse.params = new URLSearchParams("categorie=Logement");
+    const { rerender } = render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+    expect(noms()).toHaveLength(2);
+
+    adresse.params = new URLSearchParams("categorie=Identité");
+    rerender(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+
+    expect(noms()).toEqual(["Carte d'identité"]);
+  });
+
+  it("retire le filtre quand l'adresse n'a plus de `?categorie=`", () => {
+    adresse.params = new URLSearchParams("categorie=Logement");
+    const { rerender } = render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+
+    adresse.params = new URLSearchParams();
+    rerender(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+
+    expect(noms()).toHaveLength(4);
+  });
+
+  it("met l'adresse à jour au toucher d'une pastille, sans ajouter de pas d'historique", () => {
+    adresse.params = new URLSearchParams("vrac=0");
+    window.history.replaceState(null, "", "/documents?vrac=0");
+    const remplace = vi.spyOn(window.history, "replaceState");
+    const empile = vi.spyOn(window.history, "pushState");
+    render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Logement/ }));
+
+    expect(remplace).toHaveBeenCalledTimes(1);
+    expect(remplace.mock.calls[0][2]).toContain("categorie=Logement");
+    expect(remplace.mock.calls[0][2]).toContain("vrac=0");
+    expect(empile).not.toHaveBeenCalled();
+  });
+
+  it("ouvre l'onglet Vrac quand `?vrac=1` arrive sur un écran déjà affiché", () => {
+    adresse.params = new URLSearchParams();
+    const { rerender } = render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+    expect(screen.queryByText(/Documents reçus par le partage/)).toBeNull();
+
+    adresse.params = new URLSearchParams("vrac=1");
+    rerender(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+
+    expect(screen.getByText(/Documents reçus par le partage/)).toBeInTheDocument();
+  });
+
+  it("laisse basculer à la main entre Documents et Vrac sans que l'adresse ne le reprenne", () => {
+    adresse.params = new URLSearchParams("vrac=1");
+    render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+    expect(screen.getByText(/Documents reçus par le partage/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Documents" }));
+
+    expect(screen.queryByText(/Documents reçus par le partage/)).toBeNull();
   });
 });
