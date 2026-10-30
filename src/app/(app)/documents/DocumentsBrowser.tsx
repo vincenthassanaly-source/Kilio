@@ -293,7 +293,17 @@ export function DocumentsBrowser({
                 : "Aucun document ne correspond à ta recherche."}
             </p>
           ) : (
-            <DocumentsList documents={tries} categories={categories} />
+            // Clé = onglet + filtre + recherche : quand l'un d'eux change, la liste est
+            // reconstruite d'un coup. Sans cela, AnimatePresence garde à l'écran les
+            // cartes filtrées tant que leur animation de sortie n'est pas terminée ;
+            // lorsque l'écran Documents revient d'un autre écran (Cache Components),
+            // elle ne se termine pas et la liste complète restait affichée sous un
+            // filtre pourtant coché. La suppression d'un document garde son animation.
+            <DocumentsList
+              key={`${ongletActif}\u0000${categorieFilter.join("\u0001")}\u0000${normalizeSearch(search)}`}
+              documents={tries}
+              categories={categories}
+            />
           )}
         </>
       )}
