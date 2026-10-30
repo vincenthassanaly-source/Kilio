@@ -9,9 +9,13 @@ import { DocumentsList } from "./DocumentsList";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { TAILLE_LOT_TRI } from "@/lib/documents/tri";
 import { normalizeSearch } from "@/lib/normalize";
-import { card, input, kcalPillTag, pillTag, primaryButton, zoneTapPill } from "@/lib/ui";
+import { card, input, kcalPillTag, pillTag, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
 
 const TriVracModal = dynamic(() => import("./TriVracModal").then((m) => m.TriVracModal), { ssr: false });
+const ReorganiserModal = dynamic(() => import("./ReorganiserModal").then((m) => m.ReorganiserModal), { ssr: false });
+
+/** Il faut au moins deux documents classés pour que réorganiser ait un sens. */
+const DOCUMENTS_MIN_REORGANISATION = 2;
 
 type TriCle = "recent" | "nom" | "categorie";
 type Onglet = "documents" | "vrac";
@@ -61,6 +65,7 @@ export function DocumentsBrowser({
   const [tri, setTri] = useState<TriCle>("recent");
   const [onglet, setOnglet] = useState<Onglet>(vracInitial ? "vrac" : "documents");
   const [triOuvert, setTriOuvert] = useState(false);
+  const [reorganiserOuvert, setReorganiserOuvert] = useState(false);
   // Documents restés en vrac lors d'un tri précédent (échec, décochés) : le
   // clic suivant sur « Trier » passe aux autres plutôt que de les reprendre.
   const [ignores, setIgnores] = useState<string[]>([]);
@@ -138,6 +143,17 @@ export function DocumentsBrowser({
 
   return (
     <div className="flex flex-col gap-4">
+      {classes.length >= DOCUMENTS_MIN_REORGANISATION && (
+        <button
+          type="button"
+          onClick={() => setReorganiserOuvert(true)}
+          className={`${secondaryButton} flex min-h-11 items-center justify-center gap-2 self-end px-4 py-2 text-sm`}
+        >
+          <EtincelleIcon />
+          Réorganiser
+        </button>
+      )}
+
       {ongletActif === "documents" && <AddDocumentToggle categories={categories} />}
 
       {vrac.length > 0 && (
@@ -248,6 +264,8 @@ export function DocumentsBrowser({
       )}
 
       {aucunDocument && <DocumentsList documents={documents} categories={categories} />}
+
+      {reorganiserOuvert && <ReorganiserModal categories={categories} onClose={() => setReorganiserOuvert(false)} />}
 
       {triOuvert && (
         <TriVracModal
