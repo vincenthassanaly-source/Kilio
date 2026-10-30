@@ -11,6 +11,7 @@ import {
   HEURE_REGEX,
   type FrequenceEvenement,
 } from "@/lib/evenements/compute";
+import { RAPPEL_MINUTES_VALEURS } from "@/lib/taches/compute";
 import { estUuid } from "@/lib/uuid";
 import type { Tables } from "@/lib/supabase/types";
 
@@ -18,7 +19,7 @@ import type { Tables } from "@/lib/supabase/types";
 // récurrent (`date` y est la date de l'occurrence affichée).
 export type Evenement = Tables<"evenements"> & { dateOrigine?: string };
 
-const RAPPELS_EVENEMENT = [5, 15, 30, 60, 1440] as const;
+const RAPPELS_EVENEMENT = RAPPEL_MINUTES_VALEURS;
 
 export type EvenementInput = {
   titre: string;

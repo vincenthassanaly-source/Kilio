@@ -13,6 +13,7 @@ import { dangerButton, errorText, input, label as labelClass, primaryButton } fr
 
 const RAPPELS: { valeur: string; label: string; journeeEntiere?: boolean }[] = [
   { valeur: "", label: "Aucun rappel" },
+  { valeur: "0", label: "À l'heure" },
   { valeur: "5", label: "5 min avant" },
   { valeur: "15", label: "15 min avant" },
   { valeur: "30", label: "30 min avant" },
@@ -49,12 +50,12 @@ export function EvenementForm({
   // Occurrence d'une série : on édite la série, donc sa date de départ.
   const [date, setDate] = useState(evenement?.dateOrigine ?? evenement?.date ?? dateParDefaut);
   const [journeeEntiere, setJourneeEntiere] = useState(evenement?.toute_la_journee ?? false);
-  const [rappel, setRappel] = useState(evenement?.rappel_minutes ? String(evenement.rappel_minutes) : "");
+  const [rappel, setRappel] = useState(evenement?.rappel_minutes != null ? String(evenement.rappel_minutes) : "");
   const [frequence, setFrequence] = useState<string>(evenement?.recurrence_frequence ?? "");
   const [finRecurrence, setFinRecurrence] = useState(evenement?.recurrence_fin ?? "");
   // Rappel et répétition : repliés pour un ajout rapide, ouverts s'ils sont déjà réglés.
   const [optionsOuvertes, setOptionsOuvertes] = useState(
-    Boolean(evenement?.rappel_minutes || evenement?.recurrence_frequence)
+    evenement?.rappel_minutes != null || Boolean(evenement?.recurrence_frequence)
   );
   const [heure, setHeure] = useState(evenement ? evenement.heure.slice(0, 5) : heureParDefaut);
   const [duree, setDuree] = useState(

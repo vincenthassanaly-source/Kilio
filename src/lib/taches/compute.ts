@@ -89,7 +89,7 @@ export function libelleNombreTaches(total: number): string {
 // Valeurs de rappel acceptées par le serveur (parseTacheInput) et proposées
 // par le formulaire. Ici plutôt que dans actions/taches.ts : un fichier
 // "use server" ne peut exporter que des fonctions asynchrones.
-export const RAPPEL_MINUTES_VALEURS = [5, 15, 30, 60, 1440] as const;
+export const RAPPEL_MINUTES_VALEURS = [0, 5, 15, 30, 60, 1440] as const;
 
 // Valeurs de départ d'un formulaire de création pré-rempli (saisie en langage
 // naturel : « Modifier » une tâche proposée, ou création simple depuis un
