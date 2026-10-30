@@ -508,6 +508,7 @@ export function AddTaskForm({
                 className={input}
               >
                 <option value="">Aucun</option>
+                <option value="0">À l&apos;heure</option>
                 <option value="5">5 min avant</option>
                 <option value="15">15 min avant</option>
                 <option value="30">30 min avant</option>

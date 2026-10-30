@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { eyebrow } from "@/lib/ui";
 import { DashboardHeaderSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { GlobalSearchBar } from "./GlobalSearchBar";
+import { SaisieNaturelle } from "./SaisieNaturelle";
 import { DashboardView } from "./DashboardView";
 import { ReveilButton } from "./ReveilButton";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -53,6 +54,7 @@ export default function DashboardPage() {
       </div>
 
       <GlobalSearchBar />
+      <SaisieNaturelle />
 
       <PullToRefresh>
         <DashboardView />

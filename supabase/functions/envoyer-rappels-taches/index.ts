@@ -282,7 +282,9 @@ Deno.serve(async () => {
     const body =
       tache.rappel_minutes === 1440
         ? "demain"
-        : tache.rappel_minutes === 60
+        : tache.rappel_minutes === 0
+          ? "maintenant"
+          : tache.rappel_minutes === 60
           ? "dans 1h"
           : `dans ${tache.rappel_minutes} min`;
     const payload = JSON.stringify({
@@ -319,7 +321,9 @@ Deno.serve(async () => {
       ? "demain"
       : evenement.rappel_minutes === 1440
         ? `demain à ${evenement.heure.slice(0, 5)}`
-        : evenement.rappel_minutes === 60
+        : evenement.rappel_minutes === 0
+          ? `maintenant (${evenement.heure.slice(0, 5)})`
+          : evenement.rappel_minutes === 60
           ? `dans 1h (${evenement.heure.slice(0, 5)})`
           : `dans ${evenement.rappel_minutes} min (${evenement.heure.slice(0, 5)})`;
     const payload = JSON.stringify({
