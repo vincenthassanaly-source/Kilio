@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import type { DocumentAvecFichiers } from "@/app/actions/documents";
 import { AddDocumentToggle } from "./AddDocumentToggle";
 import { DocumentsList } from "./DocumentsList";
@@ -46,6 +47,33 @@ function EtincelleIcon() {
   );
 }
 
+/**
+ * Filtre de catégories et onglet Vrac, lus dans l'adresse (`?categorie=` : lien
+ * depuis l'écran Catégories ; `?vrac=1` : partage Android). L'adresse fait foi :
+ * avec les Cache Components, Next conserve l'écran Documents quitté avec son état,
+ * et un état initialisé une seule fois ignorerait le lien suivant (le filtre
+ * restait vide : toute la liste s'affichait au lieu des documents de la catégorie).
+ * Toucher une pastille remplace l'adresse (`replaceState`, sans pas d'historique ni
+ * aller-retour serveur) : Retour, le rechargement et le partage du lien restent cohérents.
+ * Hors de l'app router (`useSearchParams` vaut null, ex. tests), un état local prend le relais.
+ */
+function useFiltresAdresse(categoriesInitiales: string[], vracInitial: boolean) {
+  const params = useSearchParams();
+  const [local, setLocal] = useState(categoriesInitiales);
+  const cle = params ? params.getAll("categorie").filter(Boolean).join("\u0000") : null;
+  const categorieFilter = useMemo(() => (cle === null ? local : cle === "" ? [] : cle.split("\u0000")), [cle, local]);
+
+  function definirCategories(noms: string[]) {
+    setLocal(noms);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("categorie");
+    for (const nom of noms) url.searchParams.append("categorie", nom);
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  return { categorieFilter, definirCategories, vracAdresse: params ? params.get("vrac") === "1" : vracInitial };
+}
+
 export function DocumentsBrowser({
   documents,
   categories,
@@ -61,9 +89,16 @@ export function DocumentsBrowser({
   categoriesInitiales?: string[];
 }) {
   const [search, setSearch] = useState("");
-  const [categorieFilter, setCategorieFilter] = useState<string[]>(categoriesInitiales);
+  const { categorieFilter, definirCategories, vracAdresse } = useFiltresAdresse(categoriesInitiales, vracInitial);
   const [tri, setTri] = useState<TriCle>("recent");
-  const [onglet, setOnglet] = useState<Onglet>(vracInitial ? "vrac" : "documents");
+  const [onglet, setOnglet] = useState<Onglet>(vracAdresse ? "vrac" : "documents");
+  // Comme pour les catégories, l'adresse fait foi : arriver par `?vrac=1` alors
+  // que cet écran est déjà affiché (conservé par Next) ouvre bien l'onglet Vrac.
+  const [vracVu, setVracVu] = useState(vracAdresse);
+  if (vracAdresse !== vracVu) {
+    setVracVu(vracAdresse);
+    setOnglet(vracAdresse ? "vrac" : "documents");
+  }
   const [triOuvert, setTriOuvert] = useState(false);
   const [reorganiserOuvert, setReorganiserOuvert] = useState(false);
   // Documents restés en vrac lors d'un tri précédent (échec, décochés) : le
@@ -94,7 +129,7 @@ export function DocumentsBrowser({
   }, [classes, categories, categorieFilter]);
 
   function toggleCategorie(nom: string) {
-    setCategorieFilter((noms) => (noms.includes(nom) ? noms.filter((n) => n !== nom) : [...noms, nom]));
+    definirCategories(categorieFilter.includes(nom) ? categorieFilter.filter((n) => n !== nom) : [...categorieFilter, nom]);
   }
 
   // Recherche client-side (nom, notes, catégorie) : même approche que
