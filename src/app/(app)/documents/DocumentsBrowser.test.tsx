@@ -1,10 +1,19 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Les composants lourds (formulaire, cartes, modal de tri) sont remplacés : on teste
 // ici le filtrage par catégorie et le tri de la page Documents, pas leur rendu.
 vi.mock("./AddDocumentToggle", () => ({ AddDocumentToggle: () => null }));
 vi.mock("./TriVracModal", () => ({ TriVracModal: () => null }));
+vi.mock("./ReorganiserModal", () => ({
+  ReorganiserModal: ({ onClose }: { onClose: () => void }) => (
+    <div role="dialog" aria-label="Réorganiser les documents">
+      <button type="button" onClick={onClose}>
+        Fermer la fenêtre
+      </button>
+    </div>
+  ),
+}));
 vi.mock("./DocumentsList", () => ({
   DocumentsList: ({ documents }: { documents: { id: string; nom: string }[] }) => (
     <ul data-testid="liste">
@@ -142,5 +151,36 @@ describe("DocumentsBrowser : catégories", () => {
 
     expect(noms()).not.toContain("Reçu au vrac");
     expect(screen.getByRole("button", { name: "Vrac, 1 à trier" })).toBeInTheDocument();
+  });
+});
+
+describe("DocumentsBrowser : réorganiser", () => {
+  it("ouvre la fenêtre de réorganisation et la referme", async () => {
+    render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Réorganiser" }));
+    // Chargée à la demande (next/dynamic) : elle apparaît un instant après le toucher.
+    expect(await screen.findByRole("dialog", { name: "Réorganiser les documents" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Fermer la fenêtre" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
+  it("reste disponible depuis l'onglet Vrac", () => {
+    render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} vracInitial />);
+
+    expect(screen.getByRole("button", { name: "Réorganiser" })).toBeInTheDocument();
+  });
+
+  it("n'apparaît pas tant qu'il y a moins de deux documents classés", () => {
+    render(
+      <DocumentsBrowser
+        documents={[document("1", "Carte d'identité", "Identité"), document("5", "Reçu au vrac", null, { en_vrac: true })]}
+        categories={CATEGORIES}
+      />
+    );
+
+    expect(screen.queryByRole("button", { name: "Réorganiser" })).toBeNull();
   });
 });
