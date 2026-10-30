@@ -22,15 +22,25 @@ vi.mock("./ReorganiserModal", () => ({
     </div>
   ),
 }));
-vi.mock("./DocumentsList", () => ({
-  DocumentsList: ({ documents }: { documents: { id: string; nom: string }[] }) => (
-    <ul data-testid="liste">
-      {documents.map((d) => (
-        <li key={d.id}>{d.nom}</li>
-      ))}
-    </ul>
-  ),
-}));
+// `montages` compte les fois où la liste est (re)construite : un changement de clé la remonte.
+const liste = vi.hoisted(() => ({ montages: 0 }));
+vi.mock("./DocumentsList", async () => {
+  const { useEffect } = await import("react");
+  return {
+    DocumentsList: ({ documents }: { documents: { id: string; nom: string }[] }) => {
+      useEffect(() => {
+        liste.montages += 1;
+      }, []);
+      return (
+        <ul data-testid="liste">
+          {documents.map((d) => (
+            <li key={d.id}>{d.nom}</li>
+          ))}
+        </ul>
+      );
+    },
+  };
+});
 
 import { DocumentsBrowser } from "./DocumentsBrowser";
 
@@ -67,6 +77,7 @@ function noms() {
 afterEach(() => {
   cleanup();
   adresse.params = null;
+  liste.montages = 0;
   vi.restoreAllMocks();
 });
 
@@ -257,6 +268,29 @@ describe("DocumentsBrowser : l'adresse fait foi", () => {
     rerender(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
 
     expect(screen.getByText(/Documents reçus par le partage/)).toBeInTheDocument();
+  });
+
+  it("reconstruit la liste quand le filtre de l'adresse change, pour qu'aucune carte filtrée ne reste affichée", () => {
+    adresse.params = new URLSearchParams();
+    const { rerender } = render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+    expect(liste.montages).toBe(1);
+
+    adresse.params = new URLSearchParams("categorie=Identité");
+    rerender(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+
+    expect(liste.montages).toBe(2);
+    expect(noms()).toEqual(["Carte d'identité"]);
+  });
+
+  it("reconstruit la liste à chaque recherche, mais pas quand on change seulement le tri", () => {
+    render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+    expect(liste.montages).toBe(1);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "bail" } });
+    expect(liste.montages).toBe(2);
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Trier les documents" }), { target: { value: "nom" } });
+    expect(liste.montages).toBe(2);
   });
 
   it("laisse basculer à la main entre Documents et Vrac sans que l'adresse ne le reprenne", () => {
