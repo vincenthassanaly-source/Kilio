@@ -9,8 +9,8 @@ drop table if exists vinted_photos;
 drop table if exists vinted_annonces;
 drop table if exists vinted_reglages;
 
--- Le bucket est vide : on le retire par la table (la purge d'objets éventuels
--- passerait par l'API Storage, pas par SQL).
-delete from storage.buckets where id = 'vinted-images';
+-- Le bucket `vinted-images` (vide) ne se supprime pas en SQL : Supabase bloque
+-- tout delete direct sur storage.* (erreur 42501). À retirer depuis Storage
+-- dans le dashboard, ou via l'API Storage.
 
 commit;
