@@ -26,9 +26,6 @@ export const queryKeys = {
   // Habitudes proposées au rattachement + habitudes déjà liées à un objectif.
   habitudesActives: ["habitudes-actives"] as const,
   habitudesDeLObjectif: (id: string) => ["habitudes-de-l-objectif", id] as const,
-  vinted: ["vinted"] as const,
-  vintedAnnonce: (id: string) => ["vinted", id] as const,
-  vintedReglages: ["vinted-reglages"] as const,
   opinions: ["opinions"] as const,
   opinionsIdee: (id: string) => ["opinions", id] as const,
   // Sous la racine `opinions` : un tirer-pour-rafraîchir invalide aussi partis et priorités.

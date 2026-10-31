@@ -5,7 +5,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { getIdee } from "@/app/actions/opinions";
 import { IdeeView } from "./IdeeView";
 
-// Même patron que vinted/[id]/page.tsx : l'idée est préchargée côté serveur
+// L'idée est préchargée côté serveur
 // puis relue côté client via TanStack Query.
 export default async function IdeePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
