@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   brouillonDepuisEntrainement,
+  brouillonPourRefaire,
   formaterDateLongue,
   formaterDureeS,
   heureParisDe,
@@ -84,6 +85,65 @@ describe("brouillonDepuisEntrainement", () => {
       ["normale", 80, 8],
       ["normale", -20, 8],
     ]);
+  });
+});
+
+describe("brouillonPourRefaire", () => {
+  const MAINTENANT = "2026-10-31T10:00:00.000Z";
+  const precedent = [
+    { poids: 85, reps: 6, duree: null, distance: null },
+    { poids: 90, reps: 5, duree: null, distance: null },
+  ];
+
+  it("reprend titre, routine, type, exercices, nombre et types de série, sans rien marquer fait", () => {
+    const b = brouillonPourRefaire({ ...detail, routineId: "r-1" }, { [EXO]: precedent }, {}, MAINTENANT, compteur());
+    expect(b.nom).toBe("Push");
+    expect(b.routineId).toBe("r-1");
+    expect(b.typeSeance).toBe("PUSH");
+    expect(b.debutA).toBe(MAINTENANT);
+    expect(b.repos).toBeNull();
+    expect(b.id).not.toBe(ID);
+    expect(b.exercices).toHaveLength(1);
+    expect(b.exercices[0].exerciceId).toBe(EXO);
+    expect(b.exercices[0].reposS).toBe(60);
+    expect(b.exercices[0].series.map((s) => s.type)).toEqual(["echauffement", "normale", "normale"]);
+    expect(b.exercices[0].series.every((s) => !s.fait && s.faitA === null)).toBe(true);
+  });
+
+  it("préremplit poids et reps avec la dernière performance, pas avec la séance copiée", () => {
+    const b = brouillonPourRefaire(detail, { [EXO]: precedent }, {}, MAINTENANT, compteur());
+    expect(b.exercices[0].series.map((s) => [s.poids, s.reps])).toEqual([
+      [85, 6],
+      [90, 5],
+      [90, 5],
+    ]);
+    expect(b.exercices[0].precedent).toEqual(precedent);
+  });
+
+  it("démarre sans valeurs quand l'exercice n'a pas d'historique, et garde une séance libre sans routine", () => {
+    const b = brouillonPourRefaire(detail, {}, {}, MAINTENANT, compteur());
+    expect(b.routineId).toBeNull();
+    expect(b.exercices[0].series.map((s) => [s.poids, s.reps])).toEqual([
+      [null, null],
+      [null, null],
+      [null, null],
+    ]);
+  });
+
+  it("utilise le repos par défaut quand la séance copiée n'en avait pas", () => {
+    const sansRepos = { ...detail, exercices: [{ ...detail.exercices[0], reposS: null }] };
+    expect(brouillonPourRefaire(sansRepos, {}, {}, MAINTENANT, compteur()).exercices[0].reposS).toBe(90);
+  });
+
+  it("repasse par versPayload en séance valide une fois les séries faites", () => {
+    const b = brouillonPourRefaire(detail, { [EXO]: precedent }, {}, MAINTENANT, compteur());
+    const faites = {
+      ...b,
+      exercices: b.exercices.map((e) => ({ ...e, series: e.series.map((s) => ({ ...s, fait: true, faitA: MAINTENANT })) })),
+    };
+    const payload = versPayload(faites, "2026-10-31T11:00:00.000Z");
+    expect(payload).not.toBeNull();
+    expect(validerPayload(payload!)).toBeNull();
   });
 });
 

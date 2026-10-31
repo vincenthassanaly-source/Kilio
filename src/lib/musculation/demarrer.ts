@@ -3,6 +3,7 @@
 import { getDernieresSeries, getRecordsExercices } from "@/app/actions/musculation";
 import type { ExerciceCatalogue } from "./serveur";
 import { ecrireBrouillon } from "./brouillon";
+import { brouillonPourRefaire, type EntrainementDetail } from "./historique";
 import { exerciceDepuisRoutine, type RoutineDetail } from "./routines";
 import type { RecordsExercice } from "./stats";
 import { creerBrouillon, REPOS_PAR_DEFAUT_S, type Brouillon, type NouvelExercice, type SeriePrecedente } from "./seance";
@@ -66,6 +67,15 @@ export async function demarrerSeanceVide(): Promise<Brouillon> {
     maintenant: maintenant.toISOString(),
     exercices: [],
   });
+  await ecrireBrouillon(brouillon, true);
+  return brouillon;
+}
+
+/** « Refaire cette séance » : mêmes exercices et séries qu'une séance de l'historique, poids et reps de la dernière performance. */
+export async function demarrerDepuisEntrainement(detail: EntrainementDetail): Promise<Brouillon> {
+  const ids = detail.exercices.map((e) => e.exerciceId);
+  const [precedents, records] = await Promise.all([chargerPrecedents(ids), chargerRecords(ids)]);
+  const brouillon = brouillonPourRefaire(detail, precedents, records, new Date().toISOString());
   await ecrireBrouillon(brouillon, true);
   return brouillon;
 }
