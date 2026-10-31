@@ -18,6 +18,7 @@ import {
   type DoublonDetecte,
   type PropositionTri,
 } from "@/lib/documents/tri";
+import { planifierIndexation } from "@/lib/documents/indexation";
 import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -331,6 +332,8 @@ export async function appliquerTriVrac(elements: ElementTriValide[]): Promise<Ac
     if (error) console.error("appliquerTriVrac: catégories inutilisées non retirées", error);
   }
 
+  // Les documents classés sont lus par Gemini pour la recherche (en arrière-plan).
+  if (appliques > 0) planifierIndexation(valides.map((v) => v.id));
   revalidateVrac(valides.map((v) => v.id));
   return ok({ appliques, echecs: valides.length - appliques, raison });
 }

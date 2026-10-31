@@ -255,6 +255,27 @@ export type Database = {
         }
         Relationships: []
       }
+      documents_fiches: {
+        Row: {
+          contenu: string
+          document_id: string
+          signature: string
+          updated_at: string
+        }
+        Insert: {
+          contenu: string
+          document_id: string
+          signature: string
+          updated_at?: string
+        }
+        Update: {
+          contenu?: string
+          document_id?: string
+          signature?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents_dossiers: {
         Row: {
           document_id: string
