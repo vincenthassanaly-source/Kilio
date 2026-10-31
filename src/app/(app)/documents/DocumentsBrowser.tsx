@@ -7,10 +7,12 @@ import { useSearchParams } from "next/navigation";
 import type { DocumentAvecFichiers } from "@/app/actions/documents";
 import { AddDocumentToggle } from "./AddDocumentToggle";
 import { DocumentsList } from "./DocumentsList";
+import { rechercherDocuments } from "@/app/actions/documents-recherche";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { runAction } from "@/lib/actions/runAction";
 import { TAILLE_LOT_TRI } from "@/lib/documents/tri";
 import { normalizeSearch } from "@/lib/normalize";
-import { card, input, kcalPillTag, pillTag, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { card, errorText, input, kcalPillTag, pillTag, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
 
 const TriVracModal = dynamic(() => import("./TriVracModal").then((m) => m.TriVracModal), { ssr: false });
 const ReorganiserModal = dynamic(() => import("./ReorganiserModal").then((m) => m.ReorganiserModal), { ssr: false });
@@ -99,6 +101,11 @@ export function DocumentsBrowser({
     setVracVu(vracAdresse);
     setOnglet(vracAdresse ? "vrac" : "documents");
   }
+  // Recherche en langage naturel (Gemini) : `ia` est la sélection renvoyée pour
+  // `ia.question`. Elle remplace le filtre texte tant que la saisie ne change pas.
+  const [ia, setIa] = useState<{ question: string; ids: ReadonlySet<string>; nonLus: number } | null>(null);
+  const [iaEnCours, setIaEnCours] = useState(false);
+  const [iaErreur, setIaErreur] = useState<string | null>(null);
   const [triOuvert, setTriOuvert] = useState(false);
   const [reorganiserOuvert, setReorganiserOuvert] = useState(false);
   // Documents restés en vrac lors d'un tri précédent (échec, décochés) : le
@@ -135,11 +142,14 @@ export function DocumentsBrowser({
   // Recherche client-side (nom, notes, catégorie) : même approche que
   // NotesGrid, le volume mono-utilisateur ne justifie pas une recherche
   // full-text Postgres.
+  const iaActive = ia !== null && ongletActif === "documents";
   const filtres = useMemo(() => {
     const term = normalizeSearch(search);
     const filtrer = ongletActif === "documents" && categorieFilter.length > 0;
     return base.filter((document) => {
+      // Sélection de l'IA : remplace le filtre texte (la question n'est pas un mot à retrouver).
       const matchesSearch =
+        iaActive ? ia.ids.has(document.id) :
         term === "" ||
         normalizeSearch(document.nom).includes(term) ||
         normalizeSearch(document.notes ?? "").includes(term) ||
@@ -147,7 +157,26 @@ export function DocumentsBrowser({
       const matchesCategorie = !filtrer || (document.categorie !== null && categorieFilter.includes(document.categorie));
       return matchesSearch && matchesCategorie;
     });
-  }, [base, search, categorieFilter, ongletActif]);
+  }, [base, search, categorieFilter, ongletActif, iaActive, ia]);
+
+  function modifierRecherche(valeur: string) {
+    setSearch(valeur);
+    setIa(null);
+    setIaErreur(null);
+  }
+
+  async function chercherAvecIa() {
+    const question = search.trim();
+    if (!question || iaEnCours) return;
+    setIaEnCours(true);
+    setIaErreur(null);
+    const resultat = await runAction(() => rechercherDocuments(question), {
+      silencieux: true,
+      onError: setIaErreur,
+    });
+    setIaEnCours(false);
+    if (resultat.ok) setIa({ question, ids: new Set(resultat.data.ids), nonLus: resultat.data.nonLus });
+  }
 
   const tries = useMemo(() => {
     const copie = [...filtres];
@@ -260,12 +289,21 @@ export function DocumentsBrowser({
             </div>
           )}
 
-          <div className="flex gap-2">
+          <form
+            className="flex gap-2"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (ongletActif === "documents") void chercherAvecIa();
+            }}
+          >
             <input
               type="search"
-              placeholder="Rechercher un document…"
+              enterKeyHint="search"
+              placeholder="Rechercher ou poser une question…"
+              aria-label="Rechercher un document"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => modifierRecherche(e.target.value)}
               className={`${input} min-w-0 flex-1`}
             />
             <select
@@ -280,7 +318,51 @@ export function DocumentsBrowser({
                 </option>
               ))}
             </select>
-          </div>
+          </form>
+
+          {ongletActif === "documents" && search.trim() !== "" && (!ia || ia.question !== search.trim()) && (
+            <button
+              type="button"
+              onClick={() => void chercherAvecIa()}
+              disabled={iaEnCours}
+              aria-busy={iaEnCours}
+              className={`${secondaryButton} flex min-h-11 items-center justify-center gap-2 text-sm`}
+            >
+              <EtincelleIcon />
+              {iaEnCours ? "Recherche en cours…" : "Chercher avec l’IA"}
+            </button>
+          )}
+
+          {iaErreur && (
+            <p role="alert" className={errorText}>
+              {iaErreur} La liste ci-dessous reste filtrée par nom, notes et catégorie.
+            </p>
+          )}
+
+          {iaActive && (
+            <div role="status" className="flex items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5">
+              <p className="min-w-0 text-sm text-ink">
+                <span className="font-semibold">Sélection de l’IA</span> pour «&nbsp;{ia.question}&nbsp;»
+                {" · "}
+                <span className="tabular-nums">{filtres.length}</span> {filtres.length > 1 ? "documents" : "document"}
+              </p>
+              <button
+                type="button"
+                onClick={() => modifierRecherche("")}
+                className="min-h-11 shrink-0 px-2 text-sm font-semibold text-kcal"
+              >
+                Effacer
+              </button>
+            </div>
+          )}
+
+          {iaActive && ia.nonLus > 0 && (
+            <p className="text-xs text-ink-3">
+              {ia.nonLus} {ia.nonLus > 1 ? "documents n’ont" : "document n’a"} pas pu être {ia.nonLus > 1 ? "lus" : "lu"} par
+              l’IA : {ia.nonLus > 1 ? "ils sont cherchés" : "il est cherché"} par {ia.nonLus > 1 ? "leur" : "son"} nom et {ia.nonLus > 1 ? "leurs" : "ses"} notes
+              seulement. Relance la recherche pour réessayer.
+            </p>
+          )}
 
           {base.length === 0 ? (
             <p className="py-5 text-center text-sm text-ink-3">
@@ -290,7 +372,9 @@ export function DocumentsBrowser({
             <p className="py-5 text-center text-sm text-ink-3">
               {ongletActif === "documents" && categorieFilter.length > 0 && search === ""
                 ? "Aucun document dans cette catégorie."
-                : "Aucun document ne correspond à ta recherche."}
+                : iaActive
+                  ? "Aucun document ne correspond à ta question."
+                  : "Aucun document ne correspond à ta recherche."}
             </p>
           ) : (
             // Clé = onglet + filtre + recherche : quand l'un d'eux change, la liste est
@@ -300,7 +384,7 @@ export function DocumentsBrowser({
             // elle ne se termine pas et la liste complète restait affichée sous un
             // filtre pourtant coché. La suppression d'un document garde son animation.
             <DocumentsList
-              key={`${ongletActif}\u0000${categorieFilter.join("\u0001")}\u0000${normalizeSearch(search)}`}
+              key={`${ongletActif}\u0000${categorieFilter.join("\u0001")}\u0000${iaActive ? `ia:${ia.question}` : normalizeSearch(search)}`}
               documents={tries}
               categories={categories}
             />

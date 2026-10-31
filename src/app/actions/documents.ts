@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { detecterFormat } from "@/lib/documents/detecterFormat";
+import { planifierIndexation } from "@/lib/documents/indexation";
 import { CATEGORIE_MAX, CATEGORIES_PAR_DEFAUT, nomDepuisFichier } from "@/lib/documents/tri";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types";
@@ -353,6 +354,7 @@ export async function createDocument(
     return { error: err instanceof Error ? err.message : "Erreur lors de l'envoi des fichiers." };
   }
 
+  planifierIndexation([document.id]);
   revalidateDocumentsPaths();
   return { error: null };
 }
@@ -380,6 +382,8 @@ export async function updateDocument(
     return { error: err instanceof Error ? err.message : "Erreur lors de l'envoi des fichiers." };
   }
 
+  // Sans nouveau fichier, la signature n'a pas changé et l'indexation ne fait rien.
+  planifierIndexation([id]);
   revalidateDocumentsPaths(id);
   return { error: null };
 }
