@@ -3,7 +3,9 @@
 // routines. Logique pure : aucun accès réseau ni React.
 import { compteDansLeVolume, type ModeSaisie, type TypeSeance } from "./constantes";
 import type { RoutineEntree, RoutineSerie } from "./routines";
-import type { Brouillon, ExerciceBrouillon, SerieBrouillon } from "./seance";
+import { creerBrouillon, REPOS_PAR_DEFAUT_S } from "./seance";
+import type { Brouillon, ExerciceBrouillon, SerieBrouillon, SeriePrecedente } from "./seance";
+import type { RecordsExercice } from "./stats";
 
 export type EntrainementResume = {
   id: string;
@@ -104,6 +106,48 @@ export function brouillonDepuisEntrainement(
         ),
       }),
     ),
+  };
+}
+
+/**
+ * Nouvelle séance à partir d'une séance passée (« Refaire cette séance ») : mêmes
+ * exercices, même nombre de séries et mêmes types de série (échauffement…),
+ * titre et routine repris. Les poids et répétitions ne viennent pas de la séance
+ * copiée mais de la dernière performance de chaque exercice (« Précédent »),
+ * comme pour toute séance. Aucune série n'est faite. `routineId` est déjà null
+ * quand la routine d'origine a été supprimée.
+ */
+export function brouillonPourRefaire(
+  detail: EntrainementDetail,
+  precedents: Record<string, SeriePrecedente[]>,
+  records: Record<string, RecordsExercice>,
+  maintenant: string,
+  genererId?: () => string,
+): Brouillon {
+  const base = creerBrouillon(
+    {
+      nom: detail.titre,
+      routineId: detail.routineId,
+      maintenant,
+      exercices: detail.exercices.map((e) => ({
+        exerciceId: e.exerciceId,
+        nom: e.nom,
+        mode: e.mode,
+        reposS: e.reposS ?? REPOS_PAR_DEFAUT_S,
+        nbSeries: e.series.length,
+        precedent: precedents[e.exerciceId] ?? [],
+        records: records[e.exerciceId] ?? null,
+      })),
+    },
+    genererId,
+  );
+  return {
+    ...base,
+    typeSeance: detail.typeSeance,
+    exercices: base.exercices.map((exercice, i) => ({
+      ...exercice,
+      series: exercice.series.map((serie, j) => ({ ...serie, type: detail.exercices[i].series[j]?.type ?? serie.type })),
+    })),
   };
 }
 

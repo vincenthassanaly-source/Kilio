@@ -9,8 +9,10 @@ import { enregistrerRoutine, getEntrainement, getRoutine, supprimerEntrainement 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Modal } from "@/components/Modal";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { showToast } from "@/components/toast/toast-store";
+import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
+import { demarrerDepuisEntrainement } from "@/lib/musculation/demarrer";
+import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { TYPE_SERIE_LABELS } from "@/lib/musculation/constantes";
 import {
   formaterDateLongue,
@@ -34,6 +36,8 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
   const [routineACibler, setRoutineACibler] = useState<RoutineDetail | null>(null);
   const [suppression, setSuppression] = useState(false);
   const [enCours, setEnCours] = useState(false);
+  const [demarrage, setDemarrage] = useState(false);
+  const brouillonEnCours = useBrouillonEnCours();
 
   const volume = Math.round(detail.exercices.reduce((v, e) => v + volumeDeSeries(e.series), 0));
   const nbSeries = detail.exercices.reduce((n, e) => n + e.series.length, 0);
@@ -79,6 +83,17 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
     void queryClient.invalidateQueries({ queryKey: queryKeys.musculationRoutines });
     void queryClient.invalidateQueries({ queryKey: queryKeys.musculationRoutine(id) });
     showToast("Routine mise à jour");
+  }
+
+  async function refaire() {
+    setDemarrage(true);
+    try {
+      await demarrerDepuisEntrainement(detail);
+      router.push("/musculation/seance");
+    } catch {
+      setDemarrage(false);
+      showErrorToast("Impossible de démarrer la séance sur ce téléphone.");
+    }
   }
 
   async function supprimer() {
@@ -128,7 +143,20 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
       })}
 
       <div className="flex flex-col gap-2">
-        <Link href={`/musculation/historique/${detail.id}/modifier`} className={`${primaryButton} h-12 text-center leading-[1.6]`}>
+        {brouillonEnCours === undefined ? null : brouillonEnCours ? (
+          // Une seule séance peut être en cours : on la reprend plutôt que de l'écraser.
+          <>
+            <Link href="/musculation/seance" className={`${primaryButton} h-12 text-center leading-[1.6]`}>
+              Reprendre la séance en cours
+            </Link>
+            <p className={metaText}>« {brouillonEnCours.nom} » est en cours : termine-la avant d&apos;en refaire une.</p>
+          </>
+        ) : (
+          <button type="button" className={`${primaryButton} h-12`} onClick={() => void refaire()} disabled={enCours}>
+            {demarrage ? "Préparation…" : "Refaire cette séance"}
+          </button>
+        )}
+        <Link href={`/musculation/historique/${detail.id}/modifier`} className={`${secondaryButton} h-12 text-center leading-[1.6]`}>
           Modifier la séance
         </Link>
         <button type="button" className={secondaryButton} onClick={() => setModalRoutine(true)} disabled={enCours}>
