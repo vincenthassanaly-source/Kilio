@@ -16,9 +16,11 @@ import {
   basculerSerie,
   compterSeries,
   deplacerExercice,
+  dureeMarcheFinale,
   formaterMinutes,
   formaterPoids,
   modifierSerie,
+  prochaineSerie,
   remplacerExercice,
   retirerExercice,
   retirerSerie,
@@ -48,7 +50,7 @@ function Chrono({ debutA }: { debutA: string }) {
   return <span className="tabular-nums">{formaterMinutes(secondes)}</span>;
 }
 
-type Confirmation = "abandonner" | "vide" | "partiel" | null;
+type Confirmation = "abandonner" | "vide" | "partiel" | "marche" | null;
 
 /**
  * Séance en direct. Le brouillon vit dans Dexie (écrit à chaque modification) ;
@@ -67,6 +69,8 @@ export function SeanceView() {
   const [remplacementPour, setRemplacementPour] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation>(null);
   const [envoi, setEnvoi] = useState(false);
+  // Durée (s) de la marche qui vient d'être validée en dernier : ajoutée au temps de la séance si on termine.
+  const [marcheFinaleS, setMarcheFinaleS] = useState(0);
   // Une fois la séance terminée ou abandonnée, plus aucune écriture du brouillon.
   const clos = useRef(false);
 
@@ -106,6 +110,19 @@ export function SeanceView() {
     if (brouillon !== undefined && !clos.current) synchroniserRappelRepos(brouillon);
   }, [brouillon]);
 
+  // Ramène la série à faire au centre de l'écran : à l'ouverture de la séance (retour depuis
+  // une autre page ou l'app rouverte) puis après chaque série cochée.
+  const serieCourante = brouillon ? (prochaineSerie(brouillon)?.serieId ?? null) : null;
+  const dejaAffichee = useRef(false);
+  useEffect(() => {
+    if (!serieCourante) return;
+    const cible = document.querySelector(`[data-serie-id="${CSS.escape(serieCourante)}"]`);
+    if (!cible) return;
+    const animer = dejaAffichee.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    cible.scrollIntoView({ block: "center", behavior: animer ? "smooth" : "auto" });
+    dejaAffichee.current = true;
+  }, [serieCourante]);
+
   useWakeLock(Boolean(brouillon));
   const restant = useMinuteurRepos(brouillon?.repos ?? null, signalerFinRepos);
 
@@ -123,8 +140,8 @@ export function SeanceView() {
   const { faites, total } = compterSeries(b);
   const volume = Math.round(volumeTotal(b));
 
-  async function finir() {
-    const payload = versPayload(b, new Date().toISOString());
+  async function finir(ajoutS = 0) {
+    const payload = versPayload(b, new Date(Date.now() + ajoutS * 1000).toISOString());
     if (!payload) return;
     setEnvoi(true);
     clos.current = true;
@@ -251,7 +268,16 @@ export function SeanceView() {
           onRemplacer={setRemplacementPour}
           onDeplacer={(cle, sens) => maj((courant) => deplacerExercice(courant, cle, sens))}
           onModifierSerie={(cle, serieId, champs) => maj((courant) => modifierSerie(courant, cle, serieId, champs))}
-          onBasculer={(cle, serieId) => maj((courant) => basculerSerie(courant, cle, serieId, new Date().toISOString()))}
+          onBasculer={(cle, serieId) => {
+            const apres = basculerSerie(b, cle, serieId, new Date().toISOString());
+            setBrouillon(apres);
+            // Dernière série = la marche de fin : on propose de terminer la séance tout de suite.
+            const marche = dureeMarcheFinale(apres, cle, serieId);
+            if (marche !== null) {
+              setMarcheFinaleS(marche);
+              setConfirmation("marche");
+            }
+          }}
           onAjouterSerie={(cle) => maj((courant) => ajouterSerie(courant, cle))}
           onRetirerDerniereSerie={(cle) =>
             maj((courant) => {
@@ -322,6 +348,23 @@ export function SeanceView() {
             supprimée. Pour la garder, choisis « Terminer ».
           </p>
         )}
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={confirmation === "marche"}
+        titre="Terminer la séance ?"
+        confirmer="Terminer et enregistrer"
+        destructif={false}
+        onClose={() => setConfirmation(null)}
+        onConfirm={() => {
+          setConfirmation(null);
+          void finir(marcheFinaleS);
+        }}
+      >
+        <p>
+          La marche de {Math.round(marcheFinaleS / 60)} min est ajoutée à la durée de la séance. Choisis « Garder » pour
+          continuer la séance et la terminer plus tard.
+        </p>
       </ConfirmDialog>
 
       <ConfirmDialog

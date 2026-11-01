@@ -242,13 +242,22 @@ export function modifierSerie(
 ): Brouillon {
   return surExercice(b, cle, (e) => {
     const index = e.series.findIndex((s) => s.id === serieId);
-    // Un poids saisi se répercute sur les séries suivantes non faites (échauffements exclus).
-    const repercute = "poids" in champs && index >= 0 && (champs.type ?? e.series[index].type) !== "echauffement";
+    // Un poids ou un nombre de répétitions saisi se répercute sur les séries suivantes
+    // non faites (échauffements exclus).
+    const repercutable = index >= 0 && (champs.type ?? e.series[index].type) !== "echauffement";
+    const repercutePoids = repercutable && "poids" in champs;
+    const repercuteReps = repercutable && "reps" in champs;
     return {
       ...e,
       series: e.series.map((s, i) => {
         if (s.id === serieId) return { ...s, ...champs };
-        if (repercute && i > index && !s.fait && s.type !== "echauffement") return { ...s, poids: champs.poids ?? null };
+        if ((repercutePoids || repercuteReps) && i > index && !s.fait && s.type !== "echauffement") {
+          return {
+            ...s,
+            ...(repercutePoids ? { poids: champs.poids ?? null } : {}),
+            ...(repercuteReps ? { reps: champs.reps ?? null } : {}),
+          };
+        }
         return s;
       }),
     };
@@ -355,6 +364,20 @@ export function prochaineSerie(b: Brouillon): ProchaineSerie | null {
     }
   }
   return null;
+}
+
+/**
+ * Durée programmée (en secondes) de la marche qu'on vient de valider en dernier :
+ * la série cochée est celle d'un exercice « durée + vitesse » et plus aucune série
+ * n'attend. `null` sinon (autre exercice, séries restantes, durée non renseignée).
+ * Sert à proposer de terminer la séance, en ajoutant cette durée au temps de séance.
+ */
+export function dureeMarcheFinale(b: Brouillon, cle: string, serieId: string): number | null {
+  if (prochaineSerie(b) !== null) return null;
+  const exercice = b.exercices.find((e) => e.cle === cle);
+  const serie = exercice?.series.find((s) => s.id === serieId);
+  if (!exercice || exercice.mode !== "duree_vitesse" || !serie?.fait) return null;
+  return serie.duree !== null && serie.duree > 0 ? serie.duree : null;
 }
 
 // --- Synthèse -------------------------------------------------------------

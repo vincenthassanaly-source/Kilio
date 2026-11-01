@@ -53,7 +53,7 @@ describe("volume et synthèse", () => {
   });
 
   it("résume une séance", () => {
-    expect(resumerEntrainement({ id: ID, titre: "Push", date: "2026-10-12", dureeS: 3600 }, detail.exercices)).toEqual({
+    expect(resumerEntrainement({ id: ID, titre: "Push", date: "2026-10-12", dureeS: 3600, typeSeance: "PUSH" }, detail.exercices)).toEqual({
       id: ID,
       titre: "Push",
       date: "2026-10-12",
@@ -61,6 +61,7 @@ describe("volume et synthèse", () => {
       nbExercices: 1,
       nbSeries: 3,
       volume: 640,
+      typeSeance: "PUSH",
     });
   });
 });

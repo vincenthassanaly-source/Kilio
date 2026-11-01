@@ -14,6 +14,7 @@ import {
   libellePrecedent,
   libelleSerie,
   lireNombre,
+  dureeMarcheFinale,
   modifierSerie,
   prochaineSerie,
   remplacerExercice,
@@ -127,6 +128,24 @@ describe("édition", () => {
     expect(poids[2]).not.toBe(90);
     b = modifierSerie(b, cle, s2.id, { poids: 50 });
     expect(b.exercices[0].series.map((s) => s.poids)[0]).toBe(90);
+  });
+
+  it("répercute des répétitions saisies sur les séries suivantes non faites, hors échauffement", () => {
+    let b = brouillon();
+    const { cle } = b.exercices[0];
+    b = ajouterSerie(b, cle, compteur());
+    b = ajouterSerie(b, cle, compteur());
+    const [s0, s1, s2] = b.exercices[0].series;
+    b = modifierSerie(b, cle, s1.id, { type: "echauffement" });
+    b = basculerSerie(b, cle, s2.id, apres(10));
+    const repsAvant = b.exercices[0].series.map((s) => s.reps);
+    b = modifierSerie(b, cle, s0.id, { reps: 12 });
+    const reps = b.exercices[0].series.map((s) => s.reps);
+    expect(reps[0]).toBe(12);
+    expect(reps[1]).toBe(repsAvant[1]);
+    expect(reps[2]).toBe(repsAvant[2]);
+    // Les reps ne touchent pas au poids, et le poids ne touche pas aux reps.
+    expect(b.exercices[0].series[2].poids).toBe(s2.poids);
   });
 
   it("modifie le type d'une série et retire un exercice avec son repos", () => {
@@ -412,5 +431,40 @@ describe("affichage", () => {
     expect(libellePrecedent("duree_vitesse", { ...p, duree: 90 })).toBe("1,5 min");
     expect(libellePrecedent("poids_reps", undefined)).toBe("–");
     expect(libellePrecedent("duree", { poids: 80, reps: 8, duree: null, distance: null })).toBe("–");
+  });
+});
+
+describe("dureeMarcheFinale", () => {
+  const marche: NouvelExercice = { exerciceId: EXO, nom: "Marche", mode: "duree_vitesse", reposS: 0, nbSeries: 1, precedent: [] };
+
+  function avecMarche(): Brouillon {
+    return creerBrouillon({ nom: "Push", routineId: null, maintenant: DEBUT, exercices: [banc, marche] }, compteur());
+  }
+
+  it("renvoie la durée programmée quand la marche est la dernière série validée", () => {
+    let b = avecMarche();
+    const [exoBanc, exoMarche] = b.exercices;
+    b = modifierSerie(b, exoMarche.cle, exoMarche.series[0].id, { duree: 1800 });
+    for (const s of exoBanc.series) b = basculerSerie(b, exoBanc.cle, s.id, apres(10));
+    b = basculerSerie(b, exoMarche.cle, exoMarche.series[0].id, apres(20));
+    expect(dureeMarcheFinale(b, exoMarche.cle, exoMarche.series[0].id)).toBe(1800);
+  });
+
+  it("renvoie null s'il reste des séries à faire, sans durée, ou pour un autre exercice", () => {
+    let b = avecMarche();
+    const [exoBanc, exoMarche] = b.exercices;
+    const idMarche = exoMarche.series[0].id;
+    b = modifierSerie(b, exoMarche.cle, idMarche, { duree: 1800 });
+    b = basculerSerie(b, exoMarche.cle, idMarche, apres(5));
+    expect(dureeMarcheFinale(b, exoMarche.cle, idMarche)).toBeNull();
+
+    for (const s of exoBanc.series) b = basculerSerie(b, exoBanc.cle, s.id, apres(10));
+    expect(dureeMarcheFinale(b, exoBanc.cle, exoBanc.series[2].id)).toBeNull();
+
+    const sansDuree = avecMarche();
+    let c = sansDuree;
+    for (const s of c.exercices[0].series) c = basculerSerie(c, c.exercices[0].cle, s.id, apres(10));
+    c = basculerSerie(c, c.exercices[1].cle, c.exercices[1].series[0].id, apres(20));
+    expect(dureeMarcheFinale(c, c.exercices[1].cle, c.exercices[1].series[0].id)).toBeNull();
   });
 });

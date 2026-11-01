@@ -277,7 +277,7 @@ export function ExerciceBloc({
           const rang = estTravail ? ordinalTravail + 1 : index + 1;
           const typeOuvert = typeOuvertPour === serie.id;
           return (
-            <div key={serie.id} className="flex flex-col gap-1.5">
+            <div key={serie.id} data-serie-id={serie.id} className="flex flex-col gap-1.5">
               <div
                 className={`grid items-center gap-2 rounded-2xl py-1 transition-colors ${serie.fait && !edition ? "bg-kcal-soft" : ""}`}
                 style={{ gridTemplateColumns: colonnes }}
