@@ -461,7 +461,7 @@ async function lireSeriesParLigne(supabase: Client, ids: string[]): Promise<Map<
 export async function listerEntrainements(supabase: Client, limite: number): Promise<EntrainementResume[]> {
   const { data: entrainements, error } = await supabase
     .from("entrainements")
-    .select("id, titre, date, duree_s, debut_at")
+    .select("id, titre, date, duree_s, debut_at, type_seance")
     .order("date", { ascending: false })
     .order("debut_at", { ascending: false })
     .limit(Math.min(Math.max(1, limite), 200));
@@ -484,7 +484,7 @@ export async function listerEntrainements(supabase: Client, limite: number): Pro
 
   return entrainements.map((e) =>
     resumerEntrainement(
-      { id: e.id, titre: e.titre, date: e.date, dureeS: e.duree_s },
+      { id: e.id, titre: e.titre, date: e.date, dureeS: e.duree_s, typeSeance: typeOuNull(e.type_seance) },
       parEntrainement.get(e.id) ?? [],
     ),
   );

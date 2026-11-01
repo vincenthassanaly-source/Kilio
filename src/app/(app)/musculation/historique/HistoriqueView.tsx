@@ -8,7 +8,8 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { formaterDateLongue, formaterDureeS, type EntrainementResume } from "@/lib/musculation/historique";
 import { formaterPoids } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
-import { card, cardTight, ghostButton, metaText, nameText, screenTitle, secondaryButton } from "@/lib/ui";
+import { LIBELLES_TYPE } from "@/lib/seances/compute";
+import { card, cardTight, ghostButton, kcalPillTag, metaText, nameText, screenTitle, secondaryButton } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 
 const PAGE = 30;
@@ -17,7 +18,10 @@ export function LigneEntrainement({ entrainement: e }: { entrainement: Entrainem
   return (
     <li>
       <Link href={`/musculation/historique/${e.id}`} className={`${cardTight} flex flex-col gap-0.5`}>
-        <span className={nameText}>{e.titre}</span>
+        <span className="flex min-w-0 items-center gap-2">
+          <span className={`${nameText} min-w-0`}>{e.titre}</span>
+          {e.typeSeance && <span className={kcalPillTag}>{LIBELLES_TYPE[e.typeSeance].toUpperCase()}</span>}
+        </span>
         <span className={metaText}>{formaterDateLongue(e.date)}</span>
         <span className={metaText}>
           {e.nbExercices} exercice{e.nbExercices > 1 ? "s" : ""} · {e.nbSeries} série{e.nbSeries > 1 ? "s" : ""} ·{" "}

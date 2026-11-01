@@ -11,8 +11,8 @@ describe("listerEntrainements", () => {
       if (a.table === "entrainements") {
         return {
           data: [
-            { id: "e2", titre: "Pull", date: "2026-10-14", duree_s: 3000, debut_at: "x" },
-            { id: "e1", titre: "Push", date: "2026-10-12", duree_s: 3600, debut_at: "x" },
+            { id: "e2", titre: "Pull", date: "2026-10-14", duree_s: 3000, debut_at: "x", type_seance: "PULL" },
+            { id: "e1", titre: "Push", date: "2026-10-12", duree_s: 3600, debut_at: "x", type_seance: null },
           ],
         };
       }
@@ -34,6 +34,7 @@ describe("listerEntrainements", () => {
       ["e2", 1, 0, 0],
       ["e1", 2, 3, 1140],
     ]);
+    expect(liste.map((e) => e.typeSeance)).toEqual(["PULL", null]);
     const requete = fake.appels.find((a) => a.table === "entrainements")!;
     expect(requete.modificateurs).toContainEqual(["limit", 30]);
   });

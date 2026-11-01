@@ -23,6 +23,30 @@ const IconeCoche = () => (
   </svg>
 );
 
+const CHAMPS_DE_SAISIE = "input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range]), textarea, select, [contenteditable=''], [contenteditable=true]";
+
+/** `true` tant qu'un champ de saisie a le focus (donc, sur mobile, que le clavier est ouvert). */
+function useSaisieEnCours(): boolean {
+  const [saisie, setSaisie] = useState(false);
+  useEffect(() => {
+    const dansUnChamp = (cible: EventTarget | null) => cible instanceof Element && cible.matches(CHAMPS_DE_SAISIE);
+    const entree = (e: FocusEvent) => {
+      if (dansUnChamp(e.target)) setSaisie(true);
+    };
+    // `relatedTarget` : le focus passe d'un champ à un autre sans repasser par « aucun champ ».
+    const sortie = (e: FocusEvent) => {
+      if (dansUnChamp(e.target) && !dansUnChamp(e.relatedTarget)) setSaisie(false);
+    };
+    document.addEventListener("focusin", entree);
+    document.addEventListener("focusout", sortie);
+    return () => {
+      document.removeEventListener("focusin", entree);
+      document.removeEventListener("focusout", sortie);
+    };
+  }, []);
+  return saisie;
+}
+
 /**
  * Mini-barre « séance en cours », visible sur toutes les pages sauf l'écran de
  * séance lui-même (qui a sa propre barre de repos). Un tap la rouvre ; elle porte
@@ -34,6 +58,7 @@ export function SeanceFlottante() {
   const pathname = usePathname();
   const surSeance = barreBasseMasquee(pathname);
   const [brouillon, setBrouillon] = useState<Brouillon | null>(null);
+  const saisieEnCours = useSaisieEnCours();
 
   // Relit la séance du téléphone : au montage, au retour sur une autre page, et à chaque
   // écriture (début, fin, validation depuis cette barre). Sur l'écran de séance, qui écrit
@@ -60,7 +85,8 @@ export function SeanceFlottante() {
   const repos = !surSeance && brouillon ? brouillon.repos : null;
   const restant = useMinuteurRepos(repos, signalerFinRepos);
 
-  if (surSeance || !brouillon) return null;
+  // Pendant une saisie, le clavier mobile s'ouvre et le bandeau, fixé en bas, masquerait le champ.
+  if (surSeance || !brouillon || saisieEnCours) return null;
 
   const suivante = prochaineSerie(brouillon);
   const enRepos = brouillon.repos !== null;

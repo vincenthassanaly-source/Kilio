@@ -17,6 +17,8 @@ export type EntrainementResume = {
   nbSeries: number;
   /** Tonnage (kg) : poids × reps des séries de travail. */
   volume: number;
+  /** PUSH / PULL / LEGS, `null` si la séance n'en a pas. */
+  typeSeance: TypeSeance | null;
 };
 
 type EntrainementExerciceDetail = {
@@ -53,7 +55,7 @@ export function volumeDeSeries(series: readonly RoutineSerie[]): number {
 }
 
 export function resumerEntrainement(
-  base: { id: string; titre: string; date: string; dureeS: number },
+  base: { id: string; titre: string; date: string; dureeS: number; typeSeance: TypeSeance | null },
   exercices: readonly { series: readonly RoutineSerie[] }[],
 ): EntrainementResume {
   return {
