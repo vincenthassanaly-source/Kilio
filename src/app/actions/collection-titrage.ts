@@ -5,12 +5,12 @@ import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import {
   DESCRIPTION_MAX,
   SCHEMA_TITRAGE,
-  TAILLE_MAX_IMAGE_OCTETS,
   TITRE_MAX,
   construirePromptTitrage,
   lireReponseTitrage,
   type PropositionTitrage,
 } from "@/lib/collection/titrage";
+import { telechargerImage } from "@/lib/collection/image";
 import { nettoyerTexte } from "@/lib/documents/tri";
 import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -22,7 +22,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // `appliquerTitrage` (écrit seulement les propositions validées).
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const TELECHARGEMENT_TIMEOUT_MS = 15_000;
 const GEMINI_TIMEOUT_MS = 40_000;
 const LOT_MAX_APPLIQUE = 50;
 
@@ -35,25 +34,6 @@ export type ResultatTitrage =
 
 function echecTitrage(erreur: string, quota = false): ResultatTitrage {
   return { statut: "echec", erreur, quota };
-}
-
-type Image = { mimeType: string; data: string };
-
-/** Image de l'élément (photo, ou miniature d'une vidéo), ou null si elle est illisible ou trop lourde. */
-async function telechargerImage(url: string | null): Promise<Image | null> {
-  if (!url || !/^https?:\/\//i.test(url)) return null;
-  try {
-    const reponse = await fetch(url, { signal: AbortSignal.timeout(TELECHARGEMENT_TIMEOUT_MS) });
-    if (!reponse.ok) return null;
-    const type = reponse.headers.get("content-type") ?? "";
-    if (!type.startsWith("image/")) return null;
-    if (Number(reponse.headers.get("content-length")) > TAILLE_MAX_IMAGE_OCTETS) return null;
-    const octets = Buffer.from(await reponse.arrayBuffer());
-    if (octets.length > TAILLE_MAX_IMAGE_OCTETS) return null;
-    return { mimeType: type.split(";")[0].trim(), data: octets.toString("base64") };
-  } catch {
-    return null;
-  }
 }
 
 export async function analyserElementCollection(id: string): Promise<ResultatTitrage> {

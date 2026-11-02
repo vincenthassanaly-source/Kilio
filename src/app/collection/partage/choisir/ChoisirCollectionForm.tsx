@@ -1,7 +1,9 @@
 "use client";
 
-import { useId, useActionState, useState } from "react";
+import { useId, useActionState, useEffect, useRef, useState } from "react";
 import { rattacherPhotoACollection, type RattacherPhotoFormState } from "@/app/actions/collections";
+import { suggererCollection } from "@/app/actions/collection-rangement";
+import { runAction } from "@/lib/actions/runAction";
 import type { TypeVideo } from "@/lib/collection/video";
 import type { Tables } from "@/lib/supabase/types";
 import { card, checkCircle, errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
@@ -22,6 +24,47 @@ export function ChoisirCollectionForm({
   const [state, formAction, pending] = useActionState(rattacherPhotoACollection, initialState);
   const [collectionId, setCollectionId] = useState<string | null>(null);
   const [nouvelleCollection, setNouvelleCollection] = useState("");
+  // Suggestion de Gemini : « attente » pendant l'appel, puis la collection
+  // proposée (ou null si aucune ne convient / l'appel a échoué).
+  const [suggestion, setSuggestion] = useState<{ etat: "attente" } | { etat: "fini"; collectionId: string | null }>(
+    () => ({ etat: "attente" })
+  );
+  // Dès que tu choisis toi-même (ou tapes un nom), la suggestion ne touche plus à la sélection.
+  const choixManuel = useRef(false);
+
+  const premierePhoto = photos[0] ?? null;
+  const nbCollections = collections.length;
+  const videoUrl = video?.url;
+  const videoThumbnail = video?.thumbnailUrl;
+  const videoTitre = video?.titre;
+  const videoType = video?.type;
+
+  // Rien à choisir, ou rien à montrer à Gemini : pas d'appel.
+  const rienASuggerer = nbCollections === 0 || (!premierePhoto && !videoUrl);
+
+  useEffect(() => {
+    if (rienASuggerer) return;
+    // Annulation propre à CETTE exécution de l'effet (StrictMode en développement).
+    let annule = false;
+    (async () => {
+      // Avec plusieurs photos, la première suffit à orienter le choix.
+      const resultat = await runAction(
+        () =>
+          suggererCollection({
+            photoUrl: videoUrl ? null : premierePhoto,
+            video: videoUrl && videoType ? { type: videoType, thumbnailUrl: videoThumbnail ?? "", titre: videoTitre ?? "" } : null,
+          }),
+        { silencieux: true }
+      );
+      if (annule) return;
+      const suggeree = resultat.ok && resultat.data.statut === "ok" ? resultat.data.collectionId : null;
+      setSuggestion({ etat: "fini", collectionId: suggeree });
+      if (suggeree && !choixManuel.current) setCollectionId(suggeree);
+    })();
+    return () => {
+      annule = true;
+    };
+  }, [rienASuggerer, premierePhoto, videoUrl, videoThumbnail, videoTitre, videoType]);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -41,14 +84,19 @@ export function ChoisirCollectionForm({
       {collections.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <span className={labelClass}>Collection existante</span>
+          <p className="min-h-5 text-[13px] text-ink-3" aria-live="polite">
+            {!rienASuggerer && suggestion.etat === "attente" ? "Gemini cherche la meilleure collection…" : ""}
+          </p>
           <div className="flex flex-col gap-1.5">
             {collections.map((collection) => {
               const selected = collectionId === collection.id;
+              const suggeree = suggestion.etat === "fini" && suggestion.collectionId === collection.id;
               return (
                 <button
                   key={collection.id}
                   type="button"
                   onClick={() => {
+                    choixManuel.current = true;
                     setCollectionId(collection.id);
                     setNouvelleCollection("");
                   }}
@@ -56,7 +104,14 @@ export function ChoisirCollectionForm({
                     selected ? "border-kcal bg-kcal-soft" : "bg-background text-ink-2"
                   }`}
                 >
-                  <span className={selected ? "font-semibold text-ink" : ""}>{collection.nom}</span>
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className={`truncate ${selected ? "font-semibold text-ink" : ""}`}>{collection.nom}</span>
+                    {suggeree && (
+                      <span className="shrink-0 rounded-full bg-kcal-soft px-2 py-0.5 text-[11px] font-semibold text-kcal">
+                        Suggérée
+                      </span>
+                    )}
+                  </span>
                   <span
                     className={`${checkCircle} ${
                       selected ? "border-kcal bg-kcal" : "border-line bg-transparent"
@@ -90,6 +145,7 @@ export function ChoisirCollectionForm({
           name="nouvelle_collection"
           value={nouvelleCollection}
           onChange={(e) => {
+            choixManuel.current = true;
             setNouvelleCollection(e.target.value);
             setCollectionId(null);
           }}
