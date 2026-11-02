@@ -1,9 +1,9 @@
 "use server";
 
-import { createHash } from "node:crypto";
 import { revalidatePath, updateTag } from "next/cache";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { MESSAGE_QUOTA_GEMINI, appelerGemini } from "@/lib/gemini/appel";
+import { creerCacheCourt, empreinte } from "@/lib/gemini/cache-court";
 import {
   CONTENU_MAX,
   MODES_ASSISTANT,
@@ -38,29 +38,7 @@ const GEMINI_TIMEOUT_MS = 30_000;
 const CACHE_DUREE_MS = 10 * 60_000;
 const CACHE_TAILLE_MAX = 100;
 
-const cache = new Map<string, { expire: number; proposition: PropositionNote }>();
-
-function lireCache(cle: string): PropositionNote | null {
-  const entree = cache.get(cle);
-  if (!entree) return null;
-  if (entree.expire < Date.now()) {
-    cache.delete(cle);
-    return null;
-  }
-  return entree.proposition;
-}
-
-function ecrireCache(cle: string, proposition: PropositionNote) {
-  if (cache.size >= CACHE_TAILLE_MAX) {
-    const plusAncienne = cache.keys().next().value;
-    if (plusAncienne !== undefined) cache.delete(plusAncienne);
-  }
-  cache.set(cle, { expire: Date.now() + CACHE_DUREE_MS, proposition });
-}
-
-function empreinte(...parties: string[]): string {
-  return createHash("sha256").update(parties.join("\u0000")).digest("hex");
-}
+const cache = creerCacheCourt<PropositionNote>(CACHE_DUREE_MS, CACHE_TAILLE_MAX);
 
 function revalider() {
   revalidatePath("/notes");
@@ -107,7 +85,7 @@ export async function proposerPourNote(
     ...(mode === "tags" ? [tagsExistants.map((t) => `${t.id}:${t.nom}`).join(","), idsDeLaNote.slice().sort().join(",")] : [])
   );
   if (!regenerer) {
-    const enCache = lireCache(cle);
+    const enCache = cache.lire(cle);
     if (enCache) return ok(enCache);
   }
 
@@ -155,7 +133,7 @@ export async function proposerPourNote(
     );
   }
 
-  ecrireCache(cle, proposition);
+  cache.ecrire(cle, proposition);
   return ok(proposition);
 }
 
