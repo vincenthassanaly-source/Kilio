@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { analyserElementCollection, appliquerTitrage } from "@/app/actions/collection-titrage";
+import { analyserElementsCollection, appliquerTitrage } from "@/app/actions/collection-titrage";
 import { FadeInImage } from "@/components/FadeInImage";
 import { Modal } from "@/components/Modal";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
-import { DESCRIPTION_MAX, TITRE_MAX, libelleNature } from "@/lib/collection/titrage";
+import { DESCRIPTION_MAX, TAILLE_PAQUET_TITRAGE, TITRE_MAX, libelleNature } from "@/lib/collection/titrage";
 import { estTypeVideo } from "@/lib/collection/video";
 import { queryKeys } from "@/lib/query/keys";
 import type { Tables } from "@/lib/supabase/types";
@@ -26,6 +26,14 @@ type Ligne = {
 };
 
 type Etape = "analyse" | "apercu" | "application";
+
+// Garde-fou : un paquet qui ne répond pas (le serveur est limité à 60 s) ne
+// doit jamais figer la fenêtre. Au-delà, ses éléments passent en erreur.
+const DELAI_PAQUET_MS = 70_000;
+
+function delai(ms: number) {
+  return new Promise<"delai">((resolve) => setTimeout(() => resolve("delai"), ms));
+}
 
 function pluriel(n: number, mot: string) {
   return `${n} ${mot}${n > 1 ? "s" : ""}`;
@@ -77,29 +85,44 @@ export function TitrageModal({
     });
     (async () => {
       const resultats: Ligne[] = [];
-      for (const [index, element] of lot.entries()) {
+      // Paquets de TAILLE_PAQUET_TITRAGE : le serveur analyse un paquet en
+      // parallèle (les appels serveur d'un même écran passent l'un après
+      // l'autre, appeler élément par élément n'irait pas plus vite).
+      for (let debut = 0; debut < lot.length; debut += TAILLE_PAQUET_TITRAGE) {
         if (annule || arret.current) return;
+        const paquet = lot.slice(debut, debut + TAILLE_PAQUET_TITRAGE);
         let stop = false;
         try {
-          const resultat = await runAction(() => analyserElementCollection(element.id), { silencieux: true });
+          const resultat = await Promise.race([
+            runAction(() => analyserElementsCollection(paquet.map((e) => e.id)), { silencieux: true }),
+            delai(DELAI_PAQUET_MS),
+          ]);
           if (annule || arret.current) return;
-          if (!resultat.ok) {
-            resultats.push(echec(element, resultat.error));
-          } else if (resultat.data.statut === "echec") {
-            resultats.push(echec(element, resultat.data.erreur));
-            if (resultat.data.quota) {
-              setAvertissement("Quota Gemini atteint : les éléments restants n'ont pas été analysés. Réessaie plus tard.");
-              stop = true;
-            }
+          if (resultat === "delai") {
+            for (const element of paquet) resultats.push(echec(element, "L'analyse a pris trop de temps. Réessaie."));
+          } else if (!resultat.ok) {
+            for (const element of paquet) resultats.push(echec(element, resultat.error));
           } else {
-            const { titre, description } = resultat.data.proposition;
-            resultats.push({ element, titre, description, coche: true, erreur: null });
+            paquet.forEach((element, i) => {
+              const r = resultat.data[i];
+              if (!r) {
+                resultats.push(echec(element, "Pas de réponse pour cet élément."));
+              } else if (r.statut === "echec") {
+                resultats.push(echec(element, r.erreur));
+                if (r.quota) stop = true;
+              } else {
+                resultats.push({ element, titre: r.proposition.titre, description: r.proposition.description, coche: true, erreur: null });
+              }
+            });
+            if (stop) {
+              setAvertissement("Quota Gemini atteint : les éléments restants n'ont pas été analysés. Réessaie plus tard.");
+            }
           }
         } catch {
           if (annule || arret.current) return;
-          resultats.push(echec(element, "L'analyse a échoué de façon inattendue."));
+          for (const element of paquet) resultats.push(echec(element, "L'analyse a échoué de façon inattendue."));
         }
-        setAnalyses(index + 1);
+        setAnalyses(resultats.length);
         if (stop) break;
       }
       if (annule || arret.current) return;
@@ -150,7 +173,7 @@ export function TitrageModal({
   }
 
   return (
-    <Modal title="Décrire avec Gemini" onClose={fermer}>
+    <Modal title="Décrire" onClose={fermer}>
       {etape === "analyse" && (
         <div className="flex flex-col gap-4 pb-1" aria-busy="true">
           <div className="flex flex-col gap-2">

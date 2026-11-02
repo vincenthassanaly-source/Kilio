@@ -8,6 +8,7 @@ import {
   proposerReorganisationCollections,
   type ResultatPropositionCollections,
 } from "@/app/actions/collection-reorganisation";
+import { EtincelleIcon } from "@/components/EtincelleIcon";
 import { Modal } from "@/components/Modal";
 import { showActionToast, showErrorToast, showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
@@ -25,15 +26,6 @@ type Proposition = Extract<ResultatPropositionCollections, { statut: "ok" }>;
 
 function pluriel(n: number, mot: string) {
   return `${n} ${mot}${n > 1 ? "s" : ""}`;
-}
-
-function EtincelleIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8z" />
-      <path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" />
-    </svg>
-  );
 }
 
 function FlecheIcon() {
@@ -215,7 +207,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
   const occupe = etape === "application";
 
   return (
-    <Modal title="Réorganiser les collections" onClose={onClose}>
+    <Modal title="Réorganiser" onClose={onClose}>
       {etape === "instruction" && (
         <div className="flex flex-col gap-4 pb-1">
           <p className="text-sm text-ink-2">

@@ -5,6 +5,10 @@ import { queryKeys } from "@/lib/query/keys";
 import { getCollectionAvecPhotos } from "@/app/actions/collections";
 import { CollectionDetailView } from "./CollectionDetailView";
 
+// « Décrire » analyse jusqu'à 4 éléments en parallèle par appel (téléchargement
+// de l'image + Gemini, jusqu'à 50 s) : au-delà du plafond par défaut d'une fonction.
+export const maxDuration = 60;
+
 // Server Component async : précharge côté serveur (même patron que
 // objectifs/page.tsx), hydraté avant que CollectionDetailView ne prenne le relais côté
 // client. Évite l'aller-retour Server Action déclenché après hydratation.
