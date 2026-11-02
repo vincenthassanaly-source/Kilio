@@ -51,7 +51,14 @@ function VideoIcon() {
 // mal de navigateurs mobiles, l'attribut `capture` fait sauter directement à
 // l'appareil photo sans proposer la galerie. Un input dédié par usage
 // (caméra vs galerie) garantit que les deux restent accessibles.
-export function AddPhotoButton({ collectionId }: { collectionId: string }) {
+export function AddPhotoButton({
+  collectionId,
+  onAjoute,
+}: {
+  collectionId: string;
+  /** Appelé une fois les nouveaux éléments rechargés (le parent propose alors de les décrire). */
+  onAjoute?: () => void;
+}) {
   // Ids uniques par instance (T11) : formulaire rendu en ajout et en édition.
   const uid = useId();
   const queryClient = useQueryClient();
@@ -66,9 +73,11 @@ export function AddPhotoButton({ collectionId }: { collectionId: string }) {
   const [videoPending, startVideoTransition] = useTransition();
   const [videoError, setVideoError] = useState<string | null>(null);
 
+  // Résolue une fois la collection rechargée : `onAjoute` lit alors les
+  // éléments à jour dans le cache.
   function invalidate() {
-    queryClient.invalidateQueries({ queryKey: queryKeys.collection(collectionId) });
     queryClient.invalidateQueries({ queryKey: queryKeys.collections });
+    return queryClient.invalidateQueries({ queryKey: queryKeys.collection(collectionId) });
   }
 
   // Compression côté client avant envoi (vague 1, point « uploads ») : les
@@ -98,7 +107,8 @@ export function AddPhotoButton({ collectionId }: { collectionId: string }) {
             `${tropLourdes.length} photo${tropLourdes.length > 1 ? "s" : ""} trop lourde${tropLourdes.length > 1 ? "s" : ""} même compressée${tropLourdes.length > 1 ? "s" : ""} (plus de ${formatTaille(TAILLE_MAX_REQUETE_OCTETS)}) : non envoyée${tropLourdes.length > 1 ? "s" : ""}.`
           );
         }
-        invalidate();
+        await invalidate();
+        if (aEnvoyer.length > 0) onAjoute?.();
       } catch (err) {
         // Contrat T1 : message lisible (celui d'une exception de Server
         // Action est masqué en production) ; les lots déjà envoyés restent.
@@ -124,9 +134,10 @@ export function AddPhotoButton({ collectionId }: { collectionId: string }) {
     startVideoTransition(async () => {
       try {
         await ajouterLienVideo(collectionId, lien);
-        invalidate();
+        await invalidate();
         setVideoUrl("");
         setVideoOpen(false);
+        onAjoute?.();
       } catch (err) {
         setVideoError(err instanceof Error ? err.message : "Erreur lors de l'ajout.");
       }

@@ -1,11 +1,16 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getCollectionAvecPhotos } from "@/app/actions/collections";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCollectionAvecPhotos, type CollectionAvecPhotos } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
+import { TAILLE_LOT_TITRAGE, estADecrire, lotADecrire, titrageDisponible } from "@/lib/collection/titrage";
+import type { Tables } from "@/lib/supabase/types";
+import { secondaryButton } from "@/lib/ui";
 import { AddPhotoButton } from "./AddPhotoButton";
 import { CollectionHeader } from "./CollectionHeader";
 import { PhotosGrid } from "./PhotosGrid";
+import { TitrageModal } from "./TitrageModal";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
 import { ErrorInline } from "@/components/ErrorInline";
@@ -16,10 +21,23 @@ import { BackLink } from "@/components/BackLink";
 // avec les mutations optimistes. `notFound()` n'étant documenté que pour les
 // Server Components, un élément introuvable affiche un message inline.
 export function CollectionDetailView({ id }: { id: string }) {
+  const queryClient = useQueryClient();
   const { data: collection, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.collection(id),
     queryFn: () => getCollectionAvecPhotos(id),
   });
+  // Lot en cours de titrage par Gemini (null = fenêtre fermée).
+  const [lotTitrage, setLotTitrage] = useState<Tables<"collection_items">[] | null>(null);
+
+  // Ouvre le titrage sur les éléments sans description, les plus récents
+  // d'abord. Lit le cache plutôt que la valeur rendue : après un ajout, la
+  // collection vient d'être rechargée et le rendu n'a pas encore suivi.
+  function ouvrirTitrage() {
+    const courante = queryClient.getQueryData<CollectionAvecPhotos | null>(queryKeys.collection(id));
+    if (!courante || !titrageDisponible(courante.photos)) return;
+    const lot = lotADecrire(courante.photos);
+    if (lot.length > 0) setLotTitrage(lot);
+  }
 
   if (isLoading) {
     return (
@@ -46,11 +64,30 @@ export function CollectionDetailView({ id }: { id: string }) {
     );
   }
 
+  // Sans la colonne `description` (migration pas encore appliquée), le
+  // titrage reste masqué : l'écran est celui d'avant.
+  const nbADecrire = titrageDisponible(collection.photos) ? collection.photos.filter(estADecrire).length : 0;
+
   return (
     <div className="flex flex-col gap-4">
       <CollectionHeader collection={collection} />
-      <AddPhotoButton collectionId={id} />
+      <AddPhotoButton collectionId={id} onAjoute={ouvrirTitrage} />
+      {nbADecrire > 0 && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-3.5 py-2.5">
+          <p className="min-w-0 text-[13px] text-ink-2">
+            <span className="font-semibold text-ink">
+              {nbADecrire} élément{nbADecrire > 1 ? "s" : ""}
+            </span>{" "}
+            sans description
+            {nbADecrire > TAILLE_LOT_TITRAGE ? ` (${TAILLE_LOT_TITRAGE} à la fois)` : ""}
+          </p>
+          <button type="button" onClick={ouvrirTitrage} className={`${secondaryButton} shrink-0`}>
+            Décrire
+          </button>
+        </div>
+      )}
       <PhotosGrid photos={collection.photos} collectionId={id} />
+      {lotTitrage && <TitrageModal collectionId={id} lot={lotTitrage} onClose={() => setLotTitrage(null)} />}
     </div>
   );
 }
