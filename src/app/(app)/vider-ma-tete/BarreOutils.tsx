@@ -23,7 +23,7 @@ const DIAMETRE: Record<Epaisseur, number> = { 1: 4, 2: 8, 3: 13 };
 const LIBELLE_EPAISSEUR: Record<Epaisseur, string> = { 1: "Trait fin", 2: "Trait moyen", 3: "Trait épais" };
 
 const bouton =
-  "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition active:scale-[0.94] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "relative flex h-9 w-9 min-w-8 shrink items-center justify-center rounded-full text-ink transition min-[26rem]:h-11 min-[26rem]:w-11 active:scale-[0.94] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 function Icone({ children }: { children: React.ReactNode }) {
   return (
@@ -57,11 +57,11 @@ export function BarreOutils({
 }: Props) {
   const libelleTranscrire = enTranscription ? "Transcription en cours…" : "Transcrire";
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+14px)]">
+    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-2 pb-[calc(env(safe-area-inset-bottom)+14px)] min-[26rem]:px-3">
       <div
         role="toolbar"
         aria-label="Outils d'écriture"
-        className="flex items-center gap-0.5 rounded-full border border-line bg-surface/95 p-1.5 shadow-card backdrop-blur"
+        className="flex max-w-full items-center gap-0.5 rounded-full border border-line bg-surface/95 p-1 shadow-card backdrop-blur min-[26rem]:p-1.5"
       >
         <button
           type="button"
@@ -88,7 +88,7 @@ export function BarreOutils({
           </Icone>
         </button>
 
-        <span className="mx-1 h-6 w-px bg-line" aria-hidden="true" />
+        <span className="mx-0.5 h-6 w-px shrink-0 bg-line min-[26rem]:mx-1" aria-hidden="true" />
 
         {EPAISSEURS.map((e) => (
           <button
@@ -103,7 +103,7 @@ export function BarreOutils({
           </button>
         ))}
 
-        <span className="mx-1 h-6 w-px bg-line" aria-hidden="true" />
+        <span className="mx-0.5 h-6 w-px shrink-0 bg-line min-[26rem]:mx-1" aria-hidden="true" />
 
         <button type="button" aria-label="Annuler" disabled={!peutAnnuler} onClick={onAnnuler} className={bouton}>
           <Icone>
@@ -118,7 +118,7 @@ export function BarreOutils({
           </Icone>
         </button>
 
-        <span className="mx-1 h-6 w-px bg-line" aria-hidden="true" />
+        <span className="mx-0.5 h-6 w-px shrink-0 bg-line min-[26rem]:mx-1" aria-hidden="true" />
 
         {/* Le mot s'affiche quand la barre a la place ; sur un petit écran, l'icône seule garde le nom accessible. */}
         <button
@@ -127,7 +127,7 @@ export function BarreOutils({
           aria-busy={enTranscription}
           disabled={!peutTranscrire || enTranscription}
           onClick={onTranscrire}
-          className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-full bg-ink px-3 text-sm font-medium text-surface transition active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal min-[30rem]:px-4"
+          className="flex h-9 min-w-9 shrink-0 items-center min-[26rem]:h-11 min-[26rem]:min-w-11 justify-center gap-2 rounded-full bg-ink px-2 min-[26rem]:px-3 text-sm font-medium text-surface transition active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal min-[30rem]:px-4"
         >
           {enTranscription ? (
             <Rotation />
