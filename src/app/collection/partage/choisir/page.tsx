@@ -6,6 +6,10 @@ import { FadeInImage } from "@/components/FadeInImage";
 import { estTypeVideo } from "@/lib/collection/video";
 import { screenTitle } from "@/lib/ui";
 
+// La suggestion de collection appelle Gemini (jusqu'à 30 s) : au-delà du
+// plafond par défaut d'une fonction.
+export const maxDuration = 60;
+
 // Atterrissage du Web Share Target (partage natif Android) : reçoit les
 // urls des photos déjà uploadées par la Route Handler /collection/partage
 // (query param `photo`, répété une fois par photo) et/ou les métadonnées

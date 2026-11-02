@@ -8,6 +8,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { CollectionMosaic } from "./CollectionMosaic";
 import { AddCollectionToggle } from "./AddCollectionToggle";
 import { ReorganiserCollectionsModal } from "./ReorganiserCollectionsModal";
+import { EtincelleIcon } from "@/components/EtincelleIcon";
 import { TransitionLink } from "@/components/TransitionLink";
 import { ghostButton, nameText } from "@/lib/ui";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
@@ -66,8 +67,14 @@ export function CollectionsGrid() {
       <div className="flex flex-col gap-4">
         <AddCollectionToggle onSaved={invalidate} />
         {(collections?.length ?? 0) > 0 && (
-          <button type="button" onClick={() => setReorganiser(true)} className={`${ghostButton} self-start`}>
-            Réorganiser avec Gemini
+          <button
+            type="button"
+            onClick={() => setReorganiser(true)}
+            aria-label="Réorganiser les collections avec l'IA"
+            className={`${ghostButton} flex items-center gap-2 self-start`}
+          >
+            <EtincelleIcon />
+            Réorganiser
           </button>
         )}
         {reorganiser && <ReorganiserCollectionsModal onClose={() => setReorganiser(false)} />}

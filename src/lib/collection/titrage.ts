@@ -11,6 +11,8 @@ import { nettoyerTexte } from "@/lib/documents/tri";
 
 /** Éléments analysés par ouverture de la fenêtre (le quota Gemini est partagé avec les autres fonctions). */
 export const TAILLE_LOT_TITRAGE = 8;
+/** Éléments analysés en parallèle par un appel serveur (un lot = deux paquets). */
+export const TAILLE_PAQUET_TITRAGE = 4;
 export const TITRE_MAX = 80;
 export const DESCRIPTION_MAX = 300;
 /** Miniature ou photo au-delà de laquelle on n'envoie pas l'image à Gemini. */
@@ -84,13 +86,29 @@ export function titrageDisponible(elements: readonly object[]): boolean {
   return elements.length > 0 && elements.every((e) => "description" in e);
 }
 
+/**
+ * Gemini a-t-il quelque chose à regarder ? Une photo, toujours ; une vidéo
+ * seulement avec une miniature ou une légende (sans l'une ni l'autre, rien à
+ * analyser : l'élément resterait dans chaque lot sans jamais pouvoir être décrit).
+ */
+export function estAnalysable(element: Pick<ElementTitrable, "type" | "titre"> & { thumbnail_url?: string | null }): boolean {
+  if (element.type !== "tiktok" && element.type !== "youtube") return true;
+  return nettoyerTexte(element.thumbnail_url) !== "" || nettoyerTexte(element.titre) !== "";
+}
+
+/** À décrire ET analysable : ce que compte le bandeau et ce que prend un lot. */
+export function peutEtreDecrit(
+  element: Pick<ElementTitrable, "type" | "titre" | "description"> & { thumbnail_url?: string | null }
+): boolean {
+  return estADecrire(element) && estAnalysable(element);
+}
+
 /** Prochain lot à décrire : les éléments sans description, les plus récents d'abord. */
-export function lotADecrire<T extends Pick<ElementTitrable, "description"> & { created_at: string }>(
-  elements: readonly T[],
-  taille: number = TAILLE_LOT_TITRAGE
-): T[] {
+export function lotADecrire<
+  T extends Pick<ElementTitrable, "type" | "titre" | "description"> & { created_at: string; thumbnail_url?: string | null },
+>(elements: readonly T[], taille: number = TAILLE_LOT_TITRAGE): T[] {
   return elements
-    .filter(estADecrire)
+    .filter(peutEtreDecrit)
     .sort((a, b) => b.created_at.localeCompare(a.created_at))
     .slice(0, taille);
 }

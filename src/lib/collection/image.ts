@@ -2,7 +2,9 @@
 // Gemini. Module serveur (fetch), sans "use server" : ce n'est pas une action.
 import { TAILLE_MAX_IMAGE_OCTETS } from "@/lib/collection/titrage";
 
-const TELECHARGEMENT_TIMEOUT_MS = 15_000;
+// Court : une miniature TikTok expirée peut traîner, et l'analyse se rabat
+// alors sur le texte plutôt que d'attendre (jusqu'à 15 s auparavant).
+const TELECHARGEMENT_TIMEOUT_MS = 6_000;
 
 // CDN d'où YouTube et TikTok servent leurs miniatures. Liste fermée : l'adresse
 // peut venir d'un formulaire (partage natif), le serveur ne doit pas

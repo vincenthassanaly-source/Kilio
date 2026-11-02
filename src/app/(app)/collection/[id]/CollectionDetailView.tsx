@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCollectionAvecPhotos, type CollectionAvecPhotos } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
-import { TAILLE_LOT_TITRAGE, estADecrire, lotADecrire, titrageDisponible } from "@/lib/collection/titrage";
+import { TAILLE_LOT_TITRAGE, lotADecrire, peutEtreDecrit, titrageDisponible } from "@/lib/collection/titrage";
+import { EtincelleIcon } from "@/components/EtincelleIcon";
 import type { Tables } from "@/lib/supabase/types";
 import { secondaryButton } from "@/lib/ui";
 import { AddPhotoButton } from "./AddPhotoButton";
@@ -66,7 +67,8 @@ export function CollectionDetailView({ id }: { id: string }) {
 
   // Sans la colonne `description` (migration pas encore appliquée), le
   // titrage reste masqué : l'écran est celui d'avant.
-  const nbADecrire = titrageDisponible(collection.photos) ? collection.photos.filter(estADecrire).length : 0;
+  // Les vidéos sans miniature ni légende ne comptent pas : Gemini n'aurait rien à regarder.
+  const nbADecrire = titrageDisponible(collection.photos) ? collection.photos.filter(peutEtreDecrit).length : 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -81,7 +83,13 @@ export function CollectionDetailView({ id }: { id: string }) {
             sans description
             {nbADecrire > TAILLE_LOT_TITRAGE ? ` (${TAILLE_LOT_TITRAGE} à la fois)` : ""}
           </p>
-          <button type="button" onClick={ouvrirTitrage} className={`${secondaryButton} shrink-0`}>
+          <button
+            type="button"
+            onClick={ouvrirTitrage}
+            aria-label="Décrire ces éléments avec l'IA"
+            className={`${secondaryButton} flex shrink-0 items-center justify-center gap-2`}
+          >
+            <EtincelleIcon />
             Décrire
           </button>
         </div>
