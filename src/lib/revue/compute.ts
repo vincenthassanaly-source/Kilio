@@ -64,13 +64,14 @@ export type JourSemaine<T, E> = {
   charge: boolean;
 };
 
-/** Les 7 jours qui suivent `today` : tâches échues, événements, charge estimée. */
+/** Les `nbJours` jours (7 par défaut) qui suivent `today` : tâches échues, événements, charge estimée. */
 export function semaineProchaine<T extends TacheRevue, E extends EvenementRevue>(
   taches: readonly T[],
   evenements: readonly E[],
-  today: string
+  today: string,
+  nbJours = 7
 ): JourSemaine<T, E>[] {
-  return Array.from({ length: 7 }, (_, i) => {
+  return Array.from({ length: nbJours }, (_, i) => {
     const date = shiftDate(today, i + 1);
     const tachesDuJour = taches.filter((t) => !t.fait && t.echeance === date);
     const evenementsDuJour = evenements
