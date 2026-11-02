@@ -21,11 +21,15 @@ import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
 import { card, dangerButton, ghostButton, linkButton, nameText, pillTag, primaryButton } from "@/lib/ui";
+import { EtincelleIcon } from "@/components/EtincelleIcon";
 import { confirmDelete } from "@/lib/confirm";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 
 const NoteForm = dynamic(() => import("./NoteForm").then((m) => m.NoteForm), { ssr: false });
+const AssistantNoteModal = dynamic(() => import("./AssistantNoteModal").then((m) => m.AssistantNoteModal), {
+  ssr: false,
+});
 
 const ITEMS_PREVIEW_LIMIT = 6;
 
@@ -55,6 +59,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
   // Lecture et édition s'ouvrent dans une feuille plein largeur (Modal) : la
   // tuile est une colonne de ~half-écran, trop étroite pour lire ou éditer.
   const [mode, setMode] = useState<"closed" | "view" | "edit">("closed");
+  const [assistantOuvert, setAssistantOuvert] = useState(false);
   const reduceMotion = useReducedMotion() ?? false;
   const queryClient = useQueryClient();
   useBackClose(mode !== "closed", () => setMode("closed"));
@@ -349,6 +354,15 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
               >
                 Créer une tâche depuis cette note
               </button>
+              <button
+                type="button"
+                onClick={() => setAssistantOuvert(true)}
+                aria-haspopup="dialog"
+                className={`${ghostButton} flex items-center justify-center gap-2`}
+              >
+                <EtincelleIcon size={16} />
+                Assistant IA
+              </button>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setMode("edit")} className={`${primaryButton} flex-1`}>
                   Modifier
@@ -359,6 +373,18 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
               </div>
             </div>
           </Modal>
+        )}
+        {assistantOuvert && (
+          <AssistantNoteModal
+            key="assistant"
+            note={note}
+            onClose={() => setAssistantOuvert(false)}
+            onApplied={(message) => {
+              setAssistantOuvert(false);
+              invalidate();
+              showToast(message);
+            }}
+          />
         )}
         {mode === "edit" && (
           <Modal key="edition" title="Modifier la note" onClose={() => setMode("closed")}>
