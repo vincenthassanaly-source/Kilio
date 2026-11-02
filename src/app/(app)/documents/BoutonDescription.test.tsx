@@ -29,6 +29,19 @@ describe("BoutonDescription", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("est un bouton icône sans texte visible, nommé pour les lecteurs d'écran et en info-bulle", () => {
+    render(<BoutonDescription document={document(1)} />);
+
+    const bouton = screen.getByRole("button", { name: "Description de « Facture EDF »" });
+    expect(bouton).toHaveAttribute("title", "Description par l'IA");
+    expect(bouton.textContent).toBe("");
+    expect(bouton.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    // Même gabarit que « Remettre en vrac » : 36 px avec une zone de toucher de 44 px.
+    expect(bouton.className).toContain("h-9");
+    expect(bouton.className).toContain("w-9");
+    expect(bouton.className).toContain("after:-inset-1");
+  });
+
   it("ouvre une fenêtre avec le résumé et les puces", async () => {
     etat.obtenir.mockResolvedValue({
       ok: true,
