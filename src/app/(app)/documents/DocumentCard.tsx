@@ -11,6 +11,7 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { card, dangerButton, ghostButton, listCard, nameText, pillTag } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { runAction } from "@/lib/actions/runAction";
+import { BoutonDescription } from "./BoutonDescription";
 import { BoutonRemettreEnVrac } from "./BoutonRemettreEnVrac";
 
 const DocumentForm = dynamic(() => import("./DocumentForm").then((m) => m.DocumentForm), { ssr: false });
@@ -144,7 +145,8 @@ export function DocumentCard({
           </div>
         </TransitionLink>
       </div>
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <BoutonDescription document={document} />
         {!document.en_vrac && <BoutonRemettreEnVrac document={document} />}
         <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
           Modifier
