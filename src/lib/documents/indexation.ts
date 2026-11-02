@@ -27,6 +27,29 @@ function typeMime(fichierType: string, typeReponse: string | null): string {
   return fichierType === "pdf" ? "application/pdf" : "image/jpeg";
 }
 
+export type ImageGemini = { mimeType: string; data: string };
+
+/**
+ * Télécharge les premiers fichiers d'un document (au plus FICHIERS_MAX_ANALYSE,
+ * dans la limite de TAILLE_MAX_ANALYSE_OCTETS) et les encode pour Gemini.
+ * Partagé par la fiche de recherche et la description affichée.
+ */
+export async function telechargerPourGemini(
+  fichiers: readonly { url: string; fichier_type: string }[]
+): Promise<{ ok: true; images: ImageGemini[] } | { ok: false; detail: string }> {
+  const images: ImageGemini[] = [];
+  let total = 0;
+  for (const fichier of fichiers.slice(0, FICHIERS_MAX_ANALYSE)) {
+    const reponse = await fetch(fichier.url, { signal: AbortSignal.timeout(TELECHARGEMENT_TIMEOUT_MS) });
+    if (!reponse.ok) return { ok: false, detail: "Un fichier n'a pas pu être téléchargé." };
+    const octets = Buffer.from(await reponse.arrayBuffer());
+    total += octets.length;
+    if (total > TAILLE_MAX_ANALYSE_OCTETS) return { ok: false, detail: "Fichiers trop volumineux pour être lus." };
+    images.push({ mimeType: typeMime(fichier.fichier_type, reponse.headers.get("content-type")), data: octets.toString("base64") });
+  }
+  return { ok: true, images };
+}
+
 /**
  * Lit les fichiers d'un document avec Gemini et enregistre sa fiche. Ne refait
  * rien si les fichiers n'ont pas changé depuis la dernière lecture. Un document
@@ -57,18 +80,9 @@ export async function indexerDocument(supabase: SupabaseAdmin, id: string): Prom
       .maybeSingle();
     if (existante?.signature === signature) return { statut: "ok", contenu: existante.contenu };
 
-    const images: { mimeType: string; data: string }[] = [];
-    let total = 0;
-    for (const fichier of fichiers.slice(0, FICHIERS_MAX_ANALYSE)) {
-      const reponse = await fetch(fichier.url, { signal: AbortSignal.timeout(TELECHARGEMENT_TIMEOUT_MS) });
-      if (!reponse.ok) return { statut: "echec", quota: false, detail: "Un fichier n'a pas pu être téléchargé." };
-      const octets = Buffer.from(await reponse.arrayBuffer());
-      total += octets.length;
-      if (total > TAILLE_MAX_ANALYSE_OCTETS) {
-        return { statut: "echec", quota: false, detail: "Fichiers trop volumineux pour être lus." };
-      }
-      images.push({ mimeType: typeMime(fichier.fichier_type, reponse.headers.get("content-type")), data: octets.toString("base64") });
-    }
+    const telechargement = await telechargerPourGemini(fichiers);
+    if (!telechargement.ok) return { statut: "echec", quota: false, detail: telechargement.detail };
+    const { images } = telechargement;
 
     const resultat = await appelerGemini({
       prompt: construirePromptFiche(document.nom, document.categorie),

@@ -9,6 +9,7 @@ import { ImageLightbox } from "@/components/ImageLightbox";
 import { card, dangerButton, errorText, ghostButton, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { chargerFichiers, nomDeFichier, partager, peutPartager, telecharger } from "@/lib/documents/partage";
+import { BoutonDescription } from "../BoutonDescription";
 import { BoutonRemettreEnVrac } from "../BoutonRemettreEnVrac";
 import { BackLink } from "@/components/BackLink";
 
@@ -109,7 +110,8 @@ export function DocumentDetail({
             {document.categorie && <span className={pillTag}>{document.categorie}</span>}
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+          <BoutonDescription document={document} />
           {!document.en_vrac && <BoutonRemettreEnVrac document={document} />}
           <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
             Éditer

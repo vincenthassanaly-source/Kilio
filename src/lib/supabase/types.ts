@@ -279,6 +279,27 @@ export type Database = {
         }
         Relationships: []
       }
+      documents_descriptions: {
+        Row: {
+          contenu: Json
+          document_id: string
+          signature: string
+          updated_at: string
+        }
+        Insert: {
+          contenu: Json
+          document_id: string
+          signature: string
+          updated_at?: string
+        }
+        Update: {
+          contenu?: Json
+          document_id?: string
+          signature?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents_dossiers: {
         Row: {
           document_id: string
