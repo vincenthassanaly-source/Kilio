@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
+  analyserSemaine,
   appliquerReplanification,
   proposerReplanification,
   synthetiserRevue,
@@ -11,14 +12,16 @@ import {
 import { Modal } from "@/components/Modal";
 import { runAction } from "@/lib/actions/runAction";
 import { parseISODate } from "@/lib/date/iso";
+import type { AnalyseSemaine } from "@/lib/revue/analyse";
 import type { PropositionReplanification, SyntheseRevue } from "@/lib/revue/assistant";
 import { errorText, ghostButton, primaryButton, secondaryButton } from "@/lib/ui";
 
-export type ModeAssistantRevue = "bilan" | "avenir" | "replanifier";
+export type ModeAssistantRevue = "bilan" | "avenir" | "replanifier" | "semaine";
 
 type Etat =
   | { phase: "chargement"; regeneration: boolean }
   | { phase: "synthese"; synthese: SyntheseRevue }
+  | { phase: "analyse"; analyse: AnalyseSemaine }
   | { phase: "replanification"; propositions: PropositionReplanification[] }
   | { phase: "application"; propositions: PropositionReplanification[] }
   | { phase: "erreur"; message: string };
@@ -27,12 +30,14 @@ const TITRES: Record<ModeAssistantRevue, string> = {
   bilan: "Bilan de la semaine",
   avenir: "Résumé de la semaine",
   replanifier: "Replanifier avec l'IA",
+  semaine: "Analyse de ma semaine",
 };
 
 const MESSAGES_CHARGEMENT: Record<ModeAssistantRevue, string> = {
   bilan: "Gemini relit ta semaine…",
   avenir: "Gemini regarde ta semaine à venir…",
   replanifier: "Gemini cherche de nouvelles dates…",
+  semaine: "Gemini croise tes tâches, habitudes, santé et notes…",
 };
 
 function Squelette() {
@@ -148,6 +153,11 @@ export function AssistantRevueModal({
             : { phase: "erreur", message: r.error }
       );
     }
+    if (mode === "semaine") {
+      return runAction(() => analyserSemaine(regenerer), { silencieux: true, erreur }).then(
+        (r): Etat => (r.ok ? { phase: "analyse", analyse: r.data } : { phase: "erreur", message: r.error })
+      );
+    }
     return runAction(() => synthetiserRevue(mode, regenerer), { silencieux: true, erreur }).then(
       (r): Etat => (r.ok ? { phase: "synthese", synthese: r.data } : { phase: "erreur", message: r.error })
     );
@@ -214,6 +224,38 @@ export function AssistantRevueModal({
                 </ul>
               )}
               <p className="text-xs text-ink-3">Généré par IA à partir de ton agenda et de tes tâches.</p>
+            </div>
+          )}
+
+          {etat.phase === "analyse" && (
+            <div className="flex flex-col gap-4">
+              {etat.analyse.resume && (
+                <p className="text-[15px] leading-relaxed text-ink">{etat.analyse.resume}</p>
+              )}
+              {etat.analyse.constats.length > 0 && (
+                <section aria-label="Ce qui ressort" className="flex flex-col gap-1.5">
+                  <h3 className="text-sm font-medium text-ink-2">Ce qui ressort</h3>
+                  <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm leading-relaxed text-ink marker:text-ink-3">
+                    {etat.analyse.constats.map((constat, index) => (
+                      <li key={index}>{constat}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+              {etat.analyse.pistes.length > 0 && (
+                <section aria-label="Pistes pour la semaine" className="flex flex-col gap-1.5">
+                  <h3 className="text-sm font-medium text-ink-2">Pistes pour la semaine</h3>
+                  <ol className="flex list-decimal flex-col gap-1.5 pl-5 text-sm leading-relaxed text-ink marker:font-semibold marker:text-kcal">
+                    {etat.analyse.pistes.map((piste, index) => (
+                      <li key={index}>{piste}</li>
+                    ))}
+                  </ol>
+                </section>
+              )}
+              <p className="text-xs text-ink-3">
+                Généré par IA à partir de tes tâches, de ton agenda, de tes habitudes, de ta santé et de tes notes de la
+                semaine. Ce sont des constats, pas des conseils médicaux.
+              </p>
             </div>
           )}
 

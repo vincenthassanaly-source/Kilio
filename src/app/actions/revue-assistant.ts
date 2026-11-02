@@ -2,12 +2,22 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { getEvenements } from "@/app/actions/evenements";
+import { getSyntheseSemaine } from "@/app/actions/sante";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
 import { parseISODate, shiftDate } from "@/lib/date/iso";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { MESSAGE_QUOTA_GEMINI, appelerGemini } from "@/lib/gemini/appel";
 import { creerCacheCourt, empreinte } from "@/lib/gemini/cache-court";
+import { calculerTauxReussite } from "@/lib/habitudes/compute";
+import {
+  SCHEMA_ANALYSE,
+  analyseVide,
+  construirePromptAnalyse,
+  lireAnalyse,
+  type AnalyseSemaine,
+  type DonneesAnalyse,
+} from "@/lib/revue/analyse";
 import {
   REPLANIF_HORIZON_JOURS,
   REPLANIF_TACHES_MAX,
@@ -46,9 +56,13 @@ const NB_TERMINEES_PROMPT = 15;
 const NB_RETARD_PROMPT = 10;
 const NB_EVENEMENTS_PROMPT = 15;
 const JOURS_AVENIR = 7;
+const NB_HABITUDES_PROMPT = 12;
+const NB_NOTES_MAX = 30;
+const NB_NOTES_PROMPT = 8;
 
 const cacheSyntheses = creerCacheCourt<SyntheseRevue>(CACHE_DUREE_MS, CACHE_TAILLE_MAX);
 const cacheReplanifications = creerCacheCourt<PropositionReplanification[]>(CACHE_DUREE_MS, CACHE_TAILLE_MAX);
+const cacheAnalyses = creerCacheCourt<AnalyseSemaine>(CACHE_DUREE_MS, CACHE_TAILLE_MAX);
 
 type SupabaseAdmin = ReturnType<typeof createAdminClient>;
 
@@ -266,6 +280,159 @@ export async function proposerReplanification(
 
   cacheReplanifications.ecrire(cle, propositions);
   return ok({ propositions });
+}
+
+// --- Analyse croisée de la semaine -------------------------------------------
+// Tâches, agenda, habitudes, santé et notes. Chaque module est lu à part : s'il
+// est illisible, il est laissé de côté plutôt que de faire échouer toute l'analyse.
+
+async function section<T>(nom: string, lire: () => Promise<T>): Promise<T | null> {
+  try {
+    return await lire();
+  } catch (err) {
+    console.error(`analyserSemaine: ${nom} illisible`, err);
+    return null;
+  }
+}
+
+async function donneesTaches(supabase: SupabaseAdmin, today: string): Promise<DonneesAnalyse["taches"]> {
+  const debut = shiftDate(today, -6);
+  const fin = shiftDate(today, JOURS_AVENIR);
+  const [terminees, ouvertes] = await Promise.all([
+    lireTaches(
+      supabase
+        .from("taches")
+        .select(COLONNES_TACHE)
+        .eq("fait", true)
+        .gte("termine_le", `${shiftDate(debut, -1)}T00:00:00Z`)
+    ),
+    lireTaches(
+      supabase.from("taches").select(COLONNES_TACHE).eq("fait", false).not("echeance", "is", null).lte("echeance", fin)
+    ),
+  ]);
+  const bilan = bilanSemaine(terminees, today);
+  return {
+    terminees: bilan.terminees.slice(0, NB_TERMINEES_PROMPT).map((t) => t.titre),
+    nbTerminees: bilan.terminees.length,
+    nbEnRetard: ouvertes.filter((t) => t.echeance !== null && t.echeance < today).length,
+    nbAvenir: ouvertes.filter((t) => t.echeance !== null && t.echeance > today).length,
+  };
+}
+
+async function donneesAgenda(today: string): Promise<DonneesAnalyse["evenements"]> {
+  const [passes, avenir] = await Promise.all([
+    lireEvenements(shiftDate(today, -6), today),
+    lireEvenements(shiftDate(today, 1), shiftDate(today, JOURS_AVENIR)),
+  ]);
+  return { nbPasses: passes.length, nbAvenir: avenir.length };
+}
+
+async function donneesHabitudes(supabase: SupabaseAdmin, today: string): Promise<DonneesAnalyse["habitudes"]> {
+  const debut = shiftDate(today, -6);
+  const [habitudes, entrees] = await Promise.all([
+    supabase
+      .from("habitudes")
+      .select("id, nom, type, valeur_cible, frequence_hebdo, created_at")
+      .eq("actif", true)
+      .order("ordre", { ascending: true }),
+    supabase.from("habitude_entries").select("habitude_id, date, valeur").gte("date", debut).lte("date", today),
+  ]);
+  if (habitudes.error) throw new Error(habitudes.error.message);
+  if (entrees.error) throw new Error(entrees.error.message);
+
+  const parHabitude = new Map<string, Map<string, number>>();
+  for (const e of entrees.data ?? []) {
+    const jours = parHabitude.get(e.habitude_id) ?? new Map<string, number>();
+    jours.set(e.date, e.valeur);
+    parHabitude.set(e.habitude_id, jours);
+  }
+
+  const resultat: { nom: string; faits: number; attendus: number }[] = [];
+  for (const h of (habitudes.data ?? []).slice(0, NB_HABITUDES_PROMPT)) {
+    // Une habitude créée en cours de semaine n'est attendue que depuis sa création.
+    const creee = h.created_at.slice(0, 10);
+    const debutHabitude = creee > debut ? creee : debut;
+    if (debutHabitude > today) continue;
+    const { faits, attendus } = calculerTauxReussite(h, parHabitude.get(h.id) ?? new Map(), debutHabitude, today);
+    resultat.push({ nom: h.nom, faits, attendus });
+  }
+  return resultat;
+}
+
+async function donneesSante(today: string): Promise<DonneesAnalyse["sante"]> {
+  const s = await getSyntheseSemaine(today);
+  return {
+    kcal: s.kcal
+      ? {
+          moyenne: s.kcal.moyenne,
+          cibleMoyenne: s.kcal.cibleMoyenne,
+          nbJours: s.kcal.nbJours,
+          nbDansLimite: s.kcal.nbDansLimite,
+        }
+      : null,
+    seances: s.seances,
+    poids: s.poids ? { actuel: s.poids.actuel, delta: s.poids.delta } : null,
+    taille: s.taille ? { actuel: s.taille.actuel, delta: s.taille.delta } : null,
+  };
+}
+
+async function donneesNotes(supabase: SupabaseAdmin, today: string): Promise<DonneesAnalyse["notes"]> {
+  const { data, error } = await supabase
+    .from("notes")
+    .select("titre, created_at")
+    .gte("created_at", `${shiftDate(today, -6)}T00:00:00Z`)
+    .order("created_at", { ascending: false })
+    .limit(NB_NOTES_MAX);
+  if (error) throw new Error(error.message);
+  const notes = data ?? [];
+  return { nb: notes.length, titres: notes.slice(0, NB_NOTES_PROMPT).map((n) => n.titre) };
+}
+
+export async function analyserSemaine(regenerer = false): Promise<ActionResult<AnalyseSemaine>> {
+  const today = aujourdhuiParis();
+  const supabase = createAdminClient();
+
+  const [taches, evenements, habitudes, sante, notes] = await Promise.all([
+    section("tâches", () => donneesTaches(supabase, today)),
+    section("agenda", () => donneesAgenda(today)),
+    section("habitudes", () => donneesHabitudes(supabase, today)),
+    section("santé", () => donneesSante(today)),
+    section("notes", () => donneesNotes(supabase, today)),
+  ]);
+  const donnees: DonneesAnalyse = { today, taches, evenements, habitudes, sante, notes };
+
+  if (!taches && !evenements && !habitudes && !sante && !notes) {
+    return fail("Les données de la semaine n'ont pas pu être lues. Réessaie.");
+  }
+  if (analyseVide(donnees)) {
+    return ok({
+      resume: "Rien à analyser pour l'instant : pas de tâche, de rendez-vous, d'habitude ni de note sur la semaine.",
+      constats: [],
+      pistes: [],
+    });
+  }
+
+  const prompt = construirePromptAnalyse(donnees);
+  const cle = empreinte("analyse", today, prompt);
+  if (!regenerer) {
+    const enCache = cacheAnalyses.lire(cle);
+    if (enCache) return ok(enCache);
+  }
+
+  const resultat = await appelerGemini({
+    prompt,
+    schema: SCHEMA_ANALYSE,
+    timeoutMs: GEMINI_TIMEOUT_MS,
+    temperature: 0.4,
+    etiquette: "revue-semaine",
+  });
+  if (!resultat.ok) return echecGemini(resultat.code, resultat.detail);
+
+  const analyse = lireAnalyse(resultat.brut);
+  if (!analyse) return fail("Réponse de Gemini inutilisable. Réessaie.");
+
+  cacheAnalyses.ecrire(cle, analyse);
+  return ok(analyse);
 }
 
 export async function appliquerReplanification(
