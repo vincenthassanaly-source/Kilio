@@ -1,13 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { getCollectionsAvecApercu, type CollectionAvecApercu } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
 import { CollectionMosaic } from "./CollectionMosaic";
 import { AddCollectionToggle } from "./AddCollectionToggle";
+import { ReorganiserCollectionsModal } from "./ReorganiserCollectionsModal";
 import { TransitionLink } from "@/components/TransitionLink";
-import { nameText } from "@/lib/ui";
+import { ghostButton, nameText } from "@/lib/ui";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ErrorInline } from "@/components/ErrorInline";
@@ -53,6 +55,8 @@ export function CollectionsGrid() {
     queryFn: getCollectionsAvecApercu,
   });
 
+  const [reorganiser, setReorganiser] = useState(false);
+
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: queryKeys.collections });
   }
@@ -61,6 +65,12 @@ export function CollectionsGrid() {
     <PullToRefresh onRefresh={invalidate}>
       <div className="flex flex-col gap-4">
         <AddCollectionToggle onSaved={invalidate} />
+        {(collections?.length ?? 0) > 0 && (
+          <button type="button" onClick={() => setReorganiser(true)} className={`${ghostButton} self-start`}>
+            Réorganiser avec Gemini
+          </button>
+        )}
+        {reorganiser && <ReorganiserCollectionsModal onClose={() => setReorganiser(false)} />}
         {isLoading ? (
           <GridSkeleton />
         ) : isError ? (
