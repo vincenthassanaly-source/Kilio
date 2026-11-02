@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { showToast } from "@/components/toast/toast-store";
 import { EtincelleIcon } from "@/components/EtincelleIcon";
 import { queryKeys } from "@/lib/query/keys";
-import { ghostButton } from "@/lib/ui";
+import { addCard, addCardIcon, ghostButton } from "@/lib/ui";
 import type { ModeAssistantRevue } from "./AssistantRevueModal";
 
 const AssistantRevueModal = dynamic(() => import("./AssistantRevueModal").then((m) => m.AssistantRevueModal), {
@@ -25,15 +25,28 @@ export function BoutonAssistantRevue({ mode, libelle }: { mode: ModeAssistantRev
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOuvert(true)}
-        aria-haspopup="dialog"
-        className={`${ghostButton} flex shrink-0 items-center gap-1.5`}
-      >
-        <EtincelleIcon size={15} />
-        {libelle}
-      </button>
+      {mode === "semaine" ? (
+        // Entrée principale de la Revue : une carte pleine largeur, comme les cartes d'ajout.
+        <button type="button" onClick={() => setOuvert(true)} aria-haspopup="dialog" className={addCard}>
+          <span className={addCardIcon}>
+            <EtincelleIcon size={20} />
+          </span>
+          <span className="flex min-w-0 flex-col">
+            <span className="text-[15px] font-semibold text-ink">{libelle}</span>
+            <span className="text-sm text-ink-2">Bilan global et pistes, avec l&apos;IA</span>
+          </span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOuvert(true)}
+          aria-haspopup="dialog"
+          className={`${ghostButton} flex shrink-0 items-center gap-1.5`}
+        >
+          <EtincelleIcon size={15} />
+          {libelle}
+        </button>
+      )}
       <AnimatePresence>
         {ouvert && (
           <AssistantRevueModal

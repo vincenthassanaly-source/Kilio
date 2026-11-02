@@ -6,16 +6,23 @@ const etat = vi.hoisted(() => ({
   client: null as unknown,
   gemini: vi.fn(),
   evenements: vi.fn(),
+  sante: vi.fn(),
   aujourdhui: "2026-11-02",
 }));
 
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client }));
 vi.mock("@/lib/gemini/appel", () => ({ appelerGemini: etat.gemini, MESSAGE_QUOTA_GEMINI: "Quota atteint." }));
 vi.mock("@/app/actions/evenements", () => ({ getEvenements: etat.evenements }));
+vi.mock("@/app/actions/sante", () => ({ getSyntheseSemaine: etat.sante }));
 vi.mock("@/lib/date/paris", () => ({ aujourdhuiParis: () => etat.aujourdhui }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn(), updateTag: vi.fn() }));
 
-import { appliquerReplanification, proposerReplanification, synthetiserRevue } from "./revue-assistant";
+import {
+  analyserSemaine,
+  appliquerReplanification,
+  proposerReplanification,
+  synthetiserRevue,
+} from "./revue-assistant";
 
 const ID_A = "11111111-1111-4111-8111-111111111111";
 const ID_B = "22222222-2222-4222-8222-222222222222";
@@ -34,7 +41,19 @@ function tache(id: string, extra: Record<string, unknown> = {}) {
   };
 }
 
-type Options = { enRetard?: unknown[]; prevues?: unknown[]; terminees?: unknown[]; actives?: unknown[]; erreurTaches?: boolean; erreurUpdate?: boolean };
+type Options = {
+  enRetard?: unknown[];
+  prevues?: unknown[];
+  terminees?: unknown[];
+  actives?: unknown[];
+  habitudes?: unknown[];
+  entrees?: unknown[];
+  notes?: unknown[];
+  erreurTaches?: boolean;
+  erreurUpdate?: boolean;
+  erreurNotes?: boolean;
+  erreurHabitudes?: boolean;
+};
 
 // Les requêtes sur `taches` sont distinguées par leurs filtres (comme le code les écrit).
 function brancher(options: Options = {}) {
@@ -48,6 +67,13 @@ function brancher(options: Options = {}) {
       if (a.filtres.some((f) => f[0] === "lt")) return { data: options.enRetard ?? [] };
       return { data: options.prevues ?? [] };
     }
+    if (a.table === "habitudes") {
+      return options.erreurHabitudes ? { error: { message: "boom" } } : { data: options.habitudes ?? [] };
+    }
+    if (a.table === "habitude_entries") return { data: options.entrees ?? [] };
+    if (a.table === "notes") {
+      return options.erreurNotes ? { error: { message: "boom" } } : { data: options.notes ?? [] };
+    }
     return { data: [] };
   };
   const fake = fauxSupabase(repondre);
@@ -59,6 +85,14 @@ beforeEach(() => {
   etat.gemini.mockReset();
   etat.evenements.mockReset();
   etat.evenements.mockResolvedValue([]);
+  etat.sante.mockReset();
+  etat.sante.mockResolvedValue({
+    kcal: null,
+    seances: { faites: 0, total: 0 },
+    poids: null,
+    taille: null,
+    derniereMesure: null,
+  });
   etat.aujourdhui = "2026-11-02";
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -187,6 +221,102 @@ describe("proposerReplanification", () => {
     brancher({ enRetard: [tache(ID_A)] });
     etat.gemini.mockResolvedValue({ ok: false, code: "quota", detail: "429" });
     expect(await proposerReplanification(true)).toEqual({ ok: false, error: "Quota atteint." });
+  });
+});
+
+describe("analyserSemaine", () => {
+  const HABITUDE = {
+    id: "h1",
+    nom: "Lecture",
+    type: "boolean",
+    valeur_cible: null,
+    frequence_hebdo: null,
+    created_at: "2026-01-01T08:00:00Z",
+  };
+
+  it("répond sans Gemini quand tout est vide", async () => {
+    brancher();
+    const r = await analyserSemaine();
+    expect(r.ok).toBe(true);
+    expect(r.data?.resume).toContain("Rien à analyser");
+    expect(etat.gemini).not.toHaveBeenCalled();
+  });
+
+  it("croise tâches, agenda, habitudes, santé et notes dans une seule consigne", async () => {
+    brancher({
+      terminees: [tache(ID_A, { fait: true, termine_le: "2026-11-01T10:00:00Z", echeance: null, titre: "Payer le loyer" })],
+      prevues: [tache(ID_B, { echeance: "2026-10-30" })],
+      habitudes: [HABITUDE],
+      entrees: [
+        { habitude_id: "h1", date: "2026-10-30", valeur: 1 },
+        { habitude_id: "h1", date: "2026-11-01", valeur: 1 },
+      ],
+      notes: [{ titre: "Idée d'app", created_at: "2026-11-01T09:00:00Z" }],
+    });
+    etat.evenements.mockResolvedValue([
+      { titre: "Dentiste", date: "2026-11-04", heure: "17:00:00", heure_fin: "17:30:00", toute_la_journee: false },
+    ]);
+    etat.sante.mockResolvedValue({
+      kcal: { moyenne: 1900, cibleMoyenne: 2000, nbJours: 6, nbDansLimite: 5 },
+      seances: { faites: 2, total: 3 },
+      poids: { actuel: 82.4, delta: -0.6, ageJours: 0 },
+      taille: null,
+      derniereMesure: "2026-11-02",
+    });
+    etat.gemini.mockResolvedValue({
+      ok: true,
+      brut: { resume: "Bonne semaine.", constats: ["Retards maîtrisés"], pistes: ["Planifier le sport"] },
+    });
+
+    const r = await analyserSemaine(true);
+
+    expect(r).toEqual({
+      ok: true,
+      data: { resume: "Bonne semaine.", constats: ["Retards maîtrisés"], pistes: ["Planifier le sport"] },
+    });
+    const prompt = etat.gemini.mock.calls[0][0].prompt as string;
+    expect(prompt).toContain("Payer le loyer");
+    expect(prompt).toContain("Lecture 2/7");
+    expect(prompt).toContain("kcal moyens 1900");
+    expect(prompt).toContain("Idée d'app");
+  });
+
+  it("laisse de côté un module illisible au lieu d'échouer", async () => {
+    brancher({ erreurNotes: true, terminees: [tache(ID_A, { fait: true, termine_le: "2026-11-01T10:00:00Z", echeance: null })] });
+    etat.sante.mockRejectedValue(new Error("santé indisponible"));
+    etat.gemini.mockResolvedValue({ ok: true, brut: { resume: "OK", constats: [], pistes: [] } });
+
+    const r = await analyserSemaine(true);
+
+    expect(r.ok).toBe(true);
+    const prompt = etat.gemini.mock.calls[0][0].prompt as string;
+    expect(prompt).not.toContain("Santé :");
+    expect(prompt).not.toContain("Notes :");
+    expect(prompt).toContain("Tâches :");
+  });
+
+  it("échoue proprement quand aucun module ne se lit", async () => {
+    brancher({ erreurTaches: true, erreurNotes: true, erreurHabitudes: true });
+    etat.evenements.mockRejectedValue(new Error("boom"));
+    etat.sante.mockRejectedValue(new Error("boom"));
+    const r = await analyserSemaine(true);
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain("n'ont pas pu être lues");
+    expect(etat.gemini).not.toHaveBeenCalled();
+  });
+
+  it("réutilise le résultat gardé, sauf en régénérant, et traduit les erreurs de Gemini", async () => {
+    brancher({ terminees: [tache(ID_A, { fait: true, termine_le: "2026-11-01T10:00:00Z", echeance: null, titre: "Cache analyse" })] });
+    etat.gemini.mockResolvedValue({ ok: true, brut: { resume: "R", constats: [], pistes: [] } });
+    await analyserSemaine();
+    await analyserSemaine();
+    expect(etat.gemini).toHaveBeenCalledTimes(1);
+
+    etat.gemini.mockResolvedValueOnce({ ok: false, code: "quota", detail: "429" });
+    expect(await analyserSemaine(true)).toEqual({ ok: false, error: "Quota atteint." });
+
+    etat.gemini.mockResolvedValueOnce({ ok: true, brut: { resume: "", constats: [], pistes: [] } });
+    expect((await analyserSemaine(true)).error).toContain("inutilisable");
   });
 });
 

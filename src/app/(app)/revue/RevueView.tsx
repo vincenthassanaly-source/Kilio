@@ -77,6 +77,8 @@ export function RevueView({ today }: { today: string }) {
 
   return (
     <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
+      <BoutonAssistantRevue mode="semaine" libelle="Analyser ma semaine" />
+
       <section aria-labelledby="revue-bilan" className={`${card} flex flex-col gap-3`}>
         <div className="flex items-center justify-between gap-2">
           <h2 id="revue-bilan" className={sectionTitle}>
