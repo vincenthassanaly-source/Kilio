@@ -44,12 +44,26 @@ type VidageFeuilleLocale = {
   erreur?: string;
 };
 
+// Module « Scanner » : pages numérisées en cours (brouillon local, jamais
+// envoyé au serveur). Les blobs JPEG sont typés côté lib/scanner/brouillon.
+type ScannerPageLocale = {
+  id: string;
+  ordre: number;
+  redresse: Blob;
+  traite: Blob;
+  filtre: "original" | "magic";
+  largeur: number;
+  hauteur: number;
+  cree_le: string;
+};
+
 class OfflineDB extends Dexie {
   pending_actions!: Table<PendingAction, number>;
   cache_lecture!: Table<CacheLecture, string>;
   musculation_brouillon!: Table<MusculationBrouillon, string>;
   musculation_a_envoyer!: Table<MusculationAEnvoyer, string>;
   vidage_feuilles!: Table<VidageFeuilleLocale, string>;
+  scanner_pages!: Table<ScannerPageLocale, string>;
 
   constructor() {
     super("kilio-offline");
@@ -86,6 +100,14 @@ class OfflineDB extends Dexie {
       musculation_brouillon: "cle",
       musculation_a_envoyer: "id, cree_le",
       vidage_feuilles: "jour",
+    });
+    this.version(7).stores({
+      pending_actions: "++id, created_at",
+      cache_lecture: "cle",
+      musculation_brouillon: "cle",
+      musculation_a_envoyer: "id, cree_le",
+      vidage_feuilles: "jour",
+      scanner_pages: "id, ordre",
     });
   }
 }

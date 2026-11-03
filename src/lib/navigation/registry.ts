@@ -127,6 +127,14 @@ const DOCUMENTS_ICON = (c: string) =>
     createElement("rect", { x: 9.2, y: 14.5, width: 5.6, height: 4, rx: 1 })
   );
 
+const SCANNER_ICON = (c: string) =>
+  createElement(
+    "svg",
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    createElement("path", { d: "M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" }),
+    createElement("path", { d: "M8 8.5h8M8 12h8M8 15.5h5" })
+  );
+
 const PHARMACIE_ICON = (c: string) =>
   createElement(
     "svg",
@@ -283,6 +291,13 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Papiers importants et échéances",
     accentVar: "var(--accent-documents)",
     icon: DOCUMENTS_ICON,
+  },
+  {
+    href: "/scanner",
+    label: "Scanner",
+    description: "Numériser des documents en PDF ou en images",
+    accentVar: "var(--accent-documents)",
+    icon: SCANNER_ICON,
   },
 ];
 
