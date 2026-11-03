@@ -12,7 +12,7 @@ import {
   type EtatVerrou,
 } from "@/app/actions/verrou";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { eyebrow, errorText, primaryButton, screenTitle } from "@/lib/ui";
+import { eyebrow, errorText, input, primaryButton, screenTitle } from "@/lib/ui";
 
 // Le module n'affiche rien (pas même un titre) tant que le serveur n'a pas ouvert la session de
 // 15 minutes : l'écran ci-dessous la demande avec l'empreinte du téléphone. Le vrai verrou est
@@ -58,6 +58,8 @@ export function VerrouGate({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<Phase>({ nom: "chargement" });
   const [message, setMessage] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
+  // Code d'enregistrement du premier appareil : jamais gardé au-delà de l'écran.
+  const [code, setCode] = useState("");
   const dernierePing = useRef(0);
 
   // Une session déjà ouverte ou un écran de verrouillage déjà affiché ne sont pas remplacés par
@@ -121,11 +123,12 @@ export function VerrouGate({ children }: { children: ReactNode }) {
         const verifiee = await verifierConnexion(reponse);
         if (!verifiee.ok) return setMessage(verifiee.error);
       } else {
-        const options = await optionsInscription();
+        const options = await optionsInscription(code);
         if (!options.ok) return setMessage(options.error);
         const reponse = await startRegistration({ optionsJSON: options.data });
         const verifiee = await verifierInscription(reponse);
         if (!verifiee.ok) return setMessage(verifiee.error);
+        setCode("");
       }
       setPhase({ nom: "ouvert" });
     } catch (erreur) {
@@ -152,7 +155,8 @@ export function VerrouGate({ children }: { children: ReactNode }) {
     );
   }
 
-  const { configure, inscrit } = phase.etat;
+  const { configure, inscrit, inscriptionOuverte } = phase.etat;
+  const codeRequis = configure && !inscrit;
   return (
     <div className="flex flex-col items-center gap-4 px-2 py-10 text-center">
       <span className="text-ink-2">
@@ -164,10 +168,28 @@ export function VerrouGate({ children }: { children: ReactNode }) {
           ? "Le verrou n'est pas encore configuré côté serveur (variable VIDAGE_SESSION_SECRET)."
           : inscrit
             ? "Déverrouille avec ton empreinte ou ton visage. Si la lecture échoue, le code du téléphone fonctionne aussi."
-            : "Enregistre l'empreinte ou le visage de ce téléphone. Seul cet appareil pourra ouvrir le module."}
+            : !inscriptionOuverte
+              ? "L'enregistrement est fermé : il manque la variable VIDAGE_INSCRIPTION_CODE côté serveur (16 caractères minimum)."
+              : "Entre ton code d'enregistrement, puis enregistre l'empreinte ou le visage de ce téléphone. Seul cet appareil pourra ouvrir le module."}
       </p>
-      {configure && (
-        <button type="button" className={`${primaryButton} min-h-11 px-6`} disabled={enCours} onClick={() => void deverrouiller(inscrit)}>
+      {codeRequis && inscriptionOuverte && (
+        <input
+          type="password"
+          className={`${input} w-full max-w-xs text-center`}
+          aria-label="Code d'enregistrement"
+          autoComplete="off"
+          value={code}
+          disabled={enCours}
+          onChange={(e) => setCode(e.target.value)}
+        />
+      )}
+      {configure && (codeRequis ? inscriptionOuverte : true) && (
+        <button
+          type="button"
+          className={`${primaryButton} min-h-11 px-6`}
+          disabled={enCours || (codeRequis && code.trim() === "")}
+          onClick={() => void deverrouiller(inscrit)}
+        >
           {enCours ? "Lecture en cours…" : inscrit ? "Déverrouiller" : "Enregistrer mon empreinte"}
         </button>
       )}

@@ -1,6 +1,7 @@
 // Verrou de « Vider ma tête » côté serveur : la session déverrouillée est un cookie signé de
 // 15 minutes (renouvelé à chaque action), et les défis WebAuthn un cookie signé de 5 minutes à
 // usage unique. Sans VIDAGE_SESSION_SECRET (32 caractères minimum), le module reste fermé.
+import { createHash, timingSafeEqual } from "node:crypto";
 import { cookies, headers } from "next/headers";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { lireJeton, signerJeton } from "./jeton";
@@ -17,6 +18,29 @@ export type TypeDefi = "inscription" | "connexion";
 function secret(): string | null {
   const valeur = process.env.VIDAGE_SESSION_SECRET;
   return valeur && valeur.length >= 32 ? valeur : null;
+}
+
+const LONGUEUR_MIN_CODE_INSCRIPTION = 16;
+
+function codeInscription(): string | null {
+  const valeur = process.env.VIDAGE_INSCRIPTION_CODE?.trim();
+  return valeur && valeur.length >= LONGUEUR_MIN_CODE_INSCRIPTION ? valeur : null;
+}
+
+/**
+ * Vrai quand un code d'enrôlement est configuré. Sans lui, personne ne peut enregistrer d'appareil :
+ * sinon, tant que la table `vidage_passkey` est vide, le premier venu deviendrait propriétaire du journal.
+ */
+export function inscriptionOuverte(): boolean {
+  return codeInscription() !== null;
+}
+
+/** Compare le code proposé à celui du serveur, en temps constant. Faux si aucun code n'est configuré. */
+export function codeInscriptionValide(propose: unknown): boolean {
+  const attendu = codeInscription();
+  if (!attendu || typeof propose !== "string") return false;
+  const empreinte = (texte: string) => createHash("sha256").update(texte).digest();
+  return timingSafeEqual(empreinte(attendu), empreinte(propose.trim()));
 }
 
 /** Vrai quand un secret de session est configuré : sans lui, personne ne peut se déverrouiller. */

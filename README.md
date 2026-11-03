@@ -22,6 +22,7 @@ Il faut un fichier `.env.local` (jamais commité). Variables lues par le code :
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Clé publique des notifications push |
 | `GEMINI_API_KEY` | Transcription de « Vider ma tête » et Réveil |
 | `VIDAGE_SESSION_SECRET` | Secret de session (32 caractères minimum) ; sans lui, « Vider ma tête » reste fermé |
+| `VIDAGE_INSCRIPTION_CODE` | Code d'enregistrement du premier appareil de « Vider ma tête » (16 caractères minimum, aléatoire) ; sans lui, aucun appareil ne peut s'enregistrer |
 | `AGENDA_FEED_TOKEN` | Jeton du flux ICS de l'agenda |
 
 Les Edge Functions lisent en plus `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` et `VAPID_SUBJECT` (secrets Supabase).

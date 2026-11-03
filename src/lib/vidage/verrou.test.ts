@@ -20,9 +20,11 @@ vi.mock("next/headers", () => ({
 }));
 
 import {
+  codeInscriptionValide,
   consommerDefi,
   exigerSession,
   fermerSession,
+  inscriptionOuverte,
   memoriserDefi,
   origineAttendue,
   ouvrirSession,
@@ -42,6 +44,32 @@ beforeEach(() => {
   vi.stubEnv("EXPOSE_TESTING_API", "");
 });
 afterEach(() => vi.unstubAllEnvs());
+
+describe("code d'enrôlement", () => {
+  const CODE = "c".repeat(16);
+
+  it("est fermé tant qu'aucun code d'au moins 16 caractères n'est configuré", () => {
+    vi.stubEnv("VIDAGE_INSCRIPTION_CODE", "");
+    expect(inscriptionOuverte()).toBe(false);
+    expect(codeInscriptionValide("")).toBe(false);
+    expect(codeInscriptionValide(CODE)).toBe(false);
+    vi.stubEnv("VIDAGE_INSCRIPTION_CODE", "trop-court");
+    expect(inscriptionOuverte()).toBe(false);
+    expect(codeInscriptionValide("trop-court")).toBe(false);
+  });
+
+  it("n'accepte que le code exact, sans tenir compte des espaces autour", () => {
+    vi.stubEnv("VIDAGE_INSCRIPTION_CODE", CODE);
+    expect(inscriptionOuverte()).toBe(true);
+    expect(codeInscriptionValide(CODE)).toBe(true);
+    expect(codeInscriptionValide(`  ${CODE} `)).toBe(true);
+    expect(codeInscriptionValide(CODE.toUpperCase())).toBe(false);
+    expect(codeInscriptionValide(CODE.slice(0, -1))).toBe(false);
+    expect(codeInscriptionValide(`${CODE}x`)).toBe(false);
+    expect(codeInscriptionValide(undefined)).toBe(false);
+    expect(codeInscriptionValide(42)).toBe(false);
+  });
+});
 
 describe("session de 15 minutes", () => {
   it("reste fermée sans secret configuré, même avec un cookie", async () => {
