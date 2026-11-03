@@ -32,7 +32,10 @@ jobs:
       - run: npx vitest run
 
   e2e:
-    runs-on: ubuntu-latest
+    # Version figée : `ubuntu-latest` est passé à 26.04, que Playwright (1.56)
+    # ne sait pas encore installer (« does not support chromium on
+    # ubuntu26.04-x64 »). À remonter quand Playwright sera mis à jour.
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
