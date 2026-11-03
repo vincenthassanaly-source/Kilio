@@ -49,7 +49,8 @@ export function ScannerApp() {
   const [charge, setCharge] = useState(false);
   const [viseurOuvert, setViseurOuvert] = useState(false);
   /** Photos en attente de recadrage (la première est à l'écran). */
-  const [file, setFile] = useState<ImageData[]>([]);
+  const [file, setFile] = useState<{ id: number; image: ImageData }[]>([]);
+  const prochainId = useRef(0);
   /** Page à remplacer par la prochaine validée (« Reprendre »). */
   const [remplacerId, setRemplacerId] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
@@ -93,7 +94,8 @@ export function ScannerApp() {
   function mettreEnFile(images: ImageData[]) {
     if (images.length === 0) return;
     setErreurRecadrage(null);
-    setFile((f) => [...f, ...images]);
+    const nouvelles = images.map((image) => ({ id: prochainId.current++, image }));
+    setFile((f) => [...f, ...nouvelles]);
   }
 
   async function surImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -111,7 +113,7 @@ export function ScannerApp() {
   }
 
   async function valider(quad: Quad) {
-    const source = file[0];
+    const source = file[0]?.image;
     if (!source) return;
     setEnCours(true);
     setErreurRecadrage(null);
@@ -210,7 +212,7 @@ export function ScannerApp() {
                       aria-pressed={p.filtre === f}
                       disabled={filtreEnCours === p.id}
                       onClick={() => changerFiltre(p, f)}
-                      className={`${p.filtre === f ? "bg-kcal text-on-kcal" : "border border-line bg-surface text-ink"} min-h-9 flex-1 rounded-xl px-2 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-60`}
+                      className={`${p.filtre === f ? "bg-kcal text-on-kcal" : "border border-line bg-surface text-ink"} min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-60`}
                     >
                       {f === "original" ? "Original" : "Magic color"}
                     </button>
@@ -244,13 +246,18 @@ export function ScannerApp() {
 
       {file.length > 0 && (
         <EditeurCoins
-          key={`${file.length}-${file[0].width}x${file[0].height}`}
-          source={file[0]}
+          cle={file[0].id}
+          source={file[0].image}
           restantes={file.length - 1}
           enCours={enCours}
           erreur={erreurRecadrage}
           onValider={valider}
           onAnnuler={annulerRecadrage}
+          onFermer={() => {
+            // Retour navigateur ou Échap : on abandonne toute la file (le
+            // viseur éventuel reste ouvert dessous, avec sa page à remplacer).
+            setFile([]);
+          }}
         />
       )}
     </div>
