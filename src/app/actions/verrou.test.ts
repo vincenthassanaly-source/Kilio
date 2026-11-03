@@ -6,6 +6,8 @@ const etat = vi.hoisted(() => ({
   client: null as unknown,
   configure: true,
   desactive: false,
+  inscriptionOuverte: true,
+  codeValide: true,
   session: false,
   defi: null as string | null,
   ouvrirSession: vi.fn(),
@@ -22,6 +24,8 @@ vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client })
 vi.mock("@/lib/vidage/verrou", () => ({
   verrouConfigure: () => etat.configure,
   verrouDesactive: () => etat.desactive,
+  inscriptionOuverte: () => etat.inscriptionOuverte,
+  codeInscriptionValide: (code: unknown) => etat.codeValide && code === "bon-code",
   sessionValide: async () => etat.session,
   ouvrirSession: etat.ouvrirSession,
   fermerSession: etat.fermerSession,
@@ -49,6 +53,7 @@ import {
 
 const CLE = { credential_id: "cred-1", public_key: "AQID", counter: 4, transports: ["internal"] };
 const REPONSE = { id: "cred-1" } as never;
+const CODE = "bon-code";
 
 function brancher(repondre?: Repondre) {
   const fake = fauxSupabase(repondre);
@@ -59,7 +64,7 @@ const avecCle: Repondre = (a) => (a.action === "select" ? { data: CLE } : undefi
 
 beforeEach(() => {
   vi.clearAllMocks();
-  Object.assign(etat, { configure: true, desactive: false, session: false, defi: "defi-1" });
+  Object.assign(etat, { configure: true, desactive: false, inscriptionOuverte: true, codeValide: true, session: false, defi: "defi-1" });
   etat.memoriserDefi.mockResolvedValue(true);
   etat.ouvrirSession.mockResolvedValue(true);
   etat.exigerSession.mockResolvedValue({ ok: true, data: undefined });
@@ -71,22 +76,43 @@ describe("etatVerrou", () => {
   it("signale un verrou non configuré sans interroger la base", async () => {
     etat.configure = false;
     const fake = brancher();
-    expect(await etatVerrou()).toEqual({ ok: true, data: { configure: false, inscrit: false, ouvert: false } });
+    expect(await etatVerrou()).toEqual({
+      ok: true,
+      data: { configure: false, inscrit: false, inscriptionOuverte: false, ouvert: false },
+    });
     expect(fake.appels).toHaveLength(0);
   });
 
   it("dit si un appareil est enregistré et si la session est ouverte", async () => {
     brancher();
-    expect(await etatVerrou()).toEqual({ ok: true, data: { configure: true, inscrit: false, ouvert: false } });
+    expect(await etatVerrou()).toEqual({
+      ok: true,
+      data: { configure: true, inscrit: false, inscriptionOuverte: true, ouvert: false },
+    });
     etat.session = true;
     brancher(avecCle);
-    expect(await etatVerrou()).toEqual({ ok: true, data: { configure: true, inscrit: true, ouvert: true } });
+    expect(await etatVerrou()).toEqual({
+      ok: true,
+      data: { configure: true, inscrit: true, inscriptionOuverte: true, ouvert: true },
+    });
+  });
+
+  it("signale que l'enregistrement est fermé quand le code d'enrôlement n'est pas configuré", async () => {
+    etat.inscriptionOuverte = false;
+    brancher();
+    expect(await etatVerrou()).toEqual({
+      ok: true,
+      data: { configure: true, inscrit: false, inscriptionOuverte: false, ouvert: false },
+    });
   });
 
   it("est ouvert d'office quand le banc d'essai désactive le verrou", async () => {
     etat.desactive = true;
     const fake = brancher();
-    expect(await etatVerrou()).toEqual({ ok: true, data: { configure: true, inscrit: true, ouvert: true } });
+    expect(await etatVerrou()).toEqual({
+      ok: true,
+      data: { configure: true, inscrit: true, inscriptionOuverte: true, ouvert: true },
+    });
     expect(fake.appels).toHaveLength(0);
   });
 
@@ -99,7 +125,7 @@ describe("etatVerrou", () => {
 describe("inscription (premier appareil)", () => {
   it("propose une passkey du capteur de l'appareil, avec vérification obligatoire", async () => {
     brancher();
-    const r = await optionsInscription();
+    const r = await optionsInscription(CODE);
     expect(r.ok).toBe(true);
     expect(etat.genererInscription.mock.calls[0][0]).toMatchObject({
       rpID: "kilio.test",
@@ -110,8 +136,29 @@ describe("inscription (premier appareil)", () => {
 
   it("refuse de proposer l'inscription quand un appareil est déjà enregistré", async () => {
     brancher(avecCle);
-    expect(await optionsInscription()).toEqual({ ok: false, error: "Un appareil est déjà enregistré." });
+    expect(await optionsInscription(CODE)).toEqual({ ok: false, error: "Un appareil est déjà enregistré." });
     expect(etat.genererInscription).not.toHaveBeenCalled();
+  });
+
+  it("refuse l'inscription sans le bon code d'enrôlement, avant même de lire la base", async () => {
+    const fake = brancher();
+    for (const code of ["", "mauvais", "BON-CODE", undefined as never]) {
+      expect(await optionsInscription(code)).toEqual({ ok: false, error: "Code d'enregistrement incorrect." });
+    }
+    expect(etat.genererInscription).not.toHaveBeenCalled();
+    expect(etat.memoriserDefi).not.toHaveBeenCalled();
+    expect(fake.appels).toHaveLength(0);
+  });
+
+  it("reste fermée quand aucun code d'enrôlement n'est configuré, même avec un code proposé", async () => {
+    etat.inscriptionOuverte = false;
+    const fake = brancher();
+    const r = await optionsInscription(CODE);
+    expect(r.ok).toBe(false);
+    expect(r.ok ? "" : r.error).toContain("VIDAGE_INSCRIPTION_CODE");
+    expect(etat.genererInscription).not.toHaveBeenCalled();
+    expect(etat.memoriserDefi).not.toHaveBeenCalled();
+    expect(fake.appels).toHaveLength(0);
   });
 
   it("refuse sans défi en attente (expiré ou déjà utilisé)", async () => {
