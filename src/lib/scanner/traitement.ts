@@ -7,7 +7,7 @@ import type { Filtre } from "./filtres";
 import { appliquerFiltre, filtreConseille } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
 import { chargerOpenCv, openCvSiPret } from "./opencv";
-import { detecterDocumentCv, redresserCv } from "./opencvScan";
+import { detecterDocumentCv, detecterDocumentRobuste, redresserCv } from "./opencvScan";
 
 /** Plus grand côté d'une photo chargée : borne la mémoire des téléphones. */
 const COTE_MAX_SOURCE_PX = 2400;
@@ -88,7 +88,10 @@ export function prechargerOpenCv(): void {
 export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad | null> {
   try {
     const { cv } = await chargerOpenCv();
-    const quad = detecterDocumentCv(cv, source, 640);
+    // L'ancienne détection par droites (rapide, insensible au grain du fond) vote avec les
+    // analyses OpenCV : elle sauve les fonds texturés où les contours échouent.
+    const vieux = detecterFeuille(source);
+    const quad = await detecterDocumentRobuste(cv, source, { supplementaires: vieux ? [vieux] : [] });
     if (quad) return quad;
   } catch {
     // OpenCV indisponible ou en échec : voir ci-dessous.
@@ -150,7 +153,7 @@ export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtr
   }
   redressee ??= redresser(source, quad, largeur, hauteur);
   if (!redressee) throw new Error("Cadrage invalide : les quatre coins doivent former un quadrilatère convexe.");
-  const choisi: Filtre = filtre === "auto" ? filtreConseille(largeur, hauteur) : filtre;
+  const choisi: Filtre = filtre === "auto" ? filtreConseille(largeur, hauteur, redressee) : filtre;
   const redresse = await imageVersJpeg(redressee);
   const traite = choisi === "original" ? redresse : await imageVersJpeg(appliquerFiltre(redressee, choisi));
   return { redresse, traite, largeur, hauteur, filtre: choisi };

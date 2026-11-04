@@ -378,14 +378,39 @@ const RATIO_CARTE = 1.586;
 /** Large : la perspective étire ou écrase le rapport apparent d'une carte photographiée de biais. */
 const TOLERANCE_CARTE = 0.1;
 
+/** Écart max−min (niveaux 0-255) au-delà duquel un pixel est franchement coloré (un papier jauni reste en dessous). */
+const SATURATION_COULEUR = 55;
+/** Part de pixels colorés au-delà de laquelle la page est une photo ou un document en couleurs. */
+const PART_COULEUR_MIN = 0.12;
+
+/** Vrai si une part notable de la page est franchement colorée (photo, flyer) : le N&B en perdrait l'essentiel. */
+export function pageColoree(img: ImageDataLike): boolean {
+  const { data, width: w, height: h } = img;
+  const pas = Math.max(1, Math.floor(Math.sqrt((w * h) / 20000)));
+  let colores = 0;
+  let n = 0;
+  for (let y = 0; y < h; y += pas) {
+    for (let x = 0; x < w; x += pas) {
+      const p = (y * w + x) * 4;
+      const r = data[p], g = data[p + 1], b = data[p + 2];
+      if (Math.max(r, g, b) - Math.min(r, g, b) > SATURATION_COULEUR) colores++;
+      n++;
+    }
+  }
+  return n > 0 && colores / n > PART_COULEUR_MIN;
+}
+
 /**
- * Filtre proposé par défaut selon la forme de la page redressée : une carte ou
- * une pièce d'identité garde ses couleurs, tout le reste (A4, ticket, page de
+ * Filtre proposé par défaut selon la forme et le contenu de la page redressée : une carte ou
+ * une pièce d'identité, ou toute page franchement colorée, garde ses couleurs, tout le reste (A4, ticket, page de
  * livre) reçoit « Noir & blanc ». L'A4 (1,41) reste bien en dehors de la tolérance.
  */
-export function filtreConseille(largeur: number, hauteur: number): Filtre {
+export function filtreConseille(largeur: number, hauteur: number, page?: ImageDataLike): Filtre {
   const rapport = Math.max(largeur, hauteur) / Math.max(1, Math.min(largeur, hauteur));
-  return Math.abs(rapport - RATIO_CARTE) <= TOLERANCE_CARTE ? "couleurs" : "noirblanc";
+  if (Math.abs(rapport - RATIO_CARTE) <= TOLERANCE_CARTE) return "couleurs";
+  // Au contenu : une page franchement colorée (photo, flyer) garde ses couleurs, quel que soit son format.
+  if (page && pageColoree(page)) return "couleurs";
+  return "noirblanc";
 }
 
 /** Applique le filtre choisi ; « original » renvoie l'image telle quelle. */

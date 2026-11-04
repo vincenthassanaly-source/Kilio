@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appliquerFiltre, couleursFideles, filtreConseille, magicColor, noirEtBlanc, pageSombre } from "./filtres";
+import { appliquerFiltre, couleursFideles, filtreConseille, magicColor, noirEtBlanc, pageColoree, pageSombre } from "./filtres";
 import type { ImageDataLike } from "./geometrie";
 
 function image(w: number, h: number, pixel: (x: number, y: number) => [number, number, number]): ImageDataLike {
@@ -78,6 +78,29 @@ describe("filtreConseille", () => {
 
   it("ne plante pas sur une dimension nulle", () => {
     expect(filtreConseille(0, 0)).toBe("noirblanc");
+  });
+});
+
+describe("filtreConseille d'après le contenu", () => {
+  const papierJauni = image(120, 170, (x, y) => (y % 20 > 14 && x > 10 && x < 110 ? [40, 38, 44] : [238, 230, 205]));
+  const photo = image(120, 170, (x, y) => (y < 100 ? [30 + x, 140, 200 - x] : [225, 225, 225])); // moitié de la page : ciel/mer colorés
+  const logoRouge = image(120, 170, (x, y) => (x < 20 && y < 20 ? [200, 30, 30] : [240, 240, 240])); // petit logo sur page claire
+  const carteNoire = image(170, 98, () => [32, 32, 35]);
+
+  it("garde le noir et blanc pour un papier jauni, un petit logo coloré ou un support noir", () => {
+    for (const page of [papierJauni, logoRouge, carteNoire]) {
+      expect(pageColoree(page)).toBe(false);
+      expect(filtreConseille(page.width, page.height, page)).toBe("noirblanc");
+    }
+  });
+
+  it("propose les couleurs pour une page franchement colorée, même au format A4", () => {
+    expect(pageColoree(photo)).toBe(true);
+    expect(filtreConseille(1000, 1414, photo)).toBe("couleurs");
+  });
+
+  it("propose toujours les couleurs pour une carte, avec ou sans le contenu", () => {
+    expect(filtreConseille(856, 540, papierJauni)).toBe("couleurs");
   });
 });
 
