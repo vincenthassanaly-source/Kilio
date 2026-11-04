@@ -237,7 +237,9 @@ self.addEventListener("fetch", (event) => {
 
   const isStaticAsset =
     url.pathname.startsWith("/_next/static/") ||
-    url.pathname.startsWith("/icons/");
+    url.pathname.startsWith("/icons/") ||
+    // OpenCV.js du scanner (~10 Mo) : gardé en cache pour scanner hors ligne.
+    url.pathname.startsWith("/vendor/");
 
   if (!isStaticAsset) {
     event.respondWith(

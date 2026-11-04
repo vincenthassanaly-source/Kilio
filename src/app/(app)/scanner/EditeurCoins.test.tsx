@@ -4,6 +4,7 @@ import { EditeurCoins } from "./EditeurCoins";
 
 vi.mock("@/lib/scanner/traitement", () => ({
   imageVersJpeg: vi.fn(async () => new Blob(["x"], { type: "image/jpeg" })),
+  detecterFeuilleAuto: vi.fn(async () => null),
 }));
 
 const image = (width: number, height: number) =>

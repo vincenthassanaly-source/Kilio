@@ -6,7 +6,7 @@ import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import type { Quad } from "@/lib/scanner/geometrie";
 import { ETAT_SUIVI_INITIAL, suivreCadre, type EtatSuivi } from "@/lib/scanner/suivi";
-import { capturerImage, detecterDepuisVideo } from "@/lib/scanner/traitement";
+import { capturerImage, detecterDepuisVideo, prechargerOpenCv } from "@/lib/scanner/traitement";
 
 /** Pause entre deux détections en direct (après la fin de la précédente) et côté de l'image analysée. */
 const PAUSE_ENTRE_DETECTIONS_MS = 120;
@@ -45,6 +45,11 @@ export function Viseur({
   // history.back() qui déclencherait aussitôt le « retour » du recadrage.
   useBackClose(true, onClose);
   useDialogFocus(overlayRef, onClose);
+
+  // OpenCV se charge pendant que la caméra s'ouvre ; d'ici là, l'ancienne détection suffit.
+  useEffect(() => {
+    prechargerOpenCv();
+  }, []);
 
   // Ouverture de la caméra ; le flux est arrêté à la fermeture.
   useEffect(() => {
