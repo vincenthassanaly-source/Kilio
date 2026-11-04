@@ -2,10 +2,12 @@
 // API du navigateur (canvas, createImageBitmap, flux vidéo). Côté client
 // uniquement : ne jamais importer depuis un composant serveur.
 
-import { detecterQuadrilatere } from "./detection";
+import { detecterFeuille, detecterQuadrilatere } from "./detection";
 import type { Filtre } from "./filtres";
 import { appliquerFiltre, filtreConseille } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
+import { chargerOpenCv, openCvSiPret } from "./opencv";
+import { detecterDocumentCv, redresserCv } from "./opencvScan";
 
 /** Plus grand côté d'une photo chargée : borne la mémoire des téléphones. */
 const COTE_MAX_SOURCE_PX = 2400;
@@ -69,6 +71,31 @@ export function capturerImage(video: HTMLVideoElement): ImageData {
   return ctx.getImageData(0, 0, w, h);
 }
 
+/** Côté analysé par OpenCV en direct : plus fin que l'ancien pipeline, qui plafonnait à 180 px. */
+const COTE_LIVE_OPENCV_PX = 360;
+
+/** Lance le chargement d'OpenCV en tâche de fond (le scanner reste utilisable sans). */
+export function prechargerOpenCv(): void {
+  chargerOpenCv().catch(() => {
+    // Hors ligne au premier usage ou mémoire insuffisante : l'ancien pipeline prend le relais.
+  });
+}
+
+/**
+ * Coins du document sur une photo entière : OpenCV si disponible, sinon l'ancienne
+ * détection. Ne rejette jamais ; null = rien de fiable (cadre par défaut à ajuster).
+ */
+export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad | null> {
+  try {
+    const cv = await chargerOpenCv();
+    const quad = detecterDocumentCv(cv, source, 640);
+    if (quad) return quad;
+  } catch {
+    // OpenCV indisponible ou en échec : voir ci-dessous.
+  }
+  return detecterFeuille(source);
+}
+
 /** Détection en direct sur une image de la vidéo (petite, donc rapide). */
 export function detecterDepuisVideo(
   video: HTMLVideoElement,
@@ -77,6 +104,8 @@ export function detecterDepuisVideo(
   const vw = video.videoWidth;
   const vh = video.videoHeight;
   if (!vw || !vh) return null;
+  const cv = openCvSiPret();
+  if (cv) coteMax = Math.max(coteMax, COTE_LIVE_OPENCV_PX);
   const echelle = Math.min(1, coteMax / Math.max(vw, vh));
   const w = Math.max(8, Math.round(vw * echelle));
   const h = Math.max(8, Math.round(vh * echelle));
@@ -84,7 +113,12 @@ export function detecterDepuisVideo(
   const ctx = contexte(canvas);
   ctx.drawImage(video, 0, 0, w, h);
   const img = ctx.getImageData(0, 0, w, h);
-  const quad = detecterQuadrilatere(img);
+  let quad: Quad | null;
+  try {
+    quad = cv ? detecterDocumentCv(cv, img, COTE_LIVE_OPENCV_PX) : detecterQuadrilatere(img);
+  } catch {
+    quad = detecterQuadrilatere(img);
+  }
   // Les coins sont ramenés au repère natif de la vidéo (celui de l'overlay SVG).
   return { quad: quad ? mettreAEchelle(quad, vw / w) : null, largeur: vw, hauteur: vh };
 }
@@ -107,7 +141,13 @@ export type PageTraitee = {
  */
 export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtre | "auto"): Promise<PageTraitee> {
   const { largeur, hauteur } = tailleSortie(quad);
-  const redressee = redresser(source, quad, largeur, hauteur);
+  let redressee: ImageDataLike | null = null;
+  try {
+    redressee = redresserCv(await chargerOpenCv(), source, quad, largeur, hauteur);
+  } catch {
+    // OpenCV indisponible : redressement bilinéaire maison.
+  }
+  redressee ??= redresser(source, quad, largeur, hauteur);
   if (!redressee) throw new Error("Cadrage invalide : les quatre coins doivent former un quadrilatère convexe.");
   const choisi: Filtre = filtre === "auto" ? filtreConseille(largeur, hauteur) : filtre;
   const redresse = await imageVersJpeg(redressee);

@@ -44,3 +44,6 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /e2e/.auth/
+
+# OpenCV.js copié depuis node_modules (scripts/copier-opencv.mjs)
+/public/vendor/

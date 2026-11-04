@@ -5,8 +5,7 @@ import { Portal } from "@/components/Portal";
 import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import { bornerQuad, quadParDefaut, quadValide, type Quad } from "@/lib/scanner/geometrie";
-import { detecterFeuille } from "@/lib/scanner/detection";
-import { imageVersJpeg } from "@/lib/scanner/traitement";
+import { detecterFeuilleAuto, imageVersJpeg } from "@/lib/scanner/traitement";
 
 const QUALITE_APERCU = 0.85;
 
@@ -81,7 +80,7 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
       if (annule) return;
       objectUrl = URL.createObjectURL(blob);
       setUrl(objectUrl);
-      const trouve = detecterFeuille(source);
+      const trouve = await detecterFeuilleAuto(source);
       if (annule) return;
       setDetecte(trouve !== null);
       if (trouve) setQuad(trouve);
