@@ -17,9 +17,10 @@ import { EditeurCoins } from "./EditeurCoins";
 import { ExportPanel } from "./ExportPanel";
 import { Viseur } from "./Viseur";
 
-/** Les trois filtres proposés : texte court affiché, et nom complet pour les lecteurs d'écran. */
+/** Les quatre filtres proposés : texte court affiché, et nom complet pour les lecteurs d'écran. */
 const FILTRES: { valeur: Filtre; texte: string; nom: string }[] = [
   { valeur: "original", texte: "Original", nom: "Original" },
+  { valeur: "noirblanc", texte: "N&B", nom: "Noir et blanc" },
   { valeur: "couleurs", texte: "Couleurs", nom: "Couleurs fidèles" },
   { valeur: "magic", texte: "Magic color", nom: "Magic color" },
 ];
@@ -122,7 +123,7 @@ export function ScannerApp() {
     setEnCours(true);
     setErreurRecadrage(null);
     try {
-      // Filtre « auto » : Couleurs fidèles pour une carte, Magic color pour une feuille.
+      // Filtre « auto » : Couleurs fidèles pour une carte, Noir & blanc pour une feuille.
       const page = await creerPage(source, quad, "auto");
       await ajouterPage(page, remplacerId ?? undefined);
       await recharger();
@@ -220,8 +221,8 @@ export function ScannerApp() {
                   </div>
                 </div>
               </div>
-              {/* Trois filtres sur toute la largeur de la carte : « Magic color » ne tient pas à côté de la miniature. */}
-              <div className="grid grid-cols-3 gap-2" role="group" aria-label={`Filtre de la page ${i + 1}`}>
+              {/* Quatre filtres sur toute la largeur de la carte (2×2 sur petit écran) : « Magic color » ne tient pas à côté de la miniature. */}
+              <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-4" role="group" aria-label={`Filtre de la page ${i + 1}`}>
                 {FILTRES.map(({ valeur, texte, nom }) => (
                   <button
                     key={valeur}
