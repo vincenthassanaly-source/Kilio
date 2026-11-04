@@ -87,7 +87,7 @@ export function prechargerOpenCv(): void {
  */
 export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad | null> {
   try {
-    const cv = await chargerOpenCv();
+    const { cv } = await chargerOpenCv();
     const quad = detecterDocumentCv(cv, source, 640);
     if (quad) return quad;
   } catch {
@@ -143,7 +143,8 @@ export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtr
   const { largeur, hauteur } = tailleSortie(quad);
   let redressee: ImageDataLike | null = null;
   try {
-    redressee = redresserCv(await chargerOpenCv(), source, quad, largeur, hauteur);
+    const { cv } = await chargerOpenCv();
+    redressee = redresserCv(cv, source, quad, largeur, hauteur);
   } catch {
     // OpenCV indisponible : redressement bilinéaire maison.
   }
