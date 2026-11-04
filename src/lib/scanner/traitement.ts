@@ -6,11 +6,12 @@ import { detecterFeuille, detecterQuadrilatere } from "./detection";
 import type { Filtre } from "./filtres";
 import { appliquerFiltre, filtreConseille } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
+import { capturerPhotoPleine, captureurDuNavigateur } from "./capture";
 import { chargerOpenCv, openCvSiPret } from "./opencv";
 import { detecterDocumentCv, detecterDocumentRobuste, redresserCv } from "./opencvScan";
 
 /** Plus grand côté d'une photo chargée : borne la mémoire des téléphones. */
-const COTE_MAX_SOURCE_PX = 2400;
+const COTE_MAX_SOURCE_PX = 3000;
 /** Qualité JPEG des pages gardées dans le brouillon. */
 const QUALITE_BROUILLON = 0.92;
 
@@ -97,6 +98,14 @@ export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad |
     // OpenCV indisponible ou en échec : voir ci-dessous.
   }
   return detecterFeuille(source);
+}
+
+/**
+ * Prise de vue au clic : vraie photo pleine résolution avec mise au point quand le navigateur sait
+ * la prendre (Chrome Android), sinon image du flux vidéo. Ne rejette jamais à cause de la photo.
+ */
+export function capturerPhoto(video: HTMLVideoElement, piste: MediaStreamTrack | null): Promise<ImageData> {
+  return capturerPhotoPleine(piste, captureurDuNavigateur(), (photo) => chargerImage(photo), () => capturerImage(video));
 }
 
 /** Détection en direct sur une image de la vidéo (petite, donc rapide). */
