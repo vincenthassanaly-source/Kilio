@@ -1,7 +1,7 @@
 // Banc d'essai des filtres, sur des critères objectifs : teinte conservée,
 // papier neutre, ombre atténuée, grandes zones sombres non aplaties.
 import { describe, expect, it } from "vitest";
-import { couleursFideles, magicColor } from "./filtres";
+import { couleursFideles, magicColor, noirEtBlanc } from "./filtres";
 import { redresser, tailleSortie, type ImageDataLike } from "./geometrie";
 import { scenesDeReference } from "./scenes";
 
@@ -108,6 +108,40 @@ describe("Magic color", () => {
     const apres = moyenne(sortie, 0.14, 0.14, 0.27, 0.26);
     expect(ecartTeinte(avant, apres)).toBeLessThan(12);
     expect(saturation(apres)).toBeGreaterThan(0.6 * saturation(avant));
+  });
+});
+
+describe("Noir & blanc", () => {
+  const source = pageJaunieAvecOmbre();
+  const sortie = noirEtBlanc(source);
+
+  it("rend le papier d'un blanc pur partout, y compris sous l'ombre portée", () => {
+    // Zones sans texte ni logo : à gauche (éclairée), au milieu, à droite (sous l'ombre).
+    for (const [x0, x1, y0, y1] of [[0.02, 0.08, 0.88, 0.98], [0.45, 0.65, 0.05, 0.35], [0.8, 0.98, 0.05, 0.35]]) {
+      const papier = moyenne(sortie, x0, y0, x1, y1);
+      expect(lum(papier), `luminance du papier (${x0})`).toBeGreaterThan(250);
+      expect(saturation(papier), `dominante résiduelle (${x0})`).toBe(0);
+    }
+  });
+
+  it("n'étale pas de tache grise là où l'ombre rencontre le texte", () => {
+    let somme = 0, n = 0;
+    for (let y = 118; y < 122; y++) {
+      for (let x = Math.floor(0.5 * sortie.width); x < Math.floor(0.7 * sortie.width); x++) {
+        somme += lum(pixel(sortie, x, y));
+        n++;
+      }
+    }
+    expect(somme / n).toBeGreaterThan(250);
+  });
+
+  it("garde l'encre noire, dans la zone d'ombre comme hors de l'ombre", () => {
+    expect(lum(pixel(sortie, 100, 84))).toBeLessThan(40);
+    expect(lum(pixel(sortie, 160, 84))).toBeLessThan(40);
+  });
+
+  it("ne laisse aucune couleur (le logo rouge devient un aplat sombre ou gris)", () => {
+    expect(saturation(moyenne(sortie, 0.14, 0.14, 0.27, 0.26))).toBe(0);
   });
 });
 

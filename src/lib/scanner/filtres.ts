@@ -6,13 +6,17 @@
 //   appliqué de la même façon aux trois canaux. Diviser chaque canal par son
 //   propre fond (ancienne version) décalait les teintes dès que le fond
 //   changeait de couleur : c'est ce qui donnait des couleurs fausses.
+// - « Noir & blanc » : le rendu document par défaut. Fond d'éclairage estimé par
+//   fermeture morphologique puis divisé (ombres et dégradés disparaissent, le
+//   papier devient exactement blanc), netteté du texte renforcée, courbe
+//   tranchée mais lissée (pas de binarisation dure qui mangerait les traits fins).
 // - « Couleurs fidèles » : pour cartes, photos, pièces d'identité. Corrige
 //   seulement l'éclairage progressif (une ombre qui traverse la carte) avec un
 //   gain doux et borné, sans blanchir ni toucher aux teintes ni au contenu local.
 
 import type { ImageDataLike } from "./geometrie";
 
-export type Filtre = "original" | "couleurs" | "magic";
+export type Filtre = "original" | "noirblanc" | "couleurs" | "magic";
 
 /** Plus grand côté (en pixels) de la grille grossière servant à estimer l'éclairage. */
 const COTE_GRILLE = 420;
@@ -219,6 +223,61 @@ export function magicColor(img: ImageDataLike): ImageDataLike {
   return { data: sortie, width: w, height: h };
 }
 
+/* ---------- Noir & blanc ---------- */
+
+/** Rapport pixel/fond sous lequel on est noir, et au-dessus duquel on est blanc pur. */
+const NB_NOIR = 0.5;
+const NB_BLANC = 0.9;
+/** Rayon de la fermeture du fond (fraction du plus grand côté de la grille). */
+const NB_RAYON_FOND = 0.045;
+/** Netteté : rayon du flou de référence (pixels pour 1000 px de côté) et gain. */
+const NB_RAYON_NETTETE = 1.2;
+const NB_GAIN_NETTETE = 1.1;
+
+/** Courbe en S : encre franche, papier blanc, transition douce (texte pâle encore lisible). */
+function courbeNoirEtBlanc(rapport: number): number {
+  const t = Math.min(1, Math.max(0, (rapport - NB_NOIR) / (NB_BLANC - NB_NOIR)));
+  return t * t * (3 - 2 * t);
+}
+
+/** Document en noir et blanc net sur fond blanc uniforme, sans ombres. */
+export function noirEtBlanc(img: ImageDataLike): ImageDataLike {
+  const { width: w, height: h, data } = img;
+  const n = w * h;
+  const s = Math.max(1, Math.round(Math.max(w, h) / COTE_GRILLE));
+
+  // 1. Luminance pleine résolution et fond d'éclairage (l'encre, plus fine que le noyau, disparaît).
+  const lum = new Float32Array(n);
+  for (let i = 0, p = 0; i < n; i++, p += 4) lum[i] = luma(data[p], data[p + 1], data[p + 2]);
+  const grille = reduireMoyenne(lum, w, h, s);
+  const rayon = Math.max(2, Math.round(NB_RAYON_FOND * Math.max(grille.w, grille.h)));
+  const fond = flouBoite(extremum(extremum(grille, rayon, true), rayon, false), Math.max(1, Math.round(rayon / 2)));
+
+  // 2. Rapport au fond (≈ 1 sur le papier, bien plus bas sur l'encre).
+  const rapport: Grille = { p: new Float32Array(n), w, h };
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      rapport.p[i] = Math.min(1.4, lum[i] / Math.max(24, lire(fond, s, x, y)));
+    }
+  }
+
+  // 3. Netteté (masque flou) : renforce les bords des lettres avant la courbe.
+  const r = Math.max(1, Math.round((NB_RAYON_NETTETE * Math.max(w, h)) / 1000));
+  const flou = flouBoite(flouBoite(rapport, r), r);
+
+  const sortie = new Uint8ClampedArray(data.length);
+  for (let i = 0, o = 0; i < n; i++, o += 4) {
+    const net = rapport.p[i] + NB_GAIN_NETTETE * (rapport.p[i] - flou.p[i]);
+    const v = courbeNoirEtBlanc(net) * 255;
+    sortie[o] = v;
+    sortie[o + 1] = v;
+    sortie[o + 2] = v;
+    sortie[o + 3] = 255;
+  }
+  return { data: sortie, width: w, height: h };
+}
+
 /* ---------- Couleurs fidèles ---------- */
 
 /** Rayon du flou d'éclairage, en fraction du plus grand côté : très large, pour ne suivre que les ombres étendues. */
@@ -288,15 +347,16 @@ const TOLERANCE_CARTE = 0.1;
 /**
  * Filtre proposé par défaut selon la forme de la page redressée : une carte ou
  * une pièce d'identité garde ses couleurs, tout le reste (A4, ticket, page de
- * livre) reçoit « Magic color ». L'A4 (1,41) reste bien en dehors de la tolérance.
+ * livre) reçoit « Noir & blanc ». L'A4 (1,41) reste bien en dehors de la tolérance.
  */
 export function filtreConseille(largeur: number, hauteur: number): Filtre {
   const rapport = Math.max(largeur, hauteur) / Math.max(1, Math.min(largeur, hauteur));
-  return Math.abs(rapport - RATIO_CARTE) <= TOLERANCE_CARTE ? "couleurs" : "magic";
+  return Math.abs(rapport - RATIO_CARTE) <= TOLERANCE_CARTE ? "couleurs" : "noirblanc";
 }
 
 /** Applique le filtre choisi ; « original » renvoie l'image telle quelle. */
 export function appliquerFiltre(img: ImageDataLike, filtre: Filtre): ImageDataLike {
+  if (filtre === "noirblanc") return noirEtBlanc(img);
   if (filtre === "magic") return magicColor(img);
   if (filtre === "couleurs") return couleursFideles(img);
   return img;

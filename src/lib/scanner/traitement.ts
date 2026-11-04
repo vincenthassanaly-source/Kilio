@@ -137,7 +137,7 @@ export type PageTraitee = {
 /**
  * Redresse la perspective puis applique le filtre. Avec `"auto"`, le filtre est
  * choisi d'après la forme de la page : « Couleurs fidèles » pour une carte,
- * « Magic color » sinon.
+ * « Noir & blanc » sinon.
  */
 export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtre | "auto"): Promise<PageTraitee> {
   const { largeur, hauteur } = tailleSortie(quad);
