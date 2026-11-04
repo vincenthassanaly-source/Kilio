@@ -240,3 +240,72 @@ export function redresserCv(cv: Cv, source: ImageDataLike, quad: Quad, largeur: 
     }
   }
 }
+
+/** Échelles d'analyse (plus grand côté, en pixels) essayées sur une photo entière. */
+const ECHELLES_PHOTO = [700, 900, 1150, 1400];
+
+const mediane = (v: number[]): number => {
+  const t = [...v].sort((a, b) => a - b);
+  const m = t.length >> 1;
+  return t.length % 2 ? t[m] : (t[m - 1] + t[m]) / 2;
+};
+
+/** Médiane coin par coin : un cadre aberrant (tronqué, ou accroché à un motif du fond) est écarté. */
+export function medianeQuads(quads: Quad[]): Quad {
+  const coin = (i: number): Point => ({ x: mediane(quads.map((q) => q[i].x)), y: mediane(quads.map((q) => q[i].y)) });
+  return [coin(0), coin(1), coin(2), coin(3)];
+}
+
+/** Plus grand écart entre coins homologues de deux cadres. */
+function ecartMax(a: Quad, b: Quad): number {
+  return Math.max(...a.map((p, i) => Math.hypot(p.x - b[i].x, p.y - b[i].y)));
+}
+
+/**
+ * Vote entre plusieurs cadres : on garde le groupe de cadres qui s'accordent (écart maximal
+ * `tolerance` × diagonale) le plus nombreux, puis sa médiane. À égalité, le cadre le plus grand
+ * l'emporte : un cadre tronqué est plus petit que le vrai. Les cadres isolés ou aberrants sont ignorés.
+ */
+export function consensusQuads(quads: Quad[], diagonale: number, tolerance = 0.03): Quad | null {
+  if (quads.length === 0) return null;
+  let meilleur: Quad[] = [];
+  let aireMeilleur = -1;
+  for (const centre of quads) {
+    const groupe = quads.filter((q) => ecartMax(q, centre) <= tolerance * diagonale);
+    const aire = Math.max(...groupe.map(aireQuad));
+    if (groupe.length > meilleur.length || (groupe.length === meilleur.length && aire > aireMeilleur)) {
+      meilleur = groupe;
+      aireMeilleur = aire;
+    }
+  }
+  return meilleur.length === 1 ? meilleur[0] : medianeQuads(meilleur);
+}
+
+/**
+ * Détection robuste sur une photo (pas en direct). Aucune échelle d'analyse n'est fiable seule :
+ * un fond très texturé (bois, tissu) fait échouer ou tronquer les contours à certaines tailles et
+ * pas à d'autres. On analyse donc à plusieurs échelles, on y ajoute les cadres `supplementaires`
+ * (ex. la détection par droites, moins précise mais insensible au grain) et on retient le consensus.
+ */
+export async function detecterDocumentRobuste(
+  cv: Cv,
+  img: ImageDataLike,
+  options: {
+    echelles?: number[];
+    supplementaires?: Quad[];
+    /** Rend la main à l'interface entre deux échelles : l'écran ne se fige pas pendant l'analyse. */
+    ceder?: () => Promise<void>;
+  } = {}
+): Promise<Quad | null> {
+  const { echelles = ECHELLES_PHOTO, supplementaires = [], ceder = () => new Promise<void>((r) => setTimeout(r, 0)) } = options;
+  const plusGrand = Math.max(img.width, img.height);
+  const cotes = [...new Set(echelles.map((c) => Math.min(c, plusGrand)))];
+  const trouves: Quad[] = [];
+  for (const cote of cotes) {
+    await ceder();
+    const q = detecterDocumentCv(cv, img, cote);
+    if (q) trouves.push(q);
+  }
+  const quad = consensusQuads([...trouves, ...supplementaires], Math.hypot(img.width, img.height));
+  return quad && quadValide(quad) ? quad : null;
+}
