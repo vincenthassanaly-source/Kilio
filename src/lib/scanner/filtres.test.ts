@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appliquerFiltre, couleursFideles, filtreConseille, magicColor, noirEtBlanc } from "./filtres";
+import { appliquerFiltre, couleursFideles, filtreConseille, magicColor, noirEtBlanc, pageSombre } from "./filtres";
 import type { ImageDataLike } from "./geometrie";
 
 function image(w: number, h: number, pixel: (x: number, y: number) => [number, number, number]): ImageDataLike {
@@ -140,6 +140,34 @@ describe("noirEtBlanc", () => {
   it("garde la même taille", () => {
     expect(sortie.width).toBe(w);
     expect(sortie.height).toBe(h);
+  });
+});
+
+describe("noirEtBlanc sur support sombre (carte noire, texte clair)", () => {
+  // Carte quasi noire, ombre franche sur sa moitié droite, texte blanc fin, léger bruit de capteur.
+  const w = 220;
+  const h = 130;
+  const bruit = (x: number, y: number) => ((x * 7919 + y * 104729) % 11) - 5;
+  const carte = image(w, h, (x, y) => {
+    const ombre = x > 110 ? 0.45 : 1;
+    const texte = y % 26 >= 11 && y % 26 < 14 && x > 20 && x < 200;
+    const v = (texte ? 225 : 38) * ombre + bruit(x, y);
+    return [v, v, v + 3];
+  });
+  const sortie = noirEtBlanc(carte);
+
+  it("reconnaît un support sombre, pas une feuille claire", () => {
+    expect(pageSombre(carte)).toBe(true);
+    expect(pageSombre(image(80, 60, () => [220, 215, 200]))).toBe(false);
+  });
+
+  it("garde le fond noir pur, y compris sous l'ombre et malgré le bruit", () => {
+    for (const [x, y] of [[10, 5], [60, 40], [150, 5], [200, 120]]) expect(lum(sortie, x, y)).toBeLessThan(8);
+  });
+
+  it("garde le texte blanc, dans la lumière comme dans l'ombre", () => {
+    expect(lum(sortie, 60, 12)).toBeGreaterThan(215);
+    expect(lum(sortie, 160, 12)).toBeGreaterThan(215);
   });
 });
 

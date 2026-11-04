@@ -240,15 +240,48 @@ function courbeNoirEtBlanc(rapport: number): number {
   return t * t * (3 - 2 * t);
 }
 
-/** Document en noir et blanc net sur fond blanc uniforme, sans ombres. */
+/** Luminance médiane au-dessous de laquelle la page est un support sombre (carte noire, ardoise). */
+const SEUIL_PAGE_SOMBRE = 105;
+
+/** Vrai si la majorité de la page est sombre : le texte y est clair sur fond foncé. */
+export function pageSombre(img: ImageDataLike): boolean {
+  const { data, width: w, height: h } = img;
+  const pas = Math.max(1, Math.floor(Math.sqrt((w * h) / 20000)));
+  const histo = new Uint32Array(256);
+  let n = 0;
+  for (let y = 0; y < h; y += pas) {
+    for (let x = 0; x < w; x += pas) {
+      const p = (y * w + x) * 4;
+      histo[Math.round(luma(data[p], data[p + 1], data[p + 2]))]++;
+      n++;
+    }
+  }
+  let cumul = 0;
+  for (let v = 0; v < 256; v++) {
+    cumul += histo[v];
+    if (cumul >= n / 2) return v < SEUIL_PAGE_SOMBRE;
+  }
+  return false;
+}
+
+/**
+ * Document en noir et blanc net sur fond uniforme, sans ombres. Sur un support sombre
+ * (texte clair sur fond foncé) la polarité est conservée : le fond reste noir pur et
+ * le texte blanc, au lieu d'être forcé en noir sur blanc.
+ */
 export function noirEtBlanc(img: ImageDataLike): ImageDataLike {
   const { width: w, height: h, data } = img;
   const n = w * h;
   const s = Math.max(1, Math.round(Math.max(w, h) / COTE_GRILLE));
+  const sombre = pageSombre(img);
 
-  // 1. Luminance pleine résolution et fond d'éclairage (l'encre, plus fine que le noyau, disparaît).
+  // 1. Luminance pleine résolution (inversée sur un support sombre : le fond devient « papier »)
+  //    et fond d'éclairage (l'encre, plus fine que le noyau, disparaît).
   const lum = new Float32Array(n);
-  for (let i = 0, p = 0; i < n; i++, p += 4) lum[i] = luma(data[p], data[p + 1], data[p + 2]);
+  for (let i = 0, p = 0; i < n; i++, p += 4) {
+    const y = luma(data[p], data[p + 1], data[p + 2]);
+    lum[i] = sombre ? 255 - y : y;
+  }
   const grille = reduireMoyenne(lum, w, h, s);
   const rayon = Math.max(2, Math.round(NB_RAYON_FOND * Math.max(grille.w, grille.h)));
   const fond = flouBoite(extremum(extremum(grille, rayon, true), rayon, false), Math.max(1, Math.round(rayon / 2)));
@@ -269,7 +302,8 @@ export function noirEtBlanc(img: ImageDataLike): ImageDataLike {
   const sortie = new Uint8ClampedArray(data.length);
   for (let i = 0, o = 0; i < n; i++, o += 4) {
     const net = rapport.p[i] + NB_GAIN_NETTETE * (rapport.p[i] - flou.p[i]);
-    const v = courbeNoirEtBlanc(net) * 255;
+    const clair = courbeNoirEtBlanc(net) * 255;
+    const v = sombre ? 255 - clair : clair;
     sortie[o] = v;
     sortie[o + 1] = v;
     sortie[o + 2] = v;
