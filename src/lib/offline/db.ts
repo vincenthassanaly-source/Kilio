@@ -51,7 +51,7 @@ type ScannerPageLocale = {
   ordre: number;
   redresse: Blob;
   traite: Blob;
-  filtre: "original" | "magic";
+  filtre: "original" | "couleurs" | "magic";
   largeur: number;
   hauteur: number;
   cree_le: string;

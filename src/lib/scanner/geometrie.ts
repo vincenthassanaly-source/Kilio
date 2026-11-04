@@ -138,7 +138,7 @@ function resoudre(A: number[][], b: number[]): number[] | null {
  * (0,0)-(w,h) sur le quadrilatère source : pour chaque pixel de sortie on
  * calcule où lire dans la source. Renvoie null si le quad est dégénéré.
  */
-function homographie(quad: Quad, largeur: number, hauteur: number): number[] | null {
+export function homographie(quad: Quad, largeur: number, hauteur: number): number[] | null {
   const dest: Point[] = [
     { x: 0, y: 0 },
     { x: largeur, y: 0 },

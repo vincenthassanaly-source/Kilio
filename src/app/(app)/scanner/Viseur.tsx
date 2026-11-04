@@ -5,11 +5,12 @@ import { Portal } from "@/components/Portal";
 import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import type { Quad } from "@/lib/scanner/geometrie";
+import { ETAT_SUIVI_INITIAL, suivreCadre, type EtatSuivi } from "@/lib/scanner/suivi";
 import { capturerImage, detecterDepuisVideo } from "@/lib/scanner/traitement";
 
-/** Intervalle entre deux détections en direct, et côté de l'image analysée. */
-const INTERVALLE_DETECTION_MS = 350;
-const COTE_DETECTION_LIVE_PX = 200;
+/** Pause entre deux détections en direct (après la fin de la précédente) et côté de l'image analysée. */
+const PAUSE_ENTRE_DETECTIONS_MS = 120;
+const COTE_DETECTION_LIVE_PX = 180;
 
 type Erreur = "refuse" | "indisponible" | null;
 
@@ -80,19 +81,35 @@ export function Viseur({
     };
   }, []);
 
-  // Détection en direct (cadre vert sur la feuille repérée).
+  // Détection en direct (cadre vert sur le document repéré). Boucle séquentielle : la
+  // suivante ne démarre qu'après la fin de la précédente, donc rien ne s'empile si le
+  // téléphone est lent. Le cadre est lissé et maintenu entre images (suivi.ts).
+  const suivi = useRef<EtatSuivi>(ETAT_SUIVI_INITIAL);
   useEffect(() => {
     if (!pret || enPause) return;
-    const id = window.setInterval(() => {
+    let arrete = false;
+    let minuteur = 0;
+    const boucle = () => {
+      if (arrete) return;
       const video = videoRef.current;
-      if (!video || video.readyState < 2) return;
-      try {
-        setDetection(detecterDepuisVideo(video, COTE_DETECTION_LIVE_PX));
-      } catch {
-        // La détection est un confort : on ignore un échec ponctuel.
+      if (video && video.readyState >= 2) {
+        try {
+          const res = detecterDepuisVideo(video, COTE_DETECTION_LIVE_PX);
+          if (res) {
+            suivi.current = suivreCadre(suivi.current, res.quad, res.largeur, res.hauteur);
+            setDetection({ quad: suivi.current.quad, largeur: res.largeur, hauteur: res.hauteur });
+          }
+        } catch {
+          // La détection est un confort : on ignore un échec ponctuel.
+        }
       }
-    }, INTERVALLE_DETECTION_MS);
-    return () => window.clearInterval(id);
+      minuteur = window.setTimeout(boucle, PAUSE_ENTRE_DETECTIONS_MS);
+    };
+    minuteur = window.setTimeout(boucle, 0);
+    return () => {
+      arrete = true;
+      window.clearTimeout(minuteur);
+    };
   }, [pret, enPause]);
 
   function capturer() {

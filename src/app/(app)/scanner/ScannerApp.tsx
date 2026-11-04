@@ -17,8 +17,12 @@ import { EditeurCoins } from "./EditeurCoins";
 import { ExportPanel } from "./ExportPanel";
 import { Viseur } from "./Viseur";
 
-/** Filtre appliqué par défaut à chaque nouvelle page. */
-const FILTRE_PAR_DEFAUT: Filtre = "magic";
+/** Les trois filtres proposés : texte court affiché, et nom complet pour les lecteurs d'écran. */
+const FILTRES: { valeur: Filtre; texte: string; nom: string }[] = [
+  { valeur: "original", texte: "Original", nom: "Original" },
+  { valeur: "couleurs", texte: "Couleurs", nom: "Couleurs fidèles" },
+  { valeur: "magic", texte: "Magic color", nom: "Magic color" },
+];
 
 /**
  * Miniature d'une page : l'URL d'objet est créée dans l'effet et publiée au
@@ -118,8 +122,9 @@ export function ScannerApp() {
     setEnCours(true);
     setErreurRecadrage(null);
     try {
-      const page = await creerPage(source, quad, FILTRE_PAR_DEFAUT);
-      await ajouterPage({ ...page, filtre: FILTRE_PAR_DEFAUT }, remplacerId ?? undefined);
+      // Filtre « auto » : Couleurs fidèles pour une carte, Magic color pour une feuille.
+      const page = await creerPage(source, quad, "auto");
+      await ajouterPage(page, remplacerId ?? undefined);
       await recharger();
       // Une page « reprise » est remplacée : on revient à la liste.
       if (remplacerId) fermerViseur();
@@ -198,34 +203,38 @@ export function ScannerApp() {
       {pages.length > 0 && (
         <ol className="flex flex-col gap-3" aria-label="Pages scannées">
           {pages.map((p, i) => (
-            <li key={p.id} className={`${card} flex gap-3`}>
-              <div className="flex w-24 shrink-0 flex-col items-center gap-1">
-                <Miniature page={p} numero={i + 1} />
-                <span className="text-xs font-semibold text-ink-3">Page {i + 1}</span>
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
-                <div className="flex gap-2" role="group" aria-label={`Filtre de la page ${i + 1}`}>
-                  {(["original", "magic"] as const).map((f) => (
-                    <button
-                      key={f}
-                      type="button"
-                      aria-pressed={p.filtre === f}
-                      disabled={filtreEnCours === p.id}
-                      onClick={() => changerFiltre(p, f)}
-                      className={`${p.filtre === f ? "bg-kcal text-on-kcal" : "border border-line bg-surface text-ink"} min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-60`}
-                    >
-                      {f === "original" ? "Original" : "Magic color"}
+            <li key={p.id} className={`${card} flex flex-col gap-3`}>
+              <div className="flex gap-3">
+                <div className="w-24 shrink-0">
+                  <Miniature page={p} numero={i + 1} />
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
+                  <p className="text-sm font-semibold text-ink">Page {i + 1}</p>
+                  <div className="flex gap-2">
+                    <button type="button" className={ghostButton} onClick={() => ouvrirViseur(p.id)}>
+                      Reprendre
                     </button>
-                  ))}
+                    <button type="button" className={dangerButton} onClick={() => supprimer(p.id)} aria-label={`Supprimer la page ${i + 1}`}>
+                      Supprimer
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button type="button" className={ghostButton} onClick={() => ouvrirViseur(p.id)}>
-                    Reprendre
+              </div>
+              {/* Trois filtres sur toute la largeur de la carte : « Magic color » ne tient pas à côté de la miniature. */}
+              <div className="grid grid-cols-3 gap-2" role="group" aria-label={`Filtre de la page ${i + 1}`}>
+                {FILTRES.map(({ valeur, texte, nom }) => (
+                  <button
+                    key={valeur}
+                    type="button"
+                    aria-pressed={p.filtre === valeur}
+                    aria-label={nom}
+                    disabled={filtreEnCours === p.id}
+                    onClick={() => changerFiltre(p, valeur)}
+                    className={`${p.filtre === valeur ? "bg-kcal text-on-kcal" : "border border-line bg-surface text-ink"} min-h-11 rounded-xl px-1.5 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-60`}
+                  >
+                    {texte}
                   </button>
-                  <button type="button" className={dangerButton} onClick={() => supprimer(p.id)} aria-label={`Supprimer la page ${i + 1}`}>
-                    Supprimer
-                  </button>
-                </div>
+                ))}
               </div>
             </li>
           ))}
