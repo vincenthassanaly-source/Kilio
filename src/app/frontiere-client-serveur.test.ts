@@ -17,9 +17,15 @@ import { describe, expect, it } from "vitest";
 // (`import type`) sont effacés à la compilation.
 
 const SRC = path.join(process.cwd(), "src");
-const API_SERVEUR = /^\s*(?:import|export)\b[^;]*?from\s+["'](next\/server|next\/cache|next\/headers)["']/m;
+const API_SERVEUR = /^\s*(?:import|export)\s+(?!type\b)[^;]*?from\s+["'](next\/server|next\/cache|next\/headers)["']/m;
 const DIRECTIVE_CLIENT = /^\s*["']use client["']/;
 const DIRECTIVE_SERVEUR = /^\s*["']use server["']/;
+// Une directive peut être précédée de commentaires : on les retire avant de la chercher.
+const COMMENTAIRES_EN_TETE = /^(?:\s*(?:\/\/[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/))*/;
+
+function aLaDirective(source: string, directive: RegExp): boolean {
+  return directive.test(source.replace(COMMENTAIRES_EN_TETE, ""));
+}
 
 function fichiersSource(dossier: string): string[] {
   return readdirSync(dossier).flatMap((nom) => {
@@ -58,7 +64,7 @@ describe("frontière client / serveur", () => {
       if (!sources.has(f)) sources.set(f, readFileSync(f, "utf8"));
       return sources.get(f)!;
     };
-    const entrees = fichiersSource(SRC).filter((f) => DIRECTIVE_CLIENT.test(lire(f).slice(0, 300)));
+    const entrees = fichiersSource(SRC).filter((f) => aLaDirective(lire(f), DIRECTIVE_CLIENT));
     expect(entrees.length).toBeGreaterThan(50);
 
     const fuites: string[] = [];
@@ -70,7 +76,7 @@ describe("frontière client / serveur", () => {
         if (vus.has(fichier)) continue;
         vus.add(fichier);
         const source = lire(fichier);
-        if (fichier !== entree && DIRECTIVE_SERVEUR.test(source.slice(0, 300))) continue;
+        if (fichier !== entree && aLaDirective(source, DIRECTIVE_SERVEUR)) continue;
         if (API_SERVEUR.test(source)) {
           fuites.push(chemin.map((f) => path.relative(SRC, f)).join(" → "));
           continue;
