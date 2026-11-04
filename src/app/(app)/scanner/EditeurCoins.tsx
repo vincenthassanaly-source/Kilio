@@ -5,7 +5,8 @@ import { Portal } from "@/components/Portal";
 import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import { bornerQuad, quadParDefaut, quadValide, type Quad } from "@/lib/scanner/geometrie";
-import { detecterFeuille, imageVersJpeg } from "@/lib/scanner/traitement";
+import { detecterFeuille } from "@/lib/scanner/detection";
+import { imageVersJpeg } from "@/lib/scanner/traitement";
 
 const QUALITE_APERCU = 0.85;
 
@@ -20,6 +21,43 @@ type Props = {
   onAnnuler: () => void;
 };
 
+/** Diamètre de la loupe (px écran), grossissement, et distance au doigt pour ne pas être masquée par lui. */
+const DIAMETRE_LOUPE = 112;
+const ZOOM_LOUPE = 3;
+const DECALAGE_LOUPE = 72;
+
+/**
+ * Loupe affichée pendant le déplacement d'un coin : la zone autour du coin,
+ * agrandie, avec un réticule, au-dessus du doigt (en dessous s'il n'y a pas la place).
+ */
+function Loupe({ url, largeur, hauteur, coin, echelle, doigt }: { url: string; largeur: number; hauteur: number; coin: { x: number; y: number }; echelle: number; doigt: { x: number; y: number } }) {
+  const marge = 8;
+  const gauche = Math.min(Math.max(doigt.x - DIAMETRE_LOUPE / 2, marge), window.innerWidth - DIAMETRE_LOUPE - marge);
+  const dessus = doigt.y - DIAMETRE_LOUPE - DECALAGE_LOUPE;
+  const haut = dessus >= marge ? dessus : doigt.y + DECALAGE_LOUPE;
+  const pas = echelle * ZOOM_LOUPE;
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed z-[60] overflow-hidden rounded-full border-2 border-white shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
+      style={{
+        left: gauche,
+        top: haut,
+        width: DIAMETRE_LOUPE,
+        height: DIAMETRE_LOUPE,
+        backgroundImage: `url(${url})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: `${largeur * pas}px ${hauteur * pas}px`,
+        backgroundPosition: `${DIAMETRE_LOUPE / 2 - coin.x * pas}px ${DIAMETRE_LOUPE / 2 - coin.y * pas}px`,
+      }}
+    >
+      {/* Réticule : le coin se trouve exactement au centre. */}
+      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[rgb(80,220,140)]" />
+      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-[rgb(80,220,140)]" />
+    </div>
+  );
+}
+
 /**
  * Contenu du recadrage pour UNE photo : état (cadre, aperçu, détection)
  * propre à la photo, remis à zéro par le `key` de l'appelant.
@@ -30,7 +68,9 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
   const [url, setUrl] = useState<string | null>(null);
   const [detecte, setDetecte] = useState<boolean | null>(null);
   const [quad, setQuad] = useState<Quad>(() => quadParDefaut(w, h));
-  const [indexActif, setIndexActif] = useState<number | null>(null);
+  // Coin en cours de déplacement : son index, l'échelle d'affichage (pixels écran par pixel
+  // d'image, mesurée au début du geste) et la position du doigt, pour placer la loupe.
+  const [geste, setGeste] = useState<{ index: number; echelle: number; x: number; y: number } | null>(null);
 
   // Aperçu JPEG de la source + détection automatique des coins.
   useEffect(() => {
@@ -53,14 +93,15 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
   }, [source]);
 
   function deplacer(e: React.PointerEvent) {
-    if (indexActif === null || !svgRef.current) return;
+    if (!geste || !svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     const p = { x: ((e.clientX - rect.left) / rect.width) * w, y: ((e.clientY - rect.top) / rect.height) * h };
     setQuad((q) => {
       const copie = [...q] as Quad;
-      copie[indexActif] = p;
+      copie[geste.index] = p;
       return bornerQuad(copie, w, h);
     });
+    setGeste({ ...geste, x: e.clientX, y: e.clientY });
   }
 
   const rayon = Math.max(w, h) * 0.028;
@@ -90,8 +131,8 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
               className="absolute inset-0 h-full w-full touch-none"
               viewBox={`0 0 ${w} ${h}`}
               onPointerMove={deplacer}
-              onPointerUp={() => setIndexActif(null)}
-              onPointerCancel={() => setIndexActif(null)}
+              onPointerUp={() => setGeste(null)}
+              onPointerCancel={() => setGeste(null)}
             >
               <polygon
                 points={quad.map((p) => `${p.x},${p.y}`).join(" ")}
@@ -110,7 +151,8 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
                     fill="transparent"
                     onPointerDown={(e) => {
                       (e.target as Element).setPointerCapture(e.pointerId);
-                      setIndexActif(i);
+                      const rect = svgRef.current?.getBoundingClientRect();
+                      setGeste({ index: i, echelle: rect ? rect.width / w : 1, x: e.clientX, y: e.clientY });
                     }}
                     role="presentation"
                   />
@@ -121,6 +163,8 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
           </div>
         )}
       </div>
+
+      {geste && url && <Loupe url={url} largeur={w} hauteur={h} coin={quad[geste.index]} echelle={geste.echelle} doigt={{ x: geste.x, y: geste.y }} />}
 
       {erreur && (
         <p role="alert" className="px-5 pb-2 text-center text-sm text-red-300">

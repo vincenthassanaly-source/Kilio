@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detecterQuadrilatere, reduirePourDetection, seuilOtsu } from "./detection";
+import { detecterQuadrilatere, reduirePourDetection } from "./detection";
 import type { ImageDataLike } from "./geometrie";
 
 function scene(
@@ -20,17 +20,6 @@ function scene(
   }
   return { data, width: w, height: h };
 }
-
-describe("seuilOtsu", () => {
-  it("sépare deux populations de gris", () => {
-    const gris = new Uint8Array(1000);
-    gris.fill(40, 0, 500);
-    gris.fill(220, 500);
-    const seuil = seuilOtsu(gris);
-    expect(seuil).toBeGreaterThanOrEqual(40);
-    expect(seuil).toBeLessThan(220);
-  });
-});
 
 describe("detecterQuadrilatere", () => {
   it("retrouve les coins d'un rectangle clair sur fond sombre", () => {

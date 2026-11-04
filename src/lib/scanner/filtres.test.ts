@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appliquerFiltre, magicColor } from "./filtres";
+import { appliquerFiltre, couleursFideles, filtreConseille, magicColor } from "./filtres";
 import type { ImageDataLike } from "./geometrie";
 
 function image(w: number, h: number, pixel: (x: number, y: number) => [number, number, number]): ImageDataLike {
@@ -62,10 +62,46 @@ describe("magicColor", () => {
   });
 });
 
+describe("filtreConseille", () => {
+  it("propose « Couleurs fidèles » pour une carte, dans les deux orientations", () => {
+    expect(filtreConseille(856, 540)).toBe("couleurs");
+    expect(filtreConseille(540, 856)).toBe("couleurs");
+    expect(filtreConseille(320, 202)).toBe("couleurs");
+  });
+
+  it("propose « Magic color » pour une feuille A4, un ticket ou un format carré", () => {
+    expect(filtreConseille(1000, 1414)).toBe("magic"); // A4 (1,41) : hors tolérance
+    expect(filtreConseille(1414, 1000)).toBe("magic");
+    expect(filtreConseille(300, 1000)).toBe("magic"); // ticket
+    expect(filtreConseille(800, 800)).toBe("magic");
+  });
+
+  it("ne plante pas sur une dimension nulle", () => {
+    expect(filtreConseille(0, 0)).toBe("magic");
+  });
+});
+
+describe("couleursFideles", () => {
+  it("ne modifie pas l'image d'entrée et conserve ses dimensions", () => {
+    const img = image(40, 30, (x) => [100 + x, 120, 140]);
+    const copie = new Uint8ClampedArray(img.data);
+    const sortie = couleursFideles(img);
+    expect(img.data).toEqual(copie);
+    expect(sortie.width).toBe(40);
+    expect(sortie.height).toBe(30);
+    expect(sortie.data.length).toBe(img.data.length);
+  });
+});
+
 describe("appliquerFiltre", () => {
   it("« original » renvoie la même image", () => {
     const img = image(10, 10, () => [10, 20, 30]);
     expect(appliquerFiltre(img, "original")).toBe(img);
+  });
+
+  it("« couleurs » renvoie une nouvelle image", () => {
+    const img = image(10, 10, () => [10, 20, 30]);
+    expect(appliquerFiltre(img, "couleurs")).not.toBe(img);
   });
 
   it("« magic » renvoie une nouvelle image", () => {

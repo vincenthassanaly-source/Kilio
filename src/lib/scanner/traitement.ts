@@ -2,9 +2,9 @@
 // API du navigateur (canvas, createImageBitmap, flux vidéo). Côté client
 // uniquement : ne jamais importer depuis un composant serveur.
 
-import { detecterQuadrilatere, reduirePourDetection } from "./detection";
+import { detecterQuadrilatere } from "./detection";
 import type { Filtre } from "./filtres";
-import { appliquerFiltre } from "./filtres";
+import { appliquerFiltre, filtreConseille } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
 
 /** Plus grand côté d'une photo chargée : borne la mémoire des téléphones. */
@@ -69,13 +69,6 @@ export function capturerImage(video: HTMLVideoElement): ImageData {
   return ctx.getImageData(0, 0, w, h);
 }
 
-/** Détecte la feuille ; coins exprimés dans le repère de `img`. */
-export function detecterFeuille(img: ImageDataLike): Quad | null {
-  const { image, facteur } = reduirePourDetection(img);
-  const quad = detecterQuadrilatere(image);
-  return quad ? mettreAEchelle(quad, facteur) : null;
-}
-
 /** Détection en direct sur une image de la vidéo (petite, donc rapide). */
 export function detecterDepuisVideo(
   video: HTMLVideoElement,
@@ -103,16 +96,23 @@ export type PageTraitee = {
   traite: Blob;
   largeur: number;
   hauteur: number;
+  /** Filtre appliqué (celui demandé, ou le conseillé selon la forme en mode « auto »). */
+  filtre: Filtre;
 };
 
-/** Redresse la perspective puis applique le filtre. */
-export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtre): Promise<PageTraitee> {
+/**
+ * Redresse la perspective puis applique le filtre. Avec `"auto"`, le filtre est
+ * choisi d'après la forme de la page : « Couleurs fidèles » pour une carte,
+ * « Magic color » sinon.
+ */
+export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtre | "auto"): Promise<PageTraitee> {
   const { largeur, hauteur } = tailleSortie(quad);
   const redressee = redresser(source, quad, largeur, hauteur);
   if (!redressee) throw new Error("Cadrage invalide : les quatre coins doivent former un quadrilatère convexe.");
+  const choisi: Filtre = filtre === "auto" ? filtreConseille(largeur, hauteur) : filtre;
   const redresse = await imageVersJpeg(redressee);
-  const traite = filtre === "original" ? redresse : await imageVersJpeg(appliquerFiltre(redressee, filtre));
-  return { redresse, traite, largeur, hauteur };
+  const traite = choisi === "original" ? redresse : await imageVersJpeg(appliquerFiltre(redressee, choisi));
+  return { redresse, traite, largeur, hauteur, filtre: choisi };
 }
 
 /** Réapplique un filtre sur une page déjà redressée. */
