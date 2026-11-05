@@ -6,7 +6,7 @@ import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import type { Quad } from "@/lib/scanner/geometrie";
 import { ETAT_SUIVI_INITIAL, suivreCadre, type EtatSuivi } from "@/lib/scanner/suivi";
-import { capturerImage, detecterDepuisVideo, prechargerOpenCv } from "@/lib/scanner/traitement";
+import { capturerPhoto, detecterDepuisVideo, prechargerOpenCv } from "@/lib/scanner/traitement";
 
 /** Pause entre deux détections en direct (après la fin de la précédente) et côté de l'image analysée. */
 const PAUSE_ENTRE_DETECTIONS_MS = 120;
@@ -37,7 +37,9 @@ export function Viseur({
   const overlayRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [erreur, setErreur] = useState<Erreur>(null);
+  const pisteRef = useRef<MediaStreamTrack | null>(null);
   const [pret, setPret] = useState(false);
+  const [enCapture, setEnCapture] = useState(false);
   const [detection, setDetection] = useState<{ quad: Quad | null; largeur: number; hauteur: number } | null>(null);
 
   // Reste actif même en pause : l'écran de recadrage empile sa propre entrée
@@ -71,6 +73,7 @@ export function Viseur({
         }
         const video = videoRef.current;
         if (!video) return;
+        pisteRef.current = flux.getVideoTracks()[0] ?? null;
         video.srcObject = flux;
         await video.play();
         setPret(true);
@@ -117,10 +120,17 @@ export function Viseur({
     };
   }, [pret, enPause]);
 
-  function capturer() {
+  async function capturer() {
     const video = videoRef.current;
-    if (!video || !pret) return;
-    onCapture(capturerImage(video));
+    if (!video || !pret || enCapture) return;
+    setEnCapture(true);
+    try {
+      onCapture(await capturerPhoto(video, pisteRef.current));
+    } catch {
+      // Ni photo ni image du flux (caméra coupée entre-temps) : on reste sur le viseur.
+    } finally {
+      setEnCapture(false);
+    }
   }
 
   const quad = detection?.quad ?? null;
@@ -197,8 +207,9 @@ export function Viseur({
           <button
             type="button"
             onClick={capturer}
-            disabled={!pret}
-            aria-label="Prendre la photo"
+            disabled={!pret || enCapture}
+            aria-busy={enCapture}
+            aria-label={enCapture ? "Prise de la photo en cours" : "Prendre la photo"}
             className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-white transition active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             <span className="h-14 w-14 rounded-full bg-white" />
