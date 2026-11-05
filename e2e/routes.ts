@@ -26,4 +26,16 @@ export const ROUTES: RouteContract[] = [
   { path: "/musculation", title: "Musculation" },
   { path: "/plus", title: "Plus" },
   { path: "/reglages", title: "Réglages" },
+  // Ajoutées le 2026-11-04 (mission de nuit performance) : routes principales
+  // du menu Plus et des sous-navigations qui n'étaient gardées par aucun test.
+  { path: "/nutrition", title: "Nutrition" },
+  { path: "/nutrition/menus", title: "Menus" },
+  { path: "/nutrition/bilan", title: "Bilan" },
+  { path: "/revue", title: "Revue de la semaine" },
+  { path: "/scanner", title: "Scanner" },
+  { path: "/opinions", title: "Opinions" },
+  { path: "/musculation/historique", title: "Historique" },
+  { path: "/musculation/stats", title: "Statistiques" },
+  { path: "/documents/categories", title: "Catégories" },
+  { path: "/pharmacie/revision", title: "Révision" },
 ];
