@@ -12,6 +12,7 @@ import { estTypeVideo } from "@/lib/collection/video";
 import { queryKeys } from "@/lib/query/keys";
 import type { Tables } from "@/lib/supabase/types";
 import { errorText, input, primaryButton, secondaryButton } from "@/lib/ui";
+import { pluriel } from "@/lib/pharmacie/format";
 
 type Element = Tables<"collection_items">;
 
@@ -33,10 +34,6 @@ const DELAI_PAQUET_MS = 70_000;
 
 function delai(ms: number) {
   return new Promise<"delai">((resolve) => setTimeout(() => resolve("delai"), ms));
-}
-
-function pluriel(n: number, mot: string) {
-  return `${n} ${mot}${n > 1 ? "s" : ""}`;
 }
 
 function Miniature({ element }: { element: Element }) {

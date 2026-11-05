@@ -9,6 +9,7 @@ import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
 import { CATEGORIE_MAX, NOM_MAX, cleTitre, type DoublonDetecte } from "@/lib/documents/tri";
 import { errorText, input, primaryButton, secondaryButton } from "@/lib/ui";
+import { pluriel } from "@/lib/pharmacie/format";
 
 type Ligne = {
   id: string;
@@ -46,10 +47,6 @@ function Miniature({ document }: { document: DocumentAvecFichiers }) {
       )}
     </div>
   );
-}
-
-function pluriel(n: number, mot: string) {
-  return `${n} ${mot}${n > 1 ? "s" : ""}`;
 }
 
 /**
