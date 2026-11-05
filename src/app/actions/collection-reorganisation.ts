@@ -142,9 +142,9 @@ export async function proposerReorganisationCollections(instruction: string = ""
 
 // --- Application (écriture) ---
 
-export type DeplacementValide = { id: string; versId: string | null; versNom: string };
-export type FusionValide = { deId: string; versId: string };
-export type RenommageValide = { id: string; nom: string };
+type DeplacementValide = { id: string; versId: string | null; versNom: string };
+type FusionValide = { deId: string; versId: string };
+type RenommageValide = { id: string; nom: string };
 export type SelectionReorganisation = {
   deplacements: DeplacementValide[];
   fusions: FusionValide[];

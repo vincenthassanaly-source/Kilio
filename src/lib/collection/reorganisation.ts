@@ -37,9 +37,9 @@ export type Deplacement = {
 };
 
 /** Les éléments de `deId` passent dans `versId`, puis `deId` est supprimée (vide). */
-export type Fusion = { deId: string; deNom: string; versId: string; versNom: string; nbElements: number };
+type Fusion = { deId: string; deNom: string; versId: string; versNom: string; nbElements: number };
 
-export type Renommage = { id: string; de: string; vers: string };
+type Renommage = { id: string; de: string; vers: string };
 
 export type PropositionReorganisation = {
   deplacements: Deplacement[];
@@ -79,7 +79,7 @@ export const SCHEMA_REORGANISATION_COLLECTIONS = {
 };
 
 /** Texte lisible d'un élément (« titre — description »), vide si on ne sait rien de lui. */
-export function texteElement(element: Pick<ElementPourReorganisation, "titre" | "description">): string {
+function texteElement(element: Pick<ElementPourReorganisation, "titre" | "description">): string {
   const texte = [nettoyerTexte(element.titre), nettoyerTexte(element.description)].filter(Boolean).join(" — ");
   return texte.length <= TEXTE_ELEMENT_MAX ? texte : `${texte.slice(0, TEXTE_ELEMENT_MAX - 1).trimEnd()}…`;
 }

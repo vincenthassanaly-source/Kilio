@@ -63,7 +63,7 @@ export async function imageVersJpeg(img: ImageDataLike, qualite = QUALITE_BROUIL
 }
 
 /** Image courante de la vidéo → image (taille native du flux). */
-export function capturerImage(video: HTMLVideoElement): ImageData {
+function capturerImage(video: HTMLVideoElement): ImageData {
   const w = video.videoWidth;
   const h = video.videoHeight;
   const canvas = creerCanvas(w, h);
