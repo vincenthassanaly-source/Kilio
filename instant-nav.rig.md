@@ -41,6 +41,13 @@ Rapports associés : `reports/2026-09-24-navigation-instantanee-cache-components
   barre du bas, la grille « Plus », `/taches` et le Journal ;
   variante auto-validante (contenu du jour `toHaveCount(0)` sous verrou puis
   visible) pour `/` et `/habitudes`.
+  Coquille rendue par le serveur : `e2e/coquille-serveur.spec.ts` (mêmes
+  routes, `javaScriptEnabled: false` : titre et barre du bas visibles sans JS ;
+  avec JS : aucune erreur React #418/#419/#423/#425 au chargement). instant()
+  ne voit pas un rendu uniquement client (son verrou ne retient que le
+  serveur) : c'est ce test qui garde le HTML statique. Le 2026-11-04, un
+  `Date.now()` au rendu dans `SeanceFlottante` rendait toute la frontière du
+  layout `(app)` dynamique, invisible pour instant().
 - LOOP: local — build (≈ 1 min) → start → test → arrêt du serveur → édition.
   L'agent peut tout faire seul dans le sandbox.
 - LIVENESS: n/a ; build et start locaux enchaînés par le script.

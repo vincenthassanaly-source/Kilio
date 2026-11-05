@@ -43,7 +43,15 @@ export default async function AppLayout({
           <NavigationEditProvider initialOrdreGrillePlus={ordreGrillePlus} initialModulesBarreBasse={modulesBarreBasse}>
             <TabSwipeWrapper>{children}</TabSwipeWrapper>
             <BottomNav />
-            <SeanceFlottante />
+            {/* Frontière propre : le minuteur de repos de SeanceFlottante lit
+                Date.now() au rendu, valeur que Cache Components traite comme
+                dynamique. Sans elle, la frontière ci-dessus devenait dynamique
+                et la barre du bas comme toute la page sortaient du HTML
+                statique (rendu seulement côté client, erreur React #419).
+                SeanceFlottante rend null tant qu'aucune séance n'est lue. */}
+            <Suspense fallback={null}>
+              <SeanceFlottante />
+            </Suspense>
             <BackNavigationHandler />
           </NavigationEditProvider>
         </Suspense>
