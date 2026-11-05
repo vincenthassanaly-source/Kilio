@@ -1,6 +1,7 @@
 // Routes principales guardées par les tests instant() — voir instant-nav.rig.md.
-// `title` : texte exact du <h1> de la page (identique dans son loading.tsx),
-// vérifié dans le code source. `shell` sert de marqueur quand le <h1> n'est
+// `title` : texte exact du <h1> de la page, tel qu'il figure dans la coquille
+// (en-tête statique de la page, ou son loading.tsx quand la page entière
+// attend une donnée), vérifié dans le code source. `shell` sert de marqueur quand le <h1> n'est
 // pas statique (Dashboard : salutation selon l'heure).
 export type RouteContract = {
   path: string;
