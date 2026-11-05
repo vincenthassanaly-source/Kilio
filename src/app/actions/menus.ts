@@ -9,9 +9,9 @@ import { shiftDate } from "@/lib/date/iso";
 import { lireSaisieRepas } from "@/lib/nutrition/saisie-repas";
 import { ajouterArticlesCourses } from "./courses";
 import type { JournalFormState } from "./journal";
+import { estUuid } from "@/lib/uuid";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function revaliderMenus() {
   revalidatePath("/nutrition/menus");
@@ -40,7 +40,7 @@ export async function addMenuEntry(_prevState: JournalFormState, formData: FormD
 
 /** Retire un repas du menu. Si déjà validé, l'entrée du Journal reste : on ne réécrit pas ce qui a été mangé. */
 export async function removeMenuEntry(id: string): Promise<ActionResult> {
-  if (!UUID_RE.test(id)) return fail("Identifiant de repas invalide.");
+  if (!estUuid(id)) return fail("Identifiant de repas invalide.");
 
   const supabase = createAdminClient();
   const { error } = await supabase.from("menus_repas").delete().eq("id", id);
@@ -56,7 +56,7 @@ export async function removeMenuEntry(id: string): Promise<ActionResult> {
  * conditionnelle : un double tap ne crée jamais deux entrées de Journal.
  */
 export async function validerMenuEntry(id: string): Promise<ActionResult> {
-  if (!UUID_RE.test(id)) return fail("Identifiant de repas invalide.");
+  if (!estUuid(id)) return fail("Identifiant de repas invalide.");
 
   const supabase = createAdminClient();
   const { data: repas, error: erreurBascule } = await supabase
@@ -98,7 +98,7 @@ export async function validerMenuEntry(id: string): Promise<ActionResult> {
 
 /** Défait la validation : supprime l'entrée du Journal créée et remet le repas « à manger ». */
 export async function annulerValidationMenuEntry(id: string): Promise<ActionResult> {
-  if (!UUID_RE.test(id)) return fail("Identifiant de repas invalide.");
+  if (!estUuid(id)) return fail("Identifiant de repas invalide.");
 
   const supabase = createAdminClient();
   const { data: repas, error: erreurLecture } = await supabase

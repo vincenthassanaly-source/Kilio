@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { COURSES_TAG } from "@/lib/courses/cache";
 import type { Tables } from "@/lib/supabase/types";
 import { LONGUEUR_MAX_LIBELLE_COURSE, planifierAjoutCourses, PLAFOND_ARTICLES_COURSES } from "@/lib/courses/compute";
+import { estUuid } from "@/lib/uuid";
 
 export async function getCoursesItems(): Promise<Tables<"courses_items">[]> {
   const supabase = createAdminClient();
@@ -154,7 +155,6 @@ export async function ajouterArticlesCourses(libelles: string[]): Promise<Result
   return { crees: plan.aCreer.length, reactives: plan.aReactiver.length, dejaPresents: plan.dejaPresents };
 }
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type CourseItemARestaurer = Pick<
   Tables<"courses_items">,
@@ -176,7 +176,7 @@ export async function restoreCourseItems(items: CourseItemARestaurer[]) {
   const lignes = items.map((item) => {
     const libelle = item.libelle.trim();
     if (!libelle) throw new Error("Le libellé est requis.");
-    if (!UUID_RE.test(item.id)) throw new Error("Identifiant d'article invalide.");
+    if (!estUuid(item.id)) throw new Error("Identifiant d'article invalide.");
     return {
       id: item.id,
       libelle,

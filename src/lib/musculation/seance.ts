@@ -14,6 +14,7 @@ import {
 import { estTypeSeance } from "@/lib/seances/compute";
 import type { CleAnimation } from "./animations";
 import type { RecordsExercice } from "./stats";
+import { estUuid } from "@/lib/uuid";
 
 /** Série réalisée lors de la dernière séance, affichée en repère et préremplie. */
 export type SeriePrecedente = {
@@ -499,7 +500,6 @@ export function libellePrecedent(mode: ModeSaisie, p: SeriePrecedente | undefine
 // Une Server Action reçoit des données non fiables : tout est revérifié ici
 // avant d'écrire en base (les contraintes SQL ne sont que le dernier filet).
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const NB_EXERCICES_MAX = 60;
 const NB_SERIES_MAX = 400;
 const DUREE_SEANCE_MAX_MS = 24 * 3600 * 1000;
@@ -508,9 +508,6 @@ function estObjet(valeur: unknown): valeur is Record<string, unknown> {
   return typeof valeur === "object" && valeur !== null && !Array.isArray(valeur);
 }
 
-function estUuid(valeur: unknown): valeur is string {
-  return typeof valeur === "string" && UUID.test(valeur);
-}
 
 function entierDans(valeur: unknown, min: number, max: number): valeur is number {
   return typeof valeur === "number" && Number.isInteger(valeur) && valeur >= min && valeur <= max;
