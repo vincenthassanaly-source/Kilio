@@ -6,17 +6,18 @@
 // Module neutre (ni "use server" ni "use client") : consignes, schémas et
 // lecture défensive des réponses, partagés par l'action serveur et ses tests.
 import { nettoyerTexte } from "@/lib/documents/tri";
+import { normalizeSearch } from "@/lib/normalize";
 
 export type ModeAssistantNote = "resume" | "reformuler" | "tags";
 
 export const MODES_ASSISTANT: readonly ModeAssistantNote[] = ["resume", "reformuler", "tags"];
 
 export const TITRE_MAX = 80;
-export const RESUME_MAX = 400;
+const RESUME_MAX = 400;
 export const CONTENU_MAX = 20_000;
-export const TAGS_EXISTANTS_MAX = 5;
+const TAGS_EXISTANTS_MAX = 5;
 export const TAGS_NOUVEAUX_MAX = 3;
-export const TAG_NOM_MAX = 30;
+const TAG_NOM_MAX = 30;
 
 export type PropositionResume = { mode: "resume"; titre: string; resume: string };
 export type PropositionReformulation = { mode: "reformuler"; contenu: string };
@@ -139,10 +140,6 @@ export function lireReformulation(brut: unknown): PropositionReformulation | nul
   return { mode: "reformuler", contenu };
 }
 
-function cle(nom: string): string {
-  return nom.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-}
-
 /** Nom d'un nouveau tag : sans « # », une seule ligne, en minuscules. */
 export function nettoyerNomTag(valeur: unknown): string {
   return coupe(nettoyerTexte(valeur).replace(/^#+/, "").trim().toLowerCase(), TAG_NOM_MAX);
@@ -159,7 +156,7 @@ export function lireTags(
 ): PropositionTags | null {
   if (typeof brut !== "object" || brut === null) return null;
   const { existants, nouveaux } = brut as Record<string, unknown>;
-  const parCle = new Map(tagsExistants.map((t) => [cle(t.nom), t]));
+  const parCle = new Map(tagsExistants.map((t) => [normalizeSearch(t.nom), t]));
   const dejaLa = new Set(idsDejaSurLaNote);
 
   const retenus = new Map<string, { id: string; nom: string }>();
@@ -167,16 +164,16 @@ export function lireTags(
   const vus = new Set<string>();
 
   const ajouterExistant = (nom: unknown) => {
-    const tag = parCle.get(cle(nettoyerTexte(nom).replace(/^#+/, "")));
+    const tag = parCle.get(normalizeSearch(nettoyerTexte(nom).replace(/^#+/, "")));
     if (tag && !dejaLa.has(tag.id)) retenus.set(tag.id, { id: tag.id, nom: tag.nom });
   };
   for (const nom of Array.isArray(existants) ? existants : []) ajouterExistant(nom);
 
   for (const nom of Array.isArray(nouveaux) ? nouveaux : []) {
     const net = nettoyerNomTag(nom);
-    if (net === "" || vus.has(cle(net))) continue;
-    vus.add(cle(net));
-    if (parCle.has(cle(net))) ajouterExistant(net);
+    if (net === "" || vus.has(normalizeSearch(net))) continue;
+    vus.add(normalizeSearch(net));
+    if (parCle.has(normalizeSearch(net))) ajouterExistant(net);
     else nouveauxNets.push(net);
   }
 

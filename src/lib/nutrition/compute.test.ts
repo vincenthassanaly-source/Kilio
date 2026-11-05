@@ -169,12 +169,12 @@ describe("rechercherCatalogue", () => {
     expect(rechercherCatalogue(items, "dur").map((i) => i.id)).toEqual(["oeuf"]);
   });
 
-  // `normaliser()` fait un NFD (dépouille les accents composés : é -> e),
+  // `normalizeSearch()` fait un NFD (dépouille les accents composés : é -> e),
   // mais "œ" est une ligature à part, non décomposée par NFD : chercher
   // "oeuf" (sans la ligature, la saisie la plus naturelle sur mobile) ne
   // retrouve donc pas "Œuf". Documenté ici tel quel (pas un bug qu'on nous
   // a demandé de corriger), à corriger via un remplacement œ/æ -> oe/ae
-  // explicite dans `normaliser` si ça gêne en usage réel.
+  // explicite dans `normalizeSearch` si ça gêne en usage réel.
   it("ne retrouve pas 'œuf' en tapant 'oeuf' (limite connue de la normalisation)", () => {
     expect(rechercherCatalogue(items, "oeuf").map((i) => i.id)).toEqual([]);
   });

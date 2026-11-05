@@ -1,16 +1,5 @@
 import { aujourdhuiParis } from "@/lib/date/paris";
-
-// `T00:00:00` (sans `Z`) est interprété en heure locale du serveur : sur
-// Vercel (UTC) ça ne bouge rien, mais en dev local (Paris) le
-// `toISOString()` qui suit repart de minuit Paris converti en UTC et
-// retombe donc sur la veille. On force UTC pour une arithmétique de date
-// pure, indépendante du fuseau d'exécution (même pattern que
-// `nutrition/journal/date-utils.ts:shiftDate`).
-export function jourPrecedent(date: string): string {
-  const curseur = new Date(`${date}T00:00:00Z`);
-  curseur.setUTCDate(curseur.getUTCDate() - 1);
-  return curseur.toISOString().slice(0, 10);
-}
+import { shiftDate } from "@/lib/date/iso";
 
 // Le streak se calcule côté serveur (JS, pas SQL récursif) : on remonte
 // jour par jour depuis `date` tant que la valeur de l'entrée est > 0, et on
@@ -23,7 +12,7 @@ export function calculerStreak(entriesParDate: Map<string, number>, date: string
     const valeur = entriesParDate.get(jour);
     if (!valeur || valeur <= 0) break;
     streak += 1;
-    jour = jourPrecedent(jour);
+    jour = shiftDate(jour, -1);
   }
 
   return streak;
@@ -31,16 +20,10 @@ export function calculerStreak(entriesParDate: Map<string, number>, date: string
 
 // --- Fréquence hebdomadaire et progression d'objectif ---
 
-function ajouterJours(date: string, n: number): string {
-  const curseur = new Date(`${date}T00:00:00Z`);
-  curseur.setUTCDate(curseur.getUTCDate() + n);
-  return curseur.toISOString().slice(0, 10);
-}
-
 // Lundi de la semaine contenant `date` (semaines ISO, lundi-dimanche).
 export function lundiDe(date: string): string {
   const jourSemaine = new Date(`${date}T00:00:00Z`).getUTCDay(); // 0 = dimanche
-  return ajouterJours(date, -((jourSemaine + 6) % 7));
+  return shiftDate(date, -((jourSemaine + 6) % 7));
 }
 
 export type HabitudeCalcul = {
@@ -91,11 +74,11 @@ export function calculerStreakHebdo(
   let streak = 0;
 
   if ((parSemaine.get(lundi) ?? 0) >= frequence) streak += 1;
-  lundi = ajouterJours(lundi, -7);
+  lundi = shiftDate(lundi, -7);
 
   while ((parSemaine.get(lundi) ?? 0) >= frequence) {
     streak += 1;
-    lundi = ajouterJours(lundi, -7);
+    lundi = shiftDate(lundi, -7);
   }
 
   return streak;

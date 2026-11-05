@@ -8,10 +8,7 @@ import { showActionToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
 import { primaryButton } from "@/lib/ui";
-
-function pluriel(n: number, mot: string) {
-  return `${n} ${mot}${n > 1 ? "s" : ""}`;
-}
+import { pluriel } from "@/lib/pharmacie/format";
 
 /**
  * « Envoyer aux Courses » : additionne les ingrédients des repas pas encore

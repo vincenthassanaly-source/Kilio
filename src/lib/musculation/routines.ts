@@ -6,6 +6,7 @@ import type { CleAnimation } from "./animations";
 import { estTypeSeance } from "@/lib/seances/compute";
 import type { RecordsExercice } from "./stats";
 import { estModeSaisie, estTypeSerie, type ModeSaisie, type TypeSeance, type TypeSerie } from "./constantes";
+import { estUuid } from "@/lib/uuid";
 
 export type RoutineSerie = {
   type: TypeSerie;
@@ -109,15 +110,11 @@ export function exerciceDepuisRoutine(
 
 // --- Validation côté serveur ----------------------------------------------
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function estObjet(valeur: unknown): valeur is Record<string, unknown> {
   return typeof valeur === "object" && valeur !== null && !Array.isArray(valeur);
 }
 
-function estUuid(valeur: unknown): valeur is string {
-  return typeof valeur === "string" && UUID.test(valeur);
-}
 
 function nullOuEntier(valeur: unknown, min: number, max: number): boolean {
   return valeur === null || (typeof valeur === "number" && Number.isInteger(valeur) && valeur >= min && valeur <= max);

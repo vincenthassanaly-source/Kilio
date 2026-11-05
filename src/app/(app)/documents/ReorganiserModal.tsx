@@ -17,22 +17,11 @@ import {
   type Changement,
 } from "@/lib/documents/reorganisation";
 import { errorText, input, primaryButton, secondaryButton } from "@/lib/ui";
+import { pluriel } from "@/lib/pharmacie/format";
+import { EtincelleIcon } from "@/components/EtincelleIcon";
 
 type Etape = "instruction" | "analyse" | "apercu" | "application";
 type Proposition = Extract<ResultatProposition, { statut: "ok" }>;
-
-function pluriel(n: number, mot: string) {
-  return `${n} ${mot}${n > 1 ? "s" : ""}`;
-}
-
-function EtincelleIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8z" />
-      <path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" />
-    </svg>
-  );
-}
 
 function FlecheIcon() {
   return (

@@ -8,13 +8,13 @@ import { shiftDate } from "@/lib/date/iso";
 import { nettoyerTexte } from "@/lib/documents/tri";
 import type { JourSemaine } from "@/lib/revue/compute";
 
-export const RESUME_MAX = 500;
-export const POINTS_MAX = 5;
-export const POINT_MAX = 200;
-export const TITRE_PROMPT_MAX = 100;
+const RESUME_MAX = 500;
+const POINTS_MAX = 5;
+const POINT_MAX = 200;
+const TITRE_PROMPT_MAX = 100;
 export const REPLANIF_HORIZON_JOURS = 10;
 export const REPLANIF_TACHES_MAX = 15;
-export const RAISON_MAX = 140;
+const RAISON_MAX = 140;
 
 export type TypeSynthese = "bilan" | "avenir";
 

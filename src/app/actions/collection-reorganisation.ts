@@ -17,6 +17,7 @@ import { nettoyerInstruction } from "@/lib/documents/reorganisation";
 import { nettoyerTexte, trouverCategorie } from "@/lib/documents/tri";
 import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { estUuid } from "@/lib/uuid";
 
 // Réorganisation des collections avec Gemini, en trois temps (même principe
 // que celle des documents) : `proposerReorganisationCollections` (lecture
@@ -25,7 +26,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // et `annulerReorganisationCollections` (remet tout en place, y compris les
 // collections supprimées par une fusion : elles n'ont perdu aucun élément).
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const GEMINI_TIMEOUT_MS = 50_000;
 const ELEMENTS_MIN = 2;
 const CHANGEMENTS_MAX = ELEMENTS_MAX_REORGANISATION + 100;
@@ -142,9 +142,9 @@ export async function proposerReorganisationCollections(instruction: string = ""
 
 // --- Application (écriture) ---
 
-export type DeplacementValide = { id: string; versId: string | null; versNom: string };
-export type FusionValide = { deId: string; versId: string };
-export type RenommageValide = { id: string; nom: string };
+type DeplacementValide = { id: string; versId: string | null; versNom: string };
+type FusionValide = { deId: string; versId: string };
+type RenommageValide = { id: string; nom: string };
 export type SelectionReorganisation = {
   deplacements: DeplacementValide[];
   fusions: FusionValide[];
@@ -182,20 +182,20 @@ export async function appliquerReorganisationCollections(
   for (const d of deplacements) {
     const versNom = nettoyerTexte(d?.versNom).slice(0, NOM_COLLECTION_MAX);
     const versId = d?.versId ?? null;
-    if (!UUID.test(String(d?.id)) || (versId !== null && !UUID.test(String(versId))) || (versId === null && !versNom)) {
+    if (!estUuid(String(d?.id)) || (versId !== null && !estUuid(String(versId))) || (versId === null && !versNom)) {
       return fail("Un des déplacements est invalide.");
     }
     moves.push({ id: d.id, versId, versNom });
   }
   const merges: FusionValide[] = [];
   for (const f of fusions) {
-    if (!UUID.test(String(f?.deId)) || !UUID.test(String(f?.versId)) || f.deId === f.versId) return fail("Une des fusions est invalide.");
+    if (!estUuid(String(f?.deId)) || !estUuid(String(f?.versId)) || f.deId === f.versId) return fail("Une des fusions est invalide.");
     merges.push({ deId: f.deId, versId: f.versId });
   }
   const renames: RenommageValide[] = [];
   for (const r of renommages) {
     const nom = nettoyerTexte(r?.nom).slice(0, NOM_COLLECTION_MAX);
-    if (!UUID.test(String(r?.id)) || !nom) return fail("Un des noms est invalide.");
+    if (!estUuid(String(r?.id)) || !nom) return fail("Un des noms est invalide.");
     renames.push({ id: r.id, nom });
   }
 
@@ -385,10 +385,10 @@ export async function annulerReorganisationCollections(
     Array.isArray(creees) &&
     Array.isArray(supprimees) &&
     Array.isArray(anciensNoms) &&
-    anciens.every((a) => UUID.test(String(a?.id)) && UUID.test(String(a?.deId)) && Number.isInteger(a?.ordre)) &&
-    creees.every((id) => UUID.test(String(id))) &&
-    supprimees.every((s) => UUID.test(String(s?.id)) && nettoyerTexte(s?.nom) !== "" && Number.isInteger(s?.ordre)) &&
-    anciensNoms.every((n) => UUID.test(String(n?.id)) && nettoyerTexte(n?.nom) !== "");
+    anciens.every((a) => estUuid(String(a?.id)) && estUuid(String(a?.deId)) && Number.isInteger(a?.ordre)) &&
+    creees.every((id) => estUuid(String(id))) &&
+    supprimees.every((s) => estUuid(String(s?.id)) && nettoyerTexte(s?.nom) !== "" && Number.isInteger(s?.ordre)) &&
+    anciensNoms.every((n) => estUuid(String(n?.id)) && nettoyerTexte(n?.nom) !== "");
   if (!valide) return fail("Annulation impossible.");
 
   const supabase = createAdminClient();

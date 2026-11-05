@@ -2,6 +2,7 @@
 // période et répartition par muscle. Logique pure (aucun accès réseau ni
 // React) : les Server Actions fournissent les séries, tout se teste directement.
 import { compteDansLeVolume, type Muscle, type TypeSerie } from "./constantes";
+import { shiftDate } from "@/lib/date/iso";
 
 /** Une série enregistrée, avec la séance et l'exercice auxquels elle appartient. */
 export type SerieHistorique = {
@@ -269,11 +270,6 @@ export type TypePeriode = "semaine" | "mois";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
-function ajouterJours(date: string, n: number): string {
-  const [a, m, j] = date.split("-").map(Number);
-  return new Date(Date.UTC(a, m - 1, j + n)).toISOString().slice(0, 10);
-}
-
 /**
  * Bornes (incluses) de la semaine (lundi → dimanche) ou du mois qui contient
  * `date`, décalées de `decalage` périodes (négatif = passé).
@@ -283,8 +279,8 @@ export function bornesPeriode(type: TypePeriode, date: string, decalage = 0): { 
   const [a, m, j] = date.split("-").map(Number);
   if (type === "semaine") {
     const jourSemaine = new Date(Date.UTC(a, m - 1, j)).getUTCDay();
-    const debut = ajouterJours(date, -((jourSemaine + 6) % 7) + decalage * 7);
-    return { debut, fin: ajouterJours(debut, 6) };
+    const debut = shiftDate(date, -((jourSemaine + 6) % 7) + decalage * 7);
+    return { debut, fin: shiftDate(debut, 6) };
   }
   const debut = new Date(Date.UTC(a, m - 1 + decalage, 1));
   const fin = new Date(Date.UTC(a, m + decalage, 0));
@@ -294,6 +290,6 @@ export function bornesPeriode(type: TypePeriode, date: string, decalage = 0): { 
 /** Tous les jours d'une période, du premier au dernier. */
 export function joursDePeriode(debut: string, fin: string): string[] {
   const jours: string[] = [];
-  for (let d = debut; d <= fin && jours.length < 400; d = ajouterJours(d, 1)) jours.push(d);
+  for (let d = debut; d <= fin && jours.length < 400; d = shiftDate(d, 1)) jours.push(d);
   return jours;
 }

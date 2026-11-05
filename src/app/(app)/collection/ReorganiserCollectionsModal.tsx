@@ -20,13 +20,10 @@ import {
 import { INSTRUCTION_MAX } from "@/lib/documents/reorganisation";
 import { queryKeys } from "@/lib/query/keys";
 import { errorText, input, primaryButton, secondaryButton } from "@/lib/ui";
+import { pluriel } from "@/lib/pharmacie/format";
 
 type Etape = "instruction" | "analyse" | "apercu" | "application";
 type Proposition = Extract<ResultatPropositionCollections, { statut: "ok" }>;
-
-function pluriel(n: number, mot: string) {
-  return `${n} ${mot}${n > 1 ? "s" : ""}`;
-}
 
 function FlecheIcon() {
   return (

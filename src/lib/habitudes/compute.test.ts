@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { calculerStreak, jourPrecedent } from "./compute";
+import { shiftDate } from "@/lib/date/iso";
+import { calculerStreak } from "./compute";
 
 // Régression : l'ancien code construisait `new Date(`${date}T00:00:00`)`
 // (sans `Z`), interprété en heure locale du process. Avec TZ=Europe/Paris
@@ -43,8 +44,8 @@ describe("calculerStreak (fuseau horaire)", () => {
     expect(calculerStreak(entries, "2026-09-26")).toBe(0);
   });
 
-  it("jourPrecedent reste correct autour d'un changement de mois", () => {
-    expect(jourPrecedent("2026-10-01")).toBe("2026-09-30");
+  it("shiftDate(-1) reste correct autour d'un changement de mois", () => {
+    expect(shiftDate("2026-10-01", -1)).toBe("2026-09-30");
   });
 });
 

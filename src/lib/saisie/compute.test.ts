@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { shiftDate } from "@/lib/date/iso";
 import {
-  ajouterJours,
   arrondirRappel,
   construirePrompt,
   erreurElement,
@@ -53,7 +53,7 @@ function un(partiel: Record<string, unknown>) {
 describe("dates", () => {
   it("calcule le jour de la semaine et ajoute des jours", () => {
     expect(jourSemaine("2026-10-30")).toBe("vendredi");
-    expect(ajouterJours("2026-10-30", 3)).toBe("2026-11-02");
+    expect(shiftDate("2026-10-30", 3)).toBe("2026-11-02");
   });
 
   it("le prompt contient le calendrier, les listes et la phrase", () => {

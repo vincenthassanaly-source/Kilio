@@ -21,9 +21,12 @@ export function toISODate(date: Date): string {
 }
 
 // `T00:00:00Z` + setters UTC : arithmétique de date pure, indépendante du
-// fuseau d'exécution (contrairement à parseISODate/toISODate ci-dessus,
-// à ne jamais mélanger avec un `.toISOString()`, voir
-// src/lib/habitudes/compute.ts pour le bug que ce mélange a causé).
+// fuseau d'exécution (contrairement à parseISODate/toISODate ci-dessus, à
+// ne jamais mélanger avec un `.toISOString()`). `T00:00:00` sans `Z` est lu
+// en heure locale du serveur : sur Vercel (UTC) ça ne bouge rien, mais en dev
+// local (Paris) le `toISOString()` qui suit repart de minuit Paris converti
+// en UTC et retombe sur la veille (bug des streaks d'habitudes, cf.
+// src/lib/habitudes/compute.test.ts).
 export function shiftDate(date: string, days: number): string {
   const d = new Date(`${date}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);

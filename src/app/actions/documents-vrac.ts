@@ -21,6 +21,7 @@ import {
 import { planifierIndexation } from "@/lib/documents/indexation";
 import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { estUuid } from "@/lib/uuid";
 
 // Vrac : documents reçus par le partage Android (documents.en_vrac = true),
 // à trier avec Gemini. Le tri se fait en deux temps, avec un aperçu entre les
@@ -29,7 +30,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // `appliquerTriVrac` (écrit seulement les propositions validées).
 
 const BUCKET = "documents-fichiers";
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CHEMIN_FICHIER = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|pdf)$/i;
 const TELECHARGEMENT_TIMEOUT_MS = 20_000;
 const GEMINI_TIMEOUT_MS = 40_000;
@@ -150,7 +150,7 @@ async function chercherDoublonFichier(
 }
 
 export async function analyserDocumentVrac(id: string, categoriesSupplementaires: string[] = []): Promise<ResultatAnalyse> {
-  if (!UUID.test(id)) return echecAnalyse("Document introuvable.");
+  if (!estUuid(id)) return echecAnalyse("Document introuvable.");
 
   const supabase = createAdminClient();
   const { data: document, error } = await supabase
@@ -246,7 +246,7 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
 // en place jusqu'à un éventuel tri, dont seuls le nom et la catégorie sont remplacés.
 
 export async function definirDocumentEnVrac(id: string, enVrac: boolean): Promise<ActionResult<undefined>> {
-  if (!UUID.test(id)) return fail("Document introuvable.");
+  if (!estUuid(id)) return fail("Document introuvable.");
 
   const supabase = createAdminClient();
   const { data, error } = await supabase.from("documents").update({ en_vrac: enVrac }).eq("id", id).select("id");
@@ -277,7 +277,7 @@ export async function appliquerTriVrac(elements: ElementTriValide[]): Promise<Ac
   for (const element of elements) {
     const nom = nettoyerTexte(element?.nom).slice(0, NOM_MAX);
     const categorie = nettoyerTexte(element?.categorie).slice(0, CATEGORIE_MAX);
-    if (!UUID.test(String(element?.id)) || !nom) return fail("Un des noms est vide.");
+    if (!estUuid(String(element?.id)) || !nom) return fail("Un des noms est vide.");
     valides.push({ id: element.id, nom, categorie: categorie || null });
   }
 

@@ -13,13 +13,13 @@ import {
 import { CATEGORIE_MAX, nettoyerTexte, trouverCategorie } from "@/lib/documents/tri";
 import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { estUuid } from "@/lib/uuid";
 
 // Réorganisation des catégories avec Gemini, en trois temps : `proposerReorganisation`
 // (lecture seule, un seul appel Gemini sur les métadonnées), `appliquerReorganisation`
 // (n'écrit que ce que l'aperçu a validé) et `annulerReorganisation` (remet tout en
 // place). Seuls les documents classés bougent : ceux du vrac ont leur propre tri.
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const GEMINI_TIMEOUT_MS = 50_000;
 const DOCUMENTS_MIN = 2;
 
@@ -123,7 +123,7 @@ export async function appliquerReorganisation(
   const valides: DeplacementValide[] = [];
   for (const deplacement of deplacements) {
     const vers = nettoyerTexte(deplacement?.vers).slice(0, CATEGORIE_MAX);
-    if (!UUID.test(String(deplacement?.id)) || !vers) return fail("Un des déplacements est invalide.");
+    if (!estUuid(String(deplacement?.id)) || !vers) return fail("Un des déplacements est invalide.");
     valides.push({ id: deplacement.id, vers });
   }
 
@@ -235,7 +235,7 @@ export async function annulerReorganisation(
   const documents: Ancien[] = [];
   for (const ancien of anciennes) {
     const de = ancien?.de === null ? null : nettoyerTexte(ancien?.de).slice(0, CATEGORIE_MAX);
-    if (!UUID.test(String(ancien?.id)) || de === "") return fail("Annulation impossible.");
+    if (!estUuid(String(ancien?.id)) || de === "") return fail("Annulation impossible.");
     documents.push({ id: ancien.id, de });
   }
   const noms = (valeurs: unknown) =>

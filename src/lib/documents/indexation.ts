@@ -130,7 +130,7 @@ export function planifierIndexation(ids: readonly string[]): void {
  * la réponse à l'utilisateur (appelée dans `after()`). Les échecs sont sans
  * conséquence : la recherche rattrape les fiches manquantes.
  */
-export async function indexerEnArrierePlan(ids: readonly string[]): Promise<void> {
+async function indexerEnArrierePlan(ids: readonly string[]): Promise<void> {
   const supabase = createAdminClient();
   for (const id of ids) {
     const resultat = await indexerDocument(supabase, id);

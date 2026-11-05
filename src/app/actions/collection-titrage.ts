@@ -15,6 +15,7 @@ import { telechargerImage } from "@/lib/collection/image";
 import { nettoyerTexte } from "@/lib/documents/tri";
 import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { estUuid } from "@/lib/uuid";
 
 // Titrage d'un élément de la collection par Gemini, en deux temps avec un
 // aperçu entre les deux (même principe que le tri du vrac des documents) :
@@ -22,7 +23,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // élément pour afficher la progression et isoler les échecs), puis
 // `appliquerTitrage` (écrit seulement les propositions validées).
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Un paquet entier doit tenir dans les 60 s de `maxDuration` des pages de la
 // collection : 6 s de téléchargement au plus, puis Gemini.
 const GEMINI_TIMEOUT_MS = 45_000;
@@ -40,7 +40,7 @@ function echecTitrage(erreur: string, quota = false): ResultatTitrage {
 }
 
 async function analyserUn(id: string): Promise<ResultatTitrage> {
-  if (!UUID.test(id)) return echecTitrage("Élément introuvable.");
+  if (!estUuid(id)) return echecTitrage("Élément introuvable.");
 
   const supabase = createAdminClient();
   const { data: element, error } = await supabase
@@ -114,7 +114,7 @@ export async function appliquerTitrage(
   collectionId: string,
   elements: ElementTitrageValide[]
 ): Promise<ActionResult<ResultatApplicationTitrage>> {
-  if (!UUID.test(String(collectionId))) return fail("Collection introuvable.");
+  if (!estUuid(String(collectionId))) return fail("Collection introuvable.");
   if (!Array.isArray(elements) || elements.length === 0) return fail("Rien à appliquer.");
   if (elements.length > LOT_MAX_APPLIQUE) return fail("Trop d'éléments d'un coup.");
 
@@ -122,7 +122,7 @@ export async function appliquerTitrage(
   for (const element of elements) {
     const titre = nettoyerTexte(element?.titre).slice(0, TITRE_MAX);
     const description = nettoyerTexte(element?.description).slice(0, DESCRIPTION_MAX);
-    if (!UUID.test(String(element?.id)) || !titre) return fail("Un des titres est vide.");
+    if (!estUuid(String(element?.id)) || !titre) return fail("Un des titres est vide.");
     valides.push({ id: element.id, titre, description });
   }
 

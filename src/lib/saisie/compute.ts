@@ -5,6 +5,8 @@
 
 import { calculerHeureFin, DUREE_EVENEMENT_PAR_DEFAUT, HEURE_REGEX } from "@/lib/evenements/compute";
 import { RAPPEL_MINUTES_VALEURS } from "@/lib/taches/compute";
+import { normalizeSearch } from "@/lib/normalize";
+import { shiftDate } from "@/lib/date/iso";
 
 type TypeElement = "tache" | "evenement";
 export type FrequenceSaisie = "quotidien" | "hebdomadaire" | "mensuel" | "annuel";
@@ -64,12 +66,6 @@ function dateUtc(iso: string): Date {
 function dateValide(valeur: unknown): valeur is string {
   if (typeof valeur !== "string" || !REGEX_DATE.test(valeur)) return false;
   return dateUtc(valeur).toISOString().slice(0, 10) === valeur;
-}
-
-export function ajouterJours(iso: string, n: number): string {
-  const d = dateUtc(iso);
-  d.setUTCDate(d.getUTCDate() + n);
-  return d.toISOString().slice(0, 10);
 }
 
 export function jourSemaine(iso: string): string {
@@ -151,7 +147,7 @@ export function construirePrompt(texte: string, ctx: ContexteSaisie): string {
   // Calendrier déjà calculé : un modèle « lite » se trompe sur « jeudi
   // prochain » ou « dans 10 jours » s'il doit faire l'arithmétique lui-même.
   const calendrier = Array.from({ length: 15 }, (_, i) => {
-    const iso = ajouterJours(ctx.aujourdhui, i);
+    const iso = shiftDate(ctx.aujourdhui, i);
     const repere = i === 0 ? " (aujourd'hui)" : i === 1 ? " (demain)" : i === 2 ? " (après-demain)" : "";
     return `- ${jourSemaine(iso)} ${iso}${repere}`;
   });
@@ -200,16 +196,8 @@ function entier(v: unknown): number {
   return typeof v === "number" && Number.isFinite(v) ? Math.round(v) : 0;
 }
 
-function normaliserNom(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
-}
-
 function listeParDefaut(listes: ListeRef[]): string {
-  return (listes.find((l) => normaliserNom(l.nom) === "general") ?? listes[0])?.id ?? "";
+  return (listes.find((l) => normalizeSearch(l.nom) === "general") ?? listes[0])?.id ?? "";
 }
 
 function normaliserElement(brut: Brut, index: number, ctx: ContexteSaisie): ElementSaisie | null {
@@ -266,17 +254,17 @@ function normaliserElement(brut: Brut, index: number, ctx: ContexteSaisie): Elem
       listeId = listeParDefaut(ctx.listes);
     }
 
-    const parNom = new Map(ctx.tags.map((t) => [normaliserNom(t.nom), t.id]));
+    const parNom = new Map(ctx.tags.map((t) => [normalizeSearch(t.nom), t.id]));
     const ids = new Set<string>();
     const nouveaux = new Set<string>();
     for (const nom of liste(brut.tags)) {
-      const id = parNom.get(normaliserNom(nom));
+      const id = parNom.get(normalizeSearch(nom));
       if (id) ids.add(id);
     }
     for (const nomBrut of liste(brut.nouveaux_tags)) {
       const nom = nomBrut.replace(/[,#]/g, "").trim().slice(0, 40);
       if (!nom) continue;
-      const id = parNom.get(normaliserNom(nom));
+      const id = parNom.get(normalizeSearch(nom));
       if (id) ids.add(id);
       else if (nouveaux.size < MAX_TAGS_NOUVEAUX) nouveaux.add(nom);
     }
