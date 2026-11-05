@@ -6,6 +6,7 @@
 import { calculerHeureFin, DUREE_EVENEMENT_PAR_DEFAUT, HEURE_REGEX } from "@/lib/evenements/compute";
 import { RAPPEL_MINUTES_VALEURS } from "@/lib/taches/compute";
 import { normalizeSearch } from "@/lib/normalize";
+import { shiftDate } from "@/lib/date/iso";
 
 type TypeElement = "tache" | "evenement";
 export type FrequenceSaisie = "quotidien" | "hebdomadaire" | "mensuel" | "annuel";
@@ -65,12 +66,6 @@ function dateUtc(iso: string): Date {
 function dateValide(valeur: unknown): valeur is string {
   if (typeof valeur !== "string" || !REGEX_DATE.test(valeur)) return false;
   return dateUtc(valeur).toISOString().slice(0, 10) === valeur;
-}
-
-export function ajouterJours(iso: string, n: number): string {
-  const d = dateUtc(iso);
-  d.setUTCDate(d.getUTCDate() + n);
-  return d.toISOString().slice(0, 10);
 }
 
 export function jourSemaine(iso: string): string {
@@ -152,7 +147,7 @@ export function construirePrompt(texte: string, ctx: ContexteSaisie): string {
   // Calendrier déjà calculé : un modèle « lite » se trompe sur « jeudi
   // prochain » ou « dans 10 jours » s'il doit faire l'arithmétique lui-même.
   const calendrier = Array.from({ length: 15 }, (_, i) => {
-    const iso = ajouterJours(ctx.aujourdhui, i);
+    const iso = shiftDate(ctx.aujourdhui, i);
     const repere = i === 0 ? " (aujourd'hui)" : i === 1 ? " (demain)" : i === 2 ? " (après-demain)" : "";
     return `- ${jourSemaine(iso)} ${iso}${repere}`;
   });
