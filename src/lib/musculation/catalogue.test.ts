@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { filtrerExercices, normaliser } from "./catalogue";
+import { normalizeSearch as normaliser } from "@/lib/normalize";
+import { filtrerExercices } from "./catalogue";
 import type { ExerciceCatalogue } from "./serveur";
 
 const exo = (nom: string, muscle: ExerciceCatalogue["muscle"], materiel: string | null = null): ExerciceCatalogue => ({

@@ -1,3 +1,5 @@
+import { normalizeSearch } from "@/lib/normalize";
+
 export type Nutrition = {
   kcal: number;
   proteines: number;
@@ -180,27 +182,19 @@ export function extraireRecents(
   return recents;
 }
 
-function normaliser(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
-}
-
 /**
  * Recherche plein texte tolérante aux accents : tous les mots saisis doivent
  * apparaître dans le nom (ou la catégorie). Les noms qui commencent par la
  * requête passent devant, puis ordre alphabétique.
  */
 export function rechercherCatalogue(items: CatalogueItem[], requete: string, limite = 40): CatalogueItem[] {
-  const q = normaliser(requete);
+  const q = normalizeSearch(requete);
   if (!q) return [];
   const mots = q.split(/\s+/).filter(Boolean);
   const scores: { item: CatalogueItem; score: number; nom: string }[] = [];
   for (const item of items) {
-    const nom = normaliser(item.nom);
-    const cible = item.type === "aliment" && item.categorie ? `${nom} ${normaliser(item.categorie)}` : nom;
+    const nom = normalizeSearch(item.nom);
+    const cible = item.type === "aliment" && item.categorie ? `${nom} ${normalizeSearch(item.categorie)}` : nom;
     if (!mots.every((m) => cible.includes(m))) continue;
     const score = nom.startsWith(q) ? 0 : nom.split(/\s+/).some((w) => w.startsWith(mots[0])) ? 1 : 2;
     scores.push({ item, score, nom });

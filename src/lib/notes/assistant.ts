@@ -6,6 +6,7 @@
 // Module neutre (ni "use server" ni "use client") : consignes, schémas et
 // lecture défensive des réponses, partagés par l'action serveur et ses tests.
 import { nettoyerTexte } from "@/lib/documents/tri";
+import { normalizeSearch } from "@/lib/normalize";
 
 export type ModeAssistantNote = "resume" | "reformuler" | "tags";
 
@@ -139,10 +140,6 @@ export function lireReformulation(brut: unknown): PropositionReformulation | nul
   return { mode: "reformuler", contenu };
 }
 
-function cle(nom: string): string {
-  return nom.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-}
-
 /** Nom d'un nouveau tag : sans « # », une seule ligne, en minuscules. */
 export function nettoyerNomTag(valeur: unknown): string {
   return coupe(nettoyerTexte(valeur).replace(/^#+/, "").trim().toLowerCase(), TAG_NOM_MAX);
@@ -159,7 +156,7 @@ export function lireTags(
 ): PropositionTags | null {
   if (typeof brut !== "object" || brut === null) return null;
   const { existants, nouveaux } = brut as Record<string, unknown>;
-  const parCle = new Map(tagsExistants.map((t) => [cle(t.nom), t]));
+  const parCle = new Map(tagsExistants.map((t) => [normalizeSearch(t.nom), t]));
   const dejaLa = new Set(idsDejaSurLaNote);
 
   const retenus = new Map<string, { id: string; nom: string }>();
@@ -167,16 +164,16 @@ export function lireTags(
   const vus = new Set<string>();
 
   const ajouterExistant = (nom: unknown) => {
-    const tag = parCle.get(cle(nettoyerTexte(nom).replace(/^#+/, "")));
+    const tag = parCle.get(normalizeSearch(nettoyerTexte(nom).replace(/^#+/, "")));
     if (tag && !dejaLa.has(tag.id)) retenus.set(tag.id, { id: tag.id, nom: tag.nom });
   };
   for (const nom of Array.isArray(existants) ? existants : []) ajouterExistant(nom);
 
   for (const nom of Array.isArray(nouveaux) ? nouveaux : []) {
     const net = nettoyerNomTag(nom);
-    if (net === "" || vus.has(cle(net))) continue;
-    vus.add(cle(net));
-    if (parCle.has(cle(net))) ajouterExistant(net);
+    if (net === "" || vus.has(normalizeSearch(net))) continue;
+    vus.add(normalizeSearch(net));
+    if (parCle.has(normalizeSearch(net))) ajouterExistant(net);
     else nouveauxNets.push(net);
   }
 
