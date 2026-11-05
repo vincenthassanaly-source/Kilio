@@ -4,10 +4,6 @@ import { aujourdhuiParis } from "@/lib/date/paris";
 export type JourJournal = { date: string; depuisBilan: boolean };
 export type JournalSearchParams = Promise<{ date?: string; from?: string }>;
 
-/** Query d'un jour du Journal ; `from=bilan` fait revenir le retour au Bilan (voir `retourHistoriqueAutorise`). */
-export const hrefJourJournal = (date: string, depuisBilan: boolean) =>
-  `/nutrition/journal?date=${date}${depuisBilan ? "&from=bilan" : ""}`;
-
 /**
  * Jour affiché par le Journal, lu dans l'URL (`?date`). Appelé uniquement
  * sous `<Suspense>` : la coquille de la page (sous-navigation, titre, cadre

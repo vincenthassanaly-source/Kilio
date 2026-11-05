@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { JourJournal } from "./jour";
 import { shiftDate } from "@/lib/date/iso";
-import { hrefJourJournal } from "./jour";
+import { hrefJourJournal } from "./liens";
 
 const boutonJour =
   "flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-base";

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSwipeHorizontal, type SensSwipe } from "@/hooks/useSwipeHorizontal";
 import { shiftDate } from "@/lib/date/iso";
-import { hrefJourJournal } from "./jour";
+import { hrefJourJournal } from "./liens";
 
 type JourCourant = { date: string; depuisBilan: boolean };
 
