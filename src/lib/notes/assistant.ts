@@ -12,11 +12,11 @@ export type ModeAssistantNote = "resume" | "reformuler" | "tags";
 export const MODES_ASSISTANT: readonly ModeAssistantNote[] = ["resume", "reformuler", "tags"];
 
 export const TITRE_MAX = 80;
-export const RESUME_MAX = 400;
+const RESUME_MAX = 400;
 export const CONTENU_MAX = 20_000;
-export const TAGS_EXISTANTS_MAX = 5;
+const TAGS_EXISTANTS_MAX = 5;
 export const TAGS_NOUVEAUX_MAX = 3;
-export const TAG_NOM_MAX = 30;
+const TAG_NOM_MAX = 30;
 
 export type PropositionResume = { mode: "resume"; titre: string; resume: string };
 export type PropositionReformulation = { mode: "reformuler"; contenu: string };

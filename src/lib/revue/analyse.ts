@@ -7,10 +7,10 @@
 import { nettoyerTexte } from "@/lib/documents/tri";
 import { libelleJour, titrePourPrompt } from "@/lib/revue/assistant";
 
-export const ANALYSE_RESUME_MAX = 500;
-export const ANALYSE_CONSTATS_MAX = 5;
-export const ANALYSE_PISTES_MAX = 3;
-export const ANALYSE_LIGNE_MAX = 220;
+const ANALYSE_RESUME_MAX = 500;
+const ANALYSE_CONSTATS_MAX = 5;
+const ANALYSE_PISTES_MAX = 3;
+const ANALYSE_LIGNE_MAX = 220;
 
 export type AnalyseSemaine = {
   /** 2 à 3 phrases : l'ensemble de la semaine. */
