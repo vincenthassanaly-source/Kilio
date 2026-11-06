@@ -18,7 +18,7 @@ const DEFAULT_ZOOM = 1;
 // Largeur fixe de la gouttière d'heures (non affectée par le zoom), et
 // nombre de colonnes de la vue Semaine — utilisés pour calculer le zoom
 // minimal qui fait tenir exactement les 7 jours sur la largeur de l'écran.
-export const GUTTER_WIDTH = 34;
+export const GUTTER_WIDTH = 40;
 const WEEK_DAYS_COUNT = 7;
 // Plancher/plafond absolus de sécurité (cas d'un écran extrêmement étroit,
 // ou avant la toute première mesure de largeur du conteneur Semaine).
