@@ -110,10 +110,47 @@ function score(xs: Float32Array, ys: Float32Array, hauteur: number, largeur: num
  * si le texte est trop rare ou l'angle trop peu net pour être fiable.
  */
 export function angleDesLignes(img: ImageDataLike): number | null {
-  const { image } = reduirePourDetection(img, COTE_ANALYSE_PX);
+  const mesure = estimerAngle(img);
+  if (!mesure || mesure.gainSurZero < GAIN_SUR_ZERO_MIN) return null;
+  if (Math.abs(mesure.deg) < ANGLE_MIN_DEG) return null;
+  return mesure.deg;
+}
+
+/**
+ * Mesure brute de l'angle des lignes de texte (degrés, positif : les lignes descendent vers la
+ * droite), sans seuil d'angle minimal : un angle proche de 0 est une vraie mesure (« les lignes
+ * sont droites »), utile pour comparer des bandes de la page entre elles. Renvoie aussi le gain du
+ * meilleur angle sur l'angle 0 (≥ 1 ; proche de 1 = le texte est déjà droit). `null` s'il n'y a pas
+ * assez de texte ou pas de ligne nette.
+ */
+export function estimerAngle(img: ImageDataLike): { deg: number; gainSurZero: number } | null {
+  const e = encreDe(img);
+  return estimerAngleDePoints(e.xs, e.ys, e.largeur, e.hauteur, e.part);
+}
+
+/** Pixels d'encre d'une page, en coordonnées de l'image d'analyse (réduite d'un `facteur`). */
+export type Encre = { xs: Float32Array; ys: Float32Array; part: number; largeur: number; hauteur: number; facteur: number };
+
+export function encreDe(img: ImageDataLike): Encre {
+  const { image, facteur } = reduirePourDetection(img, COTE_ANALYSE_PX);
   const { xs, ys, part } = pixelsEncre(image);
+  return { xs, ys, part, largeur: image.width, hauteur: image.height, facteur };
+}
+
+/**
+ * Mesure d'angle sur des points d'encre déjà extraits (une page entière ou une tranche : dans ce cas
+ * les `ys` sont comptés depuis le haut de la tranche, de hauteur `hauteur`). Voir `estimerAngle`.
+ */
+export function estimerAngleDePoints(
+  xs: Float32Array,
+  ys: Float32Array,
+  largeur: number,
+  hauteur: number,
+  part: number
+): { deg: number; gainSurZero: number } | null {
   if (part < ENCRE_MIN || xs.length < 500) return null;
-  const { width: w, height: h } = image;
+  const w = largeur;
+  const h = hauteur;
   const rad = (deg: number) => (deg * Math.PI) / 180;
 
   const scores: { deg: number; s: number }[] = [];
@@ -132,13 +169,11 @@ export function angleDesLignes(img: ImageDataLike): number | null {
     if (s > affine.s) affine = { deg, s };
   }
   const aZero = score(xs, ys, h, w, 0);
-  if (affine.s < GAIN_SUR_ZERO_MIN * aZero) return null;
-  if (Math.abs(affine.deg) < ANGLE_MIN_DEG) return null;
-  return affine.deg;
+  return { deg: affine.deg, gainSurZero: aZero > 0 ? affine.s / aZero : Infinity };
 }
 
 /** Couleur du papier : moyenne des 10 % de pixels les plus clairs (échantillon régulier). */
-function couleurPapier(img: ImageDataLike): [number, number, number] {
+export function couleurPapier(img: ImageDataLike): [number, number, number] {
   const { data, width: w, height: h } = img;
   const pas = Math.max(1, Math.floor(Math.sqrt((w * h) / 8000)));
   const pixels: { l: number; i: number }[] = [];

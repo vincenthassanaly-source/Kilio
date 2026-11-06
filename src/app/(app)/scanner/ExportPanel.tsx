@@ -20,7 +20,9 @@ function nomParDefaut(): string {
 export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVider: () => Promise<void> }) {
   const [nom, setNom] = useState(nomParDefaut);
   const [format, setFormat] = useState<Format>("pdf");
-  const [qualite, setQualite] = useState<QualitePdf>("standard");
+  // « Élevée » par défaut (2400 px, JPEG 0,88) : le Standard (1600 px) donnait des pages nettement moins
+  // définies que CamScanner (3000 px). Le choix reste libre.
+  const [qualite, setQualite] = useState<QualitePdf>("elevee");
   const [fichiers, setFichiers] = useState<File[] | null>(null);
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
