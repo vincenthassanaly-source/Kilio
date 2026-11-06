@@ -77,6 +77,28 @@ describe("Magic color", () => {
     }
   });
 
+  it("rend neutre un papier dont la teinte change d'une zone à l'autre (reflet bleuté d'un côté, lampe chaude de l'autre)", () => {
+    // Régression : seule une balance des blancs globale était appliquée, donc la zone bleutée restait bleue.
+    const w = 240, h = 180;
+    const data = new Uint8ClampedArray(w * h * 4);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const t = x / (w - 1);
+        let c: Rvb = [244 + (226 - 244) * t, 236 + (238 - 236) * t, 214 + (252 - 214) * t]; // chaud → bleuté
+        if (y % 22 > 15 && x > 20 && x < 220 && y > 70) c = [40, 38, 44]; // lignes de texte
+        const i = (y * w + x) * 4;
+        data[i] = c[0]; data[i + 1] = c[1]; data[i + 2] = c[2]; data[i + 3] = 255;
+      }
+    }
+    const apres = magicColor({ data, width: w, height: h });
+    // Haut de page : vierge de texte (les lignes commencent à y = 70 sur 180).
+    for (const [x0, x1] of [[0.02, 0.12], [0.88, 0.98]]) {
+      const papier = moyenne(apres, x0, 0.05, x1, 0.35);
+      expect(lum(papier), `luminance du papier (${x0})`).toBeGreaterThan(238);
+      expect(saturation(papier), `dominante résiduelle (${x0})`).toBeLessThan(8);
+    }
+  });
+
   it("n'étale pas de tache grise là où l'ombre rencontre le texte (l'encre bleutée n'est pas « colorée »)", () => {
     // Régression : l'encre noire légèrement bleutée était prise pour du contenu coloré à
     // protéger, ce qui relevait le fond estimé et laissait une tache grise près de l'ombre.
