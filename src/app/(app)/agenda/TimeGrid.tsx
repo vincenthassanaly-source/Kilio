@@ -122,10 +122,12 @@ const MIN_GUTTER_MARK_GAP_PX = 10;
 
 // "08:30:00" (ou "08:30") -> "8h30", format horaire attendu sur les repères
 // de début/fin de créneau dans TimeGutter — sans zéro de tête sur l'heure,
-// inutile et un peu tronqué dans la gouttière étroite.
+// inutile et un peu tronqué dans la gouttière étroite. Les heures pleines
+// perdent leurs minutes ("12:00" -> "12h", comme les autres heures de la
+// gouttière) : « 12h00 » dépassait la gouttière et était rogné à gauche.
 function formatCreneauHeure(heure: string): string {
   const [h, m] = heure.split(":");
-  return `${Number(h)}h${m}`;
+  return m === "00" ? `${Number(h)}h` : `${Number(h)}h${m}`;
 }
 
 // Repères verts (début/fin de créneau) à afficher dans la gouttière :
