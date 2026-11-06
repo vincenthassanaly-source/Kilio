@@ -13,6 +13,7 @@ import type { Filtre } from "@/lib/scanner/filtres";
 import type { Quad } from "@/lib/scanner/geometrie";
 import { chargerImage, creerPage, refiltrer } from "@/lib/scanner/traitement";
 import { card, dangerButton, errorText, ghostButton, primaryButton, secondaryButton } from "@/lib/ui";
+import { ApercuPage } from "./ApercuPage";
 import { EditeurCoins } from "./EditeurCoins";
 import { ExportPanel } from "./ExportPanel";
 import { Viseur } from "./Viseur";
@@ -62,6 +63,8 @@ export function ScannerApp() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [erreurRecadrage, setErreurRecadrage] = useState<string | null>(null);
   const [filtreEnCours, setFiltreEnCours] = useState<string | null>(null);
+  /** Index de la page ouverte en aperçu agrandi, ou null. */
+  const [apercu, setApercu] = useState<number | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
   const recharger = useCallback(async () => {
@@ -207,7 +210,14 @@ export function ScannerApp() {
             <li key={p.id} className={`${card} flex flex-col gap-3`}>
               <div className="flex gap-3">
                 <div className="w-24 shrink-0">
-                  <Miniature page={p} numero={i + 1} />
+                  <button
+                    type="button"
+                    onClick={() => setApercu(i)}
+                    aria-label={`Agrandir la page ${i + 1}`}
+                    className="block w-full rounded-lg transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+                  >
+                    <Miniature page={p} numero={i + 1} />
+                  </button>
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
                   <p className="text-sm font-semibold text-ink">Page {i + 1}</p>
@@ -243,6 +253,10 @@ export function ScannerApp() {
       )}
 
       {pages.length > 0 && <ExportPanel pages={pages} onVider={vider} />}
+
+      {apercu !== null && pages.length > 0 && (
+        <ApercuPage pages={pages} indexInitial={apercu} onClose={() => setApercu(null)} />
+      )}
 
       {viseurOuvert && (
         <Viseur
