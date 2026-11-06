@@ -6,6 +6,7 @@ import { detecterFeuille, detecterQuadrilatere } from "./detection";
 import { affinerLesCotes } from "./affinage";
 import { nettoyerLesBords } from "./bordsPropres";
 import { etendreAuxBordsDeLaFeuille } from "./extension";
+import { redresserParTranches } from "./redressementPage";
 import { redresserLesLignes } from "./redressementTexte";
 import type { Filtre } from "./filtres";
 import { appliquerFiltre, filtreConseille } from "./filtres";
@@ -177,7 +178,9 @@ export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtr
   if (!redressee) throw new Error("Cadrage invalide : les quatre coins doivent former un quadrilatère convexe.");
   // Fond resté dans un coin (page coupée par la photo) repeint en papier, puis lignes de texte
   // nettement penchées remises à l'horizontale. Sans fond ni texte repérables, rien ne bouge.
-  redressee = redresserLesLignes(nettoyerLesBords(redressee));
+  // Éventail des lignes et marge qui penche (papier courbé, perspective) : redressement local d'après le
+  // texte, avant la rotation globale qui ne fait que corriger ce qui reste.
+  redressee = redresserLesLignes(redresserParTranches(nettoyerLesBords(redressee)));
   const choisi: Filtre = filtre === "auto" ? filtreConseille(largeur, hauteur, redressee) : filtre;
   const redresse = await imageVersJpeg(redressee);
   const traite = choisi === "original" ? redresse : await imageVersJpeg(appliquerFiltre(redressee, choisi));

@@ -24,6 +24,12 @@ const DEBUT_COTE = 0.06;
 const FIN_COTE = 0.94;
 /** Portée du balayage de part et d'autre du côté, en part du plus petit côté de l'image d'analyse. */
 const PORTEE = 0.09;
+/**
+ * Pixels non papier consécutifs tolérés quand on suit le papier jusqu'au bord de la photo : un grain
+ * isolé seulement. Une bande de fond de quelques pixels (la table au-dessus de la page) doit bloquer,
+ * sinon le côté se poserait sur le bord de la photo et relierait des coins de fond noirs entre eux.
+ */
+const ECARTS_TOLERES = 1;
 /** Pixels consécutifs requis pour valider « fond » puis « papier ». */
 const PAS_CONFIRMATION = 3;
 /** Une mesure de bord n'est gardée que s'il y en a au moins ce nombre, dont la moitié proches de la droite ajustée. */
@@ -32,6 +38,10 @@ const POINTS_MIN = 10;
 const TOLERANCE_ABERRANT = 1.8;
 /** Un coin ne bouge jamais de plus de cette part de la diagonale : au-delà, on garde le cadre d'origine. */
 const DEPLACEMENT_MAX = 0.08;
+/** Part des mesures d'un côté où le papier continue jusqu'au bord de la photo : le côté se pose sur ce bord. */
+const PART_COUPEE_MIN = 0.5;
+/** Un côté posé sur le bord de la photo peut bouger davantage (le cadre d'origine était à l'intérieur de la page). */
+const DEPLACEMENT_MAX_COLLE = 0.16;
 /** Écart angulaire maximal entre la droite ajustée et le côté d'origine (degrés). */
 const ANGLE_MAX_DEG = 8;
 /** Mêmes seuils que extension.ts pour reconnaître le papier. */
@@ -59,14 +69,33 @@ function estPapier(img: ImageDataLike, x: number, y: number, d: Point, ref: Ref)
 }
 
 /**
+ * Vrai si, en suivant la normale n depuis p vers l'extérieur, on ne rencontre que du papier jusqu'à
+ * sortir de la photo (quelques pixels isolés, un pli ou un grain, sont tolérés). Indépendant de la
+ * portée du balayage : le bord de la photo peut être bien plus loin.
+ */
+function papierJusquAuBord(img: ImageDataLike, p: Point, n: Point, d: Point, ref: Ref): boolean {
+  let vus = 0;
+  let ecarts = 0;
+  for (let k = 1; ; k++) {
+    const etat = estPapier(img, p.x + n.x * k, p.y + n.y * k, d, ref);
+    if (etat === null) return vus > 0; // sorti de la photo
+    vus++;
+    if (etat) ecarts = 0;
+    else if (++ecarts > ECARTS_TOLERES) return false;
+  }
+}
+
+/**
  * Point du vrai bord le long de la normale n passant par p : balayage de l'extérieur (+portée)
  * vers l'intérieur (−portée). Renvoie le premier point « papier » précédé de fond, ou null.
  */
-function pointDeBord(img: ImageDataLike, p: Point, n: Point, d: Point, portee: number, ref: Ref): Point | null {
+function pointDeBord(img: ImageDataLike, p: Point, n: Point, d: Point, portee: number, ref: Ref): Point | "bord-photo" | null {
   const etats: (boolean | null)[] = [];
   for (let k = portee; k >= -portee; k--) {
     etats.push(estPapier(img, p.x + n.x * k, p.y + n.y * k, d, ref));
   }
+  // Papier jusqu'au bord de la photo : la page est coupée par le cadre à cet endroit (aucun vrai bord).
+  if (papierJusquAuBord(img, p, n, d, ref)) return "bord-photo";
   // Départ : il faut commencer par du fond (ou par le dehors de l'image), pas par du papier.
   let debut = 0;
   while (debut < etats.length && etats[debut] === null) debut++;
@@ -138,6 +167,7 @@ export function affinerLesCotes(img: ImageDataLike, quad: Quad): Quad {
   const portee = Math.max(4, Math.round(PORTEE * Math.min(w, h)));
   const droites: { p: Point; d: Point }[] = [];
   let aAffine = false;
+  let aColle = false;
 
   for (let i = 0; i < 4; i++) {
     const a = q[i];
@@ -148,14 +178,30 @@ export function affinerLesCotes(img: ImageDataLike, quad: Quad): Quad {
     if (n.x * (a.x - centre.x) + n.y * (a.y - centre.y) < 0) n = { x: -n.x, y: -n.y };
 
     const mesures: Point[] = [];
+    let coupes = 0;
     for (let s = 0; s < POINTS_PAR_COTE; s++) {
       const t = DEBUT_COTE + ((FIN_COTE - DEBUT_COTE) * (s + 0.5)) / POINTS_PAR_COTE;
       const bord = pointDeBord(image, { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }, n, d, portee, ref);
-      if (bord) mesures.push(bord);
+      if (bord === "bord-photo") coupes++;
+      else if (bord) mesures.push(bord);
     }
 
     let retenue = { p: a, d };
-    if (mesures.length >= POINTS_MIN) {
+    if (coupes >= PART_COUPEE_MIN * POINTS_PAR_COTE) {
+      // La page continue jusqu'au bord de la photo sur l'essentiel de ce côté : le bord de la photo
+      // devient le bord de la page, pour ne pas recouper le texte avec un côté incliné.
+      const milieu = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const bordsPhoto = [
+        { dist: milieu.x, p: { x: 0, y: 0 }, d: { x: 0, y: 1 } },
+        { dist: w - 1 - milieu.x, p: { x: w - 1, y: 0 }, d: { x: 0, y: 1 } },
+        { dist: milieu.y, p: { x: 0, y: 0 }, d: { x: 1, y: 0 } },
+        { dist: h - 1 - milieu.y, p: { x: 0, y: h - 1 }, d: { x: 1, y: 0 } },
+      ];
+      const proche = bordsPhoto.reduce((m, c) => (c.dist < m.dist ? c : m));
+      retenue = { p: proche.p, d: proche.d };
+      aAffine = true;
+      aColle = true;
+    } else if (mesures.length >= POINTS_MIN) {
       const ajustee = ajusterDroite(mesures);
       if (ajustee && ajustee.inliers >= Math.max(POINTS_MIN, mesures.length / 2)) {
         const cos = Math.abs(ajustee.d.x * d.x + ajustee.d.y * d.y);
@@ -178,7 +224,8 @@ export function affinerLesCotes(img: ImageDataLike, quad: Quad): Quad {
     coins.push({ x: Math.min(w - 1, Math.max(0, c.x)), y: Math.min(h - 1, Math.max(0, c.y)) });
   }
   const diagonale = Math.hypot(w, h);
-  if (coins.some((c, i) => Math.hypot(c.x - q[i].x, c.y - q[i].y) > DEPLACEMENT_MAX * diagonale)) return quad;
+  const deplacementMax = aColle ? DEPLACEMENT_MAX_COLLE : DEPLACEMENT_MAX;
+  if (coins.some((c, i) => Math.hypot(c.x - q[i].x, c.y - q[i].y) > deplacementMax * diagonale)) return quad;
   const affine = coins as Quad;
   if (!quadValide(affine)) return quad;
   return mettreAEchelle(affine, facteur);
