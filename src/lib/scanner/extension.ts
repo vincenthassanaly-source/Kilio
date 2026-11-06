@@ -37,7 +37,7 @@ const mediane = (v: number[]): number => {
   return t[t.length >> 1];
 };
 
-type Rvb = [number, number, number];
+export type Rvb = [number, number, number];
 
 function dansConvexe(quad: Quad, x: number, y: number): boolean {
   let signe = 0;
@@ -53,7 +53,7 @@ function dansConvexe(quad: Quad, x: number, y: number): boolean {
 }
 
 /** Couleur et luminance du papier : moyenne des 30 % de pixels les plus clairs à l'intérieur du cadre. */
-function referencePapier(img: ImageDataLike, quad: Quad): { rvb: Rvb; lum: number } | null {
+export function referencePapier(img: ImageDataLike, quad: Quad): { rvb: Rvb; lum: number } | null {
   const { data, width: w, height: h } = img;
   const pas = Math.max(1, Math.floor(Math.sqrt((w * h) / 6000)));
   const pixels: { l: number; r: number; g: number; b: number }[] = [];
