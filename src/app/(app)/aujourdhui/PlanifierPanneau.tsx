@@ -15,7 +15,7 @@ import { libelleDuree } from "@/lib/taches/compute";
 const DUREES_PANNEAU = [15, 30, 45, 60, 90, 120] as const;
 
 const chip =
-  "relative min-h-9 rounded-full border px-3 text-[12.5px] font-semibold tabular-nums transition-colors active:scale-[0.97] disabled:opacity-50 after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "relative min-h-9 rounded-full border px-3 text-small font-semibold tabular-nums transition-colors active:scale-[0.97] disabled:opacity-50 after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 /**
  * Panneau « Planifier » d'une tâche du jour : la durée, puis les créneaux libres
@@ -84,7 +84,7 @@ export function PlanifierPanneau({
       className="mt-2 flex flex-col gap-3 rounded-xl bg-surface-alt p-3"
     >
       <div className="flex flex-col gap-1.5">
-        <span className="text-[12px] font-semibold text-ink-2">Durée</span>
+        <span className="text-caption font-semibold text-ink-2">Durée</span>
         <div className="flex flex-wrap gap-1.5">
           {durees.map((d) => (
             <button
@@ -101,9 +101,9 @@ export function PlanifierPanneau({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-[12px] font-semibold text-ink-2">Créneaux libres</span>
+        <span className="text-caption font-semibold text-ink-2">Créneaux libres</span>
         {creneaux.length === 0 ? (
-          <p className="text-[13px] text-ink-2">
+          <p className="text-small text-ink-2">
             Aucun trou libre de {libelleDuree(duree)} aujourd&apos;hui. Essaie une durée plus courte.
           </p>
         ) : (
@@ -127,7 +127,7 @@ export function PlanifierPanneau({
       <button
         type="button"
         onClick={onClose}
-        className="relative self-start text-[13px] font-semibold text-ink-2 after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        className="relative self-start text-small font-semibold text-ink-2 after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
       >
         Fermer
       </button>

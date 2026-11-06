@@ -10,7 +10,7 @@ export function GridSkeleton({ count = 6 }: { count?: number }) {
     <ul className="columns-2 gap-3">
       {Array.from({ length: count }).map((_, i) => (
         <li key={i} className="mb-3 break-inside-avoid">
-          <Skeleton className="w-full rounded-[22px]" style={{ height: HEIGHTS[i % HEIGHTS.length] }} />
+          <Skeleton className="w-full rounded-card" style={{ height: HEIGHTS[i % HEIGHTS.length] }} />
         </li>
       ))}
     </ul>

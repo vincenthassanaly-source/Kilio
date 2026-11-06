@@ -92,7 +92,7 @@ function FichierThumb({
         // Zone de tap de 44 px centrée sur la pastille visible de 20 px.
         className="group absolute -right-3.5 -top-3.5 flex h-11 w-11 items-center justify-center rounded-full disabled:opacity-60 focus-visible:outline-none"
       >
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-alert text-[11px] font-bold text-on-accent group-focus-visible:ring-2 group-focus-visible:ring-kcal group-focus-visible:ring-offset-2">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-alert text-micro font-bold text-on-accent group-focus-visible:ring-2 group-focus-visible:ring-kcal group-focus-visible:ring-offset-2">
           ×
         </span>
       </button>

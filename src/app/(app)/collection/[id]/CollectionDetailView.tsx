@@ -76,7 +76,7 @@ export function CollectionDetailView({ id }: { id: string }) {
       <AddPhotoButton collectionId={id} onAjoute={ouvrirTitrage} />
       {nbADecrire > 0 && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-3.5 py-2.5">
-          <p className="min-w-0 text-[13px] text-ink-2">
+          <p className="min-w-0 text-small text-ink-2">
             <span className="font-semibold text-ink">
               {nbADecrire} élément{nbADecrire > 1 ? "s" : ""}
             </span>{" "}

@@ -59,7 +59,7 @@ export function TagsInput({
       {valeur.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label={`${libelle} choisies`}>
           {valeur.map((tag) => (
-            <li key={tag} className="inline-flex min-h-10 items-center rounded-full bg-surface-alt pl-3 text-[13.5px] font-medium text-ink">
+            <li key={tag} className="inline-flex min-h-10 items-center rounded-full bg-surface-alt pl-3 text-label font-medium text-ink">
               {tag}
               <button
                 type="button"
@@ -92,7 +92,7 @@ export function TagsInput({
         autoCapitalize="none"
         className={input}
       />
-      {aide && <p className="text-[12.5px] text-ink-2">{aide}</p>}
+      {aide && <p className="text-small text-ink-2">{aide}</p>}
       {proposees.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label="Suggestions">
           {proposees.map((s) => (
@@ -100,7 +100,7 @@ export function TagsInput({
               <button
                 type="button"
                 onClick={() => ajouter(s)}
-                className="inline-flex min-h-10 items-center gap-1 rounded-full border border-line bg-surface px-3 text-[13px] font-medium text-ink-2 transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                className="inline-flex min-h-10 items-center gap-1 rounded-full border border-line bg-surface px-3 text-small font-medium text-ink-2 transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
               >
                 <span aria-hidden>+</span>
                 {s}

@@ -69,7 +69,7 @@ export async function BilanContenu() {
   if (!cibles.repos && !cibles.entrainement) {
     return (
       <div className={`${card} flex flex-col items-start gap-2`}>
-        <p className="text-[15px] font-bold text-ink">Aucun objectif défini.</p>
+        <p className="text-body font-bold text-ink">Aucun objectif défini.</p>
         <p className="text-sm text-ink-2 text-pretty">
           Définis tes objectifs de kcal et de protéines dans le Journal pour suivre les jours dans les clous.
         </p>

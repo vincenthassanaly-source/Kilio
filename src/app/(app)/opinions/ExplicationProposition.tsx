@@ -16,7 +16,7 @@ export function ExplicationProposition({ explication }: { explication: Explicati
 
   return (
     <details className="group rounded-xl border border-line bg-surface-alt">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-3 text-[13.5px] font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-3 text-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
         Comprendre cette proposition
         <svg
           width="16"
@@ -38,7 +38,7 @@ export function ExplicationProposition({ explication }: { explication: Explicati
           explication[cle] ? (
             <section key={cle} className="flex flex-col gap-1">
               <h4 className="text-xs font-semibold text-ink-3">{titre}</h4>
-              <p className="text-[14px] leading-relaxed text-ink">{explication[cle]}</p>
+              <p className="text-label leading-relaxed text-ink">{explication[cle]}</p>
             </section>
           ) : (
             []

@@ -61,7 +61,7 @@ export function JourMenu({
             {jourCourt}
           </h2>
           {estAujourdhui && (
-            <span className="shrink-0 rounded-full bg-kcal-soft px-2.5 py-1 text-[11px] font-bold text-kcal">
+            <span className="shrink-0 rounded-full bg-kcal-soft px-2.5 py-1 text-micro font-bold text-kcal">
               Aujourd&apos;hui
             </span>
           )}
@@ -76,7 +76,7 @@ export function JourMenu({
       {creneaux.map(({ moment, repas }) => (
         <div key={moment} className="border-t border-line pt-1">
           <div className="flex min-h-11 items-center justify-between">
-            <h3 className="text-[11px] font-bold uppercase tracking-wide text-ink-3">{MOMENT_LABELS[moment]}</h3>
+            <h3 className="text-micro font-bold uppercase tracking-wide text-ink-3">{MOMENT_LABELS[moment]}</h3>
             <AjoutMenuBouton date={date} moment={moment} jourLabel={jourLabel} />
           </div>
           {repas.length > 0 && (

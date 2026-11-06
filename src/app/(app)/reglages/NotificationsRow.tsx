@@ -87,7 +87,7 @@ export function NotificationsRow() {
   return (
     <div className="flex flex-col gap-1.5 border-t border-line py-3.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+        <span className="flex items-center gap-2.5 text-label font-medium text-ink">
           <span
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
             style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}

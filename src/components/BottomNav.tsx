@@ -48,7 +48,7 @@ const MotionLink = motion(Link);
 // suivants). N'intercepte aucun événement pointer (`pointer-events: none`)
 // et ne touche ni au ref `setNodeRef` de useDroppable ni à l'outline de
 // dépôt, portés par le slot parent.
-// Rayon concentrique : la pile (comme le slot lui-même, cf. rounded-[19px]
+// Rayon concentrique : la pile (comme le slot lui-même, cf. rounded-row
 // plus bas) épouse le rayon de <nav> (26px) moins son padding (7px) = 19px,
 // pas une valeur arbitraire — sinon la pile paraît "flotter" dans son coin
 // au lieu de suivre le contour de la barre.
@@ -56,7 +56,7 @@ function ActivePill({ reduceMotion }: { reduceMotion: boolean }) {
   return (
     <motion.div
       layoutId={ACTIVE_PILL_LAYOUT_ID}
-      className="absolute inset-0 rounded-[19px] pointer-events-none"
+      className="absolute inset-0 rounded-row pointer-events-none"
       style={{ background: "var(--accent-kcal-soft)" }}
       transition={pillTransition(reduceMotion)}
     />
@@ -96,7 +96,7 @@ function BottomNavSlot({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       whileTap={reduceMotion ? undefined : { scale: 0.94 }}
-      className="relative flex flex-col items-center gap-0.5 rounded-[19px] px-3 py-[7px] transition-colors"
+      className="relative flex flex-col items-center gap-0.5 rounded-row px-3 py-[7px] transition-colors"
       style={{
         outline: showDropRing ? "2px dashed var(--accent-kcal)" : undefined,
         outlineOffset: showDropRing ? "2px" : undefined,
@@ -104,7 +104,7 @@ function BottomNavSlot({
     >
       {active && <ActivePill reduceMotion={reduceMotion} />}
       {item.icon(color)}
-      <span className="text-[11px]" style={{ color, fontWeight: active ? 700 : 500 }}>
+      <span className="text-micro" style={{ color, fontWeight: active ? 700 : 500 }}>
         {item.label}
       </span>
     </MotionLink>
@@ -169,7 +169,7 @@ export function BottomNav() {
           fixe pendant que seule la page change. */}
       <nav
         aria-label="Navigation principale"
-        className="flex items-center gap-0.5 rounded-[26px] border border-line bg-nav p-[7px] shadow-card backdrop-blur-xl"
+        className="flex items-center gap-0.5 rounded-dock border border-line bg-nav p-[7px] shadow-float backdrop-blur-xl"
         style={{ viewTransitionName: "bottom-nav" }}
       >
         {modulesBarreBasse.map((href, index) => (
@@ -188,12 +188,12 @@ export function BottomNav() {
           onClick={(e) => handleClick(e, "/plus")}
           aria-current={plusActive ? "page" : undefined}
           whileTap={reduceMotion ? undefined : { scale: 0.94 }}
-          className="relative flex flex-col items-center gap-0.5 rounded-[19px] px-3 py-[7px] transition-colors"
+          className="relative flex flex-col items-center gap-0.5 rounded-row px-3 py-[7px] transition-colors"
         >
           {plusActive && <ActivePill reduceMotion={reduceMotion} />}
           {PLUS_ICON(plusActive ? "var(--accent-kcal)" : "var(--ink-3)")}
           <span
-            className="text-[11px]"
+            className="text-micro"
             style={{ color: plusActive ? "var(--accent-kcal)" : "var(--ink-3)", fontWeight: plusActive ? 700 : 500 }}
           >
             Plus

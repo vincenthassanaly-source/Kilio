@@ -52,8 +52,8 @@ export function HistoriqueView() {
 
       {isLoading && (
         <div className="flex flex-col gap-2">
-          <Skeleton className="h-20 w-full rounded-[20px]" />
-          <Skeleton className="h-20 w-full rounded-[20px]" />
+          <Skeleton className="h-20 w-full rounded-row" />
+          <Skeleton className="h-20 w-full rounded-row" />
         </div>
       )}
       {isError && <ErrorInline message="Impossible de charger l'historique. Vérifie ta connexion." retry={() => refetch()} />}

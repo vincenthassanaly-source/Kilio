@@ -146,7 +146,7 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
       {idee.origine && (
         <section className={`${card} flex flex-col gap-1`}>
           <p className="text-xs font-semibold text-ink-3">Reprise d&apos;une proposition de parti</p>
-          <p className="text-[14.5px] leading-snug text-ink">« {idee.origine.proposition} »</p>
+          <p className="text-body leading-snug text-ink">« {idee.origine.proposition} »</p>
           <p className="text-xs text-ink-2">
             {idee.origine.parti} · {idee.origine.echeance}
           </p>
@@ -310,7 +310,7 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
             {idee.versions.map((version) => (
               <li key={version.id} className="flex flex-col gap-1 border-t border-line pt-3">
                 <p className="text-xs font-semibold text-ink-3">Remplacée le {dateVersion(version.created_at)}</p>
-                <p className="text-[14.5px] leading-snug text-ink">« {version.position} »</p>
+                <p className="text-body leading-snug text-ink">« {version.position} »</p>
                 <p className="text-xs text-ink-2">
                   {version.theme ? LIBELLE_THEME[version.theme] : "Sans thème"} · {LIBELLE_CONVICTION[version.conviction]} ·{" "}
                   {resumeScores(version)}

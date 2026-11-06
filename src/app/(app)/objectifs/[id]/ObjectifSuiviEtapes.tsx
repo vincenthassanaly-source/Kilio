@@ -110,7 +110,7 @@ export function ObjectifSuiviEtapes({
     <div className={`${card} flex flex-col gap-3`}>
       <div className="flex items-center justify-between">
         <h2 className={sectionTitle}>Étapes</h2>
-        <span className="text-[13px] text-ink-2">
+        <span className="text-small text-ink-2">
           {faites}/{etapes.length}
         </span>
       </div>
@@ -131,7 +131,7 @@ export function ObjectifSuiviEtapes({
                 // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md.
                 hitSlop={3}
               />
-              <span className={`flex-1 text-[14.5px] text-ink ${etape.fait ? "text-ink-2 line-through" : ""}`}>
+              <span className={`flex-1 text-body text-ink ${etape.fait ? "text-ink-2 line-through" : ""}`}>
                 {etape.titre}
               </span>
               <button

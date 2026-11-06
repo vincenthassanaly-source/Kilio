@@ -33,7 +33,7 @@ type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distanc
 
 // Ligne du menu d'options : cible tactile de 48 px, séparateur fin entre les lignes.
 const ligneMenu =
-  "flex min-h-12 items-center gap-3 border-t border-line px-3.5 text-left text-[15px] font-medium text-ink transition hover:bg-surface active:bg-surface disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal";
+  "flex min-h-12 items-center gap-3 border-t border-line px-3.5 text-left text-body font-medium text-ink transition hover:bg-surface active:bg-surface disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal";
 
 function IconeMenu({ d }: { d: string }) {
   return (
@@ -113,7 +113,7 @@ export function ExerciceBloc({
   const uneLigne = mode === "duree_vitesse";
 
   const colonnes = ["40px", "minmax(0,1fr)", ...champs.map((c) => LARGEUR_CHAMP[c]), ...(edition ? [] : ["48px"])].join(" ");
-  const entete = "text-center text-[12px] font-semibold uppercase tracking-wide text-ink-3";
+  const entete = "text-center text-caption font-semibold uppercase tracking-wide text-ink-3";
   const faites = exercice.series.filter((s) => s.fait).length;
   // Records battus par les séries validées (les autres sont traitées comme un échauffement : ignorées).
   const battus = edition
@@ -125,7 +125,7 @@ export function ExerciceBloc({
 
   return (
     <section
-      className="flex flex-col gap-3 rounded-[22px] border border-line bg-surface p-3.5 shadow-card"
+      className="flex flex-col gap-3 rounded-card border border-line bg-surface p-3.5 shadow-card"
       aria-label={exercice.nom}
     >
       <header className="flex items-center gap-3">
@@ -162,7 +162,7 @@ export function ExerciceBloc({
         >
           {!uneLigne && (
           <div className="flex items-center gap-2 px-3.5 py-2">
-            <span className="mr-auto text-[14px] font-medium text-ink">Repos prévu</span>
+            <span className="mr-auto text-label font-medium text-ink">Repos prévu</span>
             <button
               type="button"
               className={`${ghostButton} !bg-surface`}
@@ -171,7 +171,7 @@ export function ExerciceBloc({
             >
               −15 s
             </button>
-            <span className="min-w-[48px] text-center text-[15px] font-semibold tabular-nums text-ink" aria-live="polite">
+            <span className="min-w-[48px] text-center text-body font-semibold tabular-nums text-ink" aria-live="polite">
               {formaterMinutes(exercice.reposS)}
             </span>
             <button
@@ -287,7 +287,7 @@ export function ExerciceBloc({
                   aria-expanded={typeOuvert}
                   aria-label={`Type de la série ${index + 1} : ${TYPE_SERIE_LABELS[serie.type]}`}
                   onClick={() => setTypeOuvertPour(typeOuvert ? null : serie.id)}
-                  className={`h-11 rounded-xl text-center text-[14px] font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                  className={`h-11 rounded-xl text-center text-label font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                     serie.type === "normale" ? "text-ink-2" : "bg-surface-alt text-kcal"
                   }`}
                 >
@@ -295,7 +295,7 @@ export function ExerciceBloc({
                   {serie.type === "dropset" && <span aria-hidden="true">↓</span>}
                   {serie.type === "echec" && <span aria-hidden="true">!</span>}
                 </button>
-                <span className="truncate text-center text-[13px] tabular-nums text-ink-2">
+                <span className="truncate text-center text-small tabular-nums text-ink-2">
                   {libellePrecedent(mode, precedent)}
                 </span>
                 {champs.map((champ) => {
@@ -342,7 +342,7 @@ export function ExerciceBloc({
                 )}
               </div>
               {battus[index]?.length > 0 && serie.fait && (
-                <p className="px-1 text-[12.5px] font-semibold text-kcal" role="status">
+                <p className="px-1 text-small font-semibold text-kcal" role="status">
                   Nouveau record : {libelleRecords(battus[index])}
                 </p>
               )}
@@ -357,7 +357,7 @@ export function ExerciceBloc({
                         onModifierSerie(cle, serie.id, { type });
                         setTypeOuvertPour(null);
                       }}
-                      className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                      className={`rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                         serie.type === type ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                       }`}
                     >
@@ -372,7 +372,7 @@ export function ExerciceBloc({
       </div>
 
       {!uneLigne && (
-        <button type="button" className={`${secondaryButton} h-11 !py-0 text-[14px]`} onClick={() => onAjouterSerie(cle)}>
+        <button type="button" className={`${secondaryButton} h-11 !py-0 text-label`} onClick={() => onAjouterSerie(cle)}>
           + Ajouter une série
         </button>
       )}

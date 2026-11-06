@@ -40,7 +40,7 @@ function MacroBar({
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between">
         <span className="text-xs font-semibold text-ink">{label}</span>
-        <span className={`flex items-center gap-1 text-[11.5px] tabular-nums ${texteClass}`}>
+        <span className={`flex items-center gap-1 text-caption tabular-nums ${texteClass}`}>
           {sev !== "ok" && (
             // Marqueur non-couleur du dépassement (en plus de la teinte) : un
             // lecteur daltonien ou en faible luminosité doit pouvoir repérer
@@ -117,11 +117,11 @@ export function ResumeJour({
             <div className="font-display text-[28px] font-semibold tabular-nums text-ink">
               {Math.round(consomme.kcal)}
             </div>
-            <div className="text-[11px] tabular-nums text-ink-3">/ {Math.round(cible.kcal)} kcal</div>
+            <div className="text-micro tabular-nums text-ink-3">/ {Math.round(cible.kcal)} kcal</div>
           </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-          <p className={`mb-0.5 text-[12.5px] font-semibold tabular-nums ${resteTexteClass}`}>{resteLabel}</p>
+          <p className={`mb-0.5 text-small font-semibold tabular-nums ${resteTexteClass}`}>{resteLabel}</p>
           <MacroBar label="Protéines" consomme={consomme.proteines} cible={cible.proteines} color="var(--accent-protein)" />
           <MacroBar label="Glucides" consomme={consomme.glucides} cible={cible.glucides} color="var(--accent-carbs)" />
           <MacroBar label="Lipides" consomme={consomme.lipides} cible={cible.lipides} color="var(--accent-fat)" />

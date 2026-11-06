@@ -60,8 +60,8 @@ export function JourLibreCard({ today }: { today: string }) {
   return (
     <section className={`${card} flex flex-col gap-3`} aria-label="Jours libres">
       <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Jours libres</h2>
-        <span className="text-[13px] font-semibold tabular-nums text-ink-2">
+        <h2 className="text-body font-semibold tracking-[-0.01em] text-ink">Jours libres</h2>
+        <span className="text-small font-semibold tabular-nums text-ink-2">
           {restants}/{JETONS_PAR_SEMAINE} jetons cette semaine
         </span>
       </div>
@@ -69,8 +69,8 @@ export function JourLibreCard({ today }: { today: string }) {
         {lignes.map(({ date, titre, libre, refus }) => (
           <li key={date} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
             <div className="min-w-0">
-              <p className="text-[14.5px] font-medium text-ink">{titre}</p>
-              <p className="text-[12.5px] text-ink-2">
+              <p className="text-body font-medium text-ink">{titre}</p>
+              <p className="text-small text-ink-2">
                 {libre ? "Jour libre · limite kcal suspendue" : "Limite kcal active"}
               </p>
             </div>
@@ -99,7 +99,7 @@ export function JourLibreCard({ today }: { today: string }) {
         ))}
       </ul>
       {restants === 0 && (
-        <p className="text-[12.5px] leading-snug text-ink-2">
+        <p className="text-small leading-snug text-ink-2">
           Plus de jeton cette semaine : la limite reste active jusqu&apos;à lundi.
         </p>
       )}

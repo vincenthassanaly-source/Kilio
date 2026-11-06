@@ -15,7 +15,7 @@ import { barreBasseMasquee } from "@/lib/navigation/immersif";
 const URL_SEANCE = "/musculation/seance";
 
 const boutonAction =
-  "flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-kcal px-3.5 text-[13.5px] font-semibold text-on-kcal transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-kcal px-3.5 text-label font-semibold text-on-kcal transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 const IconeCoche = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -127,14 +127,14 @@ export function SeanceFlottante() {
       className="fixed inset-x-0 z-40 flex justify-center px-3"
       style={{ bottom: "calc(env(safe-area-inset-bottom) + 88px)", viewTransitionName: "seance-flottante" }}
     >
-      <div className="relative flex w-full max-w-md items-center gap-2 overflow-hidden rounded-[22px] border border-line bg-surface p-2 pl-0 shadow-card">
+      <div className="relative flex w-full max-w-md items-center gap-2 overflow-hidden rounded-card border border-line bg-surface p-2 pl-0 shadow-float">
         <Link
           href={URL_SEANCE}
           className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 rounded-[16px] py-1 pl-3.5 pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         >
           <span className="sr-only">Retourner à la séance en cours, {brouillon.nom}.</span>
           <span className="flex items-baseline gap-2">
-            <span className="text-[12.5px] font-medium text-ink-2">{titre}</span>
+            <span className="text-small font-medium text-ink-2">{titre}</span>
             {enRepos && (
               <span
                 role="timer"
@@ -147,7 +147,7 @@ export function SeanceFlottante() {
               </span>
             )}
           </span>
-          <span className="truncate text-[12.5px] text-ink-2">{libelleSuivante}</span>
+          <span className="truncate text-small text-ink-2">{libelleSuivante}</span>
         </Link>
 
         {suivante ? (

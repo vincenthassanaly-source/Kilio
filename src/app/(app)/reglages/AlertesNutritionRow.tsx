@@ -85,7 +85,7 @@ export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_b
     <>
       <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
         <div className="flex items-center justify-between gap-3">
-          <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+          <span className="flex items-center gap-2.5 text-label font-medium text-ink">
             <Pastille>
               <svg {...ICONE}>
                 <path d="M12 3.5 22 20.5H2L12 3.5Z" />
@@ -97,7 +97,7 @@ export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_b
           </span>
           <Switch checked={alerteKcal} onToggle={basculerAlerteKcal} label="Alerte à l'approche de la limite kcal" />
         </div>
-        <p className="text-[12.5px] leading-snug text-ink-2">
+        <p className="text-small leading-snug text-ink-2">
           {alerteKcal
             ? "Une notification (une par jour) quand tu atteins 85 % de ta limite kcal. Pas d'alerte un jour libre. Nécessite les notifications ci-dessus."
             : "Désactivée : aucune alerte quand tu approches de ta limite kcal."}
@@ -106,7 +106,7 @@ export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_b
 
       <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
         <div className="flex items-center justify-between gap-3">
-          <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+          <span className="flex items-center gap-2.5 text-label font-medium text-ink">
             <Pastille>
               <svg {...ICONE}>
                 <path d="M5 6.5h14M5 12h14M5 17.5h8" />
@@ -120,14 +120,14 @@ export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_b
             label="Rappel de saisie des repas"
           />
         </div>
-        <p className="text-[12.5px] leading-snug text-ink-2">
+        <p className="text-small leading-snug text-ink-2">
           {saisie.actif
             ? "Si ton journal est vide à l'heure choisie, une notification te rappelle de saisir tes repas."
             : "Désactivé : aucun rappel quand le journal reste vide."}
         </p>
         {saisie.actif && (
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="heure-rappel-saisie" className="text-[13px] text-ink-2">
+            <label htmlFor="heure-rappel-saisie" className="text-small text-ink-2">
               Heure du rappel
             </label>
             <input

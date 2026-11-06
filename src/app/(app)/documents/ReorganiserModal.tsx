@@ -248,12 +248,12 @@ export function ReorganiserModal({ categories, onClose }: { categories: string[]
                 un changement pour l&apos;ignorer, ou choisis une autre catégorie.
               </p>
               {proposition.tronque && (
-                <p className="rounded-xl bg-surface-alt px-3 py-2 text-[13px] text-ink">
+                <p className="rounded-xl bg-surface-alt px-3 py-2 text-small text-ink">
                   Seuls les {proposition.analyses} documents les plus récents ont été examinés.
                 </p>
               )}
               {nouvelles.length > 0 && (
-                <p className="rounded-xl bg-kcal-soft px-3 py-2 text-[13px] font-medium text-kcal">
+                <p className="rounded-xl bg-kcal-soft px-3 py-2 text-small font-medium text-kcal">
                   Nouvelle{nouvelles.length > 1 ? "s" : ""} catégorie{nouvelles.length > 1 ? "s" : ""} :{" "}
                   {nouvelles.join(", ")}
                 </p>
@@ -281,7 +281,7 @@ export function ReorganiserModal({ categories, onClose }: { categories: string[]
                           onChange={(coche) => basculer(ids, coche)}
                           label={`Reclasser ${pluriel(ids.length, "document")} de ${groupe.de ?? "sans catégorie"} vers ${vers}`}
                         />
-                        <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 text-[15px] font-medium text-ink">
+                        <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 text-body font-medium text-ink">
                           <span className="break-words">{groupe.de ?? "Sans catégorie"}</span>
                           <FlecheIcon />
                           <span className="break-words">{vers}</span>
@@ -305,7 +305,7 @@ export function ReorganiserModal({ categories, onClose }: { categories: string[]
                       </select>
 
                       <details>
-                        <summary className="flex min-h-11 cursor-pointer list-none items-center text-[13px] font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
+                        <summary className="flex min-h-11 cursor-pointer list-none items-center text-small font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
                           Voir les documents
                         </summary>
                         <ul className="flex flex-col">

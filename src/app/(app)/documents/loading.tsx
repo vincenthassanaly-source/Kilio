@@ -6,7 +6,7 @@ export default function DocumentsLoading() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className={screenTitle}>Documents</h1>
-      <Skeleton className="h-16 w-full rounded-[22px]" />
+      <Skeleton className="h-16 w-full rounded-card" />
       <ListItemSkeletonGroup count={4} withSubtitle />
     </div>
   );

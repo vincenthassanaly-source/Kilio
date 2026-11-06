@@ -95,7 +95,7 @@ function ApercuResume({
       {proposition.resume && (
         <section aria-label="Résumé proposé" className="flex flex-col gap-1.5">
           <h3 className="text-sm font-medium text-ink-2">Résumé</h3>
-          <p className="text-[15px] leading-relaxed text-ink">{proposition.resume}</p>
+          <p className="text-body leading-relaxed text-ink">{proposition.resume}</p>
           {peutAjouterResume && (
             <CaseAvecTexte id={`${uid}-resume`} coche={ajouterResume} onChange={setAjouterResume}>
               <span className="text-sm text-ink">Ajouter ce résumé en tête de la note</span>
@@ -109,7 +109,7 @@ function ApercuResume({
           <h3 className="text-sm font-medium text-ink-2">Titre</h3>
           <p className="text-sm text-ink-3 line-through">{note.titre}</p>
           <CaseAvecTexte id={`${uid}-titre`} coche={changerTitre} onChange={setChangerTitre}>
-            <span className="text-[15px] font-semibold text-ink">{proposition.titre}</span>
+            <span className="text-body font-semibold text-ink">{proposition.titre}</span>
           </CaseAvecTexte>
         </section>
       ) : (
@@ -227,7 +227,7 @@ function ApercuTags({
                 actif ? "border-kcal bg-kcal text-on-kcal" : "border-line bg-surface text-ink-2"
               }`}
             >
-              #{nom} <span className="ml-1 text-[11px] font-medium opacity-80">nouveau</span>
+              #{nom} <span className="ml-1 text-micro font-medium opacity-80">nouveau</span>
             </button>
           );
         })}
@@ -323,7 +323,7 @@ export function AssistantNoteModal({
                       <EtincelleIcon size={18} />
                     </span>
                     <span className="flex min-w-0 flex-col">
-                      <span className="text-[15px] font-semibold text-ink">{a.titre}</span>
+                      <span className="text-body font-semibold text-ink">{a.titre}</span>
                       <span className="text-sm text-ink-2">{a.description}</span>
                     </span>
                   </button>

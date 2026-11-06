@@ -10,7 +10,7 @@ const CLASSES: Record<Statut, string> = {
 
 export function StatutPill({ statut }: { statut: Statut }) {
   return (
-    <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${CLASSES[statut]}`}>
+    <span className={`shrink-0 rounded-full px-2.5 py-1 text-micro font-bold ${CLASSES[statut]}`}>
       {LIBELLE_STATUT[statut]}
     </span>
   );

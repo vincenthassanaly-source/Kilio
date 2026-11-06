@@ -47,7 +47,7 @@ export function RecetteHeader({
           >
             {recette.nom}
           </h1>
-          <p className="text-[13px] text-ink-2">
+          <p className="text-small text-ink-2">
             {SOURCE_LABEL[recette.source]}
             {recette.temps_prepa_min != null ? ` · ${recette.temps_prepa_min} min` : ""}
             {" · "}

@@ -390,7 +390,7 @@ export function NoteForm({
                 key={tag.id}
                 type="button"
                 onClick={() => toggleTag(tag.id)}
-                className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition-colors ${
+                className={`rounded-full px-2.5 py-1 text-caption font-semibold transition-colors ${
                   tagIds.includes(tag.id) ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                 }`}
               >

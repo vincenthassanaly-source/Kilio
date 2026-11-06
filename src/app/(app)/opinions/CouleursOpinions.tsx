@@ -33,7 +33,7 @@ export function EtiquetteTheme({ theme }: { theme: Theme }) {
   const teinte = varCouleurTheme(theme);
   return (
     <span
-      className="inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-[13px] font-semibold uppercase tracking-wide text-ink-2"
+      className="inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-small font-semibold uppercase tracking-wide text-ink-2"
       style={{ backgroundColor: fondLeger(teinte, 16) }}
     >
       <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: teinte }} />
@@ -67,7 +67,7 @@ export function TexteProposition({ texte, termes, theme }: { texte: string; term
         }
       }}
     >
-      <p className="text-[14.5px] leading-relaxed text-ink">
+      <p className="text-body leading-relaxed text-ink">
         {segments.map((segment, index) => {
           if (segment.terme === null) return <Fragment key={index}>{segment.texte}</Fragment>;
           const cle = cleTerme(segment.terme);
@@ -103,7 +103,7 @@ export function TexteProposition({ texte, termes, theme }: { texte: string; term
         <p
           id={idBulle}
           role="note"
-          className="rounded-xl border border-line border-l-4 bg-surface-alt px-3 py-2 text-[13px] leading-snug text-ink-2"
+          className="rounded-xl border border-line border-l-4 bg-surface-alt px-3 py-2 text-small leading-snug text-ink-2"
           style={{ borderLeftColor: teinte }}
         >
           <strong className="font-semibold text-ink">{definie.terme}</strong> : {definie.definition}

@@ -398,7 +398,7 @@ export function AgendaView() {
               type="button"
               onClick={() => setView(v.key)}
               aria-pressed={view === v.key}
-              className="relative flex-1 rounded-xl py-2 text-[13px] font-semibold after:absolute after:inset-x-0 after:-inset-y-1"
+              className="relative flex-1 rounded-xl py-2 text-small font-semibold after:absolute after:inset-x-0 after:-inset-y-1"
             >
               {view === v.key && (
                 <motion.div
@@ -417,7 +417,7 @@ export function AgendaView() {
           type="button"
           onClick={() => setEvenementForm({})}
           aria-label="Ajouter un événement"
-          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface px-3 text-[13px] font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-agenda"
+          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface px-3 text-small font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-agenda"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />

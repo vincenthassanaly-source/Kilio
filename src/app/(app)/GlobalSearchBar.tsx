@@ -166,15 +166,15 @@ export function GlobalSearchBar() {
         <div
           id="recherche-globale-listbox"
           role="listbox"
-          className="absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-[70vh] overflow-y-auto rounded-[20px] border border-line bg-surface p-2 shadow-card"
+          className="absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-[70vh] overflow-y-auto rounded-row border border-line bg-surface p-2 shadow-float"
         >
           {groupes.length === 0 ? (
             erreur ? (
-              <p role="alert" className="px-3 py-4 text-center text-[13.5px] text-alert">
+              <p role="alert" className="px-3 py-4 text-center text-label text-alert">
                 {erreur}
               </p>
             ) : (
-              <p className="px-3 py-4 text-center text-[13.5px] text-ink-2">
+              <p className="px-3 py-4 text-center text-label text-ink-2">
                 {aRecherche ? "Aucun résultat." : "Recherche…"}
               </p>
             )
@@ -183,7 +183,7 @@ export function GlobalSearchBar() {
               {groupes.map(({ module, items }) => (
                 <div key={module} className="flex flex-col gap-1">
                   <span
-                    className="px-2 pt-1 text-[11px] font-bold uppercase tracking-wide"
+                    className="px-2 pt-1 text-micro font-bold uppercase tracking-wide"
                     style={{ color: MODULE_INFO[module].accentVar }}
                   >
                     {MODULE_INFO[module].label}
@@ -202,9 +202,9 @@ export function GlobalSearchBar() {
                           active ? "bg-surface-alt" : ""
                         }`}
                       >
-                        <span className="truncate text-[14px] font-semibold text-ink">{item.titre}</span>
+                        <span className="truncate text-label font-semibold text-ink">{item.titre}</span>
                         {item.sousTitre && (
-                          <span className="truncate text-[12px] text-ink-2">{item.sousTitre}</span>
+                          <span className="truncate text-caption text-ink-2">{item.sousTitre}</span>
                         )}
                       </Link>
                     );

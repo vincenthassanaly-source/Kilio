@@ -15,7 +15,7 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
   return (
     <div className={`${className} flex flex-col gap-2.5`}>
       <span
-        className="px-0.5 text-[14px] font-semibold text-ink"
+        className="px-0.5 text-label font-semibold text-ink"
         style={{ viewTransitionName: "habitudes-titre-dashboard" }}
       >
         Habitudes
@@ -27,7 +27,7 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
           ))}
         </div>
       ) : !habitudes || habitudes.length === 0 ? (
-        <p className="px-0.5 text-[13.5px] text-ink-2">Aucune habitude pour l&apos;instant.</p>
+        <p className="px-0.5 text-label text-ink-2">Aucune habitude pour l&apos;instant.</p>
       ) : (
         <div className="flex gap-3 overflow-x-auto pb-0.5" data-swipe-ignore>
           {habitudes.map((h) => (

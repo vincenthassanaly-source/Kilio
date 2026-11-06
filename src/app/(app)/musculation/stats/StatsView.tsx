@@ -52,7 +52,7 @@ function Calendrier({ debut, fin, jours }: { debut: string; fin: string; jours: 
   return (
     <div className="grid grid-cols-7 gap-1.5" role="img" aria-label={`${jours.length} jour${jours.length > 1 ? "s" : ""} d'entraînement sur ${tous.length}`}>
       {JOURS.map((j, i) => (
-        <span key={i} aria-hidden="true" className="text-center text-[11px] font-semibold text-ink-3">
+        <span key={i} aria-hidden="true" className="text-center text-micro font-semibold text-ink-3">
           {j}
         </span>
       ))}
@@ -65,7 +65,7 @@ function Calendrier({ debut, fin, jours }: { debut: string; fin: string; jours: 
           <span
             key={jour}
             title={fait ? `Séance le ${formaterDateLongue(jour)}` : undefined}
-            className={`flex h-9 items-center justify-center rounded-xl text-[13px] tabular-nums ${
+            className={`flex h-9 items-center justify-center rounded-xl text-small tabular-nums ${
               fait ? "bg-kcal font-semibold text-on-kcal" : "bg-surface-alt text-ink-2"
             }`}
           >
@@ -85,14 +85,14 @@ function RepartitionMuscles({ parMuscle }: { parMuscle: { muscle: keyof typeof M
     <ul className="flex flex-col gap-2">
       {parMuscle.map((m) => (
         <li key={m.muscle} className="grid grid-cols-[96px_1fr_auto] items-center gap-2">
-          <span className="truncate text-[13.5px] text-ink">{MUSCLE_LABELS[m.muscle]}</span>
+          <span className="truncate text-label text-ink">{MUSCLE_LABELS[m.muscle]}</span>
           <span className="h-3 overflow-hidden" aria-hidden="true">
             <span
               className="block h-3 rounded-r-[4px]"
               style={{ width: `${Math.max(4, (m.nbSeries / max) * 100)}%`, background: "var(--accent-musculation)" }}
             />
           </span>
-          <span className="text-[13.5px] font-semibold tabular-nums text-ink">{m.nbSeries}</span>
+          <span className="text-label font-semibold tabular-nums text-ink">{m.nbSeries}</span>
         </li>
       ))}
     </ul>
@@ -139,7 +139,7 @@ export function StatsView() {
       </div>
 
       {periode.isError && <ErrorInline message="Impossible de charger les statistiques. Vérifie ta connexion." retry={() => periode.refetch()} />}
-      {!donnees && periode.isLoading && <Skeleton className="h-40 w-full rounded-[22px]" />}
+      {!donnees && periode.isLoading && <Skeleton className="h-40 w-full rounded-card" />}
 
       {donnees && (
         <div className={`flex flex-col gap-4 transition-opacity ${periode.isPlaceholderData ? "opacity-60" : ""}`}>
@@ -164,7 +164,7 @@ export function StatsView() {
 
       <section className="flex flex-col gap-3" aria-label="Exercices">
         <h2 className={sectionTitle}>Progression par exercice</h2>
-        {exercices.isLoading && <Skeleton className="h-16 w-full rounded-[20px]" />}
+        {exercices.isLoading && <Skeleton className="h-16 w-full rounded-row" />}
         {exercices.data && exercices.data.length === 0 && <p className={metaText}>Tes exercices apparaîtront ici après ta première séance.</p>}
         {exercices.data && exercices.data.length > 0 && (
           <ul className="flex flex-col gap-2">

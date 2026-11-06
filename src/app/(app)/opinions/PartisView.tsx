@@ -90,7 +90,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
         <button type="button" onClick={() => setAjout(true)} className={addCard}>
           <div className={addCardIcon}>+</div>
           <div className="flex flex-col gap-[1px]">
-            <span className="font-display text-[15px] font-semibold tracking-[-0.01em] text-ink">Ajouter un parti</span>
+            <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un parti</span>
             <span className="text-xs font-medium text-ink-3">Puis demande à Claude d&apos;importer son programme</span>
           </div>
         </button>

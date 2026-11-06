@@ -1,7 +1,7 @@
 // Shared Tailwind class fragments for the "Kilio — mobile" design system.
 // Keeps cards/buttons/inputs visually consistent across screens.
 
-export const card = "rounded-[22px] border border-line bg-surface p-4 shadow-card";
+export const card = "rounded-card border border-line bg-surface p-4 shadow-card";
 // `cardTight` : toujours une ligne de liste (un ingrédient, une étape, une
 // entrée de journal...), jamais un conteneur groupant plusieurs éléments
 // indépendants — press state ajouté sans risque de doublon avec un enfant.
@@ -11,14 +11,14 @@ export const card = "rounded-[22px] border border-line bg-surface p-4 shadow-car
 // `active:scale` ferait "trembler" tout le groupe/formulaire au moindre tap
 // sur un champ ou un bouton interne, pas seulement l'élément pressé — non
 // modifié ici pour cette raison (voir reports/2026-09-13-fluidite-4-chantiers.md).
-export const cardTight = "rounded-[20px] border border-line bg-surface p-3.5 shadow-card transition active:scale-[0.985] duration-150 ease-out";
+export const cardTight = "rounded-row border border-line bg-surface p-3.5 shadow-card transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.985]";
 
 // `text-balance` (T-polish) : titres courts (1-3 lignes) répartis plus
 // régulièrement entre les lignes, pour éviter une dernière ligne orpheline
 // d'un seul mot sur les libellés longs (ex. noms de catégories/objectifs).
 export const screenTitle = "font-display text-[28px] leading-[1.1] font-semibold text-ink tracking-[-0.03em] text-balance";
-export const sectionTitle = "text-[15px] font-semibold tracking-[-0.01em] text-ink text-balance";
-export const eyebrow = "text-[13px] font-medium text-ink-3";
+export const sectionTitle = "text-body font-semibold tracking-[-0.01em] text-ink text-balance";
+export const eyebrow = "text-small font-medium text-ink-3";
 
 // `focus-visible:ring-*` (jamais `focus:`, pour ne pas afficher l'anneau au
 // clic souris/tap) : anneau détaché du fond (`ring-offset-2`) donc visible
@@ -40,7 +40,7 @@ export const primaryButton =
 export const secondaryButton =
   `rounded-2xl border border-line bg-surface px-4 py-2.5 font-semibold text-ink transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 export const addCard =
-  `flex w-full items-center gap-[13px] rounded-[22px] border border-line bg-surface p-4 shadow-card text-left transition-transform active:scale-[0.99] ${focusRing}`;
+  `flex w-full items-center gap-[13px] rounded-card border border-line bg-surface p-4 shadow-card text-left transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.99] ${focusRing}`;
 // Icône « + » des cartes d'ajout (T9) : aplat vert Kcal, sans le dégradé ni
 // la seconde ombre colorée copiés-collés dans chaque *Toggle (Single Shadow
 // Rule, One Accent Rule) — un seul endroit à modifier désormais.
@@ -74,36 +74,36 @@ export const linkButton = `relative after:absolute after:-inset-x-2 after:-inset
 export const zoneTapPill = "relative after:absolute after:inset-x-0 after:-inset-y-2";
 
 export const pillTag =
-  "shrink-0 rounded-full bg-surface-alt px-2.5 py-1 text-[11px] font-semibold text-ink-2";
+  "shrink-0 rounded-full bg-surface-alt px-2.5 py-1 text-micro font-semibold text-ink-2";
 export const kcalPillTag =
-  "shrink-0 rounded-full bg-kcal-soft px-2.5 py-1 text-[11px] font-bold text-kcal";
+  "shrink-0 rounded-full bg-kcal-soft px-2.5 py-1 text-micro font-bold tabular-nums text-kcal";
 
 // Toujours une ligne de liste représentant une seule entité (une tâche, un
 // objectif, une transaction...), jamais un groupe : même raisonnement que
 // `cardTight` ci-dessus.
 export const listCard =
-  "flex flex-col gap-1.5 rounded-[20px] border border-line bg-surface p-3.5 shadow-card transition active:scale-[0.985] duration-150 ease-out";
+  "flex flex-col gap-1.5 rounded-row border border-line bg-surface p-3.5 shadow-card transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.985]";
 
 export const checkCircle =
   "flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-2";
 
-export const nameText = "text-[15px] font-medium text-ink truncate";
+export const nameText = "text-body font-medium text-ink truncate";
 // Variante pour un nom qui distingue l'élément des autres (étiquette,
 // catégorie, ingrédient…) : « Attestation d'assurance habitation » et
 // « …véhicule » ne diffèrent qu'à la fin, un « … » les rendrait identiques.
 // Le nom passe à la ligne ; le conteneur du texte doit porter `min-w-0`.
-export const nameTextComplet = "text-[15px] font-medium text-ink break-words";
+export const nameTextComplet = "text-body font-medium text-ink break-words";
 // Rangée d'actions d'une ligne de gestion (Modifier, Supprimer…), sous le
 // texte et alignée à droite : le nom garde toute la largeur de la carte au lieu
 // de pousser les boutons hors de l'écran.
 export const actionsLigne = "flex flex-wrap justify-end gap-2";
-export const metaText = "text-[12.5px] text-ink-2 tabular-nums";
+export const metaText = "text-small text-ink-2 tabular-nums";
 
 // Teinte d'une classe thérapeutique : exige `--classe` posé par un ancêtre
 // (voir `styleClasse` dans `lib/pharmacie/couleurClasse.ts`).
 export const pillClasse =
-  "shrink-0 rounded-full bg-[color-mix(in_oklch,var(--classe)_14%,transparent)] px-2.5 py-1 text-[11px] font-semibold text-[var(--classe)]";
+  "shrink-0 rounded-full bg-[color-mix(in_oklch,var(--classe)_14%,transparent)] px-2.5 py-1 text-micro font-semibold text-[var(--classe)]";
 /** Indication d'une fiche : même teinte (vert Kilio) pour toutes les classes, qui ne portent que l'identité du titre. */
 export const pillIndication =
-  "max-w-full break-words rounded-full bg-[color-mix(in_oklch,var(--accent-kcal)_14%,transparent)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent-kcal)]";
-export const titreBlocClasse = "text-[13px] font-semibold uppercase tracking-wide text-[var(--classe)]";
+  "max-w-full break-words rounded-full bg-[color-mix(in_oklch,var(--accent-kcal)_14%,transparent)] px-2.5 py-1 text-micro font-semibold text-[var(--accent-kcal)]";
+export const titreBlocClasse = "text-small font-semibold uppercase tracking-wide text-[var(--classe)]";

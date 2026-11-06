@@ -43,7 +43,7 @@ export default function MatierePage({ params }: { params: Promise<{ matiereId: s
                           href={`/pharmacie/${matiere.id}/${chapitre.id}`}
                           className={`${cardTight} flex items-baseline justify-between gap-3`}
                         >
-                          <span className="truncate text-[14.5px] font-semibold text-ink">{chapitre.nom}</span>
+                          <span className="truncate text-body font-semibold text-ink">{chapitre.nom}</span>
                           <span className={`${eyebrow} shrink-0 font-normal`}>{pluriel(notions.length, "notion")}</span>
                         </TransitionLink>
                       </li>

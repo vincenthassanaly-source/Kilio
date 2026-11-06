@@ -59,8 +59,8 @@ function ModuleTile({ href, isEditing }: { href: string; isEditing: boolean }) {
         {mod.icon(mod.accentVar)}
       </span>
       <div>
-        <p className="font-display text-[15px] font-semibold text-ink">{mod.label}</p>
-        {mod.description && <p className="text-[12.5px] text-ink-2 text-pretty">{mod.description}</p>}
+        <p className="font-display text-body font-semibold text-ink">{mod.label}</p>
+        {mod.description && <p className="text-small text-ink-2 text-pretty">{mod.description}</p>}
       </div>
     </TransitionLink>
   );

@@ -92,7 +92,7 @@ export function DescriptionModal({
           {etat.phase === "ok" && (
             <div className="flex flex-col gap-3">
               {etat.description.resume && (
-                <p className="text-[15px] leading-relaxed text-ink">{etat.description.resume}</p>
+                <p className="text-body leading-relaxed text-ink">{etat.description.resume}</p>
               )}
               {etat.description.points.length > 0 && (
                 <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm leading-relaxed text-ink marker:text-ink-3">

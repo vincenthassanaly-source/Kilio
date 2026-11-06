@@ -145,8 +145,8 @@ export function PeseeForm({ today, mesures, compact = false }: { today: string; 
           {mesures.map((mesure) => (
             <li key={mesure.date} className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
               <div className="min-w-0">
-                <p className="text-[14px] font-medium capitalize text-ink">{libelleDate(mesure.date)}</p>
-                <p className="text-[12.5px] tabular-nums text-ink-2">{resume(mesure)}</p>
+                <p className="text-label font-medium capitalize text-ink">{libelleDate(mesure.date)}</p>
+                <p className="text-small tabular-nums text-ink-2">{resume(mesure)}</p>
               </div>
               <button
                 type="button"

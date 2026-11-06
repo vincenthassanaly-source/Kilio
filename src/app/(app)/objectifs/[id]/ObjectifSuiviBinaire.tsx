@@ -45,7 +45,7 @@ export function ObjectifSuiviBinaire({ objectif }: { objectif: Tables<"objectifs
 
   return (
     <div className={`${card} flex flex-col items-center gap-3 text-center`}>
-      <p className="text-[15px] text-ink">
+      <p className="text-body text-ink">
         {atteint ? "Objectif marqué comme atteint 🎉" : "Pas encore marqué comme atteint."}
       </p>
       <button

@@ -89,10 +89,10 @@ export function DayTimeline({
     <section aria-labelledby="aujourdhui-frise" className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h2 id="aujourdhui-frise" className="text-[15px] font-semibold tracking-[-0.01em] text-ink">
+          <h2 id="aujourdhui-frise" className="text-body font-semibold tracking-[-0.01em] text-ink">
             Journée
           </h2>
-          {resume && <p className="truncate text-[12.5px] text-ink-2">{resume}</p>}
+          {resume && <p className="truncate text-small text-ink-2">{resume}</p>}
         </div>
         <button type="button" onClick={onAddEvenement} className={`${ghostButton} flex shrink-0 items-center gap-1.5`}>
           {PLUS_ICON}
@@ -141,7 +141,7 @@ export function DayTimeline({
                     style={{ top: style.top, height: style.height }}
                   >
                     {style.height >= HAUTEUR_MIN_LIBELLE_PX && (
-                      <span className="absolute left-2 top-1 text-[11px] font-medium text-ink-3">
+                      <span className="absolute left-2 top-1 text-micro font-medium text-ink-3">
                         Libre · {libelleDuree(minutes)}
                       </span>
                     )}

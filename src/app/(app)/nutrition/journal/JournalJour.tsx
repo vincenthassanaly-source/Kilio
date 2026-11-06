@@ -89,7 +89,7 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
                 <line x1="12" y1="19" x2="12" y2="5" />
                 <line x1="19" y1="19" x2="19" y2="14" />
               </svg>
-              <p className="text-[15px] font-bold text-ink">Aucun repas enregistré pour ce jour.</p>
+              <p className="text-body font-bold text-ink">Aucun repas enregistré pour ce jour.</p>
               <AjoutRepasBouton date={date} variante="carte" />
             </div>
           ) : (

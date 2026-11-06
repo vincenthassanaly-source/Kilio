@@ -118,7 +118,7 @@ export function EvenementForm({
       </div>
 
       <div className="flex min-h-11 items-center justify-between gap-3">
-        <span className="text-[14px] font-medium text-ink">Journée entière</span>
+        <span className="text-label font-medium text-ink">Journée entière</span>
         <Switch
           checked={journeeEntiere}
           label="Journée entière"
@@ -169,12 +169,12 @@ export function EvenementForm({
           aria-expanded={optionsOuvertes}
           aria-controls={`${uid}-options`}
           onClick={() => setOptionsOuvertes((v) => !v)}
-          className="relative flex min-h-11 items-center justify-between gap-2 text-left text-[14px] font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          className="relative flex min-h-11 items-center justify-between gap-2 text-left text-label font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <span>
             Rappel et répétition
             {!optionsOuvertes && (rappel || frequence) && (
-              <span className="ml-2 text-[12.5px] font-medium text-ink-2">
+              <span className="ml-2 text-small font-medium text-ink-2">
                 {[rappel ? "rappel" : null, frequence ? FREQUENCE_LABELS[frequence as Enums<"frequence_recurrence">].toLowerCase() : null]
                   .filter(Boolean)
                   .join(" · ")}

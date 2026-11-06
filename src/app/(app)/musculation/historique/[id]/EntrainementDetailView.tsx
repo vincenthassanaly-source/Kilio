@@ -130,10 +130,10 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
               {exercice.series.map((s, i) => {
                 if (s.type !== "echauffement") rang += 1;
                 return (
-                  <li key={i} className="flex items-baseline gap-3 text-[14px] tabular-nums text-ink">
+                  <li key={i} className="flex items-baseline gap-3 text-label tabular-nums text-ink">
                     <span className="w-6 text-center font-semibold text-ink-2">{s.type === "echauffement" ? "É" : rang}</span>
                     <span>{libellePrecedent(exercice.mode, s)}</span>
-                    {s.type !== "normale" && <span className="text-[12.5px] text-ink-2">{TYPE_SERIE_LABELS[s.type]}</span>}
+                    {s.type !== "normale" && <span className="text-small text-ink-2">{TYPE_SERIE_LABELS[s.type]}</span>}
                   </li>
                 );
               })}
@@ -243,7 +243,7 @@ export function EntrainementDetailView({ id }: { id: string }) {
     return (
       <div className="flex flex-col gap-4">
         <Skeleton className="h-9 w-2/3" />
-        <Skeleton className="h-48 w-full rounded-[22px]" />
+        <Skeleton className="h-48 w-full rounded-card" />
       </div>
     );
   }

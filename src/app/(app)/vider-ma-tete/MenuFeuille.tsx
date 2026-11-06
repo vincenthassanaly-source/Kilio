@@ -14,7 +14,7 @@ type Props = {
 
 // Cible tactile de 44 px (guide UX : zone minimale, 8 px d'écart entre cibles voisines).
 const item =
-  "flex min-h-11 w-full items-center gap-3 px-3.5 text-left text-[14.5px] font-medium transition hover:bg-surface-alt active:bg-surface-alt disabled:opacity-40 focus-visible:bg-surface-alt focus-visible:outline-none";
+  "flex min-h-11 w-full items-center gap-3 px-3.5 text-left text-body font-medium transition hover:bg-surface-alt active:bg-surface-alt disabled:opacity-40 focus-visible:bg-surface-alt focus-visible:outline-none";
 
 function Icone({ children }: { children: ReactNode }) {
   return (

@@ -31,7 +31,7 @@ export function PeseeCard({ today }: { today: string }) {
     <section className={`${card} flex flex-col gap-3`} aria-label="Pesée de la semaine">
       <div className="flex flex-col gap-0.5">
         <h2 className={sectionTitle}>Pesée de la semaine</h2>
-        <p className="text-[12.5px] leading-snug text-ink-2">
+        <p className="text-small leading-snug text-ink-2">
           {dernier
             ? `Dernier relevé il y a ${joursDepuis(dernier.date, today)} jours : poids et tour de taille, en 10 secondes.`
             : "Un premier relevé : poids et tour de taille, en 10 secondes."}

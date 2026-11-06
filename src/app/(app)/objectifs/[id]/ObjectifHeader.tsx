@@ -74,7 +74,7 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
           >
             {objectif.titre}
           </h1>
-          <p className="text-[13px] text-ink-2">
+          <p className="text-small text-ink-2">
             {CATEGORIE_LABELS[objectif.categorie]}
             {objectif.date_echeance ? ` · Échéance : ${formatEcheance(objectif.date_echeance)}` : ""}
           </p>

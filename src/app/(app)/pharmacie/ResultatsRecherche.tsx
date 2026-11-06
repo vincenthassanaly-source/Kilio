@@ -11,7 +11,7 @@ export function ResultatsRecherche({ snapshot, requete }: { snapshot: PharmaSnap
 
   if (resultats.length === 0) {
     return (
-      <p className="text-[14.5px] text-ink-2" role="status">
+      <p className="text-body text-ink-2" role="status">
         Aucune notion ne correspond à « {requete.trim()} ».
       </p>
     );
@@ -28,11 +28,11 @@ export function ResultatsRecherche({ snapshot, requete }: { snapshot: PharmaSnap
               href={`/pharmacie/${chemin.matiere.id}/${chemin.chapitre.id}#notion-${notion.id}`}
               className={`${cardTight} flex flex-col gap-1`}
             >
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-3">
+              <span className="text-micro font-semibold uppercase tracking-wide text-ink-3">
                 {chemin.matiere.nom} › {chemin.chapitre.nom}
               </span>
-              <span className="text-[14.5px] font-semibold text-ink">{notion.titre}</span>
-              <span className="line-clamp-2 text-[13px] text-ink-2">{enTexteBrut(notion.contenu)}</span>
+              <span className="text-body font-semibold text-ink">{notion.titre}</span>
+              <span className="line-clamp-2 text-small text-ink-2">{enTexteBrut(notion.contenu)}</span>
               {notion.tags.length > 0 && (
                 <span className="mt-1 flex flex-wrap gap-1.5">
                   {notion.tags.map((tag) => (

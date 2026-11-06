@@ -78,7 +78,7 @@ export function LigneMenu({ repas }: { repas: RepasPlanifie }) {
         hitSlop={11}
       />
       <div className="min-w-0 flex-1">
-        <p className={`truncate text-[14.5px] font-semibold ${mange ? "text-ink-2" : "text-ink"}`}>{repas.label}</p>
+        <p className={`truncate text-body font-semibold ${mange ? "text-ink-2" : "text-ink"}`}>{repas.label}</p>
         <p className="truncate text-xs text-ink-2">{repas.detail}</p>
       </div>
       <span className="shrink-0 font-display text-sm font-semibold tabular-nums text-ink-2">

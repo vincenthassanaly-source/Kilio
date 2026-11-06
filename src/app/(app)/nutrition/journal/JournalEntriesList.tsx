@@ -37,16 +37,16 @@ function EntryRow({ entry, onDelete }: { entry: JournalEntryView; onDelete: (id:
       transition={{ duration: 0.18 }}
       className={`${cardTight} flex flex-col gap-2`}
     >
-      <span className="text-[11px] font-bold uppercase tracking-wide text-ink-3">
+      <span className="text-micro font-bold uppercase tracking-wide text-ink-3">
         {MOMENT_LABEL[entry.moment]}
       </span>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-[14.5px] font-semibold text-ink">{entry.label}</p>
+          <p className="truncate text-body font-semibold text-ink">{entry.label}</p>
           <p className="text-xs text-ink-2">{entry.detail}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="font-display text-[15px] font-semibold text-ink">
+          <span className="font-display text-body font-semibold text-ink">
             {Math.round(entry.nutrition.kcal)} kcal
           </span>
           <button

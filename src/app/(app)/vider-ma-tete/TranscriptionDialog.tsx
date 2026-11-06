@@ -59,9 +59,9 @@ function Corps({ mode, texte, onFermer, onValider, onSupprimer }: Omit<Props, "o
           spellCheck
           value={valeur}
           onChange={(e) => setValeur(e.target.value)}
-          className={`${input} min-h-[40dvh] w-full resize-none text-[15.5px] leading-relaxed`}
+          className={`${input} min-h-[40dvh] w-full resize-none text-body leading-relaxed`}
         />
-        <p className="text-[12.5px] leading-snug text-ink-2">
+        <p className="text-small leading-snug text-ink-2">
           {proposition
             ? "Lu par Gemini : relis-le, des mots peuvent être faux. En validant, il rejoint le texte du jour et la feuille est vidée, sans retour possible. En fermant sans valider, rien ne change."
             : "Tes corrections sont enregistrées en fermant."}

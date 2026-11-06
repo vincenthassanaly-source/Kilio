@@ -104,7 +104,7 @@ export function GroupeRepliable({
   titre,
   compteur,
   style,
-  titreClassName = "text-[14.5px] font-semibold text-ink",
+  titreClassName = "text-body font-semibold text-ink",
   children,
 }: {
   id: string;
@@ -124,11 +124,11 @@ export function GroupeRepliable({
         onClick={basculer}
         aria-expanded={ouvert}
         aria-controls={idPanneau}
-        className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-[22px] px-4 text-left ${focusEntete}`}
+        className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-card px-4 text-left ${focusEntete}`}
       >
         <span className={`flex items-center gap-2 ${titreClassName}`}>{titre}</span>
         <span className="flex shrink-0 items-center gap-2.5">
-          <span className="text-[12px] text-ink-2 tabular-nums">{compteur}</span>
+          <span className="text-caption text-ink-2 tabular-nums">{compteur}</span>
           <Chevron ouvert={ouvert} />
         </span>
       </button>

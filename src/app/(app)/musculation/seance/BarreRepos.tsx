@@ -3,7 +3,7 @@
 import { formaterMinutes, type Repos } from "@/lib/musculation/seance";
 
 const bouton =
-  "flex h-11 min-w-[56px] items-center justify-center rounded-xl border border-line bg-surface px-3 text-[13.5px] font-semibold text-ink tabular-nums transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "flex h-11 min-w-[56px] items-center justify-center rounded-xl border border-line bg-surface px-3 text-label font-semibold text-ink tabular-nums transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 /**
  * Minuteur de repos collé en bas de l'écran de séance. Il reste affiché une
@@ -28,7 +28,7 @@ export function BarreRepos({
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-      <div className="flex w-full max-w-md flex-col gap-3 rounded-[22px] border border-line bg-surface p-3.5 shadow-card">
+      <div className="flex w-full max-w-md flex-col gap-3 rounded-card border border-line bg-surface p-3.5 shadow-card">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-alt" aria-hidden="true">
           <div
             className="h-full rounded-full bg-kcal transition-[width] duration-300 ease-linear motion-reduce:transition-none"
@@ -37,7 +37,7 @@ export function BarreRepos({
         </div>
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-col">
-            <span className="text-[12.5px] font-medium text-ink-2">{fini ? "Repos terminé" : "Repos"}</span>
+            <span className="text-small font-medium text-ink-2">{fini ? "Repos terminé" : "Repos"}</span>
             <span
               className={`font-display text-[30px] font-semibold leading-none tabular-nums tracking-[-0.02em] ${
                 fini ? "text-kcal" : "text-ink"

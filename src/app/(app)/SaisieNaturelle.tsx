@@ -57,7 +57,7 @@ export function SaisieNaturelle() {
           <button
             type="submit"
             disabled={enCours || texte.trim() === ""}
-            className="min-h-11 shrink-0 rounded-2xl bg-kcal px-4 text-[14px] font-semibold text-on-kcal transition-[opacity,transform] active:scale-[0.97] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+            className="min-h-11 shrink-0 rounded-2xl bg-kcal px-4 text-label font-semibold text-on-kcal transition-[opacity,transform] active:scale-[0.97] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           >
             {enCours ? "…" : "Ajouter"}
           </button>

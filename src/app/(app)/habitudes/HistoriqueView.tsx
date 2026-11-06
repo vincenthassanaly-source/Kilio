@@ -116,7 +116,7 @@ export function HistoriqueView({ habitudes }: { habitudes: Tables<"habitudes">[]
               </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-ink-2">
+            <div className="grid grid-cols-7 gap-1 text-center text-micro font-semibold text-ink-2">
               {WEEKDAY_LABELS.map((label, i) => (
                 <span key={i}>{label}</span>
               ))}
@@ -135,7 +135,7 @@ export function HistoriqueView({ habitudes }: { habitudes: Tables<"habitudes">[]
                   <div
                     key={iso}
                     title={iso}
-                    className={`flex aspect-square flex-col items-center justify-center rounded-xl border text-[13px] ${
+                    className={`flex aspect-square flex-col items-center justify-center rounded-xl border text-small ${
                       isToday(day) ? "border-habitudes" : "border-line"
                     } ${inMonth ? "text-ink" : "text-ink-3"}`}
                     style={

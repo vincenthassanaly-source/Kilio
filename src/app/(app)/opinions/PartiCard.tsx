@@ -235,7 +235,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
 
   return (
     <section
-      className="rounded-[22px] border border-l-4 border-line bg-surface shadow-card"
+      className="rounded-card border border-l-4 border-line bg-surface shadow-card"
       style={{ borderLeftColor: varCouleurParti(parti.couleur) }}
     >
       <button
@@ -243,10 +243,10 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
         aria-expanded={ouvert}
         aria-controls={idPanneau}
         onClick={() => setOuvert((o) => !o)}
-        className="flex min-h-14 w-full items-center gap-3 rounded-[22px] p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        className="flex min-h-14 w-full items-center gap-3 rounded-card p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="flex items-center gap-2 text-[15px] font-semibold text-ink">
+          <span className="flex items-center gap-2 text-body font-semibold text-ink">
             <PastilleParti couleur={parti.couleur} />
             {libelleParti(parti)}
           </span>
@@ -327,7 +327,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
               <BoutonRetourBarre barreRef={barreRef} panneauRef={panneauRef} onClick={remonterALaBarre} />
 
               <div className="flex flex-col gap-3">
-                <h3 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">
+                <h3 className="text-small font-semibold uppercase tracking-wide text-ink-3">
                   Ses positions ({propositions.length} proposition{propositions.length > 1 ? "s" : ""})
                 </h3>
                 <ul className="flex flex-col gap-5">

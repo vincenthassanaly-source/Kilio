@@ -60,7 +60,7 @@ function LigneIdee({ idee, index }: { idee: Idee; index: number }) {
     >
       <TransitionLink href={`/opinions/${idee.id}`} className={`${cardTight} flex flex-col gap-2`}>
         <div className="flex items-start justify-between gap-3">
-          <p className="line-clamp-3 text-pretty text-[15px] font-medium text-ink">{idee.position}</p>
+          <p className="line-clamp-3 text-pretty text-body font-medium text-ink">{idee.position}</p>
           <StatutPill statut={idee.statut} />
         </div>
         <p className={metaText}>

@@ -230,7 +230,7 @@ export function NavigationEditProvider({
               >
                 {activeModule.icon(activeModule.accentVar)}
               </span>
-              <p className="font-display text-[13px] font-semibold text-ink">{activeModule.label}</p>
+              <p className="font-display text-small font-semibold text-ink">{activeModule.label}</p>
             </div>
           ) : null}
         </DragOverlay>

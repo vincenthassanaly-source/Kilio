@@ -193,13 +193,14 @@ Motifs récurrents de composition :
 
 ## Elevation & Depth
 
-Système **plat avec un soulèvement doux** : aucune interface n'est "posée" en couches multiples, une seule ombre existe dans tout le système (`--shadow-card`), appliquée uniformément à toute carte/pilule flottante pour signaler juste "ceci est un élément détaché du fond" — jamais pour créer une hiérarchie de profondeur entre plusieurs niveaux. La séparation entre zones vient d'abord de la couleur de fond (`background` vs `surface` vs `surface-alt`) et de bordures hairline `--line` (1px), pas de l'ombre.
+Système **plat avec un soulèvement doux** : deux ombres seulement. `--shadow-card` signale "ceci est un élément détaché du fond" (cartes, lignes) ; `--shadow-float` signale "ceci flotte au-dessus du contenu" (barre du bas, feuilles modales, bouton d'action rapide, menu de recherche, séance flottante). Jamais d'ombre intermédiaire ni d'ombre dure. La séparation entre zones vient d'abord de la couleur de fond (`background` vs `surface` vs `surface-alt`) et de bordures hairline `--line` (1px), pas de l'ombre.
 
 ### Shadow Vocabulary
-- **Card** (clair : `0 1px 2px oklch(0.3 0.03 150 / 0.05), 0 8px 24px -10px oklch(0.3 0.03 150 / 0.12)` ; sombre : reflet `0 1px 0 oklch(1 0 0 / 0.04) inset` + `0 10px 28px -10px rgba(0,0,0,0.55)`) : seule ombre du système — cartes, barre de navigation flottante, tout élément "détaché" du fond de page.
+- **Card** (clair : `0 1px 2px oklch(0.3 0.03 150 / 0.05), 0 8px 24px -10px oklch(0.3 0.03 150 / 0.12)` ; sombre : reflet `0 1px 0 oklch(1 0 0 / 0.04) inset` + `0 10px 28px -10px rgba(0,0,0,0.55)`) : cartes et lignes de liste, tout élément "détaché" du fond de page.
+- **Float** (`--shadow-float`, clair : trois couches `0 1px 2px / 0 4px 10px -2px / 0 18px 40px -12px` en `oklch(0.3 0.03 150 / 0.06–0.2)` ; sombre : reflet inset + `0 6px 14px -4px` et `0 22px 48px -14px` en noir) : uniquement ce qui recouvre le contenu — barre du bas, `Modal`, bouton d'action rapide, menu de recherche globale, séance flottante.
 
 ### Named Rules
-**The Single Shadow Rule.** Un seul token d'ombre existe (`--shadow-card`). Ne jamais en introduire un second (pas d'ombre "hover" ou "elevated" distincte) : l'élévation dans Kilio est binaire — posé sur le fond, ou détaché avec `--shadow-card`.
+**The Two Shadows Rule.** Deux tokens d'ombre existent : `--shadow-card` (posé) et `--shadow-float` (flottant). Ne jamais en introduire un troisième (pas d'ombre "hover" distincte) : un élément est soit posé sur le fond, soit détaché (`card`), soit au-dessus du contenu (`float`).
 
 ## Shapes
 
@@ -234,7 +235,7 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 ### Cards / Containers
 - **Corner Style:** 20–24px selon densité (voir Shapes).
 - **Background:** `surface`, bordure hairline `line`.
-- **Shadow Strategy:** `--shadow-card` uniquement (voir Elevation & Depth).
+- **Shadow Strategy:** `--shadow-card` (posé) et `--shadow-float` (flottant) uniquement (voir Elevation & Depth).
 - **Internal Padding:** 14px (dense/liste) à 18px (hero).
 - **Feedback tap:** les cartes "ligne de liste unique" (`cardTight`, `listCard`) ont un `active:scale-[0.97]` ; les cartes "conteneur de groupe" (plusieurs enfants indépendants) n'en ont volontairement pas, pour ne pas faire "trembler" tout un groupe au tap d'un enfant.
 
@@ -265,7 +266,13 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 
 ### Don't:
 - **Don't** introduire une deuxième couleur "brand"/interactive à côté du vert Kcal — les couleurs de macro et de module restent des indicateurs passifs.
-- **Don't** ajouter une ombre plus dure ou un second niveau d'ombre : le système n'a qu'un seul token d'élévation (`--shadow-card`).
+- **Don't** ajouter une ombre plus dure ou un troisième niveau d'ombre : le système n'a que deux tokens d'élévation (`--shadow-card`, `--shadow-float`).
 - **Don't** utiliser un coin vif (radius 0) ou un rayon uniforme sur tous les composants, quelle que soit leur taille.
 - **Don't** ajouter `active:scale` à une carte "conteneur de groupe" englobant plusieurs éléments indépendants (formulaires, sections listant plusieurs entités) — réservé aux cartes représentant une entité unique.
 - **Don't** utiliser une police tierce ou une graisse Sora sous 600 : la hiérarchie typographique du système repose sur seulement deux familles et une plage de graisses restreinte.
+
+## Tokens de finition (polish premium)
+
+- **Typographie** : cinq tailles nommées remplacent les `text-[Npx]` arbitraires — `text-micro` (11 px), `text-caption` (12), `text-small` (13), `text-label` (14), `text-body` (15). Les demi-pixels historiques (11,5 / 12,5 / 13,5 / 14,5 / 15,5) sont arrondis au palier supérieur ou inférieur le plus proche. Les tailles d'écran (17, 22, 28 px…) restent explicites. Les titres `h1`–`h3` sont équilibrés (`text-wrap: balance`) et les paragraphes `p` évitent les lignes orphelines (`text-wrap: pretty`).
+- **Rayons** : `rounded-row` (20 px, lignes de liste), `rounded-card` (22 px, cartes et feuilles), `rounded-hero` (24 px), `rounded-dock` (26 px, barre du bas).
+- **Mouvement** : toutes les animations CSS et transitions de vue utilisent `var(--ease-out)` (jamais `ease-out` générique) ; les transitions des boutons et cartes sont explicites (`transition-transform`) plutôt que `transition` global.

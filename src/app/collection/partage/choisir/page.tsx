@@ -97,7 +97,7 @@ export default async function ChoisirCollectionPage({
                   ) : (
                     <div className="h-24 w-24 rounded-2xl bg-surface-alt" aria-hidden />
                   )}
-                  <span className="absolute bottom-1 right-1 rounded-full bg-black/70 px-1.5 py-0.5 text-[11px] font-bold text-white">
+                  <span className="absolute bottom-1 right-1 rounded-full bg-black/70 px-1.5 py-0.5 text-micro font-bold text-white">
                     {video.type === "youtube" ? "YouTube" : "TikTok"}
                   </span>
                 </div>

@@ -30,7 +30,7 @@ export function Switch({
     >
       <span
         aria-hidden
-        className="absolute left-0.5 top-0.5 h-[22px] w-[22px] rounded-full bg-white shadow-sm transition-transform duration-150 ease-out"
+        className="absolute left-0.5 top-0.5 h-[22px] w-[22px] rounded-full bg-[var(--switch-thumb)] shadow-card transition-transform duration-150 ease-[var(--ease-out)]"
         style={{ transform: checked ? "translateX(18px)" : "translateX(0)" }}
       />
     </button>

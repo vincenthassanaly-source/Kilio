@@ -11,9 +11,9 @@ export function PharmacieSkeleton() {
   return (
     <div className="flex flex-col gap-3" aria-hidden="true">
       <Skeleton className="h-11 w-full rounded-2xl" />
-      <Skeleton className="h-28 w-full rounded-[24px]" />
-      <Skeleton className="h-20 w-full rounded-[20px]" />
-      <Skeleton className="h-20 w-full rounded-[20px]" />
+      <Skeleton className="h-28 w-full rounded-hero" />
+      <Skeleton className="h-20 w-full rounded-row" />
+      <Skeleton className="h-20 w-full rounded-row" />
     </div>
   );
 }
@@ -36,7 +36,7 @@ export function IntrouvableCarte({ message, titre }: { message: string; titre?: 
   return (
     <>
       {titre && <h1 className={screenTitle}>{titre}</h1>}
-      <div className={`${card} text-[14.5px] text-ink-2`} role="status">
+      <div className={`${card} text-body text-ink-2`} role="status">
         {message}
       </div>
     </>

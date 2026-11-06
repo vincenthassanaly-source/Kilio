@@ -27,7 +27,7 @@ function Chiffre({ valeur, libelle, alerte = false }: { valeur: number; libelle:
       <span className={`font-display text-[22px] font-semibold tabular-nums ${alerte && valeur > 0 ? "text-alert" : "text-ink"}`}>
         {valeur}
       </span>
-      <span className="text-center text-[11.5px] leading-tight text-ink-2">{libelle}</span>
+      <span className="text-center text-caption leading-tight text-ink-2">{libelle}</span>
     </div>
   );
 }
@@ -69,8 +69,8 @@ export function RevueView({ today }: { today: string }) {
   if (tachesChargent) {
     return (
       <div className="flex flex-col gap-4">
-        <Skeleton className="h-40 w-full rounded-[22px]" />
-        <Skeleton className="h-56 w-full rounded-[22px]" />
+        <Skeleton className="h-40 w-full rounded-card" />
+        <Skeleton className="h-56 w-full rounded-card" />
       </div>
     );
   }
@@ -92,7 +92,7 @@ export function RevueView({ today }: { today: string }) {
           <Chiffre valeur={bilan.nbEnRetard} libelle="en retard" alerte />
         </div>
         {bilan.terminees.length > 0 && (
-          <ul className="flex flex-col gap-1 text-[13.5px] text-ink-2">
+          <ul className="flex flex-col gap-1 text-label text-ink-2">
             {bilan.terminees.slice(0, NB_TERMINEES_VISIBLES).map((t) => (
               <li key={t.id} className="flex items-center gap-2">
                 <svg aria-hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-kcal)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
@@ -116,7 +116,7 @@ export function RevueView({ today }: { today: string }) {
         {enRetard.length > 0 ? (
           <EnRetardSection taches={enRetard} today={today} />
         ) : (
-          <p className={`${card} text-[14px] text-ink-2`}>Rien en retard. Bien joué.</p>
+          <p className={`${card} text-label text-ink-2`}>Rien en retard. Bien joué.</p>
         )}
       </div>
 
@@ -139,22 +139,22 @@ export function RevueView({ today }: { today: string }) {
                   className="flex min-h-11 flex-col gap-1 rounded-xl bg-surface-alt px-3 py-2.5 transition active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
                 >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[13.5px] font-semibold capitalize text-ink">
+                  <span className="text-label font-semibold capitalize text-ink">
                     {format(parseISODate(jour.date), "EEEE d MMM", { locale: fr })}
                   </span>
                   {jour.charge && (
-                    <span className="rounded-full border border-line bg-surface px-2 py-0.5 text-[11px] font-semibold text-ink-2">
+                    <span className="rounded-full border border-line bg-surface px-2 py-0.5 text-micro font-semibold text-ink-2">
                       Journée chargée
                     </span>
                   )}
                   {!jour.charge && total > 0 && (
-                    <span className="text-[11.5px] tabular-nums text-ink-3">{libelleDuree(total)}</span>
+                    <span className="text-caption tabular-nums text-ink-3">{libelleDuree(total)}</span>
                   )}
                 </div>
                 {vide ? (
-                  <span className="text-[12.5px] text-ink-2">Libre</span>
+                  <span className="text-small text-ink-2">Libre</span>
                 ) : (
-                  <ul className="flex flex-col gap-0.5 text-[13px] text-ink-2">
+                  <ul className="flex flex-col gap-0.5 text-small text-ink-2">
                     {jour.evenements.map((e, i) => (
                       <li key={`${e.id}-${i}`} className="truncate">
                         <span className="tabular-nums">{e.toute_la_journee ? "Journée" : e.heure.slice(0, 5)}</span> {e.titre}
@@ -182,7 +182,7 @@ export function RevueView({ today }: { today: string }) {
         {sante ? (
           <SyntheseSemaine synthese={sante} lienBilan />
         ) : (
-          <Skeleton className="h-40 w-full rounded-[22px]" />
+          <Skeleton className="h-40 w-full rounded-card" />
         )}
       </section>
 
@@ -192,7 +192,7 @@ export function RevueView({ today }: { today: string }) {
             <h2 id="revue-sans-date" className={sectionTitle}>
               5. Sans date
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-ink-2">
+            <p className="mt-0.5 text-small text-ink-2">
               {sansDate === 1 ? "1 tâche n'a pas d'échéance" : `${sansDate} tâches n'ont pas d'échéance`} : à dater ou à
               abandonner.
             </p>

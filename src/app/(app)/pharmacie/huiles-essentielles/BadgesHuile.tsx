@@ -3,7 +3,7 @@ import { estComestible, libellePrecaution, type PharmaHuile } from "@/lib/pharma
 
 // Les alertes de sécurité ne reposent jamais sur la couleur seule : chaque
 // pastille porte une icône et un texte (WCAG 1.4.1).
-const base = "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold";
+const base = "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-micro font-semibold";
 const ok = `${base} bg-[color-mix(in_oklch,var(--accent-kcal)_14%,transparent)] text-[var(--accent-kcal)]`;
 const neutre = `${base} bg-surface-alt text-ink-2`;
 const alerte = `${base} bg-[color-mix(in_oklch,var(--accent-alert)_14%,transparent)] text-alert`;

@@ -47,7 +47,7 @@ export function DashboardTachesSection({ today }: { today: string }) {
         <motion.div whileTap={{ scale: 0.98 }}>
           <Link href="/taches" className="relative flex items-center justify-between after:absolute after:inset-x-0 after:-inset-y-2.5">
             <span
-              className="text-[14px] font-semibold text-ink"
+              className="text-label font-semibold text-ink"
               style={{ viewTransitionName: "taches-titre-dashboard" }}
             >
               Aujourd&apos;hui
@@ -67,7 +67,7 @@ export function DashboardTachesSection({ today }: { today: string }) {
         {isLoading ? (
           <ListItemSkeletonGroup count={3} />
         ) : tachesAffichees.length === 0 ? (
-          <p className="text-[13.5px] text-ink-2">Rien de prévu aujourd&apos;hui.</p>
+          <p className="text-label text-ink-2">Rien de prévu aujourd&apos;hui.</p>
         ) : (
           <div className="flex flex-col gap-2.5">
             <AnimatePresence mode="popLayout" initial={false}>
@@ -94,22 +94,22 @@ export function DashboardTachesSection({ today }: { today: string }) {
             <div className="flex h-[46px] w-[46px] shrink-0 flex-col items-center justify-center rounded-2xl bg-kcal-soft">
               {prochainEvenement ? (
                 <>
-                  <span className="font-display text-[14px] font-bold leading-none tabular-nums text-kcal">
+                  <span className="font-display text-label font-bold leading-none tabular-nums text-kcal">
                     {prochainEvenement.heure!.slice(0, 2)}
                   </span>
-                  <span className="text-[11px] font-semibold leading-none tabular-nums text-kcal">{prochainEvenement.heure!.slice(3, 5)}</span>
+                  <span className="text-micro font-semibold leading-none tabular-nums text-kcal">{prochainEvenement.heure!.slice(3, 5)}</span>
                 </>
               ) : (
-                <span className="font-display text-[14px] font-bold text-kcal">--</span>
+                <span className="font-display text-label font-bold text-kcal">--</span>
               )}
             </div>
             <div className="flex flex-1 flex-col gap-0.5 min-w-0">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-3">Prochain événement</span>
-              <span className="truncate text-[14px] font-semibold text-ink">
+              <span className="text-micro font-semibold uppercase tracking-wide text-ink-3">Prochain événement</span>
+              <span className="truncate text-label font-semibold text-ink">
                 {prochainEvenement ? prochainEvenement.titre : "Aucun événement"}
               </span>
               {prochainEvenement?.liste && (
-                <span className="truncate text-[12px] font-medium text-ink-2">{prochainEvenement.liste.nom}</span>
+                <span className="truncate text-caption font-medium text-ink-2">{prochainEvenement.liste.nom}</span>
               )}
             </div>
           </Link>

@@ -15,7 +15,7 @@ import {
 import { errorText, input, primaryButton } from "@/lib/ui";
 
 const ADD_PHOTO_BUTTON =
-  "flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-[13px] font-semibold text-kcal transition-colors hover:bg-kcal-soft";
+  "flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-small font-semibold text-kcal transition-colors hover:bg-kcal-soft";
 
 function CameraIcon() {
   return (

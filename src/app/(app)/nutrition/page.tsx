@@ -70,8 +70,8 @@ export default function NutritionHubPage() {
               {section.icon("var(--accent-kcal)")}
             </span>
             <div>
-              <p className="font-display text-[15px] font-semibold text-ink">{section.label}</p>
-              <p className="text-[12.5px] text-ink-2 text-pretty">{section.description}</p>
+              <p className="font-display text-body font-semibold text-ink">{section.label}</p>
+              <p className="text-small text-ink-2 text-pretty">{section.description}</p>
             </div>
           </Link>
         ))}

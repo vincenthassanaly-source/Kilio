@@ -85,7 +85,7 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
       />
       <div className="flex flex-1 items-center justify-between gap-2 min-w-0">
         <span
-          className="truncate text-[14px] font-medium"
+          className="truncate text-label font-medium"
           style={{
             color: fait ? "var(--ink-3)" : "var(--ink)",
             textDecoration: fait ? "line-through" : "none",
@@ -94,7 +94,7 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
           {titre}
         </span>
         {(detail ?? heure?.slice(0, 5)) && (
-          <span className="shrink-0 text-[11.5px] font-medium tabular-nums text-ink-3">{detail ?? heure?.slice(0, 5)}</span>
+          <span className="shrink-0 text-caption font-medium tabular-nums text-ink-3">{detail ?? heure?.slice(0, 5)}</span>
         )}
       </div>
     </div>

@@ -51,7 +51,7 @@ export function HuilesAccueil() {
                 <span aria-hidden className={addCardIcon}>
                   +
                 </span>
-                <span className="text-[15px] font-semibold text-ink">Ajouter une huile essentielle</span>
+                <span className="text-body font-semibold text-ink">Ajouter une huile essentielle</span>
               </button>
               {ajout && <HuileEditeur huiles={snapshot.huiles} onClose={() => setAjout(false)} />}
 
@@ -86,7 +86,7 @@ function Puce({ actif, onClick, children }: { actif: boolean; onClick: () => voi
       type="button"
       aria-pressed={actif}
       onClick={onClick}
-      className={`inline-flex min-h-10 items-center rounded-full border px-3.5 text-[13.5px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+      className={`inline-flex min-h-10 items-center rounded-full border px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
         actif ? "border-kcal bg-kcal text-on-kcal" : "border-line bg-surface text-ink-2"
       }`}
     >
@@ -132,7 +132,7 @@ function Liste({ snapshot, requete, filtres }: { snapshot: HuilesSnapshot; reque
 
   if (huiles.length === 0) {
     return (
-      <p className="text-[14.5px] text-ink-2" role="status">
+      <p className="text-body text-ink-2" role="status">
         Aucune huile ne correspond.
       </p>
     );
@@ -157,8 +157,8 @@ function LigneHuile({ huile }: { huile: PharmaHuile }) {
     <li>
       <TransitionLink href={`/pharmacie/huiles-essentielles/${huile.id}`} className={`${cardTight} flex flex-col gap-2`}>
         <span className="flex flex-col">
-          <span className="text-[15px] font-semibold text-ink">{huile.nom_fr}</span>
-          {huile.nom_latin && <span className="text-[13px] italic text-ink-2">{huile.nom_latin}</span>}
+          <span className="text-body font-semibold text-ink">{huile.nom_fr}</span>
+          {huile.nom_latin && <span className="text-small italic text-ink-2">{huile.nom_latin}</span>}
         </span>
         <BadgesListe huile={huile} />
       </TransitionLink>

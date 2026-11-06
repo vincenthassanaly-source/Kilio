@@ -103,7 +103,7 @@ export function RecetteMacros({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <p className="text-[13.5px] font-semibold text-ink">Portions consommées</p>
+        <p className="text-label font-semibold text-ink">Portions consommées</p>
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -134,7 +134,7 @@ export function RecetteMacros({
               {fmt(perPortion[chip.key] * count)}
               {chip.unit}
             </div>
-            <div className="mt-0.5 text-[11px] text-ink-3">{chip.label}</div>
+            <div className="mt-0.5 text-micro text-ink-3">{chip.label}</div>
           </div>
         ))}
       </div>
@@ -172,7 +172,7 @@ export function RecetteMacros({
           </button>
           {detailOpen && (
             <div className="overflow-hidden rounded-xl border border-line">
-              <table className="w-full text-[12.5px]">
+              <table className="w-full text-small">
                 <thead>
                   <tr className="border-b border-line bg-surface-alt text-ink-2">
                     <th className="px-2.5 py-1.5 text-left font-medium">Valeur nutritionnelle</th>

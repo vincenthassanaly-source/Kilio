@@ -86,7 +86,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                           {liee ? (
                             <TransitionLink
                               href={`/pharmacie/referentiel/medicament/${liee.id}`}
-                              className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3.5 text-[13.5px] font-semibold text-ink"
+                              className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3.5 text-label font-semibold text-ink"
                             >
                               {nom}
                             </TransitionLink>
@@ -112,8 +112,8 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                         key={specialite.id}
                         className="flex items-baseline justify-between gap-3 border-t border-line px-4 py-3 first:border-t-0"
                       >
-                        <span className="text-[14.5px] font-semibold text-ink">{specialite.nom}</span>
-                        {specialite.dosages && <span className="text-right text-[12.5px] text-ink-2">{specialite.dosages}</span>}
+                        <span className="text-body font-semibold text-ink">{specialite.nom}</span>
+                        {specialite.dosages && <span className="text-right text-small text-ink-2">{specialite.dosages}</span>}
                       </li>
                     ))}
                   </ul>
@@ -144,7 +144,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                       <li key={pathologie.id}>
                         <TransitionLink
                           href={`/pharmacie/referentiel/pathologie/${pathologie.id}`}
-                          className={`${cardTight} block text-[14.5px] font-semibold text-ink`}
+                          className={`${cardTight} block text-body font-semibold text-ink`}
                         >
                           {pathologie.nom}
                         </TransitionLink>

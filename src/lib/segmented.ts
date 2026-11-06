@@ -9,7 +9,7 @@ const FOCUS =
 
 export function segmentClasse(actif: boolean, taille: "md" | "sm" = "md") {
   return `relative flex min-h-11 flex-1 items-center justify-center rounded-xl px-1 text-center ${
-    taille === "sm" ? "text-[13px]" : "text-[13.5px]"
+    taille === "sm" ? "text-small" : "text-label"
   } font-semibold transition-colors ${FOCUS} ${actif ? "bg-kcal text-on-kcal" : "text-ink-2 hover:text-ink"}`;
 }
 

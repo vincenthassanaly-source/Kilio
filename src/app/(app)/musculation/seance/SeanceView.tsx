@@ -130,7 +130,7 @@ export function SeanceView() {
     return (
       <div className="flex flex-col gap-4">
         <Skeleton className="h-9 w-3/4" />
-        <Skeleton className="h-64 w-full rounded-[22px]" />
+        <Skeleton className="h-64 w-full rounded-card" />
       </div>
     );
   }
@@ -220,10 +220,10 @@ export function SeanceView() {
           </span>
         </div>
         <div className="flex shrink-0 gap-2">
-          <button type="button" className={`${secondaryButton} h-11 !py-0 text-[14px]`} onClick={() => setConfirmation("abandonner")}>
+          <button type="button" className={`${secondaryButton} h-11 !py-0 text-label`} onClick={() => setConfirmation("abandonner")}>
             Quitter
           </button>
-          <button type="button" className={`${primaryButton} h-11 !py-0 text-[14px]`} onClick={demanderFin} disabled={envoi}>
+          <button type="button" className={`${primaryButton} h-11 !py-0 text-label`} onClick={demanderFin} disabled={envoi}>
             Terminer
           </button>
         </div>
@@ -241,7 +241,7 @@ export function SeanceView() {
                   type="button"
                   aria-pressed={actif}
                   onClick={() => maj((courant) => ({ ...courant, typeSeance: actif ? null : type }))}
-                  className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                  className={`rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                     actif ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                   }`}
                 >

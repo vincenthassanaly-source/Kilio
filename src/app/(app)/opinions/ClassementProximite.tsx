@@ -3,7 +3,7 @@ import { varCouleurParti } from "@/lib/opinions/couleurs";
 import { metaText, pillTag } from "@/lib/ui";
 import { PastilleParti } from "./CouleursOpinions";
 
-const LIGNE = "flex flex-col gap-2 rounded-[20px] border border-line bg-surface p-3.5 shadow-card";
+const LIGNE = "flex flex-col gap-2 rounded-row border border-line bg-surface p-3.5 shadow-card";
 // Sous ce seuil, la proximité repose sur une petite part de mes positions.
 const COUVERTURE_PARTIELLE = 0.5;
 
@@ -29,12 +29,12 @@ export function ClassementProximite({ classement, aDesIdees }: { classement: rea
             return (
               <li key={parti.id} className={LIGNE}>
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="flex min-w-0 items-center gap-2 text-[15px] font-semibold text-ink">
+                  <span className="flex min-w-0 items-center gap-2 text-body font-semibold text-ink">
                     <span className="tabular-nums text-ink-3">{index + 1}.</span>
                     <PastilleParti couleur={parti.couleur} />
                     {libelleParti(parti)}
                   </span>
-                  <span className="shrink-0 text-[15px] font-bold tabular-nums text-ink">{proximite.pourcentage} %</span>
+                  <span className="shrink-0 text-body font-bold tabular-nums text-ink">{proximite.pourcentage} %</span>
                 </div>
                 <div className="h-2 rounded-full bg-surface-alt" role="presentation">
                   <div

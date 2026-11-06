@@ -196,7 +196,7 @@ export function ObjectifForm({
             habitudesActives.map((h) => (
               // key change quand les liens existants arrivent : remonte la case
               // avec le bon defaultChecked (champ non contrôlé).
-              <label key={`${h.id}-${idsLies ? "l" : "n"}`} className="flex items-center gap-2 text-[15px] text-ink">
+              <label key={`${h.id}-${idsLies ? "l" : "n"}`} className="flex items-center gap-2 text-body text-ink">
                 <input
                   type="checkbox"
                   name="habitude_ids"

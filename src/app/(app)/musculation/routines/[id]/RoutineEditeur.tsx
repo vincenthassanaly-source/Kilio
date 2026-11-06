@@ -134,7 +134,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
   }
 
   const chip = (actif: boolean) =>
-    `rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+    `rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
       actif ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
     }`;
 
@@ -189,7 +189,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
         const champs = CHAMPS_PAR_MODE[exercice.mode];
         const colonnes = ["44px", ...champs.map(() => "minmax(0,1fr)")].join(" ");
         const repos = exercice.reposS ?? exercice.reposExerciceS ?? REPOS_PAR_DEFAUT_AFFICHE_S;
-        const entete = "text-center text-[12px] font-semibold uppercase tracking-wide text-ink-3";
+        const entete = "text-center text-caption font-semibold uppercase tracking-wide text-ink-3";
         return (
           <section key={`${exercice.exerciceId}-${index}`} className={`${card} flex flex-col gap-3`} aria-label={exercice.nom}>
             <header className="flex items-center gap-2">
@@ -207,11 +207,11 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
             </header>
 
             <div className="flex items-center gap-2">
-              <span className="mr-auto text-[13px] font-medium text-ink-2">Repos</span>
+              <span className="mr-auto text-small font-medium text-ink-2">Repos</span>
               <button type="button" className={ghostButton} onClick={() => surExercice(index, (e) => ({ ...e, reposS: Math.max(0, repos - 15) }))} aria-label="Retirer 15 secondes de repos">
                 −15 s
               </button>
-              <span className="min-w-[44px] text-center text-[14px] font-semibold tabular-nums text-ink">{formaterMinutes(repos)}</span>
+              <span className="min-w-[44px] text-center text-label font-semibold tabular-nums text-ink">{formaterMinutes(repos)}</span>
               <button type="button" className={ghostButton} onClick={() => surExercice(index, (e) => ({ ...e, reposS: Math.min(1800, repos + 15) }))} aria-label="Ajouter 15 secondes de repos">
                 +15 s
               </button>
@@ -239,7 +239,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                         aria-expanded={ouvert}
                         aria-label={`Type de la série ${rang + 1} : ${TYPE_SERIE_LABELS[serie.type]}`}
                         onClick={() => setTypeOuvert(ouvert ? null : cleType)}
-                        className={`h-12 rounded-xl bg-surface-alt text-center text-[14px] font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                        className={`h-12 rounded-xl bg-surface-alt text-center text-label font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                           serie.type === "normale" ? "text-ink-2" : "text-kcal"
                         }`}
                       >
@@ -274,7 +274,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                               surSerie(index, rang, { type });
                               setTypeOuvert(null);
                             }}
-                            className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                            className={`rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                               serie.type === type ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                             }`}
                           >
@@ -291,7 +291,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
             <div className="flex gap-2">
               <button
                 type="button"
-                className={`${secondaryButton} h-11 flex-1 !py-0 text-[14px]`}
+                className={`${secondaryButton} h-11 flex-1 !py-0 text-label`}
                 onClick={() => surExercice(index, (e) => ({ ...e, series: [...e.series, e.series.at(-1) ? { ...e.series.at(-1)! } : serieVide()] }))}
                 disabled={exercice.series.length >= NB_SERIES_EXERCICE_MAX}
               >
@@ -299,7 +299,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
               </button>
               <button
                 type="button"
-                className={`${secondaryButton} h-11 flex-1 !py-0 text-[14px]`}
+                className={`${secondaryButton} h-11 flex-1 !py-0 text-label`}
                 onClick={() => surExercice(index, (e) => ({ ...e, series: e.series.slice(0, -1) }))}
                 disabled={exercice.series.length <= 1}
               >
@@ -372,7 +372,7 @@ export function RoutineEditeur({ routineId }: { routineId: string | null }) {
     return (
       <div className="flex flex-col gap-4">
         <Skeleton className="h-9 w-2/3" />
-        <Skeleton className="h-48 w-full rounded-[22px]" />
+        <Skeleton className="h-48 w-full rounded-card" />
       </div>
     );
   }

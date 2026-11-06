@@ -55,7 +55,7 @@ export function BilanHebdoRow({ reglages }: { reglages: Tables<"reglages_briefin
   return (
     <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+        <span className="flex items-center gap-2.5 text-label font-medium text-ink">
           <span
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
             style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
@@ -70,14 +70,14 @@ export function BilanHebdoRow({ reglages }: { reglages: Tables<"reglages_briefin
           label="Notification du bilan de la semaine"
         />
       </div>
-      <p className="text-[12.5px] leading-snug text-ink-2">
+      <p className="text-small leading-snug text-ink-2">
         {etat.actif
           ? "Une fois par semaine, une notification résume tes kcal moyens, tes séances, ton poids et ton tour de taille. Nécessite les notifications ci-dessus."
           : "Désactivé : aucun bilan envoyé (il reste visible dans Nutrition › Bilan)."}
       </p>
       {etat.actif && (
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="jour-bilan" className="text-[13px] text-ink-2">
+          <label htmlFor="jour-bilan" className="text-small text-ink-2">
             Jour et heure
           </label>
           <div className="flex items-center gap-2">

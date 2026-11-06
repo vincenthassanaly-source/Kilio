@@ -6,7 +6,7 @@ export default function StatsLoading() {
     <div className="flex flex-col gap-4">
       <h1 className={screenTitle}>Statistiques</h1>
       <Skeleton className="h-11 w-full rounded-2xl" />
-      <Skeleton className="h-40 w-full rounded-[22px]" />
+      <Skeleton className="h-40 w-full rounded-card" />
     </div>
   );
 }
