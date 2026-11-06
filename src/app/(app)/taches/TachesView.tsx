@@ -277,7 +277,7 @@ export function TachesView() {
           }`}
         >
           <span className="h-[9px] w-[9px] rounded-full" style={{ background: "var(--color-kcal)" }} />
-          <span className="text-[13.5px] font-semibold text-ink">Toutes</span>
+          <span className="text-label font-semibold text-ink">Toutes</span>
         </button>
         {listes.map((liste) => (
           <button
@@ -289,7 +289,7 @@ export function TachesView() {
             }`}
           >
             <span className="h-[9px] w-[9px] rounded-full" style={{ background: liste.couleur ?? "var(--color-kcal)" }} />
-            <span className="text-[13.5px] font-semibold text-ink">{liste.nom}</span>
+            <span className="text-label font-semibold text-ink">{liste.nom}</span>
           </button>
         ))}
       </div>
@@ -325,7 +325,7 @@ export function TachesView() {
                 type="button"
                 aria-pressed={actif}
                 onClick={() => basculerPriorite(f.value)}
-                className={`relative after:absolute after:inset-x-0 after:-inset-y-1 min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-[12.5px] font-semibold transition-colors ${
+                className={`relative after:absolute after:inset-x-0 after:-inset-y-1 min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-small font-semibold transition-colors ${
                   actif ? "border-kcal bg-kcal-soft text-ink" : "border-line bg-surface text-ink-2"
                 }`}
               >
@@ -384,7 +384,7 @@ export function TachesView() {
       ) : etatListe === "erreur" ? (
         <ErrorInline message="Impossible de charger les tâches." retry={() => refetchTaches()} />
       ) : recherche.trim() && filtered.length === 0 ? (
-        <p className="py-6 text-center text-[13.5px] text-ink-2">
+        <p className="py-6 text-center text-label text-ink-2">
           Aucune tâche ne correspond à « {recherche.trim()} ».
         </p>
       ) : (

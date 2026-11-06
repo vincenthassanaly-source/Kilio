@@ -75,7 +75,7 @@ function Resultats({ snapshot, requete }: { snapshot: PharmaRefSnapshot; requete
 
   if (resultats.length === 0) {
     return (
-      <p className="text-[14.5px] text-ink-2" role="status">
+      <p className="text-body text-ink-2" role="status">
         Rien ne correspond à « {requete.trim()} ».
       </p>
     );
@@ -86,9 +86,9 @@ function Resultats({ snapshot, requete }: { snapshot: PharmaRefSnapshot; requete
       {resultats.map((r) => (
         <li key={`${r.type}-${r.id}`}>
           <TransitionLink href={hrefResultat(r)} className={`${cardTight} flex flex-col gap-0.5`}>
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-3">{ETIQUETTE_TYPE[r.type]}</span>
-            <span className="text-[14.5px] font-semibold text-ink">{r.titre}</span>
-            {r.detail && <span className="text-[13px] text-ink-2">{r.detail}</span>}
+            <span className="text-micro font-semibold uppercase tracking-wide text-ink-3">{ETIQUETTE_TYPE[r.type]}</span>
+            <span className="text-body font-semibold text-ink">{r.titre}</span>
+            {r.detail && <span className="text-small text-ink-2">{r.detail}</span>}
           </TransitionLink>
         </li>
       ))}
@@ -112,7 +112,7 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
                   href={`/pharmacie/referentiel/pathologie/${pathologie.id}`}
                   className={`${cardTight} flex items-baseline justify-between gap-3`}
                 >
-                  <span className="text-[14.5px] font-semibold text-ink">{pathologie.nom}</span>
+                  <span className="text-body font-semibold text-ink">{pathologie.nom}</span>
                   <span className={`${eyebrow} shrink-0 font-normal`}>{pluriel(profils.length, "profil")}</span>
                 </TransitionLink>
               </li>
@@ -135,7 +135,7 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
                     {racine.nom}
                   </>
                 }
-                titreClassName="text-[13px] font-semibold text-[var(--classe)]"
+                titreClassName="text-small font-semibold text-[var(--classe)]"
                 compteur={classes.length}
                 style={styleClasse(snapshot, racine)}
               >
@@ -146,8 +146,8 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
                         href={`/pharmacie/referentiel/classe/${classe.id}`}
                         className="relative flex min-h-11 items-center justify-between gap-3 border-t border-line py-2 first:border-t-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
                       >
-                        <span className="text-[14.5px] font-medium text-ink">{classe.nom}</span>
-                        <span className="shrink-0 text-[12px] text-ink-2">{nbMoleculesDeClasse(snapshot, classe.id)}</span>
+                        <span className="text-body font-medium text-ink">{classe.nom}</span>
+                        <span className="shrink-0 text-caption text-ink-2">{nbMoleculesDeClasse(snapshot, classe.id)}</span>
                       </TransitionLink>
                     </li>
                   ))}
@@ -165,7 +165,7 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
               key={initiale}
               id={`ref-az-${initiale}`}
               titre={initiale}
-              titreClassName="text-[15px] font-semibold text-ink"
+              titreClassName="text-body font-semibold text-ink"
               compteur={molecules.length}
             >
               <ul className="flex flex-col">
@@ -173,7 +173,7 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
                   <li key={molecule.id} style={styleClasse(snapshot, classeParId(snapshot, molecule.classe_id))}>
                     <TransitionLink
                       href={`/pharmacie/referentiel/medicament/${molecule.id}`}
-                      className="flex min-h-11 items-center gap-2.5 px-4 py-2 text-[14.5px] text-ink border-t border-line first:border-t-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                      className="flex min-h-11 items-center gap-2.5 px-4 py-2 text-body text-ink border-t border-line first:border-t-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
                     >
                       <span aria-hidden className="size-2 shrink-0 rounded-full bg-[var(--classe)]" />
                       {molecule.dci}

@@ -245,7 +245,7 @@ export function TitrageModal({
                     </label>
                   )}
                   <Miniature element={ligne.element} />
-                  <p className="min-w-0 flex-1 truncate text-[12.5px] text-ink-3">
+                  <p className="min-w-0 flex-1 truncate text-small text-ink-3">
                     {libelleNature(ligne.element.type)}
                     {ligne.element.titre ? ` · Avant : ${ligne.element.titre}` : ""}
                   </p>

@@ -61,8 +61,8 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
   if (total === 0) {
     return (
       <div className={`${card} flex flex-col gap-1`} role="status">
-        <p className="text-[15px] font-bold text-ink">Rien à réviser</p>
-        <p className="text-[14px] text-ink-2">Toutes tes cartes sont à jour. Reviens plus tard.</p>
+        <p className="text-body font-bold text-ink">Rien à réviser</p>
+        <p className="text-label text-ink-2">Toutes tes cartes sont à jour. Reviens plus tard.</p>
       </div>
     );
   }
@@ -72,7 +72,7 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
       <div className={`${card} flex flex-col gap-4`} role="status">
         <div>
           <p className="font-display text-[22px] font-bold text-ink">Séance terminée</p>
-          <p className="text-[14px] text-ink-2">
+          <p className="text-label text-ink-2">
             {fait} carte{fait > 1 ? "s" : ""} revue{fait > 1 ? "s" : ""}.
           </p>
         </div>
@@ -80,7 +80,7 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
           {NOTES_REVISION.map((note) => (
             <li key={note} className="rounded-2xl bg-surface-alt px-1 py-2">
               <p className="font-display text-[18px] font-bold text-ink">{bilan[note]}</p>
-              <p className="text-[11px] font-semibold text-ink-2">{LIBELLES[note]}</p>
+              <p className="text-micro font-semibold text-ink-2">{LIBELLES[note]}</p>
             </li>
           ))}
         </ul>
@@ -121,14 +121,14 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
 
   return (
     <section className="flex flex-col gap-4" aria-label="Carte de révision">
-      <div className="flex items-center justify-between text-[12.5px] font-semibold text-ink-3">
+      <div className="flex items-center justify-between text-small font-semibold text-ink-3">
         <span>
           {fait} / {total}
         </span>
         <span aria-live="polite">{file.length} restante{file.length > 1 ? "s" : ""}</span>
       </div>
 
-      <div className={`${card} flex min-h-[220px] flex-col justify-center gap-4 rounded-[24px] p-6`}>
+      <div className={`${card} flex min-h-[220px] flex-col justify-center gap-4 rounded-hero p-6`}>
         <ContenuColore
           contenu={carteCourante.question}
           className="whitespace-pre-line text-[17px] font-semibold leading-snug text-ink text-balance"
@@ -137,7 +137,7 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
           <div className="border-t border-line pt-4">
             <ContenuColore
               contenu={carteCourante.reponse}
-              className="whitespace-pre-line text-[15px] leading-[1.55] text-ink"
+              className="whitespace-pre-line text-body leading-[1.55] text-ink"
             />
           </div>
         )}
@@ -150,10 +150,10 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
               <button
                 type="button"
                 onClick={() => noter(note)}
-                className={`${note === "bien" ? primaryButton : secondaryButton} flex min-h-14 w-full flex-col items-center justify-center px-1 py-2 text-[13px] leading-tight`}
+                className={`${note === "bien" ? primaryButton : secondaryButton} flex min-h-14 w-full flex-col items-center justify-center px-1 py-2 text-small leading-tight`}
               >
                 <span>{LIBELLES[note]}</span>
-                <span className={`text-[11px] font-medium ${note === "bien" ? "opacity-80" : "text-ink-2"}`}>
+                <span className={`text-micro font-medium ${note === "bien" ? "opacity-80" : "text-ink-2"}`}>
                   {formaterDelai(prochainEtatCarte(carteCourante, note, new Date()))}
                 </span>
               </button>

@@ -10,7 +10,7 @@ import { PlanifierPanneau } from "./PlanifierPanneau";
 
 // Pastille « Planifier » : 36 px visibles, zone de tap étendue à 44 px.
 const pastillePlanifier =
-  "relative min-h-9 shrink-0 rounded-full border border-line bg-surface-alt px-3 text-[12.5px] font-semibold text-ink transition-colors hover:border-kcal/60 active:scale-[0.97] after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "relative min-h-9 shrink-0 rounded-full border border-line bg-surface-alt px-3 text-small font-semibold text-ink transition-colors hover:border-kcal/60 active:scale-[0.97] after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 function Ligne({
   tache,
@@ -97,11 +97,11 @@ export function TachesDuJour({
   return (
     <section aria-labelledby="aujourdhui-taches" className={`${card} flex flex-col gap-3`}>
       <div className="flex items-center justify-between gap-2">
-        <h2 id="aujourdhui-taches" className="text-[15px] font-semibold tracking-[-0.01em] text-ink">
+        <h2 id="aujourdhui-taches" className="text-body font-semibold tracking-[-0.01em] text-ink">
           Tâches
         </h2>
         {taches.length > 0 && (
-          <span className="text-[12.5px] font-medium tabular-nums text-ink-2">
+          <span className="text-small font-medium tabular-nums text-ink-2">
             {faites.length}/{taches.length} faites
           </span>
         )}
@@ -110,9 +110,9 @@ export function TachesDuJour({
       <AjoutRapideTache today={today} onCreated={onTacheCreee} />
 
       {taches.length === 0 ? (
-        <p className="text-[13.5px] text-ink-2">Rien de prévu aujourd&apos;hui.</p>
+        <p className="text-label text-ink-2">Rien de prévu aujourd&apos;hui.</p>
       ) : aFaire.length === 0 ? (
-        <p className="text-[13.5px] text-ink-2">Tout est fait pour aujourd&apos;hui.</p>
+        <p className="text-label text-ink-2">Tout est fait pour aujourd&apos;hui.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {aFaire.map((t) => (
@@ -131,7 +131,7 @@ export function TachesDuJour({
 
       {faites.length > 0 && (
         <details className="group">
-          <summary className="flex min-h-11 cursor-pointer items-center text-[13px] font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
+          <summary className="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
             Faites ({faites.length})
           </summary>
           <ul className="flex flex-col gap-2.5">

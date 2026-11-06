@@ -81,7 +81,7 @@ export function ListView({
                     onClick={() => onSelectEvenement?.(evenement)}
                     disabled={!onSelectEvenement}
                     aria-label={`Événement ${evenement.titre}, ${libellePlage(evenement.heure, evenement.heure_fin)}. Modifier`}
-                    className="flex min-h-11 w-full items-center gap-2 rounded-xl bg-agenda px-3 py-2 text-left text-[14px] font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                    className="flex min-h-11 w-full items-center gap-2 rounded-xl bg-agenda px-3 py-2 text-left text-label font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
                   >
                     <span className="tabular-nums">{libellePlage(evenement.heure, evenement.heure_fin)}</span>
                     <span className="truncate">{evenement.titre}</span>

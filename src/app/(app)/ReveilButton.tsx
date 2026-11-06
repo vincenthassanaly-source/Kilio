@@ -114,7 +114,7 @@ function ContenuReveil({ etat, onRetry }: { etat: Etat; onRetry: () => void }) {
     return (
       <div className="flex flex-col gap-3 pb-1" role="alert">
         <p className={errorText}>{etat.message}</p>
-        {etat.detail && <p className="text-[13px] break-words text-ink-2">{etat.detail}</p>}
+        {etat.detail && <p className="text-small break-words text-ink-2">{etat.detail}</p>}
         <button type="button" onClick={onRetry} className={secondaryButton}>
           Réessayer
         </button>
@@ -156,7 +156,7 @@ function ContenuReveil({ etat, onRetry }: { etat: Etat; onRetry: () => void }) {
               </span>
               <span className="flex flex-col items-end gap-1 text-right">
                 {recommande && <span className={kcalPillTag}>Idéal</span>}
-                <span className="text-[13px] font-medium text-ink-2 tabular-nums">
+                <span className="text-small font-medium text-ink-2 tabular-nums">
                   {p.cycles} cycles · {formaterDuree(p.dureeSommeilMin)} de sommeil
                 </span>
               </span>

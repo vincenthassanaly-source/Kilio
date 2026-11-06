@@ -32,7 +32,7 @@ export function BoutonAssistantRevue({ mode, libelle }: { mode: ModeAssistantRev
             <EtincelleIcon size={20} />
           </span>
           <span className="flex min-w-0 flex-col">
-            <span className="text-[15px] font-semibold text-ink">{libelle}</span>
+            <span className="text-body font-semibold text-ink">{libelle}</span>
             <span className="text-sm text-ink-2">Bilan global et pistes, avec l&apos;IA</span>
           </span>
         </button>

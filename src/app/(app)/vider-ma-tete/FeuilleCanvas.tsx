@@ -328,7 +328,7 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
   return (
     <div
       ref={conteneurRef}
-      className="relative w-full overflow-hidden rounded-[22px] border border-line bg-surface shadow-card"
+      className="relative w-full overflow-hidden rounded-card border border-line bg-surface shadow-card"
       style={{
         height: hauteur * echelle,
         backgroundImage:

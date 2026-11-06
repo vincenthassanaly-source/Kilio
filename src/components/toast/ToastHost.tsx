@@ -41,7 +41,7 @@ export function ToastHost() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.96 }}
               transition={{ duration: reduceMotion ? 0 : 0.18 }}
-              className="pointer-events-auto flex max-w-[90vw] items-center gap-1 rounded-full border border-line bg-surface py-1 pl-4 pr-1 text-[13px] font-medium text-ink shadow-card"
+              className="pointer-events-auto flex max-w-[90vw] items-center gap-1 rounded-full border border-line bg-surface py-1 pl-4 pr-1 text-small font-medium text-ink shadow-card"
             >
               <span className="truncate">{toast.text}</span>
               <button
@@ -67,7 +67,7 @@ export function ToastHost() {
               onClick={() => dismissToast(toast.id)}
               aria-label={`${toast.text} — appuyer pour masquer`}
               role={toast.tone === "error" ? "alert" : undefined}
-              className={`pointer-events-auto flex max-w-[90vw] items-center gap-2 rounded-full border bg-surface px-4 py-2 text-left text-[13px] font-medium text-ink shadow-card ${
+              className={`pointer-events-auto flex max-w-[90vw] items-center gap-2 rounded-full border bg-surface px-4 py-2 text-left text-small font-medium text-ink shadow-card ${
                 toast.tone === "error" ? "border-alert/40" : "border-line"
               }`}
             >

@@ -71,7 +71,7 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
                           href={`/pharmacie/referentiel/classe/${enfant.id}`}
                           className={`${cardTight} flex items-baseline justify-between gap-3`}
                         >
-                          <span className="text-[14.5px] font-semibold text-ink">{enfant.nom}</span>
+                          <span className="text-body font-semibold text-ink">{enfant.nom}</span>
                           <span className={`${eyebrow} shrink-0 font-normal`}>
                             {pluriel(nbMoleculesDeClasse(snapshot, enfant.id), "molécule")}
                           </span>
@@ -96,13 +96,13 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
                             href={`/pharmacie/referentiel/medicament/${molecule.id}`}
                             className={`${cardTight} flex flex-col gap-0.5`}
                           >
-                            <span className="flex items-center gap-2 text-[14.5px] font-semibold text-ink">
+                            <span className="flex items-center gap-2 text-body font-semibold text-ink">
                               <span aria-hidden className="size-2 shrink-0 rounded-full bg-[var(--classe)]" />
                               {molecule.dci}
                             </span>
-                            {marques.length > 0 && <span className="text-[13px] text-ink-2">{marques.join(" · ")}</span>}
+                            {marques.length > 0 && <span className="text-small text-ink-2">{marques.join(" · ")}</span>}
                             {molecule.indications.length > 0 && (
-                              <span className="line-clamp-1 text-[12.5px] text-ink-3">{molecule.indications.join(" · ")}</span>
+                              <span className="line-clamp-1 text-small text-ink-3">{molecule.indications.join(" · ")}</span>
                             )}
                           </TransitionLink>
                         </li>
@@ -122,7 +122,7 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
                       <li key={pathologie.id}>
                         <TransitionLink
                           href={`/pharmacie/referentiel/pathologie/${pathologie.id}`}
-                          className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3.5 text-[13.5px] font-semibold text-ink"
+                          className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3.5 text-label font-semibold text-ink"
                         >
                           {pathologie.nom}
                         </TransitionLink>

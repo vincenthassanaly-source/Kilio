@@ -71,13 +71,13 @@ function Chapitre({
             <button
               type="button"
               onClick={() => setSommaireOuvert(true)}
-              className={`${secondaryButton} shrink-0 px-3 py-1.5 text-[13px]`}
+              className={`${secondaryButton} shrink-0 px-3 py-1.5 text-small`}
             >
               Sommaire
             </button>
           )}
         </div>
-        <p className="text-[12.5px] text-ink-3">{pluriel(notions.length, "notion")}</p>
+        <p className="text-small text-ink-3">{pluriel(notions.length, "notion")}</p>
       </div>
 
       {notions.length === 0 ? (
@@ -87,11 +87,11 @@ function Chapitre({
           {notions.map((notion) => (
             <article key={notion.id} id={`notion-${notion.id}`} className="scroll-mt-20 py-4 first:pt-2 last:pb-2">
               <div className="flex items-start justify-between gap-3">
-                <h2 className="text-[15px] font-bold text-ink text-balance">{notion.titre}</h2>
+                <h2 className="text-body font-bold text-ink text-balance">{notion.titre}</h2>
                 <button
                   type="button"
                   onClick={() => setEnEdition(notion)}
-                  className={`${linkButton} shrink-0 text-[13px]`}
+                  className={`${linkButton} shrink-0 text-small`}
                   aria-label={`Modifier la notion ${notion.titre}`}
                 >
                   Modifier
@@ -123,7 +123,7 @@ function Chapitre({
                   <button
                     type="button"
                     onClick={() => allerA(notion.id)}
-                    className="flex min-h-11 w-full items-center text-left text-[14.5px] font-semibold text-ink"
+                    className="flex min-h-11 w-full items-center text-left text-body font-semibold text-ink"
                   >
                     {notion.titre}
                   </button>

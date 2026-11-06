@@ -20,7 +20,7 @@ async function CategoriesListe() {
 function CategoriesListeSkeleton() {
   return (
     <div className="flex flex-col gap-4">
-      <Skeleton className="h-16 w-full rounded-[22px]" />
+      <Skeleton className="h-16 w-full rounded-card" />
       <ListItemSkeletonGroup count={4} withSubtitle />
     </div>
   );

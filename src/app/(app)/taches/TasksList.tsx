@@ -195,7 +195,7 @@ function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
                 hitSlop={1}
               />
               <span
-                className={`ml-1 min-w-0 flex-1 break-words text-[13.5px] ${
+                className={`ml-1 min-w-0 flex-1 break-words text-label ${
                   sousTache.fait ? "text-ink-2 line-through" : "text-ink"
                 }`}
               >
@@ -525,7 +525,7 @@ export const TaskCard = memo(function TaskCard({
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex min-w-0 items-start justify-between gap-2">
             <p
-              className={`min-w-0 flex-1 whitespace-normal break-words text-[14.5px] font-semibold text-ink ${tache.fait ? "text-ink-2 line-through" : ""}`}
+              className={`min-w-0 flex-1 whitespace-normal break-words text-body font-semibold text-ink ${tache.fait ? "text-ink-2 line-through" : ""}`}
             >
               {tache.titre}
             </p>
@@ -544,7 +544,7 @@ export const TaskCard = memo(function TaskCard({
             )}
             {tache.priorite !== "aucune" && (
               <span
-                className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${PRIORITE_BADGE[tache.priorite]}`}
+                className={`shrink-0 rounded-full px-2.5 py-1 text-micro font-semibold ${PRIORITE_BADGE[tache.priorite]}`}
               >
                 {PRIORITE_LABELS[tache.priorite]}
               </span>
@@ -578,7 +578,7 @@ export const TaskCard = memo(function TaskCard({
           </div>
 
           {tache.notes && (
-            <p className="whitespace-pre-wrap text-[13px] text-ink-2">{tache.notes}</p>
+            <p className="whitespace-pre-wrap text-small text-ink-2">{tache.notes}</p>
           )}
 
           {tache.echeance && (
@@ -870,7 +870,7 @@ export function TasksList({
         ))}
       {archivees.length > 0 && (
         <details className={`${card} mt-2.5`}>
-          <summary className="cursor-pointer text-[14.5px] font-semibold text-ink-2">
+          <summary className="cursor-pointer text-body font-semibold text-ink-2">
             Tâches archivées ({archivees.length})
           </summary>
           <ul className="mt-2.5 flex flex-col gap-2.5">

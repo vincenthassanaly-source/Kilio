@@ -44,7 +44,7 @@ function champsDe(huile?: PharmaHuile): HuileChamps {
 function Groupe({ titre, children }: { titre: string; children: ReactNode }) {
   return (
     <fieldset className="flex min-w-0 flex-col gap-3 border-t border-line pt-3.5 first:border-t-0 first:pt-0">
-      <legend className="mb-0.5 text-[13px] font-semibold uppercase tracking-wide text-ink-3">{titre}</legend>
+      <legend className="mb-0.5 text-small font-semibold uppercase tracking-wide text-ink-3">{titre}</legend>
       {children}
     </fieldset>
   );
@@ -60,8 +60,8 @@ function Case({ libelle, detail, cochee, onChange }: { libelle: string; detail?:
         className="size-5 shrink-0 accent-[var(--accent-kcal)]"
       />
       <span className="flex flex-col">
-        <span className="text-[14.5px] font-medium text-ink">{libelle}</span>
-        {detail && <span className="text-[12.5px] text-ink-2">{detail}</span>}
+        <span className="text-body font-medium text-ink">{libelle}</span>
+        {detail && <span className="text-small text-ink-2">{detail}</span>}
       </span>
     </label>
   );

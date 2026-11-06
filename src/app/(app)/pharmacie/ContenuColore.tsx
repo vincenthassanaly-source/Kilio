@@ -48,7 +48,7 @@ export function IconeNiveau({ niveau, taille = 16 }: { niveau: Niveau; taille?: 
  */
 export function ContenuColore({
   contenu,
-  className = "whitespace-pre-line text-[14.5px] leading-[1.55] text-ink",
+  className = "whitespace-pre-line text-body leading-[1.55] text-ink",
   titresSections = false,
 }: {
   contenu: string;
@@ -133,14 +133,14 @@ function ContenuSections({ elements, className }: { elements: ElementContenu[]; 
             className="flex flex-col gap-2 rounded-xl border-l-4 py-2.5 pl-3 pr-3"
             style={styleNiveau(el.niveau)}
           >
-            <h3 className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-ink">
+            <h3 className="flex items-center gap-2 text-small font-bold uppercase tracking-wide text-ink">
               <IconeNiveau niveau={el.niveau} />
               {el.titre}
             </h3>
             <ul className="flex flex-col gap-1.5">
               {el.lignes.map((ligne, j) =>
                 ligne.sousTitre ? (
-                  <li key={j} className="mt-1 text-[13.5px] font-semibold text-ink-2 first:mt-0">
+                  <li key={j} className="mt-1 text-label font-semibold text-ink-2 first:mt-0">
                     {ligne.texte}
                   </li>
                 ) : (

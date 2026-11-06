@@ -97,7 +97,7 @@ export function NettoyageAutoRow({ reglages }: { reglages: Tables<"reglages_nett
   return (
     <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+        <span className="flex items-center gap-2.5 text-label font-medium text-ink">
           <span
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
             style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
@@ -108,14 +108,14 @@ export function NettoyageAutoRow({ reglages }: { reglages: Tables<"reglages_nett
         </span>
         <Switch checked={actif} onToggle={toggle} label="Nettoyage automatique des éléments terminés" />
       </div>
-      <p className="text-[12.5px] leading-snug text-ink-2">
+      <p className="text-small leading-snug text-ink-2">
         {actif
           ? `Chaque jour, supprime définitivement ce qui est terminé depuis plus de ${delaiAffiche} jour${delaiAffiche > 1 ? "s" : ""} : tâches, sous-tâches, étapes d'objectif, courses et items de notes.`
           : "Désactivé : rien n'est supprimé automatiquement."}
       </p>
       {actif && (
         <div className="flex items-center justify-between gap-2">
-          <label htmlFor="delai-nettoyage" className="text-[13px] text-ink-2">
+          <label htmlFor="delai-nettoyage" className="text-small text-ink-2">
             Supprimer les items faits après (jours)
           </label>
           <input

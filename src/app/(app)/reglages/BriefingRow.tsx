@@ -61,7 +61,7 @@ export function BriefingRow({ reglages }: { reglages: Tables<"reglages_briefing"
   return (
     <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+        <span className="flex items-center gap-2.5 text-label font-medium text-ink">
           <span
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
             style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
@@ -72,14 +72,14 @@ export function BriefingRow({ reglages }: { reglages: Tables<"reglages_briefing"
         </span>
         <Switch checked={actif} onToggle={toggle} label="Briefing du matin" />
       </div>
-      <p className="text-[12.5px] leading-snug text-ink-2">
+      <p className="text-small leading-snug text-ink-2">
         {actif
           ? "Chaque matin, une notification résume ta journée : rendez-vous, tâches du jour et retards. Rien n'est envoyé si la journée est vide. Nécessite les notifications ci-dessus."
           : "Désactivé : aucune notification le matin."}
       </p>
       {actif && (
         <div className="flex items-center justify-between gap-2">
-          <label htmlFor="heure-briefing" className="text-[13px] text-ink-2">
+          <label htmlFor="heure-briefing" className="text-small text-ink-2">
             Heure d&apos;envoi
           </label>
           <input

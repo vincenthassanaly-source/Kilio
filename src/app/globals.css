@@ -24,6 +24,8 @@
      actif, FAB) — T4, calqué sur --on-agenda : blanc en clair, encre très
      sombre en sombre (blanc sur kcal sombre ≈ 2,3:1, encre ≈ 8,3:1). */
   --on-kcal: oklch(1 0 0);
+  /* Pastille de l'interrupteur : blanc franc sur la piste verte (clair et sombre). */
+  --switch-thumb: oklch(1 0 0);
   /* Même règle pour les autres fonds d'accent pleins (couleurs de module,
      alerte) : ils suivent tous la formule L 0,55 (clair) / 0,72 (sombre). */
   --on-accent: oklch(1 0 0);
@@ -100,6 +102,12 @@
   --shadow-card:
     0 1px 2px oklch(0.3 0.03 150 / 0.05),
     0 8px 24px -10px oklch(0.3 0.03 150 / 0.12);
+  /* Second niveau d'élévation, réservé à ce qui flotte au-dessus du contenu
+     (barre du bas, feuilles modales, bouton d'action, menus déroulants). */
+  --shadow-float:
+    0 1px 2px oklch(0.3 0.03 150 / 0.06),
+    0 4px 10px -2px oklch(0.3 0.03 150 / 0.08),
+    0 18px 40px -12px oklch(0.3 0.03 150 / 0.2);
   /* Jetons de mouvement : une seule courbe, trois durées. */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 120ms;
@@ -191,6 +199,10 @@
   --shadow-card:
     0 1px 0 oklch(1 0 0 / 0.04) inset,
     0 10px 28px -10px rgba(0, 0, 0, 0.55);
+  --shadow-float:
+    0 1px 0 oklch(1 0 0 / 0.06) inset,
+    0 6px 14px -4px rgba(0, 0, 0, 0.5),
+    0 22px 48px -14px rgba(0, 0, 0, 0.7);
   --note-sauge: oklch(0.32 0.045 150);
   --note-peche: oklch(0.34 0.06 55);
   --note-lavande: oklch(0.32 0.045 300);
@@ -236,6 +248,19 @@
   --color-vidage: var(--accent-vidage);
   --color-nav: var(--nav-bg);
   --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  /* Échelle typographique : remplace les text-[Npx] arbitraires (demi-pixels
+     compris). Les tailles d'écran (17, 22, 28 px) restent explicites. */
+  --text-micro: 11px;
+  --text-caption: 12px;
+  --text-small: 13px;
+  --text-label: 14px;
+  --text-body: 15px;
+  /* Rayons : croissants avec la taille du composant. */
+  --radius-row: 20px;
+  --radius-card: 22px;
+  --radius-hero: 24px;
+  --radius-dock: 26px;
   --font-display: var(--font-sora);
   --font-sans: var(--font-inter);
 }
@@ -257,6 +282,16 @@ body {
 html,
 body {
   overscroll-behavior-y: contain;
+}
+
+/* Finition typographique : titres équilibrés, paragraphes sans ligne orpheline. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
 }
 
 input::placeholder,
@@ -303,10 +338,10 @@ html[data-saisie] [data-masquer-saisie] {
   }
 }
 .agenda-glisse-suivant {
-  animation: agenda-glisse-depuis-droite 220ms ease-out both;
+  animation: agenda-glisse-depuis-droite var(--dur) var(--ease-out) both;
 }
 .agenda-glisse-precedent {
-  animation: agenda-glisse-depuis-gauche 220ms ease-out both;
+  animation: agenda-glisse-depuis-gauche var(--dur) var(--ease-out) both;
 }
 
 /* Transition de la View Transitions API entre deux pages (navigation bottom
@@ -319,10 +354,10 @@ html[data-saisie] [data-masquer-saisie] {
    retour d'un écran de détail). Durée cohérente avec les ~220ms des
    agenda-glisse-* ci-dessus. */
 ::view-transition-old(root) {
-  animation: kilio-fondu-sortie 180ms ease-out both;
+  animation: kilio-fondu-sortie 180ms var(--ease-out) both;
 }
 ::view-transition-new(root) {
-  animation: kilio-fondu-entree 200ms ease-out both;
+  animation: kilio-fondu-entree 200ms var(--ease-out) both;
 }
 @keyframes kilio-fondu-sortie {
   from {
@@ -350,16 +385,16 @@ html[data-saisie] [data-masquer-saisie] {
    <html>), l'emportent sur le simple fondu ci-dessus sans avoir besoin de
    `!important`. */
 html[data-nav-direction="avance"]::view-transition-old(root) {
-  animation: kilio-glisse-sortie-gauche 200ms ease-out both;
+  animation: kilio-glisse-sortie-gauche 200ms var(--ease-out) both;
 }
 html[data-nav-direction="avance"]::view-transition-new(root) {
-  animation: kilio-glisse-entree-droite 220ms ease-out both;
+  animation: kilio-glisse-entree-droite var(--dur) var(--ease-out) both;
 }
 html[data-nav-direction="recule"]::view-transition-old(root) {
-  animation: kilio-glisse-sortie-droite 200ms ease-out both;
+  animation: kilio-glisse-sortie-droite 200ms var(--ease-out) both;
 }
 html[data-nav-direction="recule"]::view-transition-new(root) {
-  animation: kilio-glisse-entree-gauche 220ms ease-out both;
+  animation: kilio-glisse-entree-gauche var(--dur) var(--ease-out) both;
 }
 @keyframes kilio-glisse-sortie-gauche {
   from {
@@ -411,8 +446,8 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
    "collection-title-…" n'est posé ailleurs dans l'app. Durée alignée sur
    le crossfade racine. */
 ::view-transition-group(*) {
-  animation-duration: 220ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-duration: var(--dur);
+  animation-timing-function: var(--ease-out);
 }
 
 /* Éléments fixes hors de la transition "root" (view-transition-name posé sur
@@ -440,10 +475,10 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
    kilio-fondu-sortie/entree ci-dessus) pour que le skeleton s'efface avant
    que le contenu réel ne s'installe. */
 ::view-transition-old(.dashboard-reveal-exit) {
-  animation: kilio-dashboard-fondu-sortie 150ms ease-out both;
+  animation: kilio-dashboard-fondu-sortie 150ms var(--ease-out) both;
 }
 ::view-transition-new(.dashboard-reveal-enter) {
-  animation: kilio-dashboard-fondu-entree 210ms ease-in 150ms both;
+  animation: kilio-dashboard-fondu-entree 210ms var(--ease-out) 150ms both;
 }
 @keyframes kilio-dashboard-fondu-sortie {
   from {
@@ -501,7 +536,7 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
   }
 }
 .tache-surbrillance {
-  animation: tache-surbrillance-anim 2.6s ease-out both;
+  animation: tache-surbrillance-anim 2.6s var(--ease-out) both;
 }
 
 /* Barre de progression indéterminée affichée par TabSwipeWrapper quand

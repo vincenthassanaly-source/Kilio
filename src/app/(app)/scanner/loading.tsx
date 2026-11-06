@@ -10,7 +10,7 @@ export default function ScannerLoading() {
         <Skeleton className="h-11 w-full rounded-2xl" />
         <Skeleton className="h-11 w-full rounded-2xl" />
       </div>
-      <Skeleton className="h-24 w-full rounded-[22px]" />
+      <Skeleton className="h-24 w-full rounded-card" />
     </div>
   );
 }

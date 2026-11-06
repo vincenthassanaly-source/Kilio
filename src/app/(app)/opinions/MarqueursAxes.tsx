@@ -17,7 +17,7 @@ function PisteAxe({ axe, marqueurs }: { axe: Axe; marqueurs: readonly Marqueur[]
 
   return (
     <li className="flex flex-col gap-1.5">
-      <span className="text-[15px] font-semibold text-ink">{axe.label}</span>
+      <span className="text-body font-semibold text-ink">{axe.label}</span>
       {places.length === 0 ? (
         <p className="text-xs text-ink-3">Aucune donnée sur cet axe.</p>
       ) : (
@@ -34,7 +34,7 @@ function PisteAxe({ axe, marqueurs }: { axe: Axe; marqueurs: readonly Marqueur[]
               <span
                 key={m.id}
                 aria-hidden="true"
-                className={`absolute -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-bold text-on-accent ring-2 ring-surface ${
+                className={`absolute -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-0.5 text-micro font-bold text-on-accent ring-2 ring-surface ${
                   m.moi || !m.couleur ? "bg-[var(--accent-opinions)]" : ""
                 }`}
                 style={{

@@ -77,7 +77,7 @@ export function PlanDuJourCard({
           <h2 id="plan-du-jour" className={sectionTitle}>
             Plan du jour
           </h2>
-          <p className="mt-0.5 text-[12.5px] text-ink-2">
+          <p className="mt-0.5 text-small text-ink-2">
             {libelleDuree(plan.minutesDemandees)} estimées · {libelleDuree(plan.minutesLibres)} libres
             {surcharge ? " — trop pour aujourd'hui" : ""}
           </p>
@@ -95,8 +95,8 @@ export function PlanDuJourCard({
               <li key={p.tache.id} className="flex items-center gap-3 rounded-xl bg-surface-alt px-3 py-2">
                 {/* Titre sur toute la largeur (2 lignes max) ; l'horaire passe en méta, en gras. */}
                 <span className="min-w-0 flex-1">
-                  <span className="line-clamp-2 block text-[14px] text-ink">{p.tache.titre}</span>
-                  <span className="block text-[12.5px] tabular-nums text-ink-2">
+                  <span className="line-clamp-2 block text-label text-ink">{p.tache.titre}</span>
+                  <span className="block text-small tabular-nums text-ink-2">
                     <span className="font-semibold text-ink">
                       {p.creneau.debut} – {p.creneau.fin}
                     </span>
@@ -119,11 +119,11 @@ export function PlanDuJourCard({
           })}
         </ul>
       ) : (
-        <p className="text-[13px] text-ink-2">Aucun trou libre aujourd&apos;hui pour tes tâches. Reporte-en ou raccourcis-les.</p>
+        <p className="text-small text-ink-2">Aucun trou libre aujourd&apos;hui pour tes tâches. Reporte-en ou raccourcis-les.</p>
       )}
 
       {plan.nonPlacees.length > 0 && plan.propositions.length > 0 && (
-        <p className="text-[12.5px] text-ink-2">
+        <p className="text-small text-ink-2">
           {plan.nonPlacees.length === 1
             ? "1 tâche ne tient pas aujourd'hui"
             : `${plan.nonPlacees.length} tâches ne tiennent pas aujourd'hui`}{" "}

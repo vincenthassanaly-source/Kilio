@@ -57,7 +57,7 @@ export function ScoreDuJourCard({
   );
 
   if (tachesChargent || nutritionCharge || seancesChargent || habitudesChargent) {
-    return <Skeleton className="h-[116px] w-full rounded-[22px]" />;
+    return <Skeleton className="h-[116px] w-full rounded-card" />;
   }
   if (!score) return null;
 
@@ -66,7 +66,7 @@ export function ScoreDuJourCard({
       <ProgressRing size={76} strokeWidth={8} pct={score.pct / 100} color="var(--accent-kcal)">
         <span className="font-display text-[22px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink">
           {score.pct}
-          <span className="text-[12px] font-semibold text-ink-3">%</span>
+          <span className="text-caption font-semibold text-ink-3">%</span>
         </span>
       </ProgressRing>
       <div className="min-w-0 flex-1">
@@ -75,7 +75,7 @@ export function ScoreDuJourCard({
         </h2>
         <dl className="mt-1.5 flex flex-col gap-1">
           {score.lignes.map((ligne) => (
-            <div key={ligne.domaine} className="flex items-baseline justify-between gap-3 text-[13.5px]">
+            <div key={ligne.domaine} className="flex items-baseline justify-between gap-3 text-label">
               <dt className="text-ink-2">{ligne.libelle}</dt>
               <dd className="truncate font-semibold tabular-nums text-ink">{ligne.detail}</dd>
             </div>

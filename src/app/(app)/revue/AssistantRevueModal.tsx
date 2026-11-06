@@ -97,13 +97,13 @@ function ListeReplanification({
                   className="mt-0.5 h-5 w-5 shrink-0 accent-kcal"
                 />
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[15px] font-medium text-ink">{p.titre}</span>
+                  <span className="text-body font-medium text-ink">{p.titre}</span>
                   <span className="text-sm tabular-nums text-ink-2">
                     <span className="line-through">{jourCourt(p.echeanceActuelle)}</span>
                     {" → "}
                     <span className="font-semibold capitalize text-ink">{jourCourt(p.nouvelle)}</span>
                   </span>
-                  {p.raison && <span className="text-[13px] text-ink-3">{p.raison}</span>}
+                  {p.raison && <span className="text-small text-ink-3">{p.raison}</span>}
                 </span>
               </label>
             </li>
@@ -214,7 +214,7 @@ export function AssistantRevueModal({
           {etat.phase === "synthese" && (
             <div className="flex flex-col gap-3">
               {etat.synthese.resume && (
-                <p className="text-[15px] leading-relaxed text-ink">{etat.synthese.resume}</p>
+                <p className="text-body leading-relaxed text-ink">{etat.synthese.resume}</p>
               )}
               {etat.synthese.points.length > 0 && (
                 <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm leading-relaxed text-ink marker:text-ink-3">
@@ -230,7 +230,7 @@ export function AssistantRevueModal({
           {etat.phase === "analyse" && (
             <div className="flex flex-col gap-4">
               {etat.analyse.resume && (
-                <p className="text-[15px] leading-relaxed text-ink">{etat.analyse.resume}</p>
+                <p className="text-body leading-relaxed text-ink">{etat.analyse.resume}</p>
               )}
               {etat.analyse.constats.length > 0 && (
                 <section aria-label="Ce qui ressort" className="flex flex-col gap-1.5">

@@ -34,8 +34,8 @@ function Texte({ titre, texte }: { titre: string; texte: string | null }) {
   if (!texte) return null;
   return (
     <div className="flex flex-col gap-1">
-      <h3 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">{titre}</h3>
-      <p className="whitespace-pre-line text-[14.5px] leading-[1.5] text-ink">{texte}</p>
+      <h3 className="text-small font-semibold uppercase tracking-wide text-ink-3">{titre}</h3>
+      <p className="whitespace-pre-line text-body leading-[1.5] text-ink">{texte}</p>
     </div>
   );
 }
@@ -44,7 +44,7 @@ function Tags({ titre, tags, className }: { titre: string; tags: string[]; class
   if (tags.length === 0) return null;
   return (
     <div className="flex flex-col gap-1.5">
-      <h3 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">{titre}</h3>
+      <h3 className="text-small font-semibold uppercase tracking-wide text-ink-3">{titre}</h3>
       <ul className="flex flex-wrap gap-1.5">
         {tags.map((tag) => (
           <li key={tag} className={className}>
@@ -111,7 +111,7 @@ function Fiche({ huile, huiles }: { huile: PharmaHuile; huiles: PharmaHuile[] })
       <div className="flex flex-col gap-1.5">
         <Retour />
         <h1 className={screenTitle}>{huile.nom_fr}</h1>
-        {huile.nom_latin && <p className="text-[15px] italic text-ink-2">{huile.nom_latin}</p>}
+        {huile.nom_latin && <p className="text-body italic text-ink-2">{huile.nom_latin}</p>}
         <div className="mt-1">
           <BadgeComestible huile={huile} />
         </div>
@@ -164,8 +164,8 @@ function Fiche({ huile, huiles }: { huile: PharmaHuile; huiles: PharmaHuile[] })
           <dl className="flex flex-col gap-2">
             {identite.map(([libelle, valeur]) => (
               <div key={libelle} className="flex items-baseline justify-between gap-3">
-                <dt className="text-[13px] text-ink-2">{libelle}</dt>
-                <dd className="text-right text-[14.5px] font-medium text-ink">{valeur}</dd>
+                <dt className="text-small text-ink-2">{libelle}</dt>
+                <dd className="text-right text-body font-medium text-ink">{valeur}</dd>
               </div>
             ))}
           </dl>

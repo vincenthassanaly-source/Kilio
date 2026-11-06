@@ -156,14 +156,14 @@ export function AujourdhuiView({ today }: { today: string }) {
 
   return (
     <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
-      <p className="-mt-3 text-[13.5px] font-medium text-ink-2 first-letter:uppercase">{dateLabel}</p>
+      <p className="-mt-3 text-label font-medium text-ink-2 first-letter:uppercase">{dateLabel}</p>
 
       {ferieDuJour && <FerieBadge nom={ferieDuJour} className="-mt-2 self-start" />}
 
       <ScoreDuJourCard today={today} tachesDuJour={duJour} tachesChargent={tachesChargent} />
 
       {tachesChargent ? (
-        <Skeleton className="h-24 w-full rounded-[22px]" />
+        <Skeleton className="h-24 w-full rounded-card" />
       ) : (
         <EnRetardSection taches={enRetard} today={today} />
       )}
@@ -183,7 +183,7 @@ export function AujourdhuiView({ today }: { today: string }) {
       />
 
       {tachesChargent ? (
-        <Skeleton className="h-32 w-full rounded-[22px]" />
+        <Skeleton className="h-32 w-full rounded-card" />
       ) : (
         <TachesDuJour
           taches={duJour}
@@ -212,8 +212,8 @@ export function AujourdhuiView({ today }: { today: string }) {
         }`}
       >
         <span className="flex flex-col">
-          <span className="text-[15px] font-semibold text-ink">Revue de la semaine</span>
-          <span className="text-[12.5px] text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
+          <span className="text-body font-semibold text-ink">Revue de la semaine</span>
+          <span className="text-small text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
         </span>
         <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
           <path d="M9 5l7 7-7 7" />

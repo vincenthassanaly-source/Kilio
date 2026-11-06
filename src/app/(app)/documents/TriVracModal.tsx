@@ -251,7 +251,7 @@ export function TriVracModal({
             Vérifie les propositions : rien n&apos;est modifié avant « Appliquer ». Décoche un document pour le laisser en vrac.
           </p>
           {nouvelles.length > 0 && (
-            <p className="rounded-xl bg-kcal-soft px-3 py-2 text-[13px] font-medium text-kcal">
+            <p className="rounded-xl bg-kcal-soft px-3 py-2 text-small font-medium text-kcal">
               Nouvelle{nouvelles.length > 1 ? "s" : ""} catégorie{nouvelles.length > 1 ? "s" : ""} proposée
               {nouvelles.length > 1 ? "s" : ""} : {nouvelles.join(", ")}
             </p>
@@ -279,7 +279,7 @@ export function TriVracModal({
                     </label>
                   )}
                   <Miniature document={ligne.document} />
-                  <p className="min-w-0 flex-1 truncate text-[12.5px] text-ink-3">Avant : {ligne.document.nom}</p>
+                  <p className="min-w-0 flex-1 truncate text-small text-ink-3">Avant : {ligne.document.nom}</p>
                 </div>
 
                 {ligne.erreur ? (
@@ -289,7 +289,7 @@ export function TriVracModal({
                 ) : (
                   <div className="flex flex-col gap-2">
                     {ligne.doublon && (
-                      <p className="rounded-xl bg-surface-alt px-3 py-2 text-[13px] text-ink">
+                      <p className="rounded-xl bg-surface-alt px-3 py-2 text-small text-ink">
                         <span aria-hidden="true">⚠ </span>
                         <span className="font-semibold">
                           {ligne.doublon.type === "fichier" ? "Même fichier que" : "Titre identique à"}

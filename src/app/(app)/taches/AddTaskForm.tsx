@@ -64,7 +64,7 @@ function ImageThumb({
         disabled={disabled}
         onClick={onRemove}
         aria-label={removeLabel}
-        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-alert text-[11px] font-bold text-on-accent disabled:opacity-60"
+        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-alert text-micro font-bold text-on-accent disabled:opacity-60"
       >
         ×
       </button>
@@ -680,7 +680,7 @@ export function AddTaskForm({
                     key={tag.id}
                     type="button"
                     onClick={() => toggleTag(tag.id)}
-                    className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition-colors ${
+                    className={`rounded-full px-2.5 py-1 text-caption font-semibold transition-colors ${
                       tagIds.includes(tag.id) ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                     }`}
                   >

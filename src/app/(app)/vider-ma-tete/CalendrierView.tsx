@@ -85,7 +85,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-72 w-full rounded-[22px]" />
+        <Skeleton className="h-72 w-full rounded-card" />
       ) : isError ? (
         <div className="flex flex-col items-start gap-2">
           <p className="text-sm text-alert">Le calendrier n&apos;a pas pu être chargé.</p>
@@ -100,7 +100,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
             const jour = `${mois}-${String(numero).padStart(2, "0")}`;
             const feuille = ecrits.get(jour);
             const futur = jour > aujourdhui;
-            const base = "relative flex aspect-[3/4] items-start justify-start overflow-hidden rounded-xl border p-1 text-[12px] font-medium tabular-nums";
+            const base = "relative flex aspect-[3/4] items-start justify-start overflow-hidden rounded-xl border p-1 text-caption font-medium tabular-nums";
             if (futur) {
               return (
                 <li key={jour} className={`${base} border-line/50 text-ink-3`}>

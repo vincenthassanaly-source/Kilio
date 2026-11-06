@@ -46,7 +46,7 @@ export function Modal({
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
           transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 38 }}
-          className="flex max-h-[85dvh] w-full max-w-md flex-col rounded-t-[22px] border border-line bg-surface shadow-card outline-none sm:mb-6 sm:rounded-[22px]"
+          className="flex max-h-[85dvh] w-full max-w-md flex-col rounded-t-card border border-line bg-surface shadow-float outline-none sm:mb-6 sm:rounded-card"
           role="dialog"
           aria-modal="true"
           aria-labelledby={titreId}
@@ -60,7 +60,7 @@ export function Modal({
           onTouchEnd={(e) => e.stopPropagation()}
         >
           <div className="flex shrink-0 items-center justify-between border-b border-line py-1.5 pl-4 pr-1.5">
-            <h2 id={titreId} className="text-[15px] font-bold text-ink">
+            <h2 id={titreId} className="text-body font-bold text-ink">
               {title}
             </h2>
             <button

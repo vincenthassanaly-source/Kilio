@@ -136,7 +136,7 @@ export function BandeSemaine({ jours }: { jours: JourBilan[] }) {
           >
             <span
               aria-hidden="true"
-              className={`text-[11px] capitalize ${estAujourdhui ? "font-bold text-ink" : "font-medium text-ink-3"}`}
+              className={`text-micro capitalize ${estAujourdhui ? "font-bold text-ink" : "font-medium text-ink-3"}`}
             >
               {estAujourdhui ? "Auj." : jourSemaine}
             </span>
@@ -156,7 +156,7 @@ export function CalendrierMois({ jours }: { jours: JourBilan[] }) {
   return (
     <div className="mx-auto grid w-full max-w-sm grid-cols-7 gap-1.5">
       {ENTETES_SEMAINE.map((lettre, i) => (
-        <span key={i} aria-hidden="true" className="pb-0.5 text-center text-[11px] font-medium text-ink-3">
+        <span key={i} aria-hidden="true" className="pb-0.5 text-center text-micro font-medium text-ink-3">
           {lettre}
         </span>
       ))}
@@ -170,7 +170,7 @@ export function CalendrierMois({ jours }: { jours: JourBilan[] }) {
             key={jour.date}
             href={hrefJournal(jour.date)}
             aria-label={`${libelleLong(jour.date)} : ${libelleStatut(jour)}`}
-            className={`flex aspect-square items-center justify-center rounded-xl text-[12px] font-semibold tabular-nums ${classesMarque(jour)} ${
+            className={`flex aspect-square items-center justify-center rounded-xl text-caption font-semibold tabular-nums ${classesMarque(jour)} ${
               estAujourdhui ? "ring-2 ring-ink ring-offset-2 ring-offset-surface" : ""
             } ${FOCUS}`}
           >
@@ -224,7 +224,7 @@ export function DetailJours({ jours }: { jours: JourBilan[] }) {
             <TransitionLink href={hrefJournal(jour.date)} className={`${cardTight} flex items-center gap-3 ${FOCUS}`}>
               <CercleStatut jour={jour} className="h-8 w-8" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[14.5px] font-semibold capitalize text-ink">{libelleCourt(jour.date)}</p>
+                <p className="truncate text-body font-semibold capitalize text-ink">{libelleCourt(jour.date)}</p>
                 <p className="text-xs text-ink-2">
                   {jour.jourType === "entrainement" ? "Entraînement" : "Repos"}
                   {libre && " · jour libre"}
@@ -233,7 +233,7 @@ export function DetailJours({ jours }: { jours: JourBilan[] }) {
               {jour.nbRepas === 0 ? (
                 <p className="text-xs text-ink-3">Aucun repas saisi</p>
               ) : (
-                <div className="flex flex-col items-end gap-0.5 text-[11.5px] tabular-nums">
+                <div className="flex flex-col items-end gap-0.5 text-caption tabular-nums">
                   <p className={`flex items-center gap-1 ${classeKcal}`}>
                     {kcalDepassees && <AlerteIcone />}
                     {nombre.format(kcal)}
@@ -265,14 +265,14 @@ export function ResumeTaux({
 }) {
   if (evalues === 0) {
     return (
-      <p className="text-[13.5px] text-ink-2 text-pretty">
+      <p className="text-label text-ink-2 text-pretty">
         Aucun jour jugé sur {periode} : saisis tes repas dans le Journal.
       </p>
     );
   }
   const pct = Math.round((reussis / evalues) * 100);
   return (
-    <p className="text-[13.5px] text-ink-2 text-pretty">
+    <p className="text-label text-ink-2 text-pretty">
       <span className="font-semibold text-ink">
         {reussis} {pluriel(reussis)} sur {evalues}
       </span>{" "}
@@ -283,7 +283,7 @@ export function ResumeTaux({
 
 export function LigneSerie({ jours, tronquee }: { jours: number; tronquee: boolean }) {
   return (
-    <p className="text-[13.5px] text-ink-2 text-pretty">
+    <p className="text-label text-ink-2 text-pretty">
       {jours === 0 ? (
         "Pas de série en cours."
       ) : (

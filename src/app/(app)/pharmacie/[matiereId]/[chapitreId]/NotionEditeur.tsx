@@ -17,7 +17,7 @@ import { ContenuColore, IconeNiveau } from "../../ContenuColore";
 
 // Cible tactile de 44 px (min-h-11), anneau de focus au clavier comme les autres boutons.
 const boutonNiveau =
-  "flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-[13px] font-semibold text-ink transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-small font-semibold text-ink transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 // Correction rapide d'une notion (l'original dicté n'est pas conservé : c'est
 // le seul filet si une reformulation est ratée). L'ajout, lui, passe par le chat.
@@ -123,7 +123,7 @@ export function NotionEditeur({
                 Sans couleur
               </button>
             </div>
-            <p className="text-[12px] text-ink-3">La couleur s&apos;applique à la ligne du curseur ou aux lignes sélectionnées.</p>
+            <p className="text-caption text-ink-3">La couleur s&apos;applique à la ligne du curseur ou aux lignes sélectionnées.</p>
             <textarea
               id={idContenu}
               ref={zoneRef}

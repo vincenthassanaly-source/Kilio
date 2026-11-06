@@ -187,9 +187,9 @@ export function WeekView({
                       isToday(day) ? "text-agenda" : "text-ink"
                     }`}
                   >
-                    <span className="text-[11px] font-semibold">{format(day, "EEE", { locale: fr })}</span>
+                    <span className="text-micro font-semibold">{format(day, "EEE", { locale: fr })}</span>
                     <span
-                      className={`text-[11px] text-ink-2 ${
+                      className={`text-micro text-ink-2 ${
                         feries?.has(toISODate(day)) ? "font-semibold underline decoration-2 underline-offset-2" : ""
                       }`}
                     >

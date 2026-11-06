@@ -23,7 +23,7 @@ import { DUREE_TOAST_AVERTISSEMENT_MS, libelleDuree } from "@/lib/taches/compute
 import { errorText, input, label as labelClass, primaryButton, secondaryButton } from "@/lib/ui";
 
 const MESSAGE_ECHEC = "L'ajout a échoué. Réessaie.";
-const puce = "rounded-full bg-surface-alt px-2 py-0.5 text-[11px] font-semibold text-ink-2";
+const puce = "rounded-full bg-surface-alt px-2 py-0.5 text-micro font-semibold text-ink-2";
 
 function Puce({ children }: { children: string }) {
   return <span className={puce}>{children}</span>;
@@ -91,7 +91,7 @@ function CarteElement({
               type="button"
               aria-pressed={e.type === t}
               onClick={() => changerType(t)}
-              className={`min-h-9 rounded-full px-3 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+              className={`min-h-9 rounded-full px-3 text-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                 e.type === t ? "bg-kcal text-on-kcal" : "text-ink-2"
               }`}
             >
@@ -102,7 +102,7 @@ function CarteElement({
         <button
           type="button"
           onClick={onRetirer}
-          className="min-h-11 px-2 text-[13px] font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="min-h-11 px-2 text-small font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         >
           Retirer
         </button>
@@ -262,7 +262,7 @@ function CarteElement({
       </div>
 
       {!evenement && (e.tagIds.length > 0 || e.nouveauxTags.length > 0) && (
-        <p className="text-[13px] text-ink-2">
+        <p className="text-small text-ink-2">
           Tags :{" "}
           {[
             ...e.nouveauxTags.map((t) => `${t} (nouveau)`),
@@ -385,7 +385,7 @@ export function ApercuSaisie({ initiaux, onTermine }: { initiaux: ElementSaisie[
 
   return (
     <div className="flex flex-col gap-3.5">
-      <p className="text-[13px] text-ink-2">Vérifie et corrige : rien n&apos;est ajouté avant « Valider ».</p>
+      <p className="text-small text-ink-2">Vérifie et corrige : rien n&apos;est ajouté avant « Valider ».</p>
       <ul className="flex flex-col gap-3">
         {elements.map((e) => (
           <CarteElement

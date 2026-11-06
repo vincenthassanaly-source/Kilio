@@ -40,17 +40,17 @@ function LigneTraitement({ ligne }: { ligne: LigneResolue }) {
     <li className={`${card} flex flex-col gap-3`}>
       <div className="flex items-start gap-3">
         <span
-          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-kcal-soft font-display text-[15px] font-bold text-kcal"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-kcal-soft font-display text-body font-bold text-kcal"
           aria-label={`Étape ${ligne.ligne.rang}`}
         >
           {ligne.ligne.rang}
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {nbMedicaments && (
-            <span className="self-start rounded-full bg-kcal-soft px-2.5 py-0.5 text-[12px] font-semibold text-kcal">{nbMedicaments}</span>
+            <span className="self-start rounded-full bg-kcal-soft px-2.5 py-0.5 text-caption font-semibold text-kcal">{nbMedicaments}</span>
           )}
-          <h3 className="text-[15px] font-semibold leading-snug text-ink text-balance">{ligne.ligne.titre}</h3>
-          {ligne.ligne.description && <p className="text-[13.5px] leading-[1.5] text-ink-2">{ligne.ligne.description}</p>}
+          <h3 className="text-body font-semibold leading-snug text-ink text-balance">{ligne.ligne.titre}</h3>
+          {ligne.ligne.description && <p className="text-label leading-[1.5] text-ink-2">{ligne.ligne.description}</p>}
         </div>
       </div>
       <ul className="flex flex-col gap-1.5">
@@ -63,20 +63,20 @@ function LigneTraitement({ ligne }: { ligne: LigneResolue }) {
               const href = hrefItem(resolu);
               const contenu = (
                 <>
-                  <span className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${style.pastille}`} aria-hidden="true">
+                  <span className={`flex size-6 shrink-0 items-center justify-center rounded-full text-caption font-bold ${style.pastille}`} aria-hidden="true">
                     {style.signe}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-3">{LIBELLE_ROLE[role]}</span>
-                    <span className="text-[14.5px] font-semibold text-ink">{nom}</span>
-                    {resolu.item.note && <span className="text-[12.5px] text-ink-2">{resolu.item.note}</span>}
+                    <span className="text-micro font-semibold uppercase tracking-wide text-ink-3">{LIBELLE_ROLE[role]}</span>
+                    <span className="text-body font-semibold text-ink">{nom}</span>
+                    {resolu.item.note && <span className="text-small text-ink-2">{resolu.item.note}</span>}
                   </span>
                 </>
               );
               return (
                 <li key={resolu.item.id} className="flex flex-col gap-1.5">
                   {resolu.item.ou_precedent && (
-                    <span className="pl-3 text-[12px] font-semibold uppercase tracking-wide text-ink-3">ou</span>
+                    <span className="pl-3 text-caption font-semibold uppercase tracking-wide text-ink-3">ou</span>
                   )}
                   {href ? (
                     <TransitionLink
@@ -139,7 +139,7 @@ function PathologieContenu({ pathologieId }: { pathologieId: string }) {
                 <h1 className={screenTitle}>{pathologie.nom}</h1>
               </div>
 
-              {pathologie.resume && <p className="text-[14.5px] leading-[1.55] text-ink">{pathologie.resume}</p>}
+              {pathologie.resume && <p className="text-body leading-[1.55] text-ink">{pathologie.resume}</p>}
               {pathologie.source && (
                 <p className={eyebrow}>
                   Source : {pathologie.source}
@@ -161,7 +161,7 @@ function PathologieContenu({ pathologieId }: { pathologieId: string }) {
                             type="button"
                             aria-pressed={actif}
                             onClick={() => choisirProfil(profil)}
-                            className={`min-h-11 shrink-0 rounded-full border px-3.5 text-[13.5px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                            className={`min-h-11 shrink-0 rounded-full border px-3.5 text-label font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                               actif ? "border-kcal bg-kcal-soft text-kcal" : "border-line bg-surface text-ink-2"
                             }`}
                           >

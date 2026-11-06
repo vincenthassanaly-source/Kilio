@@ -34,9 +34,9 @@ function CarteRecord({ libelle, unite, record }: { libelle: string; unite: strin
     <div className={`${card} flex flex-col gap-0.5 !p-3.5`}>
       <span className={metaText}>{libelle}</span>
       <span className="font-display text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink">
-        {formaterPoids(record.valeur)} <span className="text-[14px] font-medium text-ink-2">{unite}</span>
+        {formaterPoids(record.valeur)} <span className="text-label font-medium text-ink-2">{unite}</span>
       </span>
-      <span className="text-[12px] text-ink-3">{formaterDateLongue(record.date)}</span>
+      <span className="text-caption text-ink-3">{formaterDateLongue(record.date)}</span>
     </div>
   );
 }
@@ -52,7 +52,7 @@ export function FicheExercice({ exerciceId }: { exerciceId: string }) {
     return (
       <div className="flex flex-col gap-4">
         <Skeleton className="h-9 w-2/3" />
-        <Skeleton className="h-48 w-full rounded-[22px]" />
+        <Skeleton className="h-48 w-full rounded-card" />
       </div>
     );
   }
@@ -101,7 +101,7 @@ export function FicheExercice({ exerciceId }: { exerciceId: string }) {
                   type="button"
                   aria-pressed={metrique.value === m.value}
                   onClick={() => setChoix(m.value)}
-                  className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+                  className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                     metrique.value === m.value ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                   }`}
                 >

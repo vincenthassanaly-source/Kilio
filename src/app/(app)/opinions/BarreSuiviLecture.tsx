@@ -13,7 +13,7 @@ export type StatTheme = { theme: Theme; lues: number; total: number };
 export const MARGE_DEFILEMENT = "scroll-mt-[calc(env(safe-area-inset-top)+5rem)]";
 
 const chip =
-  "inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold tabular-nums transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-full border px-3.5 text-small font-semibold tabular-nums transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 /**
  * En-tête d'un programme : progression « lues / total », saut vers la
@@ -48,7 +48,7 @@ export function BarreSuiviLecture({
     <div ref={ref} className={`flex flex-col gap-1 border-b border-line pb-2 ${MARGE_DEFILEMENT}`}>
       <div className="flex items-center gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <p className="text-[13px] font-semibold text-ink tabular-nums" aria-live="polite">
+          <p className="text-small font-semibold text-ink tabular-nums" aria-live="polite">
             {lues}/{total} lues
           </p>
           <div

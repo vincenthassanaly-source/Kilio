@@ -44,7 +44,7 @@ export function SaisieClavier({ onAjouter }: Props) {
       <button type="button" onClick={() => void ajouter()} disabled={enCours || valeur.trim() === ""} className={primaryButton}>
         {enCours ? "Ajout…" : "Ajouter"}
       </button>
-      <p className="text-[12.5px] leading-snug text-ink-2">
+      <p className="text-small leading-snug text-ink-2">
         Ton texte rejoint celui de la journée, avec l&apos;heure. Il n&apos;est gardé qu&apos;une fois « Ajouter » touché.
       </p>
     </div>

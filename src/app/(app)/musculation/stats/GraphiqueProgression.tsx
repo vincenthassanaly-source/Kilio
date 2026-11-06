@@ -158,11 +158,11 @@ export function GraphiqueProgression({ points, unite, libelle }: { points: Point
           >
             <div className="flex items-center gap-2">
               <span aria-hidden="true" className="h-0.5 w-3 rounded-full" style={{ background: COULEUR }} />
-              <span className="text-[15px] font-semibold tabular-nums text-ink">
+              <span className="text-body font-semibold tabular-nums text-ink">
                 {formaterPoids(p.valeur)} {unite}
               </span>
             </div>
-            <span className="text-[12.5px] text-ink-2">{formatDateLongue.format(enDate(p.date))}</span>
+            <span className="text-small text-ink-2">{formatDateLongue.format(enDate(p.date))}</span>
           </div>
         )}
       </div>
@@ -171,10 +171,10 @@ export function GraphiqueProgression({ points, unite, libelle }: { points: Point
         {tableau ? "Masquer le tableau" : "Voir le tableau"}
       </button>
       {tableau && (
-        <table id={idTableau} className="w-full text-left text-[14px] tabular-nums">
+        <table id={idTableau} className="w-full text-left text-label tabular-nums">
           <caption className="sr-only">{libelle}</caption>
           <thead>
-            <tr className="text-[12.5px] text-ink-2">
+            <tr className="text-small text-ink-2">
               <th scope="col" className="py-1 font-medium">
                 Date
               </th>

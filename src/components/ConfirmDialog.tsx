@@ -43,7 +43,7 @@ export function ConfirmDialog({
       {open && (
         <Modal key="confirm" title={titre} onClose={onClose}>
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2 text-[14.5px] leading-snug text-ink-2">{children}</div>
+            <div className="flex flex-col gap-2 text-body leading-snug text-ink-2">{children}</div>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button type="button" onClick={onClose} className={secondaryButton}>
                 Garder

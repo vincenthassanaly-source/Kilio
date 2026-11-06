@@ -29,7 +29,7 @@ export function AxeBarre({
   return (
     <li className="flex flex-col gap-1.5">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[15px] font-semibold text-ink">{axe.label}</span>
+        <span className="text-body font-semibold text-ink">{axe.label}</span>
         <span className={`${metaText} text-right`}>
           {description}
           {nombre > 0 && ` · ${comptage}`}
@@ -106,7 +106,7 @@ export function ProfilView({ idees }: { idees: readonly IdeePourProfil[] }) {
                   <TransitionLink
                     key={idee.id}
                     href={`/opinions/${idee.id}`}
-                    className="min-h-11 text-[14.5px] leading-snug text-ink underline-offset-2 hover:underline"
+                    className="min-h-11 text-body leading-snug text-ink underline-offset-2 hover:underline"
                   >
                     « {idee.position} »
                   </TransitionLink>

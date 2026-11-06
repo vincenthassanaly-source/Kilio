@@ -16,7 +16,7 @@ function TachesCardsSkeleton() {
     <>
       <div className={`${card} flex flex-col gap-3`}>
         <div className="flex items-center justify-between">
-          <span className="text-[14px] font-semibold text-ink">Aujourd&apos;hui</span>
+          <span className="text-label font-semibold text-ink">Aujourd&apos;hui</span>
           <Skeleton className="h-3 w-14" />
         </div>
         <ListItemSkeletonGroup count={3} />
@@ -29,7 +29,7 @@ function TachesCardsSkeleton() {
 function HabitudesSkeleton() {
   return (
     <div className="mt-4 flex flex-col gap-2.5">
-      <span className="px-0.5 text-[14px] font-semibold text-ink">Habitudes</span>
+      <span className="px-0.5 text-label font-semibold text-ink">Habitudes</span>
       <div className="flex gap-3 overflow-x-hidden pb-0.5">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-[50px] w-[50px] shrink-0 rounded-full" />

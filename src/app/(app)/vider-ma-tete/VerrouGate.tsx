@@ -140,7 +140,7 @@ export function VerrouGate({ children }: { children: ReactNode }) {
 
   if (phase.nom === "ouvert") return <>{children}</>;
 
-  if (phase.nom === "chargement") return <Skeleton className="h-[60vh] w-full rounded-[22px]" />;
+  if (phase.nom === "chargement") return <Skeleton className="h-[60vh] w-full rounded-card" />;
 
   if (phase.nom === "erreur") {
     return (

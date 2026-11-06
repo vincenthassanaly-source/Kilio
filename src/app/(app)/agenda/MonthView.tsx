@@ -91,7 +91,7 @@ export function MonthView({
         onToday={() => onChangeDate(startOfToday())}
       />
 
-      <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-ink-2">
+      <div className="grid grid-cols-7 gap-1 text-center text-micro font-semibold text-ink-2">
         {WEEKDAY_LABELS.map((label, i) => (
           <span key={i}>{label}</span>
         ))}
@@ -113,7 +113,7 @@ export function MonthView({
               onClick={() => onSelectDay(day)}
               aria-label={monthCellAriaLabel(day, count, nbEvenements, jourTravaille, ferie)}
               aria-current={isToday(day) ? "date" : undefined}
-              className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border text-[13px] ${
+              className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border text-small ${
                 isToday(day) ? "border-agenda" : "border-line"
               } ${inMonth ? "text-ink" : "text-ink-3"} ${jourTravaille ? "" : "bg-surface"}`}
               style={jourTravaille ? { backgroundColor: "var(--accent-planning-travail-soft)" } : undefined}
@@ -133,7 +133,7 @@ export function MonthView({
       {/* Légende décorative : le statut "jour travaillé"/nombre de tâches
           est déjà annoncé par case via monthCellAriaLabel ci-dessus, donc
           masquée aux lecteurs d'écran pour ne pas doubler l'annonce. */}
-      <div aria-hidden className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-ink-2">
+      <div aria-hidden className="flex items-center justify-center gap-1.5 text-micro font-medium text-ink-2">
         <span className="flex items-center gap-1">
           <span
             className="h-2.5 w-2.5 rounded-[3px]"

@@ -115,7 +115,7 @@ export function PullToRefresh({
         className="flex items-center justify-center overflow-hidden"
         style={{
           height: pullDistance,
-          transition: isPulling ? "none" : "height 0.2s ease-out",
+          transition: isPulling ? "none" : "height var(--dur) var(--ease-out)",
         }}
         aria-hidden={pullDistance === 0}
       >

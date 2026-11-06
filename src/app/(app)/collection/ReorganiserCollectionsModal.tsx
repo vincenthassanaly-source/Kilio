@@ -69,7 +69,7 @@ function Case({
 function Section({ titre, children }: { titre: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">{titre}</h3>
+      <h3 className="text-small font-semibold uppercase tracking-wide text-ink-3">{titre}</h3>
       <ul className="flex flex-col gap-2.5">{children}</ul>
     </section>
   );
@@ -265,7 +265,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                 Ton rangement est déjà cohérent : Gemini n&apos;a rien à proposer.
               </p>
               {proposition.nonLus > 0 && (
-                <p className="rounded-xl bg-surface-alt px-3 py-2 text-[13px] text-ink">
+                <p className="rounded-xl bg-surface-alt px-3 py-2 text-small text-ink">
                   {pluriel(proposition.nonLus, "élément")} sans titre ni description n&apos;{proposition.nonLus > 1 ? "ont" : "a"} pas été examiné
                   {proposition.nonLus > 1 ? "s" : ""} : utilise « Décrire » dans tes collections pour qu&apos;ils comptent.
                 </p>
@@ -282,7 +282,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                 Décoche ce que tu ne veux pas.
               </p>
               {(proposition.tronque || proposition.nonLus > 0) && (
-                <p className="rounded-xl bg-surface-alt px-3 py-2 text-[13px] text-ink">
+                <p className="rounded-xl bg-surface-alt px-3 py-2 text-small text-ink">
                   {proposition.tronque ? `Seuls les ${proposition.analyses} éléments les plus récents ont été examinés. ` : ""}
                   {proposition.nonLus > 0
                     ? `${pluriel(proposition.nonLus, "élément")} sans titre ni description ${proposition.nonLus > 1 ? "ne sont" : "n'est"} pas examiné${proposition.nonLus > 1 ? "s" : ""} : utilise « Décrire » pour qu'${proposition.nonLus > 1 ? "ils" : "il"} compte${proposition.nonLus > 1 ? "nt" : ""}.`
@@ -303,14 +303,14 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                             onChange={(coche) => basculer([cle], coche)}
                             label={`Fusionner ${f.deNom} dans ${f.versNom}`}
                           />
-                          <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 text-[15px] font-medium text-ink">
+                          <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 text-body font-medium text-ink">
                             <span className="break-words">{f.deNom}</span>
                             <FlecheIcon />
                             <span className="break-words">{f.versNom}</span>
                           </p>
                           <span className="shrink-0 text-xs tabular-nums text-ink-3">{pluriel(f.nbElements, "élém.")}</span>
                         </div>
-                        <p className="pl-8 text-[13px] text-ink-3">« {f.deNom} » disparaît, ses éléments passent dans « {f.versNom} ».</p>
+                        <p className="pl-8 text-small text-ink-3">« {f.deNom} » disparaît, ses éléments passent dans « {f.versNom} ».</p>
                       </li>
                     );
                   })}
@@ -330,7 +330,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                             onChange={(coche) => basculer([cle], coche)}
                             label={`Renommer ${r.de} en ${r.vers}`}
                           />
-                          <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 text-[15px] font-medium text-ink">
+                          <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 text-body font-medium text-ink">
                             <span className="break-words">{r.de}</span>
                             <FlecheIcon />
                             <span className="break-words">{r.vers}</span>
@@ -357,18 +357,18 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                             onChange={(coche) => basculer(ids, coche)}
                             label={`Déplacer ${pluriel(ids.length, "élément")} de ${groupe.deNom} vers ${groupe.versNom}`}
                           />
-                          <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 text-[15px] font-medium text-ink">
+                          <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 text-body font-medium text-ink">
                             <span className="break-words">{groupe.deNom}</span>
                             <FlecheIcon />
                             <span className="break-words">{groupe.versNom}</span>
                             {groupe.versId === null && (
-                              <span className="rounded-full bg-kcal-soft px-2 py-0.5 text-[11px] font-semibold text-kcal">nouvelle</span>
+                              <span className="rounded-full bg-kcal-soft px-2 py-0.5 text-micro font-semibold text-kcal">nouvelle</span>
                             )}
                           </p>
                           <span className="shrink-0 text-xs tabular-nums text-ink-3">{pluriel(ids.length, "élém.")}</span>
                         </div>
                         <details>
-                          <summary className="flex min-h-11 cursor-pointer list-none items-center text-[13px] font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
+                          <summary className="flex min-h-11 cursor-pointer list-none items-center text-small font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
                             Voir les éléments
                           </summary>
                           <ul className="flex flex-col">
@@ -392,12 +392,12 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
               )}
 
               {nouvelles.length > 0 && (
-                <p className="rounded-xl bg-kcal-soft px-3 py-2 text-[13px] font-medium text-kcal">
+                <p className="rounded-xl bg-kcal-soft px-3 py-2 text-small font-medium text-kcal">
                   Nouvelle{nouvelles.length > 1 ? "s" : ""} collection{nouvelles.length > 1 ? "s" : ""} : {nouvelles.join(", ")}
                 </p>
               )}
               {videes.length > 0 && (
-                <p className="rounded-xl bg-surface-alt px-3 py-2 text-[13px] text-ink">
+                <p className="rounded-xl bg-surface-alt px-3 py-2 text-small text-ink">
                   {videes.length > 1 ? "Ces collections seront vides" : "Cette collection sera vide"} :{" "}
                   <span className="font-semibold">{videes.join(", ")}</span>. Tu pourras {videes.length > 1 ? "les" : "la"} supprimer à la main.
                 </p>

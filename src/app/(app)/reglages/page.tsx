@@ -71,12 +71,12 @@ export default async function ReglagesPage() {
 
       <div className="flex flex-col gap-2.5">
         <h2 className={sectionTitle}>Préférences</h2>
-        <div className="rounded-[22px] border border-line bg-surface px-4 shadow-card">
+        <div className="rounded-card border border-line bg-surface px-4 shadow-card">
           <TransitionLink
             href="/plus"
             className="flex items-center justify-between gap-3 py-3.5"
           >
-            <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+            <span className="flex items-center gap-2.5 text-label font-medium text-ink">
               <span
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
                 style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
@@ -104,24 +104,24 @@ export default async function ReglagesPage() {
 
       <div className="flex flex-col gap-2.5">
         <h2 className={sectionTitle}>À propos</h2>
-        <div className="rounded-[22px] border border-line bg-surface px-4 shadow-card">
+        <div className="rounded-card border border-line bg-surface px-4 shadow-card">
           <div className="flex items-center justify-between gap-3 py-3.5">
-            <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+            <span className="flex items-center gap-2.5 text-label font-medium text-ink">
               <span className="text-ink-3">
                 <ProfilIcon />
               </span>
               Profil
             </span>
-            <span className="text-[13px] font-medium text-ink-2">Vincent</span>
+            <span className="text-small font-medium text-ink-2">Vincent</span>
           </div>
           <div className="flex items-center justify-between gap-3 border-t border-line py-3.5">
-            <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+            <span className="flex items-center gap-2.5 text-label font-medium text-ink">
               <span className="text-ink-3">
                 <VersionIcon />
               </span>
               Version
             </span>
-            <span className="text-[13px] font-medium text-ink-3">0.1.0</span>
+            <span className="text-small font-medium text-ink-3">0.1.0</span>
           </div>
         </div>
       </div>

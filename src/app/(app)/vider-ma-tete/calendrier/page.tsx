@@ -19,7 +19,7 @@ export default function VidageCalendrierPage() {
       fallback={
         <div className="flex flex-col gap-4">
           <h1 className={screenTitle}>Relire</h1>
-          <Skeleton className="h-[60vh] w-full rounded-[22px]" />
+          <Skeleton className="h-[60vh] w-full rounded-card" />
         </div>
       }
     >

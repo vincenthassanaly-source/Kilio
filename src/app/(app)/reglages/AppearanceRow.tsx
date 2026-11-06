@@ -17,7 +17,7 @@ function AppearanceIcon() {
 export function AppearanceRow() {
   return (
     <div className="flex items-center justify-between gap-3 py-3.5">
-      <span className="flex items-center gap-2.5 text-[14px] font-medium text-ink">
+      <span className="flex items-center gap-2.5 text-label font-medium text-ink">
         <span
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
           style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
@@ -29,7 +29,7 @@ export function AppearanceRow() {
       <button
         type="button"
         onClick={toggleTheme}
-        className="min-h-11 rounded-full bg-surface-alt px-4 text-[13px] font-semibold text-ink transition active:scale-[0.97] hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        className="min-h-11 rounded-full bg-surface-alt px-4 text-small font-semibold text-ink transition active:scale-[0.97] hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         <span className="dark:hidden">Clair</span>
         <span className="hidden dark:inline">Sombre</span>

@@ -49,7 +49,7 @@ export function ObjectifSuiviHabitudes({
       ) : (
         <ul className="flex flex-col gap-2">
           {habitudes.map((h) => (
-            <li key={h.id} className="flex items-center justify-between gap-2 text-[15px] text-ink">
+            <li key={h.id} className="flex items-center justify-between gap-2 text-body text-ink">
               <span>
                 {h.icone && <span className="mr-1.5">{h.icone}</span>}
                 {h.nom}

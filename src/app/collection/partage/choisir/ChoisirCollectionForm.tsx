@@ -84,7 +84,7 @@ export function ChoisirCollectionForm({
       {collections.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <span className={labelClass}>Collection existante</span>
-          <p className="min-h-5 text-[13px] text-ink-3" aria-live="polite">
+          <p className="min-h-5 text-small text-ink-3" aria-live="polite">
             {!rienASuggerer && suggestion.etat === "attente" ? "Gemini cherche la meilleure collection…" : ""}
           </p>
           <div className="flex flex-col gap-1.5">
@@ -107,7 +107,7 @@ export function ChoisirCollectionForm({
                   <span className="flex min-w-0 items-center gap-2">
                     <span className={`truncate ${selected ? "font-semibold text-ink" : ""}`}>{collection.nom}</span>
                     {suggeree && (
-                      <span className="shrink-0 rounded-full bg-kcal-soft px-2 py-0.5 text-[11px] font-semibold text-kcal">
+                      <span className="shrink-0 rounded-full bg-kcal-soft px-2 py-0.5 text-micro font-semibold text-kcal">
                         Suggérée
                       </span>
                     )}

@@ -48,7 +48,7 @@ function Pastille({
       disabled={desactivee || vide}
       aria-label={`Commencer ${routine.nom}${routine.faite ? " (déjà faite cette semaine)" : ""}`}
       title={vide ? `${LIBELLES_TYPE[groupe.type]} ${routine.pastille} n'a pas d'exercice` : undefined}
-      className={`flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-full px-3.5 text-[14px] font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-40 ${
+      className={`flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-full px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-40 ${
         routine.faite ? "bg-kcal-soft text-kcal" : "bg-surface-alt text-ink-2"
       }`}
     >
@@ -111,8 +111,8 @@ export function SeancesCard({ today }: { today: string }) {
   return (
     <section className={`${card} flex flex-col gap-3`} aria-label="Séances de la semaine">
       <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Séances de la semaine</h2>
-        <span className="text-[13px] font-semibold tabular-nums text-ink-2">
+        <h2 className="text-body font-semibold tracking-[-0.01em] text-ink">Séances de la semaine</h2>
+        <span className="text-small font-semibold tabular-nums text-ink-2">
           {faites}/{total} faites
         </span>
       </div>
@@ -120,7 +120,7 @@ export function SeancesCard({ today }: { today: string }) {
       {enCours && (
         <Link
           href="/musculation/seance"
-          className="flex items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5 text-[14px] font-semibold text-ink transition active:scale-[0.985]"
+          className="flex items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5 text-label font-semibold text-ink transition active:scale-[0.985]"
         >
           <span className="truncate">Séance en cours · {enCours.nom}</span>
           <span className="shrink-0 text-kcal">Reprendre</span>
@@ -128,7 +128,7 @@ export function SeancesCard({ today }: { today: string }) {
       )}
 
       {groupes.length === 0 ? (
-        <p className="text-[13.5px] leading-snug text-ink-2">
+        <p className="text-label leading-snug text-ink-2">
           Aucune routine Push, Pull ou Legs : donne un type à tes routines dans Musculation pour les retrouver ici.
         </p>
       ) : (
@@ -137,8 +137,8 @@ export function SeancesCard({ today }: { today: string }) {
             <li key={groupe.type} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
               <Coche faite={groupe.faite} />
               <div className="min-w-0 flex-1">
-                <p className={`text-[14.5px] font-medium ${groupe.faite ? "text-ink-2" : "text-ink"}`}>{LIBELLES_TYPE[groupe.type]}</p>
-                {groupe.faite && <p className="text-[12.5px] text-ink-2">Faite cette semaine</p>}
+                <p className={`text-body font-medium ${groupe.faite ? "text-ink-2" : "text-ink"}`}>{LIBELLES_TYPE[groupe.type]}</p>
+                {groupe.faite && <p className="text-small text-ink-2">Faite cette semaine</p>}
               </div>
               <div className="flex flex-wrap justify-end gap-1.5">
                 {groupe.routines.map((routine) => (
