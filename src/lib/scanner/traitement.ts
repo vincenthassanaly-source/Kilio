@@ -3,6 +3,7 @@
 // uniquement : ne jamais importer depuis un composant serveur.
 
 import { detecterFeuille, detecterQuadrilatere } from "./detection";
+import { etendreAuxBordsDeLaFeuille } from "./extension";
 import type { Filtre } from "./filtres";
 import { appliquerFiltre, filtreConseille } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
@@ -87,6 +88,13 @@ export function prechargerOpenCv(): void {
  * détection. Ne rejette jamais ; null = rien de fiable (cadre par défaut à ajuster).
  */
 export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad | null> {
+  const quad = await detecterCoins(source);
+  // Une page qui déborde du cadre est souvent résumée à un pli ou à son bloc de texte : on
+  // repousse chaque côté jusqu'au vrai bord du papier (voir extension.ts).
+  return quad ? etendreAuxBordsDeLaFeuille(source, quad) : null;
+}
+
+async function detecterCoins(source: ImageDataLike): Promise<Quad | null> {
   try {
     const { cv } = await chargerOpenCv();
     // L'ancienne détection par droites (rapide, insensible au grain du fond) vote avec les
