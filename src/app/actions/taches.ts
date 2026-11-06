@@ -1129,7 +1129,7 @@ export async function createTag(
 
   if (error) return { error: error.message };
 
-  revalidatePath("/taches");
+  revalidateTachesPaths();
   return { error: null };
 }
 
