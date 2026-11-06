@@ -67,7 +67,6 @@ const MODULES: Module[] = [
       syncTachesTags: "interne, appelée par createTache / updateTache",
       supprimerObjetsStorage: "supprime des fichiers de stockage, pas des lignes lues",
       supprimerImagesDeTache: "interne, appelée par updateTache / deleteTache",
-      createTag: "un nouveau tag sans lien n'apparaît dans aucune lecture en cache",
     },
   },
   { fichier: "src/app/actions/recettes.ts", expiration: /updateTag\(RECETTES_TAG\)/ },
@@ -130,6 +129,11 @@ describe("les écritures expirent le tag du cache serveur qu'elles invalident", 
   it("deleteTag expire aussi le tag des notes (table tags partagée)", () => {
     const fonction = extraireFonctions(lire("src/app/actions/taches.ts")).find((f) => f.nom === "deleteTag");
     expect(fonction?.corps).toMatch(/revalidateTag\(NOTES_TAG/);
+  });
+
+  it("getTagsEnCache porte les tags des tâches et des notes (table tags partagée)", () => {
+    const fonction = extraireFonctions(lire("src/lib/taches/cache.ts")).find((f) => f.nom === "getTagsEnCache");
+    expect(fonction?.corps).toMatch(/cacheTag\(TACHES_TAG, NOTES_TAG\)/);
   });
 
   it("la route reporter-rappel (écriture hors Server Action) expire le tag des tâches", () => {

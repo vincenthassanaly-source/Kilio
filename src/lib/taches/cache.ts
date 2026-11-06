@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { getListes, getTachesAvecRelations, type TacheAvecRelations } from "@/app/actions/taches";
+import { getListes, getTachesAvecRelations, getTags, type TacheAvecRelations } from "@/app/actions/taches";
+import { NOTES_TAG } from "@/lib/notes/tags";
 import type { Tables } from "@/lib/supabase/types";
 import { TACHES_TAG } from "@/lib/taches/tags";
 
@@ -24,4 +25,15 @@ export async function getListesEnCache(): Promise<Tables<"listes_taches">[]> {
   cacheLife({ stale: 0, revalidate: 60, expire: 3600 });
 
   return getListes();
+}
+
+// La table `tags` est partagée entre les tâches et les notes : les deux tags
+// de cache couvrent toutes ses écritures (createTag, deleteTag, création à la
+// volée depuis une tâche ou une note), qui expirent déjà l'un ou l'autre.
+export async function getTagsEnCache(): Promise<Tables<"tags">[]> {
+  "use cache";
+  cacheTag(TACHES_TAG, NOTES_TAG);
+  cacheLife({ stale: 0, revalidate: 60, expire: 3600 });
+
+  return getTags();
 }
