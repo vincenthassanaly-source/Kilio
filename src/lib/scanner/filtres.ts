@@ -147,6 +147,19 @@ const SATURATION_MIN_ABS = 22;
 const WB_MIN = 0.75;
 const WB_MAX = 1.33;
 
+/** Rapport pixel/fond à partir duquel un pixel peut être du papier (neutralisé progressivement). */
+const PAPIER_DEBUT = 0.8;
+const PAPIER_FIN = 0.95;
+/** Écart max-min (niveaux 0-255) sous lequel un pixel clair est du papier teinté, au-dessus duquel c'est de la couleur. */
+const PAPIER_CHROMA_MIN = 28;
+const PAPIER_CHROMA_MAX = 70;
+
+/** Marche douce de 0 (en dessous de `a`) à 1 (au-dessus de `b`). */
+function lisser(a: number, b: number, v: number): number {
+  const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+}
+
 /** Courbe tonale : seuil bas/haut, avec une douce courbe en S qui garde le texte pâle lisible. */
 function courbeMagic(rapport: number): number {
   const t = Math.min(1, Math.max(0, (rapport - NOIR) / (BLANC - NOIR)));
@@ -212,11 +225,16 @@ export function magicColor(img: ImageDataLike): ImageDataLike {
         if (max * k > 255) k = 255 / max; // pas d'écrêtage d'un seul canal : on garde la teinte
         nr = rr * k; ng = gg2 * k; nb = bb * k;
       }
-      // Saturation autour de la luminance obtenue.
+      // Papier : un pixel clair et peu coloré redevient neutre. La balance des blancs globale ne
+      // suffit pas quand l'éclairage change d'une zone à l'autre (reflet bleuté, lampe chaude) ;
+      // l'encre, les tampons et les logos (saturés ou sombres) ne sont pas touchés.
       const l = luma(nr, ng, nb);
-      sortie[o] = l + (nr - l) * SATURATION_MAGIC;
-      sortie[o + 1] = l + (ng - l) * SATURATION_MAGIC;
-      sortie[o + 2] = l + (nb - l) * SATURATION_MAGIC;
+      const chroma = Math.max(nr, ng, nb) - Math.min(nr, ng, nb);
+      const papier = lisser(PAPIER_DEBUT, PAPIER_FIN, rapport) * (1 - lisser(PAPIER_CHROMA_MIN, PAPIER_CHROMA_MAX, chroma));
+      const sat = SATURATION_MAGIC * (1 - papier);
+      sortie[o] = l + (nr - l) * sat;
+      sortie[o + 1] = l + (ng - l) * sat;
+      sortie[o + 2] = l + (nb - l) * sat;
       sortie[o + 3] = 255;
     }
   }
