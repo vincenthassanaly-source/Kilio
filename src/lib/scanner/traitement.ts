@@ -3,7 +3,10 @@
 // uniquement : ne jamais importer depuis un composant serveur.
 
 import { detecterFeuille, detecterQuadrilatere } from "./detection";
+import { affinerLesCotes } from "./affinage";
+import { nettoyerLesBords } from "./bordsPropres";
 import { etendreAuxBordsDeLaFeuille } from "./extension";
+import { redresserLesLignes } from "./redressementTexte";
 import type { Filtre } from "./filtres";
 import { appliquerFiltre, filtreConseille } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
@@ -89,9 +92,11 @@ export function prechargerOpenCv(): void {
  */
 export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad | null> {
   const quad = await detecterCoins(source);
+  if (!quad) return null;
   // Une page qui déborde du cadre est souvent résumée à un pli ou à son bloc de texte : on
-  // repousse chaque côté jusqu'au vrai bord du papier (voir extension.ts).
-  return quad ? etendreAuxBordsDeLaFeuille(source, quad) : null;
+  // repousse chaque côté jusqu'au vrai bord du papier (voir extension.ts), puis on recale chaque
+  // côté sur ce bord pour qu'il soit droit et parallèle au vrai (voir affinage.ts).
+  return affinerLesCotes(source, etendreAuxBordsDeLaFeuille(source, quad));
 }
 
 async function detecterCoins(source: ImageDataLike): Promise<Quad | null> {
@@ -170,6 +175,9 @@ export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtr
   }
   redressee ??= redresser(source, quad, largeur, hauteur);
   if (!redressee) throw new Error("Cadrage invalide : les quatre coins doivent former un quadrilatère convexe.");
+  // Fond resté dans un coin (page coupée par la photo) repeint en papier, puis lignes de texte
+  // nettement penchées remises à l'horizontale. Sans fond ni texte repérables, rien ne bouge.
+  redressee = redresserLesLignes(nettoyerLesBords(redressee));
   const choisi: Filtre = filtre === "auto" ? filtreConseille(largeur, hauteur, redressee) : filtre;
   const redresse = await imageVersJpeg(redressee);
   const traite = choisi === "original" ? redresse : await imageVersJpeg(appliquerFiltre(redressee, choisi));
