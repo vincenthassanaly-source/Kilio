@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Portal } from "@/components/Portal";
 import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
@@ -13,6 +13,11 @@ const PAUSE_ENTRE_DETECTIONS_MS = 120;
 const COTE_DETECTION_LIVE_PX = 180;
 
 type Erreur = "refuse" | "indisponible" | null;
+
+/** Cadre détecté sous forme de tracé SVG fermé (même format pour l'attribut `d` et la propriété CSS `d`). */
+function cheminQuad(quad: Quad): string {
+  return `M${quad.map((p) => `${Math.round(p.x * 10) / 10} ${Math.round(p.y * 10) / 10}`).join(" L")} Z`;
+}
 
 /**
  * Viseur plein écran : flux caméra arrière, cadre de détection en direct et
@@ -40,6 +45,7 @@ export function Viseur({
   const pisteRef = useRef<MediaStreamTrack | null>(null);
   const [pret, setPret] = useState(false);
   const [enCapture, setEnCapture] = useState(false);
+  const [flash, setFlash] = useState(false);
   const [detection, setDetection] = useState<{ quad: Quad | null; largeur: number; hauteur: number } | null>(null);
 
   // Reste actif même en pause : l'écran de recadrage empile sa propre entrée
@@ -124,6 +130,11 @@ export function Viseur({
     const video = videoRef.current;
     if (!video || !pret || enCapture) return;
     setEnCapture(true);
+    // Pas d'éclair si le système demande moins de mouvement : un flash blanc est plus gênant qu'une transition.
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setFlash(true);
+      window.setTimeout(() => setFlash(false), 110);
+    }
     try {
       onCapture(await capturerPhoto(video, pisteRef.current));
     } catch {
@@ -154,14 +165,33 @@ export function Viseur({
               preserveAspectRatio="xMidYMid meet"
               aria-hidden="true"
             >
-              <polygon
-                points={quad.map((p) => `${p.x},${p.y}`).join(" ")}
+              {/* Chemin plutôt que polygone : la propriété CSS `d` s'anime (Chrome), si bien que le cadre glisse
+                  d'une détection à la suivante au lieu de sauter. Ailleurs, l'attribut `d` s'affiche sans animation. */}
+              <path
+                d={cheminQuad(quad)}
+                style={{ d: `path("${cheminQuad(quad)}")`, transition: "d 140ms linear" } as CSSProperties}
                 fill="rgba(80, 220, 140, 0.18)"
                 stroke="rgb(80, 220, 140)"
                 strokeWidth={Math.max(detection.largeur, detection.hauteur) * 0.006}
                 strokeLinejoin="round"
               />
             </svg>
+          )}
+
+          {/* Éclair blanc très bref à la prise : confirme que la photo est partie. */}
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-0 bg-white ${flash ? "opacity-60" : "opacity-0 transition-opacity duration-300"}`}
+          />
+
+          {pret && !erreur && !enPause && (
+            <p
+              role="status"
+              className="absolute left-4 top-[calc(env(safe-area-inset-top)+16px)] flex h-11 items-center gap-2 rounded-full bg-black/50 px-4 text-xs font-semibold"
+            >
+              <span aria-hidden="true" className={`h-2 w-2 rounded-full ${quad ? "bg-[rgb(80,220,140)]" : "bg-white/50"}`} />
+              {quad ? "Feuille repérée" : "Cherche la feuille…"}
+            </p>
           )}
 
           {erreur && (
@@ -217,7 +247,7 @@ export function Viseur({
           <button
             type="button"
             onClick={onClose}
-            className="min-h-11 rounded-2xl bg-white/15 px-4 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="min-h-11 rounded-2xl bg-white/15 px-4 text-sm font-semibold tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             {nombrePages > 0 ? `Terminer (${nombrePages})` : "Terminer"}
           </button>

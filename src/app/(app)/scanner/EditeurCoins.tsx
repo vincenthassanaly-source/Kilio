@@ -109,8 +109,8 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
   return (
     <>
       <div className="px-5 pt-[calc(env(safe-area-inset-top)+14px)] text-center">
-        <p className="text-sm font-semibold">Ajuste les 4 coins sur les bords de la feuille</p>
-        <p className="mt-0.5 text-xs text-white/70" aria-live="polite">
+        <p className="text-balance text-sm font-semibold">Ajuste les 4 coins sur les bords de la feuille</p>
+        <p className="mt-0.5 text-balance text-xs text-white/70" aria-live="polite">
           {detecte === null
             ? "Détection en cours…"
             : detecte
