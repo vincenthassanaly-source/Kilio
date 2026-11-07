@@ -266,7 +266,7 @@ export function ResumeTaux({
   if (evalues === 0) {
     return (
       <p className="text-label text-ink-2 text-pretty">
-        Aucun jour jugé sur {periode} : saisis tes repas dans le Journal.
+        Aucun jour jugé sur {periode} : saisis tes repas dans le Carnet alimentaire.
       </p>
     );
   }

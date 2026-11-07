@@ -1,4 +1,4 @@
-// Verrou de « Vider ma tête » côté serveur : la session déverrouillée est un cookie signé de
+// Verrou de « Journal » côté serveur : la session déverrouillée est un cookie signé de
 // 15 minutes (renouvelé à chaque action), et les défis WebAuthn un cookie signé de 5 minutes à
 // usage unique. Sans VIDAGE_SESSION_SECRET (32 caractères minimum), le module reste fermé.
 import { createHash, timingSafeEqual } from "node:crypto";

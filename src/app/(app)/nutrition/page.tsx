@@ -4,7 +4,7 @@ import { card, eyebrow, screenTitle } from "@/lib/ui";
 const SECTIONS = [
   {
     href: "/nutrition/journal",
-    label: "Journal",
+    label: "Carnet alimentaire",
     description: "Repas du jour et objectifs",
     icon: (c: string) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

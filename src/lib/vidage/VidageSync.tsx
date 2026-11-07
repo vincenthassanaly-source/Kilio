@@ -12,7 +12,7 @@ const DELAI_PAUSE_MS = 2_000;
 const DELAIS_REJEU_MS = [5_000, 20_000, 60_000];
 
 /**
- * Envoie les feuilles de « Vider ma tête » écrites sur le téléphone : après une
+ * Envoie les feuilles de « Journal » écrites sur le téléphone : après une
  * pause d'écriture, au retour du réseau, au retour au premier plan et quand
  * l'app passe en arrière-plan (dernière chance avant que le navigateur ne la
  * suspende). Monté une fois dans providers.tsx : une feuille écrite hors ligne

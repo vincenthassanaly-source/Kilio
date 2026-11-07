@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
   // <Link prefetch={true}> résout en plus le contenu propre à son URL.
   // Voir reports/2026-09-24-partial-prefetching-coquilles-journal-budget.md.
   partialPrefetching: true,
+  // Le module « Vider ma tête » s'appelle désormais « Journal » : les anciens
+  // liens (rappels déjà envoyés, raccourcis) redirigent en permanence.
+  async redirects() {
+    return [
+      { source: "/vider-ma-tete", destination: "/journal", permanent: true },
+      { source: "/vider-ma-tete/:path*", destination: "/journal/:path*", permanent: true },
+    ];
+  },
   env: {
     NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
   },

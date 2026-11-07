@@ -1,6 +1,6 @@
 # Kilio
 
-Application personnelle mono-utilisateur (PWA, mobile d'abord) qui centralise nutrition, agenda, courses, tâches, habitudes, documents, notes, collection, pharmacie, musculation et le carnet « Vider ma tête ». La description produit complète est dans [`PRODUCT.md`](PRODUCT.md), le design system dans [`DESIGN.md`](DESIGN.md).
+Application personnelle mono-utilisateur (PWA, mobile d'abord) qui centralise nutrition, agenda, courses, tâches, habitudes, documents, notes, collection, pharmacie, musculation et le carnet « Journal ». La description produit complète est dans [`PRODUCT.md`](PRODUCT.md), le design system dans [`DESIGN.md`](DESIGN.md).
 
 **Stack** : Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS v4, Supabase (Postgres, Storage, Edge Functions), TanStack Query, Dexie (cache et file hors ligne). Déployé sur Vercel, branche par défaut `kiliomain`.
 
@@ -20,9 +20,9 @@ Il faut un fichier `.env.local` (jamais commité). Variables lues par le code :
 | `NEXT_PUBLIC_SUPABASE_URL` | URL du projet Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | Clé de service, **côté serveur uniquement** : toutes les lectures et écritures passent par elle |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Clé publique des notifications push |
-| `GEMINI_API_KEY` | Transcription de « Vider ma tête » et Réveil |
-| `VIDAGE_SESSION_SECRET` | Secret de session (32 caractères minimum) ; sans lui, « Vider ma tête » reste fermé |
-| `VIDAGE_INSCRIPTION_CODE` | Code d'enregistrement du premier appareil de « Vider ma tête » (16 caractères minimum, aléatoire) ; sans lui, aucun appareil ne peut s'enregistrer |
+| `GEMINI_API_KEY` | Transcription de « Journal » et Réveil |
+| `VIDAGE_SESSION_SECRET` | Secret de session (32 caractères minimum) ; sans lui, « Journal » reste fermé |
+| `VIDAGE_INSCRIPTION_CODE` | Code d'enregistrement du premier appareil de « Journal » (16 caractères minimum, aléatoire) ; sans lui, aucun appareil ne peut s'enregistrer |
 | `AGENDA_FEED_TOKEN` | Jeton du flux ICS de l'agenda |
 
 Les Edge Functions lisent en plus `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` et `VAPID_SUBJECT` (secrets Supabase).

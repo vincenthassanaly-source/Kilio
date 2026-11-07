@@ -1,4 +1,4 @@
-// Logique pure du rappel « Vider ma tête » (testée par src/lib/vidage/rappel.test.ts).
+// Logique pure du rappel « Journal » (testée par src/lib/vidage/rappel.test.ts).
 
 /**
  * Faut-il rappeler d'écrire ce soir ? Une fois par jour (heure de Paris), à
@@ -21,7 +21,7 @@ export function rappelVidageDu(input: {
 
 export function composerRappelVidage(): { title: string; body: string } {
   return {
-    title: "Vider ta tête ?",
+    title: "Ton Journal du soir ?",
     body: "Quelques minutes, à la main, pour poser la journée.",
   };
 }

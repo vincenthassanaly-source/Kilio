@@ -35,7 +35,7 @@ const TYPE_SUIVI_LABELS: Record<Enums<"type_suivi_objectif">, string> = {
   etapes: "Checklist d'étapes",
   binaire: "Fait / pas fait",
   habitudes: "Alimenté par des habitudes",
-  nutrition: "Suivi automatique des kcal du Journal",
+  nutrition: "Suivi automatique des kcal du Carnet alimentaire",
 };
 
 export function ObjectifForm({
@@ -178,7 +178,7 @@ export function ObjectifForm({
 
       {typeSuivi === "nutrition" && (
         <p className="text-sm text-ink-2 text-pretty">
-          Un jour est réussi quand tes kcal restent sous la cible du Journal (repos ou entraînement). Les macros sont
+          Un jour est réussi quand tes kcal restent sous la cible du Carnet alimentaire (repos ou entraînement). Les macros sont
           affichées pour information. Un seul objectif Nutrition est possible, sans échéance.
         </p>
       )}

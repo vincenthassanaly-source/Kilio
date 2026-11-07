@@ -21,7 +21,7 @@ export default function JournalPage({ searchParams }: { searchParams: JournalSea
             <Suspense fallback={<p className={eyebrow}>&nbsp;</p>}>
               <JournalDateLibelle searchParams={searchParams} />
             </Suspense>
-            <h1 className={screenTitle}>Journal</h1>
+            <h1 className={screenTitle}>Carnet alimentaire</h1>
           </div>
           <Suspense fallback={<JourNavigation />}>
             <JournalJourNavigation searchParams={searchParams} />

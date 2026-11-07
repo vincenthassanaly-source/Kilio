@@ -336,11 +336,11 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
 
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className={screenTitle}>{estAujourdhui ? "Vider ma tête" : "Feuille du soir"}</h1>
+          <h1 className={screenTitle}>{estAujourdhui ? "Journal" : "Feuille du soir"}</h1>
           <p className={eyebrow}>{libelleJour(jour)}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <TransitionLink href="/vider-ma-tete/calendrier" className={ghostButton}>
+          <TransitionLink href="/journal/calendrier" className={ghostButton}>
             Relire
           </TransitionLink>
           <MenuFeuille

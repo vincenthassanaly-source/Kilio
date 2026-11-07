@@ -147,7 +147,7 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 Chaque module a sa propre teinte identitaire (agenda `230`, habitudes `45`, courses `305`, objectifs `200`, collection `280`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent uniquement à colorer l'icône/l'identité de leur module dans la grille d'accueil et le sélecteur "Plus" ; elles ne remplacent jamais le vert Kcal comme couleur interactive à l'intérieur d'un module.
 
 ### Note Tints (optional)
-Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavande`, `--note-ciel`, `--note-rose`, `--note-citron`, `--note-menthe`, `--note-argile`) réservées aux fonds de note du module Notes — hors périmètre du Journal Nutrition, listées ici pour mémoire de complétude du système.
+Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavande`, `--note-ciel`, `--note-rose`, `--note-citron`, `--note-menthe`, `--note-argile`) réservées aux fonds de note du module Notes — hors périmètre du Carnet alimentaire, listées ici pour mémoire de complétude du système.
 
 ### Named Rules
 **The One Accent Rule.** Le vert Kcal est la seule couleur autorisée pour un élément interactif primaire (bouton plein, lien, focus ring, onglet actif), quel que soit le module affiché.
@@ -159,7 +159,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 - **Agenda** : le bleu `--accent-agenda` sert de couleur interactive **à l'intérieur de l'Agenda uniquement** (sélecteur Jour/Semaine/Mois glissant, FAB, anneau de focus des blocs, « Aujourd'hui »), avec `--on-agenda` pour le texte posé dessus. Motif : l'Agenda superpose tâches, planning de travail et créneaux, et le bleu y distingue l'action du contenu. Aucun autre module n'a cette exception.
 - **Échelle de priorité des tâches** : les badges et blocs de priorité (basse / moyenne / haute) utilisent `agenda` / `carbs` / `alert` en **teinte de fond à 10-15 %**, toujours doublée d'un marqueur non chromatique (glyphe ou libellé). Ce sont des indicateurs passifs, jamais des contrôles ; le sélecteur de priorité, lui, est un contrôle segmenté standard (actif en vert Kcal).
 - **Barre de navigation** : les labels de la barre du bas sont en 11px (plancher du système).
-- **Vider ma tête** : teinte `--accent-vidage` (`oklch(0.55 0.14 250)`, identité du module et vignette du calendrier). L'écran d'écriture est **immersif** : pas de barre du bas, une barre d'outils flottante à sa place (stylo, gomme, 3 épaisseurs, annuler/rétablir, cibles 44 px). L'encre est `--ink` (suit clair/sombre) sur la surface, avec des lignes d'écriture `--line` ; les aperçus PNG du calendrier restent en encre sombre sur papier clair quel que soit le thème (image opaque).
+- **Journal** : teinte `--accent-vidage` (`oklch(0.55 0.14 250)`, identité du module et vignette du calendrier). L'écran d'écriture est **immersif** : pas de barre du bas, une barre d'outils flottante à sa place (stylo, gomme, 3 épaisseurs, annuler/rétablir, cibles 44 px). L'encre est `--ink` (suit clair/sombre) sur la surface, avec des lignes d'écriture `--line` ; les aperçus PNG du calendrier restent en encre sombre sur papier clair quel que soit le thème (image opaque).
 ## Typography
 
 **Display Font:** Sora (600/700/800), fallback `ui-sans-serif, system-ui`
@@ -169,7 +169,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 **Character:** Sora est géométrique et ferme, réservée à ce qui doit "peser" visuellement : titres d'écran et chiffres-clés (kcal consommées, kcal par repas). Inter porte tout le reste — labels, corps de texte, boutons — pour rester neutre et très lisible en petite taille sur mobile.
 
 ### Hierarchy
-- **Display** (600, 28px / 1.1, tracking −0,03em) : `screenTitle` — titre d'écran ("Journal"), et chiffres-clés isolés (kcal restantes au centre de l'anneau, kcal d'une entrée de repas).
+- **Display** (600, 28px / 1.1, tracking −0,03em) : `screenTitle` — titre d'écran ("Carnet alimentaire"), et chiffres-clés isolés (kcal restantes au centre de l'anneau, kcal d'une entrée de repas).
 - **Title** (700, 15px) : `sectionTitle` — titres de section ("Résumé du jour", "Repas du jour").
 - **Body** (600, 14.5px) : nom d'une entité dans une liste (nom d'un repas, d'une tâche).
 - **Label** (600, 12.5–13.5px) : `eyebrow` (date du jour, contexte), onglets de sous-nav.

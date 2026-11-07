@@ -5,7 +5,7 @@ import { screenTitle } from "@/lib/ui";
 export function FeuilleChargement() {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className={screenTitle}>Vider ma tête</h1>
+      <h1 className={screenTitle}>Journal</h1>
       <Skeleton className="h-[60vh] w-full rounded-card" />
     </div>
   );

@@ -18,7 +18,7 @@ function VidageIcon() {
 
 type Etat = { actif: boolean; heure: string };
 
-/** Push du soir « Vider ta tête ? », envoyé seulement si la feuille du jour est encore vide. */
+/** Push du soir « Ton Journal du soir ? », envoyé seulement si la feuille du jour est encore vide. */
 export function VidageRow({ reglages }: { reglages: Tables<"reglages_briefing"> }) {
   // `??` : tant que la migration du rappel n'est pas appliquée, les colonnes vidage_*
   // sont absentes de la ligne ; la page Réglages ne doit pas planter pour autant.
@@ -62,18 +62,18 @@ export function VidageRow({ reglages }: { reglages: Tables<"reglages_briefing"> 
           >
             <VidageIcon />
           </span>
-          Vider ma tête
+          Journal
         </span>
         <Switch
           checked={etat.actif}
           onToggle={() => persister({ ...etat, actif: !etat.actif })}
-          label="Rappel du soir pour vider ma tête"
+          label="Rappel du soir pour le Journal"
         />
       </div>
       <p className="text-small leading-snug text-ink-2">
         {etat.actif
           ? "Chaque soir à l'heure choisie, une notification te propose d'écrire, sauf si ta feuille du jour est déjà écrite. Nécessite les notifications ci-dessus."
-          : "Désactivé : aucun rappel (la feuille reste accessible dans Plus › Vider ma tête)."}
+          : "Désactivé : aucun rappel (la feuille reste accessible dans Plus › Journal)."}
       </p>
       {etat.actif && (
         <div className="flex flex-col gap-1.5">

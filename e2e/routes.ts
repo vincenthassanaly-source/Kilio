@@ -13,7 +13,7 @@ export const ROUTES: RouteContract[] = [
   { path: "/", shellTestId: "dashboard-shell" },
   { path: "/taches", title: "Tâches" },
   { path: "/taches/listes", title: "Listes & tags" },
-  { path: "/nutrition/journal", title: "Journal" },
+  { path: "/nutrition/journal", title: "Carnet alimentaire" },
   { path: "/habitudes", title: "Habitudes" },
   { path: "/courses", title: "Courses" },
   { path: "/notes", title: "Notes" },

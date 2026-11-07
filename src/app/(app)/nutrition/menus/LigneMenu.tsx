@@ -46,8 +46,8 @@ export function LigneMenu({ repas }: { repas: RepasPlanifie }) {
       vibrate();
       rafraichirResume();
       if (suivant) {
-        showActionToast(`« ${repas.label} » ajouté au Journal`, {
-          ariaLabel: `Annuler l'ajout de « ${repas.label} » au Journal`,
+        showActionToast(`« ${repas.label} » ajouté au Carnet alimentaire`, {
+          ariaLabel: `Annuler l'ajout de « ${repas.label} » au Carnet alimentaire`,
           onAction: () => {
             void runAction(() => annulerValidationMenuEntry(repas.id)).then((r) => {
               if (r.ok) rafraichirResume();

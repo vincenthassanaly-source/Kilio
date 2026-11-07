@@ -1,4 +1,4 @@
-// Module « Vider ma tête » : écriture au stylet sur la feuille du soir.
+// Module « Journal » : écriture au stylet sur la feuille du soir.
 // Les événements de pointeur sont injectés avec pointerType « pen » (Playwright
 // ne simule pas un vrai stylet) : on vérifie le tracé, la gomme, le refus du
 // doigt, la sauvegarde locale puis l'envoi au serveur (faux Supabase).
@@ -43,7 +43,7 @@ const diagonale: Point[] = [
 ];
 
 async function ouvrir(page: import("@playwright/test").Page) {
-  await page.goto("/vider-ma-tete");
+  await page.goto("/journal");
   const canvas = page.getByRole("img", { name: /Feuille du soir/ });
   await expect(canvas).toBeVisible();
   return canvas;
@@ -210,7 +210,7 @@ test("le calendrier montre la feuille qu'on vient d'écrire, même si on l'ouvre
 
   await page.getByRole("link", { name: "Relire", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Relire" })).toBeVisible();
-  await expect(page.locator('a[href="/vider-ma-tete"][aria-label^="Relire le"]')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('a[href="/journal"][aria-label^="Relire le"]')).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText("1 soir écrit ce mois-ci.")).toBeVisible();
 });
 
@@ -219,7 +219,7 @@ test("la barre du bas est masquée sur la feuille du soir mais pas sur le calend
   await expect(page.getByRole("toolbar", { name: "Outils d'écriture" })).toBeVisible();
   await expect(page.getByRole("navigation")).toHaveCount(0);
 
-  await page.goto("/vider-ma-tete/calendrier");
+  await page.goto("/journal/calendrier");
   await expect(page.getByRole("heading", { name: "Relire" })).toBeVisible();
   await expect(page.getByRole("navigation")).toHaveCount(1);
 });

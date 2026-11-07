@@ -1,7 +1,7 @@
 // Appelée toutes les minutes par pg_cron (cf. scripts/migration-cron-rappel-vidage-2026-10-19.sql).
 // Une fois par jour, à l'heure réglée dans `reglages_briefing` (21:00 par défaut,
-// heure de Paris), rappelle d'écrire dans « Vider ma tête » — sauf si la feuille
-// du jour existe déjà. Un tap ouvre /vider-ma-tete.
+// heure de Paris), rappelle d'écrire dans « Journal » — sauf si la feuille
+// du jour existe déjà. Un tap ouvre /journal.
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { composerRappelVidage, rappelVidageDu } from "./compose.ts";
@@ -85,7 +85,7 @@ Deno.serve(async () => {
   if (subsError) return json({ error: subsError.message }, 500);
 
   const message = composerRappelVidage();
-  const payload = JSON.stringify({ title: message.title, body: message.body, url: "/vider-ma-tete" });
+  const payload = JSON.stringify({ title: message.title, body: message.body, url: "/journal" });
   let sent = 0;
   let expired = 0;
   for (const sub of subscriptions ?? []) {
