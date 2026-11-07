@@ -1,21 +1,22 @@
-// Filtres d'image du scanner. Purs, sans DOM.
+// Filtre d'image du scanner. Pur, sans DOM.
 //
-// - « Magic color » : rend le papier blanc et l'encre nette, comme CamScanner.
+// Un seul filtre, « Magique », qui reproduit « Magique Pro » de CamScanner : papier blanc pur,
+// texte noir et épais, tampons et signatures qui gardent leurs demi-tons, couleurs conservées.
 //   Une balance des blancs *globale* (mêmes gains partout, donc les rapports de
 //   couleur sont conservés), puis un gain calculé sur la LUMINANCE seule et
 //   appliqué de la même façon aux trois canaux. Diviser chaque canal par son
 //   propre fond (ancienne version) décalait les teintes dès que le fond
-//   changeait de couleur : c'est ce qui donnait des couleurs fausses.
-// - « Noir & blanc » : le rendu document par défaut. Fond d'éclairage estimé par
-//   fermeture morphologique puis divisé (ombres et dégradés disparaissent, le
-//   papier devient exactement blanc), netteté du texte renforcée, courbe
-//   tranchée mais lissée (pas de binarisation dure qui mangerait les traits fins).
-// - « Couleurs fidèles » : pour cartes, photos, pièces d'identité. Corrige
-//   seulement l'éclairage progressif (une ombre qui traverse la carte) avec un
-//   gain doux et borné, sans blanchir ni toucher aux teintes ni au contenu local.
+//   changeait de couleur : c'est ce qui donnait des couleurs fausses. Le fond
+//   d'éclairage (fermeture morphologique) efface ombres et plis ; la netteté du texte
+//   est renforcée ; l'encre neutre reçoit une courbe tranchée, les pixels franchement
+//   colorés (logo, photo) une courbe douce pour ne pas être écrasés en noir.
 
 import type { ImageDataLike } from "./geometrie";
 
+/**
+ * Filtre enregistré avec une page. Le scanner n'applique plus que « magic » ; les autres
+ * valeurs restent pour relire sans erreur les pages du brouillon créées avec les anciens filtres.
+ */
 export type Filtre = "original" | "noirblanc" | "couleurs" | "magic";
 
 /** Plus grand côté (en pixels) de la grille grossière servant à estimer l'éclairage. */
@@ -132,9 +133,28 @@ function percentile(valeurs: Float32Array, p: number): number {
 
 /* ---------- Magic color ---------- */
 
-/** Rapport pixel/fond en dessous duquel le pixel est noir, et au-dessus duquel il est blanc. */
-const NOIR = 0.1;
-const BLANC = 0.94;
+/**
+ * Courbe tonale de l'encre neutre (texte noir ou gris, tampon) : rapport pixel/fond en dessous
+ * duquel le pixel est noir, au-dessus duquel il est blanc, et part de la courbe linéaire (le
+ * reste est une courbe en S). Tranchée, comme « Magique Pro » de CamScanner : texte noir et
+ * épais, papier blanc pur, demi-tons du tampon conservés.
+ */
+const NOIR = 0.42;
+const BLANC = 0.8;
+const PART_LINEAIRE = 0.1;
+/**
+ * Courbe douce des pixels franchement colorés (logo, photo, tampon rouge) : ils gardent leur
+ * teinte et leur valeur au lieu d'être écrasés en noir par la courbe tranchée.
+ */
+const NOIR_COULEUR = 0.1;
+const BLANC_COULEUR = 0.94;
+const PART_LINEAIRE_COULEUR = 0.65;
+/** Écart max-min (niveaux 0-255) sous lequel un pixel est de l'encre neutre, au-dessus duquel c'est de la couleur. */
+const COULEUR_MIN = 30;
+const COULEUR_MAX = 70;
+/** Netteté (masque flou) sur le rapport au fond : rayon du flou (pixels pour 1000 px de côté) et gain. */
+const RAYON_NETTETE = 1.2;
+const GAIN_NETTETE = 1.1;
 /** Rayon de la fermeture morphologique, en fraction du plus grand côté de la grille. */
 const RAYON_FOND = 0.05;
 /** Gain de saturation (légèrement > 1 : compense l'éclaircissement du fond). */
@@ -160,10 +180,17 @@ function lisser(a: number, b: number, v: number): number {
   return t * t * (3 - 2 * t);
 }
 
-/** Courbe tonale : seuil bas/haut, avec une douce courbe en S qui garde le texte pâle lisible. */
-function courbeMagic(rapport: number): number {
-  const t = Math.min(1, Math.max(0, (rapport - NOIR) / (BLANC - NOIR)));
-  return 0.65 * t + 0.35 * t * t * (3 - 2 * t);
+/** Courbe en S entre deux seuils, avec une part linéaire qui garde les demi-tons lisibles. */
+function courbeEnS(rapport: number, noir: number, blanc: number, partLineaire: number): number {
+  const t = Math.min(1, Math.max(0, (rapport - noir) / (blanc - noir)));
+  return partLineaire * t + (1 - partLineaire) * t * t * (3 - 2 * t);
+}
+
+/** Courbe tonale d'un pixel : tranchée pour l'encre neutre, douce pour la couleur (`couleur` de 0 à 1). */
+function courbeMagic(rapport: number, couleur: number): number {
+  const neutre = courbeEnS(rapport, NOIR, BLANC, PART_LINEAIRE);
+  const colore = courbeEnS(rapport, NOIR_COULEUR, BLANC_COULEUR, PART_LINEAIRE_COULEUR);
+  return neutre + (colore - neutre) * couleur;
 }
 
 /** Applique « Magic color » et renvoie une nouvelle image (l'entrée n'est pas modifiée). */
@@ -208,7 +235,20 @@ export function magicColor(img: ImageDataLike): ImageDataLike {
   const rayon = Math.max(2, Math.round(RAYON_FOND * Math.max(grille.w, grille.h)));
   const fond = flouBoite(extremum(extremum(grille, rayon, true), rayon, false), Math.max(1, Math.round(rayon / 2)));
 
-  // 3. Par pixel : rapport au fond → courbe → même facteur sur les trois canaux.
+  // 3. Rapport au fond de chaque pixel (≈ 1 sur le papier, bien plus bas sur l'encre), puis
+  //    netteté par masque flou : les bords des lettres se creusent avant la courbe tonale.
+  const rapports: Grille = { p: new Float32Array(w * h), w, h };
+  for (let py = 0; py < h; py++) {
+    for (let px = 0; px < w; px++) {
+      const i = py * w + px;
+      const yy = luma(r[i] * wbR, g[i] * wbG, b[i] * wbB);
+      rapports.p[i] = Math.min(1.3, yy / Math.max(24, lire(fond, s, px, py)));
+    }
+  }
+  const rayonNetteteSource = Math.max(1, Math.round((RAYON_NETTETE * Math.max(w, h)) / 1000));
+  const flou = flouBoite(flouBoite(rapports, rayonNetteteSource), rayonNetteteSource);
+
+  // 4. Par pixel : rapport net → courbe → même facteur sur les trois canaux.
   const sortie = new Uint8ClampedArray(img.data.length);
   for (let py = 0; py < h; py++) {
     for (let px = 0; px < w; px++) {
@@ -216,8 +256,10 @@ export function magicColor(img: ImageDataLike): ImageDataLike {
       const o = i * 4;
       const rr = r[i] * wbR, gg2 = g[i] * wbG, bb = b[i] * wbB;
       const yy = luma(rr, gg2, bb);
-      const rapport = Math.min(1.3, yy / Math.max(24, lire(fond, s, px, py)));
-      const cibleY = courbeMagic(rapport) * 255;
+      const rapportBrut = rapports.p[i];
+      const rapport = rapportBrut + GAIN_NETTETE * (rapportBrut - flou.p[i]);
+      const couleur = lisser(COULEUR_MIN, COULEUR_MAX, Math.max(rr, gg2, bb) - Math.min(rr, gg2, bb));
+      const cibleY = courbeMagic(rapport, couleur) * 255;
       let nr = cibleY, ng = cibleY, nb = cibleY;
       if (yy > 1) {
         let k = cibleY / yy;
@@ -232,209 +274,16 @@ export function magicColor(img: ImageDataLike): ImageDataLike {
       const chroma = Math.max(nr, ng, nb) - Math.min(nr, ng, nb);
       const papier = lisser(PAPIER_DEBUT, PAPIER_FIN, rapport) * (1 - lisser(PAPIER_CHROMA_MIN, PAPIER_CHROMA_MAX, chroma));
       const sat = SATURATION_MAGIC * (1 - papier);
-      sortie[o] = l + (nr - l) * sat;
-      sortie[o + 1] = l + (ng - l) * sat;
-      sortie[o + 2] = l + (nb - l) * sat;
+      // Papier franchement clair : blanc pur (255), pas 252 à cause d'un canal limité au gain max.
+      const blanc = papier * lisser(0.85, 1, cibleY / 255);
+      const mr = l + (nr - l) * sat;
+      const mg = l + (ng - l) * sat;
+      const mb = l + (nb - l) * sat;
+      sortie[o] = mr + (255 - mr) * blanc;
+      sortie[o + 1] = mg + (255 - mg) * blanc;
+      sortie[o + 2] = mb + (255 - mb) * blanc;
       sortie[o + 3] = 255;
     }
   }
   return { data: sortie, width: w, height: h };
-}
-
-/* ---------- Noir & blanc ---------- */
-
-/** Rapport pixel/fond sous lequel on est noir, et au-dessus duquel on est blanc pur. */
-const NB_NOIR = 0.5;
-const NB_BLANC = 0.9;
-/** Rayon de la fermeture du fond (fraction du plus grand côté de la grille). */
-const NB_RAYON_FOND = 0.045;
-/** Netteté : rayon du flou de référence (pixels pour 1000 px de côté) et gain. */
-const NB_RAYON_NETTETE = 1.2;
-const NB_GAIN_NETTETE = 1.1;
-
-/** Courbe en S : encre franche, papier blanc, transition douce (texte pâle encore lisible). */
-function courbeNoirEtBlanc(rapport: number): number {
-  const t = Math.min(1, Math.max(0, (rapport - NB_NOIR) / (NB_BLANC - NB_NOIR)));
-  return t * t * (3 - 2 * t);
-}
-
-/** Luminance médiane au-dessous de laquelle la page est un support sombre (carte noire, ardoise). */
-const SEUIL_PAGE_SOMBRE = 105;
-
-/** Vrai si la majorité de la page est sombre : le texte y est clair sur fond foncé. */
-export function pageSombre(img: ImageDataLike): boolean {
-  const { data, width: w, height: h } = img;
-  const pas = Math.max(1, Math.floor(Math.sqrt((w * h) / 20000)));
-  const histo = new Uint32Array(256);
-  let n = 0;
-  for (let y = 0; y < h; y += pas) {
-    for (let x = 0; x < w; x += pas) {
-      const p = (y * w + x) * 4;
-      histo[Math.round(luma(data[p], data[p + 1], data[p + 2]))]++;
-      n++;
-    }
-  }
-  let cumul = 0;
-  for (let v = 0; v < 256; v++) {
-    cumul += histo[v];
-    if (cumul >= n / 2) return v < SEUIL_PAGE_SOMBRE;
-  }
-  return false;
-}
-
-/**
- * Document en noir et blanc net sur fond uniforme, sans ombres. Sur un support sombre
- * (texte clair sur fond foncé) la polarité est conservée : le fond reste noir pur et
- * le texte blanc, au lieu d'être forcé en noir sur blanc.
- */
-export function noirEtBlanc(img: ImageDataLike): ImageDataLike {
-  const { width: w, height: h, data } = img;
-  const n = w * h;
-  const s = Math.max(1, Math.round(Math.max(w, h) / COTE_GRILLE));
-  const sombre = pageSombre(img);
-
-  // 1. Luminance pleine résolution (inversée sur un support sombre : le fond devient « papier »)
-  //    et fond d'éclairage (l'encre, plus fine que le noyau, disparaît).
-  const lum = new Float32Array(n);
-  for (let i = 0, p = 0; i < n; i++, p += 4) {
-    const y = luma(data[p], data[p + 1], data[p + 2]);
-    lum[i] = sombre ? 255 - y : y;
-  }
-  const grille = reduireMoyenne(lum, w, h, s);
-  const rayon = Math.max(2, Math.round(NB_RAYON_FOND * Math.max(grille.w, grille.h)));
-  const fond = flouBoite(extremum(extremum(grille, rayon, true), rayon, false), Math.max(1, Math.round(rayon / 2)));
-
-  // 2. Rapport au fond (≈ 1 sur le papier, bien plus bas sur l'encre).
-  const rapport: Grille = { p: new Float32Array(n), w, h };
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      rapport.p[i] = Math.min(1.4, lum[i] / Math.max(24, lire(fond, s, x, y)));
-    }
-  }
-
-  // 3. Netteté (masque flou) : renforce les bords des lettres avant la courbe.
-  const r = Math.max(1, Math.round((NB_RAYON_NETTETE * Math.max(w, h)) / 1000));
-  const flou = flouBoite(flouBoite(rapport, r), r);
-
-  const sortie = new Uint8ClampedArray(data.length);
-  for (let i = 0, o = 0; i < n; i++, o += 4) {
-    const net = rapport.p[i] + NB_GAIN_NETTETE * (rapport.p[i] - flou.p[i]);
-    const clair = courbeNoirEtBlanc(net) * 255;
-    const v = sombre ? 255 - clair : clair;
-    sortie[o] = v;
-    sortie[o + 1] = v;
-    sortie[o + 2] = v;
-    sortie[o + 3] = 255;
-  }
-  return { data: sortie, width: w, height: h };
-}
-
-/* ---------- Couleurs fidèles ---------- */
-
-/** Rayon du flou d'éclairage, en fraction du plus grand côté : très large, pour ne suivre que les ombres étendues. */
-const RAYON_ECLAIRAGE = 0.2;
-/** Force de la correction d'éclairage (0 = rien, 1 = uniformisation complète). */
-const FORCE_ECLAIRAGE = 0.65;
-/** Bornes du gain d'éclairage : jamais plus de ±30 % de correction. */
-const GAIN_MIN = 0.8;
-const GAIN_MAX = 1.3;
-/** Étirement des niveaux limité, et gain de saturation très léger. */
-const ETIREMENT_MAX = 1.2;
-const SATURATION_FIDELE = 1.04;
-
-/** Corrige l'éclairage inégal sans toucher aux teintes ni blanchir le contenu. */
-export function couleursFideles(img: ImageDataLike): ImageDataLike {
-  const { width: w, height: h, data } = img;
-  const { r, g, b } = plansRVB(img);
-  const s = Math.max(1, Math.round(Math.max(w, h) / COTE_GRILLE));
-  const gr = reduireMoyenne(r, w, h, s);
-  const gg = reduireMoyenne(g, w, h, s);
-  const gb = reduireMoyenne(b, w, h, s);
-  const gy: Grille = { p: new Float32Array(gr.p.length), w: gr.w, h: gr.h };
-  for (let i = 0; i < gy.p.length; i++) gy.p[i] = luma(gr.p[i], gg.p[i], gb.p[i]);
-  const rayon = Math.max(2, Math.round(RAYON_ECLAIRAGE * Math.max(gy.w, gy.h)));
-  const eclairage = flouBoite(flouBoite(gy, rayon), Math.max(1, Math.round(rayon / 2)));
-
-  // Niveau de référence : l'éclairage moyen ; chaque pixel est ramené vers lui.
-  let moyenne = 0;
-  for (let i = 0; i < eclairage.p.length; i++) moyenne += eclairage.p[i];
-  moyenne /= eclairage.p.length;
-
-  // Étirement doux : 1er et 99e centiles de la luminance de la grille.
-  const bas = percentile(gy.p, 0.01);
-  const haut = percentile(gy.p, 0.99);
-  const etirement = Math.min(ETIREMENT_MAX, 250 / Math.max(1, haut - bas));
-
-  const sortie = new Uint8ClampedArray(data.length);
-  for (let py = 0; py < h; py++) {
-    for (let px = 0; px < w; px++) {
-      const i = (py * w + px) * 4;
-      const local = Math.max(24, lire(eclairage, s, px, py));
-      const gain = Math.min(GAIN_MAX, Math.max(GAIN_MIN, Math.pow(moyenne / local, FORCE_ECLAIRAGE)));
-      let nr = data[i] * gain;
-      let ng = data[i + 1] * gain;
-      let nb = data[i + 2] * gain;
-      // Étirement linéaire autour du niveau bas, même gain sur les trois canaux.
-      if (etirement > 1.01) {
-        nr = (nr - bas) * etirement + bas;
-        ng = (ng - bas) * etirement + bas;
-        nb = (nb - bas) * etirement + bas;
-      }
-      const l = luma(nr, ng, nb);
-      sortie[i] = l + (nr - l) * SATURATION_FIDELE;
-      sortie[i + 1] = l + (ng - l) * SATURATION_FIDELE;
-      sortie[i + 2] = l + (nb - l) * SATURATION_FIDELE;
-      sortie[i + 3] = 255;
-    }
-  }
-  return { data: sortie, width: w, height: h };
-}
-
-/** Rapport longueur/largeur d'une carte au format ID-1 (carte bancaire, d'identité) : 85,6 × 54 mm. */
-const RATIO_CARTE = 1.586;
-/** Large : la perspective étire ou écrase le rapport apparent d'une carte photographiée de biais. */
-const TOLERANCE_CARTE = 0.1;
-
-/** Écart max−min (niveaux 0-255) au-delà duquel un pixel est franchement coloré (un papier jauni reste en dessous). */
-const SATURATION_COULEUR = 55;
-/** Part de pixels colorés au-delà de laquelle la page est une photo ou un document en couleurs. */
-const PART_COULEUR_MIN = 0.12;
-
-/** Vrai si une part notable de la page est franchement colorée (photo, flyer) : le N&B en perdrait l'essentiel. */
-export function pageColoree(img: ImageDataLike): boolean {
-  const { data, width: w, height: h } = img;
-  const pas = Math.max(1, Math.floor(Math.sqrt((w * h) / 20000)));
-  let colores = 0;
-  let n = 0;
-  for (let y = 0; y < h; y += pas) {
-    for (let x = 0; x < w; x += pas) {
-      const p = (y * w + x) * 4;
-      const r = data[p], g = data[p + 1], b = data[p + 2];
-      if (Math.max(r, g, b) - Math.min(r, g, b) > SATURATION_COULEUR) colores++;
-      n++;
-    }
-  }
-  return n > 0 && colores / n > PART_COULEUR_MIN;
-}
-
-/**
- * Filtre proposé par défaut selon la forme et le contenu de la page redressée : une carte ou
- * une pièce d'identité, ou toute page franchement colorée, garde ses couleurs, tout le reste (A4, ticket, page de
- * livre) reçoit « Noir & blanc ». L'A4 (1,41) reste bien en dehors de la tolérance.
- */
-export function filtreConseille(largeur: number, hauteur: number, page?: ImageDataLike): Filtre {
-  const rapport = Math.max(largeur, hauteur) / Math.max(1, Math.min(largeur, hauteur));
-  if (Math.abs(rapport - RATIO_CARTE) <= TOLERANCE_CARTE) return "couleurs";
-  // Au contenu : une page franchement colorée (photo, flyer) garde ses couleurs, quel que soit son format.
-  if (page && pageColoree(page)) return "couleurs";
-  return "noirblanc";
-}
-
-/** Applique le filtre choisi ; « original » renvoie l'image telle quelle. */
-export function appliquerFiltre(img: ImageDataLike, filtre: Filtre): ImageDataLike {
-  if (filtre === "noirblanc") return noirEtBlanc(img);
-  if (filtre === "magic") return magicColor(img);
-  if (filtre === "couleurs") return couleursFideles(img);
-  return img;
 }

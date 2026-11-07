@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appliquerFiltre, couleursFideles, filtreConseille, magicColor, noirEtBlanc, pageColoree, pageSombre } from "./filtres";
+import { magicColor } from "./filtres";
 import type { ImageDataLike } from "./geometrie";
 
 function image(w: number, h: number, pixel: (x: number, y: number) => [number, number, number]): ImageDataLike {
@@ -22,6 +22,11 @@ const lum = (img: ImageDataLike, x: number, y: number) => {
   return (img.data[i] + img.data[i + 1] + img.data[i + 2]) / 3;
 };
 
+const canaux = (img: ImageDataLike, x: number, y: number) => {
+  const i = (y * img.width + x) * 4;
+  return [img.data[i], img.data[i + 1], img.data[i + 2]];
+};
+
 describe("magicColor", () => {
   // Papier dont l'éclairage passe de 230 (gauche) à 120 (droite : ombre),
   // avec une ligne d'encre noire horizontale épaisse au milieu.
@@ -40,9 +45,38 @@ describe("magicColor", () => {
     expect(lum(sortie, w - 10, 10)).toBeGreaterThan(235);
   });
 
+  it("rend le papier d'un blanc pur (255 sur les trois canaux), pas un blanc cassé", () => {
+    // Papier légèrement teinté et dans l'ombre : un canal limité par le gain maximal laissait 252-254.
+    const teinte = image(w, h, (x, y) => {
+      const base = eclairage(x);
+      return encre(y) ? [20, 20, 22] : [base, base * 0.97, base * 0.93];
+    });
+    const sortie = magicColor(teinte);
+    for (const x of [10, w / 2, w - 10]) expect(canaux(sortie, x, 10)).toEqual([255, 255, 255]);
+  });
+
   it("garde l'encre sombre", () => {
     const sortie = magicColor(source);
     expect(lum(sortie, w / 2, 60)).toBeLessThan(60);
+  });
+
+  it("renforce un texte pâle (crayon, tampon) sans l'effacer : plus foncé que sur la photo", () => {
+    // Trait fin gris moyen (60 % de l'éclairage), comme l'encre d'un tampon.
+    const pale = image(w, h, (x, y) => {
+      const base = eclairage(x);
+      const v = y >= 30 && y < 33 ? base * 0.6 : base;
+      return [v, v, v];
+    });
+    const sortie = magicColor(pale);
+    expect(lum(sortie, 40, 31)).toBeLessThan(0.6 * eclairage(40));
+    expect(lum(sortie, w - 40, 31)).toBeLessThan(0.6 * eclairage(w - 40));
+  });
+
+  it("garde la couleur d'un aplat franc (logo rouge) au lieu de l'écraser en noir", () => {
+    const logo = image(w, h, (x, y) => (x > 20 && x < 60 && y > 20 && y < 50 ? [200, 40, 40] : [235, 235, 235]));
+    const sortie = magicColor(logo);
+    const [r, g, b] = canaux(sortie, 40, 35);
+    expect(r - Math.max(g, b)).toBeGreaterThan(60);
   });
 
   it("uniformise un papier coloré uniforme", () => {
@@ -59,159 +93,5 @@ describe("magicColor", () => {
     expect(sortie.width).toBe(w);
     expect(sortie.height).toBe(h);
     expect(sortie.data.length).toBe(source.data.length);
-  });
-});
-
-describe("filtreConseille", () => {
-  it("propose « Couleurs fidèles » pour une carte, dans les deux orientations", () => {
-    expect(filtreConseille(856, 540)).toBe("couleurs");
-    expect(filtreConseille(540, 856)).toBe("couleurs");
-    expect(filtreConseille(320, 202)).toBe("couleurs");
-  });
-
-  it("propose « Noir & blanc » pour une feuille A4, un ticket ou un format carré", () => {
-    expect(filtreConseille(1000, 1414)).toBe("noirblanc"); // A4 (1,41) : hors tolérance
-    expect(filtreConseille(1414, 1000)).toBe("noirblanc");
-    expect(filtreConseille(300, 1000)).toBe("noirblanc"); // ticket
-    expect(filtreConseille(800, 800)).toBe("noirblanc");
-  });
-
-  it("ne plante pas sur une dimension nulle", () => {
-    expect(filtreConseille(0, 0)).toBe("noirblanc");
-  });
-});
-
-describe("filtreConseille d'après le contenu", () => {
-  const papierJauni = image(120, 170, (x, y) => (y % 20 > 14 && x > 10 && x < 110 ? [40, 38, 44] : [238, 230, 205]));
-  const photo = image(120, 170, (x, y) => (y < 100 ? [30 + x, 140, 200 - x] : [225, 225, 225])); // moitié de la page : ciel/mer colorés
-  const logoRouge = image(120, 170, (x, y) => (x < 20 && y < 20 ? [200, 30, 30] : [240, 240, 240])); // petit logo sur page claire
-  const carteNoire = image(170, 98, () => [32, 32, 35]);
-
-  it("garde le noir et blanc pour un papier jauni, un petit logo coloré ou un support noir", () => {
-    for (const page of [papierJauni, logoRouge, carteNoire]) {
-      expect(pageColoree(page)).toBe(false);
-      expect(filtreConseille(page.width, page.height, page)).toBe("noirblanc");
-    }
-  });
-
-  it("propose les couleurs pour une page franchement colorée, même au format A4", () => {
-    expect(pageColoree(photo)).toBe(true);
-    expect(filtreConseille(1000, 1414, photo)).toBe("couleurs");
-  });
-
-  it("propose toujours les couleurs pour une carte, avec ou sans le contenu", () => {
-    expect(filtreConseille(856, 540, papierJauni)).toBe("couleurs");
-  });
-});
-
-describe("couleursFideles", () => {
-  it("ne modifie pas l'image d'entrée et conserve ses dimensions", () => {
-    const img = image(40, 30, (x) => [100 + x, 120, 140]);
-    const copie = new Uint8ClampedArray(img.data);
-    const sortie = couleursFideles(img);
-    expect(img.data).toEqual(copie);
-    expect(sortie.width).toBe(40);
-    expect(sortie.height).toBe(30);
-    expect(sortie.data.length).toBe(img.data.length);
-  });
-});
-
-describe("noirEtBlanc", () => {
-  // Papier dont l'éclairage passe de 230 à 110 (forte ombre), trait d'encre de 2 px et texte pâle.
-  const w = 200;
-  const h = 120;
-  const eclairage = (x: number) => 230 - (120 * x) / (w - 1);
-  const source = image(w, h, (x, y) => {
-    const base = eclairage(x);
-    if (y >= 59 && y < 61) return [base * 0.12, base * 0.12, base * 0.12]; // encre noire
-    if (y >= 30 && y < 32) return [base * 0.62, base * 0.62, base * 0.62]; // crayon pâle
-    return [base, base, base * 0.93]; // papier légèrement jauni
-  });
-  const sortie = noirEtBlanc(source);
-
-  it("rend le papier blanc pur partout, ombre et teinte comprises", () => {
-    for (const x of [8, 100, w - 8]) {
-      const i = (10 * w + x) * 4;
-      expect([sortie.data[i], sortie.data[i + 1], sortie.data[i + 2]]).toEqual([255, 255, 255]);
-    }
-  });
-
-  it("garde un trait fin d'encre noir, même dans l'ombre", () => {
-    expect(lum(sortie, 20, 59)).toBeLessThan(25);
-    expect(lum(sortie, w - 20, 59)).toBeLessThan(25);
-  });
-
-  it("fonce le crayon pâle pour le rendre lisible, sans l'effacer", () => {
-    expect(lum(sortie, 30, 30)).toBeLessThan(120);
-    expect(lum(sortie, w - 30, 30)).toBeLessThan(120);
-  });
-
-  it("produit uniquement des gris opaques, sans écrêtage de canal", () => {
-    for (let i = 0; i < sortie.data.length; i += 4) {
-      expect(sortie.data[i]).toBe(sortie.data[i + 1]);
-      expect(sortie.data[i]).toBe(sortie.data[i + 2]);
-      expect(sortie.data[i + 3]).toBe(255);
-    }
-  });
-
-  it("ne modifie pas l'image d'entrée", () => {
-    const copie = Uint8ClampedArray.from(source.data);
-    noirEtBlanc(source);
-    expect(Array.from(source.data)).toEqual(Array.from(copie));
-  });
-
-  it("garde la même taille", () => {
-    expect(sortie.width).toBe(w);
-    expect(sortie.height).toBe(h);
-  });
-});
-
-describe("noirEtBlanc sur support sombre (carte noire, texte clair)", () => {
-  // Carte quasi noire, ombre franche sur sa moitié droite, texte blanc fin, léger bruit de capteur.
-  const w = 220;
-  const h = 130;
-  const bruit = (x: number, y: number) => ((x * 7919 + y * 104729) % 11) - 5;
-  const carte = image(w, h, (x, y) => {
-    const ombre = x > 110 ? 0.45 : 1;
-    const texte = y % 26 >= 11 && y % 26 < 14 && x > 20 && x < 200;
-    const v = (texte ? 225 : 38) * ombre + bruit(x, y);
-    return [v, v, v + 3];
-  });
-  const sortie = noirEtBlanc(carte);
-
-  it("reconnaît un support sombre, pas une feuille claire", () => {
-    expect(pageSombre(carte)).toBe(true);
-    expect(pageSombre(image(80, 60, () => [220, 215, 200]))).toBe(false);
-  });
-
-  it("garde le fond noir pur, y compris sous l'ombre et malgré le bruit", () => {
-    for (const [x, y] of [[10, 5], [60, 40], [150, 5], [200, 120]]) expect(lum(sortie, x, y)).toBeLessThan(8);
-  });
-
-  it("garde le texte blanc, dans la lumière comme dans l'ombre", () => {
-    expect(lum(sortie, 60, 12)).toBeGreaterThan(215);
-    expect(lum(sortie, 160, 12)).toBeGreaterThan(215);
-  });
-});
-
-describe("appliquerFiltre", () => {
-  it("« noirblanc » renvoie une nouvelle image", () => {
-    const img = image(10, 10, () => [10, 20, 30]);
-    expect(appliquerFiltre(img, "noirblanc")).not.toBe(img);
-  });
-
-  it("« original » renvoie la même image", () => {
-    const img = image(10, 10, () => [10, 20, 30]);
-    expect(appliquerFiltre(img, "original")).toBe(img);
-  });
-
-  it("« couleurs » renvoie une nouvelle image", () => {
-    const img = image(10, 10, () => [10, 20, 30]);
-    expect(appliquerFiltre(img, "couleurs")).not.toBe(img);
-  });
-
-  it("« magic » renvoie une nouvelle image", () => {
-    const img = image(10, 10, () => [10, 20, 30]);
-    expect(appliquerFiltre(img, "magic")).not.toBe(img);
   });
 });

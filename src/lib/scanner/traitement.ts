@@ -8,8 +8,7 @@ import { nettoyerLesBords } from "./bordsPropres";
 import { etendreAuxBordsDeLaFeuille } from "./extension";
 import { redresserParTranches } from "./redressementPage";
 import { redresserLesLignes } from "./redressementTexte";
-import type { Filtre } from "./filtres";
-import { appliquerFiltre, filtreConseille } from "./filtres";
+import { magicColor, type Filtre } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
 import { capturerPhotoPleine, captureurDuNavigateur } from "./capture";
 import { chargerOpenCv, openCvSiPret } from "./opencv";
@@ -156,16 +155,12 @@ export type PageTraitee = {
   traite: Blob;
   largeur: number;
   hauteur: number;
-  /** Filtre appliqué (celui demandé, ou le conseillé selon la forme en mode « auto »). */
+  /** Filtre appliqué : toujours « Magique ». */
   filtre: Filtre;
 };
 
-/**
- * Redresse la perspective puis applique le filtre. Avec `"auto"`, le filtre est
- * choisi d'après la forme de la page : « Couleurs fidèles » pour une carte,
- * « Noir & blanc » sinon.
- */
-export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtre | "auto"): Promise<PageTraitee> {
+/** Redresse la perspective puis applique le filtre « Magique » (rendu CamScanner Magique Pro). */
+export async function creerPage(source: ImageDataLike, quad: Quad): Promise<PageTraitee> {
   const { largeur, hauteur } = tailleSortie(quad);
   let redressee: ImageDataLike | null = null;
   try {
@@ -181,17 +176,9 @@ export async function creerPage(source: ImageDataLike, quad: Quad, filtre: Filtr
   // Éventail des lignes et marge qui penche (papier courbé, perspective) : redressement local d'après le
   // texte, avant la rotation globale qui ne fait que corriger ce qui reste.
   redressee = redresserLesLignes(redresserParTranches(nettoyerLesBords(redressee)));
-  const choisi: Filtre = filtre === "auto" ? filtreConseille(largeur, hauteur, redressee) : filtre;
   const redresse = await imageVersJpeg(redressee);
-  const traite = choisi === "original" ? redresse : await imageVersJpeg(appliquerFiltre(redressee, choisi));
-  return { redresse, traite, largeur, hauteur, filtre: choisi };
-}
-
-/** Réapplique un filtre sur une page déjà redressée. */
-export async function refiltrer(redresse: Blob, filtre: Filtre): Promise<Blob> {
-  if (filtre === "original") return redresse;
-  const img = await chargerImage(redresse, COTE_MAX_SOURCE_PX);
-  return imageVersJpeg(appliquerFiltre(img, filtre));
+  const traite = await imageVersJpeg(magicColor(redressee));
+  return { redresse, traite, largeur, hauteur, filtre: "magic" };
 }
 
 /** Recompresse une page pour l'export (taille et qualité du réglage choisi). */
