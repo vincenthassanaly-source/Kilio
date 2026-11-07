@@ -24,6 +24,31 @@ const nextConfig: NextConfig = {
       { source: "/vider-ma-tete/:path*", destination: "/journal/:path*", permanent: true },
     ];
   },
+  // En-têtes de durcissement (audit 2026-11-07) : aucun n'altère le rendu.
+  // Pas de CSP ici : elle demande un arbitrage dédié (scripts inline du thème).
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // App privée : jamais indexée (voir aussi src/app/robots.ts).
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      },
+      {
+        // Le navigateur doit toujours revalider le service worker pour que les
+        // mises à jour (CACHE_NAME) se propagent sans délai.
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+        ],
+      },
+    ];
+  },
   env: {
     NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
   },

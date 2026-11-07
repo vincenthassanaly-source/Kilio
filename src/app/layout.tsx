@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   title: "Kilio",
   description: "Liste de courses, recettes, suivi calorique et placard",
   manifest: "/manifest.json",
+  // App personnelle : pas d'indexation.
+  robots: { index: false, follow: false, nocache: true },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
