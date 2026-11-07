@@ -48,10 +48,6 @@ export async function supprimerPage(id: string): Promise<void> {
   await db.scanner_pages.delete(id);
 }
 
-export async function mettreAJourFiltre(id: string, filtre: Filtre, traite: Blob): Promise<void> {
-  await db.scanner_pages.update(id, { filtre, traite });
-}
-
 export async function viderBrouillon(): Promise<void> {
   await db.scanner_pages.clear();
 }

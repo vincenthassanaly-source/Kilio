@@ -4,27 +4,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ajouterPage,
   listerPages,
-  mettreAJourFiltre,
   supprimerPage,
   viderBrouillon,
   type PageBrouillon,
 } from "@/lib/scanner/brouillon";
-import type { Filtre } from "@/lib/scanner/filtres";
 import type { Quad } from "@/lib/scanner/geometrie";
-import { chargerImage, creerPage, refiltrer } from "@/lib/scanner/traitement";
+import { chargerImage, creerPage } from "@/lib/scanner/traitement";
 import { card, dangerButton, errorText, ghostButton, primaryButton, secondaryButton } from "@/lib/ui";
 import { ApercuPage } from "./ApercuPage";
 import { EditeurCoins } from "./EditeurCoins";
 import { ExportPanel } from "./ExportPanel";
 import { Viseur } from "./Viseur";
-
-/** Les quatre filtres proposés : texte court affiché, et nom complet pour les lecteurs d'écran. */
-const FILTRES: { valeur: Filtre; texte: string; nom: string }[] = [
-  { valeur: "original", texte: "Original", nom: "Original" },
-  { valeur: "noirblanc", texte: "N&B", nom: "Noir et blanc" },
-  { valeur: "couleurs", texte: "Couleurs", nom: "Couleurs fidèles" },
-  { valeur: "magic", texte: "Magic color", nom: "Magic color" },
-];
 
 /**
  * Miniature d'une page : l'URL d'objet est créée dans l'effet et publiée au
@@ -62,7 +52,6 @@ export function ScannerApp() {
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [erreurRecadrage, setErreurRecadrage] = useState<string | null>(null);
-  const [filtreEnCours, setFiltreEnCours] = useState<string | null>(null);
   /** Index de la page ouverte en aperçu agrandi, ou null. */
   const [apercu, setApercu] = useState<number | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
@@ -126,8 +115,8 @@ export function ScannerApp() {
     setEnCours(true);
     setErreurRecadrage(null);
     try {
-      // Filtre « auto » : Couleurs fidèles pour une carte, Noir & blanc pour une feuille.
-      const page = await creerPage(source, quad, "auto");
+      // Un seul filtre, « Magique » : papier blanc, texte noir, couleurs conservées.
+      const page = await creerPage(source, quad);
       await ajouterPage(page, remplacerId ?? undefined);
       await recharger();
       // Une page « reprise » est remplacée : on revient à la liste.
@@ -149,21 +138,6 @@ export function ScannerApp() {
   async function supprimer(id: string) {
     await supprimerPage(id);
     await recharger();
-  }
-
-  async function changerFiltre(page: PageBrouillon, filtre: Filtre) {
-    if (page.filtre === filtre || filtreEnCours) return;
-    setFiltreEnCours(page.id);
-    setErreur(null);
-    try {
-      const traite = await refiltrer(page.redresse, filtre);
-      await mettreAJourFiltre(page.id, filtre, traite);
-      await recharger();
-    } catch {
-      setErreur("Impossible d'appliquer ce filtre.");
-    } finally {
-      setFiltreEnCours(null);
-    }
   }
 
   async function vider() {
@@ -230,22 +204,6 @@ export function ScannerApp() {
                     </button>
                   </div>
                 </div>
-              </div>
-              {/* Quatre filtres sur toute la largeur de la carte (2×2 sur petit écran) : « Magic color » ne tient pas à côté de la miniature. */}
-              <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-4" role="group" aria-label={`Filtre de la page ${i + 1}`}>
-                {FILTRES.map(({ valeur, texte, nom }) => (
-                  <button
-                    key={valeur}
-                    type="button"
-                    aria-pressed={p.filtre === valeur}
-                    aria-label={nom}
-                    disabled={filtreEnCours === p.id}
-                    onClick={() => changerFiltre(p, valeur)}
-                    className={`${p.filtre === valeur ? "bg-kcal text-on-kcal" : "border border-line bg-surface text-ink"} min-h-11 rounded-xl px-1.5 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-60`}
-                  >
-                    {texte}
-                  </button>
-                ))}
               </div>
             </li>
           ))}

@@ -6,7 +6,7 @@ import { ApercuPage } from "./ApercuPage";
 
 const blob = (nom: string) => new Blob([nom], { type: "image/jpeg" });
 
-function page(n: number, filtre: Filtre = "noirblanc"): PageBrouillon {
+function page(n: number, filtre: Filtre = "magic"): PageBrouillon {
   const redresse = blob(`redresse-${n}`);
   return {
     id: `p${n}`,
