@@ -129,7 +129,8 @@ async function mettreDeCotePartage(request) {
   try {
     formData = await request.formData();
   } catch {
-    return Response.redirect("/collection/partage/choisir", 303);
+    // Response.redirect exige une URL absolue dans un service worker.
+    return Response.redirect(new URL("/collection/partage/choisir", self.location.origin).href, 303);
   }
   const fichiers = formData.getAll("photos").filter((f) => f instanceof File && f.size > 0);
   const suite = new FormData();
