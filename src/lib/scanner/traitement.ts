@@ -4,7 +4,9 @@
 
 import { detecterFeuille, detecterQuadrilatere } from "./detection";
 import { affinerLesCotes } from "./affinage";
+import { aplatirLesLignes } from "./aplatissage";
 import { nettoyerLesBords } from "./bordsPropres";
+import { effacerLesIntrusions } from "./intrusions";
 import { etendreAuxBordsDeLaFeuille } from "./extension";
 import { redresserParTranches } from "./redressementPage";
 import { redresserLesLignes } from "./redressementTexte";
@@ -175,7 +177,9 @@ export async function creerPage(source: ImageDataLike, quad: Quad): Promise<Page
   // nettement penchées remises à l'horizontale. Sans fond ni texte repérables, rien ne bouge.
   // Éventail des lignes et marge qui penche (papier courbé, perspective) : redressement local d'après le
   // texte, avant la rotation globale qui ne fait que corriger ce qui reste.
-  redressee = redresserLesLignes(redresserParTranches(nettoyerLesBords(redressee)));
+  // Bande de fond et doigt effacés au bord, puis lignes aplaties une par une (pli, courbure), avant la
+  // rotation globale qui ne fait que corriger ce qui reste.
+  redressee = redresserLesLignes(aplatirLesLignes(redresserParTranches(effacerLesIntrusions(nettoyerLesBords(redressee)))));
   const redresse = await imageVersJpeg(redressee);
   const traite = await imageVersJpeg(magicColor(redressee));
   return { redresse, traite, largeur, hauteur, filtre: "magic" };
