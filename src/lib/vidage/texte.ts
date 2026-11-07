@@ -1,4 +1,4 @@
-// Texte du jour de « Vider ma tête » : les transcriptions validées et les notes tapées au
+// Texte du jour de « Journal » : les transcriptions validées et les notes tapées au
 // clavier s'ajoutent les unes à la suite des autres, chacune précédée de son heure.
 import { LONGUEUR_MAX_TEXTE } from "./transcription";
 

@@ -46,7 +46,7 @@ describe("VidageRow", () => {
     delete sansMigration.vidage_heure;
     delete sansMigration.vidage_dernier_envoi;
     render(<VidageRow reglages={sansMigration as typeof reglages} />);
-    expect(screen.getByRole("switch", { name: "Rappel du soir pour vider ma tête" })).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByRole("switch", { name: "Rappel du soir pour le Journal" })).toHaveAttribute("aria-checked", "false");
   });
 
   it("masque le champ d'heure quand le rappel est désactivé", () => {
@@ -57,7 +57,7 @@ describe("VidageRow", () => {
   it("désactive le rappel avec l'heure courante", async () => {
     vi.mocked(updateReglagesVidage).mockResolvedValue({ ok: true, data: undefined });
     render(<VidageRow reglages={reglages} />);
-    await userEvent.click(screen.getByRole("switch", { name: "Rappel du soir pour vider ma tête" }));
+    await userEvent.click(screen.getByRole("switch", { name: "Rappel du soir pour le Journal" }));
     await waitFor(() => expect(updateReglagesVidage).toHaveBeenCalledWith(false, "21:00"));
   });
 
@@ -73,8 +73,8 @@ describe("VidageRow", () => {
   it("revient à l'état précédent et affiche l'erreur si l'enregistrement échoue", async () => {
     vi.mocked(updateReglagesVidage).mockResolvedValue({ ok: false, error: "Le réglage n'a pas pu être enregistré. Réessaie." });
     render(<VidageRow reglages={reglages} />);
-    await userEvent.click(screen.getByRole("switch", { name: "Rappel du soir pour vider ma tête" }));
+    await userEvent.click(screen.getByRole("switch", { name: "Rappel du soir pour le Journal" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Le réglage n'a pas pu être enregistré");
-    expect(screen.getByRole("switch", { name: "Rappel du soir pour vider ma tête" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("switch", { name: "Rappel du soir pour le Journal" })).toHaveAttribute("aria-checked", "true");
   });
 });

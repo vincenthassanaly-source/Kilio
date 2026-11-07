@@ -17,7 +17,7 @@ import {
 } from "@/lib/vidage/transcription";
 import { HAUTEUR_MIN, validerFeuille, type Trait } from "@/lib/vidage/traits";
 
-// « Vider ma tête » : une feuille manuscrite par jour (table feuilles_vidage,
+// « Journal » : une feuille manuscrite par jour (table feuilles_vidage,
 // scripts/migration-vider-tete-2026-10-19.sql) et le texte du jour (colonne
 // `transcription`) : transcriptions validées et notes tapées, ajoutées à la suite.
 // Un jour sans écriture ni texte n'existe pas : vider les deux supprime la ligne et

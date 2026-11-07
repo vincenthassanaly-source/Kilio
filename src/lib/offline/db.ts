@@ -31,7 +31,7 @@ type CacheLecture = { cle: string; valeur: unknown; enregistre_le: string };
 type MusculationBrouillon = { cle: string; valeur: unknown };
 type MusculationAEnvoyer = { id: string; payload: unknown; cree_le: string; erreur?: string };
 
-// Module « Vider ma tête » : une feuille manuscrite par jour, écrite localement
+// Module « Journal » : une feuille manuscrite par jour, écrite localement
 // à chaque trait puis envoyée au serveur. `a_envoyer` vaut 1 tant que la
 // dernière version n'est pas partie (Dexie n'indexe pas les booléens). `traits`
 // est typé côté lib/vidage (Trait[]) ; ici `unknown` comme pour la musculation.

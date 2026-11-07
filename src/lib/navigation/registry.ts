@@ -197,7 +197,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/nutrition",
     label: "Nutrition",
-    description: "Journal alimentaire et macros",
+    description: "Carnet alimentaire et macros",
     icon: NUTRITION_ICON,
     accentVar: "var(--accent-kcal)",
   },
@@ -272,8 +272,8 @@ export const NAV_ITEMS: NavItem[] = [
     icon: OPINIONS_ICON,
   },
   {
-    href: "/vider-ma-tete",
-    label: "Vider ma tête",
+    href: "/journal",
+    label: "Journal",
     description: "Écrire à la main pour poser la journée",
     accentVar: "var(--accent-vidage)",
     icon: VIDAGE_ICON,

@@ -27,7 +27,7 @@ import {
   verrouDesactive,
 } from "@/lib/vidage/verrou";
 
-// Verrou biométrique de « Vider ma tête » : une passkey du téléphone (empreinte, visage, ou code
+// Verrou biométrique de « Journal » : une passkey du téléphone (empreinte, visage, ou code
 // de l'appareil en secours) enregistrée une seule fois — le premier appareil qui s'inscrit est le
 // bon, voir scripts/migration-vidage-verrou-2026-10-21.sql — puis vérifiée par le serveur, qui
 // ouvre alors une session de 15 minutes (cookie signé, voir lib/vidage/verrou.ts).

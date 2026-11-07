@@ -1,4 +1,4 @@
-// Traits manuscrits de « Vider ma tête » : format de stockage (JSON), nettoyage
+// Traits manuscrits de « Journal » : format de stockage (JSON), nettoyage
 // des points saisis au stylet, gomme par trait et validation côté serveur.
 //
 // Coordonnées LOGIQUES : la largeur de la feuille vaut toujours LARGEUR_LOGIQUE,

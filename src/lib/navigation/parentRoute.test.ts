@@ -39,9 +39,9 @@ describe("parentRoute", () => {
   });
 
   it("ramène une feuille d'un autre jour au calendrier de relecture, et le calendrier à la feuille du soir", () => {
-    expect(parentRoute("/vider-ma-tete/2026-10-12", BARRE)).toBe("/vider-ma-tete/calendrier");
-    expect(parentRoute("/vider-ma-tete/calendrier", BARRE)).toBe("/vider-ma-tete");
-    expect(parentRoute("/vider-ma-tete", BARRE)).toBe("/plus");
+    expect(parentRoute("/journal/2026-10-12", BARRE)).toBe("/journal/calendrier");
+    expect(parentRoute("/journal/calendrier", BARRE)).toBe("/journal");
+    expect(parentRoute("/journal", BARRE)).toBe("/plus");
     expect(parentRoute("/musculation/seance", BARRE)).toBe("/musculation");
   });
 

@@ -1,5 +1,5 @@
 // Validation des jours (AAAA-MM-JJ) et mois (AAAA-MM) reçus par les actions de
-// « Vider ma tête ». Pure : « aujourd'hui » est injectable pour les tests.
+// « Journal ». Pure : « aujourd'hui » est injectable pour les tests.
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { shiftDate } from "@/lib/date/iso";
 

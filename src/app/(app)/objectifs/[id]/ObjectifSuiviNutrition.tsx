@@ -13,11 +13,11 @@ export function ObjectifSuiviNutrition({ suivi }: { suivi: SuiviNutrition }) {
       <div className={`${card} flex flex-col items-start gap-2`}>
         <p className={nameText}>Aucune cible définie.</p>
         <p className="text-sm text-ink-2 text-pretty">
-          Définis tes cibles de kcal et de macros (repos et entraînement) dans le Journal : l&apos;objectif s&apos;en
+          Définis tes cibles de kcal et de macros (repos et entraînement) dans le Carnet alimentaire : l&apos;objectif s&apos;en
           sert pour juger chaque jour.
         </p>
         <TransitionLink href="/nutrition/journal" className={linkButton}>
-          Ouvrir le Journal ›
+          Ouvrir le Carnet alimentaire ›
         </TransitionLink>
       </div>
     );

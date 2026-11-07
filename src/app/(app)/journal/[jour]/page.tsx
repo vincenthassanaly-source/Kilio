@@ -19,7 +19,7 @@ async function FeuilleDuJourChoisi({ params }: { params: Promise<{ jour: string 
         key={jour}
         jour={jour}
         aujourdhui={aujourdhui}
-        retour={{ href: "/vider-ma-tete/calendrier", libelle: "Calendrier" }}
+        retour={{ href: "/journal/calendrier", libelle: "Calendrier" }}
       />
     </VerrouGate>
   );

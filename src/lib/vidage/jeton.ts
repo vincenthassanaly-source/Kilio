@@ -1,4 +1,4 @@
-// Jeton signé (HMAC-SHA256) pour le verrou de « Vider ma tête » : session de 15 minutes et défi
+// Jeton signé (HMAC-SHA256) pour le verrou de « Journal » : session de 15 minutes et défi
 // WebAuthn à usage unique. Format « charge.signature », les deux en base64url. Serveur seulement.
 import { createHmac, timingSafeEqual } from "node:crypto";
 

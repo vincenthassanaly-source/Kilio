@@ -54,7 +54,7 @@ export const queryKeys = {
   joursFeries: (debut: string, fin: string) => ["jours-feries", debut, fin] as const,
   seances: ["seances"] as const,
   seancesSemaine: (today: string) => ["seances", today] as const,
-  // « Vider ma tête » : feuille d'un jour et jours écrits d'un mois (calendrier).
+  // « Journal » : feuille d'un jour et jours écrits d'un mois (calendrier).
   vidageFeuille: (jour: string) => ["vidage", "feuille", jour] as const,
   vidageMois: (mois: string) => ["vidage", "mois", mois] as const,
   musculationExercices: ["musculation-exercices"] as const,

@@ -51,7 +51,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <BackLink href="/vider-ma-tete">Feuille du soir</BackLink>
+      <BackLink href="/journal">Feuille du soir</BackLink>
       <h1 className={screenTitle}>Relire</h1>
 
       <div className="flex items-center justify-between gap-3">
@@ -111,7 +111,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
             return (
               <li key={jour}>
                 <TransitionLink
-                  href={jour === aujourdhui ? "/vider-ma-tete" : `/vider-ma-tete/${jour}`}
+                  href={jour === aujourdhui ? "/journal" : `/journal/${jour}`}
                   aria-label={feuille ? `Relire le ${numero}` : `Écrire le ${numero}`}
                   className={`${base} h-full w-full ${feuille ? "border-line bg-surface text-ink" : "border-line/60 text-ink-2"}`}
                 >
