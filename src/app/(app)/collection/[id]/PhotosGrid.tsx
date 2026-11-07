@@ -12,6 +12,7 @@ import { indexDepart, videosDuFil } from "@/lib/collection/fil";
 import { estTypeVideo } from "@/lib/collection/video";
 import type { Tables } from "@/lib/supabase/types";
 import { vibrate } from "@/lib/haptics";
+import { CopierLienVideoButton } from "./CopierLienVideoButton";
 
 const ImageLightbox = dynamic(() => import("@/components/ImageLightbox").then((m) => m.ImageLightbox), {
   ssr: false,
@@ -171,6 +172,7 @@ export function PhotosGrid({
                   )}
                   {estVideo && <VideoBadge type={photo.type} />}
                 </button>
+                {estVideo && <CopierLienVideoButton url={photo.url} />}
                 {/* Zone de tap de 44 px, pastille visible de 28 px. */}
                 <button
                   type="button"
