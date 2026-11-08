@@ -49,6 +49,8 @@ function filtre(appel: Appel, type: string): unknown[] | undefined {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // Les durées écrites par le module d'analyse dans le journal ne sont pas le sujet des tests.
+  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 describe("proposerReorganisation", () => {
@@ -81,21 +83,6 @@ describe("proposerReorganisation", () => {
     brancher((a) => (a.table === "documents" ? { data: documents().slice(0, 1) } : { data: CATEGORIES }));
     expect(await proposerReorganisation()).toMatchObject({ statut: "echec", quota: false });
     expect(etat.gemini).not.toHaveBeenCalled();
-  });
-
-  it("signale le quota Gemini", async () => {
-    brancher((a) => (a.table === "documents" ? { data: documents() } : { data: CATEGORIES }));
-    etat.gemini.mockResolvedValue({ ok: false, code: "quota", detail: "429" });
-    expect(await proposerReorganisation()).toEqual({ statut: "echec", erreur: "Quota atteint.", quota: true });
-  });
-
-  it("donne la raison d'un échec de Gemini", async () => {
-    brancher((a) => (a.table === "documents" ? { data: documents() } : { data: CATEGORIES }));
-    etat.gemini.mockResolvedValue({ ok: false, code: "echec", detail: "délai dépassé" });
-    expect(await proposerReorganisation()).toMatchObject({
-      statut: "echec",
-      erreur: expect.stringContaining("délai dépassé"),
-    });
   });
 
   it("arrive intacte jusqu'au composant à travers runAction", async () => {

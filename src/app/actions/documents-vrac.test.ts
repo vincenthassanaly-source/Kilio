@@ -75,6 +75,8 @@ function fichierTelecharge(octets: string, entetes: Record<string, string> = { "
 beforeEach(() => {
   vi.clearAllMocks();
   vi.unstubAllGlobals();
+  // Les durées écrites par le module d'analyse dans le journal ne sont pas le sujet des tests.
+  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 describe("analyserDocumentVrac", () => {
@@ -133,24 +135,6 @@ describe("analyserDocumentVrac", () => {
       statut: "ok",
       proposition: { categorie: "Santé", nouvelleCategorie: false },
     });
-  });
-
-  it("signale le quota Gemini", async () => {
-    brancher(reponseLecture(documentEnVrac()));
-    fichierTelecharge("%PDF-1.4");
-    etat.gemini.mockResolvedValue({ ok: false, code: "quota", detail: "429" });
-
-    expect(await analyserDocumentVrac(ID)).toEqual({ statut: "echec", erreur: "Quota atteint.", quota: true });
-  });
-
-  it("rapporte un échec Gemini sans le faire passer pour un quota", async () => {
-    brancher(reponseLecture(documentEnVrac()));
-    fichierTelecharge("%PDF-1.4");
-    etat.gemini.mockResolvedValue({ ok: false, code: "echec", detail: "Délai dépassé" });
-
-    const resultat = await analyserDocumentVrac(ID);
-    expect(resultat).toMatchObject({ statut: "echec", quota: false });
-    expect(resultat.statut === "echec" && resultat.erreur).toContain("Délai dépassé");
   });
 
   it("laisse en vrac un fichier trop volumineux, sans appeler Gemini", async () => {

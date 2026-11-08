@@ -11,7 +11,7 @@ import {
   type Changement,
 } from "@/lib/documents/reorganisation";
 import { CATEGORIE_MAX, nettoyerTexte, trouverCategorie } from "@/lib/documents/tri";
-import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
+import { analyserPaquet, type Analyse, type EchecAnalyse } from "@/lib/gemini/analyse";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { estUuid } from "@/lib/uuid";
 
@@ -20,7 +20,6 @@ import { estUuid } from "@/lib/uuid";
 // (n'écrit que ce que l'aperçu a validé) et `annulerReorganisation` (remet tout en
 // place). Seuls les documents classés bougent : ceux du vrac ont leur propre tri.
 
-const GEMINI_TIMEOUT_MS = 50_000;
 const DOCUMENTS_MIN = 2;
 
 function revalidateReorganisation() {
@@ -33,69 +32,76 @@ function revalidateReorganisation() {
 // Discriminant `statut` et non `ok` : voir le commentaire de `ResultatAnalyse`
 // dans documents-vrac.ts (`runAction` prend toute réponse `{ ok: true, … }` pour
 // son propre contrat et la renvoie sans `data`).
-export type ResultatProposition =
-  | {
-      statut: "ok";
-      changements: Changement[];
-      /** Documents par catégorie, vrac compris : sert à repérer les catégories qui se vident. */
-      comptes: Record<string, number>;
-      analyses: number;
-      /** Plus de documents classés que la limite d'un appel : les plus récents seulement. */
-      tronque: boolean;
-    }
-  | { statut: "echec"; erreur: string; quota: boolean };
+type SuccesProposition = {
+  changements: Changement[];
+  /** Documents par catégorie, vrac compris : sert à repérer les catégories qui se vident. */
+  comptes: Record<string, number>;
+  analyses: number;
+  /** Plus de documents classés que la limite d'un appel : les plus récents seulement. */
+  tronque: boolean;
+};
 
-function echec(erreur: string, quota = false): ResultatProposition {
-  return { statut: "echec", erreur, quota };
-}
+export type ResultatProposition = ({ statut: "ok" } & SuccesProposition) | EchecAnalyse;
 
-export async function proposerReorganisation(instruction: string = ""): Promise<ResultatProposition> {
-  const supabase = createAdminClient();
-  const [documentsResult, categoriesResult] = await Promise.all([
-    supabase
-      .from("documents")
-      .select("id, nom, categorie, notes, en_vrac, created_at")
-      .order("created_at", { ascending: false }),
-    supabase.from("documents_categories").select("nom"),
-  ]);
-  if (documentsResult.error || categoriesResult.error) return echec("Les documents n'ont pas pu être lus. Réessaie.");
+/** Ce que `preparer` a lu en base, pour que `lire` assemble le résultat complet. */
+type ContexteReorganisation = {
+  analyses: { id: string; nom: string; categorie: string | null; notes: string | null }[];
+  categories: string[];
+  comptes: Record<string, number>;
+  tronque: boolean;
+};
 
-  const tous = documentsResult.data ?? [];
-  const classes = tous.filter((d) => !d.en_vrac);
-  if (classes.length < DOCUMENTS_MIN) return echec("Il faut au moins deux documents classés pour réorganiser.");
+/** Un seul appel Gemini sur tous les documents classés : l'élément du paquet est l'instruction de l'utilisateur. */
+const REORGANISATION: Analyse<string, ContexteReorganisation, SuccesProposition> = {
+  etiquette: "reorganisation-documents",
+  schema: SCHEMA_REORGANISATION,
+  verbe: "proposer de réorganisation",
+  tailleMax: 1,
+  timeoutMs: 50_000,
+  temperature: 0.2,
+  async preparer(instruction) {
+    const supabase = createAdminClient();
+    const [documentsResult, categoriesResult] = await Promise.all([
+      supabase
+        .from("documents")
+        .select("id, nom, categorie, notes, en_vrac, created_at")
+        .order("created_at", { ascending: false }),
+      supabase.from("documents_categories").select("nom"),
+    ]);
+    if (documentsResult.error || categoriesResult.error) return { refus: "Les documents n'ont pas pu être lus. Réessaie." };
 
-  const comptes: Record<string, number> = {};
-  for (const { categorie } of tous) if (categorie) comptes[categorie] = (comptes[categorie] ?? 0) + 1;
+    const tous = documentsResult.data ?? [];
+    const classes = tous.filter((d) => !d.en_vrac);
+    if (classes.length < DOCUMENTS_MIN) return { refus: "Il faut au moins deux documents classés pour réorganiser." };
 
-  const tronque = classes.length > DOCUMENTS_MAX_REORGANISATION;
-  const analyses = classes.slice(0, DOCUMENTS_MAX_REORGANISATION).map((d) => ({
-    id: d.id,
-    nom: d.nom,
-    categorie: d.categorie,
-    notes: d.notes,
-  }));
-  const categories = (categoriesResult.data ?? []).map((c) => c.nom);
+    const comptes: Record<string, number> = {};
+    for (const { categorie } of tous) if (categorie) comptes[categorie] = (comptes[categorie] ?? 0) + 1;
 
-  const resultat = await appelerGemini({
-    prompt: construirePromptReorganisation(analyses, categories, nettoyerInstruction(instruction)),
-    schema: SCHEMA_REORGANISATION,
-    timeoutMs: GEMINI_TIMEOUT_MS,
-    temperature: 0.2,
-    etiquette: "reorganisation-documents",
-  });
-  if (!resultat.ok) {
-    return resultat.code === "quota"
-      ? echec(MESSAGE_QUOTA_GEMINI, true)
-      : echec(`Gemini n'a pas pu proposer de réorganisation (${resultat.detail})`);
-  }
+    const tronque = classes.length > DOCUMENTS_MAX_REORGANISATION;
+    const analyses = classes.slice(0, DOCUMENTS_MAX_REORGANISATION).map((d) => ({
+      id: d.id,
+      nom: d.nom,
+      categorie: d.categorie,
+      notes: d.notes,
+    }));
+    const categories = (categoriesResult.data ?? []).map((c) => c.nom);
 
-  return {
-    statut: "ok",
-    changements: lireReponseReorganisation(resultat.brut, analyses, categories),
+    return {
+      prompt: construirePromptReorganisation(analyses, categories, nettoyerInstruction(instruction)),
+      contexte: { analyses, categories, comptes, tronque },
+    };
+  },
+  lire: (brut, { analyses, categories, comptes, tronque }) => ({
+    changements: lireReponseReorganisation(brut, analyses, categories),
     comptes,
     analyses: analyses.length,
     tronque,
-  };
+  }),
+};
+
+export async function proposerReorganisation(instruction: string = ""): Promise<ResultatProposition> {
+  const [resultat] = await analyserPaquet(REORGANISATION, [instruction]);
+  return resultat.statut === "ok" ? { statut: "ok", ...resultat.suggestion } : resultat;
 }
 
 // --- Application (écriture) ---
