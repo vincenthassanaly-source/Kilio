@@ -15,7 +15,7 @@ import {
 } from "@/lib/collection/reorganisation";
 import { nettoyerInstruction } from "@/lib/documents/reorganisation";
 import { nettoyerTexte, trouverCategorie } from "@/lib/documents/tri";
-import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
+import { analyserPaquet, type Analyse, type EchecAnalyse } from "@/lib/gemini/analyse";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { estUuid } from "@/lib/uuid";
 
@@ -26,7 +26,6 @@ import { estUuid } from "@/lib/uuid";
 // et `annulerReorganisationCollections` (remet tout en place, y compris les
 // collections supprimées par une fusion : elles n'ont perdu aucun élément).
 
-const GEMINI_TIMEOUT_MS = 50_000;
 const ELEMENTS_MIN = 2;
 const CHANGEMENTS_MAX = ELEMENTS_MAX_REORGANISATION + 100;
 
@@ -39,25 +38,20 @@ function revalidateReorganisation() {
 
 // --- Proposition (lecture seule) ---
 
-// Discriminant `statut` et non `ok` : voir documents-vrac.ts (contrat `runAction`).
-export type ResultatPropositionCollections =
-  | {
-      statut: "ok";
-      proposition: PropositionReorganisation;
-      /** Éléments par collection : repère les collections qui se videront. */
-      comptes: Record<string, number>;
-      noms: Record<string, string>;
-      analyses: number;
-      /** Éléments sans titre ni description, non examinés. */
-      nonLus: number;
-      /** Plus d'éléments lisibles que la limite d'un appel : les plus récents seulement. */
-      tronque: boolean;
-    }
-  | { statut: "echec"; erreur: string; quota: boolean };
+type SuccesPropositionCollections = {
+  proposition: PropositionReorganisation;
+  /** Éléments par collection : repère les collections qui se videront. */
+  comptes: Record<string, number>;
+  noms: Record<string, string>;
+  analyses: number;
+  /** Éléments sans titre ni description, non examinés. */
+  nonLus: number;
+  /** Plus d'éléments lisibles que la limite d'un appel : les plus récents seulement. */
+  tronque: boolean;
+};
 
-function echec(erreur: string, quota = false): ResultatPropositionCollections {
-  return { statut: "echec", erreur, quota };
-}
+// Discriminant `statut` et non `ok` : voir `@/lib/gemini/analyse` (contrat `runAction`).
+export type ResultatPropositionCollections = ({ statut: "ok" } & SuccesPropositionCollections) | EchecAnalyse;
 
 type LigneElement = {
   id: string;
@@ -82,62 +76,76 @@ async function lireElements(supabase: SupabaseAdmin): Promise<LigneElement[] | n
   return sans.error ? null : (sans.data as LigneElement[]);
 }
 
-export async function proposerReorganisationCollections(instruction: string = ""): Promise<ResultatPropositionCollections> {
-  const supabase = createAdminClient();
-  const [collectionsResult, elementsLus] = await Promise.all([
-    supabase.from("collections").select("id, nom, ordre").order("ordre", { ascending: true }),
-    lireElements(supabase),
-  ]);
-  if (collectionsResult.error || elementsLus === null) return echec("Les collections n'ont pas pu être lues. Réessaie.");
+/** Ce que `preparer` a lu en base, pour que `lire` assemble le résultat complet. */
+type ContexteReorganisation = {
+  analyses: ElementPourReorganisation[];
+  collections: CollectionPourReorganisation[];
+  comptes: Record<string, number>;
+  noms: Record<string, string>;
+  nonLus: number;
+  tronque: boolean;
+};
 
-  const comptes: Record<string, number> = {};
-  const noms: Record<string, string> = {};
-  for (const c of collectionsResult.data ?? []) {
-    comptes[c.id] = 0;
-    noms[c.id] = c.nom;
-  }
-  for (const e of elementsLus) comptes[e.collection_id] = (comptes[e.collection_id] ?? 0) + 1;
+/** Un seul appel Gemini sur toute la collection : l'élément du paquet est l'instruction de l'utilisateur. */
+const REORGANISATION: Analyse<string, ContexteReorganisation, SuccesPropositionCollections> = {
+  etiquette: "reorganisation-collections",
+  schema: SCHEMA_REORGANISATION_COLLECTIONS,
+  verbe: "proposer de réorganisation",
+  tailleMax: 1,
+  timeoutMs: 50_000,
+  temperature: 0.2,
+  async preparer(instruction) {
+    const supabase = createAdminClient();
+    const [collectionsResult, elementsLus] = await Promise.all([
+      supabase.from("collections").select("id, nom, ordre").order("ordre", { ascending: true }),
+      lireElements(supabase),
+    ]);
+    if (collectionsResult.error || elementsLus === null) return { refus: "Les collections n'ont pas pu être lues. Réessaie." };
 
-  const lisibles = elementsLus.filter((e) => estLisible({ titre: e.titre, description: e.description ?? null }));
-  if (lisibles.length < ELEMENTS_MIN) {
-    return echec("Il faut au moins deux éléments avec un titre ou une description. Lance d'abord « Décrire » dans tes collections.");
-  }
-  const tronque = lisibles.length > ELEMENTS_MAX_REORGANISATION;
-  const analyses: ElementPourReorganisation[] = lisibles.slice(0, ELEMENTS_MAX_REORGANISATION).map((e) => ({
-    id: e.id,
-    titre: e.titre,
-    description: e.description ?? null,
-    type: e.type,
-    collectionId: e.collection_id,
-  }));
-  const collections: CollectionPourReorganisation[] = (collectionsResult.data ?? []).map((c) => ({
-    id: c.id,
-    nom: c.nom,
-    nbElements: comptes[c.id] ?? 0,
-  }));
+    const comptes: Record<string, number> = {};
+    const noms: Record<string, string> = {};
+    for (const c of collectionsResult.data ?? []) {
+      comptes[c.id] = 0;
+      noms[c.id] = c.nom;
+    }
+    for (const e of elementsLus) comptes[e.collection_id] = (comptes[e.collection_id] ?? 0) + 1;
 
-  const resultat = await appelerGemini({
-    prompt: construirePromptReorganisationCollections(analyses, collections, nettoyerInstruction(instruction)),
-    schema: SCHEMA_REORGANISATION_COLLECTIONS,
-    timeoutMs: GEMINI_TIMEOUT_MS,
-    temperature: 0.2,
-    etiquette: "reorganisation-collections",
-  });
-  if (!resultat.ok) {
-    return resultat.code === "quota"
-      ? echec(MESSAGE_QUOTA_GEMINI, true)
-      : echec(`Gemini n'a pas pu proposer de réorganisation (${resultat.detail})`);
-  }
+    const lisibles = elementsLus.filter((e) => estLisible({ titre: e.titre, description: e.description ?? null }));
+    if (lisibles.length < ELEMENTS_MIN) {
+      return { refus: "Il faut au moins deux éléments avec un titre ou une description. Lance d'abord « Décrire » dans tes collections." };
+    }
+    const tronque = lisibles.length > ELEMENTS_MAX_REORGANISATION;
+    const analyses: ElementPourReorganisation[] = lisibles.slice(0, ELEMENTS_MAX_REORGANISATION).map((e) => ({
+      id: e.id,
+      titre: e.titre,
+      description: e.description ?? null,
+      type: e.type,
+      collectionId: e.collection_id,
+    }));
+    const collections: CollectionPourReorganisation[] = (collectionsResult.data ?? []).map((c) => ({
+      id: c.id,
+      nom: c.nom,
+      nbElements: comptes[c.id] ?? 0,
+    }));
 
-  return {
-    statut: "ok",
-    proposition: lireReponseReorganisationCollections(resultat.brut, analyses, collections),
+    return {
+      prompt: construirePromptReorganisationCollections(analyses, collections, nettoyerInstruction(instruction)),
+      contexte: { analyses, collections, comptes, noms, nonLus: elementsLus.length - lisibles.length, tronque },
+    };
+  },
+  lire: (brut, { analyses, collections, comptes, noms, nonLus, tronque }) => ({
+    proposition: lireReponseReorganisationCollections(brut, analyses, collections),
     comptes,
     noms,
     analyses: analyses.length,
-    nonLus: elementsLus.length - lisibles.length,
+    nonLus,
     tronque,
-  };
+  }),
+};
+
+export async function proposerReorganisationCollections(instruction: string = ""): Promise<ResultatPropositionCollections> {
+  const [resultat] = await analyserPaquet(REORGANISATION, [instruction]);
+  return resultat.statut === "ok" ? { statut: "ok", ...resultat.suggestion } : resultat;
 }
 
 // --- Application (écriture) ---
