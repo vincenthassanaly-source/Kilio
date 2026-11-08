@@ -48,6 +48,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.unstubAllGlobals();
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://projet.supabase.co");
+  // Les durées écrites par le module d'analyse dans le journal ne sont pas le sujet des tests.
+  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 describe("suggererCollection", () => {
@@ -125,18 +127,6 @@ describe("suggererCollection", () => {
 
     expect(r).toMatchObject({ statut: "echec", quota: false });
     expect(etat.gemini).not.toHaveBeenCalled();
-  });
-
-  it("signale le quota Gemini", async () => {
-    brancher(lireCollections());
-    vi.stubGlobal("fetch", fetchImage());
-    etat.gemini.mockResolvedValue({ ok: false, code: "quota", detail: "429" });
-
-    expect(await suggererCollection({ photoUrl: STOCKAGE, video: null })).toEqual({
-      statut: "echec",
-      erreur: "Quota atteint.",
-      quota: true,
-    });
   });
 
   it("se rabat sur les titres seuls quand la colonne description n'existe pas encore", async () => {

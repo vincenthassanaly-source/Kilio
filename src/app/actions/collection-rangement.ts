@@ -12,7 +12,7 @@ import {
 } from "@/lib/collection/rangement";
 import { estTypeVideo } from "@/lib/collection/video";
 import { nettoyerTexte } from "@/lib/documents/tri";
-import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
+import { analyserPaquet, type Analyse, type EchecAnalyse } from "@/lib/gemini/analyse";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // Suggestion de rangement sur l'écran de partage : Gemini désigne la collection
@@ -20,7 +20,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // Lecture seule : l'élément n'est rattaché qu'au clic sur « Ajouter »
 // (rattacherPhotoACollection).
 
-const GEMINI_TIMEOUT_MS = 30_000;
 const TITRE_MAX_ENTREE = 300;
 const SUPPLEMENT_LECTURE = 3;
 
@@ -30,14 +29,42 @@ export type EntreeRangement = {
   video: { type: string; thumbnailUrl: string; titre: string } | null;
 };
 
-// Discriminant `statut` et non `ok` : voir documents-vrac.ts (contrat `runAction`).
-export type ResultatRangement =
-  | { statut: "ok"; collectionId: string | null }
-  | { statut: "echec"; erreur: string; quota: boolean };
+// Discriminant `statut` et non `ok` : voir `@/lib/gemini/analyse` (contrat `runAction`).
+export type ResultatRangement = { statut: "ok"; collectionId: string | null } | EchecAnalyse;
 
-function echecRangement(erreur: string, quota = false): ResultatRangement {
-  return { statut: "echec", erreur, quota };
+function echecRangement(erreur: string): EchecAnalyse {
+  return { statut: "echec", erreur, quota: false };
 }
+
+type DemandeRangement = {
+  element: { type: string; titre: string | null };
+  urlImage: string | null;
+  collections: CollectionContexte[];
+};
+
+/** Suggestion = identifiant de la collection choisie, ou null si Gemini n'en retient aucune. */
+const RANGEMENT: Analyse<DemandeRangement, CollectionContexte[], string | null> = {
+  etiquette: "rangement-collection",
+  schema: SCHEMA_RANGEMENT,
+  verbe: "ranger cet élément",
+  tailleMax: 1,
+  timeoutMs: 30_000,
+  temperature: 0.1,
+  async preparer({ element, urlImage, collections }) {
+    const image =
+      urlImage && estUrlImageAnalysable(urlImage, hoteStockageApp()) ? await telechargerImage(urlImage) : null;
+    if (!image && !element.titre) return { refus: "Rien à analyser : l'image est introuvable et il n'y a pas de texte." };
+    return {
+      prompt: construirePromptRangement(element, image !== null, collections),
+      images: image ? [image] : undefined,
+      contexte: collections,
+    };
+  },
+  lire(brut, collections) {
+    const indice = lireReponseRangement(brut, collections.length);
+    return indice === null ? null : collections[indice].id;
+  },
+};
 
 type LigneCollection = { id: string; nom: string; collection_items: { titre: string | null; description?: string | null }[] };
 
@@ -89,24 +116,6 @@ export async function suggererCollection(entree: EntreeRangement): Promise<Resul
   if (collections.length === 0) return { statut: "ok", collectionId: null };
 
   const urlImage = video ? nettoyerTexte(video.thumbnailUrl) : photoUrl;
-  const image =
-    urlImage && estUrlImageAnalysable(urlImage, hoteStockageApp()) ? await telechargerImage(urlImage) : null;
-  if (!image && !element.titre) return echecRangement("Rien à analyser : l'image est introuvable et il n'y a pas de texte.");
-
-  const resultat = await appelerGemini({
-    prompt: construirePromptRangement(element, image !== null, collections),
-    images: image ? [image] : undefined,
-    schema: SCHEMA_RANGEMENT,
-    timeoutMs: GEMINI_TIMEOUT_MS,
-    temperature: 0.1,
-    etiquette: "rangement-collection",
-  });
-  if (!resultat.ok) {
-    return resultat.code === "quota"
-      ? echecRangement(MESSAGE_QUOTA_GEMINI, true)
-      : echecRangement(`Gemini n'a pas pu ranger cet élément (${resultat.detail})`);
-  }
-
-  const indice = lireReponseRangement(resultat.brut, collections.length);
-  return { statut: "ok", collectionId: indice === null ? null : collections[indice].id };
+  const [resultat] = await analyserPaquet(RANGEMENT, [{ element, urlImage, collections }]);
+  return resultat.statut === "ok" ? { statut: "ok", collectionId: resultat.suggestion } : resultat;
 }

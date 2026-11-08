@@ -50,14 +50,14 @@ describe("analyserElementCollection", () => {
     expect(fake.appels).toHaveLength(0);
   });
 
-  it("envoie la photo à Gemini et renvoie la proposition nettoyée", async () => {
+  it("envoie la photo à Gemini et renvoie la suggestion nettoyée", async () => {
     brancher(lireElement({ type: "photo", url: "https://stockage.test/a.jpg", thumbnail_url: null, titre: null }));
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reponseImage()));
     etat.gemini.mockResolvedValue({ ok: true, brut: { titre: "« Canapé vert. »", description: "Un canapé en velours." } });
 
     const r = await analyserElementCollection(ID);
 
-    expect(r).toEqual({ statut: "ok", proposition: { titre: "Canapé vert", description: "Un canapé en velours." } });
+    expect(r).toEqual({ statut: "ok", suggestion: { titre: "Canapé vert", description: "Un canapé en velours." } });
     expect(etat.gemini.mock.calls[0][0].images).toHaveLength(1);
     expect(etat.gemini.mock.calls[0][0].etiquette).toBe("titrage-collection");
   });
@@ -111,25 +111,6 @@ describe("analyserElementCollection", () => {
     expect(etat.gemini.mock.calls[0][0].images).toBeUndefined();
   });
 
-  it("signale le quota Gemini", async () => {
-    brancher(lireElement({ type: "photo", url: "https://stockage.test/a.jpg", thumbnail_url: null, titre: null }));
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reponseImage()));
-    etat.gemini.mockResolvedValue({ ok: false, code: "quota", detail: "429" });
-
-    expect(await analyserElementCollection(ID)).toEqual({ statut: "echec", erreur: "Quota atteint.", quota: true });
-  });
-
-  it("renvoie le détail d'un autre échec Gemini", async () => {
-    brancher(lireElement({ type: "photo", url: "https://stockage.test/a.jpg", thumbnail_url: null, titre: null }));
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reponseImage()));
-    etat.gemini.mockResolvedValue({ ok: false, code: "echec", detail: "Délai dépassé" });
-
-    const r = await analyserElementCollection(ID);
-
-    expect(r).toMatchObject({ statut: "echec", quota: false });
-    expect(r.statut === "echec" && r.erreur).toContain("Délai dépassé");
-  });
-
   it("signale un élément introuvable", async () => {
     brancher(lireElement(null));
     expect(await analyserElementCollection(ID)).toMatchObject({ statut: "echec", erreur: "Élément introuvable." });
@@ -158,53 +139,12 @@ describe("analyserElementsCollection (paquet)", () => {
     const r = await analyserElementsCollection([ID, ID2]);
 
     expect(r).toHaveLength(2);
-    expect(r[0]).toMatchObject({ statut: "ok", proposition: { titre: "Canapé" } });
+    expect(r[0]).toMatchObject({ statut: "ok", suggestion: { titre: "Canapé" } });
     expect(r[1]).toMatchObject({ statut: "echec", quota: false });
     expect(etat.gemini).toHaveBeenCalledTimes(1);
   });
 
-  it("lance les analyses en parallèle, pas l'une après l'autre", async () => {
-    brancher(
-      parId({
-        [ID]: { type: "photo", url: "https://stockage.test/a.jpg", thumbnail_url: null, titre: null },
-        [ID2]: { type: "photo", url: "https://stockage.test/b.jpg", thumbnail_url: null, titre: null },
-      })
-    );
-    vi.stubGlobal("fetch", vi.fn().mockImplementation(() => Promise.resolve(reponseImage())));
-    let actifs = 0;
-    let maximum = 0;
-    etat.gemini.mockImplementation(async () => {
-      actifs += 1;
-      maximum = Math.max(maximum, actifs);
-      await new Promise((resolve) => setTimeout(resolve, 20));
-      actifs -= 1;
-      return { ok: true, brut: { titre: "Titre", description: "Description." } };
-    });
-
-    await analyserElementsCollection([ID, ID2]);
-
-    expect(maximum).toBe(2);
-  });
-
-  it("signale le quota sur l'élément concerné sans faire échouer les autres", async () => {
-    brancher(
-      parId({
-        [ID]: { type: "photo", url: "https://stockage.test/a.jpg", thumbnail_url: null, titre: null },
-        [ID2]: { type: "photo", url: "https://stockage.test/b.jpg", thumbnail_url: null, titre: null },
-      })
-    );
-    vi.stubGlobal("fetch", vi.fn().mockImplementation(() => Promise.resolve(reponseImage())));
-    etat.gemini
-      .mockResolvedValueOnce({ ok: true, brut: { titre: "Titre", description: "Description." } })
-      .mockResolvedValueOnce({ ok: false, code: "quota", detail: "429" });
-
-    const r = await analyserElementsCollection([ID, ID2]);
-
-    expect(r.map((x) => x.statut)).toEqual(["ok", "echec"]);
-    expect(r[1]).toMatchObject({ quota: true });
-  });
-
-  it("refuse un paquet trop grand sans rien lire", async () => {
+  it("refuse un paquet de plus de TAILLE_PAQUET_TITRAGE éléments sans rien lire", async () => {
     const fake = brancher();
     const r = await analyserElementsCollection(Array.from({ length: 5 }, () => ID));
     expect(r).toHaveLength(5);

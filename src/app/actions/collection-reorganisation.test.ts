@@ -47,6 +47,8 @@ const aTri = (a: Appel) => a.modificateurs.some((m) => m[0] === "order");
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // Les durées écrites par le module d'analyse dans le journal ne sont pas le sujet des tests.
+  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 describe("proposerReorganisationCollections", () => {
@@ -81,12 +83,6 @@ describe("proposerReorganisationCollections", () => {
     const r = await proposerReorganisationCollections();
     expect(r).toMatchObject({ statut: "echec", quota: false });
     expect(etat.gemini).not.toHaveBeenCalled();
-  });
-
-  it("signale le quota Gemini", async () => {
-    brancher(lecture([item(E1, C1, "Gratin"), item(E2, C1, "Tarte")]));
-    etat.gemini.mockResolvedValue({ ok: false, code: "quota", detail: "429" });
-    expect(await proposerReorganisationCollections()).toEqual({ statut: "echec", erreur: "Quota atteint.", quota: true });
   });
 
   it("se rabat sur les titres quand la colonne description n'existe pas encore", async () => {

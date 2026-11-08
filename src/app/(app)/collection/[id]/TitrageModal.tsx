@@ -108,7 +108,7 @@ export function TitrageModal({
                 resultats.push(echec(element, r.erreur));
                 if (r.quota) stop = true;
               } else {
-                resultats.push({ element, titre: r.proposition.titre, description: r.proposition.description, coche: true, erreur: null });
+                resultats.push({ element, titre: r.suggestion.titre, description: r.suggestion.description, coche: true, erreur: null });
               }
             });
             if (stop) {
