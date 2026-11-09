@@ -39,7 +39,7 @@ function revalidateReorganisation() {
 // --- Proposition (lecture seule) ---
 
 type SuccesPropositionCollections = {
-  proposition: PropositionReorganisation;
+  suggestion: PropositionReorganisation;
   /** Éléments par collection : repère les collections qui se videront. */
   comptes: Record<string, number>;
   noms: Record<string, string>;
@@ -134,7 +134,7 @@ const REORGANISATION: Analyse<string, ContexteReorganisation, SuccesPropositionC
     };
   },
   lire: (brut, { analyses, collections, comptes, noms, nonLus, tronque }) => ({
-    proposition: lireReponseReorganisationCollections(brut, analyses, collections),
+    suggestion: lireReponseReorganisationCollections(brut, analyses, collections),
     comptes,
     noms,
     analyses: analyses.length,

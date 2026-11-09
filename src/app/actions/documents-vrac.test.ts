@@ -92,7 +92,7 @@ describe("analyserDocumentVrac", () => {
     expect(etat.gemini).not.toHaveBeenCalled();
   });
 
-  it("envoie le fichier à Gemini avec les catégories et lit la proposition", async () => {
+  it("envoie le fichier à Gemini avec les catégories et lit la suggestion", async () => {
     brancher(reponseLecture(documentEnVrac()));
     fichierTelecharge("%PDF-1.4 contenu");
     etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "Facture EDF - mars 2026", categorie: "Logement" } });
@@ -101,7 +101,7 @@ describe("analyserDocumentVrac", () => {
 
     expect(resultat).toEqual({
       statut: "ok",
-      proposition: { nom: "Facture EDF - mars 2026", categorie: "Logement", nouvelleCategorie: false },
+      suggestion: { nom: "Facture EDF - mars 2026", categorie: "Logement", nouvelleCategorie: false },
       doublon: null,
     });
     const appel = etat.gemini.mock.calls[0][0];
@@ -122,7 +122,7 @@ describe("analyserDocumentVrac", () => {
 
     expect(await analyserDocumentVrac(ID)).toMatchObject({
       statut: "ok",
-      proposition: { categorie: "Banque", nouvelleCategorie: true },
+      suggestion: { categorie: "Banque", nouvelleCategorie: true },
     });
   });
 
@@ -133,7 +133,7 @@ describe("analyserDocumentVrac", () => {
 
     expect(await analyserDocumentVrac(ID)).toMatchObject({
       statut: "ok",
-      proposition: { categorie: "Santé", nouvelleCategorie: false },
+      suggestion: { categorie: "Santé", nouvelleCategorie: false },
     });
   });
 
@@ -190,7 +190,7 @@ describe("analyserDocumentVrac : doublons", () => {
 
     expect(resultat).toEqual({
       statut: "ok",
-      proposition: { nom: "Facture EDF - mars 2026", categorie: "Logement", nouvelleCategorie: false },
+      suggestion: { nom: "Facture EDF - mars 2026", categorie: "Logement", nouvelleCategorie: false },
       doublon: { type: "fichier", documentId: ID2, nom: "Facture EDF - mars 2026" },
     });
     expect(etat.gemini).not.toHaveBeenCalled();
@@ -273,11 +273,11 @@ describe("analyserDocumentVrac : doublons", () => {
 
 // Régression « tri bloqué à 0 / 1 » : l'action est appelée par le navigateur
 // à travers runAction, qui reconnaît `{ ok: true, data }` comme son propre
-// contrat. Une réponse `{ ok: true, proposition }` passait sans `data` et
+// contrat. Une réponse `{ ok: true, suggestion }` passait sans `data` et
 // faisait planter le modal. On teste donc le passage par runAction, pas
 // seulement l'action seule.
 describe("analyserDocumentVrac à travers runAction (contrat avec le navigateur)", () => {
-  it("livre la proposition dans `data`, lisible par le modal", async () => {
+  it("livre la suggestion dans `data`, lisible par le modal", async () => {
     brancher(reponseLecture(documentEnVrac()));
     fichierTelecharge("%PDF-1.4");
     etat.gemini.mockResolvedValue({ ok: true, brut: { nom: "Fiche de paie - mars 2026", categorie: "Autre" } });
@@ -287,7 +287,7 @@ describe("analyserDocumentVrac à travers runAction (contrat avec le navigateur)
     expect(resultat.ok).toBe(true);
     expect(resultat.data).toEqual({
       statut: "ok",
-      proposition: { nom: "Fiche de paie - mars 2026", categorie: "Autre", nouvelleCategorie: false },
+      suggestion: { nom: "Fiche de paie - mars 2026", categorie: "Autre", nouvelleCategorie: false },
       doublon: null,
     });
   });
