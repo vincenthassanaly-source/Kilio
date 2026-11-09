@@ -19,7 +19,7 @@ import {
   type PropositionTri,
 } from "@/lib/documents/tri";
 import { planifierIndexation } from "@/lib/documents/indexation";
-import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
+import { analyserPaquet, type Analyse, type EchecAnalyse } from "@/lib/gemini/analyse";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { estUuid } from "@/lib/uuid";
 
@@ -32,7 +32,6 @@ import { estUuid } from "@/lib/uuid";
 const BUCKET = "documents-fichiers";
 const CHEMIN_FICHIER = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|pdf)$/i;
 const TELECHARGEMENT_TIMEOUT_MS = 20_000;
-const GEMINI_TIMEOUT_MS = 40_000;
 const LOT_MAX_APPLIQUE = 50;
 const FICHIERS_MAX_PAR_ENVOI = 20;
 
@@ -50,11 +49,32 @@ function revalidateVrac(ids: string[] = []) {
 // restait figé à « 0 / 1 ».
 export type ResultatAnalyse =
   | { statut: "ok"; proposition: PropositionTri; doublon: DoublonDetecte | null }
-  | { statut: "echec"; erreur: string; quota: boolean };
+  | EchecAnalyse;
 
-function echecAnalyse(erreur: string, quota = false): ResultatAnalyse {
-  return { statut: "echec", erreur, quota };
+function echecAnalyse(erreur: string): EchecAnalyse {
+  return { statut: "echec", erreur, quota: false };
 }
+
+type DemandeTri = { categories: string[]; nom: string; images: { mimeType: string; data: string }[] };
+
+/**
+ * Un document à la fois (la progression et l'isolation des échecs sont gérées
+ * par la boucle du modal). Timeout, quota et journal : voir `@/lib/gemini/analyse`.
+ */
+const TRI: Analyse<DemandeTri, { categories: string[]; nom: string }, PropositionTri> = {
+  etiquette: "tri-documents",
+  schema: SCHEMA_TRI,
+  verbe: "lire ce document",
+  tailleMax: 1,
+  timeoutMs: 40_000,
+  temperature: 0.2,
+  preparer: ({ categories, nom, images }) => ({
+    prompt: construirePromptTri(categories, nom),
+    images,
+    contexte: { categories, nom },
+  }),
+  lire: (brut, { categories, nom }) => lireReponseTri(brut, categories, nom),
+};
 
 type EntreeFichier = { id: string; url: string; fichier_type: string };
 
@@ -219,20 +239,9 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
     };
   }
 
-  const resultat = await appelerGemini({
-    prompt: construirePromptTri(categories, document.nom),
-    images,
-    schema: SCHEMA_TRI,
-    timeoutMs: GEMINI_TIMEOUT_MS,
-    temperature: 0.2,
-    etiquette: "tri-documents",
-  });
-  if (!resultat.ok) {
-    return resultat.code === "quota"
-      ? echecAnalyse(MESSAGE_QUOTA_GEMINI, true)
-      : echecAnalyse(`Gemini n'a pas pu lire ce document (${resultat.detail})`);
-  }
-  const proposition = lireReponseTri(resultat.brut, categories, document.nom);
+  const [analyse] = await analyserPaquet(TRI, [{ categories, nom: document.nom, images }]);
+  if (analyse.statut === "echec") return analyse;
+  const proposition = analyse.suggestion;
 
   // Titre identique à celui d'un document déjà classé : doublon probable (le
   // même document peut avoir été renvoyé sous une autre forme, ex. une photo
