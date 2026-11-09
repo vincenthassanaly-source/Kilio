@@ -25,9 +25,13 @@ const REPORT_ICON = (
   </svg>
 );
 
-function LigneRetard({ tache, today }: { tache: TacheAvecRelations; today: string }) {
+function LigneRetard({ tache, today, compact }: { tache: TacheAvecRelations; today: string; compact: boolean }) {
   const reporter = useReporterTaches();
   const [enCours, setEnCours] = useState(false);
+  // En mode compact, les trois puces ne s'affichent qu'à la demande : une ligne
+  // par tâche au repos au lieu de quatre.
+  const [ouvert, setOuvert] = useState(false);
+  const idPuces = `reporter-${tache.id}`;
 
   async function handleReport(cible: CibleReport) {
     setEnCours(true);
@@ -38,38 +42,72 @@ function LigneRetard({ tache, today }: { tache: TacheAvecRelations; today: strin
     }
   }
 
+  const pastillesVisibles = !compact || ouvert;
+
   return (
     <li className="flex flex-col gap-2">
-      <DashboardTaskItem
-        id={tache.id}
-        titre={tache.titre}
-        heure={tache.heure}
-        fait={tache.fait}
-        echeance={tache.echeance}
-        detail={libelleRetard(tache.echeance!, today)}
-      />
-      <div className="flex flex-wrap items-center gap-1.5 pl-[34px]" role="group" aria-label={`Reporter « ${tache.titre} »`}>
-        <span className="mr-0.5 text-ink-3" title="Reporter à">
-          {REPORT_ICON}
-        </span>
-        {CIBLES.map((cible) => (
+      <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <DashboardTaskItem
+            id={tache.id}
+            titre={tache.titre}
+            heure={tache.heure}
+            fait={tache.fait}
+            echeance={tache.echeance}
+            detail={libelleRetard(tache.echeance!, today)}
+          />
+        </div>
+        {compact && (
           <button
-            key={cible}
             type="button"
-            disabled={enCours}
-            onClick={() => handleReport(cible)}
-            className={pastilleReport}
-            aria-label={`Reporter « ${tache.titre} » à ${LIBELLES_REPORT[cible].toLowerCase()}`}
+            aria-expanded={ouvert}
+            aria-controls={idPuces}
+            aria-label={`Reporter « ${tache.titre} »`}
+            onClick={() => setOuvert((v) => !v)}
+            className="relative shrink-0 text-small font-semibold text-kcal after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
           >
-            {LIBELLES_REPORT[cible]}
+            Reporter
           </button>
-        ))}
+        )}
       </div>
+      {pastillesVisibles && (
+        <div
+          id={idPuces}
+          className="flex flex-wrap items-center gap-1.5 pl-[34px]"
+          role="group"
+          aria-label={`Reporter « ${tache.titre} »`}
+        >
+          <span className="mr-0.5 text-ink-3" title="Reporter à">
+            {REPORT_ICON}
+          </span>
+          {CIBLES.map((cible) => (
+            <button
+              key={cible}
+              type="button"
+              disabled={enCours}
+              onClick={() => handleReport(cible)}
+              className={pastilleReport}
+              aria-label={`Reporter « ${tache.titre} » à ${LIBELLES_REPORT[cible].toLowerCase()}`}
+            >
+              {LIBELLES_REPORT[cible]}
+            </button>
+          ))}
+        </div>
+      )}
     </li>
   );
 }
 
-export function EnRetardSection({ taches, today }: { taches: TacheAvecRelations[]; today: string }) {
+export function EnRetardSection({
+  taches,
+  today,
+  compact = false,
+}: {
+  taches: TacheAvecRelations[];
+  today: string;
+  /** Une ligne par tâche, puces de report à la demande (écran Aujourd'hui). La Revue garde les puces visibles. */
+  compact?: boolean;
+}) {
   const [deplie, setDeplie] = useState(false);
   if (taches.length === 0) return null;
 
@@ -89,10 +127,10 @@ export function EnRetardSection({ taches, today }: { taches: TacheAvecRelations[
           {taches.length}
         </span>
       </div>
-      <p className="-mt-1.5 text-small text-ink-2">Reporte d&apos;un tap : aujourd&apos;hui, demain ou lundi.</p>
+      {!compact && <p className="-mt-1.5 text-small text-ink-2">Reporte d&apos;un tap : aujourd&apos;hui, demain ou lundi.</p>}
       <ul className="flex flex-col gap-3.5">
         {visibles.map((tache) => (
-          <LigneRetard key={tache.id} tache={tache} today={today} />
+          <LigneRetard key={tache.id} tache={tache} today={today} compact={compact} />
         ))}
       </ul>
       {taches.length > NB_VISIBLES && (

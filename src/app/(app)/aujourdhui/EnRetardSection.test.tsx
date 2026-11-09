@@ -69,6 +69,26 @@ describe("EnRetardSection", () => {
     expect(screen.getByRole("button", { name: "Réduire" }).getAttribute("aria-expanded")).toBe("true");
   });
 
+  it("en mode compact, cache les puces de report jusqu'au tap sur « Reporter »", async () => {
+    const liste = taches(1);
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+    client.setQueryData(queryKeys.taches, liste);
+    render(
+      <QueryClientProvider client={client}>
+        <EnRetardSection taches={liste} today={TODAY} compact />
+      </QueryClientProvider>
+    );
+
+    expect(screen.queryByRole("button", { name: "Reporter « Retard 1 » à demain" })).toBeNull();
+    const bascule = screen.getByRole("button", { name: "Reporter « Retard 1 »" });
+    expect(bascule.getAttribute("aria-expanded")).toBe("false");
+
+    await userEvent.click(bascule);
+
+    expect(bascule.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("button", { name: "Reporter « Retard 1 » à demain" })).toBeTruthy();
+  });
+
   it("reporte une tâche en un tap, avec un toast « Annuler » qui restaure l'état d'avant", async () => {
     vi.mocked(reporterTaches).mockResolvedValue({ ok: true, data: undefined });
     vi.mocked(restaurerTaches).mockResolvedValue({ ok: true, data: undefined });

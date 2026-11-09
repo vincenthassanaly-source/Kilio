@@ -162,14 +162,6 @@ export function AujourdhuiView({ today }: { today: string }) {
 
       <ScoreDuJourCard today={today} tachesDuJour={duJour} tachesChargent={tachesChargent} />
 
-      {tachesChargent ? (
-        <Skeleton className="h-24 w-full rounded-card" />
-      ) : (
-        <EnRetardSection taches={enRetard} today={today} />
-      )}
-
-      {!tachesChargent && <PlanDuJourCard taches={taches ?? []} libres={libres} today={today} />}
-
       <DayTimeline
         taches={horodatees}
         evenements={evenementsHorairesVisibles}
@@ -193,6 +185,16 @@ export function AujourdhuiView({ today }: { today: string }) {
           onTacheCreee={setTacheSurlignee}
         />
       )}
+
+      {/* À rattraper : sous la journée et les tâches du jour, qui sont ce qu'on
+          consulte d'abord ; le plan propose des créneaux dans la frise ci-dessus. */}
+      {tachesChargent ? (
+        <Skeleton className="h-24 w-full rounded-card" />
+      ) : (
+        <EnRetardSection taches={enRetard} today={today} compact />
+      )}
+
+      {!tachesChargent && <PlanDuJourCard taches={taches ?? []} libres={libres} today={today} />}
 
       <DashboardHabitudesSection today={today} className={card} />
 

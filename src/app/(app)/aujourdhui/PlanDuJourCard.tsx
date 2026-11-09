@@ -5,7 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { planifierTache, restaurerPlanification, type TacheAvecRelations } from "@/app/actions/taches";
 import { showActionToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
-import { libelleRetard } from "@/lib/aujourdhui/compute";
 import { construirePlanDuJour, type Proposition } from "@/lib/aujourdhui/plan";
 import { queryKeys } from "@/lib/query/keys";
 import type { Plage } from "@/lib/programme/disponibilites";
@@ -102,7 +101,7 @@ export function PlanDuJourCard({
                     </span>
                     {` · ${libelleDuree(p.dureeMinutes)}`}
                     {p.tache.priorite === "haute" ? " · priorité haute" : ""}
-                    {retard ? ` · en retard (${libelleRetard(p.tache.echeance!, today)})` : ""}
+                    {retard ? " · en retard" : ""}
                   </span>
                 </span>
                 <button
