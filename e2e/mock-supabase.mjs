@@ -103,7 +103,7 @@ fixtures.pharma_cartes = [
   { id: "00000000-0000-4000-8000-0000000000d4", notion_id: "00000000-0000-4000-8000-0000000000c4", question: "Dose maximale de paracétamol par jour chez l'adulte ?", reponse: "3 g sans avis médical.", echeance: "2030-01-01T00:00:00+00:00", intervalle_jours: 9, facilite: 2.5, repetitions: 3, dernier_passage: "2026-09-25T00:00:00+00:00" },
 ];
 
-// Une tâche due aujourd'hui (date UTC, comme aujourdhuiISO côté serveur) pour
+// Une tâche due aujourd'hui (date de Paris, comme aujourdhuiISO côté serveur) pour
 // vérifier que la cocher depuis le Dashboard met à jour /taches (parité des
 // mutations optimistes TanStack Query, e2e/parite.spec.ts).
 const LISTE_ID = "00000000-0000-4000-8000-000000000001";
@@ -155,7 +155,7 @@ fixtures.evenements = [
 // ---------------------------------------------------------------------------
 // Données réalistes pour le Journal et les Recettes (préchargement
 // de données : un préchargement de listes vides ne prouverait rien).
-// Dates relatives au jour du test (UTC, comme todayISO()/aujourdhuiISO() côté
+// Dates relatives au jour du test (Paris, comme todayISO()/aujourdhuiISO() côté
 // serveur) : "__DAY(-1)__" = veille, "__MONTH(-2)__" = "YYYY-MM" il y a deux
 // mois. Remplacées à chaque lecture par withToday().
 // ---------------------------------------------------------------------------
@@ -292,15 +292,22 @@ function withRelations(table, rows, select) {
 
 const initialFixtures = JSON.parse(JSON.stringify(fixtures));
 
+// « Aujourd'hui » à Paris, comme aujourdhuiParis() (src/lib/date/paris.ts) côté
+// serveur : `en-CA` formate en AAAA-MM-JJ. La date UTC serait en retard d'un
+// jour entre minuit à Paris et minuit UTC (23 h-24 h UTC en hiver), et les
+// données « du jour » du test seraient alors introuvables.
+const formatParis = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" });
+function aujourdhuiParisUTC() {
+  const [annee, mois, jour] = formatParis.format(new Date()).split("-").map(Number);
+  return { annee, mois, jour };
+}
 function isoDay(offset) {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() + offset);
-  return d.toISOString().slice(0, 10);
+  const { annee, mois, jour } = aujourdhuiParisUTC();
+  return new Date(Date.UTC(annee, mois - 1, jour + offset)).toISOString().slice(0, 10);
 }
 function isoMonth(offset) {
-  const d = new Date();
-  const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + offset, 1));
-  return m.toISOString().slice(0, 7);
+  const { annee, mois } = aujourdhuiParisUTC();
+  return new Date(Date.UTC(annee, mois - 1 + offset, 1)).toISOString().slice(0, 7);
 }
 function withToday(rows) {
   const json = JSON.stringify(rows)
