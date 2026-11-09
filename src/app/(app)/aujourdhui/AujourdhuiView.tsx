@@ -165,7 +165,7 @@ export function AujourdhuiView({ today }: { today: string }) {
       {tachesChargent ? (
         <Skeleton className="h-24 w-full rounded-card" />
       ) : (
-        <EnRetardSection taches={enRetard} today={today} />
+        <EnRetardSection taches={enRetard} today={today} compact />
       )}
 
       {!tachesChargent && <PlanDuJourCard taches={taches ?? []} libres={libres} today={today} />}
