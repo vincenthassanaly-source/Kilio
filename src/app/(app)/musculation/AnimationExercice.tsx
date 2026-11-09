@@ -94,7 +94,7 @@ export function AnimationVignette({ animation, nom }: { animation: string | null
         <Video cle={cle} className="h-full w-full object-contain" />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element -- image locale précachée, déjà dimensionnée
-        <img src={urlPoster(cle)} alt="" className="h-full w-full object-contain" />
+        <img src={urlPoster(cle)} alt="" loading="lazy" decoding="async" className="h-full w-full object-contain" />
       )}
     </button>
   );
