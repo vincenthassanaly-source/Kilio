@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getJoursLibresAutour, poserJourLibre, retirerJourLibre } from "@/app/actions/jours-libres";
 import { Skeleton } from "@/components/skeletons/Skeleton";
@@ -20,6 +20,9 @@ import { card, ghostButton, secondaryButton } from "@/lib/ui";
 export function JourLibreCard({ today }: { today: string }) {
   const queryClient = useQueryClient();
   const [pending, startTransition] = useTransition();
+  // Replié par défaut : poser un jour libre est occasionnel (2 jetons par
+  // semaine), il ne doit pas occuper une carte entière de l'écran chaque jour.
+  const [ouvert, setOuvert] = useState(false);
 
   const { data: joursLibres, isLoading } = useQuery({
     queryKey: queryKeys.joursLibresAutour(today),
@@ -59,46 +62,73 @@ export function JourLibreCard({ today }: { today: string }) {
 
   return (
     <section className={`${card} flex flex-col gap-3`} aria-label="Jours libres">
-      <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-body font-semibold tracking-[-0.01em] text-ink">Jours libres</h2>
-        <span className="text-small font-semibold tabular-nums text-ink-2">
-          {restants}/{JETONS_PAR_SEMAINE} jetons cette semaine
-        </span>
-      </div>
-      <ul className="flex flex-col divide-y divide-line">
-        {lignes.map(({ date, titre, libre, refus }) => (
-          <li key={date} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-            <div className="min-w-0">
-              <p className="text-body font-medium text-ink">{titre}</p>
-              <p className="text-small text-ink-2">
-                {libre ? "Jour libre · limite kcal suspendue" : "Limite kcal active"}
-              </p>
-            </div>
-            {libre ? (
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => appliquer(() => retirerJourLibre(date), `${titre} n'est plus un jour libre`)}
-                aria-label={`Retirer le jour libre : ${titre.toLowerCase()}`}
-                className={ghostButton}
-              >
-                Retirer
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled={pending || refus !== null}
-                onClick={() => appliquer(() => poserJourLibre(date), `${titre} : jour libre posé`)}
-                aria-label={`Poser un jour libre : ${titre.toLowerCase()}`}
-                className={secondaryButton}
-              >
-                Poser
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
-      {restants === 0 && (
+      <h2 className="-m-1">
+        <button
+          type="button"
+          aria-expanded={ouvert}
+          aria-controls="jours-libres-detail"
+          onClick={() => setOuvert((v) => !v)}
+          className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl p-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        >
+          <span className="min-w-0">
+            <span className="block text-body font-semibold tracking-[-0.01em] text-ink">Jours libres</span>
+            {lignes[0].libre && <span className="block text-small font-normal text-ink-2">Aujourd&apos;hui : jour libre</span>}
+          </span>
+          <span className="flex shrink-0 items-center gap-2 text-small font-semibold tabular-nums text-ink-2">
+            {restants}/{JETONS_PAR_SEMAINE} jetons
+            <svg
+              aria-hidden
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`text-ink-3 transition-transform ${ouvert ? "rotate-90" : ""}`}
+            >
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </button>
+      </h2>
+      {ouvert && (
+        <ul id="jours-libres-detail" className="flex flex-col divide-y divide-line">
+          {lignes.map(({ date, titre, libre, refus }) => (
+            <li key={date} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+              <div className="min-w-0">
+                <p className="text-body font-medium text-ink">{titre}</p>
+                <p className="text-small text-ink-2">
+                  {libre ? "Jour libre · limite kcal suspendue" : "Limite kcal active"}
+                </p>
+              </div>
+              {libre ? (
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => appliquer(() => retirerJourLibre(date), `${titre} n'est plus un jour libre`)}
+                  aria-label={`Retirer le jour libre : ${titre.toLowerCase()}`}
+                  className={ghostButton}
+                >
+                  Retirer
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={pending || refus !== null}
+                  onClick={() => appliquer(() => poserJourLibre(date), `${titre} : jour libre posé`)}
+                  aria-label={`Poser un jour libre : ${titre.toLowerCase()}`}
+                  className={secondaryButton}
+                >
+                  Poser
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {ouvert && restants === 0 && (
         <p className="text-small leading-snug text-ink-2">
           Plus de jeton cette semaine : la limite reste active jusqu&apos;à lundi.
         </p>
