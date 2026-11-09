@@ -48,7 +48,9 @@ const ecart = (img: ImageDataLike, k: number) => {
   return Math.max(Math.abs(a - b), Math.abs(c - b));
 };
 
-describe("aplatirLesLignes", () => {
+// L'aplatissage d'une page de 400 × 500 prend ≈ 3 s : sous la charge de la CI (205 fichiers en parallèle),
+// les 5 s par défaut de vitest ne suffisent pas toujours.
+describe("aplatirLesLignes", { timeout: 30_000 }, () => {
   // Papier plié en V au centre : les lignes montent de 14 px puis redescendent.
   const pli = (x: number) => -14 * (1 - Math.abs(x - W / 2) / (W / 2));
   const pliee = page(8, pli);
