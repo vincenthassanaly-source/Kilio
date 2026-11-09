@@ -60,7 +60,7 @@ describe("proposerReorganisationCollections", () => {
       return undefined;
     };
 
-  it("renvoie la proposition lue dans la réponse de Gemini", async () => {
+  it("renvoie la suggestion lue dans la réponse de Gemini", async () => {
     brancher(lecture([item(E1, C1, "Gratin"), item(E2, C1, "Tarte"), item("e3", C2, null)]));
     etat.gemini.mockResolvedValue({
       ok: true,
@@ -71,7 +71,7 @@ describe("proposerReorganisationCollections", () => {
 
     expect(r).toMatchObject({ statut: "ok", analyses: 2, nonLus: 1, tronque: false });
     if (r.statut !== "ok") throw new Error("attendu : ok");
-    expect(r.proposition.deplacements).toMatchObject([{ id: E1, deId: C1, versId: C2, versNom: "Cuisine" }]);
+    expect(r.suggestion.deplacements).toMatchObject([{ id: E1, deId: C1, versId: C2, versNom: "Cuisine" }]);
     expect(r.comptes).toEqual({ [C1]: 2, [C2]: 1 });
     const appel = etat.gemini.mock.calls[0][0];
     expect(appel.etiquette).toBe("reorganisation-collections");

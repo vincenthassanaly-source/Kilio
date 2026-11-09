@@ -115,14 +115,14 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
     setEtape("apercu");
   }
 
-  const groupes = useMemo(() => regrouperDeplacements(proposition?.proposition.deplacements ?? []), [proposition]);
+  const groupes = useMemo(() => regrouperDeplacements(proposition?.suggestion.deplacements ?? []), [proposition]);
   const nouvelles = useMemo(
-    () => [...new Set((proposition?.proposition.deplacements ?? []).filter((d) => d.versId === null).map((d) => d.versNom))],
+    () => [...new Set((proposition?.suggestion.deplacements ?? []).filter((d) => d.versId === null).map((d) => d.versNom))],
     [proposition]
   );
 
   const retenus = useMemo(() => {
-    const p = proposition?.proposition;
+    const p = proposition?.suggestion;
     return {
       deplacements: (p?.deplacements ?? []).filter((d) => !decoches.has(d.id)),
       fusions: (p?.fusions ?? []).filter((f) => !decoches.has(`fusion:${f.deId}`)),
@@ -259,7 +259,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
 
       {(etape === "apercu" || etape === "application") && proposition && (
         <div className="flex flex-col gap-4">
-          {nbChangements(proposition.proposition) === 0 ? (
+          {nbChangements(proposition.suggestion) === 0 ? (
             <>
               <p className="text-sm text-ink" role="status">
                 Ton rangement est déjà cohérent : Gemini n&apos;a rien à proposer.
@@ -277,8 +277,8 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
           ) : (
             <>
               <p className="text-sm text-ink-2">
-                {pluriel(nbChangements(proposition.proposition), "changement")} proposé
-                {nbChangements(proposition.proposition) > 1 ? "s" : ""} sur {proposition.analyses} éléments examinés.
+                {pluriel(nbChangements(proposition.suggestion), "changement")} proposé
+                {nbChangements(proposition.suggestion) > 1 ? "s" : ""} sur {proposition.analyses} éléments examinés.
                 Décoche ce que tu ne veux pas.
               </p>
               {(proposition.tronque || proposition.nonLus > 0) && (
@@ -290,9 +290,9 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                 </p>
               )}
 
-              {proposition.proposition.fusions.length > 0 && (
+              {proposition.suggestion.fusions.length > 0 && (
                 <Section titre="Fusions">
-                  {proposition.proposition.fusions.map((f) => {
+                  {proposition.suggestion.fusions.map((f) => {
                     const cle = `fusion:${f.deId}`;
                     return (
                       <li key={cle} className={carte(!decoches.has(cle))}>
@@ -317,9 +317,9 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                 </Section>
               )}
 
-              {proposition.proposition.renommages.length > 0 && (
+              {proposition.suggestion.renommages.length > 0 && (
                 <Section titre="Renommages">
-                  {proposition.proposition.renommages.map((r) => {
+                  {proposition.suggestion.renommages.map((r) => {
                     const cle = `nom:${r.id}`;
                     return (
                       <li key={cle} className={carte(!decoches.has(cle))}>

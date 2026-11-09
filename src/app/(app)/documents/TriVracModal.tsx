@@ -109,7 +109,7 @@ export function TriVracModal({
               stop = true;
             }
           } else {
-            const { nom, categorie } = resultat.data.proposition;
+            const { nom, categorie } = resultat.data.suggestion;
             const { doublon } = resultat.data;
             if (categorie && !categories.includes(categorie) && !nouvelles.includes(categorie)) nouvelles.push(categorie);
             // Un doublon est décoché : il reste en vrac tant que tu ne le coches pas.

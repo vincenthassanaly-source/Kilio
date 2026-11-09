@@ -48,7 +48,7 @@ function revalidateVrac(ids: string[] = []) {
 // quelle, sans `data`. Avec `ok`, le modal de tri lisait `data` indéfini et
 // restait figé à « 0 / 1 ».
 export type ResultatAnalyse =
-  | { statut: "ok"; proposition: PropositionTri; doublon: DoublonDetecte | null }
+  | { statut: "ok"; suggestion: PropositionTri; doublon: DoublonDetecte | null }
   | EchecAnalyse;
 
 function echecAnalyse(erreur: string): EchecAnalyse {
@@ -231,23 +231,23 @@ export async function analyserDocumentVrac(id: string, categoriesSupplementaires
   );
   if (doublonFichier) {
     // Même fichier qu'un document existant : inutile de consommer le quota Gemini.
-    // La proposition reprend le nom et la catégorie de l'original.
+    // La suggestion reprend le nom et la catégorie de l'original.
     return {
       statut: "ok",
-      proposition: { nom: doublonFichier.detecte.nom || document.nom, categorie: doublonFichier.categorie, nouvelleCategorie: false },
+      suggestion: { nom: doublonFichier.detecte.nom || document.nom, categorie: doublonFichier.categorie, nouvelleCategorie: false },
       doublon: doublonFichier.detecte,
     };
   }
 
   const [analyse] = await analyserPaquet(TRI, [{ categories, nom: document.nom, images }]);
   if (analyse.statut === "echec") return analyse;
-  const proposition = analyse.suggestion;
+  const suggestion = analyse.suggestion;
 
   // Titre identique à celui d'un document déjà classé : doublon probable (le
   // même document peut avoir été renvoyé sous une autre forme, ex. une photo
   // au lieu du PDF). Le vrac est exclu : ses noms sont ceux des fichiers reçus.
   const { data: classes } = await supabase.from("documents").select("id, nom").eq("en_vrac", false).neq("id", id);
-  return { statut: "ok", proposition, doublon: trouverDoublonParTitre(proposition.nom, classes ?? []) };
+  return { statut: "ok", suggestion, doublon: trouverDoublonParTitre(suggestion.nom, classes ?? []) };
 }
 
 // --- Remise en vrac (bouton « Remettre en vrac », et son annulation) ---
