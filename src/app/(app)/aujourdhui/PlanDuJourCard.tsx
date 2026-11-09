@@ -28,11 +28,13 @@ export function PlanDuJourCard({
 }) {
   const queryClient = useQueryClient();
   const [enCours, setEnCours] = useState(false);
-  const [masque, setMasque] = useState(false);
+  // Replié par défaut : les mêmes tâches sont déjà listées dans « Tâches » et
+  // « En retard » ; le plan ne s'ouvre que pour les ranger dans la frise.
+  const [ouvert, setOuvert] = useState(false);
 
   const plan = useMemo(() => construirePlanDuJour(taches, libres, today), [taches, libres, today]);
 
-  if (masque || (plan.propositions.length === 0 && plan.nonPlacees.length === 0)) return null;
+  if (plan.propositions.length === 0 && plan.nonPlacees.length === 0) return null;
 
   async function placer(propositions: Proposition<TacheAvecRelations>[]) {
     if (enCours || propositions.length === 0) return;
@@ -71,69 +73,93 @@ export function PlanDuJourCard({
 
   return (
     <section aria-labelledby="plan-du-jour" className={`${card} flex flex-col gap-3`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 id="plan-du-jour" className={sectionTitle}>
-            Plan du jour
-          </h2>
-          <p className="mt-0.5 text-small text-ink-2">
-            {libelleDuree(plan.minutesDemandees)} estimées · {libelleDuree(plan.minutesLibres)} libres
-            {surcharge ? " — trop pour aujourd'hui" : ""}
-          </p>
-        </div>
-        <button type="button" onClick={() => setMasque(true)} className={`${ghostButton} shrink-0`}>
-          Masquer
+      <h2 id="plan-du-jour" className="-m-1">
+        <button
+          type="button"
+          aria-expanded={ouvert}
+          aria-controls="plan-du-jour-detail"
+          onClick={() => setOuvert((v) => !v)}
+          className="flex min-h-11 w-full items-start justify-between gap-3 rounded-xl p-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        >
+          <span className="min-w-0">
+            <span className={`block ${sectionTitle}`}>Plan du jour</span>
+            <span className="mt-0.5 block text-small font-normal text-ink-2">
+              {libelleDuree(plan.minutesDemandees)} estimées · {libelleDuree(plan.minutesLibres)} libres
+              {surcharge ? " — trop pour aujourd'hui" : ""}
+            </span>
+          </span>
+          <span className="flex shrink-0 items-center gap-2 pt-0.5 text-small font-semibold text-kcal">
+            {ouvert ? "Réduire" : "Voir"}
+            <svg
+              aria-hidden
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-transform ${ouvert ? "rotate-90" : ""}`}
+            >
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
         </button>
-      </div>
+      </h2>
 
-      {plan.propositions.length > 0 ? (
-        <ul className="flex flex-col gap-2">
-          {plan.propositions.map((p) => {
-            const retard = p.tache.echeance! < today;
-            return (
-              <li key={p.tache.id} className="flex items-center gap-3 rounded-xl bg-surface-alt px-3 py-2">
-                {/* Titre sur toute la largeur (2 lignes max) ; l'horaire passe en méta, en gras. */}
-                <span className="min-w-0 flex-1">
-                  <span className="line-clamp-2 block text-label text-ink">{p.tache.titre}</span>
-                  <span className="block text-small tabular-nums text-ink-2">
-                    <span className="font-semibold text-ink">
-                      {p.creneau.debut} – {p.creneau.fin}
+      {ouvert && (
+        <div id="plan-du-jour-detail" className="flex flex-col gap-3">
+          {plan.propositions.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {plan.propositions.map((p) => {
+                const retard = p.tache.echeance! < today;
+                return (
+                  <li key={p.tache.id} className="flex items-center gap-3 rounded-xl bg-surface-alt px-3 py-2">
+                    {/* Titre sur toute la largeur (2 lignes max) ; l'horaire passe en méta, en gras. */}
+                    <span className="min-w-0 flex-1">
+                      <span className="line-clamp-2 block text-label text-ink">{p.tache.titre}</span>
+                      <span className="block text-small tabular-nums text-ink-2">
+                        <span className="font-semibold text-ink">
+                          {p.creneau.debut} – {p.creneau.fin}
+                        </span>
+                        {` · ${libelleDuree(p.dureeMinutes)}`}
+                        {p.tache.priorite === "haute" ? " · priorité haute" : ""}
+                        {retard ? " · en retard" : ""}
+                      </span>
                     </span>
-                    {` · ${libelleDuree(p.dureeMinutes)}`}
-                    {p.tache.priorite === "haute" ? " · priorité haute" : ""}
-                    {retard ? " · en retard" : ""}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  disabled={enCours}
-                  onClick={() => placer([p])}
-                  aria-label={`Placer « ${p.tache.titre} » de ${p.creneau.debut} à ${p.creneau.fin}`}
-                  className={`${ghostButton} shrink-0`}
-                >
-                  Placer
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      ) : (
-        <p className="text-small text-ink-2">Aucun trou libre aujourd&apos;hui pour tes tâches. Reporte-en ou raccourcis-les.</p>
-      )}
+                    <button
+                      type="button"
+                      disabled={enCours}
+                      onClick={() => placer([p])}
+                      aria-label={`Placer « ${p.tache.titre} » de ${p.creneau.debut} à ${p.creneau.fin}`}
+                      className={`${ghostButton} shrink-0`}
+                    >
+                      Placer
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="text-small text-ink-2">Aucun trou libre aujourd&apos;hui pour tes tâches. Reporte-en ou raccourcis-les.</p>
+          )}
 
-      {plan.nonPlacees.length > 0 && plan.propositions.length > 0 && (
-        <p className="text-small text-ink-2">
-          {plan.nonPlacees.length === 1
-            ? "1 tâche ne tient pas aujourd'hui"
-            : `${plan.nonPlacees.length} tâches ne tiennent pas aujourd'hui`}{" "}
-          — pense à les reporter.
-        </p>
-      )}
+          {plan.nonPlacees.length > 0 && plan.propositions.length > 0 && (
+            <p className="text-small text-ink-2">
+              {plan.nonPlacees.length === 1
+                ? "1 tâche ne tient pas aujourd'hui"
+                : `${plan.nonPlacees.length} tâches ne tiennent pas aujourd'hui`}{" "}
+              — pense à les reporter.
+            </p>
+          )}
 
-      {plan.propositions.length > 1 && (
-        <button type="button" disabled={enCours} onClick={() => placer(plan.propositions)} className={primaryButton}>
-          {enCours ? "Planification…" : "Tout placer"}
-        </button>
+          {plan.propositions.length > 1 && (
+            <button type="button" disabled={enCours} onClick={() => placer(plan.propositions)} className={primaryButton}>
+              {enCours ? "Planification…" : "Tout placer"}
+            </button>
+          )}
+        </div>
       )}
     </section>
   );

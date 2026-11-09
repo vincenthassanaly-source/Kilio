@@ -27,6 +27,11 @@ function monter(taches = [makeTache({ id: "a", titre: "Facture", echeance: "2026
   );
 }
 
+// Le plan est replié par défaut : on l'ouvre avant de lire son contenu.
+async function ouvrir() {
+  await userEvent.click(screen.getByRole("button", { name: /Plan du jour/ }));
+}
+
 describe("PlanDuJourCard", () => {
   beforeEach(() => vi.clearAllMocks());
 
@@ -35,8 +40,24 @@ describe("PlanDuJourCard", () => {
     expect(screen.queryByText("Plan du jour")).toBeNull();
   });
 
-  it("propose les tâches par priorité dans les trous libres", () => {
+  it("est replié par défaut, avec le résumé visible, et se déplie à la demande", async () => {
     monter();
+    expect(screen.getByText(/estimées · .* libres/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^Placer/ })).toBeNull();
+    const bascule = screen.getByRole("button", { name: /Plan du jour/ });
+    expect(bascule.getAttribute("aria-expanded")).toBe("false");
+
+    await userEvent.click(bascule);
+    expect(bascule.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getAllByRole("button", { name: /^Placer/ }).length).toBeGreaterThan(0);
+
+    await userEvent.click(bascule);
+    expect(screen.queryByRole("button", { name: /^Placer/ })).toBeNull();
+  });
+
+  it("propose les tâches par priorité dans les trous libres", async () => {
+    monter();
+    await ouvrir();
     expect(screen.getByRole("button", { name: "Placer « Facture » de 14:00 à 15:00" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Placer « Appeler Paul » de 15:00 à 15:30" })).toBeTruthy();
   });
@@ -45,6 +66,7 @@ describe("PlanDuJourCard", () => {
     vi.mocked(planifierTache).mockResolvedValue({ ok: true, data: undefined });
     vi.mocked(restaurerPlanification).mockResolvedValue({ ok: true, data: undefined });
     monter();
+    await ouvrir();
 
     await userEvent.click(screen.getByRole("button", { name: "Tout placer" }));
 
@@ -58,14 +80,9 @@ describe("PlanDuJourCard", () => {
     expect(restaurerPlanification).toHaveBeenCalledWith("a", expect.objectContaining({ echeance: "2026-10-07" }));
   });
 
-  it("indique quand rien ne tient aujourd'hui", () => {
+  it("indique quand rien ne tient aujourd'hui", async () => {
     monter(undefined, []);
+    await ouvrir();
     expect(screen.getByText(/Aucun trou libre aujourd'hui/)).toBeTruthy();
-  });
-
-  it("se masque à la demande", async () => {
-    monter();
-    await userEvent.click(screen.getByRole("button", { name: "Masquer" }));
-    expect(screen.queryByText("Plan du jour")).toBeNull();
   });
 });

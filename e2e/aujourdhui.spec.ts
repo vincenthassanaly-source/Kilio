@@ -32,6 +32,13 @@ test("affiche l'événement, la tâche du jour et le résumé des repas", async 
   await expect(page.getByRole("button", { name: /09:00 Rendez-vous e2e, événement de 09:00 à 10:00/ })).toBeVisible();
   // La tâche figure aussi dans la carte « Plan du jour » : on cible la liste du jour.
   await expect(page.getByLabel("Tâches").getByText("Tâche e2e du jour")).toBeVisible();
+  // Le plan est replié par défaut : on l'ouvre (le clic peut précéder
+  // l'hydratation, donc on ne clique que tant qu'il n'est pas ouvert).
+  const bouton = page.getByRole("button", { name: /Plan du jour/ });
+  await expect(async () => {
+    if ((await bouton.getAttribute("aria-expanded")) !== "true") await bouton.click();
+    await expect(bouton).toHaveAttribute("aria-expanded", "true", { timeout: 1000 });
+  }).toPass();
   await expect(page.getByLabel("Plan du jour").getByText("Tâche e2e du jour")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Journée" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Repas" })).toBeVisible();

@@ -88,7 +88,8 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
       <ProgressRing size={50} strokeWidth={5} pct={pct} color="var(--accent-habitudes)">
         <span className="text-base leading-none">{habitude.icone || <CheckIcon size={16} />}</span>
       </ProgressRing>
-      <span className="max-w-full truncate text-micro font-semibold text-ink-2">{habitude.nom}</span>
+      {/* Deux lignes plutôt qu'une coupure à ~12 caractères : « Boire 2 L … » ne dit pas quelle habitude. */}
+      <span className="line-clamp-2 w-full break-words text-center text-micro font-semibold leading-tight text-ink-2">{habitude.nom}</span>
       {(habitude.type === "streak" || habitude.frequence_hebdo != null) && habitude.streak > 0 && (
         <span className="inline-flex items-center gap-0.5 text-micro font-bold text-habitudes">
           <FlameIcon size={12} />
