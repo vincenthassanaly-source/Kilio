@@ -189,7 +189,7 @@ Motifs récurrents de composition :
 - **Contrôle segmenté** (pilule `surface-alt` contenant des onglets `rounded-xl` dont l'actif passe en fond `bg-kcal` plein, texte `--on-kcal` ; composant `<SegmentedControl>`) : utilisé aussi bien pour la sous-nav Journal/Recettes que pour le toggle Repos/Entraînement — c'est le motif de choix binaire/multiple de tout le système, jamais de radio ou dropdown à sa place.
 - **Barre de navigation flottante** : pilule détachée du bord de l'écran (padding horizontal + `bottom` respectant `env(safe-area-inset-bottom)`), fond flouté (`backdrop-blur-xl`) semi-transparent, jamais collée en pleine largeur.
 - **Navigation directionnelle** : chaque changement d'écran (bottom nav, jour précédent/suivant) déclenche une View Transition en glissement horizontal (~200ms, easing `ease-out`) dont le sens dépend de la position relative dans la hiérarchie de nav — jamais un simple fondu par défaut si un sens est connu.
-- `prefers-reduced-motion: reduce` est systématiquement respecté (règle globale + `MotionConfig`) : toutes les animations (glissements, pastille de nav, halo de mise en surbrillance) sont neutralisées à ~0ms plutôt que supprimées au cas par cas.
+- `prefers-reduced-motion: reduce` est systématiquement respecté (règle globale + `MotionConfig`) : les déplacements (glissements, entrées en montée, pastille de nav, boucles) sont coupés à ~0ms ou remplacés par un fondu de 150 ms (entrées, changement de page, halo de mise en surbrillance en un seul estompage), et les transitions d'état (couleur, opacité, focus) durent 120 ms au lieu d'être supprimées.
 
 ## Elevation & Depth
 
@@ -260,7 +260,7 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 - **Do** garder les neutres teintés vert OKLCH (`ink`/`ink-2`/`ink-3`/`background`/`surface`) plutôt que d'introduire du gris pur ou un autre hex de neutre.
 - **Do** faire grandir le rayon avec la taille du conteneur (12px boutons → 26px barre de nav → plein cercle pour badges/anneaux).
 - **Do** utiliser `focus-visible` (jamais `focus`) pour l'anneau de focus clavier, avec `ring-offset-2` pour qu'il reste visible sur fond `kcal`.
-- **Do** neutraliser toute animation via `prefers-reduced-motion: reduce` plutôt que de la retirer composant par composant : c'est fait globalement (règle `*` dans `globals.css` pour le CSS, `<MotionConfig reducedMotion="user">` dans `providers.tsx` pour framer-motion).
+- **Do** réduire le mouvement via `prefers-reduced-motion: reduce` globalement (déplacements coupés, fondu court à la place, retours d'état conservés) plutôt que composant par composant : c'est fait globalement (règle `*` dans `globals.css` pour le CSS, `<MotionConfig reducedMotion="user">` dans `providers.tsx` pour framer-motion).
 - **Do** rendre les dialogues via `Modal` (portal, focus piégé, Échap) et les overlays plein écran dans un `Portal`.
 - **Do** utiliser Sora exclusivement pour les titres d'écran et les chiffres-clés qui doivent dominer visuellement ; Inter pour tout le reste.
 

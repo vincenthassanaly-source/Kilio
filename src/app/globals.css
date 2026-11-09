@@ -542,6 +542,14 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
 .tache-surbrillance {
   animation: tache-surbrillance-anim 2.6s var(--ease-out) both;
 }
+@keyframes tache-surbrillance-douce {
+  from {
+    box-shadow: 0 0 0 3px var(--accent-agenda);
+  }
+  to {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
 
 /* Barre de progression indéterminée affichée par TabSwipeWrapper quand
    `useNavigationEnCours()` (useViewTransitionNavigate.ts) passe à vrai : une
@@ -586,50 +594,52 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Vague 2 (T10) : neutralisation globale, comme l'annonce DESIGN.md —
-     toutes les transitions et animations CSS (utilitaires Tailwind
-     `transition`, `animate-*`, press states) tombent à ~0 ms. Les
-     animations framer-motion sont couvertes par <MotionConfig
-     reducedMotion="user"> (src/app/providers.tsx). Les règles nommées
-     ci-dessous restent pour les pseudo-éléments de View Transition. */
+  /* Mouvement réduit = moins de déplacement, pas moins de retour : tout ce
+     qui bouge (glissements, rebonds, entrées en montée, boucles) est coupé
+     ou remplacé par un fondu ; les changements d'état (couleur, opacité,
+     anneau de focus) restent animés, brièvement. Les animations
+     framer-motion sont couvertes par <MotionConfig reducedMotion="user">
+     (src/app/providers.tsx). */
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 120ms !important;
     transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 
+  /* Entrées qui montaient ou glissaient : même apparition, en fondu seul. */
+  .kl-in,
   .agenda-glisse-suivant,
   .agenda-glisse-precedent {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0s !important;
+    animation-name: kilio-fondu-entree !important;
+    animation-duration: 150ms !important;
   }
 
-  .kilio-barre-navigation-progression {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0s !important;
-  }
-
-  .tache-surbrillance {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0s !important;
-  }
-
+  /* Changement de page : fondu croisé à la place des slides directionnels. */
   ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 0.01ms !important;
+  html[data-nav-direction]::view-transition-old(root) {
+    animation-name: kilio-fondu-sortie !important;
+    animation-duration: 150ms !important;
+    animation-delay: 0s !important;
+  }
+  ::view-transition-new(root),
+  html[data-nav-direction]::view-transition-new(root) {
+    animation-name: kilio-fondu-entree !important;
+    animation-duration: 150ms !important;
     animation-delay: 0s !important;
   }
 
-  ::view-transition-group(*) {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0s !important;
+  /* Repérer une tâche : un seul halo qui s'estompe, sans clignotement. */
+  .tache-surbrillance {
+    animation-name: tache-surbrillance-douce !important;
+    animation-duration: 1.6s !important;
   }
 
+  ::view-transition-group(*),
   ::view-transition-old(fab),
   ::view-transition-new(fab),
   ::view-transition-old(.dashboard-reveal-exit),
