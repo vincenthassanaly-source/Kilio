@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { BottomNav } from "@/components/BottomNav";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggleDock } from "@/components/ThemeToggleDock";
 import { BackNavigationHandler } from "@/components/BackNavigationHandler";
 import { SeanceFlottante } from "@/components/SeanceFlottante";
 import { Providers } from "@/app/providers";
@@ -27,12 +27,7 @@ export default async function AppLayout({
   return (
     <Providers>
       <div className="relative flex h-full flex-1 flex-col bg-background">
-        <div
-          className="fixed right-4 z-40"
-          style={{ top: "calc(env(safe-area-inset-top) + 14px)", viewTransitionName: "theme-toggle" }}
-        >
-          <ThemeToggle />
-        </div>
+        <ThemeToggleDock />
         {/* NavigationEditProvider, TabSwipeWrapper et BottomNav lisent
             usePathname(), inconnu au build sur les routes à paramètre
             dynamique (/objectifs/[id], /documents/[id]…) : seul cas où cette

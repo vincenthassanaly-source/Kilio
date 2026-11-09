@@ -101,7 +101,7 @@
   --theme-international: oklch(0.5 0.1 190);
   --theme-numerique: oklch(0.5 0.1 170);
   --theme-ecologie: oklch(0.5 0.12 145);
-  --nav-bg: oklch(0.995 0.006 95 / 0.78);
+  --nav-bg: oklch(0.995 0.006 95 / 0.92);
   --shadow-card:
     0 1px 2px oklch(0.3 0.03 150 / 0.05),
     0 8px 24px -10px oklch(0.3 0.03 150 / 0.12);
@@ -198,7 +198,7 @@
   --theme-international: oklch(0.76 0.1 190);
   --theme-numerique: oklch(0.76 0.1 170);
   --theme-ecologie: oklch(0.76 0.12 145);
-  --nav-bg: oklch(0.22 0.018 195 / 0.72);
+  --nav-bg: oklch(0.22 0.018 195 / 0.9);
   --shadow-card:
     0 1px 0 oklch(1 0 0 / 0.04) inset,
     0 10px 28px -10px rgba(0, 0, 0, 0.55);
