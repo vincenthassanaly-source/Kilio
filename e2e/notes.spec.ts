@@ -17,7 +17,7 @@ const nom = (base: string) => `${base} ${test.info().project.name}`;
 
 test("crée une note texte avec une couleur", async ({ page }) => {
   const titre = nom("Idées de voyage");
-  await page.goto("/notes");
+  await page.goto("/notes", { waitUntil: "networkidle" });
 
   await page.getByRole("button", { name: /Ajouter une note/ }).first().click();
   await page.getByRole("textbox", { name: "Titre" }).fill(titre);
@@ -37,7 +37,7 @@ test("crée une note texte avec une couleur", async ({ page }) => {
 
 test("crée une checklist avec ses éléments, dans l'ordre", async ({ page }) => {
   const titre = nom("Courses du week-end");
-  await page.goto("/notes");
+  await page.goto("/notes", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /Ajouter une note/ }).first().click();
   await page.getByRole("button", { name: "Checklist" }).click();
   await page.getByRole("textbox", { name: "Titre" }).fill(titre);
@@ -57,7 +57,7 @@ test("crée une checklist avec ses éléments, dans l'ordre", async ({ page }) =
 });
 
 test("annuler ferme le formulaire sans créer de note", async ({ page }) => {
-  await page.goto("/notes");
+  await page.goto("/notes", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /Ajouter une note/ }).first().click();
   await page.getByRole("textbox", { name: "Titre" }).fill(nom("Brouillon"));
   await page.getByRole("button", { name: "Annuler", exact: true }).click();
