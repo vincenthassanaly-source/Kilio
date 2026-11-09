@@ -114,7 +114,7 @@ export function ResumeJour({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-            <div className="font-display text-[28px] font-semibold tabular-nums text-ink">
+            <div className="font-display text-display font-semibold tabular-nums text-ink">
               {Math.round(consomme.kcal)}
             </div>
             <div className="text-micro tabular-nums text-ink-3">/ {Math.round(cible.kcal)} kcal</div>

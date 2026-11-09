@@ -64,7 +64,7 @@ export function ScoreDuJourCard({
   return (
     <section aria-labelledby="score-jour-titre" className={`${card} flex items-center gap-4`}>
       <ProgressRing size={76} strokeWidth={8} pct={score.pct / 100} color="var(--accent-kcal)">
-        <span className="font-display text-[22px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink">
+        <span className="font-display text-heading font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink">
           {score.pct}
           <span className="text-caption font-semibold text-ink-3">%</span>
         </span>

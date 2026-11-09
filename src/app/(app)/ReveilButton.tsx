@@ -151,7 +151,7 @@ function ContenuReveil({ etat, onRetry }: { etat: Etat; onRetry: () => void }) {
               key={p.cycles}
               className={`flex items-center justify-between gap-3 rounded-2xl px-3.5 py-3 ${recommande ? "bg-kcal-soft" : "bg-surface-alt"}`}
             >
-              <span className="font-display text-[28px] leading-none font-semibold tracking-[-0.03em] text-ink tabular-nums">
+              <span className="font-display text-display leading-none font-semibold tracking-[-0.03em] text-ink tabular-nums">
                 {formaterHeure(p.heure)}
               </span>
               <span className="flex flex-col items-end gap-1 text-right">

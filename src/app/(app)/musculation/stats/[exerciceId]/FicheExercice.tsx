@@ -33,7 +33,7 @@ function CarteRecord({ libelle, unite, record }: { libelle: string; unite: strin
   return (
     <div className={`${card} flex flex-col gap-0.5 !p-3.5`}>
       <span className={metaText}>{libelle}</span>
-      <span className="font-display text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink">
+      <span className="font-display text-heading font-semibold leading-tight tracking-[-0.02em] text-ink">
         {formaterPoids(record.valeur)} <span className="text-label font-medium text-ink-2">{unite}</span>
       </span>
       <span className="text-caption text-ink-3">{formaterDateLongue(record.date)}</span>

@@ -71,7 +71,7 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
     return (
       <div className={`${card} flex flex-col gap-4`} role="status">
         <div>
-          <p className="font-display text-[22px] font-bold text-ink">Séance terminée</p>
+          <p className="font-display text-heading font-bold text-ink">Séance terminée</p>
           <p className="text-label text-ink-2">
             {fait} carte{fait > 1 ? "s" : ""} revue{fait > 1 ? "s" : ""}.
           </p>
@@ -79,7 +79,7 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
         <ul className="grid grid-cols-4 gap-2 text-center">
           {NOTES_REVISION.map((note) => (
             <li key={note} className="rounded-2xl bg-surface-alt px-1 py-2">
-              <p className="font-display text-[18px] font-bold text-ink">{bilan[note]}</p>
+              <p className="font-display text-heading-sm font-bold text-ink">{bilan[note]}</p>
               <p className="text-micro font-semibold text-ink-2">{LIBELLES[note]}</p>
             </li>
           ))}
@@ -131,7 +131,7 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
       <div className={`${card} flex min-h-[220px] flex-col justify-center gap-4 rounded-hero p-6`}>
         <ContenuColore
           contenu={carteCourante.question}
-          className="whitespace-pre-line text-[17px] font-semibold leading-snug text-ink text-balance"
+          className="whitespace-pre-line text-heading-sm font-semibold leading-snug text-ink text-balance"
         />
         {revele && (
           <div className="border-t border-line pt-4">

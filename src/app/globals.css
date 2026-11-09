@@ -250,12 +250,16 @@
   --shadow-card: var(--shadow-card);
   --shadow-float: var(--shadow-float);
   /* Échelle typographique : remplace les text-[Npx] arbitraires (demi-pixels
-     compris). Les tailles d'écran (17, 22, 28 px) restent explicites. */
+     compris). Trois paliers de titre complètent l'échelle : titre de carte
+     (17), chiffre-clé / titre de page secondaire (22), titre d'écran (28). */
   --text-micro: 11px;
   --text-caption: 12px;
   --text-small: 13px;
   --text-label: 14px;
   --text-body: 15px;
+  --text-heading-sm: 17px;
+  --text-heading: 22px;
+  --text-display: 28px;
   /* Rayons : croissants avec la taille du composant. */
   --radius-row: 20px;
   --radius-card: 22px;

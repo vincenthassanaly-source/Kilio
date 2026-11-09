@@ -111,7 +111,7 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-small font-medium text-ink-3">Prévu sur la semaine</p>
-            <p className="font-display text-[22px] font-semibold tabular-nums text-ink">
+            <p className="font-display text-heading font-semibold tabular-nums text-ink">
               {moyenneKcal === null ? "—" : Math.round(moyenneKcal).toLocaleString("fr-FR")}
               <span className="ml-1 font-sans text-sm font-semibold text-ink-2">kcal / jour</span>
             </p>

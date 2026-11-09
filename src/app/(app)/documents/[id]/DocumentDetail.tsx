@@ -102,7 +102,7 @@ export function DocumentDetail({
         <div className="min-w-0">
           <h1
             style={{ viewTransitionName: `document-title-${document.id}` }}
-            className="mt-1 truncate font-display text-[22px] font-semibold text-ink"
+            className="mt-1 truncate font-display text-heading font-semibold text-ink"
           >
             {document.nom}
           </h1>

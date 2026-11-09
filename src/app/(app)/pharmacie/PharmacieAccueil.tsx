@@ -64,12 +64,12 @@ function Accueil({ snapshot }: { snapshot: PharmaSnapshot }) {
     <>
       <section className={`${card} flex items-center gap-4 rounded-hero p-[18px]`} aria-label="Révision du jour">
         <ProgressRing size={72} strokeWidth={7} pct={maitrise / 100} color="var(--accent-kcal)">
-          <span className="font-display text-[17px] font-bold leading-none text-ink">{maitrise}%</span>
+          <span className="font-display text-heading-sm font-bold leading-none text-ink">{maitrise}%</span>
           <span className="mt-0.5 text-micro font-semibold text-ink-3">acquis</span>
         </ProgressRing>
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div>
-            <p className="font-display text-[22px] font-bold leading-tight text-ink">
+            <p className="font-display text-heading font-bold leading-tight text-ink">
               {aRevoir === 0 ? "Rien à réviser" : pluriel(aRevoir, "carte")}
             </p>
             <p className="text-small text-ink-2">

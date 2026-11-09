@@ -13,7 +13,7 @@ function Tuile({ libelle, valeur, detail }: { libelle: string; valeur: ReactNode
   return (
     <div className="flex flex-col gap-0.5 rounded-xl bg-surface-alt px-3 py-3">
       <dt className="text-caption font-semibold text-ink-2">{libelle}</dt>
-      <dd className="font-display text-[20px] font-semibold leading-tight tabular-nums text-ink">{valeur}</dd>
+      <dd className="font-display text-heading font-semibold leading-tight tabular-nums text-ink">{valeur}</dd>
       <dd className="text-caption leading-snug text-ink-2 text-pretty">{detail}</dd>
     </div>
   );

@@ -24,7 +24,7 @@ const NB_TERMINEES_VISIBLES = 5;
 function Chiffre({ valeur, libelle, alerte = false }: { valeur: number; libelle: string; alerte?: boolean }) {
   return (
     <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl bg-surface-alt px-2 py-3">
-      <span className={`font-display text-[22px] font-semibold tabular-nums ${alerte && valeur > 0 ? "text-alert" : "text-ink"}`}>
+      <span className={`font-display text-heading font-semibold tabular-nums ${alerte && valeur > 0 ? "text-alert" : "text-ink"}`}>
         {valeur}
       </span>
       <span className="text-center text-caption leading-tight text-ink-2">{libelle}</span>
