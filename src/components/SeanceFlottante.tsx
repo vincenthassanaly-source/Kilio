@@ -139,7 +139,7 @@ export function SeanceFlottante() {
               <span
                 role="timer"
                 aria-live="off"
-                className={`font-display text-[22px] font-semibold leading-none tabular-nums tracking-[-0.02em] ${
+                className={`font-display text-heading font-semibold leading-none tabular-nums tracking-[-0.02em] ${
                   fini ? "text-kcal" : "text-ink"
                 }`}
               >

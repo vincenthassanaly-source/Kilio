@@ -70,7 +70,7 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
         <div className="min-w-0">
           <h1
             style={{ viewTransitionName: `objectif-title-${objectif.id}` }}
-            className="mt-1 truncate font-display text-[22px] font-semibold text-ink"
+            className="mt-1 truncate font-display text-heading font-semibold text-ink"
           >
             {objectif.titre}
           </h1>

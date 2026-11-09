@@ -57,7 +57,7 @@ export function JourMenu({
     >
       <header className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <h2 id={`menu-${date}`} className="font-display text-[17px] font-semibold capitalize text-ink">
+          <h2 id={`menu-${date}`} className="font-display text-heading-sm font-semibold capitalize text-ink">
             {jourCourt}
           </h2>
           {estAujourdhui && (

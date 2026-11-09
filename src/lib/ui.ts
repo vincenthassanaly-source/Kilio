@@ -16,7 +16,7 @@ export const cardTight = "rounded-row border border-line bg-surface p-3.5 shadow
 // `text-balance` (T-polish) : titres courts (1-3 lignes) répartis plus
 // régulièrement entre les lignes, pour éviter une dernière ligne orpheline
 // d'un seul mot sur les libellés longs (ex. noms de catégories/objectifs).
-export const screenTitle = "font-display text-[28px] leading-[1.1] font-semibold text-ink tracking-[-0.03em] text-balance";
+export const screenTitle = "font-display text-display leading-[1.1] font-semibold text-ink tracking-[-0.03em] text-balance";
 export const sectionTitle = "text-body font-semibold tracking-[-0.01em] text-ink text-balance";
 export const eyebrow = "text-small font-medium text-ink-3";
 

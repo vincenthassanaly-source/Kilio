@@ -17,7 +17,7 @@ export function ErrorInline({
 }) {
   return (
     <div className="flex flex-col items-center gap-3 py-4 text-center" role="alert">
-      {titre && <h1 className="font-display text-[17px] font-semibold text-ink">{titre}</h1>}
+      {titre && <h1 className="font-display text-heading-sm font-semibold text-ink">{titre}</h1>}
       <p className={errorText}>{message}</p>
       {retry && (
         <button type="button" onClick={retry} className={secondaryButton}>

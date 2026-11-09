@@ -73,7 +73,7 @@ export function ContenuColore({
             {bloc.texte}
           </p>
         ) : (
-          <div key={i} className="flex items-start gap-2 rounded-xl border-l-4 py-2 pl-2.5 pr-3" style={styleNiveau(bloc.niveau)}>
+          <div key={i} className="flex items-start gap-2 rounded-xl border py-2 pl-2.5 pr-3" data-niveau={bloc.niveau} style={styleNiveau(bloc.niveau)}>
             <span className="mt-[3px]">
               <IconeNiveau niveau={bloc.niveau} />
             </span>
@@ -90,7 +90,7 @@ export function ContenuColore({
 
 function styleNiveau(niveau: Niveau) {
   return {
-    borderLeftColor: META_NIVEAU[niveau].couleur,
+    borderColor: `color-mix(in oklch, ${META_NIVEAU[niveau].couleur} 40%, transparent)`,
     background: `color-mix(in oklch, ${META_NIVEAU[niveau].couleur} 12%, transparent)`,
   };
 }
@@ -115,7 +115,7 @@ function ContenuSections({ elements, className }: { elements: ElementContenu[]; 
         }
         if (el.type === "ligne") {
           return (
-            <div key={i} className="flex items-start gap-2 rounded-xl border-l-4 py-2 pl-2.5 pr-3" style={styleNiveau(el.niveau)}>
+            <div key={i} className="flex items-start gap-2 rounded-xl border py-2 pl-2.5 pr-3" data-niveau={el.niveau} style={styleNiveau(el.niveau)}>
               <span className="mt-[3px]">
                 <IconeNiveau niveau={el.niveau} />
               </span>
@@ -130,7 +130,8 @@ function ContenuSections({ elements, className }: { elements: ElementContenu[]; 
           <section
             key={i}
             aria-label={el.titre}
-            className="flex flex-col gap-2 rounded-xl border-l-4 py-2.5 pl-3 pr-3"
+            className="flex flex-col gap-2 rounded-xl border py-2.5 pl-3 pr-3"
+            data-niveau={el.niveau}
             style={styleNiveau(el.niveau)}
           >
             <h3 className="flex items-center gap-2 text-small font-bold uppercase tracking-wide text-ink">

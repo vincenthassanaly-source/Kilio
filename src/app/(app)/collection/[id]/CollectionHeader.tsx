@@ -76,7 +76,7 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
         ) : (
           <h1
             style={{ viewTransitionName: `collection-title-${collection.id}` }}
-            className="mt-1 truncate font-display text-[22px] font-semibold text-ink"
+            className="mt-1 truncate font-display text-heading font-semibold text-ink"
           >
             {collection.nom}
           </h1>

@@ -60,7 +60,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
-        <p className="text-[17px] font-semibold text-ink" aria-live="polite">
+        <p className="text-heading-sm font-semibold text-ink" aria-live="polite">
           {libelleMois(mois)}
         </p>
         <button

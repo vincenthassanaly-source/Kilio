@@ -245,7 +245,7 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
               // src/lib/ui.ts, en 15px) : évite le zoom automatique d'iOS
               // Safari au focus sur ce champ précis, sans changer la taille
               // de tous les autres champs de l'app.
-              className="w-full rounded-lg border border-line bg-surface-alt px-2 py-1 text-base text-ink outline-none focus:border-kcal/60"
+              className="w-full rounded-lg border border-line bg-surface-alt px-2 py-1 text-base text-ink outline-none transition-colors focus:border-kcal/60 focus-visible:ring-2 focus-visible:ring-kcal"
               // Empêche la sélection de texte / le geste tactile dans ce
               // champ de remonter jusqu'à TabSwipeWrapper et d'y être
               // interprété comme un swipe de navigation entre onglets (même

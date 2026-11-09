@@ -29,7 +29,7 @@ export function EvenementBlock({
 
   const insetClass = position && position.nbColonnes > 1 ? "" : compact ? "inset-x-0.5" : "inset-x-1";
   const sizingClass = compact
-    ? "rounded-md py-0.5 pl-1.5 pr-1 text-[10px]"
+    ? "rounded-md py-0.5 pl-1.5 pr-1 text-micro"
     : "rounded-lg py-1 pl-2.5 pr-2 text-caption shadow-sm";
   // Pas d'`overflow-hidden` sur le bouton : la troncature est portée par le
   // <span> interne, et le pseudo-élément `after:` étend la zone de tap

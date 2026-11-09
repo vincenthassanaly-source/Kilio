@@ -14,7 +14,7 @@ colors:
   surface-alt: "oklch(0.935 0.012 95)"
   line: "oklch(0.9 0.012 95)"
   ink: "oklch(0.22 0.02 150)"
-  ink-2: "oklch(0.5 0.018 150)"
+  ink-2: "oklch(0.42 0.018 150)"
   ink-3: "oklch(0.52 0.014 150)"
   on-kcal: "oklch(1 0 0)"
   on-accent: "oklch(1 0 0)"
@@ -132,7 +132,7 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - **Surface Alt** (`oklch(0.935 0.012 95)`) : fond des inputs, segmented control, pastilles/chips — un cran plus sombre que la carte.
 - **Ligne** (`oklch(0.9 0.012 95)`) : bordures hairline (1px) des cartes et inputs.
 - **Encre** (`oklch(0.22 0.02 150)`, teinte 150 = vert) : texte principal — pas de noir pur, toujours teinté vert comme le logo.
-- **Encre 2 / Encre 3** (`oklch(0.5 0.018 150)` / `oklch(0.52 0.014 150)`) : texte secondaire et tertiaire (labels, meta, placeholders). Encre 3 a été assombrie en septembre 2026 (0,64 → 0,55 en clair, 0,54 → 0,64 en sombre) pour passer ≥ 4,5:1 sur `surface` ; elle ne descend jamais sous 11px. Lot 6 (octobre 2026) : 0,52 en clair et 0,66 en sombre, pour atteindre 4,5:1 aussi sur `surface-alt`.
+- **Encre 2 / Encre 3** (`oklch(0.42 0.018 150)` / `oklch(0.52 0.014 150)`) : texte secondaire et tertiaire (labels, meta, placeholders). Encre 2 a été assombrie de 0,50 à 0,42 en clair (≈ 8,3:1 sur `surface`) : à 0,50 elle était presque indiscernable d'Encre 3 (5,9:1 contre 5,4:1). Encre 3 a été assombrie en septembre 2026 (0,64 → 0,55 en clair, 0,54 → 0,64 en sombre) pour passer ≥ 4,5:1 sur `surface` ; elle ne descend jamais sous 11px. Lot 6 (octobre 2026) : 0,52 en clair et 0,66 en sombre, pour atteindre 4,5:1 aussi sur `surface-alt`.
 - **Bordure de contrôle** (`--control-border`, `oklch(0.64 0.012 150)` / sombre `oklch(0.54 0.02 195)`) : contour des contrôles non textuels à l'état « off » (cercle non coché de `CheckToggle`, piste d'interrupteur éteint) — ≥ 3:1 sur `surface`. `--line` reste réservé aux séparations décoratives.
 
 **Contraste sur surfaces teintées (octobre 2026, lot 6).** `--ink-3`, `--accent-alert` (clair et sombre) et les trois teintes de macro (clair) atteignent désormais 4,5:1 sur `surface-alt` (et pas seulement sur `surface`) : l'audit avec données avait relevé 4,1 à 4,2:1 sur les pastilles et tuiles de `surface-alt`. Sur les teintes de notes (`--note-*`), le texte secondaire reste en `ink-2` (`ink-3` n'y atteint pas 4,5:1). Le texte d'une étiquette colorée par l'utilisateur est mélangé à 45 % d'`--ink` pour rester lisible quelle que soit la couleur choisie.
@@ -173,7 +173,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 - **Title** (700, 15px) : `sectionTitle` — titres de section ("Résumé du jour", "Repas du jour").
 - **Body** (600, 14.5px) : nom d'une entité dans une liste (nom d'un repas, d'une tâche).
 - **Label** (600, 12.5–13.5px) : `eyebrow` (date du jour, contexte), onglets de sous-nav.
-- **Caption** (400–600, 11–12px) : `metaText`/meta (détail de quantité, libellés de moment de repas en majuscules espacées, labels de la barre de nav du bas). **Plancher : 11px** pour tout texte lisible. Seules exceptions : les grilles denses de l'Agenda (9-10px, texte `ink-2`) et les pastilles blanches sur photo (fond noir, contraste élevé).
+- **Caption** (400–600, 11–12px) : `metaText`/meta (détail de quantité, libellés de moment de repas en majuscules espacées, labels de la barre de nav du bas). **Plancher : 11px** pour tout texte lisible. Seule exception : les pastilles blanches sur photo (fond noir, contraste élevé).
 - **Champs de saisie** : 16px minimum (en dessous, iOS zoome la page au focus) ; un filet global dans `globals.css` l'impose sur écran tactile.
 
 **Échelle observée** (toutes ces tailles sont légitimes) : 11 · 12 · 12,5 · 13 · 13,5 · 14 · 14,5 · 15 · 16 · 17 (titres de carte hero) · 22 (chiffre-clé de carte) · 28px (titre d'écran et chiffre-clé hero).
@@ -189,7 +189,7 @@ Motifs récurrents de composition :
 - **Contrôle segmenté** (pilule `surface-alt` contenant des onglets `rounded-xl` dont l'actif passe en fond `bg-kcal` plein, texte `--on-kcal` ; composant `<SegmentedControl>`) : utilisé aussi bien pour la sous-nav Journal/Recettes que pour le toggle Repos/Entraînement — c'est le motif de choix binaire/multiple de tout le système, jamais de radio ou dropdown à sa place.
 - **Barre de navigation flottante** : pilule détachée du bord de l'écran (padding horizontal + `bottom` respectant `env(safe-area-inset-bottom)`), fond flouté (`backdrop-blur-xl`) semi-transparent, jamais collée en pleine largeur.
 - **Navigation directionnelle** : chaque changement d'écran (bottom nav, jour précédent/suivant) déclenche une View Transition en glissement horizontal (~200ms, easing `ease-out`) dont le sens dépend de la position relative dans la hiérarchie de nav — jamais un simple fondu par défaut si un sens est connu.
-- `prefers-reduced-motion: reduce` est systématiquement respecté (règle globale + `MotionConfig`) : toutes les animations (glissements, pastille de nav, halo de mise en surbrillance) sont neutralisées à ~0ms plutôt que supprimées au cas par cas.
+- `prefers-reduced-motion: reduce` est systématiquement respecté (règle globale + `MotionConfig`) : les déplacements (glissements, entrées en montée, pastille de nav, boucles) sont coupés à ~0ms ou remplacés par un fondu de 150 ms (entrées, changement de page, halo de mise en surbrillance en un seul estompage), et les transitions d'état (couleur, opacité, focus) durent 120 ms au lieu d'être supprimées.
 
 ## Elevation & Depth
 
@@ -260,7 +260,7 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 - **Do** garder les neutres teintés vert OKLCH (`ink`/`ink-2`/`ink-3`/`background`/`surface`) plutôt que d'introduire du gris pur ou un autre hex de neutre.
 - **Do** faire grandir le rayon avec la taille du conteneur (12px boutons → 26px barre de nav → plein cercle pour badges/anneaux).
 - **Do** utiliser `focus-visible` (jamais `focus`) pour l'anneau de focus clavier, avec `ring-offset-2` pour qu'il reste visible sur fond `kcal`.
-- **Do** neutraliser toute animation via `prefers-reduced-motion: reduce` plutôt que de la retirer composant par composant : c'est fait globalement (règle `*` dans `globals.css` pour le CSS, `<MotionConfig reducedMotion="user">` dans `providers.tsx` pour framer-motion).
+- **Do** réduire le mouvement via `prefers-reduced-motion: reduce` globalement (déplacements coupés, fondu court à la place, retours d'état conservés) plutôt que composant par composant : c'est fait globalement (règle `*` dans `globals.css` pour le CSS, `<MotionConfig reducedMotion="user">` dans `providers.tsx` pour framer-motion).
 - **Do** rendre les dialogues via `Modal` (portal, focus piégé, Échap) et les overlays plein écran dans un `Portal`.
 - **Do** utiliser Sora exclusivement pour les titres d'écran et les chiffres-clés qui doivent dominer visuellement ; Inter pour tout le reste.
 
@@ -273,6 +273,6 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 
 ## Tokens de finition (polish premium)
 
-- **Typographie** : cinq tailles nommées remplacent les `text-[Npx]` arbitraires — `text-micro` (11 px), `text-caption` (12), `text-small` (13), `text-label` (14), `text-body` (15). Les demi-pixels historiques (11,5 / 12,5 / 13,5 / 14,5 / 15,5) sont arrondis au palier supérieur ou inférieur le plus proche. Les tailles d'écran (17, 22, 28 px…) restent explicites. Les titres `h1`–`h3` sont équilibrés (`text-wrap: balance`) et les paragraphes `p` évitent les lignes orphelines (`text-wrap: pretty`).
+- **Typographie** : huit tailles nommées remplacent les `text-[Npx]` arbitraires — `text-micro` (11 px), `text-caption` (12), `text-small` (13), `text-label` (14), `text-body` (15), `text-heading-sm` (17, titre de carte), `text-heading` (22, chiffre-clé et titre secondaire) et `text-display` (28, titre d'écran). Les demi-pixels historiques (11,5 / 12,5 / 13,5 / 14,5 / 15,5) sont arrondis au palier supérieur ou inférieur le plus proche. Les anciens 18 et 20 px sont ramenés à 17 et 22. Les titres `h1`–`h3` sont équilibrés (`text-wrap: balance`) et les paragraphes `p` évitent les lignes orphelines (`text-wrap: pretty`).
 - **Rayons** : `rounded-row` (20 px, lignes de liste), `rounded-card` (22 px, cartes et feuilles), `rounded-hero` (24 px), `rounded-dock` (26 px, barre du bas).
 - **Mouvement** : toutes les animations CSS et transitions de vue utilisent `var(--ease-out)` (jamais `ease-out` générique) ; les transitions des boutons et cartes sont explicites (`transition-transform`) plutôt que `transition` global.

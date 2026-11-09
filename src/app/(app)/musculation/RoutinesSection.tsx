@@ -48,7 +48,7 @@ function LigneRoutine({
             {routine.nbExercices} exercice{routine.nbExercices > 1 ? "s" : ""}
           </span>
         </span>
-        <span aria-hidden="true" className="shrink-0 text-[18px] leading-none text-ink-3">
+        <span aria-hidden="true" className="shrink-0 text-heading-sm leading-none text-ink-3">
           ›
         </span>
       </Link>
