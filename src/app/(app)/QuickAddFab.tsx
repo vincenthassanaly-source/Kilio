@@ -115,6 +115,30 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
   const dialOpen = mode !== null;
   const dialInteractive = mode === "menu";
 
+  // Le « + » est fixe : il recouvre les actions de fin de carte (« Ajouter un
+  // repas », « Placer »…) qui passent dessous. Il s'efface donc pendant que
+  // la page défile et revient 250 ms après l'arrêt ; jamais quand le menu ou
+  // un formulaire est ouvert.
+  const [defile, setDefile] = useState(false);
+  useEffect(() => {
+    let timer: number | undefined;
+    function onScroll(e: Event) {
+      const cible = e.target;
+      // Seul le conteneur principal compte (pas les listes ni les feuilles).
+      if (!(cible instanceof HTMLElement) || cible.tagName !== "MAIN") return;
+      setDefile(true);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setDefile(false), 250);
+    }
+    // Les évènements `scroll` ne remontent pas : phase de capture.
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      window.clearTimeout(timer);
+    };
+  }, []);
+  const efface = defile && mode === null;
+
   return (
     <>
       <div
@@ -147,8 +171,13 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           }
           aria-expanded={direct ? undefined : mode !== null}
           aria-haspopup={direct ? "dialog" : undefined}
-          className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
-          style={{ background: "var(--accent-kcal)" }}
+          className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full text-on-kcal shadow-float transition-opacity duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          style={{
+            background: "var(--accent-kcal)",
+            opacity: efface ? 0 : 1,
+            // Effacé = ni tapable pendant le défilement (un tap y arrêterait l'élan).
+            pointerEvents: efface ? "none" : "auto",
+          }}
         >
           <svg
             width="24"
