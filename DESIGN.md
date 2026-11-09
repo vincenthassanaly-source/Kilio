@@ -14,7 +14,7 @@ colors:
   surface-alt: "oklch(0.935 0.012 95)"
   line: "oklch(0.9 0.012 95)"
   ink: "oklch(0.22 0.02 150)"
-  ink-2: "oklch(0.5 0.018 150)"
+  ink-2: "oklch(0.42 0.018 150)"
   ink-3: "oklch(0.52 0.014 150)"
   on-kcal: "oklch(1 0 0)"
   on-accent: "oklch(1 0 0)"
@@ -132,7 +132,7 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - **Surface Alt** (`oklch(0.935 0.012 95)`) : fond des inputs, segmented control, pastilles/chips — un cran plus sombre que la carte.
 - **Ligne** (`oklch(0.9 0.012 95)`) : bordures hairline (1px) des cartes et inputs.
 - **Encre** (`oklch(0.22 0.02 150)`, teinte 150 = vert) : texte principal — pas de noir pur, toujours teinté vert comme le logo.
-- **Encre 2 / Encre 3** (`oklch(0.5 0.018 150)` / `oklch(0.52 0.014 150)`) : texte secondaire et tertiaire (labels, meta, placeholders). Encre 3 a été assombrie en septembre 2026 (0,64 → 0,55 en clair, 0,54 → 0,64 en sombre) pour passer ≥ 4,5:1 sur `surface` ; elle ne descend jamais sous 11px. Lot 6 (octobre 2026) : 0,52 en clair et 0,66 en sombre, pour atteindre 4,5:1 aussi sur `surface-alt`.
+- **Encre 2 / Encre 3** (`oklch(0.42 0.018 150)` / `oklch(0.52 0.014 150)`) : texte secondaire et tertiaire (labels, meta, placeholders). Encre 2 a été assombrie de 0,50 à 0,42 en clair (≈ 8,3:1 sur `surface`) : à 0,50 elle était presque indiscernable d'Encre 3 (5,9:1 contre 5,4:1). Encre 3 a été assombrie en septembre 2026 (0,64 → 0,55 en clair, 0,54 → 0,64 en sombre) pour passer ≥ 4,5:1 sur `surface` ; elle ne descend jamais sous 11px. Lot 6 (octobre 2026) : 0,52 en clair et 0,66 en sombre, pour atteindre 4,5:1 aussi sur `surface-alt`.
 - **Bordure de contrôle** (`--control-border`, `oklch(0.64 0.012 150)` / sombre `oklch(0.54 0.02 195)`) : contour des contrôles non textuels à l'état « off » (cercle non coché de `CheckToggle`, piste d'interrupteur éteint) — ≥ 3:1 sur `surface`. `--line` reste réservé aux séparations décoratives.
 
 **Contraste sur surfaces teintées (octobre 2026, lot 6).** `--ink-3`, `--accent-alert` (clair et sombre) et les trois teintes de macro (clair) atteignent désormais 4,5:1 sur `surface-alt` (et pas seulement sur `surface`) : l'audit avec données avait relevé 4,1 à 4,2:1 sur les pastilles et tuiles de `surface-alt`. Sur les teintes de notes (`--note-*`), le texte secondaire reste en `ink-2` (`ink-3` n'y atteint pas 4,5:1). Le texte d'une étiquette colorée par l'utilisateur est mélangé à 45 % d'`--ink` pour rester lisible quelle que soit la couleur choisie.
@@ -173,7 +173,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 - **Title** (700, 15px) : `sectionTitle` — titres de section ("Résumé du jour", "Repas du jour").
 - **Body** (600, 14.5px) : nom d'une entité dans une liste (nom d'un repas, d'une tâche).
 - **Label** (600, 12.5–13.5px) : `eyebrow` (date du jour, contexte), onglets de sous-nav.
-- **Caption** (400–600, 11–12px) : `metaText`/meta (détail de quantité, libellés de moment de repas en majuscules espacées, labels de la barre de nav du bas). **Plancher : 11px** pour tout texte lisible. Seules exceptions : les grilles denses de l'Agenda (9-10px, texte `ink-2`) et les pastilles blanches sur photo (fond noir, contraste élevé).
+- **Caption** (400–600, 11–12px) : `metaText`/meta (détail de quantité, libellés de moment de repas en majuscules espacées, labels de la barre de nav du bas). **Plancher : 11px** pour tout texte lisible. Seule exception : les pastilles blanches sur photo (fond noir, contraste élevé).
 - **Champs de saisie** : 16px minimum (en dessous, iOS zoome la page au focus) ; un filet global dans `globals.css` l'impose sur écran tactile.
 
 **Échelle observée** (toutes ces tailles sont légitimes) : 11 · 12 · 12,5 · 13 · 13,5 · 14 · 14,5 · 15 · 16 · 17 (titres de carte hero) · 22 (chiffre-clé de carte) · 28px (titre d'écran et chiffre-clé hero).

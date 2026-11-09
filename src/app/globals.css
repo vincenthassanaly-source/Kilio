@@ -8,7 +8,10 @@
   --surface-alt: oklch(0.935 0.012 95);
   --line: oklch(0.915 0.01 95);
   --ink: oklch(0.22 0.02 150);
-  --ink-2: oklch(0.5 0.018 150);
+  /* L 0,42 (et non 0,50) : ≈ 8,3:1 sur surface, pour que le texte secondaire
+     se distingue du tertiaire `--ink-3` (≈ 5,4:1) ; à 0,50 les deux étaient
+     quasi identiques (5,9:1 contre 5,4:1) et la hiérarchie s'effaçait. */
+  --ink-2: oklch(0.42 0.018 150);
   /* Vague 2 (T5) : 0,64 → 0,55 ; ≈ 4,7:1 sur surface (3,3:1 avant).
      Polish premium : 0,55 → 0,54 pour compenser l'éclaircissement de
      `--line` (contraste conservé sur surface et sur fond). */
