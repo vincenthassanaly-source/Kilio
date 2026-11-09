@@ -74,7 +74,7 @@ export function TacheBlock({
   const prioriteStyle = PRIORITE_STYLE[tache.priorite];
   const insetClass = position && position.nbColonnes > 1 ? "" : compact ? "inset-x-0.5" : "inset-x-1";
   const sizingClass = compact
-    ? "rounded-md py-0.5 pl-1.5 pr-1 text-[10px]"
+    ? "rounded-md py-0.5 pl-1.5 pr-1 text-micro"
     : "rounded-lg py-1 pl-2.5 pr-2 text-caption shadow-sm";
   const className = `absolute overflow-hidden border-l-[3px] ${insetClass} ${sizingClass} leading-tight font-semibold text-ink ${prioriteStyle.bg} ${prioriteStyle.border}`;
   const blockStyle: React.CSSProperties = {

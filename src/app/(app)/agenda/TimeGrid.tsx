@@ -116,7 +116,7 @@ export function useInitialScroll(
 // Distance minimale, en px réellement rendus (constante, non affectée par
 // `zoom`), en dessous de laquelle deux repères de la gouttière (heure
 // pleine, ou repère vert de créneau) sont considérés en collision : c'est
-// un seuil de lisibilité à l'écran (la taille du texte, text-[9px]/[10px],
+// un seuil de lisibilité à l'écran (la taille du texte, text-micro (11 px),
 // ne dépend pas de `zoom` non plus), pas une proximité temporelle.
 const MIN_GUTTER_MARK_GAP_PX = 10;
 

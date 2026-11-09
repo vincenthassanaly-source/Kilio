@@ -209,13 +209,13 @@ export function WeekView({
                     {dayTachesSansHeure.slice(0, 2).map((t) => (
                       <span
                         key={t.id}
-                        className="truncate rounded bg-surface-alt px-1 py-0.5 text-[10px] font-medium text-ink-2"
+                        className="truncate rounded bg-surface-alt px-1 py-0.5 text-micro font-medium text-ink-2"
                       >
                         {t.titre}
                       </span>
                     ))}
                     {dayTachesSansHeure.length > 2 && (
-                      <span className="text-[10px] text-ink-2">+{dayTachesSansHeure.length - 2}</span>
+                      <span className="text-micro text-ink-2">+{dayTachesSansHeure.length - 2}</span>
                     )}
                   </button>
 
