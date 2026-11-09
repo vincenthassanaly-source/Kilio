@@ -13,7 +13,8 @@ import {
   type DocumentRecherche,
 } from "@/lib/documents/recherche";
 import { nettoyerTexte } from "@/lib/documents/tri";
-import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
+import { appelerGemini } from "@/lib/gemini/appel";
+import { messageEchec } from "@/lib/gemini/analyse";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // Recherche en langage naturel : Gemini choisit, parmi les documents classés,
@@ -98,13 +99,7 @@ export async function rechercherDocuments(question: string): Promise<ActionResul
     temperature: 0,
     etiquette: "recherche-documents",
   });
-  if (!resultat.ok) {
-    return fail(
-      resultat.code === "quota"
-        ? MESSAGE_QUOTA_GEMINI
-        : `La recherche par l'IA n'a pas abouti (${resultat.detail}). Réessaie.`
-    );
-  }
+  if (!resultat.ok) return fail(messageEchec(resultat, "La recherche par l'IA n'a pas abouti"));
 
   return ok({
     ids: lireReponseRecherche(

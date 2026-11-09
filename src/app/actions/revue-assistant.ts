@@ -7,7 +7,8 @@ import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
 import { parseISODate, shiftDate } from "@/lib/date/iso";
 import { aujourdhuiParis } from "@/lib/date/paris";
-import { MESSAGE_QUOTA_GEMINI, appelerGemini } from "@/lib/gemini/appel";
+import { appelerGemini } from "@/lib/gemini/appel";
+import { messageEchec } from "@/lib/gemini/analyse";
 import { creerCacheCourt, empreinte } from "@/lib/gemini/cache-court";
 import { calculerTauxReussite } from "@/lib/habitudes/compute";
 import {
@@ -103,10 +104,6 @@ async function ajouterTravail(
       (c) => `${c.heure_debut.slice(0, 5)}-${c.heure_fin.slice(0, 5)}`
     ),
   }));
-}
-
-function echecGemini(code: "quota" | "echec", detail: string) {
-  return fail(code === "quota" ? MESSAGE_QUOTA_GEMINI : `${detail} Réessaie.`);
 }
 
 function revalider() {
@@ -205,7 +202,7 @@ export async function synthetiserRevue(
     temperature: 0.4,
     etiquette: `revue-${type}`,
   });
-  if (!resultat.ok) return echecGemini(resultat.code, resultat.detail);
+  if (!resultat.ok) return fail(messageEchec(resultat));
 
   const synthese = lireSynthese(resultat.brut);
   if (!synthese) return fail("Réponse de Gemini inutilisable. Réessaie.");
@@ -271,7 +268,7 @@ export async function proposerReplanification(
     temperature: 0.2,
     etiquette: "revue-replanifier",
   });
-  if (!resultat.ok) return echecGemini(resultat.code, resultat.detail);
+  if (!resultat.ok) return fail(messageEchec(resultat));
 
   const propositions = lireReplanification(resultat.brut, aReplanifier, today);
   if (!propositions) {
@@ -426,7 +423,7 @@ export async function analyserSemaine(regenerer = false): Promise<ActionResult<A
     temperature: 0.4,
     etiquette: "revue-semaine",
   });
-  if (!resultat.ok) return echecGemini(resultat.code, resultat.detail);
+  if (!resultat.ok) return fail(messageEchec(resultat));
 
   const analyse = lireAnalyse(resultat.brut);
   if (!analyse) return fail("Réponse de Gemini inutilisable. Réessaie.");

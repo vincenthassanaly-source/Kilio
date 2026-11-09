@@ -2,7 +2,8 @@
 
 import { revalidatePath, updateTag } from "next/cache";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
-import { MESSAGE_QUOTA_GEMINI, appelerGemini } from "@/lib/gemini/appel";
+import { appelerGemini } from "@/lib/gemini/appel";
+import { messageEchec } from "@/lib/gemini/analyse";
 import { creerCacheCourt, empreinte } from "@/lib/gemini/cache-court";
 import {
   CONTENU_MAX,
@@ -115,9 +116,7 @@ export async function proposerPourNote(
     temperature: mode === "reformuler" ? 0.2 : 0.3,
     etiquette: `note-assistant-${mode}`,
   });
-  if (!resultat.ok) {
-    return fail(resultat.code === "quota" ? MESSAGE_QUOTA_GEMINI : `${resultat.detail} Réessaie.`);
-  }
+  if (!resultat.ok) return fail(messageEchec(resultat));
 
   const proposition =
     mode === "resume"

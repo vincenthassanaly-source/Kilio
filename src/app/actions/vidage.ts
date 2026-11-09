@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { heureParis } from "@/lib/date/paris";
-import { appelerGemini, MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
+import { appelerGemini } from "@/lib/gemini/appel";
+import { messageEchec } from "@/lib/gemini/analyse";
 import { estJourValide, estMoisValide, premierEtDernierJour } from "@/lib/vidage/jours";
 import { ajouterBloc, depasseLimite } from "@/lib/vidage/texte";
 import { exigerSession } from "@/lib/vidage/verrou";
@@ -185,7 +186,7 @@ export async function transcrireFeuille(jour: string, formData: FormData): Promi
     temperature: 0,
     etiquette: "transcription-feuille",
   });
-  if (!resultat.ok) return fail(resultat.code === "quota" ? MESSAGE_QUOTA_GEMINI : `La transcription a échoué : ${resultat.detail}`);
+  if (!resultat.ok) return fail(messageEchec(resultat, "La transcription a échoué"));
 
   const texte = lireTranscription(resultat.brut);
   if (texte === null) return fail("La réponse de Gemini est illisible. Réessaie.");
