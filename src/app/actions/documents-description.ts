@@ -3,7 +3,7 @@
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { decrireDocument } from "@/lib/documents/decrire";
 import type { DescriptionDocument } from "@/lib/documents/description";
-import { MESSAGE_QUOTA_GEMINI } from "@/lib/gemini/appel";
+import { messageEchec } from "@/lib/gemini/analyse";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { estUuid } from "@/lib/uuid";
 
@@ -24,8 +24,6 @@ export async function obtenirDescriptionDocument(
   if (typeof id !== "string" || !estUuid(id)) return fail("Ce document est introuvable.");
 
   const resultat = await decrireDocument(createAdminClient(), id, regenerer === true);
-  if (resultat.statut === "echec") {
-    return fail(resultat.quota ? MESSAGE_QUOTA_GEMINI : `${resultat.detail} Réessaie.`);
-  }
+  if (resultat.statut === "echec") return fail(messageEchec(resultat));
   return ok({ ...resultat.description, partiel: resultat.partiel });
 }

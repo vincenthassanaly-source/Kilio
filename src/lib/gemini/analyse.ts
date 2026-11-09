@@ -86,6 +86,18 @@ async function analyserUn<E, C, S>(
 }
 
 /**
+ * Message d'écran d'un échec Gemini pour les actions à appel unique (assistants,
+ * recherche, transcription) : le message de quota, sinon le détail suivi de la
+ * consigne de réessayer. Avec `intro` : « <intro> (<détail>). Réessaie. ».
+ * Accepte un `ResultatGemini` en échec (`code`) comme un échec déjà converti (`quota`).
+ */
+export function messageEchec(echec: { detail: string } & ({ code: string } | { quota: boolean }), intro?: string): string {
+  const quota = "quota" in echec ? echec.quota : echec.code === "quota";
+  if (quota) return MESSAGE_QUOTA_GEMINI;
+  return intro ? `${intro} (${echec.detail}). Réessaie.` : `${echec.detail} Réessaie.`;
+}
+
+/**
  * Analyse un paquet d'éléments en parallèle : un résultat par élément, dans le
  * même ordre. Chaque élément échoue seul, sans entraîner les autres. Ne lève
  * jamais, même si `preparer` ou `lire` lèvent.

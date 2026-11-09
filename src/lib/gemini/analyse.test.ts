@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MESSAGE_QUOTA_GEMINI, type AppelGemini, type ResultatGemini } from "./appel";
-import { analyserPaquet, type Analyse } from "./analyse";
+import { analyserPaquet, messageEchec, type Analyse } from "./analyse";
 
 // Le seam est l'appel Gemini : un faux le remplace, sans réseau.
 function fauxGemini(repondre: (appel: AppelGemini) => ResultatGemini | Promise<ResultatGemini>) {
@@ -30,6 +30,24 @@ function analyse(extra: Partial<Analyse<string, string, string>> = {}): Analyse<
 
 beforeEach(() => {
   vi.spyOn(console, "info").mockImplementation(() => {});
+});
+
+describe("messageEchec", () => {
+  it("renvoie le message de quota, qu'il vienne d'un résultat Gemini ou d'un échec converti", () => {
+    expect(messageEchec({ code: "quota", detail: "429" })).toBe(MESSAGE_QUOTA_GEMINI);
+    expect(messageEchec({ quota: true, detail: "429" }, "Intro")).toBe(MESSAGE_QUOTA_GEMINI);
+  });
+
+  it("ajoute la consigne de réessayer au détail des autres échecs", () => {
+    expect(messageEchec({ code: "echec", detail: "Délai dépassé." })).toBe("Délai dépassé. Réessaie.");
+    expect(messageEchec({ quota: false, detail: "Délai dépassé." })).toBe("Délai dépassé. Réessaie.");
+  });
+
+  it("place le détail entre parenthèses derrière l'introduction de la feature", () => {
+    expect(messageEchec({ code: "echec", detail: "Délai dépassé" }, "La recherche n'a pas abouti")).toBe(
+      "La recherche n'a pas abouti (Délai dépassé). Réessaie."
+    );
+  });
 });
 
 describe("analyserPaquet", () => {
