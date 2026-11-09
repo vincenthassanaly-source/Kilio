@@ -21,9 +21,9 @@ import { CheckIcon, CrossIcon } from "@/components/icons";
 // Le rôle est dit en toutes lettres et par un pictogramme : la couleur
 // n'est jamais le seul vecteur d'information.
 const STYLE_ROLE: Record<RoleItem, { bordure: string; pastille: string; signe: ReactNode }> = {
-  traitement: { bordure: "border-l-kcal", pastille: "bg-kcal-soft text-kcal", signe: <CheckIcon size={12} /> },
-  association: { bordure: "border-l-warning", pastille: "bg-surface-alt text-ink-2", signe: "+" },
-  eviter: { bordure: "border-l-alert", pastille: "bg-surface-alt text-alert", signe: <CrossIcon size={12} /> },
+  traitement: { bordure: "border-kcal/40", pastille: "bg-kcal-soft text-kcal", signe: <CheckIcon size={12} /> },
+  association: { bordure: "border-warning/40", pastille: "bg-surface-alt text-ink-2", signe: "+" },
+  eviter: { bordure: "border-alert/40", pastille: "bg-surface-alt text-alert", signe: <CrossIcon size={12} /> },
 };
 
 const ORDRE_ROLE: RoleItem[] = ["traitement", "association", "eviter"];
@@ -81,12 +81,12 @@ function LigneTraitement({ ligne }: { ligne: LigneResolue }) {
                   {href ? (
                     <TransitionLink
                       href={href}
-                      className={`flex min-h-11 items-center gap-2.5 rounded-xl border-l-4 bg-surface-alt px-3 py-2 ${style.bordure}`}
+                      className={`flex min-h-11 items-center gap-2.5 rounded-xl border bg-surface-alt px-3 py-2 ${style.bordure}`}
                     >
                       {contenu}
                     </TransitionLink>
                   ) : (
-                    <div className={`flex items-center gap-2.5 rounded-xl border-l-4 bg-surface-alt px-3 py-2 ${style.bordure}`}>{contenu}</div>
+                    <div className={`flex items-center gap-2.5 rounded-xl border bg-surface-alt px-3 py-2 ${style.bordure}`}>{contenu}</div>
                   )}
                 </li>
               );

@@ -31,7 +31,6 @@ import {
 import { AXES, THEMES, formaterScore, type Theme } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
 import { dangerButton, ghostButton, input, label, metaText, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
-import { varCouleurParti } from "@/lib/opinions/couleurs";
 import { BarreSuiviLecture, MARGE_DEFILEMENT } from "./BarreSuiviLecture";
 import { BoutonRetourBarre } from "./BoutonRetourBarre";
 import { EtiquetteTheme, PastilleParti, TexteProposition } from "./CouleursOpinions";
@@ -234,10 +233,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
   const nombreTotal = parti.programmes.length;
 
   return (
-    <section
-      className="rounded-card border border-l-4 border-line bg-surface shadow-card"
-      style={{ borderLeftColor: varCouleurParti(parti.couleur) }}
-    >
+    <section className="rounded-card border border-line bg-surface shadow-card">
       <button
         type="button"
         aria-expanded={ouvert}

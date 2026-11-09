@@ -25,13 +25,13 @@ describe("ContenuColore", () => {
     expect(container.querySelectorAll("svg")).toHaveLength(2);
   });
 
-  it.each(NIVEAUX)("rend la balise [%s] : rangée à barre, pictogramme et libellé accessible", (niveau) => {
+  it.each(NIVEAUX)("rend la balise [%s] : rangée teintée, pictogramme et libellé accessible", (niveau) => {
     const { container } = render(<ContenuColore contenu={`[${niveau}] Pansement hydrocolloïde`} />);
     const vue = within(container);
     expect(vue.getByText(/Pansement hydrocolloïde/)).toBeInTheDocument();
     expect(vue.getByText(new RegExp(META_NIVEAU[niveau].libelle))).toHaveClass("sr-only");
     expect(container.querySelectorAll("svg path").length).toBeGreaterThan(0);
-    expect(container.querySelector("div > div.border-l-4")).not.toBeNull();
+    expect(container.querySelector("div > div[data-niveau]")).not.toBeNull();
     expect(container.textContent).not.toContain(`[${niveau}]`);
   });
 
@@ -58,7 +58,7 @@ describe("ContenuColore – titres de section", () => {
   it("garde le rendu ligne par ligne par défaut", () => {
     const { container } = render(<ContenuColore contenu={contenu} />);
     expect(container.querySelector("section")).toBeNull();
-    expect(container.querySelectorAll("div.border-l-4")).toHaveLength(4);
+    expect(container.querySelectorAll("div[data-niveau]")).toHaveLength(4);
   });
 
   it("distingue une ligne d'une autre couleur : libellé accessible et gras si rouge", () => {

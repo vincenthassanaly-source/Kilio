@@ -103,8 +103,8 @@ export function TexteProposition({ texte, termes, theme }: { texte: string; term
         <p
           id={idBulle}
           role="note"
-          className="rounded-xl border border-line border-l-4 bg-surface-alt px-3 py-2 text-small leading-snug text-ink-2"
-          style={{ borderLeftColor: teinte }}
+          className="rounded-xl border bg-surface-alt px-3 py-2 text-small leading-snug text-ink-2"
+          style={{ borderColor: `color-mix(in oklch, ${teinte} 45%, var(--line))` }}
         >
           <strong className="font-semibold text-ink">{definie.terme}</strong> : {definie.definition}
         </p>
