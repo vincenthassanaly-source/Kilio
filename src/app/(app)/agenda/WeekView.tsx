@@ -22,6 +22,7 @@ import { parseISODate, toISODate } from "@/lib/date/iso";
 import {
   computeInitialScrollMinutes,
   gridHeight,
+  heureAvantGrille,
   HourLines,
   NowLine,
   TimeGutter,
@@ -31,7 +32,7 @@ import {
 } from "./TimeGrid";
 import { TacheBlock } from "./TacheBlock";
 import { EvenementBlock } from "../aujourdhui/EvenementBlock";
-import { evenementsHoraires } from "@/lib/evenements/compute";
+import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/compute";
 import {
   BASE_DAY_COLUMN_WIDTH,
   computeMinZoomForWeekWidth,
@@ -94,22 +95,27 @@ export function WeekView({
       {
         creneauxJour: ReturnType<typeof getCreneauxDuJour>;
         dayTachesAvecHeure: Tache[];
-        dayTachesSansHeure: Tache[];
+        // Hors grille : sans heure ou avant 06h (tâches), journée entière ou avant 06h (événements).
+        bandeTaches: Tache[];
+        bandeEvenements: Evenement[];
         dayEvenements: Evenement[];
         positions: ReturnType<typeof layoutChevauchements>;
       }
     >();
     for (const day of eachDayOfInterval({ start: weekStart, end: weekEnd })) {
       const creneauxJour = getCreneauxDuJour(creneaux, day, exceptions);
-      const dayTachesAvecHeure = taches.filter(
-        (t) => !t.fait && t.echeance && isSameDay(parseISODate(t.echeance), day) && t.heure
-      );
-      const dayTachesSansHeure = taches.filter(
-        (t) => !t.fait && t.echeance && isSameDay(parseISODate(t.echeance), day) && !t.heure
-      );
-      const dayEvenements = evenementsHoraires(evenements).filter((e) => isSameDay(parseISODate(e.date), day));
+      const tachesDuJour = taches.filter((t) => !t.fait && t.echeance && isSameDay(parseISODate(t.echeance), day));
+      const dayTachesAvecHeure = tachesDuJour.filter((t) => t.heure && !heureAvantGrille(t.heure));
+      const bandeTaches = tachesDuJour.filter((t) => !t.heure || heureAvantGrille(t.heure));
+      const evenementsDuJour = evenements.filter((e) => isSameDay(parseISODate(e.date), day));
+      const horaires = evenementsHoraires(evenementsDuJour);
+      const dayEvenements = horaires.filter((e) => !heureAvantGrille(e.heure));
+      const bandeEvenements = [
+        ...evenementsJourneeEntiere(evenementsDuJour),
+        ...horaires.filter((e) => heureAvantGrille(e.heure)),
+      ];
       const positions = layoutChevauchements([...dayTachesAvecHeure, ...dayEvenements]);
-      map.set(day.toISOString(), { creneauxJour, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions });
+      map.set(day.toISOString(), { creneauxJour, dayTachesAvecHeure, bandeTaches, bandeEvenements, dayEvenements, positions });
     }
     return map;
     // weekStart/weekEnd sont dérivés de façon pure de selectedDate (date-fns,
@@ -175,11 +181,12 @@ export function WeekView({
             </div>
 
             {days.map((day) => {
-              const { creneauxJour, dayTachesAvecHeure, dayTachesSansHeure, dayEvenements, positions } =
+              const { creneauxJour, dayTachesAvecHeure, bandeTaches, bandeEvenements, dayEvenements, positions } =
                 parJour.get(day.toISOString()) ?? {
                   creneauxJour: [],
                   dayTachesAvecHeure: [],
-                  dayTachesSansHeure: [],
+                  bandeTaches: [],
+                  bandeEvenements: [],
                   dayEvenements: [],
                   positions: new Map(),
                 };
@@ -194,7 +201,12 @@ export function WeekView({
                     type="button"
                     onClick={() => onSelectDay(day)}
                     aria-current={isToday(day) ? "date" : undefined}
-                    className="sticky top-0 z-10 flex h-11 flex-col items-center justify-center gap-0 border-b border-line bg-surface text-center text-ink"
+                    aria-label={libelleJour(
+                      day,
+                      dayTachesAvecHeure.length + bandeTaches.length,
+                      dayEvenements.length + bandeEvenements.length
+                    )}
+                    className="sticky top-0 z-10 flex h-11 flex-col items-center justify-center gap-0 border-b border-line bg-surface text-center text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal"
                   >
                     <span className="text-micro font-semibold">{format(day, "EEE", { locale: fr })}</span>
                     <span
@@ -209,31 +221,50 @@ export function WeekView({
                     )}
                   </button>
 
+                  {/* Bande et grille : doublons tactiles du bouton d'en-tête, qui reste
+                      le seul arrêt de tabulation de la colonne. */}
                   <button
                     type="button"
+                    tabIndex={-1}
+                    aria-hidden
                     onClick={() => onSelectDay(day)}
                     className="flex flex-wrap items-center gap-0.5 overflow-hidden border-b border-line/60 px-0.5 py-0.5"
                     style={{ height: UNSCHEDULED_BAND_HEIGHT }}
                   >
-                    {dayTachesSansHeure.length > 0 && dayColumnWidth < COLONNE_TITRES_MIN_PX ? (
-                      <span className="rounded bg-surface-alt px-1.5 py-0.5 text-micro font-semibold text-ink-2">
-                        <span aria-hidden>{dayTachesSansHeure.length}</span>
-                        <span className="sr-only">
-                          {dayTachesSansHeure.length} tâche{dayTachesSansHeure.length > 1 ? "s" : ""} sans heure
-                        </span>
-                      </span>
+                    {dayColumnWidth < COLONNE_TITRES_MIN_PX ? (
+                      <>
+                        {bandeEvenements.length > 0 && (
+                          <span className="rounded bg-agenda px-1.5 py-0.5 text-micro font-semibold text-on-agenda">
+                            {bandeEvenements.length}
+                          </span>
+                        )}
+                        {bandeTaches.length > 0 && (
+                          <span className="rounded bg-surface-alt px-1.5 py-0.5 text-micro font-semibold text-ink-2">
+                            {bandeTaches.length}
+                          </span>
+                        )}
+                      </>
                     ) : (
                       <>
-                        {dayTachesSansHeure.slice(0, 2).map((t) => (
-                          <span
-                            key={t.id}
-                            className="truncate rounded bg-surface-alt px-1 py-0.5 text-micro font-medium text-ink-2"
-                          >
-                            {t.titre}
+                        {[
+                          ...bandeEvenements.map((e) => ({ id: e.id, titre: e.titre, evenement: true })),
+                          ...bandeTaches.map((t) => ({ id: t.id, titre: t.titre, evenement: false })),
+                        ]
+                          .slice(0, 2)
+                          .map((item) => (
+                            <span
+                              key={item.id}
+                              className={`truncate rounded px-1 py-0.5 text-micro font-medium ${
+                                item.evenement ? "bg-agenda text-on-agenda" : "bg-surface-alt text-ink-2"
+                              }`}
+                            >
+                              {item.titre}
+                            </span>
+                          ))}
+                        {bandeEvenements.length + bandeTaches.length > 2 && (
+                          <span className="text-micro text-ink-2">
+                            +{bandeEvenements.length + bandeTaches.length - 2}
                           </span>
-                        ))}
-                        {dayTachesSansHeure.length > 2 && (
-                          <span className="text-micro text-ink-2">+{dayTachesSansHeure.length - 2}</span>
                         )}
                       </>
                     )}
@@ -242,9 +273,10 @@ export function WeekView({
                   <button
                     type="button"
                     onClick={() => onSelectDay(day)}
+                    tabIndex={-1}
+                    aria-hidden
                     className="relative block w-full text-left"
                     style={{ height: gridHeight(zoom) }}
-                    aria-label={libelleJour(day, dayTachesAvecHeure.length + dayTachesSansHeure.length, dayEvenements.length)}
                   >
                     <HourLines zoom={zoom} />
                     <WorkHoursBand creneaux={creneauxJour} zoom={zoom} />

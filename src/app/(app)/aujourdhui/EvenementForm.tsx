@@ -36,11 +36,14 @@ function heureParDefaut(): string {
 export function EvenementForm({
   evenement,
   dateParDefaut,
+  heureInitiale,
   onSaved,
   onSupprimer,
 }: {
   evenement?: Evenement;
   dateParDefaut: string;
+  // Heure préremplie (création depuis un créneau de la grille « HH:MM »).
+  heureInitiale?: string;
   onSaved: () => void;
   onSupprimer?: () => void;
 }) {
@@ -57,7 +60,7 @@ export function EvenementForm({
   const [optionsOuvertes, setOptionsOuvertes] = useState(
     evenement?.rappel_minutes != null || Boolean(evenement?.recurrence_frequence)
   );
-  const [heure, setHeure] = useState(evenement ? evenement.heure.slice(0, 5) : heureParDefaut);
+  const [heure, setHeure] = useState(() => (evenement ? evenement.heure.slice(0, 5) : (heureInitiale ?? heureParDefaut())));
   const [duree, setDuree] = useState(
     String(evenement ? (dureeEvenement(evenement.heure, evenement.heure_fin) ?? DUREE_EVENEMENT_PAR_DEFAUT) : DUREE_EVENEMENT_PAR_DEFAUT)
   );
