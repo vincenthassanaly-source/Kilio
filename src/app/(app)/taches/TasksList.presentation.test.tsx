@@ -40,7 +40,7 @@ describe("TaskCard : présentation", () => {
   it.each([
     ["2026-11-10", "Aujourd'hui"],
     ["2026-11-11", "Demain"],
-    ["2026-11-09", "Hier"],
+    ["2026-11-09", /Hier/],
     ["2026-11-25", /25 nov\.?$/],
   ])("affiche l'échéance %s en langage courant", (echeance, attendu) => {
     monter([makeTache({ id: "t1", titre: "Payer", echeance })]);
@@ -55,7 +55,7 @@ describe("TaskCard : présentation", () => {
   it("ne montre plus de boutons Modifier / Suppr. permanents : le titre ouvre l'édition", () => {
     monter([makeTache({ id: "t1", titre: "Payer" })]);
     expect(screen.queryByRole("button", { name: "Suppr." })).toBeNull();
-    expect(screen.getByRole("button", { name: "Modifier « Payer »" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Payer\s*\(modifier\)/ })).toBeTruthy();
   });
 
   it("affiche le message d'état vide propre à la vue", () => {
@@ -63,8 +63,23 @@ describe("TaskCard : présentation", () => {
     expect(screen.getByText("Rien en retard. Tout est à jour.")).toBeTruthy();
   });
 
-  it("explique la suppression automatique d'une Tâche du jour sans passer par une infobulle", () => {
-    monter([makeTache({ id: "t1", titre: "Payer", programme_jour: true })]);
-    expect(screen.getByText(/Supprimée ce soir/)).toBeTruthy();
+  it("explique une seule fois la suppression automatique des Tâches du jour", () => {
+    monter([
+      makeTache({ id: "t1", titre: "Payer", programme_jour: true }),
+      makeTache({ id: "t2", titre: "Ranger", programme_jour: true }),
+    ]);
+    expect(screen.getAllByText(/supprimées à la fin de la journée/)).toHaveLength(1);
+  });
+
+  it("met l'échéance en retard en évidence avec un libellé, pas seulement une couleur", () => {
+    monter([makeTache({ id: "t1", titre: "Payer", echeance: "2026-11-08" })]);
+    expect(screen.getByText(/En retard · /)).toBeTruthy();
+  });
+
+  it("relie la coche au titre de la tâche pour les lecteurs d'écran", () => {
+    monter([makeTache({ id: "t1", titre: "Payer" })]);
+    const coche = screen.getByRole("button", { name: "Marquer fait" });
+    expect(coche.getAttribute("aria-describedby")).toBe("tache-titre-t1");
+    expect(document.getElementById("tache-titre-t1")?.textContent).toContain("Payer");
   });
 });

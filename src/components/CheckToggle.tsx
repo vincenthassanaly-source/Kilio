@@ -25,6 +25,7 @@ export function CheckToggle({
   hitSlop = 11,
   color = "var(--accent-kcal)",
   label,
+  describedBy,
   className = "",
 }: {
   checked: boolean;
@@ -34,6 +35,8 @@ export function CheckToggle({
   hitSlop?: number;
   color?: string;
   label: string;
+  /** Id de l'élément qui nomme la tâche : le lecteur d'écran lit « Marquer fait, <titre> ». */
+  describedBy?: string;
   className?: string;
 }) {
   return (
@@ -42,6 +45,7 @@ export function CheckToggle({
       disabled={disabled}
       onClick={onToggle}
       aria-label={label}
+      aria-describedby={describedBy}
       aria-pressed={checked}
       className={`relative shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${className}`}
     >

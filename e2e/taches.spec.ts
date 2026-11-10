@@ -22,7 +22,7 @@ const ligne = (page: Page, titre: string) => page.getByRole("listitem").filter({
 
 async function creerTache(page: Page, titre: string) {
   await page.goto("/taches");
-  await page.getByRole("button", { name: /Ajouter une tâche Nouvelle entrée/ }).click();
+  await page.getByRole("button", { name: "Ajouter une tâche", exact: true }).click();
   await page.getByRole("textbox", { name: "Titre" }).fill(titre);
   await page.getByRole("button", { name: "Créer", exact: true }).click();
   await expect(ligne(page, titre)).toBeVisible();
@@ -39,7 +39,7 @@ test("crée une tâche depuis le formulaire", async ({ page }) => {
 
 test("le formulaire de création n'enregistre rien sans titre", async ({ page }) => {
   await page.goto("/taches");
-  await page.getByRole("button", { name: /Ajouter une tâche Nouvelle entrée/ }).click();
+  await page.getByRole("button", { name: "Ajouter une tâche", exact: true }).click();
   await page.getByRole("button", { name: "Créer", exact: true }).click();
 
   // Le titre est requis : le formulaire reste ouvert et rien n'est envoyé.
@@ -50,7 +50,7 @@ test("le formulaire de création n'enregistre rien sans titre", async ({ page })
 test("annuler ferme le formulaire sans rien enregistrer", async ({ page }) => {
   const titre = nom("Brouillon abandonné");
   await page.goto("/taches");
-  await page.getByRole("button", { name: /Ajouter une tâche Nouvelle entrée/ }).click();
+  await page.getByRole("button", { name: "Ajouter une tâche", exact: true }).click();
   await page.getByRole("textbox", { name: "Titre" }).fill(titre);
   await page.getByRole("button", { name: "Annuler", exact: true }).click();
 
@@ -76,7 +76,7 @@ test("supprime une tâche, puis « Annuler » la rétablit sans l'effacer de la 
   const titre = nom("Ranger le garage");
   await creerTache(page, titre);
 
-  await ligne(page, titre).getByRole("button", { name: `Modifier « ${titre} »` }).click();
+  await ligne(page, titre).getByRole("button", { name: new RegExp(`${titre}\\s*\\(modifier\\)`) }).click();
   await page.getByRole("button", { name: "Supprimer" }).click();
   await expect(page.getByText(`« ${titre} » supprimée`)).toBeVisible();
   await expect(ligne(page, titre)).toHaveCount(0);
