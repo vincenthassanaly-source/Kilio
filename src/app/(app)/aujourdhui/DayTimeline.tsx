@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import type { Evenement } from "@/app/actions/evenements";
 import type { TacheAvecRelations } from "@/app/actions/taches";
 import { layoutChevauchements } from "@/lib/agenda/compute";
+import { prochainElement } from "@/lib/aujourdhui/compute";
 import type { CreneauDuJour } from "@/lib/agenda/planning-travail";
 import { enMinutes, libelleDuree, type Plage } from "@/lib/programme/disponibilites";
 import { ghostButton } from "@/lib/ui";
@@ -76,14 +77,16 @@ export function DayTimeline({
   );
 
   const resume = useMemo(() => {
-    const prochainEvenement = evenements.find((e) => e.heure.slice(0, 5) >= maintenant);
-    if (prochainEvenement) return `Prochain : ${prochainEvenement.heure.slice(0, 5)} ${prochainEvenement.titre}`;
+    // La fenêtre de la frise ne montre que quelques heures : le sous-titre dit
+    // donc le prochain élément, événement OU tâche horodatée, même hors fenêtre.
+    const prochain = prochainElement([...evenements, ...taches], maintenant);
+    if (prochain) return `Prochain : ${prochain.heure} ${prochain.titre}`;
     const premierTrou = libres[0];
     if (premierTrou) {
       return `Libre ${premierTrou.debut}–${premierTrou.fin} (${libelleDuree(enMinutes(premierTrou.fin) - enMinutes(premierTrou.debut))})`;
     }
     return null;
-  }, [evenements, libres, maintenant]);
+  }, [evenements, taches, libres, maintenant]);
 
   return (
     <section aria-labelledby="aujourdhui-frise" className="flex flex-col gap-2.5">
