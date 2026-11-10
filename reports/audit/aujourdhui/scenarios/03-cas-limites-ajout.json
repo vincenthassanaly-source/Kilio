@@ -1,0 +1,11 @@
+{"nom":"cas-limites-ajout","theme":"sombre","etapes":[
+{"action":"goto","url":"/"},
+{"action":"click","cible":"role=form[name=/ajouter une tâche à aujourd/i] >> role=button[name=/^ajouter$/i]","note":"champ vide : bouton désactivé"},
+{"action":"fill","cible":"role=textbox[name=/nouvelle tâche pour aujourd/i]","valeur":"Un titre extrêmement long qui ne finit jamais et qui risque de déborder de la carte sur un écran mobile étroit, vraiment très long, encore plus long, toujours plus long pour tester le retour à la ligne et la troncature"},
+{"action":"click","cible":"role=form[name=/ajouter une tâche à aujourd/i] >> role=button[name=/^ajouter$/i]"},
+{"action":"wait","ms":800},
+{"action":"screenshot","note":"titre très long"},
+{"action":"fill","cible":"role=textbox[name=/nouvelle tâche pour aujourd/i]","valeur":"Double clic"},
+{"action":"dblclick","cible":"role=form[name=/ajouter une tâche à aujourd/i] >> role=button[name=/^ajouter$/i]","note":"double clic : un seul ajout attendu"},
+{"action":"wait","ms":800},
+{"action":"screenshot"}]}

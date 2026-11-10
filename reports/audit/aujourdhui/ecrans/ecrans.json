@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/aujourdhui",
+    "dynamique": false,
+    "url": "/aujourdhui",
+    "theme": "clair",
+    "fichier": "aujourdhui.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/aujourdhui",
+    "dynamique": false,
+    "url": "/aujourdhui",
+    "theme": "sombre",
+    "fichier": "aujourdhui.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

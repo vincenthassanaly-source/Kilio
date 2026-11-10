@@ -1,0 +1,6 @@
+{"nom":"liste-vide","theme":"clair","etapes":[
+{"action":"goto","url":"/"},
+{"action":"click","cible":"role=button[name=/marquer fait/i] >> nth=0"},
+{"action":"wait","ms":800},
+{"action":"scroll","pixels":600},
+{"action":"screenshot","note":"plus aucune tâche à faire : état vide ?"}]}
