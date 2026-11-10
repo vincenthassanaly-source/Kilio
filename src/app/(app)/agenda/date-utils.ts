@@ -3,6 +3,10 @@
 // copie). Ne restent ici que les utilitaires propres aux échéances
 // (heure, pas date).
 
+export function majusculePremiere(texte: string): string {
+  return texte.charAt(0).toUpperCase() + texte.slice(1);
+}
+
 export function sortByHeure(a: { heure: string | null }, b: { heure: string | null }): number {
   return (a.heure ?? "99:99").localeCompare(b.heure ?? "99:99");
 }

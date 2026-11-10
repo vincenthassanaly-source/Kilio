@@ -49,12 +49,24 @@ function durationToPx(durationMinutes: number, zoom: number): number {
 // `minutes` reste exprimé en minutes depuis minuit (échéances/créneaux non
 // modifiés) ; la conversion en px est relative au début affiché de la
 // grille (06h), décalée de l'espace d'amorce ci-dessus. Une valeur avant
-// 06h donne un top négatif (hors-écran, ne s'affiche pas) — accepté, cette
-// plage n'est jamais utilisée en pratique. Pour une DURÉE (pas un instant),
+// 06h donne un top négatif (hors-écran) : les éléments concernés sont donc
+// écartés de la grille (cf. heureAvantGrille) et listés dans une bande au-dessus.
+// Pour une DURÉE (pas un instant),
 // utiliser durationToPx — soustraire GRID_START_MINUTES n'aurait aucun sens
 // sur un écart entre deux heures.
 function minutesToPx(minutes: number, zoom: number): number {
   return durationToPx(minutes - GRID_START_MINUTES, zoom) + hourHeight(zoom) * GRID_LEAD_HOURS;
+}
+
+/** true si l'heure tombe avant le début affiché de la grille (06h). */
+export function heureAvantGrille(heure: string | null): boolean {
+  const minutes = heureToMinutes(heure);
+  return minutes !== null && minutes < GRID_START_MINUTES;
+}
+
+/** Inverse de minutesToPx : minutes depuis minuit pour un décalage vertical dans la grille. */
+export function pxToMinutes(px: number, zoom: number): number {
+  return ((px - hourHeight(zoom) * GRID_LEAD_HOURS) / hourHeight(zoom)) * 60 + GRID_START_MINUTES;
 }
 
 export function getTacheBlockStyle(

@@ -113,7 +113,7 @@ export function MonthView({
               onClick={() => onSelectDay(day)}
               aria-label={monthCellAriaLabel(day, count, nbEvenements, jourTravaille, ferie)}
               aria-current={isToday(day) ? "date" : undefined}
-              className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border text-small ${
+              className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border text-small focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                 isToday(day) ? "border-2 border-agenda font-bold" : "border-line"
               } ${inMonth ? "text-ink" : "text-ink-3"} ${jourTravaille ? "" : "bg-surface"}`}
               style={jourTravaille ? { backgroundColor: "var(--accent-planning-travail-soft)" } : undefined}
@@ -122,7 +122,7 @@ export function MonthView({
               {(count > 0 || nbEvenements > 0) && (
                 <span className="flex items-center gap-0.5">
                   {count > 0 && <span className="h-1.5 w-1.5 rounded-full bg-agenda" />}
-                  {nbEvenements > 0 && <span className="h-1.5 w-1.5 rounded-[2px] bg-agenda" />}
+                  {nbEvenements > 0 && <span className="h-1.5 w-3.5 rounded-full bg-agenda" />}
                 </span>
               )}
             </button>
@@ -153,7 +153,7 @@ export function MonthView({
         </span>
         <span>·</span>
         <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-[2px] bg-agenda" />
+          <span className="h-1.5 w-3.5 rounded-full bg-agenda" />
           événement(s)
         </span>
       </div>

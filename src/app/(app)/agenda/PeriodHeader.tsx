@@ -1,6 +1,10 @@
 "use client";
 
-import { navArrowButton, sectionTitle } from "@/lib/ui";
+import { navArrowButton } from "@/lib/ui";
+
+// La date affichée est le vrai contenu de l'écran : elle passe devant le
+// titre « Agenda » (28 px) plutôt que d'être reléguée à 15 px.
+const TITRE_PERIODE = "font-display text-heading leading-tight font-semibold tracking-[-0.02em] text-ink text-balance text-center";
 
 // En-tête de période partagé par les vues Jour/Semaine/Mois : navigation
 // ←/→ (cibles tactiles ≥44×44px, cf. navArrowButton) et titre de la période
@@ -41,7 +45,7 @@ export function PeriodHeader({
         <ChevronIcon direction="left" />
       </button>
       <div className="flex flex-col items-center gap-0.5">
-        <span className={`${sectionTitle} ${capitalizeTitle ? "capitalize" : ""}`}>{title}</span>
+        <span className={`${TITRE_PERIODE} ${capitalizeTitle ? "capitalize" : ""}`}>{title}</span>
         {showToday ? (
           <button
             type="button"
@@ -51,7 +55,7 @@ export function PeriodHeader({
             Aujourd&apos;hui
           </button>
         ) : (
-          <span aria-hidden className="invisible text-xs font-semibold">
+          <span aria-hidden className="invisible text-caption font-semibold">
             Aujourd&apos;hui
           </span>
         )}

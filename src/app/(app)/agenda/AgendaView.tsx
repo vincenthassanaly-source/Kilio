@@ -13,9 +13,6 @@ import {
   startOfMonth,
   startOfToday,
   startOfWeek,
-  subDays,
-  subMonths,
-  subWeeks,
 } from "date-fns";
 import { getListes, getTachesAvecRelations, getTags } from "@/app/actions/taches";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
@@ -129,7 +126,9 @@ export function AgendaView() {
   // Menu du FAB unique (Tâche / Événement), fermé au tap extérieur et à Échap.
   const [menuAjoutOpen, setMenuAjoutOpen] = useState(false);
   // Événement léger en cours d'édition (`{}` = création), voir EvenementForm.
-  const [evenementForm, setEvenementForm] = useState<{ evenement?: Evenement } | null>(null);
+  const [evenementForm, setEvenementForm] = useState<{ evenement?: Evenement; heure?: string } | null>(null);
+  const fabRef = useRef<HTMLButtonElement>(null);
+  const premierChoixRef = useRef<HTMLButtonElement>(null);
   const [evenementsMasques, setEvenementsMasques] = useState<ReadonlySet<string>>(() => new Set());
 
   // Événements du mois affiché, plus une semaine de marge de chaque côté (une
@@ -137,11 +136,19 @@ export function AgendaView() {
   // restent affichés pendant le chargement d'un autre mois.
   const fenetreDebut = toISODate(addDays(startOfMonth(selectedDate), -7));
   const fenetreFin = toISODate(addDays(endOfMonth(selectedDate), 7));
-  const { data: evenementsBruts = [] } = useQuery({
+  const {
+    data: evenementsBruts = [],
+    isError: evenementsError,
+    isPending: evenementsPending,
+    isPlaceholderData: evenementsPlaceholder,
+  } = useQuery({
     queryKey: queryKeys.evenementsPlage(fenetreDebut, fenetreFin),
     queryFn: () => getEvenements(fenetreDebut, fenetreFin),
     placeholderData: keepPreviousData,
   });
+  // Tant que les événements ne sont pas réellement chargés (ou ont échoué),
+  // l'agenda ne doit pas affirmer « journée libre ».
+  const evenementsFiables = !evenementsError && !evenementsPending && !evenementsPlaceholder;
   const evenements = evenementsBruts.filter((e) => !evenementsMasques.has(e.id));
   // Jours fériés de la même fenêtre : informatifs, une panne de l'API ne bloque rien.
   const { data: joursFeries = [] } = useQuery({
@@ -225,8 +232,11 @@ export function AgendaView() {
 
   useEffect(() => {
     if (!menuAjoutOpen) return;
+    premierChoixRef.current?.focus();
     const surEchap = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuAjoutOpen(false);
+      if (e.key !== "Escape") return;
+      setMenuAjoutOpen(false);
+      fabRef.current?.focus();
     };
     window.addEventListener("keydown", surEchap);
     return () => window.removeEventListener("keydown", surEchap);
@@ -280,6 +290,34 @@ export function AgendaView() {
     else if (date.getTime() < selectedDate.getTime()) setDirection(-1);
     setSelectedDate(date);
   }
+
+  // Vue Liste : pas de période à parcourir.
+  function changerPeriode(sens: 1 | -1) {
+    if (view === "jour") handleChangeDate(addDays(selectedDate, sens));
+    else if (view === "semaine") handleChangeDate(addWeeks(selectedDate, sens));
+    else if (view === "mois") handleChangeDate(addMonths(selectedDate, sens));
+  }
+
+  // Raccourcis clavier : ←/→ période, t aujourd'hui, n nouvelle tâche,
+  // e nouvel événement. Inactifs pendant la saisie ou quand une fenêtre est ouverte.
+  useEffect(() => {
+    function surTouche(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const cible = e.target as HTMLElement | null;
+      if (cible && (cible.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(cible.tagName))) return;
+      if (fabOpen || evenementForm !== null || document.querySelector('[role="dialog"]')) return;
+      if (e.key === "ArrowLeft") changerPeriode(-1);
+      else if (e.key === "ArrowRight") changerPeriode(1);
+      else if (e.key === "t") handleChangeDate(startOfToday());
+      else if (e.key === "n") setFabOpen(true);
+      else if (e.key === "e") setEvenementForm({});
+      else return;
+      e.preventDefault();
+    }
+    window.addEventListener("keydown", surTouche);
+    return () => window.removeEventListener("keydown", surTouche);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, selectedDate, fabOpen, evenementForm]);
 
   function gererToucheDebut(e: React.TouchEvent<HTMLDivElement>) {
     // Pinch-zoom (T13) : dès qu'un deuxième doigt se pose, le geste n'est
@@ -335,13 +373,7 @@ export function AgendaView() {
       return;
     }
 
-    if (view === "jour") {
-      handleChangeDate(deltaX < 0 ? addDays(selectedDate, 1) : subDays(selectedDate, 1));
-    } else if (view === "semaine") {
-      handleChangeDate(deltaX < 0 ? addWeeks(selectedDate, 1) : subWeeks(selectedDate, 1));
-    } else if (view === "mois") {
-      handleChangeDate(deltaX < 0 ? addMonths(selectedDate, 1) : subMonths(selectedDate, 1));
-    }
+    changerPeriode(deltaX < 0 ? 1 : -1);
   }
 
   return (
@@ -356,41 +388,16 @@ export function AgendaView() {
       )}
       <div
         data-masquer-saisie
-        className="fixed right-[max(1rem,calc(50%-20rem))] z-40 flex flex-col items-end gap-2"
+        className="fixed right-[max(1rem,calc(50%-20rem))] z-40 flex flex-col-reverse items-end gap-2"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
       >
-        {menuAjoutOpen && (
-          <div role="menu" aria-label="Ajouter" className="flex flex-col items-end gap-2">
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setMenuAjoutOpen(false);
-                setEvenementForm({});
-              }}
-              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
-            >
-              Événement
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setMenuAjoutOpen(false);
-                setFabOpen(true);
-              }}
-              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
-            >
-              Tâche
-            </button>
-          </div>
-        )}
         <button
+          ref={fabRef}
           type="button"
           onClick={() => setMenuAjoutOpen((v) => !v)}
           aria-label="Ajouter une tâche ou un événement"
-          aria-haspopup="menu"
           aria-expanded={menuAjoutOpen}
+          aria-controls="agenda-choix-ajout"
           className="flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
         >
           <svg
@@ -408,6 +415,31 @@ export function AgendaView() {
             <path d="M12 5v14M5 12h14" />
           </svg>
         </button>
+        {menuAjoutOpen && (
+          <div id="agenda-choix-ajout" role="group" aria-label="Ajouter" className="flex flex-col items-end gap-2">
+            <button
+              ref={premierChoixRef}
+              type="button"
+              onClick={() => {
+                setMenuAjoutOpen(false);
+                setEvenementForm({});
+              }}
+              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            >
+              Événement
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMenuAjoutOpen(false);
+                setFabOpen(true);
+              }}
+              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            >
+              Tâche
+            </button>
+          </div>
+        )}
       </div>
 
       <AnimatePresence>
@@ -438,6 +470,7 @@ export function AgendaView() {
             <EvenementForm
               evenement={evenementForm.evenement}
               dateParDefaut={toISODate(selectedDate)}
+              heureInitiale={evenementForm.heure}
               onSaved={() => {
                 setEvenementForm(null);
                 showToast(evenementForm.evenement ? "Événement modifié" : "Événement ajouté");
@@ -476,6 +509,11 @@ export function AgendaView() {
         </div>
       </div>
 
+      {evenementsError && (
+        <p role="status" className={errorText}>
+          Événements indisponibles : ceux affichés peuvent être incomplets.
+        </p>
+      )}
       {actualisationKo && (
         <p role="status" className={errorText}>
           Actualisation impossible : dernières données affichées.
@@ -515,6 +553,8 @@ export function AgendaView() {
                     tacheEnSurbrillanceId={tacheEnSurbrillanceId}
                     onSelectTache={handleSelectTache}
                     onSelectEvenement={(evenement) => setEvenementForm({ evenement })}
+                    onCreerEvenement={(heure) => setEvenementForm({ heure })}
+                    evenementsFiables={evenementsFiables}
                   />
                 )}
                 {view === "semaine" && (
