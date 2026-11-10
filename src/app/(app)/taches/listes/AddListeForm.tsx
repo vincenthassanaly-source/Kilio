@@ -5,7 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createListe, updateListe, type ListeFormState } from "@/app/actions/taches";
 import { queryKeys } from "@/lib/query/keys";
 import type { Tables } from "@/lib/supabase/types";
-import { COULEUR_PAR_DEFAUT, errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
+import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
+import { CouleurPicker } from "./CouleurPicker";
 
 const initialState: ListeFormState = { error: null };
 
@@ -57,18 +58,7 @@ export function AddListeForm({
         <input id={`${uid}-nom`} name="nom" required defaultValue={liste?.nom} className={input} />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor={`${uid}-couleur`} className={labelClass}>
-          Couleur (optionnel)
-        </label>
-        <input
-          id={`${uid}-couleur`}
-          name="couleur"
-          type="color"
-          defaultValue={liste?.couleur ?? COULEUR_PAR_DEFAUT}
-          className="h-10 w-16 rounded-lg border border-line bg-surface p-1"
-        />
-      </div>
+      <CouleurPicker defaultValue={liste?.couleur} />
 
       {state.error && (
         <p className={errorText} role="alert">

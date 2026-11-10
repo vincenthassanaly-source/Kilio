@@ -2,6 +2,7 @@
 
 import { useId, startTransition, useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { addDays, format, nextMonday, nextSaturday } from "date-fns";
 import {
   createTache,
   updateTache,
@@ -143,6 +144,9 @@ export function AddTaskForm({
   const prevPending = useRef(pending);
 
   const [titre, setTitre] = useState(tache?.titre ?? initial?.titre ?? "");
+  // Liste choisie (null tant que l'utilisateur n'a pas touché : la première
+  // liste sert alors de repli, y compris si les listes arrivent après l'ouverture).
+  const [listeChoisie, setListeChoisie] = useState<string | null>(tache?.liste_id ?? defaultListeId ?? null);
   const titreRef = useRef<HTMLTextAreaElement>(null);
   const echeanceRef = useRef<HTMLInputElement>(null);
   // Suivent l'état d'envoi hors rendu, pour que l'envoi par la touche Entrée
@@ -299,8 +303,20 @@ export function AddTaskForm({
 
   // Le champ date reste non contrôlé (defaultValue) : on écrit directement
   // dans le DOM, la valeur est lue par FormData à l'envoi comme avant.
-  function definirEcheanceAujourdhui() {
-    if (echeanceRef.current) echeanceRef.current.value = aujourdhuiISO();
+  function definirEcheance(iso: string) {
+    if (echeanceRef.current) echeanceRef.current.value = iso;
+  }
+  // Raccourcis calculés depuis la date de Paris (aujourdhuiISO), comme le reste
+  // de l'écran : « Ce week-end » = le prochain samedi, « Lundi » = le prochain lundi.
+  function raccourcisEcheance(): { label: string; aria: string; iso: string }[] {
+    const base = new Date(`${aujourdhuiISO()}T00:00:00`);
+    const iso = (d: Date) => format(d, "yyyy-MM-dd");
+    return [
+      { label: "Aujourd'hui", aria: "Définir l'échéance à aujourd'hui", iso: iso(base) },
+      { label: "Demain", aria: "Définir l'échéance à demain", iso: iso(addDays(base, 1)) },
+      { label: "Ce week-end", aria: "Définir l'échéance à samedi", iso: iso(nextSaturday(base)) },
+      { label: "Lundi", aria: "Définir l'échéance à lundi", iso: iso(nextMonday(base)) },
+    ];
   }
 
   function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -394,24 +410,33 @@ export function AddTaskForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${uid}-liste_id`} className={labelClass}>
+        <span id={`${uid}-liste_id`} className={labelClass}>
           Liste
-        </label>
-        <select
-          // Clé : si les listes arrivent après l'ouverture du formulaire (démarrage
-          // hors ligne), la valeur par défaut doit être reprise sinon liste_id part vide.
-          key={listes[0]?.id ?? "aucune-liste"}
-          id={`${uid}-liste_id`}
-          name="liste_id"
-          defaultValue={tache?.liste_id ?? defaultListeId ?? listes[0]?.id ?? ""}
-          className={input}
-        >
-          {listes.map((liste) => (
-            <option key={liste.id} value={liste.id}>
-              {liste.nom}
-            </option>
-          ))}
-        </select>
+        </span>
+        <input type="hidden" name="liste_id" value={listeChoisie ?? listes[0]?.id ?? ""} />
+        <div role="group" aria-labelledby={`${uid}-liste_id`} className="flex flex-wrap gap-2">
+          {listes.map((liste) => {
+            const actif = (listeChoisie ?? listes[0]?.id) === liste.id;
+            return (
+              <button
+                key={liste.id}
+                type="button"
+                aria-pressed={actif}
+                onClick={() => setListeChoisie(liste.id)}
+                className={`relative flex min-h-11 items-center gap-[7px] whitespace-nowrap rounded-2xl border px-3.5 text-label font-semibold text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                  actif ? "border-kcal bg-kcal-soft" : "border-line bg-surface"
+                }`}
+              >
+                <span
+                  className="h-[9px] w-[9px] rounded-full"
+                  style={{ background: liste.couleur ?? "var(--ink-3)" }}
+                  aria-hidden="true"
+                />
+                {liste.nom}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex flex-col gap-1">
@@ -427,14 +452,19 @@ export function AddTaskForm({
             defaultValue={tache?.echeance ?? defaultEcheance ?? ""}
             className={`${input} min-w-0 flex-1`}
           />
-          <button
-            type="button"
-            onClick={definirEcheanceAujourdhui}
-            aria-label="Définir l'échéance à aujourd'hui"
-            className={`${secondaryButton} min-h-11 shrink-0 text-label`}
-          >
-            Aujourd&apos;hui
-          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {raccourcisEcheance().map((r) => (
+            <button
+              key={r.label}
+              type="button"
+              onClick={() => definirEcheance(r.iso)}
+              aria-label={r.aria}
+              className={`${secondaryButton} min-h-11 shrink-0 text-label`}
+            >
+              {r.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -751,7 +781,7 @@ export function AddTaskForm({
           </p>
         )}
 
-        <button type="submit" disabled={pending} className={`${primaryButton} min-h-11 shadow-card`}>
+        <button type="submit" disabled={pending} className={`${primaryButton} min-h-11 w-full shadow-card`}>
           {pending ? "Enregistrement..." : tache ? "Enregistrer" : "Créer"}
         </button>
       </div>

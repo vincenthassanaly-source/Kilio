@@ -37,7 +37,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Enums, Tables } from "@/lib/supabase/types";
-import { card, dangerButton, input, listCard, metaText, pillTag, textButton, zoneTapPill } from "@/lib/ui";
+import { card, dangerButton, input, listCard, metaText, pillTag, textButton } from "@/lib/ui";
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import type { ActionResult } from "@/lib/actions/result";
@@ -587,7 +587,7 @@ export const TaskCard = memo(function TaskCard({
                 id={`tache-titre-${tache.id}`}
                 type="button"
                 onClick={() => setEditing(true)}
-                className={`min-w-0 flex-1 whitespace-normal break-words rounded-md text-left text-body font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${tache.fait ? "text-ink-2 line-through" : ""}`}
+                className={`relative min-w-0 flex-1 whitespace-normal break-words rounded-md text-left text-body font-semibold text-ink after:absolute after:inset-x-0 after:-inset-y-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${tache.fait ? "text-ink-2 line-through" : ""}`}
               >
                 {tache.titre}
                 <span className="sr-only"> (modifier)</span>
@@ -602,7 +602,7 @@ export const TaskCard = memo(function TaskCard({
           </div>
 
           {(tache.echeance || tache.duree_minutes) && (
-            <span className={`${metaText} ${enRetard ? "font-semibold text-alert" : ""}`}>
+            <span className={enRetard ? "text-small font-semibold tabular-nums text-alert" : metaText}>
               {enRetard && "En retard · "}
               {tache.echeance && formatEcheance(tache.echeance)}
               {tache.heure &&
@@ -638,8 +638,8 @@ export const TaskCard = memo(function TaskCard({
               tache.sous_taches.length > 0 && (
                 <span className={pillTag}>{`${sousTachesFaites}/${tache.sous_taches.length}`}</span>
               )
-            ) : (
-              <button type="button" onClick={() => setExpanded((v) => !v)} className={`${pillTag} ${zoneTapPill}`}>
+            ) : tache.fait && tache.sous_taches.length === 0 ? null : (
+              <button type="button" onClick={() => setExpanded((v) => !v)} className={`${pillTag} relative after:absolute after:inset-x-0 after:-inset-y-2.5`}>
                 {tache.sous_taches.length > 0
                   ? `${sousTachesFaites}/${tache.sous_taches.length}`
                   : "+ sous-tâches"}
@@ -854,10 +854,13 @@ export function TasksList({
   selectionMode = false,
   selectionIds,
   onToggleSelect,
+  grouperParJour = false,
 }: {
   taches: TacheAvecRelations[];
   listes: Tables<"listes_taches">[];
   tags: Tables<"tags">[];
+  // Insère un séparateur de date entre les jours (vue « 7 jours », triée par échéance).
+  grouperParJour?: boolean;
   // Texte de l'état vide propre à la vue active (filtre, jour, liste) ; repli
   // générique si absent.
   messageVide?: React.ReactNode;
@@ -900,25 +903,48 @@ export function TasksList({
         ) : (
           <ul className="flex flex-col gap-2.5">
             <AnimatePresence initial={false}>
-              {actives.map((tache) => (
-                <TaskCard
-                  key={tache.id}
-                  tache={tache}
-                  listes={listes}
-                  tags={tags}
-                  highlighted={tache.id === highlightedId}
-                  selectionMode={selectionMode}
-                  selected={selectionIds?.has(tache.id) ?? false}
-                  onToggleSelect={onToggleSelect}
-                />
-              ))}
+              {actives.flatMap((tache, i) => {
+                const carte = (
+                  <TaskCard
+                    key={tache.id}
+                    tache={tache}
+                    listes={listes}
+                    tags={tags}
+                    highlighted={tache.id === highlightedId}
+                    selectionMode={selectionMode}
+                    selected={selectionIds?.has(tache.id) ?? false}
+                    onToggleSelect={onToggleSelect}
+                  />
+                );
+                if (!grouperParJour || (i > 0 && actives[i - 1].echeance === tache.echeance)) return [carte];
+                return [
+                  <li key={`jour-${tache.echeance ?? "sans"}`} className="px-1 pt-1.5 text-small font-semibold text-ink-2 first:pt-0">
+                    <h3>{tache.echeance ? formatEcheance(tache.echeance) : "Sans échéance"}</h3>
+                  </li>,
+                  carte,
+                ];
+              })}
             </AnimatePresence>
           </ul>
         ))}
       {archivees.length > 0 && (
-        <details className={`${card} mt-2.5`}>
-          <summary className="flex min-h-11 cursor-pointer items-center rounded-xl text-body font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
-            Tâches archivées ({archivees.length})
+        <details className="group mt-2.5 border-t border-line pt-1">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-1 text-body font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal [&::-webkit-details-marker]:hidden">
+            <span>Tâches archivées ({archivees.length})</span>
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0 transition-transform duration-150 group-open:rotate-180"
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
           </summary>
           <ul className="mt-2.5 flex flex-col gap-2.5">
             <AnimatePresence initial={false}>

@@ -165,7 +165,9 @@ export function TachesView() {
       }
       return true;
     });
-    const triees = trierTaches(filtrerParPriorite(visibles, priorites), ordre);
+    // « 7 jours » se lit par date : sans tri choisi, l'échéance prime sur l'ordre manuel.
+    const ordreAffiche: OrdreTaches = vue === "semaine" && ordre === "manuel" ? "echeance" : ordre;
+    const triees = trierTaches(filtrerParPriorite(visibles, priorites), ordreAffiche);
     // « À faire » en ordre manuel : le retard d'abord (tri stable, l'ordre
     // manuel est conservé dans chaque groupe).
     if (vue === "aujourdhui" && ordre === "manuel") {
@@ -293,6 +295,17 @@ export function TachesView() {
     setOrdre("manuel");
   }
   const toutSelectionnable = filtered.filter((t) => !t.fait).map((t) => t.id);
+  // Même action que le « + » flottant : on déclenche son bouton plutôt que de
+  // dupliquer l'ouverture de la feuille (QuickAddFab porte l'état d'ouverture).
+  const boutonAjout = (
+    <button
+      type="button"
+      onClick={() => document.querySelector<HTMLButtonElement>('button[aria-label="Nouvelle tâche"]')?.click()}
+      className={`${ghostButton} mx-auto mt-2`}
+    >
+      Ajouter une tâche
+    </button>
+  );
   const messageVide =
     vue === "en_retard" ? (
       <>Rien en retard. Tout est à jour.</>
@@ -304,11 +317,20 @@ export function TachesView() {
         </button>
       </>
     ) : vue === "aujourdhui" ? (
-      <>Rien à faire pour l’instant.</>
+      <>
+        <p>Rien à faire pour l’instant.</p>
+        {boutonAjout}
+      </>
     ) : vue === "semaine" ? (
-      <>Rien de prévu dans les 7 prochains jours.</>
+      <>
+        <p>Rien de prévu dans les 7 prochains jours.</p>
+        {boutonAjout}
+      </>
     ) : (
-      <>Aucune tâche pour l’instant. Le bouton « + », en bas à droite, en crée une.</>
+      <>
+        <p>Aucune tâche pour l’instant.</p>
+        {boutonAjout}
+      </>
     );
 
   return (
@@ -379,9 +401,9 @@ export function TachesView() {
           type="button"
           onClick={() => setFiltresOuverts(true)}
           aria-haspopup="dialog"
-          className={`${ghostButton} min-w-0 max-w-full justify-start`}
+          className={`${ghostButton} min-w-0 flex-1 justify-start text-left`}
         >
-          <span className="truncate">
+          <span className="block min-w-0 truncate">
             Filtres et tri
             {nbFiltresActifs + (listeActive ? 1 : 0) + (trie ? 1 : 0) > 0 && (
               <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-kcal px-1.5 text-micro font-semibold text-on-kcal">
@@ -424,7 +446,13 @@ export function TachesView() {
                         onClick={() => setListeId(liste.id)}
                         className={`${CHIP_FILTRE} snap-start ${actif ? CHIP_ACTIF : CHIP_INACTIF}`}
                       >
-                        <span className="h-[9px] w-[9px] rounded-full" style={{ background: liste.couleur ?? "var(--color-kcal)" }} />
+                        {liste.id !== "toutes" && (
+                          <span
+                            className="h-[9px] w-[9px] rounded-full"
+                            style={{ background: liste.couleur ?? "var(--ink-3)" }}
+                            aria-hidden="true"
+                          />
+                        )}
                         <span>{liste.nom}</span>
                       </button>
                     );
@@ -501,6 +529,7 @@ export function TachesView() {
           tags={tags}
           messageVide={messageVide}
           reordonnable={reordonnable}
+          grouperParJour={vue === "semaine"}
           highlightedId={tacheSurlignee}
           selectionMode={selection}
           selectionIds={selectionVisible}

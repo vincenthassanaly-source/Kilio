@@ -40,13 +40,23 @@ function ListeRow({
     return (
       <li className={listCard}>
         <AddListeForm liste={liste} onDone={() => setEditing(false)} />
-        <button
-          type="button"
-          onClick={() => setEditing(false)}
-          className="mt-2 text-label text-ink-2 underline"
-        >
-          Annuler
-        </button>
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <button type="button" onClick={() => setEditing(false)} className="text-label text-ink-2 underline">
+            Annuler
+          </button>
+          {/* La suppression vit ici, hors de la ligne : plus de bouton rouge
+              sous le pouce à côté de « Modifier ». */}
+          {liste.nom !== "Général" && (
+            <button type="button" disabled={isPending} onClick={handleDelete} className={dangerButton}>
+              Supprimer la liste
+            </button>
+          )}
+        </div>
+        {error && (
+          <p className="text-label text-alert" role="alert">
+            {error}
+          </p>
+        )}
       </li>
     );
   }
@@ -116,7 +126,7 @@ function ListeRow({
             <span className="text-caption text-ink-2">{libelleNombreTaches(compte.total)}</span>
           </div>
         </div>
-        <div className="flex">
+        <div className="flex shrink-0 items-center">
           <button
             type="button"
             disabled={isPending || index === 0}
@@ -135,17 +145,10 @@ function ListeRow({
           >
             ↓
           </button>
-        </div>
-      </div>
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-          Modifier
-        </button>
-        {liste.nom !== "Général" && (
-          <button type="button" disabled={isPending} onClick={handleDelete} className={dangerButton}>
-            Supprimer
+          <button type="button" onClick={() => setEditing(true)} className={`${ghostButton} ml-1`}>
+            Modifier
           </button>
-        )}
+        </div>
       </div>
       {error && (
         <p className="text-label text-alert" role="alert">
