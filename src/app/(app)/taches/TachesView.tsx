@@ -25,7 +25,7 @@ import { SelectionBar } from "./SelectionBar";
 import { TasksList } from "./TasksList";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { errorText, ghostButton, input, linkButton, textButton } from "@/lib/ui";
+import { errorText, ghostButton, input, textButton } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { showToast } from "@/components/toast/toast-store";
 import { QuickAddFab } from "../QuickAddFab";
@@ -334,6 +334,10 @@ export function TachesView() {
               {resumeFiltres && <span className="ml-1 text-ink-3">· {resumeFiltres}</span>}
             </span>
           </button>
+          {/* Hors du panneau : la gestion des listes reste à un tap, sans ouvrir les filtres. */}
+          <Link href="/taches/listes" className={`${ghostButton} ml-auto shrink-0`}>
+            Listes
+          </Link>
           <button
             type="button"
             onClick={() => (selection ? quitterSelection() : setSelection(true))}
@@ -346,12 +350,7 @@ export function TachesView() {
         {/* Toujours dans le DOM (hidden) : aria-controls pointe vers un élément réel. */}
         <div id="taches-filtres" hidden={!filtresOuverts} className="flex flex-col gap-3 rounded-card border border-line bg-surface p-3.5">
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-small font-semibold text-ink-2">Liste</span>
-              <Link href="/taches/listes" className={linkButton}>
-                Gérer les listes
-              </Link>
-            </div>
+            <span className="text-small font-semibold text-ink-2">Liste</span>
             <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par liste">
               {[{ id: "toutes", nom: "Toutes", couleur: null as string | null }, ...listes].map((liste) => {
                 const actif = listeId === liste.id;

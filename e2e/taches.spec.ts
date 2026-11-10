@@ -92,7 +92,7 @@ test("filtre les tâches avec la recherche", async ({ page }) => {
   await creerTache(page, rapport);
   await creerTache(page, train);
 
-  const recherche = page.getByRole("textbox", { name: "Rechercher une tâche…" });
+  const recherche = page.getByRole("textbox", { name: "Rechercher une tâche" });
   await recherche.fill("train");
   await expect(ligne(page, train)).toBeVisible();
   await expect(ligne(page, rapport)).toHaveCount(0);
