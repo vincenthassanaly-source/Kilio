@@ -69,36 +69,36 @@ export function ListView({
   const avenir = sortedDates.filter((iso) => iso >= aujourdhuiIso);
 
   function rendreJour(iso: string) {
-        const dayTaches = (groups.get(iso) ?? []).sort(sortByHeure);
-        const dayEvenements = evenementsParJour.get(iso) ?? [];
+    const dayTaches = (groups.get(iso) ?? []).sort(sortByHeure);
+    const dayEvenements = evenementsParJour.get(iso) ?? [];
     return (
-          <div key={iso} className="flex flex-col gap-2">
-            <h2 className={sectionTitle}>
-              {iso === aujourdhuiIso ? "Aujourd'hui · " : ""}
-              {majusculePremiere(format(parseISODate(iso), "EEEE d MMMM yyyy", { locale: fr }))}
-            </h2>
-            {feries?.has(iso) && <FerieBadge nom={feries.get(iso)!} className="self-start" />}
-            <ul className="flex flex-col gap-2.5">
-              {dayEvenements.map((evenement) => (
-                <li key={evenement.id}>
-                  <button
-                    type="button"
-                    onClick={() => onSelectEvenement?.(evenement)}
-                    disabled={!onSelectEvenement}
-                    aria-label={`Événement ${evenement.titre}, ${libellePlage(evenement.heure, evenement.heure_fin)}. Modifier`}
-                    className="flex min-h-11 w-full items-center gap-2 rounded-xl bg-agenda px-3 py-2 text-left text-label font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
-                  >
-                    <span className="tabular-nums">{libellePlage(evenement.heure, evenement.heure_fin)}</span>
-                    <span className="truncate">{evenement.titre}</span>
-                  </button>
-                </li>
-              ))}
-              {dayTaches.map((tache) => (
-                <TaskCard key={tache.id} tache={tache} listes={listes} tags={tags} colorByListe />
-              ))}
-            </ul>
-          </div>
-        );
+      <div key={iso} className="flex flex-col gap-2">
+        <h2 className={sectionTitle}>
+          {iso === aujourdhuiIso ? "Aujourd'hui · " : ""}
+          {majusculePremiere(format(parseISODate(iso), "EEEE d MMMM yyyy", { locale: fr }))}
+        </h2>
+        {feries?.has(iso) && <FerieBadge nom={feries.get(iso)!} className="self-start" />}
+        <ul className="flex flex-col gap-2.5">
+          {dayEvenements.map((evenement) => (
+            <li key={evenement.id}>
+              <button
+                type="button"
+                onClick={() => onSelectEvenement?.(evenement)}
+                disabled={!onSelectEvenement}
+                aria-label={`Événement ${evenement.titre}, ${libellePlage(evenement.heure, evenement.heure_fin)}. Modifier`}
+                className="flex min-h-11 w-full items-center gap-2 rounded-xl bg-agenda px-3 py-2 text-left text-label font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+              >
+                <span className="tabular-nums">{libellePlage(evenement.heure, evenement.heure_fin)}</span>
+                <span className="truncate">{evenement.titre}</span>
+              </button>
+            </li>
+          ))}
+          {dayTaches.map((tache) => (
+            <TaskCard key={tache.id} tache={tache} listes={listes} tags={tags} colorByListe />
+          ))}
+        </ul>
+      </div>
+    );
   }
 
   if (sortedDates.length === 0 && withoutDate.length === 0 && archivees.length === 0) {

@@ -51,11 +51,14 @@ type Tache = Tables<"taches">;
 // En dessous de cette largeur de colonne, la bande « sans heure » n'affiche
 // qu'un compteur : les titres y seraient illisibles (≈45 px au zoom plancher).
 const COLONNE_TITRES_MIN_PX = 80;
+// En dessous de cette largeur de bloc, le titre serait illisible : couleur seule.
+const BLOC_TEXTE_MIN_PX = 40;
 
-function libelleJour(day: Date, nbTaches: number, nbEvenements: number): string {
+function libelleJour(day: Date, nbTaches: number, nbEvenements: number, horsGrille: string[]): string {
   const parts = [`Voir le ${format(day, "EEEE d MMMM", { locale: fr })}`];
   if (nbTaches > 0) parts.push(`${nbTaches} tâche${nbTaches > 1 ? "s" : ""}`);
   if (nbEvenements > 0) parts.push(`${nbEvenements} événement${nbEvenements > 1 ? "s" : ""}`);
+  if (horsGrille.length > 0) parts.push(`hors grille : ${horsGrille.join(", ")}`);
   return parts.join(", ");
 }
 
@@ -209,7 +212,8 @@ export function WeekView({
                     aria-label={libelleJour(
                       day,
                       dayTachesAvecHeure.length + bandeTaches.length,
-                      dayEvenements.length + bandeEvenements.length
+                      dayEvenements.length + bandeEvenements.length,
+                      [...bandeEvenements.map((e) => e.titre), ...bandeTaches.map((t) => t.titre)].slice(0, 3)
                     )}
                     className="sticky top-0 z-10 flex h-11 flex-col items-center justify-center gap-0 border-b border-line bg-surface text-center text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal"
                   >
@@ -293,6 +297,7 @@ export function WeekView({
                         zoom={zoom}
                         position={positions.get(e.id)}
                         compact
+                        sansTexte={dayColumnWidth / (positions.get(e.id)?.nbColonnes ?? 1) < BLOC_TEXTE_MIN_PX}
                         onSelect={onSelectEvenement}
                       />
                     ))}
@@ -303,6 +308,7 @@ export function WeekView({
                         zoom={zoom}
                         position={positions.get(t.id)}
                         compact
+                        sansTexte={dayColumnWidth / (positions.get(t.id)?.nbColonnes ?? 1) < BLOC_TEXTE_MIN_PX}
                         onSelect={onSelectTache ? (id) => onSelectTache(id, day) : undefined}
                       />
                     ))}
