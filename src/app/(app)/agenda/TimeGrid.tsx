@@ -22,7 +22,7 @@ const GRID_START_HOUR = 6;
 // non des tâches ce jour-là. Sans cette réservation constante, un jour avec
 // des tâches sans heure pousse son conteneur de grille plus bas que les
 // autres colonnes et que le TimeGutter, désalignant heures et créneaux.
-export const UNSCHEDULED_BAND_HEIGHT = 24;
+export const UNSCHEDULED_BAND_HEIGHT = 32;
 const GRID_START_MINUTES = GRID_START_HOUR * 60;
 const GRID_HOURS_COUNT = 24 - GRID_START_HOUR;
 // Espace "d'amorce" au-dessus de la première heure affichée (06h), pour que

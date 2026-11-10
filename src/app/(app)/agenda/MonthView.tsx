@@ -114,7 +114,7 @@ export function MonthView({
               aria-label={monthCellAriaLabel(day, count, nbEvenements, jourTravaille, ferie)}
               aria-current={isToday(day) ? "date" : undefined}
               className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border text-small ${
-                isToday(day) ? "border-agenda" : "border-line"
+                isToday(day) ? "border-2 border-agenda font-bold" : "border-line"
               } ${inMonth ? "text-ink" : "text-ink-3"} ${jourTravaille ? "" : "bg-surface"}`}
               style={jourTravaille ? { backgroundColor: "var(--accent-planning-travail-soft)" } : undefined}
             >

@@ -1,5 +1,4 @@
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { screenTitle } from "@/lib/ui";
 
 export default function AgendaLoading() {
@@ -7,7 +6,7 @@ export default function AgendaLoading() {
     <div className="flex flex-col gap-4">
       <h1 className={screenTitle}>Agenda</h1>
       <Skeleton className="h-10 w-full rounded-2xl" />
-      <ListItemSkeletonGroup count={5} withSubtitle />
+      <Skeleton className="h-[55vh] w-full rounded-2xl" />
     </div>
   );
 }
