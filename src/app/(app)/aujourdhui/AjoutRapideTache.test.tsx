@@ -59,7 +59,7 @@ describe("AjoutRapideTache", () => {
     await user.click(screen.getByRole("button", { name: "Heure" }));
     await user.type(screen.getByLabelText("Heure"), "14:30");
     await user.type(screen.getByLabelText("Nouvelle tâche pour aujourd'hui"), "Dentiste");
-    await user.click(screen.getByRole("button", { name: "Ajouter" }));
+    await user.click(screen.getByRole("button", { name: "Ajouter la tâche" }));
 
     await waitFor(() => expect(onCreated).toHaveBeenCalledWith("t2"));
     expect(vi.mocked(createTache).mock.calls[0][1].get("heure")).toBe("14:30");

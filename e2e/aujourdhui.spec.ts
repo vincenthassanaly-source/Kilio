@@ -54,6 +54,8 @@ test("affiche l'événement, la tâche du jour et le résumé des repas", async 
 });
 
 test("ajoute un événement depuis la frise", async ({ page }) => {
+  // Horloge figée le matin : la frise reste déroulée (voir le test « soirée » ci-dessous).
+  await page.clock.setFixedTime(aujourdhuiParisA("07:00"));
   await page.goto("/aujourdhui");
   await page.getByRole("button", { name: "Événement", exact: true }).click();
 
@@ -109,4 +111,25 @@ test("planifie une tâche sans heure dans un créneau libre", async ({ page }) =
   await page.getByRole("button", { name: /^Annuler :/ }).click();
   expect((await annulation).ok()).toBe(true);
   await expect(page.getByRole("button", { name: "Planifier « Tâche e2e du jour »" })).toBeVisible();
+});
+
+// Audit « aujourdhui » : en soirée, sans rien de prévu à venir, la frise ne
+// montrerait que du vide : elle se replie en bandeau, dépliable à la demande.
+test("la frise se replie le soir quand il ne reste rien de prévu", async ({ page }) => {
+  await page.clock.setFixedTime(aujourdhuiParisA("22:00"));
+  await page.goto("/aujourdhui");
+
+  await expect(page.getByText(/Plus rien de prévu aujourd'hui/)).toBeVisible();
+  await expect(page.getByRole("region", { name: "Grille horaire du jour" })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Voir la frise" }).click();
+  await expect(page.getByRole("region", { name: "Grille horaire du jour" })).toBeVisible();
+});
+
+// Audit « aujourdhui » : deux boutons « Ajouter » identiques sur l'écran.
+test("les deux champs d'ajout ont un bouton au nom distinct", async ({ page }) => {
+  await page.clock.setFixedTime(aujourdhuiParisA("07:00"));
+  await page.goto("/aujourdhui");
+  await expect(page.getByRole("button", { name: "Ajouter", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Ajouter la tâche" })).toHaveCount(1);
 });

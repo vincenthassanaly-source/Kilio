@@ -62,7 +62,7 @@ function LigneRetard({ tache, today, compact }: { tache: TacheAvecRelations; tod
             type="button"
             aria-expanded={ouvert}
             aria-controls={idPuces}
-            aria-label={`Reporter « ${tache.titre} »`}
+            aria-label={`Choisir une date de report pour « ${tache.titre} »`}
             onClick={() => setOuvert((v) => !v)}
             className="relative shrink-0 text-small font-semibold text-kcal after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
           >
@@ -77,7 +77,7 @@ function LigneRetard({ tache, today, compact }: { tache: TacheAvecRelations; tod
           role="group"
           aria-label={`Reporter « ${tache.titre} »`}
         >
-          <span className="mr-0.5 text-ink-3" title="Reporter à">
+          <span aria-hidden className="mr-0.5 text-ink-3">
             {REPORT_ICON}
           </span>
           {CIBLES.map((cible) => (

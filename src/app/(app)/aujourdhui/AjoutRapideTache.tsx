@@ -122,6 +122,7 @@ export function AjoutRapideTache({
         </button>
         <button
           type="submit"
+          aria-label="Ajouter la tâche"
           disabled={enCours || titre.trim() === ""}
           className="min-h-11 shrink-0 rounded-2xl bg-kcal px-4 text-label font-semibold text-on-kcal transition-[opacity,transform] active:scale-[0.97] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >

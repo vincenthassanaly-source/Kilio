@@ -24,7 +24,7 @@ export function ToastHost() {
       role="status"
       aria-live="polite"
       className="pointer-events-none fixed inset-x-0 z-[60] flex flex-col items-center gap-2 px-4"
-      style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+      style={{ bottom: "calc(env(safe-area-inset-bottom) + 168px)" }}
     >
       <AnimatePresence>
         {items.map((toast) =>
