@@ -255,6 +255,10 @@
   /* Échelle typographique : remplace les text-[Npx] arbitraires (demi-pixels
      compris). Trois paliers de titre complètent l'échelle : titre de carte
      (17), chiffre-clé / titre de page secondaire (22), titre d'écran (28). */
+  /* text-xs et text-sm restent des noms courants du code : ils pointent sur
+     les paliers nommés (caption, label) au lieu de doubler l'échelle. */
+  --text-xs: 12px;
+  --text-sm: 14px;
   --text-micro: 11px;
   --text-caption: 12px;
   --text-small: 13px;

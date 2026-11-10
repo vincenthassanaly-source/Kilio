@@ -245,7 +245,8 @@ export function TachesView() {
     ]);
   }
 
-  const nbFiltresActifs = priorites.size + (ordre === "manuel" ? 0 : 1);
+  const nbFiltresActifs = priorites.size;
+  const trie = ordre !== "manuel";
 
   return (
     <>
@@ -328,7 +329,7 @@ export function TachesView() {
             aria-controls="taches-filtres"
             className={ghostButton}
           >
-            Filtres et tri
+            Filtres et tri{trie && <span className="ml-1 text-ink-3">· trié</span>}
             {nbFiltresActifs > 0 && (
               <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-kcal px-1.5 text-micro font-semibold text-on-kcal">
                 {nbFiltresActifs}
@@ -344,8 +345,9 @@ export function TachesView() {
             {selection ? "Terminer" : "Sélectionner"}
           </button>
         </div>
-        {filtresOuverts && (
-          <div id="taches-filtres" className="flex flex-col gap-2">
+        {/* Toujours dans le DOM (hidden) : aria-controls pointe vers un élément réel. */}
+        {(
+          <div id="taches-filtres" hidden={!filtresOuverts} className="flex flex-col gap-2">
             <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par priorité">
               {FILTRES_PRIORITE.map((f) => {
                 const actif = priorites.has(f.value);

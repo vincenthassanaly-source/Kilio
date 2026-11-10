@@ -8,7 +8,7 @@ import { deleteDocument, enregistrerApercuPdf, type DocumentAvecFichiers } from 
 import { genererApercuPdf } from "@/lib/pdf/apercuPdf";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, dangerButton, ghostButton, listCard, nameText, pillTag } from "@/lib/ui";
+import { card, dangerButton, ghostButton, listCard, nameText, pillTag, textButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { runAction } from "@/lib/actions/runAction";
 import { BoutonDescription } from "./BoutonDescription";
@@ -78,7 +78,7 @@ export function DocumentCard({
         <button
           type="button"
           onClick={() => setEditing(false)}
-          className="mt-2 text-sm text-ink-2 underline"
+          className={textButton}
         >
           Annuler
         </button>

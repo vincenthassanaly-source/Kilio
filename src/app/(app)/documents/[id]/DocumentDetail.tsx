@@ -6,7 +6,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { deleteDocument, type DocumentAvecFichiers } from "@/app/actions/documents";
 import { DocumentForm } from "../DocumentForm";
 import { ImageLightbox } from "@/components/ImageLightbox";
-import { card, dangerButton, errorText, ghostButton, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton, pillTag, primaryButton, secondaryButton, textButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { chargerFichiers, nomDeFichier, partager, peutPartager, telecharger } from "@/lib/documents/partage";
 import { BoutonDescription } from "../BoutonDescription";
@@ -87,7 +87,7 @@ export function DocumentDetail({
           categories={categories}
           onDone={() => setEditing(false)}
         />
-        <button type="button" onClick={() => setEditing(false)} className="mt-2 text-sm text-ink-2 underline">
+        <button type="button" onClick={() => setEditing(false)} className={textButton}>
           Annuler
         </button>
       </div>

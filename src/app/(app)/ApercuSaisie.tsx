@@ -91,7 +91,7 @@ function CarteElement({
               type="button"
               aria-pressed={e.type === t}
               onClick={() => changerType(t)}
-              className={`min-h-9 rounded-full px-3 text-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+              className={`min-h-11 rounded-full px-3 text-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                 e.type === t ? "bg-kcal text-on-kcal" : "text-ink-2"
               }`}
             >

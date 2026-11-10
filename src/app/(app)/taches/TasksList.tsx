@@ -123,7 +123,7 @@ const GRIP_ICON = (
 // Boutons de ligne des sous-tâches : zone de tap de 44 px de haut (au lieu
 // des glyphes nus d'environ 10×24 px relevés par l'audit), anneau de focus.
 const sousTacheBouton =
-  "flex h-11 w-9 shrink-0 items-center justify-center rounded-lg text-base disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-base disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
   const [isPending, startTransition] = useTransition();

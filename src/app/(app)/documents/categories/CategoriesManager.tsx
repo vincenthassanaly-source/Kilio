@@ -24,6 +24,7 @@ import {
   metaText,
   nameTextComplet,
   primaryButton,
+  textButton,
 } from "@/lib/ui";
 
 function libelleNombre(nb: number) {
@@ -127,7 +128,7 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
                 setErreur(null);
                 setMode("lecture");
               }}
-              className="text-sm text-ink-2 underline"
+              className={textButton}
             >
               Annuler
             </button>
@@ -180,7 +181,7 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
                 setErreur(null);
                 setMode("lecture");
               }}
-              className="text-sm text-ink-2 underline"
+              className={textButton}
             >
               Annuler
             </button>
