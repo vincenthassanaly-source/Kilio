@@ -1,0 +1,44 @@
+{
+ "nom": "cas-limites",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches",
+   "note": "ouvrir"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter une tâche\"]",
+   "note": "ouvrir le +"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Créer\"]",
+   "note": "titre vide"
+  },
+  {
+   "action": "screenshot",
+   "note": "erreur titre vide ?"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Titre\"]",
+   "valeur": "Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche ",
+   "note": "titre très long"
+  },
+  {
+   "action": "dblclick",
+   "cible": "role=button[name=\"Créer\"]",
+   "note": "double clic"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "screenshot",
+   "note": "liste avec titre long"
+  }
+ ]
+}

@@ -1,0 +1,52 @@
+{
+ "nom": "recherche-sombre",
+ "theme": "sombre",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Rechercher une tâche\"]",
+   "valeur": "zzzzintrouvable",
+   "note": "recherche sans résultat"
+  },
+  {
+   "action": "screenshot",
+   "note": "état vide recherche"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Rechercher une tâche\"]",
+   "valeur": ""
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Filtres et tri\"]"
+  },
+  {
+   "action": "screenshot",
+   "note": "filtres"
+  },
+  {
+   "action": "goto",
+   "url": "/taches/listes"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Ajouter une liste/i]"
+  },
+  {
+   "action": "screenshot",
+   "note": "ajout liste"
+  },
+  {
+   "action": "back"
+  },
+  {
+   "action": "screenshot",
+   "note": "retour arrière"
+  }
+ ]
+}
