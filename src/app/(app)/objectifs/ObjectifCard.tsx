@@ -120,8 +120,8 @@ function ObjectifCardBase({ objectif }: { objectif: Tables<"objectifs"> }) {
         <button
           type="button"
           disabled={deleteMutation.isPending}
-          onClick={() => {
-            if (!confirmDelete(`Supprimer l'objectif « ${objectif.titre} » ?`)) return;
+          onClick={async () => {
+            if (!(await confirmDelete(`Supprimer l'objectif « ${objectif.titre} » ?`))) return;
             deleteMutation.mutate();
           }}
           className={dangerButton}

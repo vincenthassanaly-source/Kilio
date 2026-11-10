@@ -119,8 +119,8 @@ export function DocumentDetail({
           <button
             type="button"
             disabled={isPending}
-            onClick={() => {
-              if (!confirmDelete(`Supprimer le document « ${document.nom} » ?`)) return;
+            onClick={async () => {
+              if (!(await confirmDelete(`Supprimer le document « ${document.nom} » ?`))) return;
               setError(null);
               startTransition(async () => {
                 try {

@@ -24,8 +24,8 @@ function TagRow({ tag }: { tag: Tables<"tags"> }) {
       <button
         type="button"
         disabled={isPending}
-        onClick={() => {
-          if (!confirmDelete(`Supprimer le tag « #${tag.nom} » ?`)) return;
+        onClick={async () => {
+          if (!(await confirmDelete(`Supprimer le tag « #${tag.nom} » ?`))) return;
           startTransition(async () => {
             await runAction(() => deleteTag(tag.id), { erreur: `Impossible de supprimer l'étiquette « ${tag.nom} ». Réessaie.` });
             queryClient.invalidateQueries({ queryKey: queryKeys.tags });

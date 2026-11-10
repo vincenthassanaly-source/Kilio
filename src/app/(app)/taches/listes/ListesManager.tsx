@@ -64,8 +64,8 @@ function ListeRow({
     });
   }
 
-  function handleDelete() {
-    if (!confirmDelete(messageSuppressionListe(liste.nom, compte.total, compte.faites))) return;
+  async function handleDelete() {
+    if (!(await confirmDelete(messageSuppressionListe(liste.nom, compte.total, compte.faites)))) return;
     setError(null);
     startTransition(async () => {
       try {
@@ -73,7 +73,7 @@ function ListeRow({
 
         if (resultat.confirmation) {
           const reel = resultat.confirmation;
-          if (!confirmDelete(messageSuppressionListe(liste.nom, reel.total, reel.faites))) return;
+          if (!(await confirmDelete(messageSuppressionListe(liste.nom, reel.total, reel.faites)))) return;
           resultat = await deleteListe(liste.id, true, reel.total);
           if (resultat.confirmation) {
             setError("Le contenu de la liste vient encore de changer : rien n'a été supprimé. Réessaie.");

@@ -35,6 +35,7 @@ import { card, dangerButton, errorText, ghostButton, input, label, metaText, nam
 import { AnimationVignette } from "../../AnimationExercice";
 import { ChampNombre } from "../../seance/ChampNombre";
 import { SelecteurExercices } from "../../seance/SelecteurExercices";
+import { BackLink } from "@/components/BackLink";
 
 const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance", vitesse_kmh: "vitesse" } as const;
 const REPOS_PAR_DEFAUT_AFFICHE_S = 90;
@@ -140,6 +141,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
 
   return (
     <div className="flex flex-col gap-4 pb-8">
+      <BackLink href="/musculation">Musculation</BackLink>
       <h1 className={screenTitle}>{initial ? "Modifier la routine" : "Nouvelle routine"}</h1>
 
       <div className={`${card} flex flex-col gap-3`}>

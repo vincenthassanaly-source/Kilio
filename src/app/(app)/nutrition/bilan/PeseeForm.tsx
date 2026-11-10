@@ -72,8 +72,8 @@ export function PeseeForm({ today, mesures, compact = false }: { today: string; 
     });
   }
 
-  function supprimer(mesure: Mesure) {
-    if (!confirmDelete(`Supprimer le relevé du ${libelleDate(mesure.date)} ?`)) return;
+  async function supprimer(mesure: Mesure) {
+    if (!(await confirmDelete(`Supprimer le relevé du ${libelleDate(mesure.date)} ?`))) return;
     startTransition(async () => {
       const resultat = await runAction(() => supprimerMesure(mesure.date));
       if (!resultat.ok) return;

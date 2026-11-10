@@ -154,8 +154,8 @@ export function DocumentCard({
         <button
           type="button"
           disabled={isPending}
-          onClick={() => {
-            if (!confirmDelete(`Supprimer le document « ${document.nom} » ?`)) return;
+          onClick={async () => {
+            if (!(await confirmDelete(`Supprimer le document « ${document.nom} » ?`))) return;
             // Contrat T1 : un échec Storage s'affiche en toast, pas error.tsx.
             startTransition(async () => {
               await runAction(() => deleteDocument(document.id), {

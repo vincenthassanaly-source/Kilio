@@ -102,8 +102,8 @@ function IngredientLine({
             <button
               type="button"
               disabled={isPending}
-              onClick={() => {
-                if (!confirmDelete(`Supprimer l'ingrédient « ${ingredient.aliment.nom} » ?`)) return;
+              onClick={async () => {
+                if (!(await confirmDelete(`Supprimer l'ingrédient « ${ingredient.aliment.nom} » ?`))) return;
                 setError(null);
                 startTransition(async () => {
                   try {

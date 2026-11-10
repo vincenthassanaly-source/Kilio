@@ -51,8 +51,8 @@ function EntryRow({ entry, onDelete }: { entry: JournalEntryView; onDelete: (id:
           </span>
           <button
             type="button"
-            onClick={() => {
-              if (!confirmDelete(`Supprimer « ${entry.label} » du journal ?`)) return;
+            onClick={async () => {
+              if (!(await confirmDelete(`Supprimer « ${entry.label} » du journal ?`))) return;
               onDelete(entry.id);
             }}
             // Empêche un tap imprécis sur ce petit bouton d'être lu comme un

@@ -109,8 +109,8 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
               <button
                 type="button"
                 disabled={isPending}
-                onClick={() => {
-                  if (!confirmDelete(`Supprimer l'étape ${index + 1} ?`)) return;
+                onClick={async () => {
+                  if (!(await confirmDelete(`Supprimer l'étape ${index + 1} ?`))) return;
                   setError(null);
                   startTransition(async () => {
                     try {

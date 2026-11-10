@@ -90,12 +90,12 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
     });
   }
 
-  function supprimer() {
+  async function supprimer() {
     const phrase =
       categorie.nb > 0
         ? `Supprimer la catégorie « ${categorie.nom} » ? Ses ${categorie.nb} document${categorie.nb > 1 ? "s" : ""} ne seront pas supprimés mais n'auront plus de catégorie.`
         : `Supprimer la catégorie « ${categorie.nom} » ?`;
-    if (!confirmDelete(phrase)) return;
+    if (!(await confirmDelete(phrase))) return;
     executer(() => supprimerCategorie(categorie.id));
   }
 

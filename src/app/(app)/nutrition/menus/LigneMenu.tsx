@@ -58,8 +58,8 @@ export function LigneMenu({ repas }: { repas: RepasPlanifie }) {
     });
   }
 
-  function retirer() {
-    if (!confirmDelete(`Retirer « ${repas.label} » du menu ?`)) return;
+  async function retirer() {
+    if (!(await confirmDelete(`Retirer « ${repas.label} » du menu ?`))) return;
     setRetire(true);
     startTransition(async () => {
       const resultat = await runAction(() => removeMenuEntry(repas.id));

@@ -94,8 +94,8 @@ export function ObjectifSuiviEtapes({
     });
   }
 
-  function handleSupprimer(etape: Tables<"objectif_etapes">) {
-    if (!confirmDelete(`Supprimer l'étape « ${etape.titre} » ?`)) return;
+  async function handleSupprimer(etape: Tables<"objectif_etapes">) {
+    if (!(await confirmDelete(`Supprimer l'étape « ${etape.titre} » ?`))) return;
     startTransition(async () => {
       try {
         await supprimerEtape(objectifId, etape.id);

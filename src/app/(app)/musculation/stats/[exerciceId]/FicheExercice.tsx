@@ -12,6 +12,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { card, metaText, screenTitle, sectionTitle, zoneTapPill } from "@/lib/ui";
 import { GraphiqueProgression } from "../GraphiqueProgression";
 import { ErrorInline } from "@/components/ErrorInline";
+import { BackLink } from "@/components/BackLink";
 
 const METRIQUES: { value: MetriqueProgression; label: string; titre: string }[] = [
   { value: "e1rm", label: "1RM estimé", titre: "1RM estimé par séance" },
@@ -69,6 +70,7 @@ export function FicheExercice({ exerciceId }: { exerciceId: string }) {
   return (
     <div className="flex flex-col gap-4 pb-8">
       <div className="flex flex-col gap-1">
+        <BackLink href="/musculation/stats">Statistiques</BackLink>
         <h1 className={screenTitle}>{exercice.nom}</h1>
         <p className={metaText}>
           {MUSCLE_LABELS[exercice.muscle]}

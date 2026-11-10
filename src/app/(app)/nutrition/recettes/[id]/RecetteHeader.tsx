@@ -61,8 +61,8 @@ export function RecetteHeader({
           <button
             type="button"
             disabled={isPending}
-            onClick={() => {
-              if (!confirmDelete(`Supprimer la recette « ${recette.nom} » ?`)) return;
+            onClick={async () => {
+              if (!(await confirmDelete(`Supprimer la recette « ${recette.nom} » ?`))) return;
               setError(null);
               startTransition(async () => {
                 try {

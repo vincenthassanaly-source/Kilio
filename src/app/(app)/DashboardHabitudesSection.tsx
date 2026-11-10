@@ -3,11 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { getHabitudesDuJour } from "@/app/actions/habitudes";
 import { queryKeys } from "@/lib/query/keys";
+import { ErrorInline } from "@/components/ErrorInline";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { DashboardHabitItem } from "./DashboardHabitItem";
 
 export function DashboardHabitudesSection({ today, className = "mt-4" }: { today: string; className?: string }) {
-  const { data: habitudes, isLoading } = useQuery({
+  const { data: habitudes, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.habitudes(today),
     queryFn: () => getHabitudesDuJour(today),
   });
@@ -26,6 +27,8 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
             <Skeleton key={i} className="h-[50px] w-[50px] shrink-0 rounded-full" />
           ))}
         </div>
+      ) : isError && !habitudes ? (
+        <ErrorInline message="Habitudes indisponibles pour le moment." retry={() => void refetch()} />
       ) : !habitudes || habitudes.length === 0 ? (
         <p className="px-0.5 text-label text-ink-2">Aucune habitude pour l&apos;instant.</p>
       ) : (

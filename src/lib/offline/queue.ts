@@ -70,6 +70,12 @@ export async function enqueueAction(module: string, actionName: string, payload:
   if (typeof window !== "undefined") window.dispatchEvent(new Event(EVENEMENT_FILE_AJOUT));
 }
 
+// Nombre d'actions encore en file (pour l'indicateur de connexion).
+export async function compterFileAttente(): Promise<number> {
+  const db = await preloadOfflineDb();
+  return db.pending_actions.count();
+}
+
 let flushing = false;
 
 export type ResultatFlush = { synced: number; abandoned: number; restantes: number };

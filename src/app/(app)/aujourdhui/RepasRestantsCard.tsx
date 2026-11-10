@@ -6,6 +6,7 @@ import { getResumeNutritionJour } from "@/app/actions/journal";
 import { queryKeys } from "@/lib/query/keys";
 import { repasRestants, type Restant } from "@/lib/aujourdhui/compute";
 import { card } from "@/lib/ui";
+import { ErrorInline } from "@/components/ErrorInline";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 
 function Macro({ lettre, restant }: { lettre: string; restant: Restant }) {
@@ -26,7 +27,7 @@ function Macro({ lettre, restant }: { lettre: string; restant: Restant }) {
  * que d'inventer une cible.
  */
 export function RepasRestantsCard({ today }: { today: string }) {
-  const { data: resume, isLoading } = useQuery({
+  const { data: resume, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.resumeNutrition(today),
     queryFn: () => getResumeNutritionJour(today),
   });
@@ -36,6 +37,14 @@ export function RepasRestantsCard({ today }: { today: string }) {
       <div className={`${card} flex flex-col gap-2`}>
         <Skeleton className="h-3.5 w-1/4" />
         <Skeleton className="h-5 w-1/2" />
+      </div>
+    );
+  }
+
+  if (isError && !resume) {
+    return (
+      <div className={card}>
+        <ErrorInline message="Repas indisponibles pour le moment." retry={() => void refetch()} />
       </div>
     );
   }

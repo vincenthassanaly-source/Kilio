@@ -8,6 +8,7 @@ import { getTachesAvecRelationsEnCache } from "@/lib/taches/cache";
 import { screenTitle } from "@/lib/ui";
 import { getToday } from "../today";
 import { RevueView } from "./RevueView";
+import { BackLink } from "@/components/BackLink";
 
 // Shell serveur : tâches et événements préchargés puis hydratés côté client,
 // sur les mêmes clés que Aujourd'hui et l'Agenda (cocher ou reporter ici met
@@ -37,6 +38,7 @@ export default async function RevuePage() {
   return (
     <div className="flex flex-col gap-4">
       <HydrationBoundary state={dehydrate(queryClient)}>
+        <BackLink href="/">Aujourd&apos;hui</BackLink>
         <h1 className={screenTitle}>Revue de la semaine</h1>
         <RevueView today={today} />
       </HydrationBoundary>
