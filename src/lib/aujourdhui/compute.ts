@@ -24,6 +24,25 @@ export function tachesDuJour<T extends AvecEcheance>(taches: readonly T[], today
     .sort((a, b) => (a.heure ?? "99:99").localeCompare(b.heure ?? "99:99"));
 }
 
+/**
+ * Premier élément horodaté (événement ou tâche) dont l'heure n'est pas passée.
+ * `maintenant` est en « HH:MM » (Paris) ; les heures reçues peuvent porter des
+ * secondes (« 14:30:00 »), on les tronque. Sans heure, un élément est ignoré.
+ */
+export function prochainElement(
+  elements: readonly { heure: string | null; titre: string }[],
+  maintenant: string
+): { heure: string; titre: string } | null {
+  let meilleur: { heure: string; titre: string } | null = null;
+  for (const e of elements) {
+    if (!e.heure) continue;
+    const heure = e.heure.slice(0, 5);
+    if (heure < maintenant) continue;
+    if (meilleur === null || heure < meilleur.heure) meilleur = { heure, titre: e.titre };
+  }
+  return meilleur;
+}
+
 /** « hier », « il y a 3 j » : retard d'une échéance passée. */
 export function libelleRetard(echeance: string, today: string): string {
   const jours = differenceInCalendarDays(parseISODate(today), parseISODate(echeance));

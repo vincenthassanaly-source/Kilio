@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { libelleRetard, plagesLibresDuJour, proposerCreneaux, repasRestants, tachesDuJour, tachesEnRetard } from "./compute";
+import { libelleRetard, plagesLibresDuJour, prochainElement, proposerCreneaux, repasRestants, tachesDuJour, tachesEnRetard } from "./compute";
 
 const t = (id: string, echeance: string | null, fait = false, heure: string | null = null) => ({
   id,
@@ -31,6 +31,32 @@ describe("tachesDuJour", () => {
   it("garde le jour, heure d'abord", () => {
     const liste = [t("a", "2026-10-04"), t("b", "2026-10-04", false, "14:00"), t("c", "2026-10-05"), t("d", "2026-10-04", false, "08:00")];
     expect(tachesDuJour(liste, "2026-10-04").map((x) => x.id)).toEqual(["d", "b", "a"]);
+  });
+});
+
+describe("prochainElement", () => {
+  const elements = [
+    { heure: "09:00:00", titre: "Rendez-vous" },
+    { heure: "14:30:00", titre: "Réunion" },
+    { heure: "18:00", titre: "Dîner" },
+    { heure: null, titre: "Sans heure" },
+  ];
+
+  it("prend le premier élément dont l'heure n'est pas passée, tâche ou événement", () => {
+    expect(prochainElement(elements, "10:30")).toEqual({ heure: "14:30", titre: "Réunion" });
+  });
+
+  it("ne dépend pas de l'ordre de la liste", () => {
+    expect(prochainElement([...elements].reverse(), "10:30")).toEqual({ heure: "14:30", titre: "Réunion" });
+  });
+
+  it("un élément qui commence maintenant compte encore", () => {
+    expect(prochainElement(elements, "14:30")).toEqual({ heure: "14:30", titre: "Réunion" });
+  });
+
+  it("ignore les éléments sans heure et renvoie null quand tout est passé", () => {
+    expect(prochainElement(elements, "18:01")).toBeNull();
+    expect(prochainElement([{ heure: null, titre: "x" }], "08:00")).toBeNull();
   });
 });
 
