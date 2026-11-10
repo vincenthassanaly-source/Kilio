@@ -103,7 +103,7 @@ function BottomNavSlot({
       }}
     >
       {active && <ActivePill reduceMotion={reduceMotion} />}
-      {item.icon(color)}
+      <span className="flex h-6 items-center justify-center">{item.icon(color)}</span>
       <span className="text-micro" style={{ color, fontWeight: active ? 700 : 500 }}>
         {item.label}
       </span>
@@ -191,7 +191,7 @@ export function BottomNav() {
           className="relative flex flex-col items-center gap-0.5 rounded-row px-3 py-[7px] transition-colors"
         >
           {plusActive && <ActivePill reduceMotion={reduceMotion} />}
-          {PLUS_ICON(plusActive ? "var(--accent-kcal)" : "var(--ink-3)")}
+          <span className="flex h-6 items-center justify-center">{PLUS_ICON(plusActive ? "var(--accent-kcal)" : "var(--ink-3)")}</span>
           <span
             className="text-micro"
             style={{ color: plusActive ? "var(--accent-kcal)" : "var(--ink-3)", fontWeight: plusActive ? 700 : 500 }}

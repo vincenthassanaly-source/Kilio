@@ -75,3 +75,42 @@ describe("TachesView : actualisation en échec (CLICK-PATH T03)", () => {
     expect(screen.queryByText("Impossible de charger les tâches.")).toBeNull();
   });
 });
+
+describe("TachesView : vue « À faire » et compteur de retard", () => {
+  const hier = new Date(Date.now() - 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Paris" });
+  const demain = new Date(Date.now() + 2 * 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Paris" });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getListes).mockResolvedValue([]);
+    vi.mocked(getTags).mockResolvedValue([]);
+    vi.mocked(getTachesAvecRelations).mockResolvedValue([
+      makeTache({ id: "a", titre: "Tâche du jour", echeance: aujourdhuiISO() }),
+      makeTache({ id: "b", titre: "Tâche en retard", echeance: hier }),
+      makeTache({ id: "c", titre: "Tâche future", echeance: demain }),
+    ]);
+  });
+
+  it("s'ouvre sur « À faire » : le retard et aujourd'hui, pas le futur, le retard d'abord", async () => {
+    monter(false);
+    expect(await screen.findByText(/Tâche du jour/)).toBeTruthy();
+    expect(screen.getByText(/Tâche en retard/)).toBeTruthy();
+    expect(screen.queryByText(/Tâche future/)).toBeNull();
+    const titres = screen.getAllByRole("button", { name: /\(modifier\)/ }).map((b) => b.textContent);
+    expect(titres[0]).toContain("Tâche en retard");
+  });
+
+  it("affiche le retard en badge sur le segment, sans l'écrire dans le libellé", async () => {
+    monter(false);
+    await screen.findByText(/Tâche du jour/);
+    const segment = screen.getByRole("button", { name: "Retard, 1" });
+    expect(segment.textContent).toBe("Retard1");
+  });
+
+  it("n'annonce jamais « Rien à faire » quand du retard existe : la vue le contient", async () => {
+    vi.mocked(getTachesAvecRelations).mockResolvedValue([makeTache({ id: "b", titre: "Tâche en retard", echeance: hier })]);
+    monter(false);
+    expect(await screen.findByText(/Tâche en retard/)).toBeTruthy();
+    expect(screen.queryByText("Rien à faire pour l’instant.")).toBeNull();
+  });
+});

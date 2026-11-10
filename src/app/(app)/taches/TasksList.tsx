@@ -541,6 +541,19 @@ export const TaskCard = memo(function TaskCard({
             : undefined
         }
       >
+        {reorderable && !selectionMode && (
+          <button
+            type="button"
+            className="relative -ml-1 -mr-2 mt-[-2px] flex h-11 w-8 shrink-0 items-center justify-center rounded-xl text-ink-2 after:absolute after:-inset-x-1 after:inset-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            style={{ touchAction: "none", WebkitTouchCallout: "none" }}
+            data-drag-handle
+            aria-label="Réordonner : glisser pour déplacer la tâche"
+            {...attributes}
+            {...listeners}
+          >
+            {GRIP_ICON}
+          </button>
+        )}
         {selectionMode ? (
           <CheckToggle
             checked={selected}
@@ -585,19 +598,6 @@ export const TaskCard = memo(function TaskCard({
                 <span aria-hidden="true">↻</span>
                 <span className="sr-only">Tâche récurrente</span>
               </span>
-            )}
-            {reorderable && !selectionMode && (
-              <button
-                type="button"
-                className="relative -my-1 -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
-                style={{ touchAction: "none", WebkitTouchCallout: "none" }}
-                data-drag-handle
-                aria-label="Réordonner : glisser pour déplacer la tâche"
-                {...attributes}
-                {...listeners}
-              >
-                {GRIP_ICON}
-              </button>
             )}
           </div>
 
