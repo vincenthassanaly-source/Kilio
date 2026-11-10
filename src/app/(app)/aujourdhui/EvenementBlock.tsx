@@ -13,6 +13,7 @@ export function EvenementBlock({
   zoom,
   position,
   compact = false,
+  sansTexte = false,
   onSelect,
 }: {
   evenement: Evenement;
@@ -21,6 +22,8 @@ export function EvenementBlock({
   // Vue Semaine : bloc compact (texte plus petit). Interactif si `onSelect`
   // est fourni ; le conteneur de la colonne n'est alors pas un <button>.
   compact?: boolean;
+  // Colonne trop étroite pour un texte lisible : le bloc ne garde que sa couleur.
+  sansTexte?: boolean;
   onSelect?: (evenement: Evenement) => void;
 }) {
   const style = getTacheBlockStyle(evenement, zoom);
@@ -57,12 +60,15 @@ export function EvenementBlock({
       // Le nom accessible commence par le texte visible (« 09:00 Titre ») : un
       // utilisateur de commande vocale doit pouvoir dire ce qu'il lit (WCAG 2.5.3).
       aria-label={`${heure} ${evenement.titre}, événement ${plage}. Modifier`}
+      title={`${heure} ${evenement.titre}`}
       className={`${className} ${zoneTap} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink`}
       style={blockStyle}
     >
-      <span className="block truncate" aria-hidden>
-        {heure} {evenement.titre}
-      </span>
+      {!sansTexte && (
+        <span className="block truncate" aria-hidden>
+          {heure} {evenement.titre}
+        </span>
+      )}
     </button>
   );
 }

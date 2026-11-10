@@ -52,6 +52,7 @@ export function TacheBlock({
   zoom,
   position,
   compact = false,
+  sansTexte = false,
   onSelect,
 }: {
   tache: TacheBlocInfo;
@@ -64,6 +65,9 @@ export function TacheBlock({
   // libellé affiché). Vue Jour (défaut) : bloc pleine taille avec la plage
   // horaire complète.
   compact?: boolean;
+  // Colonne trop étroite pour un texte lisible : le bloc ne garde que sa couleur
+  // (le nom accessible et l'infobulle portent le titre).
+  sansTexte?: boolean;
   // Tap = surbrillance + scroll vers la TaskCard en Jour ; en Semaine, ouvre
   // d'abord le jour de la tâche (cf. AgendaView.onSelectTache).
   onSelect?: (id: string) => void;
@@ -126,10 +130,13 @@ export function TacheBlock({
       className={`${classeBouton} ${zoneTap} text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
       style={blockStyle}
       aria-label={ariaLabel}
+      title={ariaLabel}
     >
-      <span className="block truncate" aria-hidden>
-        {displayLabel}
-      </span>
+      {!sansTexte && (
+        <span className="block truncate" aria-hidden>
+          {displayLabel}
+        </span>
+      )}
     </button>
   );
 }

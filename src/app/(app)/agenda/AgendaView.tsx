@@ -317,6 +317,10 @@ export function AgendaView() {
       if (e.key === "ArrowLeft") changerPeriode(-1);
       else if (e.key === "ArrowRight") changerPeriode(1);
       else if (e.key === "t") handleChangeDate(startOfToday());
+      else if (e.key === "j") setView("jour");
+      else if (e.key === "s") setView("semaine");
+      else if (e.key === "m") setView("mois");
+      else if (e.key === "l") setView("liste");
       else if (e.key === "n") {
         setMenuAjoutOpen(false);
         setFabOpen(true);
@@ -409,7 +413,7 @@ export function AgendaView() {
           type="button"
           onClick={() => setMenuAjoutOpen((v) => !v)}
           aria-label="Ajouter une tâche ou un événement"
-          title="Ajouter (n : tâche, e : événement)"
+          title="Ajouter (n : tâche, e : événement). Raccourcis : ←/→ période, t aujourd'hui, j/s/m/l vue"
           aria-keyshortcuts="n e"
           aria-expanded={menuAjoutOpen}
           aria-controls="agenda-choix-ajout"
