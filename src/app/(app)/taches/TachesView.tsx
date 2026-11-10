@@ -401,7 +401,7 @@ export function TachesView() {
           type="button"
           onClick={() => setFiltresOuverts(true)}
           aria-haspopup="dialog"
-          className={`${ghostButton} min-w-0 flex-1 justify-start text-left`}
+          className={`${ghostButton} min-w-0 justify-start text-left`}
         >
           <span className="block min-w-0 truncate">
             Filtres et tri
