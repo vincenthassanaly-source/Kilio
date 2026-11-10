@@ -15,7 +15,7 @@ import { BASE_HOUR_HEIGHT, GUTTER_WIDTH } from "./useAgendaZoom";
 // plutôt qu'un simple repère ponctuel : 30 min par défaut (cf.
 // getBlocInterval dans src/lib/agenda/compute.ts, seule source de vérité
 // pour ces bornes — aussi utilisée par layoutChevauchements).
-const MIN_BLOCK_HEIGHT = 18;
+const MIN_BLOCK_HEIGHT = 24;
 const GRID_START_HOUR = 6;
 // Hauteur réservée, identique pour toutes les colonnes (y compris la
 // gouttière), pour la bande "tâches sans heure" de WeekView — qu'il y ait ou

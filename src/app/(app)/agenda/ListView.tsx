@@ -22,6 +22,7 @@ export function ListView({
   listes,
   tags,
   onSelectEvenement,
+  fenetreEvenements,
 }: {
   taches: TacheAvecRelations[];
   evenements?: Evenement[];
@@ -29,6 +30,8 @@ export function ListView({
   onSelectEvenement?: (evenement: Evenement) => void;
   listes: Tables<"listes_taches">[];
   tags: Tables<"tags">[];
+  // Période couverte par `evenements` (dates ISO) : annoncée en bas de liste.
+  fenetreEvenements?: { debut: string; fin: string };
 }) {
   const [passesOuverts, setPassesOuverts] = useState(false);
   const aujourdhuiIso = toISODate(startOfToday());
@@ -71,7 +74,7 @@ export function ListView({
     return (
           <div key={iso} className="flex flex-col gap-2">
             <h2 className={sectionTitle}>
-              {iso === aujourdhuiIso ? "Aujourd’hui · " : ""}
+              {iso === aujourdhuiIso ? "Aujourd'hui · " : ""}
               {majusculePremiere(format(parseISODate(iso), "EEEE d MMMM yyyy", { locale: fr }))}
             </h2>
             {feries?.has(iso) && <FerieBadge nom={feries.get(iso)!} className="self-start" />}
@@ -145,6 +148,13 @@ export function ListView({
       )}
 
       <ArchivedTasksSection taches={archivees} listes={listes} tags={tags} />
+
+      {fenetreEvenements && (
+        <p className="text-center text-caption text-ink-2">
+          Événements affichés du {format(parseISODate(fenetreEvenements.debut), "d MMM", { locale: fr })} au{" "}
+          {format(parseISODate(fenetreEvenements.fin), "d MMM yyyy", { locale: fr })}.
+        </p>
+      )}
     </div>
   );
 }

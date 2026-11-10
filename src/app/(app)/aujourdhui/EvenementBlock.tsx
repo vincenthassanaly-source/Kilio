@@ -18,8 +18,8 @@ export function EvenementBlock({
   evenement: Evenement;
   zoom: number;
   position?: PositionColonne;
-  // Vue Semaine : bloc compact, non interactif (le tap y ouvre déjà le jour
-  // via le bouton parent ; un <button> imbriqué serait invalide en HTML).
+  // Vue Semaine : bloc compact (texte plus petit). Interactif si `onSelect`
+  // est fourni ; le conteneur de la colonne n'est alors pas un <button>.
   compact?: boolean;
   onSelect?: (evenement: Evenement) => void;
 }) {

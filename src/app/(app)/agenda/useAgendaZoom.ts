@@ -25,15 +25,21 @@ const WEEK_DAYS_COUNT = 7;
 export const MIN_ZOOM_FALLBACK = 0.35;
 const MAX_ZOOM = 2;
 
-const STORAGE_KEY = "kilio-agenda-zoom";
+// Jour et Semaine n'ont pas la même échelle utile : un zoom par vue, pour que
+// dézoomer la Semaine ne serre pas la grille Jour.
+export type VueZoom = "jour" | "semaine";
+const CLES_ZOOM: Record<VueZoom, string> = {
+  jour: "kilio-agenda-zoom",
+  semaine: "kilio-agenda-zoom-semaine",
+};
 
 function clampZoomAbsolute(zoom: number): number {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM_FALLBACK, zoom));
 }
 
-function readStoredZoom(): number {
+function readStoredZoom(cle: string): number {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(cle);
     const parsed = raw !== null ? Number(raw) : NaN;
     return Number.isFinite(parsed) ? clampZoomAbsolute(parsed) : DEFAULT_ZOOM;
   } catch {
@@ -75,13 +81,18 @@ export function computeMinZoomForWeekWidth(containerWidthPx: number): number {
 // appelle ce hook indépendamment ; pas besoin de le faire remonter en props.
 // `minZoom` permet à une vue (la Semaine, via computeMinZoomForWeekWidth)
 // d'imposer un plancher de zoom plus élevé que le plancher par défaut.
-export function useAgendaZoom({ minZoom = MIN_ZOOM_FALLBACK }: { minZoom?: number } = {}) {
+export function useAgendaZoom({
+  minZoom = MIN_ZOOM_FALLBACK,
+  vue = "jour",
+}: { minZoom?: number; vue?: VueZoom } = {}) {
+  const cle = CLES_ZOOM[vue];
+  const lireZoom = useCallback(() => readStoredZoom(cle), [cle]);
   // Valeur persistée, lue via useSyncExternalStore : getServerZoom() rend
   // un zoom 1 identique serveur/client au premier rendu (pas de mismatch
   // d'hydratation), puis React se resynchronise automatiquement sur la
   // vraie valeur localStorage juste après, sans passer par un effect qui
   // appellerait setState (évite les rendus en cascade).
-  const storedZoom = useSyncExternalStore(subscribeToStoredZoom, readStoredZoom, getServerZoom);
+  const storedZoom = useSyncExternalStore(subscribeToStoredZoom, lireZoom, getServerZoom);
 
   // Valeur "live" pendant un pinch en cours ; `null` = pas de geste actif,
   // on affiche alors storedZoom.
@@ -154,13 +165,13 @@ export function useAgendaZoom({ minZoom = MIN_ZOOM_FALLBACK }: { minZoom?: numbe
     const zoomFinal = pendingZoomRef.current ?? zoomRef.current;
     pendingZoomRef.current = null;
     try {
-      window.localStorage.setItem(STORAGE_KEY, String(zoomFinal));
+      window.localStorage.setItem(cle, String(zoomFinal));
     } catch {
       // Navigation privée / stockage désactivé : on ignore silencieusement,
       // le zoom reste seulement en mémoire pour cette session.
     }
     setLiveZoom(null);
-  }, []);
+  }, [cle]);
 
   return {
     zoom,

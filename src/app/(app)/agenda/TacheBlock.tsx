@@ -64,8 +64,8 @@ export function TacheBlock({
   // libellé affiché). Vue Jour (défaut) : bloc pleine taille avec la plage
   // horaire complète.
   compact?: boolean;
-  // Vue Jour uniquement : tap = surbrillance + scroll vers la TaskCard (cf.
-  // AgendaView.onSelectTache). Absent en Semaine, voir note ci-dessus.
+  // Tap = surbrillance + scroll vers la TaskCard en Jour ; en Semaine, ouvre
+  // d'abord le jour de la tâche (cf. AgendaView.onSelectTache).
   onSelect?: (id: string) => void;
 }) {
   const style = getTacheBlockStyle(tache, zoom);
@@ -113,11 +113,17 @@ export function TacheBlock({
     ? `${tache.titre}, de ${formatHeureHHMM(interval.start)} à ${formatHeureHHMM(interval.end)}, ${prioriteStyle.label}`
     : `${tache.titre}, ${prioriteStyle.label}`;
 
+  // Pas d'`overflow-hidden` sur le bouton (la troncature est portée par le
+  // <span>) : le pseudo-élément `after:` étend la zone de tap verticalement,
+  // un bloc de 30 min ne faisant sinon que 18 à 28 px de haut.
+  const classeBouton = className.replace("overflow-hidden ", "");
+  const zoneTap = "after:absolute after:inset-x-0 after:-inset-y-2";
+
   return (
     <button
       type="button"
       onClick={() => onSelect(tache.id)}
-      className={`${className} text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
+      className={`${classeBouton} ${zoneTap} text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
       style={blockStyle}
       aria-label={ariaLabel}
     >

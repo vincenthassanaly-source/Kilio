@@ -91,7 +91,7 @@ export function MonthView({
         onToday={() => onChangeDate(startOfToday())}
       />
 
-      <div className="grid grid-cols-7 gap-1 text-center text-micro font-semibold text-ink-2">
+      <div aria-hidden className="grid grid-cols-7 gap-1 text-center text-micro font-semibold text-ink-2">
         {WEEKDAY_LABELS.map((label, i) => (
           <span key={i}>{label}</span>
         ))}
