@@ -144,6 +144,7 @@ export function AddTaskForm({
   const prevPending = useRef(pending);
 
   const [titre, setTitre] = useState(tache?.titre ?? initial?.titre ?? "");
+  const [titreVide, setTitreVide] = useState(false);
   // Liste choisie (null tant que l'utilisateur n'a pas touché : la première
   // liste sert alors de repli, y compris si les listes arrivent après l'ouverture).
   const [listeChoisie, setListeChoisie] = useState<string | null>(tache?.liste_id ?? defaultListeId ?? null);
@@ -259,11 +260,7 @@ export function AddTaskForm({
   const envoyerDepuisTitre = useCallback(() => {
     const form = titreRef.current?.form;
     if (!form || pendingRef.current || submitLockRef.current) return;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    // Le verrou est posé par handleSubmit, que requestSubmit() déclenche.
+    // Le verrou et le contrôle du titre vide sont dans handleSubmit, que requestSubmit() déclenche.
     form.requestSubmit();
   }, []);
 
@@ -366,6 +363,13 @@ export function AddTaskForm({
   // vrai pendant l'action (dispatchActionState).
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // Titre vide : message en français sous le champ (plutôt que la bulle
+    // native du navigateur, en anglais selon sa langue), saisie conservée.
+    if (titre.trim() === "") {
+      setTitreVide(true);
+      titreRef.current?.focus();
+      return;
+    }
     // Jamais deux envois en même temps (double tap, Entrée + « Créer ») : le
     // verrou couvre l'intervalle avant que `pending` ne soit rendu à vrai.
     if (pendingRef.current || submitLockRef.current) return;
@@ -377,7 +381,7 @@ export function AddTaskForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
       {tache && <input type="hidden" name="id" value={tache.id} />}
       {tagIds.map((id) => (
         <input key={id} type="hidden" name="tag_ids" value={id} />
@@ -397,16 +401,26 @@ export function AddTaskForm({
         <textarea
           id={`${uid}-titre`}
           name="titre"
-          required
+          aria-required="true"
+          aria-invalid={titreVide || undefined}
+          aria-describedby={titreVide ? `${uid}-titre-erreur` : undefined}
           rows={1}
           ref={titreRef}
           value={titre}
-          onChange={(e) => setTitre(e.target.value)}
+          onChange={(e) => {
+            setTitre(e.target.value);
+            if (titreVide) setTitreVide(false);
+          }}
           onKeyDown={handleTitreKeyDown}
           onKeyUp={handleTitreKeyUp}
           enterKeyHint="done"
           className={`${input} resize-none overflow-y-auto max-h-40`}
         />
+        {titreVide && (
+          <p id={`${uid}-titre-erreur`} className={errorText} role="alert">
+            Donne un titre à la tâche.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1">

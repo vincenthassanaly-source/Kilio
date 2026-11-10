@@ -1,0 +1,61 @@
+{
+ "nom": "creer-cocher",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches",
+   "note": "ouvrir"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter une tâche\"]",
+   "note": "ouvrir le +"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Titre\"]",
+   "valeur": "Acheter du pain",
+   "note": "titre"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Créer\"]",
+   "note": "créer"
+  },
+  {
+   "action": "expect_absent",
+   "texte": "Enregistrement…",
+   "note": "attendre la fin de l'envoi"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Acheter du pain"
+  },
+  {
+   "action": "reload",
+   "note": "persistance"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Acheter du pain"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Marquer fait\"] >> nth=0",
+   "note": "cocher"
+  },
+  {
+   "action": "screenshot",
+   "note": "après coche"
+  },
+  {
+   "action": "reload",
+   "note": "persistance du coché"
+  },
+  {
+   "action": "screenshot",
+   "note": "état après reload"
+  }
+ ]
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "route": "/taches",
+    "dynamique": false,
+    "url": "/taches",
+    "theme": "clair",
+    "fichier": "taches.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/taches/listes",
+    "dynamique": false,
+    "url": "/taches/listes",
+    "theme": "clair",
+    "fichier": "taches_listes.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/taches",
+    "dynamique": false,
+    "url": "/taches",
+    "theme": "sombre",
+    "fichier": "taches.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/taches/listes",
+    "dynamique": false,
+    "url": "/taches/listes",
+    "theme": "sombre",
+    "fichier": "taches_listes.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]
