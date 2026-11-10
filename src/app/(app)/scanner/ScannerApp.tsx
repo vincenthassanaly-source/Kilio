@@ -42,7 +42,11 @@ function Miniature({ page, numero }: { page: PageBrouillon; numero: number }) {
 }
 
 export function ScannerApp() {
-  const [pages, setPages] = useState<PageBrouillon[]>([]);
+  const [pagesBrutes, setPages] = useState<PageBrouillon[]>([]);
+  // Pages supprimées pendant le délai du toast « Annuler » : masquées à l'affichage
+  // seulement, le brouillon local est relu tel quel (rien n'est encore effacé).
+  const [masquees, setMasquees] = useState<ReadonlySet<string>>(() => new Set());
+  const pages = pagesBrutes.filter((p) => !masquees.has(p.id));
   const [charge, setCharge] = useState(false);
   const [viseurOuvert, setViseurOuvert] = useState(false);
   /** Photos en attente de recadrage (la première est à l'écran). */
@@ -140,16 +144,23 @@ export function ScannerApp() {
   // recharge depuis le brouillon local (rien n'a encore été effacé), l'effacement
   // n'a lieu qu'à l'expiration du toast.
   function supprimer(id: string) {
+    const retirer = () =>
+      setMasquees((m) => {
+        const suivant = new Set(m);
+        suivant.delete(id);
+        return suivant;
+      });
     supprimerAvecAnnulation({
       texte: "Page supprimée",
       ariaLabel: "Annuler la suppression de la page",
-      masquer: () => setPages((courantes) => courantes.filter((p) => p.id !== id)),
-      restaurer: () => void recharger(),
+      masquer: () => setMasquees((m) => new Set(m).add(id)),
+      restaurer: retirer,
       supprimer: async () => {
         await supprimerPage(id);
         await recharger();
       },
       erreur: "Impossible de supprimer la page. Réessaie.",
+      onSupprime: retirer,
     });
   }
 

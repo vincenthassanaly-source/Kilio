@@ -7,7 +7,7 @@ import { CheckToggle } from "@/components/CheckToggle";
 import { showActionToast } from "@/components/toast/toast-store";
 import { vibrate } from "@/lib/haptics";
 import { runAction } from "@/lib/actions/runAction";
-import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { confirmDelete } from "@/lib/confirm";
 
 /** Un repas planifié, prêt à afficher (calculé côté serveur, voir MenusSemaine). */
 export type RepasPlanifie = {
@@ -58,15 +58,15 @@ export function LigneMenu({ repas }: { repas: RepasPlanifie }) {
     });
   }
 
-  // Retrait immédiat, annulable pendant le délai du toast : plus de dialogue.
-  function retirer() {
-    supprimerAvecAnnulation({
-      texte: `« ${repas.label} » retiré du menu`,
-      ariaLabel: `Annuler le retrait de « ${repas.label} » du menu`,
-      masquer: () => setRetire(true),
-      restaurer: () => setRetire(false),
-      supprimer: () => removeMenuEntry(repas.id),
-      erreur: `Impossible de retirer « ${repas.label} ». Réessaie.`,
+  // Avec confirmation, sans annulation différée : les totaux du jour et de la
+  // semaine sont calculés côté serveur sur les repas planifiés, et un repas
+  // seulement masqué fausserait ces chiffres pendant le délai.
+  async function retirer() {
+    if (!(await confirmDelete(`Retirer « ${repas.label} » du menu ?`))) return;
+    setRetire(true);
+    startTransition(async () => {
+      const resultat = await runAction(() => removeMenuEntry(repas.id));
+      if (!resultat.ok) setRetire(false);
     });
   }
 
