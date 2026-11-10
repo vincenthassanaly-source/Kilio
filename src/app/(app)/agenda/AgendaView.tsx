@@ -356,7 +356,7 @@ export function AgendaView() {
       )}
       <div
         data-masquer-saisie
-        className="fixed right-4 z-40 flex flex-col items-end gap-2"
+        className="fixed right-[max(1rem,calc(50%-20rem))] z-40 flex flex-col items-end gap-2"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
       >
         {menuAjoutOpen && (

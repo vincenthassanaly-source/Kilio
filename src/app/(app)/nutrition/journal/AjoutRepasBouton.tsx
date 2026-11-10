@@ -49,7 +49,7 @@ export function AjoutRepasBouton({ date, variante = "flottant" }: { date: string
           onFocus={prechargerPanneau}
           aria-haspopup="dialog"
           data-masquer-saisie
-          className="fixed right-4 z-40 flex h-14 items-center gap-2 rounded-full bg-kcal pl-4 pr-5 font-semibold text-on-kcal shadow-card transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          className="fixed right-[max(1rem,calc(50%-20rem))] z-40 flex h-14 items-center gap-2 rounded-full bg-kcal pl-4 pr-5 font-semibold text-on-kcal shadow-card transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">

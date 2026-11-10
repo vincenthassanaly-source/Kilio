@@ -53,7 +53,7 @@ export function BoutonRetourBarre({
             transition={{ duration: 0.15, ease: "easeOut" }}
             onClick={onClick}
             aria-label="Remonter aux filtres, aux thèmes et à la progression de lecture"
-            className="fixed right-4 z-30 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-card active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+            className="fixed right-[max(1rem,calc(50%-20rem))] z-30 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-card active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
             style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
           >
             <svg

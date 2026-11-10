@@ -154,7 +154,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           Chaque bouton réactive ses propres événements. */}
       <div
         data-masquer-saisie
-        className="pointer-events-none fixed right-4 z-40 flex flex-col-reverse items-center gap-3"
+        className="pointer-events-none fixed right-[max(1rem,calc(50%-20rem))] z-40 flex flex-col-reverse items-center gap-3"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)", viewTransitionName: "fab" }}
       >
         <button

@@ -165,8 +165,8 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
       return { previous };
     },
     onError: (_err, _vars, context) => {
+      // Pas de toast ici : l'échec est annoncé une fois par supprimerAvecAnnulation.
       if (context?.previous) queryClient.setQueryData(queryKeys.notes, context.previous);
-      showToast("Impossible de supprimer la note.");
     },
     onSettled: invalidate,
   });
