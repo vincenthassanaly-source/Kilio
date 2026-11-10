@@ -56,7 +56,8 @@ describe("TaskCard : annuler une suppression", () => {
     const confirmSpy = vi.spyOn(window, "confirm");
     monter();
 
-    await userEvent.click(screen.getByRole("button", { name: "Suppr." }));
+    await userEvent.click(screen.getByRole("button", { name: "Modifier « Appeler le dentiste »" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Supprimer" }));
 
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(screen.queryByText("Appeler le dentiste")).toBeNull();

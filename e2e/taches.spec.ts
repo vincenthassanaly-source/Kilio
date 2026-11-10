@@ -76,7 +76,8 @@ test("supprime une tâche, puis « Annuler » la rétablit sans l'effacer de la 
   const titre = nom("Ranger le garage");
   await creerTache(page, titre);
 
-  await ligne(page, titre).getByRole("button", { name: "Suppr." }).click();
+  await ligne(page, titre).getByRole("button", { name: `Modifier « ${titre} »` }).click();
+  await page.getByRole("button", { name: "Supprimer" }).click();
   await expect(page.getByText(`« ${titre} » supprimée`)).toBeVisible();
   await expect(ligne(page, titre)).toHaveCount(0);
 

@@ -7,13 +7,20 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   DndContext,
+  KeyboardSensor,
   PointerSensor,
   closestCenter,
   useSensor,
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
   annulerCochage,
@@ -30,11 +37,12 @@ import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Enums, Tables } from "@/lib/supabase/types";
-import { card, dangerButton, ghostButton, input, kcalPillTag, listCard, metaText, pillTag, zoneTapPill } from "@/lib/ui";
+import { card, dangerButton, input, listCard, metaText, pillTag, textButton, zoneTapPill } from "@/lib/ui";
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import type { ActionResult } from "@/lib/actions/result";
 import { libelleDuree } from "@/lib/taches/compute";
+import { aujourdhuiISO } from "@/lib/date/recurrence";
 import { masquerTaches, reafficherTaches, useTachesMasquees } from "@/lib/taches/masquees";
 import { CheckToggle } from "@/components/CheckToggle";
 import { ImageLightbox } from "@/components/ImageLightbox";
@@ -44,11 +52,19 @@ import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 
 const AddTaskForm = dynamic(() => import("./AddTaskForm").then((m) => m.AddTaskForm), { ssr: false });
 
-function formatEcheance(iso: string) {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString("fr-FR", {
+// Échéance en langage courant : « Aujourd'hui », « Demain », « Hier », puis
+// jour et mois (l'année n'apparaît que si elle diffère de l'année en cours).
+function formatEcheance(iso: string, aujourdhui: string = aujourdhuiISO()) {
+  const jour = new Date(`${iso}T00:00:00`);
+  const ref = new Date(`${aujourdhui}T00:00:00`);
+  const ecart = Math.round((jour.getTime() - ref.getTime()) / 86_400_000);
+  if (ecart === 0) return "Aujourd'hui";
+  if (ecart === 1) return "Demain";
+  if (ecart === -1) return "Hier";
+  return jour.toLocaleDateString("fr-FR", {
     day: "numeric",
-    month: "long",
-    year: "numeric",
+    month: "short",
+    ...(jour.getFullYear() !== ref.getFullYear() ? { year: "numeric" } : {}),
   });
 }
 
@@ -123,7 +139,7 @@ const GRIP_ICON = (
 // Boutons de ligne des sous-tâches : zone de tap de 44 px de haut (au lieu
 // des glyphes nus d'environ 10×24 px relevés par l'audit), anneau de focus.
 const sousTacheBouton =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-base disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-body disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
   const [isPending, startTransition] = useTransition();
@@ -240,12 +256,12 @@ function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
           aria-label="Nouvelle sous-tâche"
           name="sous-tache"
           autoComplete="off"
-          className={`${input} min-h-11 min-w-0 flex-1 py-2 text-base`}
+          className={`${input} min-h-11 min-w-0 flex-1 py-2`}
         />
         <button
           type="submit"
           disabled={isPending || !titre.trim()}
-          className="min-h-11 rounded-xl px-2 text-sm font-semibold text-kcal disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="min-h-11 rounded-xl px-2 text-label font-semibold text-kcal disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         >
           {isPending ? "Ajout…" : "Ajouter"}
         </button>
@@ -477,13 +493,21 @@ export const TaskCard = memo(function TaskCard({
               invalidateTaches();
             }}
           />
-          <button
-            type="button"
-            onClick={() => setEditing(false)}
-            className="mt-2 text-sm text-ink-2 underline"
-          >
-            Annuler
-          </button>
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <button type="button" onClick={() => setEditing(false)} className={textButton}>
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(false);
+                handleSupprimer();
+              }}
+              className={dangerButton}
+            >
+              Supprimer
+            </button>
+          </div>
         </motion.li>
       </AnimatePresence>
     );
@@ -524,15 +548,40 @@ export const TaskCard = memo(function TaskCard({
         )}
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex min-w-0 items-start justify-between gap-2">
-            <p
-              className={`min-w-0 flex-1 whitespace-normal break-words text-body font-semibold text-ink ${tache.fait ? "text-ink-2 line-through" : ""}`}
-            >
-              {tache.titre}
-            </p>
+            {selectionMode ? (
+              <p
+                className={`min-w-0 flex-1 whitespace-normal break-words text-body font-semibold text-ink ${tache.fait ? "text-ink-2 line-through" : ""}`}
+              >
+                {tache.titre}
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                aria-label={`Modifier « ${tache.titre} »`}
+                className={`min-w-0 flex-1 whitespace-normal break-words rounded-md text-left text-body font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${tache.fait ? "text-ink-2 line-through" : ""}`}
+              >
+                {tache.titre}
+              </button>
+            )}
             {tache.recurrence_frequence && (
               <span className="shrink-0 text-ink-2" title="Tâche récurrente">
-                ↻
+                <span aria-hidden="true">↻</span>
+                <span className="sr-only">Tâche récurrente</span>
               </span>
+            )}
+            {reorderable && !selectionMode && (
+              <button
+                type="button"
+                className="relative -my-1 -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                style={{ touchAction: "none", WebkitTouchCallout: "none" }}
+                data-drag-handle
+                aria-label="Réordonner : glisser pour déplacer la tâche"
+                {...attributes}
+                {...listeners}
+              >
+                {GRIP_ICON}
+              </button>
             )}
           </div>
 
@@ -555,9 +604,7 @@ export const TaskCard = memo(function TaskCard({
               </span>
             ) : null}
             {tache.programme_jour && (
-              <span className={kcalPillTag} title="Sera supprimée automatiquement si non cochée à la fin de la journée">
-                Tâche du jour
-              </span>
+              <span className={pillTag}>Tâche du jour</span>
             )}
             {tache.tags.map((tag) => (
               <span key={tag.id} className={pillTag} style={couleurStyle(tag.couleur)}>
@@ -578,12 +625,16 @@ export const TaskCard = memo(function TaskCard({
           </div>
 
           {tache.notes && (
-            <p className="whitespace-pre-wrap text-small text-ink-2">{tache.notes}</p>
+            <p className="line-clamp-2 whitespace-pre-wrap text-small text-ink-2">{tache.notes}</p>
+          )}
+
+          {tache.programme_jour && (
+            <span className={metaText}>Supprimée ce soir si elle n&apos;est pas cochée.</span>
           )}
 
           {tache.echeance && (
             <span className={metaText}>
-              Échéance : {formatEcheance(tache.echeance)}
+              {formatEcheance(tache.echeance)}
               {tache.heure &&
                 (tache.heure_fin
                   ? ` de ${tache.heure.slice(0, 5)} – ${tache.heure_fin.slice(0, 5)}`
@@ -596,35 +647,6 @@ export const TaskCard = memo(function TaskCard({
           {expanded && !selectionMode && <SousTachesList tache={tache} />}
         </div>
       </div>
-      {!selectionMode && (
-      <div className={`flex items-center gap-2 ${reorderable ? "justify-between" : "justify-end"}`}>
-        {reorderable && (
-          <button
-            type="button"
-            className="relative after:absolute after:-inset-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-2"
-            style={{ touchAction: "none", WebkitTouchCallout: "none" }}
-            data-drag-handle
-            aria-label="Réordonner : glisser pour déplacer la tâche"
-            {...attributes}
-            {...listeners}
-          >
-            {GRIP_ICON}
-          </button>
-        )}
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-            Modifier
-          </button>
-          <button
-            type="button"
-            onClick={handleSupprimer}
-            className={dangerButton}
-          >
-            Suppr.
-          </button>
-        </div>
-      </div>
-      )}
     </>
   );
 
@@ -703,7 +725,12 @@ export const TaskCard = memo(function TaskCard({
 // distinguer un tap normal d'un drag : un simple seuil de distance suffit
 // (la poignée ne fait rien d'autre).
 function useTaskDragSensors() {
-  return useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  return useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    // Réordonnancement au clavier : Espace pour saisir la poignée, flèches
+    // pour déplacer, Espace pour déposer.
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 }
 
 // Reproduit côté client les deux premières clés du tri serveur
@@ -812,6 +839,7 @@ export function TasksList({
   taches,
   listes,
   tags,
+  messageVide,
   reordonnable = false,
   highlightedId = null,
   selectionMode = false,
@@ -821,6 +849,9 @@ export function TasksList({
   taches: TacheAvecRelations[];
   listes: Tables<"listes_taches">[];
   tags: Tables<"tags">[];
+  // Texte de l'état vide propre à la vue active (filtre, jour, liste) ; repli
+  // générique si absent.
+  messageVide?: React.ReactNode;
   reordonnable?: boolean;
   // Mode sélection multiple (cf. TachesView) : cartes cochables, sans drag.
   selectionMode?: boolean;
@@ -834,7 +865,7 @@ export function TasksList({
   const visibles = taches.filter((tache) => !masquees.has(tache.id));
 
   if (visibles.length === 0) {
-    return <p className="text-ink-2">Aucune tâche pour l&apos;instant.</p>;
+    return <div className="py-6 text-center text-label text-ink-2">{messageVide ?? "Aucune tâche pour l’instant."}</div>;
   }
 
   const actives = visibles.filter((tache) => !tache.fait);
@@ -870,7 +901,7 @@ export function TasksList({
         ))}
       {archivees.length > 0 && (
         <details className={`${card} mt-2.5`}>
-          <summary className="cursor-pointer text-body font-semibold text-ink-2">
+          <summary className="flex min-h-11 cursor-pointer items-center rounded-xl text-body font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
             Tâches archivées ({archivees.length})
           </summary>
           <ul className="mt-2.5 flex flex-col gap-2.5">

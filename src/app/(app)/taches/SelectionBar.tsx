@@ -20,6 +20,9 @@ import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, ghostButton } from "@/lib/ui";
 import { LIBELLES_REPORT, useReporterTaches } from "./useReporterTaches";
 
+const linkButtonSel =
+  "relative inline-flex min-h-11 items-center rounded-xl px-2 text-label font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+
 const REPORTS = (Object.keys(LIBELLES_REPORT) as CibleReport[]).map((cible) => ({
   cible,
   label: LIBELLES_REPORT[cible],
@@ -39,12 +42,17 @@ export function SelectionBar({
   ids,
   taches,
   listes,
+  toutesLesIds,
+  onToutSelectionner,
   onDone,
 }: {
   ids: ReadonlySet<string>;
   taches: TacheAvecRelations[];
   listes: Tables<"listes_taches">[];
-  /** Quitte le mode sélection (après une action ou « Terminer »). */
+  /** Tâches actives affichées, pour « Tout sélectionner ». */
+  toutesLesIds: string[];
+  onToutSelectionner: (ids: string[]) => void;
+  /** Quitte le mode sélection (après une action ou « Fermer »). */
   onDone: () => void;
 }) {
   const queryClient = useQueryClient();
@@ -117,16 +125,23 @@ export function SelectionBar({
     <div
       role="toolbar"
       aria-label="Actions sur la sélection"
-      className="fixed inset-x-3 z-40 flex flex-col gap-2 rounded-2xl border border-line bg-surface p-3 shadow-card"
+      className="fixed inset-x-3 z-40 flex flex-col gap-2 rounded-2xl border border-line bg-surface p-3 shadow-float"
       style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
     >
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-ink" aria-live="polite">
+        <p className="text-label font-semibold text-ink" aria-live="polite">
           {vide ? "Aucune tâche sélectionnée" : pluriel(nombre) + (nombre > 1 ? " sélectionnées" : " sélectionnée")}
         </p>
-        <button type="button" onClick={onDone} className="text-sm font-semibold text-kcal">
-          Terminer
-        </button>
+        <div className="flex items-center">
+          {nombre < toutesLesIds.length && (
+            <button type="button" onClick={() => onToutSelectionner(toutesLesIds)} className={linkButtonSel}>
+              Tout sélectionner
+            </button>
+          )}
+          <button type="button" onClick={onDone} className={linkButtonSel}>
+            Fermer
+          </button>
+        </div>
       </div>
 
       {panneau === "reporter" && (
