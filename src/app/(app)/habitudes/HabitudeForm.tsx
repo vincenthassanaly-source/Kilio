@@ -95,6 +95,7 @@ export function HabitudeForm({
             id={`${uid}-frequence_hebdo`}
             name="frequence_hebdo"
             type="number"
+            inputMode="decimal"
             min="1"
             max="6"
             step="1"
@@ -127,6 +128,7 @@ export function HabitudeForm({
               id={`${uid}-valeur_cible`}
               name="valeur_cible"
               type="number"
+              inputMode="decimal"
               min="0"
               step="any"
               defaultValue={habitude?.valeur_cible ?? ""}

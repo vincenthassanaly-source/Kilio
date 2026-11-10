@@ -1,5 +1,6 @@
 "use client";
 
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ajouterPage,
@@ -135,9 +136,21 @@ export function ScannerApp() {
     setFile((f) => f.slice(1));
   }
 
-  async function supprimer(id: string) {
-    await supprimerPage(id);
-    await recharger();
+  // Suppression différée : la page disparaît tout de suite, « Annuler » la
+  // recharge depuis le brouillon local (rien n'a encore été effacé), l'effacement
+  // n'a lieu qu'à l'expiration du toast.
+  function supprimer(id: string) {
+    supprimerAvecAnnulation({
+      texte: "Page supprimée",
+      ariaLabel: "Annuler la suppression de la page",
+      masquer: () => setPages((courantes) => courantes.filter((p) => p.id !== id)),
+      restaurer: () => void recharger(),
+      supprimer: async () => {
+        await supprimerPage(id);
+        await recharger();
+      },
+      erreur: "Impossible de supprimer la page. Réessaie.",
+    });
   }
 
   async function vider() {

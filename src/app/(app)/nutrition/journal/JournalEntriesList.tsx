@@ -1,15 +1,14 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { removeJournalEntry } from "@/app/actions/journal";
-import { showToast } from "@/components/toast/toast-store";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { queryKeys } from "@/lib/query/keys";
 import type { Nutrition } from "@/lib/nutrition/compute";
 import type { Enums } from "@/lib/supabase/types";
 import { cardTight, dangerButton } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
 
 export type JournalEntryView = {
   id: string;
@@ -51,10 +50,7 @@ function EntryRow({ entry, onDelete }: { entry: JournalEntryView; onDelete: (id:
           </span>
           <button
             type="button"
-            onClick={async () => {
-              if (!(await confirmDelete(`Supprimer « ${entry.label} » du journal ?`))) return;
-              onDelete(entry.id);
-            }}
+            onClick={() => onDelete(entry.id)}
             // Empêche un tap imprécis sur ce petit bouton d'être lu comme un
             // swipe de changement de jour par JournalSwipeWrapper (le geste
             // ne bulle jamais jusqu'à son onTouchStart, voir
@@ -78,47 +74,47 @@ function EntryRow({ entry, onDelete }: { entry: JournalEntryView; onDelete: (id:
 // masquage immédiat de la ligne, réconcilié par les nouvelles props une fois
 // `removeJournalEntry` (qui appelle revalidatePath) effectivement résolue.
 export function JournalEntriesList({ entries }: { entries: JournalEntryView[] }) {
-  const [optimisticEntries, removeOptimistic] = useOptimistic(entries, (state, id: string) =>
-    state.filter((e) => e.id !== id)
-  );
-  const [, startTransition] = useTransition();
+  // Repas masqués le temps du toast « Annuler » (suppression différée).
+  const [masques, setMasques] = useState<ReadonlySet<string>>(() => new Set());
+  const visibles = entries.filter((e) => !masques.has(e.id));
   const queryClient = useQueryClient();
 
   function handleDelete(id: string) {
-    startTransition(async () => {
-      removeOptimistic(id);
-      const entry = entries.find((e) => e.id === id);
-      try {
-        await removeJournalEntry(id);
+    const entry = entries.find((e) => e.id === id);
+    const nom = entry ? `« ${entry.label} »` : "ce repas";
+    supprimerAvecAnnulation({
+      texte: `${nom} supprimé du journal`,
+      ariaLabel: `Annuler la suppression de ${nom}`,
+      masquer: () => setMasques((m) => new Set(m).add(id)),
+      restaurer: () =>
+        setMasques((m) => {
+          const suivant = new Set(m);
+          suivant.delete(id);
+          return suivant;
+        }),
+      supprimer: () => removeJournalEntry(id),
+      erreur: `Impossible de supprimer ${nom}. Réessaie.`,
+      onSupprime: () => {
         // Même invalidation que le chemin "ajout" (useAjoutRepasTermine) :
         // sans ça, la carte nutrition du dashboard et le catalogue
         // "Récents" continuent de compter ce repas jusqu'à 30s après sa
         // suppression (CLICK-PATH-202).
         queryClient.invalidateQueries({ queryKey: queryKeys.catalogueJournal });
         queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
-      } catch {
-        // Nomme l'élément et la marche à suivre (clarify.md : un échec doit
-        // dire quoi a échoué et comment récupérer) : la ligne réapparaît
-        // d'elle-même une fois `useOptimistic` retombé sur les props réelles
-        // (non rafraîchies puisque `revalidatePath` n'a pas été appelé côté
-        // serveur), donc retaper "Suppr." suffit à réessayer.
-        showToast(
-          entry ? `Impossible de supprimer « ${entry.label} ». Réessaie.` : "Impossible de supprimer ce repas. Réessaie."
-        );
-      }
+      },
     });
   }
 
-  if (optimisticEntries.length === 0) {
+  if (visibles.length === 0) {
     return <p className="text-ink-2">Aucun repas enregistré pour ce jour.</p>;
   }
 
   return (
     <div className="flex flex-col gap-3">
-      {MOMENT_ORDER.filter((m) => optimisticEntries.some((e) => e.moment === m)).map((moment) => (
+      {MOMENT_ORDER.filter((m) => visibles.some((e) => e.moment === m)).map((moment) => (
         <ul key={moment} className="flex flex-col gap-2.5">
           <AnimatePresence initial={false}>
-            {optimisticEntries
+            {visibles
               .filter((e) => e.moment === moment)
               .map((entry) => (
                 <EntryRow key={entry.id} entry={entry} onDelete={handleDelete} />

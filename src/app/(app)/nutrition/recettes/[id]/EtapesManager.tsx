@@ -36,6 +36,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 value={titre}
                 onChange={(e) => setTitre(e.target.value)}
                 placeholder="Titre (optionnel)"
+                aria-label="Titre de l'étape (optionnel)"
                 className={`text-sm ${input}`}
               />
               <textarea
@@ -43,6 +44,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 onChange={(e) => setConsigne(e.target.value)}
                 rows={3}
                 placeholder="Consigne"
+                aria-label="Consigne de l'étape"
                 className={`text-sm ${input}`}
               />
               <textarea
@@ -50,6 +52,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 onChange={(e) => setAstuce(e.target.value)}
                 rows={2}
                 placeholder="Astuce du chef (optionnel)"
+                aria-label="Astuce du chef (optionnel)"
                 className={`text-sm ${input}`}
               />
             </div>
@@ -151,8 +154,10 @@ function AddEtapeForm({ recetteId }: { recetteId: string }) {
       <input type="hidden" name="recette_id" value={recetteId} />
 
       <input name="titre" placeholder="Titre (optionnel, ex. Aux fourneaux !)" className={input} />
-      <textarea name="consigne" placeholder="Consigne" rows={3} required className={input} />
-      <textarea name="astuce" placeholder="Astuce du chef (optionnel)" rows={2} className={input} />
+      <textarea name="consigne" placeholder="Consigne"
+                aria-label="Consigne de l'étape" rows={3} required className={input} />
+      <textarea name="astuce" placeholder="Astuce du chef (optionnel)"
+                aria-label="Astuce du chef (optionnel)" rows={2} className={input} />
 
       {state.error && (
         <p className={errorText} role="alert">

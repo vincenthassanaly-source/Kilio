@@ -246,7 +246,10 @@ export function DocumentForm({
   // Le message d'erreur apparaît au-dessus du bouton, sous la barre de
   // navigation fixe : on le ramène dans la zone visible.
   useEffect(() => {
-    if (state.error) erreurRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    if (state.error) erreurRef.current?.scrollIntoView({
+        block: "center",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      });
   }, [state]);
 
   useEffect(() => {

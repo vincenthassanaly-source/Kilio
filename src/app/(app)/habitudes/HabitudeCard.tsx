@@ -3,6 +3,7 @@
 import { memo, useState, useTransition } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { enregistrerEntreeHabitude, supprimerHabitude, type HabitudeDuJour } from "@/app/actions/habitudes";
 import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";
@@ -10,7 +11,6 @@ import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { HabitudeForm } from "./HabitudeForm";
 import { ProgressRing } from "@/components/ProgressRing";
 import { card, dangerButton, ghostButton, input, listCard, metaText, nameText, pillTag } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
 import { vibrate } from "@/lib/haptics";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -18,6 +18,7 @@ import { CheckIcon, FlameIcon } from "@/components/icons";
 
 function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: string }) {
   const [editing, setEditing] = useState(false);
+  const [masquee, setMasquee] = useState(false);
   const reduceMotion = useReducedMotion() ?? false;
   const [isPending, startTransition] = useTransition();
   const valeurServeur = habitude.entreeDuJour ? String(habitude.entreeDuJour.valeur) : "";
@@ -141,22 +142,29 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
     });
   }
 
-  async function supprimer() {
-    if (!(await confirmDelete(`Supprimer l'habitude « ${habitude.nom} » ?`))) return;
-    startTransition(async () => {
-      try {
-        await supprimerHabitude(habitude.id);
-      } catch (err) {
-        if (!isNetworkError(err)) {
-          showErrorToast(`Impossible de supprimer « ${habitude.nom} ». Réessaie.`);
-          return;
+  // Suppression différée : l'habitude disparaît tout de suite, « Annuler » la
+  // ramène pendant le délai du toast, la Server Action ne part qu'ensuite.
+  function supprimer() {
+    supprimerAvecAnnulation({
+      texte: `Habitude « ${habitude.nom} » supprimée`,
+      ariaLabel: `Annuler la suppression de l'habitude « ${habitude.nom} »`,
+      masquer: () => setMasquee(true),
+      restaurer: () => setMasquee(false),
+      supprimer: async () => {
+        try {
+          await supprimerHabitude(habitude.id);
+        } catch (err) {
+          if (!isNetworkError(err)) throw err;
+          await enqueueAction("habitudes", "supprimerHabitude", [habitude.id, aujourdhuiParis()]);
+          showToast("Enregistré, sera synchronisé à la reconnexion");
         }
-        await enqueueAction("habitudes", "supprimerHabitude", [habitude.id, aujourdhuiParis()]);
-        showToast("Enregistré, sera synchronisé à la reconnexion");
-      }
-      invalidate();
+      },
+      erreur: `Impossible de supprimer « ${habitude.nom} ». Réessaie.`,
+      onSupprime: invalidate,
     });
   }
+
+  if (masquee) return null;
 
   return (
     <motion.li
@@ -218,6 +226,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
             <div className="flex flex-wrap items-center gap-2">
               <input
                 type="number"
+                inputMode="decimal"
                 min="0"
                 step="any"
                 aria-label={`Valeur de ${habitude.nom}`}

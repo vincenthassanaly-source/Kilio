@@ -106,6 +106,7 @@ export function RecetteForm({
             id={`${uid}-temps_prepa_min`}
             name="temps_prepa_min"
             type="number"
+            inputMode="decimal"
             min="0"
             step="1"
             defaultValue={recette?.temps_prepa_min ?? ""}
@@ -120,6 +121,7 @@ export function RecetteForm({
             id={`${uid}-portions`}
             name="portions"
             type="number"
+            inputMode="decimal"
             min="1"
             step="1"
             required
@@ -178,6 +180,7 @@ export function RecetteForm({
                     id={field.key}
                     name={field.key}
                     type="number"
+                    inputMode="decimal"
                     min="0"
                     step="0.1"
                     defaultValue={recette ? (recette[field.key] ?? "") : ""}

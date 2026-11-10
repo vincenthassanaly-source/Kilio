@@ -18,7 +18,7 @@ import {
   nameTextComplet,
   primaryButton,
 } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 
 type IngredientLibreRow = Tables<"recette_ingredients_libres">;
 
@@ -30,10 +30,13 @@ function IngredientLibreLine({
   recetteId: string;
 }) {
   const [editing, setEditing] = useState(false);
+  const [masque, setMasque] = useState(false);
   const [nom, setNom] = useState(ingredient.nom);
   const [quantite, setQuantite] = useState(ingredient.quantite ?? "");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  if (masque) return null;
 
   return (
     <li className={`${cardTight} flex flex-col gap-2`}>
@@ -103,15 +106,15 @@ function IngredientLibreLine({
             <button
               type="button"
               disabled={isPending}
-              onClick={async () => {
-                if (!(await confirmDelete(`Supprimer l'ingrédient « ${ingredient.nom} » ?`))) return;
+              onClick={() => {
                 setError(null);
-                startTransition(async () => {
-                  try {
-                    await removeIngredientLibre(ingredient.id, recetteId);
-                  } catch (e) {
-                    setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                  }
+                supprimerAvecAnnulation({
+                  texte: `Ingrédient « ${ingredient.nom} » supprimé`,
+                  ariaLabel: `Annuler la suppression de l'ingrédient « ${ingredient.nom} »`,
+                  masquer: () => setMasque(true),
+                  restaurer: () => setMasque(false),
+                  supprimer: () => removeIngredientLibre(ingredient.id, recetteId),
+                  erreur: `Impossible de supprimer « ${ingredient.nom} ». Réessaie.`,
                 });
               }}
               className={dangerButton}

@@ -26,13 +26,11 @@ export function IndicateurConnexion() {
       }
     }
     void actualiser();
-    const minuteur = window.setInterval(() => void actualiser(), INTERVALLE_MS);
     window.addEventListener("online", actualiser);
     window.addEventListener("offline", actualiser);
     window.addEventListener(EVENEMENT_FILE_AJOUT, actualiser);
     return () => {
       actif = false;
-      window.clearInterval(minuteur);
       window.removeEventListener("online", actualiser);
       window.removeEventListener("offline", actualiser);
       window.removeEventListener(EVENEMENT_FILE_AJOUT, actualiser);
@@ -40,6 +38,17 @@ export function IndicateurConnexion() {
   }, []);
 
   const visible = !enLigne || enAttente > 0;
+
+  // Tant que quelque chose attend (rejeu en cours, hors ligne), on suit la file
+  // à intervalle régulier ; sinon les évènements ci-dessus suffisent.
+  useEffect(() => {
+    if (!visible) return;
+    const minuteur = window.setInterval(() => {
+      setEnLigne(navigator.onLine);
+      void compterFileAttente().then(setEnAttente, () => {});
+    }, INTERVALLE_MS);
+    return () => window.clearInterval(minuteur);
+  }, [visible]);
   const attente = enAttente > 0 ? `${enAttente} en attente` : null;
   const texte = !enLigne ? (attente ? `Hors ligne · ${attente}` : "Hors ligne") : `${attente} de synchronisation`;
 
