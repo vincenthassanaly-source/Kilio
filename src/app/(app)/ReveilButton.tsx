@@ -93,7 +93,7 @@ export function ReveilButton() {
         onClick={ouvrir}
         aria-label="Calculer une heure de réveil"
         aria-haspopup="dialog"
-        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card transition active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-control-border bg-surface text-ink shadow-card transition active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         <AlarmIcon />
       </button>

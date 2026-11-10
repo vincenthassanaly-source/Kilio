@@ -13,6 +13,7 @@ import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE, progressionSemaine, type GroupeSemaine, type PastilleRoutine } from "@/lib/seances/compute";
 import { card } from "@/lib/ui";
+import { EntrainementBouton } from "./EntrainementBouton";
 
 function Coche({ faite }: { faite: boolean }) {
   return (
@@ -115,6 +116,12 @@ export function SeancesCard({ today }: { today: string }) {
         <span className="text-small font-semibold tabular-nums text-ink-2">
           {faites}/{total} faites
         </span>
+      </div>
+
+      {/* Jour d'entraînement : bascule ici, à portée du pouce, avec son libellé. */}
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-label text-ink-2">Aujourd&apos;hui est un jour d&apos;entraînement</span>
+        <EntrainementBouton today={today} />
       </div>
 
       {enCours && (

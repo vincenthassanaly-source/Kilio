@@ -152,6 +152,25 @@ export function AujourdhuiView({ today }: { today: string }) {
     });
   }
 
+  // Le dimanche, la revue sort du pli : c'est le jour où on la consulte.
+  const dimanche = parseISODate(today).getDay() === 0;
+  const revueCarte = (
+    <TransitionLink
+        href="/revue"
+        className={`${cardTight} flex min-h-11 items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+          dimanche ? "border-kcal/60" : ""
+        }`}
+      >
+        <span className="flex flex-col">
+          <span className="text-body font-semibold text-ink">Revue de la semaine</span>
+          <span className="text-small text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
+        </span>
+        <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </TransitionLink>
+  );
+
   return (
     <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
       {ferieDuJour && <FerieBadge nom={ferieDuJour} className="self-start" />}
@@ -199,6 +218,8 @@ export function AujourdhuiView({ today }: { today: string }) {
       {/* La pesée n'apparaît que lorsqu'elle est due (7 jours sans relevé). */}
       <PeseeCard today={today} />
 
+      {dimanche && revueCarte}
+
       {/* Le reste n'est pas ce qu'on consulte en premier : replié par défaut
           pour que l'écran se lise en trois secondes. */}
       <details className="group flex flex-col gap-4">
@@ -214,21 +235,7 @@ export function AujourdhuiView({ today }: { today: string }) {
 
           <JourLibreCard today={today} />
 
-          {/* Revue hebdomadaire : mise en avant le dimanche, accessible tous les jours. */}
-          <TransitionLink
-            href="/revue"
-            className={`${cardTight} flex min-h-11 items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
-              parseISODate(today).getDay() === 0 ? "border-kcal/60" : ""
-            }`}
-          >
-            <span className="flex flex-col">
-              <span className="text-body font-semibold text-ink">Revue de la semaine</span>
-              <span className="text-small text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
-            </span>
-            <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
-              <path d="M9 5l7 7-7 7" />
-            </svg>
-          </TransitionLink>
+          {!dimanche && revueCarte}
         </div>
       </details>
 

@@ -26,7 +26,7 @@ export const eyebrow = "text-small font-medium text-ink-3";
 const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 // 16 px (et non 15) : en dessous, iOS zoome la page au focus d'un champ (T15).
-export const input = `rounded-2xl border border-line bg-surface-alt px-3.5 py-2.5 text-base text-ink outline-none focus:border-kcal/60 transition-colors ${focusRing}`;
+export const input = `rounded-2xl border border-control-border bg-surface-alt px-3.5 py-2.5 text-base text-ink outline-none focus:border-kcal/60 transition-colors ${focusRing}`;
 export const label = "text-sm font-medium text-ink";
 export const errorText = "text-sm text-alert";
 

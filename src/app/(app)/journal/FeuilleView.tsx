@@ -12,6 +12,7 @@ import {
   type FeuilleVidage,
 } from "@/app/actions/vidage";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { Switch } from "@/components/Switch";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
@@ -353,21 +354,16 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
         </div>
       </div>
 
-      <div role="group" aria-label="Mode d'écriture" className="flex self-start rounded-xl border border-line p-0.5">
-        {(["stylo", "clavier"] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            aria-pressed={mode === m}
-            onClick={() => setMode(m)}
-            className={`min-h-11 rounded-[10px] px-5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
-              mode === m ? "bg-surface-alt text-ink" : "text-ink-2"
-            }`}
-          >
-            {m === "stylo" ? "Stylo" : "Clavier"}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        ariaLabel="Mode d'écriture"
+        className="self-start"
+        options={[
+          { value: "stylo", label: "Stylo" },
+          { value: "clavier", label: "Clavier" },
+        ]}
+        value={mode}
+        onChange={setMode}
+      />
 
       {mode === "clavier" ? (
         <SaisieClavier onAjouter={ajouterNote} />

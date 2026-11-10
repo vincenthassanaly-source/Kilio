@@ -144,7 +144,7 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - Ne jamais écrire `text-white` sur un fond d'accent : il échoue en thème sombre.
 
 ### Module Accents (optional)
-Chaque module a sa propre teinte identitaire (agenda `230`, habitudes `45`, courses `305`, objectifs `200`, collection `280`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent uniquement à colorer l'icône/l'identité de leur module dans la grille d'accueil et le sélecteur "Plus" ; elles ne remplacent jamais le vert Kcal comme couleur interactive à l'intérieur d'un module.
+Chaque module a sa propre teinte identitaire (agenda `230`, habitudes `45`, courses `305`, objectifs `200`, collection `280`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent uniquement à colorer l'icône/l'identité de leur module dans la grille "Plus" ; elles ne remplacent jamais le vert Kcal comme couleur interactive à l'intérieur d'un module.
 
 ### Note Tints (optional)
 Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavande`, `--note-ciel`, `--note-rose`, `--note-citron`, `--note-menthe`, `--note-argile`) réservées aux fonds de note du module Notes — hors périmètre du Carnet alimentaire, listées ici pour mémoire de complétude du système.
@@ -156,7 +156,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 
 ### Exceptions assumées
 Écarts volontaires aux règles ci-dessus, documentés pour ne pas être « corrigés » par erreur :
-- **Agenda** : le bleu `--accent-agenda` sert de couleur interactive **à l'intérieur de l'Agenda uniquement** (sélecteur Jour/Semaine/Mois glissant, FAB, anneau de focus des blocs, « Aujourd'hui »), avec `--on-agenda` pour le texte posé dessus. Motif : l'Agenda superpose tâches, planning de travail et créneaux, et le bleu y distingue l'action du contenu. Aucun autre module n'a cette exception.
+- **Agenda** : les contrôles (sélecteur Jour/Semaine/Mois glissant, FAB, anneau de focus, « Aujourd'hui ») sont en vert Kcal comme partout (One Accent Rule, ancienne exception retirée le 2026-11-10). Le bleu `--accent-agenda` reste l'identité du contenu : blocs d'événement (texte `--on-agenda`), repère de l'heure courante, points du mois, icône du module.
 - **Échelle de priorité des tâches** : les badges et blocs de priorité (basse / moyenne / haute) utilisent `agenda` / `carbs` / `alert` en **teinte de fond à 10-15 %**, toujours doublée d'un marqueur non chromatique (glyphe ou libellé). Ce sont des indicateurs passifs, jamais des contrôles ; le sélecteur de priorité, lui, est un contrôle segmenté standard (actif en vert Kcal).
 - **Barre de navigation** : les labels de la barre du bas sont en 11px (plancher du système).
 - **Journal** : teinte `--accent-vidage` (`oklch(0.55 0.14 250)`, identité du module et vignette du calendrier). L'écran d'écriture est **immersif** : pas de barre du bas, une barre d'outils flottante à sa place (stylo, gomme, 3 épaisseurs, annuler/rétablir, cibles 44 px). L'encre est `--ink` (suit clair/sombre) sur la surface, avec des lignes d'écriture `--line` ; les aperçus PNG du calendrier restent en encre sombre sur papier clair quel que soit le thème (image opaque).
