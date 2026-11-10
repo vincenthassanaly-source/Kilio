@@ -39,7 +39,7 @@ function MacroBar({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between">
-        <span className="text-xs font-semibold text-ink">{label}</span>
+        <span className="text-caption font-semibold text-ink">{label}</span>
         <span className={`flex items-center gap-1 text-caption tabular-nums ${texteClass}`}>
           {sev !== "ok" && (
             // Marqueur non-couleur du dépassement (en plus de la teinte) : un

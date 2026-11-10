@@ -73,6 +73,11 @@ export function ScoreDuJourCard({
         <h2 id="score-jour-titre" className={sectionTitle}>
           Score du jour
         </h2>
+        {score.pct >= 100 && (
+          <p role="status" className="kl-in text-label font-semibold text-kcal">
+            Journée bouclée.
+          </p>
+        )}
         <dl className="mt-1.5 flex flex-col gap-1">
           {score.lignes.map((ligne) => (
             <div key={ligne.domaine} className="flex items-baseline justify-between gap-3 text-label">

@@ -1,11 +1,14 @@
 import { Suspense } from "react";
-import { eyebrow } from "@/lib/ui";
 import { DashboardHeaderSkeleton } from "@/components/skeletons/DashboardSkeleton";
-import { GlobalSearchBar } from "./GlobalSearchBar";
-import { SaisieNaturelle } from "./SaisieNaturelle";
-import { DashboardView } from "./DashboardView";
-import { ReveilButton } from "./ReveilButton";
+import { Skeleton } from "@/components/skeletons/Skeleton";
+import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { screenTitle } from "@/lib/ui";
+import { AujourdhuiContenu } from "./aujourdhui/AujourdhuiContenu";
+import { EntrainementBouton } from "./aujourdhui/EntrainementBouton";
+import { GlobalSearchBar } from "./GlobalSearchBar";
+import { ReveilButton } from "./ReveilButton";
+import { SaisieNaturelle } from "./SaisieNaturelle";
 import { getToday } from "./today";
 
 function greeting(date: Date) {
@@ -25,39 +28,54 @@ async function DashboardHeader() {
 
   return (
     <header className="flex flex-col gap-0.5">
-      <p className={`${eyebrow} capitalize`}>{dateLabel}</p>
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="font-display text-display leading-[1.1] font-semibold tracking-[-0.03em] text-ink">{greeting(new Date())}</h1>
-      </div>
+      <p className="text-label font-medium text-ink-2 first-letter:uppercase">{dateLabel}</p>
+      <h1 className={screenTitle}>{greeting(new Date())}</h1>
     </header>
   );
 }
 
+async function BoutonEntrainement() {
+  return <EntrainementBouton today={await getToday()} />;
+}
+
+function ContenuSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Skeleton className="h-[116px] w-full rounded-card" />
+      <Skeleton className="h-[40vh] w-full rounded-2xl" />
+      <ListItemSkeletonGroup count={3} />
+    </div>
+  );
+}
+
 // Coquille statique (instantanée, y compris au chargement initial) : la
-// structure de la page, la barre de recherche et les skeletons de chaque
-// carte. Seuls l'en-tête daté et les cartes attendent la date du jour
-// (getToday) puis leur requête, chacun sous son propre <Suspense> :
-// chaque carte apparaît dès que SA requête est prête, sans attendre les
-// autres. Voir reports/2026-09-04-dashboard-streaming-par-section.md et
+// structure de la page, la barre de recherche et les skeletons. Seuls l'en-tête
+// daté, le bouton « jour d'entraînement » et le contenu du jour attendent la
+// date (getToday) puis leurs requêtes, chacun sous son propre <Suspense>.
+// Voir reports/2026-09-04-dashboard-streaming-par-section.md et
 // reports/2026-09-24-navigation-instantanee-cache-components.md.
-export default function DashboardPage() {
+export default function AujourdhuiPage() {
   return (
     <div data-testid="dashboard-shell" className="relative flex flex-col gap-4">
       <Suspense fallback={<DashboardHeaderSkeleton />}>
         <DashboardHeader />
       </Suspense>
-      {/* Dans la coquille statique (hors Suspense) : le bouton est là dès le
-          premier paint, aligné à droite sur la ligne date + « Bonjour » (sous
-          le ThemeToggle fixe, qui occupe la bande des 64 px du haut). */}
-      <div className="absolute right-0 top-1">
+      {/* Dans la coquille statique (hors Suspense) : les deux boutons sont là
+          dès le premier paint, alignés à droite de l'en-tête. */}
+      <div className="absolute right-0 top-0 flex items-start gap-2">
         <ReveilButton />
+        <Suspense fallback={<div className="h-11 w-11" aria-hidden />}>
+          <BoutonEntrainement />
+        </Suspense>
       </div>
 
       <GlobalSearchBar />
       <SaisieNaturelle />
 
       <PullToRefresh>
-        <DashboardView />
+        <Suspense fallback={<ContenuSkeleton />}>
+          <AujourdhuiContenu />
+        </Suspense>
       </PullToRefresh>
     </div>
   );

@@ -458,20 +458,18 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
 }
 
 /* Éléments fixes hors de la transition "root" (view-transition-name posé sur
-   la barre du bas, le bouton de thème et le bouton flottant) : sans ça, ils
+   la barre du bas et le bouton flottant) : sans ça, ils
    sont capturés dans l'instantané de la page, donc glissent avec elle et
    apparaissent en double (ancienne copie qui sort + nouvelle qui entre).
-   Barre du bas et thème : on masque l'ancienne image et on ne joue aucun
+   Barre du bas : on masque l'ancienne image et on ne joue aucun
    fondu sur la nouvelle, qui reste l'élément vivant (la pastille active de
    la barre s'anime alors normalement, en direct). Bouton flottant : fondu
    par défaut, utile quand il n'existe que sur l'une des deux pages. */
 ::view-transition-old(bottom-nav),
-::view-transition-old(theme-toggle),
 ::view-transition-old(seance-flottante) {
   display: none;
 }
 ::view-transition-new(bottom-nav),
-::view-transition-new(theme-toggle),
 ::view-transition-new(seance-flottante) {
   animation: none;
 }

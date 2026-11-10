@@ -39,7 +39,6 @@ export function PullToRefresh({
   // à décider d'un effet de bord (un updater doit rester pur).
   const distanceRef = useRef(0);
   const [pullDistance, setPullDistance] = useState(0);
-  const [isPulling, setIsPulling] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -51,7 +50,6 @@ export function PullToRefresh({
     if (!scrollParent || scrollParent.scrollTop > 0) return;
     startY.current = e.touches[0].clientY;
     pulling.current = true;
-    setIsPulling(true);
   }, [refreshing]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
@@ -70,7 +68,6 @@ export function PullToRefresh({
     if (!pulling.current) return;
     pulling.current = false;
     startY.current = null;
-    setIsPulling(false);
 
     if (distanceRef.current < PULL_THRESHOLD) {
       distanceRef.current = 0;
@@ -99,7 +96,6 @@ export function PullToRefresh({
     pulling.current = false;
     startY.current = null;
     distanceRef.current = 0;
-    setIsPulling(false);
     setPullDistance(0);
   }, []);
 
@@ -113,10 +109,7 @@ export function PullToRefresh({
     >
       <div
         className="flex items-center justify-center overflow-hidden"
-        style={{
-          height: pullDistance,
-          transition: isPulling ? "none" : "height var(--dur) var(--ease-out)",
-        }}
+        style={{ height: pullDistance }}
         aria-hidden={pullDistance === 0}
       >
         <div

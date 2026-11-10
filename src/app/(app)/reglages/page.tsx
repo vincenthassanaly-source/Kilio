@@ -32,16 +32,6 @@ function ProfilIcon() {
   );
 }
 
-function VersionIcon() {
-  return (
-    <svg {...INFO_ICON_PROPS}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 11v5.5" />
-      <circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
 function NavigationIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-kcal)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -113,15 +103,6 @@ export default async function ReglagesPage() {
               Profil
             </span>
             <span className="text-small font-medium text-ink-2">Vincent</span>
-          </div>
-          <div className="flex items-center justify-between gap-3 border-t border-line py-3.5">
-            <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-              <span className="text-ink-3">
-                <VersionIcon />
-              </span>
-              Version
-            </span>
-            <span className="text-small font-medium text-ink-3">0.1.0</span>
           </div>
         </div>
       </div>
