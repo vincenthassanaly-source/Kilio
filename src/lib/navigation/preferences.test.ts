@@ -11,7 +11,7 @@ vi.mock("next/cache", () => ({ cacheLife: mocks.cacheLife, cacheTag: mocks.cache
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: mocks.createAdminClient }));
 
 import { DEFAULT_MODULES_BARRE_BASSE, NAV_ITEMS } from "./registry";
-import { getPreferencesNavigationResolues, PREFERENCES_NAVIGATION_TAG } from "./preferences";
+import { getPreferencesNavigationResolues, PREFERENCES_NAVIGATION_TAG, resolveModulesBarreBasse } from "./preferences";
 
 const tousLesHrefs = NAV_ITEMS.map((i) => i.href);
 
@@ -85,5 +85,29 @@ describe("getPreferencesNavigationResolues", () => {
 
     expect(res.ordreGrillePlus).toEqual(tousLesHrefs);
     expect(mocks.cacheLife).toHaveBeenCalledWith("minutes");
+  });
+});
+
+describe("resolveModulesBarreBasse", () => {
+  it("n'affiche jamais deux fois le même module dans la barre", () => {
+    // Préférences d'avant la fusion : « /aujourdhui » en tête, « /taches » choisi
+    // en 3e position, 4e emplacement absent (le défaut « /taches » ferait doublon).
+    const res = resolveModulesBarreBasse(["/aujourdhui", "/agenda", "/taches"]);
+
+    expect(new Set(res).size).toBe(res.length);
+    expect(res.slice(0, 3)).toEqual(["/", "/agenda", "/taches"]);
+  });
+
+  it("garde les choix enregistrés quand ils sont valides et distincts", () => {
+    expect(resolveModulesBarreBasse(["/", "/agenda", "/nutrition", "/habitudes"])).toEqual([
+      "/",
+      "/agenda",
+      "/nutrition",
+      "/habitudes",
+    ]);
+  });
+
+  it("retombe sur les défauts quand rien n'est enregistré", () => {
+    expect(resolveModulesBarreBasse([])).toEqual([...DEFAULT_MODULES_BARRE_BASSE]);
   });
 });
