@@ -47,12 +47,13 @@ test("le formulaire de création n'enregistre rien sans titre", async ({ page })
   expect(await ecritures("taches", "POST")).toHaveLength(0);
 });
 
-test("annuler ferme le formulaire sans rien enregistrer", async ({ page }) => {
+test("fermer la feuille sans créer n'enregistre rien", async ({ page }) => {
   const titre = nom("Brouillon abandonné");
   await page.goto("/taches");
   await page.getByRole("button", { name: "Ajouter une tâche", exact: true }).click();
   await page.getByRole("textbox", { name: "Titre" }).fill(titre);
-  await page.getByRole("button", { name: "Annuler", exact: true }).click();
+  // Le formulaire s'ouvre dans la feuille du « + » : on la ferme par « Fermer ».
+  await page.getByRole("button", { name: "Fermer", exact: true }).click();
 
   await expect(page.getByRole("textbox", { name: "Titre" })).toHaveCount(0);
   await expect(ligne(page, titre)).toHaveCount(0);
