@@ -587,7 +587,7 @@ export const TaskCard = memo(function TaskCard({
                 id={`tache-titre-${tache.id}`}
                 type="button"
                 onClick={() => setEditing(true)}
-                className={`relative min-w-0 flex-1 whitespace-normal break-words rounded-md text-left text-body font-semibold text-ink after:absolute after:inset-x-0 after:-inset-y-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${tache.fait ? "text-ink-2 line-through" : ""}`}
+                className={`relative min-w-0 flex-1 whitespace-normal break-words line-clamp-3 rounded-md text-left text-body font-semibold text-ink after:absolute after:inset-x-0 after:-inset-y-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${tache.fait ? "text-ink-2 line-through" : ""}`}
               >
                 {tache.titre}
                 <span className="sr-only"> (modifier)</span>

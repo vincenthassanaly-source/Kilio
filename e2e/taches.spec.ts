@@ -42,8 +42,10 @@ test("le formulaire de création n'enregistre rien sans titre", async ({ page })
   await page.getByRole("button", { name: "Ajouter une tâche", exact: true }).click();
   await page.getByRole("button", { name: "Créer", exact: true }).click();
 
-  // Le titre est requis : le formulaire reste ouvert et rien n'est envoyé.
+  // Le titre est requis : le formulaire reste ouvert, un message en français
+  // s'affiche (pas la bulle native) et rien n'est envoyé.
   await expect(page.getByRole("textbox", { name: "Titre" })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "Donne un titre à la tâche." })).toBeVisible();
   expect(await ecritures("taches", "POST")).toHaveLength(0);
 });
 
@@ -100,4 +102,14 @@ test("filtre les tâches avec la recherche", async ({ page }) => {
 
   await recherche.fill("");
   await expect(ligne(page, rapport)).toBeVisible();
+});
+
+test("un titre très long est tronqué dans la liste, en entier à l'édition", async ({ page }) => {
+  const titre = nom(`Long ${"mot ".repeat(120)}`).trim();
+  await creerTache(page, titre);
+
+  const bouton = ligne(page, titre).getByRole("button", { name: /\(modifier\)/ });
+  const hauteur = await bouton.evaluate((el) => el.getBoundingClientRect().height);
+  const ligneHauteur = await bouton.evaluate((el) => parseFloat(getComputedStyle(el).lineHeight));
+  expect(hauteur).toBeLessThanOrEqual(ligneHauteur * 3 + 2);
 });
