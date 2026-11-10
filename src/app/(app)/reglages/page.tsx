@@ -92,6 +92,24 @@ export default async function ReglagesPage() {
         </div>
       </div>
 
+      <div className="flex flex-col gap-3">
+        <h2 className={sectionTitle}>Astuces</h2>
+        <ul className="flex flex-col gap-2.5 rounded-card border border-line bg-surface px-4 py-3.5 text-label leading-snug text-ink-2 shadow-card">
+          <li>
+            <strong className="font-semibold text-ink">Balayer</strong> l&apos;écran à gauche ou à droite pour passer d&apos;un onglet de la barre du bas à l&apos;autre.
+          </li>
+          <li>
+            <strong className="font-semibold text-ink">Appui long</strong> sur une tuile de « Plus » pour la réorganiser ou l&apos;épingler en barre du bas.
+          </li>
+          <li>
+            <strong className="font-semibold text-ink">« Ajoute… »</strong> sous la recherche : écris une phrase libre (« dentiste jeudi 14 h »), rien n&apos;est créé avant ta validation.
+          </li>
+          <li>
+            <strong className="font-semibold text-ink">Jour d&apos;entraînement</strong> : la bascule se trouve dans la carte Séances de l&apos;écran du jour.
+          </li>
+        </ul>
+      </div>
+
       <div className="flex flex-col gap-2.5">
         <h2 className={sectionTitle}>À propos</h2>
         <div className="rounded-card border border-line bg-surface px-4 shadow-card">

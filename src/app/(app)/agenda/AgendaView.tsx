@@ -341,8 +341,8 @@ export function AgendaView() {
         onClick={() => setFabOpen(true)}
         aria-label="Ajouter une tâche"
         data-masquer-saisie
-        className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full text-on-agenda shadow-card"
-        style={{ background: "var(--accent-agenda)", bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
+        className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
           <path d="M12 5v14M5 12h14" />
@@ -403,11 +403,11 @@ export function AgendaView() {
               {view === v.key && (
                 <motion.div
                   layoutId={AGENDA_VUE_ACTIVE_PILL}
-                  className="absolute inset-0 rounded-xl bg-agenda"
+                  className="absolute inset-0 rounded-xl bg-kcal"
                   transition={vuePillTransition(reduceMotion)}
                 />
               )}
-              <span className={`relative transition-colors ${view === v.key ? "text-on-agenda" : "text-ink-2"}`}>
+              <span className={`relative transition-colors ${view === v.key ? "text-on-kcal" : "text-ink-2"}`}>
                 {v.label}
               </span>
             </button>
@@ -417,7 +417,7 @@ export function AgendaView() {
           type="button"
           onClick={() => setEvenementForm({})}
           aria-label="Ajouter un événement"
-          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface px-3 text-small font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-agenda"
+          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface px-3 text-small font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />

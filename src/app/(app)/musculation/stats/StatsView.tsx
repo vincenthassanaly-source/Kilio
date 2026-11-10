@@ -37,7 +37,7 @@ function Tuile({ libelle, valeur }: { libelle: string; valeur: string }) {
   return (
     <div className={`${card} flex flex-col gap-0.5 !p-3.5`}>
       <span className={metaText}>{libelle}</span>
-      <span className="font-display text-[24px] font-semibold leading-tight tracking-[-0.02em] text-ink">{valeur}</span>
+      <span className="font-display text-heading font-semibold leading-tight tracking-[-0.02em] text-ink">{valeur}</span>
     </div>
   );
 }

@@ -38,7 +38,7 @@ export function PeriodHeader({
           <button
             type="button"
             onClick={onToday}
-            className="text-xs font-semibold text-agenda underline"
+            className="text-caption font-semibold text-kcal underline"
           >
             Aujourd&apos;hui
           </button>

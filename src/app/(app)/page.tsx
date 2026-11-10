@@ -5,7 +5,6 @@ import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { screenTitle } from "@/lib/ui";
 import { AujourdhuiContenu } from "./aujourdhui/AujourdhuiContenu";
-import { EntrainementBouton } from "./aujourdhui/EntrainementBouton";
 import { GlobalSearchBar } from "./GlobalSearchBar";
 import { ReveilButton } from "./ReveilButton";
 import { SaisieNaturelle } from "./SaisieNaturelle";
@@ -34,10 +33,6 @@ async function DashboardHeader() {
   );
 }
 
-async function BoutonEntrainement() {
-  return <EntrainementBouton today={await getToday()} />;
-}
-
 function ContenuSkeleton() {
   return (
     <div className="flex flex-col gap-4">
@@ -50,7 +45,7 @@ function ContenuSkeleton() {
 
 // Coquille statique (instantanée, y compris au chargement initial) : la
 // structure de la page, la barre de recherche et les skeletons. Seuls l'en-tête
-// daté, le bouton « jour d'entraînement » et le contenu du jour attendent la
+// daté et le contenu du jour attendent la
 // date (getToday) puis leurs requêtes, chacun sous son propre <Suspense>.
 // Voir reports/2026-09-04-dashboard-streaming-par-section.md et
 // reports/2026-09-24-navigation-instantanee-cache-components.md.
@@ -60,13 +55,10 @@ export default function AujourdhuiPage() {
       <Suspense fallback={<DashboardHeaderSkeleton />}>
         <DashboardHeader />
       </Suspense>
-      {/* Dans la coquille statique (hors Suspense) : les deux boutons sont là
-          dès le premier paint, alignés à droite de l'en-tête. */}
-      <div className="absolute right-0 top-0 flex items-start gap-2">
+      {/* Dans la coquille statique (hors Suspense) : le bouton est là dès le
+          premier paint, aligné à droite de l'en-tête. */}
+      <div className="absolute right-0 top-0">
         <ReveilButton />
-        <Suspense fallback={<div className="h-11 w-11" aria-hidden />}>
-          <BoutonEntrainement />
-        </Suspense>
       </div>
 
       <GlobalSearchBar />
