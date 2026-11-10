@@ -103,7 +103,9 @@ export function TabSwipeWrapper({ children }: { children: ReactNode }) {
         }}
         {...(actif ? swipeHandlers : {})}
       >
-        {children}
+        {/* Colonne centrée : sur tablette ou fenêtre large, le contenu ne s'étire pas
+            sur toute la largeur (la barre du bas est déjà centrée). */}
+        <div className="mx-auto w-full max-w-2xl">{children}</div>
       </main>
     </>
   );

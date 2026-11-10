@@ -15,7 +15,7 @@ export function ConfirmHost() {
   return (
     <ConfirmDialog
       open={demande !== null}
-      titre="Confirmer"
+      titre={`${demande?.confirmer ?? "Supprimer"} ?`}
       confirmer={demande?.confirmer ?? "Supprimer"}
       onConfirm={() => demande?.resoudre(true)}
       onClose={() => demande?.resoudre(false)}

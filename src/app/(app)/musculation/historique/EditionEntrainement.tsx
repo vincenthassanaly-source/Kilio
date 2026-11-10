@@ -26,6 +26,7 @@ import { card, errorText, input, label, nameText, primaryButton, screenTitle, se
 import { ExerciceBloc } from "../seance/ExerciceBloc";
 import { SelecteurExercices } from "../seance/SelecteurExercices";
 import { ErrorInline } from "@/components/ErrorInline";
+import { BackLink } from "@/components/BackLink";
 
 /** Toutes les séries d'une séance passée sont faites, horodatées au début de la séance. */
 function toutFait(b: Brouillon): Brouillon {
@@ -84,6 +85,9 @@ function Formulaire({ detail }: { detail: EntrainementDetail | null }) {
 
   return (
     <div className="flex flex-col gap-4 pb-8">
+      <BackLink href={detail ? `/musculation/historique/${detail.id}` : "/musculation/historique"}>
+        {detail ? "Séance" : "Historique"}
+      </BackLink>
       <h1 className={screenTitle}>{detail ? "Modifier la séance" : "Séance passée"}</h1>
 
       <div className={`${card} flex flex-col gap-3`}>

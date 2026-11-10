@@ -31,7 +31,10 @@ function Ligne({
 
   // Tap sur un bloc de la frise : la ligne correspondante est mise en vue.
   useEffect(() => {
-    if (surlignee) ref.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    if (surlignee) ref.current?.scrollIntoView({
+        block: "center",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      });
   }, [surlignee]);
 
   // Planifiable : une tâche à faire, sans heure (une tâche déjà horodatée a sa

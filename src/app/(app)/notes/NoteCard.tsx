@@ -12,6 +12,7 @@ import {
   toggleNoteItem,
   type NoteAvecRelations,
 } from "@/app/actions/notes";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
 import { showToast } from "@/components/toast/toast-store";
@@ -22,7 +23,6 @@ import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
 import { card, dangerButton, ghostButton, linkButton, nameText, pillTag, primaryButton } from "@/lib/ui";
 import { EtincelleIcon } from "@/components/EtincelleIcon";
-import { confirmDelete } from "@/lib/confirm";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 
@@ -183,11 +183,24 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
     void queryClient.invalidateQueries({ queryKey: queryKeys.taches });
   }
 
-  async function supprimer() {
-    if (!(await confirmDelete(`Supprimer la note « ${note.titre} » ?`))) return;
-    setMode("closed");
-    deleteMutation.mutate();
+  // Suppression différée : la note disparaît tout de suite, « Annuler » la
+  // ramène pendant le délai du toast, la Server Action ne part qu'ensuite.
+  const [masquee, setMasquee] = useState(false);
+  function supprimer() {
+    supprimerAvecAnnulation({
+      texte: `Note « ${note.titre} » supprimée`,
+      ariaLabel: `Annuler la suppression de la note « ${note.titre} »`,
+      masquer: () => {
+        setMode("closed");
+        setMasquee(true);
+      },
+      restaurer: () => setMasquee(false),
+      supprimer: () => deleteMutation.mutateAsync(),
+      erreur: `Impossible de supprimer la note « ${note.titre} ». Réessaie.`,
+    });
   }
+
+  if (masquee) return null;
 
   const itemsCoches = note.items.filter((i) => i.coche).length;
   const progression = note.items.length > 0 ? Math.round((itemsCoches / note.items.length) * 100) : 0;

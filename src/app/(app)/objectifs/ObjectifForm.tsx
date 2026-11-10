@@ -155,6 +155,7 @@ export function ObjectifForm({
               id={`${uid}-valeur_cible`}
               name="valeur_cible"
               type="number"
+              inputMode="decimal"
               min="0"
               step="any"
               defaultValue={objectif?.valeur_cible ?? ""}

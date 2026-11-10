@@ -346,43 +346,41 @@ export function TachesView() {
           </button>
         </div>
         {/* Toujours dans le DOM (hidden) : aria-controls pointe vers un élément réel. */}
-        {(
-          <div id="taches-filtres" hidden={!filtresOuverts} className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par priorité">
-              {FILTRES_PRIORITE.map((f) => {
-                const actif = priorites.has(f.value);
-                return (
-                  <button
-                    key={f.value}
-                    type="button"
-                    aria-pressed={actif}
-                    onClick={() => basculerPriorite(f.value)}
-                    className={`relative after:absolute after:inset-x-0 after:-inset-y-1.5 min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-small font-semibold transition-colors ${
-                      actif ? "border-kcal bg-kcal-soft text-ink" : "border-line bg-surface text-ink-2"
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                );
-              })}
-            </div>
-            <label className="flex min-w-0 items-center gap-2 text-small text-ink-2">
-              <span className="shrink-0">Trier</span>
-              <select
-                value={ordre}
-                onChange={(e) => setOrdre(e.target.value as OrdreTaches)}
-                aria-label="Trier les tâches"
-                className={`${input} min-h-11 min-w-0 py-1.5 text-small`}
-              >
-                {ORDRES.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+        <div id="taches-filtres" hidden={!filtresOuverts} className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par priorité">
+            {FILTRES_PRIORITE.map((f) => {
+              const actif = priorites.has(f.value);
+              return (
+                <button
+                  key={f.value}
+                  type="button"
+                  aria-pressed={actif}
+                  onClick={() => basculerPriorite(f.value)}
+                  className={`relative after:absolute after:inset-x-0 after:-inset-y-1.5 min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-small font-semibold transition-colors ${
+                    actif ? "border-kcal bg-kcal-soft text-ink" : "border-line bg-surface text-ink-2"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
           </div>
-        )}
+          <label className="flex min-w-0 items-center gap-2 text-small text-ink-2">
+            <span className="shrink-0">Trier</span>
+            <select
+              value={ordre}
+              onChange={(e) => setOrdre(e.target.value as OrdreTaches)}
+              aria-label="Trier les tâches"
+              className={`${input} min-h-11 min-w-0 py-1.5 text-small`}
+            >
+              {ORDRES.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
       </div>
 
       {!selection && (

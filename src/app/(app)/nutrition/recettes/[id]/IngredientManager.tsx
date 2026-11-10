@@ -18,7 +18,7 @@ import {
   nameTextComplet,
   primaryButton,
 } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 
 const UNITE_LABEL: Record<string, string> = { g: "g", ml: "ml", piece: "pièce" };
 
@@ -34,9 +34,12 @@ function IngredientLine({
   recetteId: string;
 }) {
   const [editing, setEditing] = useState(false);
+  const [masque, setMasque] = useState(false);
   const [quantite, setQuantite] = useState(String(ingredient.quantite));
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  if (masque) return null;
 
   return (
     <li className={`${cardTight} flex flex-col gap-2`}>
@@ -46,11 +49,13 @@ function IngredientLine({
           <div className="mt-1 flex items-center gap-2">
             <input
               type="number"
+              inputMode="decimal"
               step="0.1"
               min="0"
               value={quantite}
               onChange={(e) => setQuantite(e.target.value)}
-              className="w-24 rounded-lg border border-line px-2 py-1 text-sm text-ink"
+              aria-label={`Quantité de ${ingredient.aliment.nom}`}
+              className={`w-24 ${input}`}
             />
             <span className="text-sm text-ink-2">{UNITE_LABEL[ingredient.unite]}</span>
           </div>
@@ -102,15 +107,15 @@ function IngredientLine({
             <button
               type="button"
               disabled={isPending}
-              onClick={async () => {
-                if (!(await confirmDelete(`Supprimer l'ingrédient « ${ingredient.aliment.nom} » ?`))) return;
+              onClick={() => {
                 setError(null);
-                startTransition(async () => {
-                  try {
-                    await removeIngredient(ingredient.id, recetteId);
-                  } catch (e) {
-                    setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                  }
+                supprimerAvecAnnulation({
+                  texte: `Ingrédient « ${ingredient.aliment.nom} » supprimé`,
+                  ariaLabel: `Annuler la suppression de l'ingrédient « ${ingredient.aliment.nom} »`,
+                  masquer: () => setMasque(true),
+                  restaurer: () => setMasque(false),
+                  supprimer: () => removeIngredient(ingredient.id, recetteId),
+                  erreur: `Impossible de supprimer « ${ingredient.aliment.nom} ». Réessaie.`,
                 });
               }}
               className={dangerButton}
@@ -183,11 +188,13 @@ function AddIngredientForm({
         <input
           name="quantite"
           type="number"
+          inputMode="decimal"
           step="0.1"
           min="0"
           required
           disabled={!selected}
           placeholder={selected ? UNITE_LABEL[selected.unite] : "Quantité"}
+          aria-label="Quantité de l'ingrédient"
           className={`w-24 ${input}`}
         />
       </div>
