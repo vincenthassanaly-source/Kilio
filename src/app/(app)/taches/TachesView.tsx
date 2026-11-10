@@ -23,6 +23,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { msAvantMinuitParis } from "@/lib/date/paris";
 import { SelectionBar } from "./SelectionBar";
 import { TasksList } from "./TasksList";
+import { ListeSelect } from "./ListeSelect";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { errorText, ghostButton, input, primaryButton, textButton } from "@/lib/ui";
@@ -268,20 +269,11 @@ export function TachesView() {
     [taches, aujourdhui, listeId]
   );
   useBackClose(filtresOuverts, () => setFiltresOuverts(false));
-  // Chip actif ramené en vue à l'ouverture et à chaque changement de liste
-  // (la rangée défile : sans ça, « Toutes » pouvait rester hors cadre).
-  const rangeeListesRef = useCallback(
-    (el: HTMLDivElement | null) => {
-      el?.querySelector<HTMLElement>('[aria-pressed="true"]')?.scrollIntoView({ inline: "nearest", block: "nearest" });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [listeId]
-  );
   const listeActive = listeId !== "toutes" ? listes.find((l) => l.id === listeId) : undefined;
   // Résumé du filtre actif, visible même panneau replié : on voit tout de suite
-  // pourquoi la liste est plus courte que prévu.
+  // pourquoi la liste est plus courte que prévu. La liste, elle, a son propre
+  // sélecteur à côté.
   const resumeFiltres = [
-    listeActive ? listeActive.nom : null,
     nbFiltresActifs > 0 ? `${nbFiltresActifs} priorité${nbFiltresActifs > 1 ? "s" : ""}` : null,
     trie ? `trié par ${ORDRES.find((o) => o.value === ordre)?.label.toLowerCase()}` : null,
   ]
@@ -289,6 +281,9 @@ export function TachesView() {
     .join(" · ");
   const libelleVue = VUES.find((v) => v.key === vue)?.label ?? "";
   const filtresReinitialisables = listeId !== "toutes" || nbFiltresActifs > 0 || ordre !== "manuel";
+  // Les filtres de la modale (priorité, tri) seulement : la liste se change
+  // via son sélecteur.
+  const filtresModaleReinitialisables = nbFiltresActifs > 0 || ordre !== "manuel";
   function reinitialiserFiltres() {
     setListeId("toutes");
     setPriorites(new Set());
@@ -397,22 +392,25 @@ export function TachesView() {
       </p>
 
       <div className="flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() => setFiltresOuverts(true)}
-          aria-haspopup="dialog"
-          className={`${ghostButton} min-w-0 justify-start text-left`}
-        >
-          <span className="block min-w-0 truncate">
-            Filtres et tri
-            {nbFiltresActifs + (listeActive ? 1 : 0) + (trie ? 1 : 0) > 0 && (
-              <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-kcal px-1.5 text-micro font-semibold text-on-kcal">
-                {nbFiltresActifs + (listeActive ? 1 : 0) + (trie ? 1 : 0)}
-              </span>
-            )}
-            {resumeFiltres && <span className="ml-1 text-ink-3">· {resumeFiltres}</span>}
-          </span>
-        </button>
+        <div className="flex min-w-0 items-center gap-1">
+          <ListeSelect listes={listes} valeur={listeId} onChange={setListeId} />
+          <button
+            type="button"
+            onClick={() => setFiltresOuverts(true)}
+            aria-haspopup="dialog"
+            className={`${ghostButton} min-w-0 justify-start text-left`}
+          >
+            <span className="block min-w-0 truncate">
+              Filtres
+              {nbFiltresActifs + (trie ? 1 : 0) > 0 && (
+                <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-kcal px-1.5 text-micro font-semibold text-on-kcal">
+                  {nbFiltresActifs + (trie ? 1 : 0)}
+                </span>
+              )}
+              {resumeFiltres && <span className="ml-1 text-ink-3">· {resumeFiltres}</span>}
+            </span>
+          </button>
+        </div>
         <button
           type="button"
           onClick={() => (selection ? quitterSelection() : setSelection(true))}
@@ -427,38 +425,6 @@ export function TachesView() {
         {filtresOuverts && (
           <Modal key="filtres" title="Filtres et tri" onClose={() => history.back()}>
             <div className="flex flex-col gap-4 pb-2">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-small font-semibold text-ink-2">Liste</span>
-                <div
-                  ref={rangeeListesRef}
-                  className="flex snap-x items-center gap-2 overflow-x-auto pb-1 pr-6 [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent)]"
-                  data-swipe-ignore
-                  role="group"
-                  aria-label="Filtrer par liste"
-                >
-                  {[{ id: "toutes", nom: "Toutes", couleur: null as string | null }, ...listes].map((liste) => {
-                    const actif = listeId === liste.id;
-                    return (
-                      <button
-                        key={liste.id}
-                        type="button"
-                        aria-pressed={actif}
-                        onClick={() => setListeId(liste.id)}
-                        className={`${CHIP_FILTRE} snap-start ${actif ? CHIP_ACTIF : CHIP_INACTIF}`}
-                      >
-                        {liste.id !== "toutes" && (
-                          <span
-                            className="h-[9px] w-[9px] rounded-full"
-                            style={{ background: liste.couleur ?? "var(--ink-3)" }}
-                            aria-hidden="true"
-                          />
-                        )}
-                        <span>{liste.nom}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
               <div className="flex flex-col gap-1.5">
                 <span className="text-small font-semibold text-ink-2">Priorité</span>
                 <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer par priorité">
@@ -489,8 +455,15 @@ export function TachesView() {
                 />
               </div>
               <div className="flex items-center justify-between gap-3">
-                {filtresReinitialisables ? (
-                  <button type="button" onClick={reinitialiserFiltres} className={textButton}>
+                {filtresModaleReinitialisables ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPriorites(new Set());
+                      setOrdre("manuel");
+                    }}
+                    className={textButton}
+                  >
                     Réinitialiser
                   </button>
                 ) : (
