@@ -134,8 +134,14 @@ export function AgendaView() {
   // Événements du mois affiché, plus une semaine de marge de chaque côté (une
   // semaine à cheval sur deux mois reste complète). Les événements précédents
   // restent affichés pendant le chargement d'un autre mois.
-  const fenetreDebut = toISODate(addDays(startOfMonth(selectedDate), -7));
-  const fenetreFin = toISODate(addDays(endOfMonth(selectedDate), 7));
+  // La Liste couvre une fenêtre propre (30 jours passés, 90 à venir) : sans
+  // cela, les événements du mois suivant en seraient absents sans le dire.
+  const fenetreDebut =
+    view === "liste"
+      ? toISODate(addDays(startOfToday(), -30))
+      : toISODate(addDays(startOfMonth(selectedDate), -7));
+  const fenetreFin =
+    view === "liste" ? toISODate(addDays(startOfToday(), 90)) : toISODate(addDays(endOfMonth(selectedDate), 7));
   const {
     data: evenementsBruts = [],
     isError: evenementsError,
@@ -306,11 +312,18 @@ export function AgendaView() {
       const cible = e.target as HTMLElement | null;
       if (cible && (cible.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(cible.tagName))) return;
       if (fabOpen || evenementForm !== null || document.querySelector('[role="dialog"]')) return;
+      // Dans la grille (focalisable, défilante), les flèches servent au défilement.
+      if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && cible?.closest('[role="region"], [data-swipe-ignore]')) return;
       if (e.key === "ArrowLeft") changerPeriode(-1);
       else if (e.key === "ArrowRight") changerPeriode(1);
       else if (e.key === "t") handleChangeDate(startOfToday());
-      else if (e.key === "n") setFabOpen(true);
-      else if (e.key === "e") setEvenementForm({});
+      else if (e.key === "n") {
+        setMenuAjoutOpen(false);
+        setFabOpen(true);
+      } else if (e.key === "e") {
+        setMenuAjoutOpen(false);
+        setEvenementForm({});
+      }
       else return;
       e.preventDefault();
     }
@@ -396,6 +409,8 @@ export function AgendaView() {
           type="button"
           onClick={() => setMenuAjoutOpen((v) => !v)}
           aria-label="Ajouter une tâche ou un événement"
+          title="Ajouter (n : tâche, e : événement)"
+          aria-keyshortcuts="n e"
           aria-expanded={menuAjoutOpen}
           aria-controls="agenda-choix-ajout"
           className="flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
@@ -484,29 +499,27 @@ export function AgendaView() {
         )}
       </AnimatePresence>
 
-      <div className="flex items-center gap-2">
-        <div role="group" aria-label="Vue de l'agenda" className="flex flex-1 rounded-2xl border border-line bg-surface p-1">
-          {VIEWS.map((v) => (
-            <button
-              key={v.key}
-              type="button"
-              onClick={() => setView(v.key)}
-              aria-pressed={view === v.key}
-              className="relative flex-1 rounded-xl py-2 text-small font-semibold after:absolute after:inset-x-0 after:-inset-y-1"
-            >
-              {view === v.key && (
-                <motion.div
-                  layoutId={AGENDA_VUE_ACTIVE_PILL}
-                  className="absolute inset-0 rounded-xl bg-kcal"
-                  transition={vuePillTransition(reduceMotion)}
-                />
-              )}
-              <span className={`relative transition-colors ${view === v.key ? "text-on-kcal" : "text-ink-2"}`}>
-                {v.label}
-              </span>
-            </button>
-          ))}
-        </div>
+      <div role="group" aria-label="Vue de l'agenda" className="flex flex-1 rounded-2xl border border-line bg-surface p-1">
+        {VIEWS.map((v) => (
+          <button
+            key={v.key}
+            type="button"
+            onClick={() => setView(v.key)}
+            aria-pressed={view === v.key}
+            className="relative flex-1 rounded-xl py-2 text-small font-semibold after:absolute after:inset-x-0 after:-inset-y-1"
+          >
+            {view === v.key && (
+              <motion.div
+                layoutId={AGENDA_VUE_ACTIVE_PILL}
+                className="absolute inset-0 rounded-xl bg-kcal"
+                transition={vuePillTransition(reduceMotion)}
+              />
+            )}
+            <span className={`relative transition-colors ${view === v.key ? "text-on-kcal" : "text-ink-2"}`}>
+              {v.label}
+            </span>
+          </button>
+        ))}
       </div>
 
       {evenementsError && (
@@ -567,6 +580,11 @@ export function AgendaView() {
                     selectedDate={selectedDate}
                     onChangeDate={handleChangeDate}
                     onSelectDay={selectDay}
+                    onSelectEvenement={(evenement) => setEvenementForm({ evenement })}
+                    onSelectTache={(id, jour) => {
+                      selectDay(jour);
+                      handleSelectTache(id);
+                    }}
                   />
                 )}
                 {view === "mois" && (
@@ -591,6 +609,7 @@ export function AgendaView() {
               listes={listes}
               tags={tags}
               onSelectEvenement={(evenement) => setEvenementForm({ evenement })}
+              fenetreEvenements={{ debut: fenetreDebut, fin: fenetreFin }}
             />}
         </>
       )}

@@ -68,6 +68,8 @@ export function WeekView({
   selectedDate,
   onChangeDate,
   onSelectDay,
+  onSelectEvenement,
+  onSelectTache,
 }: {
   taches: Tache[];
   creneaux: Tables<"horaires_travail_creneaux">[];
@@ -77,6 +79,9 @@ export function WeekView({
   selectedDate: Date;
   onChangeDate: (date: Date) => void;
   onSelectDay: (date: Date) => void;
+  // Tap sur un bloc : ouvre l'événement, ou le jour de la tâche avec sa carte en surbrillance.
+  onSelectEvenement?: (evenement: Evenement) => void;
+  onSelectTache?: (id: string, jour: Date) => void;
 }) {
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
@@ -143,7 +148,7 @@ export function WeekView({
   const minZoom =
     containerWidth !== null ? computeMinZoomForWeekWidth(containerWidth) : MIN_ZOOM_FALLBACK;
 
-  const { zoom, touchHandlers } = useAgendaZoom({ minZoom });
+  const { zoom, touchHandlers } = useAgendaZoom({ minZoom, vue: "semaine" });
   const dayColumnWidth = BASE_DAY_COLUMN_WIDTH * zoom;
 
   const creneauxSelectedJour = getCreneauxDuJour(creneaux, selectedDate, exceptions);
@@ -221,8 +226,8 @@ export function WeekView({
                     )}
                   </button>
 
-                  {/* Bande et grille : doublons tactiles du bouton d'en-tête, qui reste
-                      le seul arrêt de tabulation de la colonne. */}
+                  {/* Bande : doublon tactile du bouton d'en-tête, qui reste l'arrêt de
+                      tabulation du jour ; les blocs de la grille sont de vrais boutons. */}
                   <button
                     type="button"
                     tabIndex={-1}
@@ -270,11 +275,11 @@ export function WeekView({
                     )}
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => onSelectDay(day)}
-                    tabIndex={-1}
-                    aria-hidden
+                  <div
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest("button")) return;
+                      onSelectDay(day);
+                    }}
                     className="relative block w-full text-left"
                     style={{ height: gridHeight(zoom) }}
                   >
@@ -282,12 +287,26 @@ export function WeekView({
                     <WorkHoursBand creneaux={creneauxJour} zoom={zoom} />
                     {isToday(day) && <NowLine zoom={zoom} />}
                     {dayEvenements.map((e) => (
-                      <EvenementBlock key={e.id} evenement={e} zoom={zoom} position={positions.get(e.id)} compact />
+                      <EvenementBlock
+                        key={e.id}
+                        evenement={e}
+                        zoom={zoom}
+                        position={positions.get(e.id)}
+                        compact
+                        onSelect={onSelectEvenement}
+                      />
                     ))}
                     {dayTachesAvecHeure.map((t) => (
-                      <TacheBlock key={t.id} tache={t} zoom={zoom} position={positions.get(t.id)} compact />
+                      <TacheBlock
+                        key={t.id}
+                        tache={t}
+                        zoom={zoom}
+                        position={positions.get(t.id)}
+                        compact
+                        onSelect={onSelectTache ? (id) => onSelectTache(id, day) : undefined}
+                      />
                     ))}
-                  </button>
+                  </div>
                 </div>
               );
             })}
