@@ -64,7 +64,7 @@ function ImageThumb({
         disabled={disabled}
         onClick={onRemove}
         aria-label={removeLabel}
-        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-alert text-micro font-bold text-on-accent disabled:opacity-60"
+        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-alert text-micro font-bold text-on-accent after:absolute after:-inset-3 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
       >
         ×
       </button>
@@ -431,7 +431,7 @@ export function AddTaskForm({
             type="button"
             onClick={definirEcheanceAujourdhui}
             aria-label="Définir l'échéance à aujourd'hui"
-            className={`${secondaryButton} min-h-11 shrink-0 text-sm`}
+            className={`${secondaryButton} min-h-11 shrink-0 text-label`}
           >
             Aujourd&apos;hui
           </button>
@@ -450,8 +450,8 @@ export function AddTaskForm({
       >
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl py-1 text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
           <span className="flex flex-col">
-            <span className="text-sm font-medium">Plus d&apos;options</span>
-            <span className="text-xs text-ink-2">Heure, rappel, notes, images…</span>
+            <span className="text-label font-medium">Plus d&apos;options</span>
+            <span className="text-caption text-ink-2">Heure, rappel, notes, images…</span>
           </span>
           <span className="shrink-0 text-ink-2 transition-transform group-open:rotate-180 motion-reduce:transition-none">
             <ChevronIcon />
@@ -550,7 +550,7 @@ export function AddTaskForm({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="flex items-center gap-2 text-sm font-medium text-ink">
+            <label className="flex min-h-11 items-center gap-2 text-label font-medium text-ink">
               <input
                 type="checkbox"
                 name="programme_jour"
@@ -560,7 +560,7 @@ export function AddTaskForm({
               />
               Tâche du jour
             </label>
-            <p className="text-xs text-ink-2">
+            <p className="text-caption text-ink-2">
               Sera supprimée automatiquement si non cochée à la fin de la journée.
             </p>
           </div>
@@ -652,7 +652,7 @@ export function AddTaskForm({
             </select>
           </div>
 
-          <label className="flex items-center gap-2 text-sm font-medium text-ink">
+          <label className="flex min-h-11 items-center gap-2 text-label font-medium text-ink">
             <input
               type="checkbox"
               name="toute_la_journee"
@@ -680,7 +680,7 @@ export function AddTaskForm({
                     key={tag.id}
                     type="button"
                     onClick={() => toggleTag(tag.id)}
-                    className={`rounded-full px-2.5 py-1 text-caption font-semibold transition-colors ${
+                    className={`relative inline-flex min-h-9 items-center rounded-full px-3 text-caption font-semibold transition-colors after:absolute after:inset-x-0 after:-inset-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                       tagIds.includes(tag.id) ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                     }`}
                   >
@@ -751,7 +751,7 @@ export function AddTaskForm({
           </p>
         )}
 
-        <button type="submit" disabled={pending} className={`${primaryButton} shadow-card`}>
+        <button type="submit" disabled={pending} className={`${primaryButton} min-h-11 shadow-card`}>
           {pending ? "Enregistrement..." : tache ? "Enregistrer" : "Créer"}
         </button>
       </div>

@@ -20,7 +20,6 @@ import {
 } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
 import { msAvantMinuitParis } from "@/lib/date/paris";
-import { AddTaskToggle } from "./AddTaskToggle";
 import { SelectionBar } from "./SelectionBar";
 import { TasksList } from "./TasksList";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
@@ -80,12 +79,9 @@ const LISTES_VIDES: Awaited<ReturnType<typeof getListes>> = [];
 const TAGS_VIDES: Awaited<ReturnType<typeof getTags>> = [];
 
 export function TachesView() {
-  const [vue, setVue] = useState<VueKey>("toutes");
+  const [vue, setVue] = useState<VueKey>("aujourdhui");
   const [listeId, setListeId] = useState<string>("toutes");
   const [recherche, setRecherche] = useState("");
-  // Formulaire d'ajout inline ouvert : le FAB est alors masqué (deux
-  // formulaires de création à la fois n'ont pas de sens).
-  const [ajoutInlineOuvert, setAjoutInlineOuvert] = useState(false);
   // Tâche qui vient d'être créée : à faire défiler en vue et à surligner.
   const [tacheSurlignee, setTacheSurlignee] = useState<string | null>(null);
   const [ordre, setOrdre] = useState<OrdreTaches>("manuel");
@@ -192,14 +188,12 @@ export function TachesView() {
     queryClient.invalidateQueries({ queryKey: queryKeys.taches });
   }
 
-  // Valeurs par défaut communes à la carte d'ajout et au FAB : la liste
-  // sélectionnée, et l'échéance imposée par l'onglet de vue (sans elle, une
+  // Valeurs par défaut du FAB : la liste sélectionnée, et l'échéance imposée par l'onglet de vue (sans elle, une
   // tâche créée sous « Aujourd'hui » serait aussitôt filtrée hors de la vue).
   const defaultListeId = listeId !== "toutes" ? listeId : undefined;
   const defaultEcheance = echeanceParDefaut(vue, aujourdhui);
 
-  // Point d'entrée unique après une création, quel que soit le bouton utilisé
-  // (carte ou FAB). Les filtres de l'utilisateur ne sont jamais modifiés : si
+  // Point d'entrée après une création par le FAB. Les filtres de l'utilisateur ne sont jamais modifiés : si
   // la carte n'est pas dans la liste affichée, seul le toast apparaît.
   function handleCreated(id?: string, avertissement?: string) {
     // La tâche existe dans tous les cas : un avertissement (tags ou image en
@@ -267,7 +261,7 @@ export function TachesView() {
     ) : filtresReinitialisables ? (
       <>
         <p>Aucune tâche avec ces filtres.</p>
-        <button type="button" onClick={reinitialiserFiltres} className="mt-1 text-kcal underline">
+        <button type="button" onClick={reinitialiserFiltres} className={`${textButton} mx-auto`}>
           Réinitialiser les filtres
         </button>
       </>
@@ -276,7 +270,7 @@ export function TachesView() {
     ) : vue === "semaine" ? (
       <>Rien de prévu dans les 7 prochains jours.</>
     ) : (
-      <>Aucune tâche pour l’instant. Le bouton « + » en crée une.</>
+      <>Aucune tâche pour l’instant. Le bouton « + », en bas à droite, en crée une.</>
     );
 
   return (
@@ -319,6 +313,11 @@ export function TachesView() {
           </button>
         )}
       </div>
+
+      {/* Annonce le nombre de tâches affichées aux lecteurs d'écran (recherche, filtres). */}
+      <p role="status" className="sr-only">
+        {etatListe === "liste" ? `${filtered.length} tâche${filtered.length > 1 ? "s" : ""} affichée${filtered.length > 1 ? "s" : ""}` : ""}
+      </p>
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
@@ -373,7 +372,7 @@ export function TachesView() {
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-small font-semibold text-ink-2">Priorité</span>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par priorité">
+            <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer par priorité">
               {FILTRES_PRIORITE.map((f) => {
                 const actif = priorites.has(f.value);
                 return (
@@ -410,16 +409,6 @@ export function TachesView() {
         </div>
       </div>
 
-      {!selection && (
-      <AddTaskToggle
-        listes={listes}
-        tags={tags}
-        defaultListeId={defaultListeId}
-        defaultEcheance={defaultEcheance}
-        onSaved={handleCreated}
-        onOpenChange={setAjoutInlineOuvert}
-      />
-      )}
       {actualisationKo && (
         <p role="status" className={errorText}>
           Actualisation impossible : dernières données affichées.
@@ -464,7 +453,7 @@ export function TachesView() {
         onDone={quitterSelection}
       />
     )}
-    {!ajoutInlineOuvert && !selection && (
+    {!selection && (
       <QuickAddFab
         directTask={{ defaultListeId, defaultEcheance, onCreated: handleCreated }}
       />

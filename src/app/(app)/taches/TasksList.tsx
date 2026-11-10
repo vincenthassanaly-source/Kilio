@@ -336,6 +336,16 @@ export const TaskCard = memo(function TaskCard({
 }) {
   const [editing, setEditing] = useState(false);
   useBackClose(editing, () => setEditing(false));
+  // Rend le focus au titre quand l'édition se ferme (clavier, lecteur d'écran).
+  const boutonTitreRef = useRef<HTMLButtonElement | null>(null);
+  const editionDejaOuverte = useRef(false);
+  useEffect(() => {
+    if (editing) editionDejaOuverte.current = true;
+    else if (editionDejaOuverte.current) {
+      editionDejaOuverte.current = false;
+      boutonTitreRef.current?.focus();
+    }
+  }, [editing]);
   const [expanded, setExpanded] = useState(false);
   const masquees = useTachesMasquees();
   const reduceMotion = useReducedMotion() ?? false;
@@ -514,6 +524,7 @@ export const TaskCard = memo(function TaskCard({
   }
 
   const sousTachesFaites = tache.sous_taches.filter((s) => s.fait).length;
+  const enRetard = !tache.fait && tache.echeance !== null && tache.echeance < aujourdhuiISO();
 
   const content = (
     <>
@@ -535,6 +546,7 @@ export const TaskCard = memo(function TaskCard({
             checked={selected}
             onToggle={() => onToggleSelect?.(tache.id)}
             className="mt-0.5"
+            describedBy={`tache-titre-${tache.id}`}
             label={selected ? "Désélectionner" : "Sélectionner"}
           />
         ) : (
@@ -543,6 +555,7 @@ export const TaskCard = memo(function TaskCard({
             disabled={toggleMutation.isPending}
             onToggle={() => toggleMutation.mutate()}
             className="mt-0.5"
+            describedBy={`tache-titre-${tache.id}`}
             label={tache.fait ? "Marquer non fait" : "Marquer fait"}
           />
         )}
@@ -550,22 +563,25 @@ export const TaskCard = memo(function TaskCard({
           <div className="flex min-w-0 items-start justify-between gap-2">
             {selectionMode ? (
               <p
+                id={`tache-titre-${tache.id}`}
                 className={`min-w-0 flex-1 whitespace-normal break-words text-body font-semibold text-ink ${tache.fait ? "text-ink-2 line-through" : ""}`}
               >
                 {tache.titre}
               </p>
             ) : (
               <button
+                ref={boutonTitreRef}
+                id={`tache-titre-${tache.id}`}
                 type="button"
                 onClick={() => setEditing(true)}
-                aria-label={`Modifier « ${tache.titre} »`}
                 className={`min-w-0 flex-1 whitespace-normal break-words rounded-md text-left text-body font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${tache.fait ? "text-ink-2 line-through" : ""}`}
               >
                 {tache.titre}
+                <span className="sr-only"> (modifier)</span>
               </button>
             )}
             {tache.recurrence_frequence && (
-              <span className="shrink-0 text-ink-2" title="Tâche récurrente">
+              <span className="shrink-0 text-ink-2">
                 <span aria-hidden="true">↻</span>
                 <span className="sr-only">Tâche récurrente</span>
               </span>
@@ -585,6 +601,18 @@ export const TaskCard = memo(function TaskCard({
             )}
           </div>
 
+          {(tache.echeance || tache.duree_minutes) && (
+            <span className={`${metaText} ${enRetard ? "font-semibold text-alert" : ""}`}>
+              {enRetard && "En retard · "}
+              {tache.echeance && formatEcheance(tache.echeance)}
+              {tache.heure &&
+                (tache.heure_fin
+                  ? ` de ${tache.heure.slice(0, 5)} – ${tache.heure_fin.slice(0, 5)}`
+                  : ` à ${tache.heure.slice(0, 5)}`)}
+              {tache.duree_minutes ? `${tache.echeance ? " · " : ""}${libelleDuree(tache.duree_minutes)}` : ""}
+            </span>
+          )}
+
           <div className="flex flex-wrap items-center gap-1.5">
             {tache.liste && (
               <span className={pillTag} style={couleurStyle(tache.liste.couleur)}>
@@ -598,11 +626,6 @@ export const TaskCard = memo(function TaskCard({
                 {PRIORITE_LABELS[tache.priorite]}
               </span>
             )}
-            {tache.duree_minutes ? (
-              <span className={pillTag} title="Durée estimée">
-                {libelleDuree(tache.duree_minutes)}
-              </span>
-            ) : null}
             {tache.programme_jour && (
               <span className={pillTag}>Tâche du jour</span>
             )}
@@ -626,20 +649,6 @@ export const TaskCard = memo(function TaskCard({
 
           {tache.notes && (
             <p className="line-clamp-2 whitespace-pre-wrap text-small text-ink-2">{tache.notes}</p>
-          )}
-
-          {tache.programme_jour && (
-            <span className={metaText}>Supprimée ce soir si elle n&apos;est pas cochée.</span>
-          )}
-
-          {tache.echeance && (
-            <span className={metaText}>
-              {formatEcheance(tache.echeance)}
-              {tache.heure &&
-                (tache.heure_fin
-                  ? ` de ${tache.heure.slice(0, 5)} – ${tache.heure_fin.slice(0, 5)}`
-                  : ` à ${tache.heure.slice(0, 5)}`)}
-            </span>
           )}
 
           {!selectionMode && <TacheImagesRow tache={tache} />}
@@ -876,8 +885,15 @@ export function TasksList({
     .filter((tache) => tache.fait)
     .sort((a, b) => (a.updated_at < b.updated_at ? 1 : a.updated_at > b.updated_at ? -1 : 0));
 
+  const aDesTachesDuJour = actives.some((t) => t.programme_jour);
+
   return (
     <>
+      {aDesTachesDuJour && (
+        <p className="mb-2.5 text-small text-ink-2">
+          Les tâches du jour non cochées sont supprimées à la fin de la journée.
+        </p>
+      )}
       {actives.length > 0 &&
         (reordonnable && !selectionMode ? (
           <SortableTachesList actives={actives} listes={listes} tags={tags} highlightedId={highlightedId} />

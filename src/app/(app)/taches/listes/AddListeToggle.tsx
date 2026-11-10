@@ -19,7 +19,7 @@ export function AddListeToggle() {
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une liste</span>
-        <span className="text-xs font-medium text-ink-3">Nouvelle liste</span>
+        <span className="text-caption font-medium text-ink-3">Nouvelle liste</span>
       </div>
     </button>
   );
@@ -31,7 +31,7 @@ export function AddListeToggle() {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="mt-2 text-sm text-ink-2 underline"
+          className="mt-2 text-label text-ink-2 underline"
         >
           Annuler
         </button>

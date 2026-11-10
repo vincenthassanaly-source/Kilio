@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { TachesView } from "./TachesView";
 import { queryKeys } from "@/lib/query/keys";
 import { makeTache } from "@/test/fixtures";
+import { aujourdhuiISO } from "@/lib/date/recurrence";
 
 vi.mock("@/app/actions/taches", () => ({
   getTachesAvecRelations: vi.fn(),
@@ -20,7 +21,6 @@ vi.mock("@/app/actions/taches", () => ({
 }));
 // Hors sujet ici : formulaires d'ajout et geste de tirer-pour-rafraîchir.
 vi.mock("../QuickAddFab", () => ({ QuickAddFab: () => null }));
-vi.mock("./AddTaskToggle", () => ({ AddTaskToggle: () => null }));
 vi.mock("./preloadAddTaskForm", () => ({ preloadAddTaskFormWhenIdle: () => () => {} }));
 vi.mock("@/components/PullToRefresh", () => ({ PullToRefresh: ({ children }: { children: ReactNode }) => children }));
 
@@ -33,7 +33,7 @@ afterEach(() => {
 
 function monter(donneesEnCache: boolean) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  if (donneesEnCache) client.setQueryData(queryKeys.taches, [makeTache({ id: "t1", titre: "Payer le loyer" })]);
+  if (donneesEnCache) client.setQueryData(queryKeys.taches, [makeTache({ id: "t1", titre: "Payer le loyer", echeance: aujourdhuiISO() })]);
   render(
     <QueryClientProvider client={client}>
       <TachesView />
@@ -53,7 +53,7 @@ describe("TachesView : actualisation en échec (CLICK-PATH T03)", () => {
     monter(true);
 
     expect(await screen.findByText("Actualisation impossible : dernières données affichées.")).toBeTruthy();
-    expect(screen.getByText("Payer le loyer")).toBeTruthy();
+    expect(screen.getByText(/Payer le loyer/)).toBeTruthy();
     expect(screen.queryByText("Impossible de charger les tâches.")).toBeNull();
   });
 
@@ -66,10 +66,10 @@ describe("TachesView : actualisation en échec (CLICK-PATH T03)", () => {
   });
 
   it("n'affiche aucun avertissement quand le chargement réussit", async () => {
-    vi.mocked(getTachesAvecRelations).mockResolvedValue([makeTache({ id: "t1", titre: "Payer le loyer" })]);
+    vi.mocked(getTachesAvecRelations).mockResolvedValue([makeTache({ id: "t1", titre: "Payer le loyer", echeance: aujourdhuiISO() })]);
     monter(false);
 
-    expect(await screen.findByText("Payer le loyer")).toBeTruthy();
+    expect(await screen.findByText(/Payer le loyer/)).toBeTruthy();
     await waitFor(() => expect(getTachesAvecRelations).toHaveBeenCalled());
     expect(screen.queryByText(/Actualisation impossible/)).toBeNull();
     expect(screen.queryByText("Impossible de charger les tâches.")).toBeNull();

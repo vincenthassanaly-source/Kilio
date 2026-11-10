@@ -9,7 +9,7 @@ import { dangerButton, ghostButton, listCard, nameText } from "@/lib/ui";
 // Flèches d'ordre : cible réelle de 36×44 px (même gabarit que `sousTacheBouton`
 // de TasksList) au lieu du glyphe nu de 13×23 px.
 const flecheOrdre =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-base text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-body text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 import { confirmDelete } from "@/lib/confirm";
 import { libelleNombreTaches, messageSuppressionListe } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
@@ -43,7 +43,7 @@ function ListeRow({
         <button
           type="button"
           onClick={() => setEditing(false)}
-          className="mt-2 text-sm text-ink-2 underline"
+          className="mt-2 text-label text-ink-2 underline"
         >
           Annuler
         </button>
@@ -113,7 +113,7 @@ function ListeRow({
           )}
           <div className="flex min-w-0 flex-col">
             <p className={nameText}>{liste.nom}</p>
-            <span className="text-xs text-ink-2">{libelleNombreTaches(compte.total)}</span>
+            <span className="text-caption text-ink-2">{libelleNombreTaches(compte.total)}</span>
           </div>
         </div>
         <div className="flex">
@@ -143,12 +143,12 @@ function ListeRow({
         </button>
         {liste.nom !== "Général" && (
           <button type="button" disabled={isPending} onClick={handleDelete} className={dangerButton}>
-            Suppr.
+            Supprimer
           </button>
         )}
       </div>
       {error && (
-        <p className="text-sm text-alert" role="alert">
+        <p className="text-label text-alert" role="alert">
           {error}
         </p>
       )}

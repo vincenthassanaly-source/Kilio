@@ -27,8 +27,8 @@ const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible
 
 // 16 px (et non 15) : en dessous, iOS zoome la page au focus d'un champ (T15).
 export const input = `rounded-2xl border border-control-border bg-surface-alt px-3.5 py-2.5 text-base text-ink outline-none focus:border-kcal/60 transition-colors ${focusRing}`;
-export const label = "text-sm font-medium text-ink";
-export const errorText = "text-sm text-alert";
+export const label = "text-label font-medium text-ink";
+export const errorText = "text-label text-alert";
 
 // Couleur proposée par défaut aux listes et étiquettes (`<input type="color">` exige
 // un hex). Équivalent sRGB de `--accent-agenda` (oklch 0,55 0,14 230) : plus de
@@ -54,7 +54,7 @@ export const addCardIcon =
 const zoneTap44 = "relative after:absolute after:inset-x-0 after:-inset-y-1.5";
 
 export const ghostButton =
-  `${zoneTap44} rounded-xl border border-line px-2.5 py-1.5 text-sm font-medium text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
+  `${zoneTap44} rounded-xl border border-line px-2.5 py-1.5 text-label font-medium text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
 // Variante de `ghostButton` dédiée aux flèches de navigation de période
 // (Agenda : jour/semaine/mois précédent-suivant) — cible tactile 44×44px
 // minimum (h-11 w-11), contrairement à `ghostButton` (compact, utilisé
@@ -63,10 +63,10 @@ export const ghostButton =
 export const navArrowButton =
   `flex h-11 w-11 items-center justify-center rounded-xl border border-line text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
 export const dangerButton =
-  `${zoneTap44} rounded-xl border border-alert/30 px-2.5 py-1.5 text-sm font-medium text-alert transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
+  `${zoneTap44} rounded-xl border border-alert/30 px-2.5 py-1.5 text-label font-medium text-alert transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 // Lien-texte discret (« Annuler » sous un formulaire) : zone de tap de 44 px.
-export const textButton = `relative inline-flex min-h-11 items-center text-sm text-ink-2 underline ${focusRing}`;
-export const linkButton = `relative after:absolute after:-inset-x-2 after:-inset-y-3 text-sm font-semibold text-kcal ${focusRing}`;
+export const textButton = `relative inline-flex min-h-11 items-center text-label text-ink-2 underline ${focusRing}`;
+export const linkButton = `relative after:absolute after:-inset-x-2 after:-inset-y-3 text-label font-semibold text-kcal ${focusRing}`;
 
 // Zone de tap étendue des pills compacts cliquables (chips de filtre,
 // « + sous-tâches » : ≈ 25 px de haut) à ≈ 41 px, sans grossir le pill visible.

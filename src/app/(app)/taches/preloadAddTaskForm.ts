@@ -1,5 +1,5 @@
 // Précharge le chunk de AddTaskForm (chargé à la demande via next/dynamic
-// dans AddTaskToggle, TasksList et QuickAddFab) avant que l'utilisateur
+// dans TasksList et QuickAddFab) avant que l'utilisateur
 // n'ouvre le formulaire : au premier appui sur un bouton d'ajout, ou quand
 // le navigateur est inactif après l'affichage de /taches. Le premier
 // affichage du formulaire n'attend alors plus le réseau.
