@@ -86,7 +86,7 @@ function Puce({ actif, onClick, children }: { actif: boolean; onClick: () => voi
       type="button"
       aria-pressed={actif}
       onClick={onClick}
-      className={`inline-flex min-h-10 items-center rounded-full border px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+      className={`inline-flex min-h-11 items-center rounded-full border px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
         actif ? "border-kcal bg-kcal text-on-kcal" : "border-line bg-surface text-ink-2"
       }`}
     >

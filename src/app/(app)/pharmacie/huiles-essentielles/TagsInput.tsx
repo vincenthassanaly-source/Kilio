@@ -59,13 +59,13 @@ export function TagsInput({
       {valeur.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label={`${libelle} choisies`}>
           {valeur.map((tag) => (
-            <li key={tag} className="inline-flex min-h-10 items-center rounded-full bg-surface-alt pl-3 text-label font-medium text-ink">
+            <li key={tag} className="inline-flex min-h-11 items-center rounded-full bg-surface-alt pl-3 text-label font-medium text-ink">
               {tag}
               <button
                 type="button"
                 onClick={() => retirer(tag)}
                 aria-label={`Retirer ${tag}`}
-                className="flex size-10 items-center justify-center rounded-full text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                className="flex size-11 items-center justify-center rounded-full text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
               >
                 <svg aria-hidden viewBox="0 0 20 20" className="size-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
                   <path d="m5 5 10 10M15 5 5 15" />
@@ -100,7 +100,7 @@ export function TagsInput({
               <button
                 type="button"
                 onClick={() => ajouter(s)}
-                className="inline-flex min-h-10 items-center gap-1 rounded-full border border-line bg-surface px-3 text-small font-medium text-ink-2 transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                className="inline-flex min-h-11 items-center gap-1 rounded-full border border-line bg-surface px-3 text-small font-medium text-ink-2 transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
               >
                 <span aria-hidden>+</span>
                 {s}

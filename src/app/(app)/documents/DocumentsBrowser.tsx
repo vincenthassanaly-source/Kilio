@@ -31,7 +31,7 @@ const TRI_LABELS: Record<TriCle, string> = {
 };
 
 const BOUTON_ICONE =
-  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors hover:bg-surface-alt";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 function CategorieIcon() {
   return (

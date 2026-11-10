@@ -9,7 +9,7 @@ import { dangerButton, ghostButton, listCard, nameText } from "@/lib/ui";
 // Flèches d'ordre : cible réelle de 36×44 px (même gabarit que `sousTacheBouton`
 // de TasksList) au lieu du glyphe nu de 13×23 px.
 const flecheOrdre =
-  "flex h-11 w-9 shrink-0 items-center justify-center rounded-lg text-base text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-base text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 import { confirmDelete } from "@/lib/confirm";
 import { libelleNombreTaches, messageSuppressionListe } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";

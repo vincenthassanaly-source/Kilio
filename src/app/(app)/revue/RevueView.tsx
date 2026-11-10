@@ -14,7 +14,7 @@ import { parseISODate, shiftDate } from "@/lib/date/iso";
 import { queryKeys } from "@/lib/query/keys";
 import { bilanSemaine, nbSansDate, semaineProchaine } from "@/lib/revue/compute";
 import { libelleDuree } from "@/lib/taches/compute";
-import { card, sectionTitle } from "@/lib/ui";
+import { card, linkButton, sectionTitle } from "@/lib/ui";
 import { EnRetardSection } from "../aujourdhui/EnRetardSection";
 import { BoutonAssistantRevue } from "./BoutonAssistantRevue";
 import { SyntheseSemaine } from "../nutrition/bilan/SyntheseSemaine";
@@ -197,7 +197,7 @@ export function RevueView({ today }: { today: string }) {
               abandonner.
             </p>
           </div>
-          <TransitionLink href="/taches" className="shrink-0 text-sm font-semibold text-kcal">
+          <TransitionLink href="/taches" className={`shrink-0 ${linkButton}`}>
             Voir
           </TransitionLink>
         </section>

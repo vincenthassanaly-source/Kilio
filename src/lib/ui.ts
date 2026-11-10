@@ -64,6 +64,8 @@ export const navArrowButton =
   `flex h-11 w-11 items-center justify-center rounded-xl border border-line text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
 export const dangerButton =
   `${zoneTap44} rounded-xl border border-alert/30 px-2.5 py-1.5 text-sm font-medium text-alert transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
+// Lien-texte discret (« Annuler » sous un formulaire) : zone de tap de 44 px.
+export const textButton = `relative inline-flex min-h-11 items-center text-sm text-ink-2 underline ${focusRing}`;
 export const linkButton = `relative after:absolute after:-inset-x-2 after:-inset-y-3 text-sm font-semibold text-kcal ${focusRing}`;
 
 // Zone de tap étendue des pills compacts cliquables (chips de filtre,
