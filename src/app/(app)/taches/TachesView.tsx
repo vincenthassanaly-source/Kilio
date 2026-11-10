@@ -148,7 +148,9 @@ export function TachesView() {
       }
       return true;
     });
-    return trierTaches(filtrerParPriorite(visibles, priorites), ordre);
+    // « 7 jours » se lit par date : sans tri choisi, l'échéance prime sur l'ordre manuel.
+    const ordreAffiche: OrdreTaches = vue === "semaine" && ordre === "manuel" ? "echeance" : ordre;
+    return trierTaches(filtrerParPriorite(visibles, priorites), ordreAffiche);
   }, [taches, vue, listeId, recherche, priorites, ordre, aujourdhui]);
 
   // Sélection restreinte aux tâches affichées : changer de vue, de liste ou de
@@ -255,6 +257,17 @@ export function TachesView() {
     setOrdre("manuel");
   }
   const toutSelectionnable = filtered.filter((t) => !t.fait).map((t) => t.id);
+  // Même action que le « + » flottant : on déclenche son bouton plutôt que de
+  // dupliquer l'ouverture de la feuille (QuickAddFab porte l'état d'ouverture).
+  const boutonAjout = (
+    <button
+      type="button"
+      onClick={() => document.querySelector<HTMLButtonElement>('button[aria-label="Nouvelle tâche"]')?.click()}
+      className={`${ghostButton} mx-auto mt-2`}
+    >
+      Ajouter une tâche
+    </button>
+  );
   const messageVide =
     vue === "en_retard" ? (
       <>Rien en retard. Tout est à jour.</>
@@ -266,11 +279,25 @@ export function TachesView() {
         </button>
       </>
     ) : vue === "aujourdhui" ? (
-      <>Rien de prévu aujourd’hui.</>
+      <>
+        <p>Rien de prévu aujourd’hui.</p>
+        {nbEnRetard > 0 && (
+          <button type="button" onClick={() => setVue("en_retard")} className={`${textButton} mx-auto`}>
+            {nbEnRetard} en retard : les voir
+          </button>
+        )}
+        {boutonAjout}
+      </>
     ) : vue === "semaine" ? (
-      <>Rien de prévu dans les 7 prochains jours.</>
+      <>
+        <p>Rien de prévu dans les 7 prochains jours.</p>
+        {boutonAjout}
+      </>
     ) : (
-      <>Aucune tâche pour l’instant. Le bouton « + », en bas à droite, en crée une.</>
+      <>
+        <p>Aucune tâche pour l’instant.</p>
+        {boutonAjout}
+      </>
     );
 
   return (
@@ -284,6 +311,7 @@ export function TachesView() {
       <SegmentedControl
         ariaLabel="Vue des tâches"
         taille="sm"
+        className="[&>button]:min-w-0"
         options={VUES.map((v) => ({
           value: v.key,
           label: v.key === "en_retard" && nbEnRetard > 0 ? `${v.label} · ${nbEnRetard}` : v.label,
@@ -326,15 +354,15 @@ export function TachesView() {
             onClick={() => setFiltresOuverts((o) => !o)}
             aria-expanded={filtresOuverts}
             aria-controls="taches-filtres"
-            className={`${ghostButton} min-w-0 max-w-full justify-start`}
+            className={`${ghostButton} min-w-0 flex-1 justify-start text-left`}
           >
-            <span className="truncate">
+            <span className="block min-w-0 truncate">
               Filtres et tri
               {resumeFiltres && <span className="ml-1 text-ink-3">· {resumeFiltres}</span>}
             </span>
           </button>
           {/* Hors du panneau : la gestion des listes reste à un tap, sans ouvrir les filtres. */}
-          <Link href="/taches/listes" className={`${ghostButton} ml-auto shrink-0`}>
+          <Link href="/taches/listes" className={`${ghostButton} shrink-0`}>
             Listes
           </Link>
           <button
@@ -350,7 +378,7 @@ export function TachesView() {
         <div id="taches-filtres" hidden={!filtresOuverts} className="flex flex-col gap-3 rounded-card border border-line bg-surface p-3.5">
           <div className="flex flex-col gap-1.5">
             <span className="text-small font-semibold text-ink-2">Liste</span>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par liste">
+            <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer par liste">
               {[{ id: "toutes", nom: "Toutes", couleur: null as string | null }, ...listes].map((liste) => {
                 const actif = listeId === liste.id;
                 return (
@@ -363,7 +391,13 @@ export function TachesView() {
                       actif ? "border-kcal bg-kcal-soft" : "border-line bg-surface"
                     }`}
                   >
-                    <span className="h-[9px] w-[9px] rounded-full" style={{ background: liste.couleur ?? "var(--color-kcal)" }} />
+                    {liste.id !== "toutes" && (
+                      <span
+                        className="h-[9px] w-[9px] rounded-full"
+                        style={{ background: liste.couleur ?? "var(--ink-3)" }}
+                        aria-hidden="true"
+                      />
+                    )}
                     <span className="text-label font-semibold text-ink">{liste.nom}</span>
                   </button>
                 );
@@ -433,6 +467,7 @@ export function TachesView() {
           tags={tags}
           messageVide={messageVide}
           reordonnable={reordonnable}
+          grouperParJour={vue === "semaine"}
           highlightedId={tacheSurlignee}
           selectionMode={selection}
           selectionIds={selectionVisible}

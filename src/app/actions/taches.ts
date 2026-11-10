@@ -1133,6 +1133,29 @@ export async function createTag(
   return { error: null };
 }
 
+export async function updateTag(
+  _prevState: TagFormState,
+  formData: FormData
+): Promise<TagFormState> {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "Tag introuvable." };
+
+  const nom = String(formData.get("nom") ?? "").trim();
+  const couleur = String(formData.get("couleur") ?? "").trim();
+  if (!nom) return { error: "Le nom est requis." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("tags").update({ nom, couleur: couleur || null }).eq("id", id);
+
+  if (error) return { error: error.message };
+
+  revalidateTachesPaths();
+  // La table `tags` est partagée avec les notes : un renommage touche aussi
+  // leurs pastilles en cache (même raison que deleteTag).
+  revalidateTag(NOTES_TAG, { expire: 0 });
+  return { error: null };
+}
+
 export async function deleteTag(id: string) {
   const supabase = createAdminClient();
   const { error } = await supabase.from("tags").delete().eq("id", id);

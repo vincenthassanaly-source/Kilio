@@ -125,23 +125,20 @@ export function SelectionBar({
     <div
       role="toolbar"
       aria-label="Actions sur la sélection"
-      className="fixed inset-x-3 z-40 flex flex-col gap-2 rounded-2xl border border-line bg-surface p-3 shadow-float"
+      className="fixed inset-x-3 z-40 mx-auto flex max-w-2xl flex-col gap-2 rounded-2xl border border-line bg-surface p-3 shadow-float"
       style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
     >
+      {/* Une seule sortie : le bouton « Fermer » de l'en-tête de la page (même
+          bouton que « Sélectionner », il bascule le mode). */}
       <div className="flex items-center justify-between gap-2">
         <p className="text-label font-semibold text-ink" aria-live="polite">
-          {vide ? "Aucune tâche sélectionnée" : pluriel(nombre) + (nombre > 1 ? " sélectionnées" : " sélectionnée")}
+          {vide ? "Touche des tâches pour les choisir" : pluriel(nombre) + (nombre > 1 ? " sélectionnées" : " sélectionnée")}
         </p>
-        <div className="flex items-center">
-          {nombre < toutesLesIds.length && (
-            <button type="button" onClick={() => onToutSelectionner(toutesLesIds)} className={linkButtonSel}>
-              Tout sélectionner
-            </button>
-          )}
-          <button type="button" onClick={onDone} className={linkButtonSel}>
-            Fermer
+        {nombre < toutesLesIds.length && (
+          <button type="button" onClick={() => onToutSelectionner(toutesLesIds)} className={linkButtonSel}>
+            Tout sélectionner
           </button>
-        </div>
+        )}
       </div>
 
       {panneau === "reporter" && (
@@ -176,6 +173,9 @@ export function SelectionBar({
         </div>
       )}
 
+      {/* Actions masquées tant que rien n'est choisi : des boutons grisés
+          occupaient la place du contenu sans rien proposer. */}
+      {!vide && (
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -199,6 +199,7 @@ export function SelectionBar({
           Supprimer
         </button>
       </div>
+      )}
     </div>
   );
 }
