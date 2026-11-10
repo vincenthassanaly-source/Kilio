@@ -1,10 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { addNutrition, zeroNutrition } from "@/lib/nutrition/compute";
 import { vueRepas } from "@/lib/nutrition/vue-repas";
-import { card, eyebrow, sectionTitle } from "@/lib/ui";
+import { eyebrow, sectionTitle } from "@/lib/ui";
 import { ObjectifForm } from "./ObjectifForm";
-import { ResumeJour } from "./ResumeJour";
-import { JournalEntriesList, type JournalEntryView } from "./JournalEntriesList";
+import type { JournalEntryView } from "./JournalEntriesList";
+import { JournalRepas } from "./JournalRepas";
 import { JournalJourAnime } from "./JournalSwipeWrapper";
 import { JourNavigation } from "./JournalNavigationJour";
 import { AjoutRepasBouton } from "./AjoutRepasBouton";
@@ -60,7 +59,6 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
   const objectifEntrainement = objectifs?.find((o) => o.jour_type === "entrainement") ?? null;
   const objectif = jourType === "entrainement" ? objectifEntrainement : objectifRepos;
 
-  const consomme = views.reduce((acc, v) => addNutrition(acc, v.nutrition), zeroNutrition());
   const cible = objectif
     ? {
         kcal: objectif.kcal_cible,
@@ -79,27 +77,7 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
           <ObjectifForm repos={objectifRepos} entrainement={objectifEntrainement} />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <h2 className={sectionTitle}>Résumé du jour</h2>
-          <ResumeJour consomme={consomme} cible={cible} />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <h2 className={sectionTitle}>Repas du jour</h2>
-          {views.length === 0 ? (
-            <div className={`${card} flex flex-col items-center gap-2.5 py-8 text-center`}>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6">
-                <line x1="5" y1="19" x2="5" y2="11" />
-                <line x1="12" y1="19" x2="12" y2="5" />
-                <line x1="19" y1="19" x2="19" y2="14" />
-              </svg>
-              <p className="text-body font-bold text-ink">Aucun repas enregistré pour ce jour.</p>
-              <AjoutRepasBouton date={date} variante="carte" />
-            </div>
-          ) : (
-            <JournalEntriesList entries={views} />
-          )}
-        </div>
+        <JournalRepas entries={views} cible={cible} date={date} />
         {/* Réserve la place du bouton flottant pour ne jamais masquer la
             dernière entrée. */}
         <div aria-hidden="true" className="h-16" />

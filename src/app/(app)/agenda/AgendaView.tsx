@@ -341,7 +341,7 @@ export function AgendaView() {
         onClick={() => setFabOpen(true)}
         aria-label="Ajouter une tâche"
         data-masquer-saisie
-        className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+        className="fixed right-[max(1rem,calc(50%-20rem))] z-40 flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
