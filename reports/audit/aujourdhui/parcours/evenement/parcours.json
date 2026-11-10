@@ -1,0 +1,278 @@
+{
+  "nom": "evenement",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 4236,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "expect_text",
+      "texte": "Rendez-vous e2e",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 367,
+      "fichier": "02-expect_text.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/^événement$/i]",
+      "note": "ouvrir le formulaire d'événement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 450,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "formulaire",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 368,
+      "fichier": "04-screenshot.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=textbox[name=/titre/i]",
+      "valeur": "Dentiste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 384,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name=/^ajouter$/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "evenements",
+          "query": "?select=id",
+          "body": {
+            "titre": "Dentiste",
+            "date": "2026-11-10",
+            "heure": "22:00",
+            "heure_fin": "23:00",
+            "notes": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "rappel_occurrence_envoyee": null,
+            "recurrence_frequence": null,
+            "recurrence_fin": null
+          }
+        }
+      ],
+      "url": "http://localhost:3100/",
+      "ms": 403,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "wait",
+      "ms": 1145,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/?_rsc=BtbPFF9wRKKmQ2U_ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "fichier": "07-wait.png"
+    },
+    {
+      "n": 8,
+      "action": "expect_text",
+      "texte": "Dentiste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 347,
+      "fichier": "08-expect_text.png"
+    },
+    {
+      "n": 9,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 3349,
+      "fichier": "09-reload.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_text",
+      "texte": "Dentiste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 349,
+      "fichier": "10-expect_text.png"
+    },
+    {
+      "n": 11,
+      "action": "back",
+      "note": "retour arrière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 337,
+      "fichier": "11-back.png"
+    }
+  ]
+}

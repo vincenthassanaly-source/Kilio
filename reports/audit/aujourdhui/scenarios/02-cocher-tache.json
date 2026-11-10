@@ -1,0 +1,31 @@
+{
+ "nom": "cocher-tache",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/marquer fait/i] >> nth=0",
+   "note": "cocher la tâche du jour"
+  },
+  {
+   "action": "wait",
+   "ms": 800
+  },
+  {
+   "action": "screenshot",
+   "note": "état après coche (score)"
+  },
+  {
+   "action": "reload"
+  },
+  {
+   "action": "expect_text",
+   "texte": "1/1 faites",
+   "note": "persistance : la tâche faite est repliée sous « 1/1 faites »"
+  }
+ ]
+}

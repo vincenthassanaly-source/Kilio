@@ -80,7 +80,7 @@ describe("EnRetardSection", () => {
     );
 
     expect(screen.queryByRole("button", { name: "Reporter « Retard 1 » à demain" })).toBeNull();
-    const bascule = screen.getByRole("button", { name: "Reporter « Retard 1 »" });
+    const bascule = screen.getByRole("button", { name: "Choisir une date de report pour « Retard 1 »" });
     expect(bascule.getAttribute("aria-expanded")).toBe("false");
 
     await userEvent.click(bascule);

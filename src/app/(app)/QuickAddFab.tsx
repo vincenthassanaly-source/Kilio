@@ -141,8 +141,10 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
 
   return (
     <>
+      {/* Voile : l'éventail ouvert recouvre la page, il doit se lire comme un
+          calque au premier plan (et un tap n'importe où le referme). */}
       <div
-        className="fixed inset-0 z-40"
+        className={`fixed inset-0 z-40 transition-colors duration-200 ${dialInteractive ? "bg-background/70" : "bg-transparent"}`}
         style={{ pointerEvents: dialInteractive ? "auto" : "none" }}
         onClick={() => history.back()}
       />

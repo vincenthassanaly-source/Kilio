@@ -1,0 +1,8 @@
+{"nom":"ajout-rapide-tache","theme":"clair","etapes":[
+{"action":"goto","url":"/","note":"ouvrir Aujourd'hui"},
+{"action":"expect_text","texte":"Tâche e2e du jour"},
+{"action":"fill","cible":"role=textbox[name=/nouvelle tâche pour aujourd/i]","valeur":"Acheter du pain"},
+{"action":"click","cible":"role=form[name=/ajouter une tâche à aujourd/i] >> role=button[name=/^ajouter$/i]","note":"ajouter la tâche"},
+{"action":"expect_text","texte":"Acheter du pain"},
+{"action":"reload","note":"persistance"},
+{"action":"expect_text","texte":"Acheter du pain"}]}

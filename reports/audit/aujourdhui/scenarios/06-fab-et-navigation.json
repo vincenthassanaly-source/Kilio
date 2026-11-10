@@ -1,0 +1,11 @@
+{"nom":"fab-et-navigation","theme":"clair","etapes":[
+{"action":"goto","url":"/"},
+{"action":"scroll","pixels":900,"note":"défiler : sections du bas"},
+{"action":"screenshot"},
+{"action":"scroll","pixels":2000},
+{"action":"screenshot","note":"bas de page (FAB + barre du bas)"},
+{"action":"click","cible":"role=button[name=/^ajouter$/i] >> nth=-1","note":"FAB"},
+{"action":"screenshot"},
+{"action":"goto","url":"/agenda"},
+{"action":"back","note":"retour vers Aujourd'hui"},
+{"action":"screenshot"}]}

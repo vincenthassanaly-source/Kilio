@@ -78,5 +78,7 @@ export async function interpreterSaisie(texte: string): Promise<ActionResult<Ele
     if (elements.length === 0) return fail("Je n'ai trouvé ni tâche ni événement dans cette phrase.");
     return ok(elements);
   }
-  return fail(`Gemini n'a pas pu interpréter la phrase (${detail}). Réessaie.`);
+  // Le détail technique (fournisseur, clé absente…) reste dans les logs serveur.
+  console.error(`[saisie-naturelle] interprétation impossible : ${detail}`);
+  return fail("Je n'ai pas pu lire cette phrase pour le moment. Ajoute-la comme tâche ci-dessous, ou réessaie plus tard.");
 }

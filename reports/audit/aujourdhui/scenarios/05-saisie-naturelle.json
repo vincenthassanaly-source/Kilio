@@ -1,0 +1,8 @@
+{"nom":"saisie-naturelle","theme":"clair","etapes":[
+{"action":"goto","url":"/"},
+{"action":"fill","cible":"role=textbox[name=/en une phrase/i]","valeur":"dentiste demain 14h"},
+{"action":"wait","ms":600},
+{"action":"screenshot","note":"aperçu de la saisie"},
+{"action":"click","cible":"role=form[name=/langage naturel/i] >> role=button[name=/^ajouter$/i]"},
+{"action":"wait","ms":900},
+{"action":"screenshot","note":"résultat"}]}

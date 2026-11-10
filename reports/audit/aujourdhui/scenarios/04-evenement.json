@@ -1,0 +1,51 @@
+{
+ "nom": "evenement",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Rendez-vous e2e"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^événement$/i]",
+   "note": "ouvrir le formulaire d'événement"
+  },
+  {
+   "action": "screenshot",
+   "note": "formulaire"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/titre/i]",
+   "valeur": "Dentiste"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name=/^ajouter$/i]"
+  },
+  {
+   "action": "wait",
+   "ms": 800
+  },
+  {
+   "action": "expect_text",
+   "texte": "Dentiste"
+  },
+  {
+   "action": "reload"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Dentiste"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière"
+  }
+ ]
+}

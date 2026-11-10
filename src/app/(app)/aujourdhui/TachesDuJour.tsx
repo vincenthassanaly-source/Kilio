@@ -115,7 +115,7 @@ export function TachesDuJour({
       {taches.length === 0 ? (
         <p className="text-label text-ink-2">Rien de prévu aujourd&apos;hui.</p>
       ) : aFaire.length === 0 ? (
-        <p className="text-label text-ink-2">Tout est fait pour aujourd&apos;hui.</p>
+        <p className="text-label font-semibold text-kcal">Tout est fait pour aujourd&apos;hui.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {aFaire.map((t) => (
@@ -133,7 +133,8 @@ export function TachesDuJour({
       )}
 
       {faites.length > 0 && (
-        <details className="group">
+        // Tout est coché : les tâches faites restent visibles, c'est la victoire du jour.
+        <details className="group" open={aFaire.length === 0}>
           <summary className="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
             Faites ({faites.length})
           </summary>
