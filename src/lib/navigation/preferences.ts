@@ -29,10 +29,22 @@ function resolveOrdreGrillePlus(saved: string[]): string[] {
 
 // Si un href enregistré ne correspond plus à un item connu du registre,
 // retombe sur l'emplacement par défaut correspondant (évite un onglet vide).
-function resolveModulesBarreBasse(saved: string[]): string[] {
+// Un module ne figure jamais deux fois dans la barre : un href déjà posé (ou
+// un défaut déjà pris par un autre emplacement) cède la place au premier module
+// par défaut puis du registre qui n'y est pas encore. L'ancien « /aujourdhui »
+// (fusionné avec « / ») compte pour « / ».
+export function resolveModulesBarreBasse(saved: string[]): string[] {
+  const connus = new Set(NAV_ITEMS.map((item) => item.href));
+  const pris = new Set<string>();
+  const reserves = [...DEFAULT_MODULES_BARRE_BASSE, ...NAV_ITEMS.map((item) => item.href)];
+
   return DEFAULT_MODULES_BARRE_BASSE.map((defaultHref, index) => {
-    const href = saved[index];
-    return href && NAV_ITEMS.some((item) => item.href === href) ? href : defaultHref;
+    const brut = saved[index] === "/aujourdhui" ? "/" : saved[index];
+    const candidat =
+      [brut, defaultHref, ...reserves].find((href): href is string => !!href && connus.has(href) && !pris.has(href)) ??
+      defaultHref;
+    pris.add(candidat);
+    return candidat;
   });
 }
 
