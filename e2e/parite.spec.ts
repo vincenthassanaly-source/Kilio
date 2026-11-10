@@ -63,8 +63,8 @@ test("cocher une tâche du jour depuis le Dashboard met /taches à jour", async 
 
   const action = page.waitForResponse((r) => r.request().method() === "POST" && r.request().headers()["next-action"] !== undefined);
   await page.getByRole("button", { name: "Marquer fait", exact: true }).click();
-  // La carte "Aujourd'hui" ne liste que les tâches non faites.
-  await expect(page.getByText("Tâche e2e du jour")).toHaveCount(0);
+  // L'écran du jour garde les tâches faites, repliées sous « N/M faites ».
+  await expect(page.getByText("1/1 faites")).toBeVisible();
 
   await page.getByRole("navigation").locator('a[href="/taches"]').click();
   await page.waitForURL((u) => u.pathname === "/taches");

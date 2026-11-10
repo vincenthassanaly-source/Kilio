@@ -25,21 +25,13 @@ import { SelectionBar } from "./SelectionBar";
 import { TasksList } from "./TasksList";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { errorText, ghostButton, input } from "@/lib/ui";
+import { errorText, ghostButton, input, textButton } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { showToast } from "@/components/toast/toast-store";
 import { QuickAddFab } from "../QuickAddFab";
 import { preloadAddTaskFormWhenIdle } from "./preloadAddTaskForm";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { ErrorInline } from "@/components/ErrorInline";
-
-const LISTE_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 6h16" />
-    <path d="M4 12h16" />
-    <path d="M4 18h16" />
-  </svg>
-);
 
 const SEARCH_ICON = (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -247,56 +239,64 @@ export function TachesView() {
 
   const nbFiltresActifs = priorites.size;
   const trie = ordre !== "manuel";
+  const nbEnRetard = useMemo(
+    () => (taches ?? []).filter((t) => !t.fait && t.echeance !== null && t.echeance < aujourdhui).length,
+    [taches, aujourdhui]
+  );
+  const listeActive = listeId !== "toutes" ? listes.find((l) => l.id === listeId) : undefined;
+  // Résumé du filtre actif, visible même panneau replié : on voit tout de suite
+  // pourquoi la liste est plus courte que prévu.
+  const resumeFiltres = [
+    listeActive ? listeActive.nom : null,
+    nbFiltresActifs > 0 ? `${nbFiltresActifs} priorité${nbFiltresActifs > 1 ? "s" : ""}` : null,
+    trie ? `trié par ${ORDRES.find((o) => o.value === ordre)?.label.toLowerCase()}` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const libelleVue = VUES.find((v) => v.key === vue)?.label ?? "";
+  const filtresReinitialisables = listeId !== "toutes" || nbFiltresActifs > 0 || ordre !== "manuel";
+  function reinitialiserFiltres() {
+    setListeId("toutes");
+    setPriorites(new Set());
+    setOrdre("manuel");
+  }
+  const toutSelectionnable = filtered.filter((t) => !t.fait).map((t) => t.id);
+  const messageVide =
+    vue === "en_retard" ? (
+      <>Rien en retard. Tout est à jour.</>
+    ) : filtresReinitialisables ? (
+      <>
+        <p>Aucune tâche avec ces filtres.</p>
+        <button type="button" onClick={reinitialiserFiltres} className="mt-1 text-kcal underline">
+          Réinitialiser les filtres
+        </button>
+      </>
+    ) : vue === "aujourdhui" ? (
+      <>Rien de prévu aujourd’hui.</>
+    ) : vue === "semaine" ? (
+      <>Rien de prévu dans les 7 prochains jours.</>
+    ) : (
+      <>Aucune tâche pour l’instant. Le bouton « + » en crée une.</>
+    );
 
   return (
     <>
     <PullToRefresh onRefresh={handleRefresh}>
     {/* pb-12 : dégage les dernières cartes (boutons « Modifier / Suppr. » à
         droite) du FAB, posé au-dessus de la barre du bas. */}
-    <div className="flex flex-col gap-4 pb-12">
+    <div className={`flex flex-col gap-4 ${selection ? "pb-52" : "pb-12"}`}>
       {/* Contrôle segmenté partagé (T7) : actif en vert Kcal au lieu de
           l'ancien jaune Glucides (One Accent Rule, 2,2:1 en sombre). */}
       <SegmentedControl
         ariaLabel="Vue des tâches"
         taille="sm"
-        options={VUES.map((v) => ({ value: v.key, label: v.label }))}
+        options={VUES.map((v) => ({
+          value: v.key,
+          label: v.key === "en_retard" && nbEnRetard > 0 ? `${v.label} · ${nbEnRetard}` : v.label,
+        }))}
         value={vue}
         onChange={setVue}
       />
-
-      <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore>
-        <Link
-          href="/taches/listes"
-          aria-label="Gérer les listes"
-          title="Gérer les listes"
-          className="relative after:absolute after:-inset-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors hover:bg-surface-alt"
-        >
-          {LISTE_ICON}
-        </Link>
-        <button
-          type="button"
-          onClick={() => setListeId("toutes")}
-          className={`flex shrink-0 items-center gap-[7px] whitespace-nowrap rounded-2xl border px-3.5 py-2.5 shadow-card transition-colors ${
-            listeId === "toutes" ? "border-kcal bg-kcal-soft" : "border-line bg-surface"
-          }`}
-        >
-          <span className="h-[9px] w-[9px] rounded-full" style={{ background: "var(--color-kcal)" }} />
-          <span className="text-label font-semibold text-ink">Toutes</span>
-        </button>
-        {listes.map((liste) => (
-          <button
-            key={liste.id}
-            type="button"
-            onClick={() => setListeId(liste.id)}
-            className={`flex shrink-0 items-center gap-[7px] whitespace-nowrap rounded-2xl border px-3.5 py-2.5 shadow-card transition-colors ${
-              listeId === liste.id ? "border-kcal bg-kcal-soft" : "border-line bg-surface"
-            }`}
-          >
-            <span className="h-[9px] w-[9px] rounded-full" style={{ background: liste.couleur ?? "var(--color-kcal)" }} />
-            <span className="text-label font-semibold text-ink">{liste.nom}</span>
-          </button>
-        ))}
-      </div>
 
       <div className="relative">
         <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2">{SEARCH_ICON}</span>
@@ -327,59 +327,86 @@ export function TachesView() {
             onClick={() => setFiltresOuverts((o) => !o)}
             aria-expanded={filtresOuverts}
             aria-controls="taches-filtres"
-            className={ghostButton}
+            className={`${ghostButton} min-w-0 max-w-full justify-start`}
           >
-            Filtres et tri{trie && <span className="ml-1 text-ink-3">· trié</span>}
-            {nbFiltresActifs > 0 && (
-              <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-kcal px-1.5 text-micro font-semibold text-on-kcal">
-                {nbFiltresActifs}
-              </span>
-            )}
+            <span className="truncate">
+              Filtres et tri
+              {resumeFiltres && <span className="ml-1 text-ink-3">· {resumeFiltres}</span>}
+            </span>
           </button>
+          {/* Hors du panneau : la gestion des listes reste à un tap, sans ouvrir les filtres. */}
+          <Link href="/taches/listes" className={`${ghostButton} ml-auto shrink-0`}>
+            Listes
+          </Link>
           <button
             type="button"
             onClick={() => (selection ? quitterSelection() : setSelection(true))}
             aria-pressed={selection}
-            className={ghostButton}
+            className={`${ghostButton} shrink-0`}
           >
-            {selection ? "Terminer" : "Sélectionner"}
+            {selection ? "Fermer" : "Sélectionner"}
           </button>
         </div>
         {/* Toujours dans le DOM (hidden) : aria-controls pointe vers un élément réel. */}
-        <div id="taches-filtres" hidden={!filtresOuverts} className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par priorité">
-            {FILTRES_PRIORITE.map((f) => {
-              const actif = priorites.has(f.value);
-              return (
-                <button
-                  key={f.value}
-                  type="button"
-                  aria-pressed={actif}
-                  onClick={() => basculerPriorite(f.value)}
-                  className={`relative after:absolute after:inset-x-0 after:-inset-y-1.5 min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-small font-semibold transition-colors ${
-                    actif ? "border-kcal bg-kcal-soft text-ink" : "border-line bg-surface text-ink-2"
-                  }`}
-                >
-                  {f.label}
-                </button>
-              );
-            })}
+        <div id="taches-filtres" hidden={!filtresOuverts} className="flex flex-col gap-3 rounded-card border border-line bg-surface p-3.5">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-small font-semibold text-ink-2">Liste</span>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par liste">
+              {[{ id: "toutes", nom: "Toutes", couleur: null as string | null }, ...listes].map((liste) => {
+                const actif = listeId === liste.id;
+                return (
+                  <button
+                    key={liste.id}
+                    type="button"
+                    aria-pressed={actif}
+                    onClick={() => setListeId(liste.id)}
+                    className={`relative flex min-h-11 shrink-0 items-center gap-[7px] whitespace-nowrap rounded-2xl border px-3.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                      actif ? "border-kcal bg-kcal-soft" : "border-line bg-surface"
+                    }`}
+                  >
+                    <span className="h-[9px] w-[9px] rounded-full" style={{ background: liste.couleur ?? "var(--color-kcal)" }} />
+                    <span className="text-label font-semibold text-ink">{liste.nom}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <label className="flex min-w-0 items-center gap-2 text-small text-ink-2">
-            <span className="shrink-0">Trier</span>
-            <select
+          <div className="flex flex-col gap-1.5">
+            <span className="text-small font-semibold text-ink-2">Priorité</span>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par priorité">
+              {FILTRES_PRIORITE.map((f) => {
+                const actif = priorites.has(f.value);
+                return (
+                  <button
+                    key={f.value}
+                    type="button"
+                    aria-pressed={actif}
+                    onClick={() => basculerPriorite(f.value)}
+                    className={`relative after:absolute after:inset-x-0 after:-inset-y-1.5 min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                      actif ? "border-kcal bg-kcal-soft text-ink" : "border-line bg-surface text-ink-2"
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-small font-semibold text-ink-2">Trier</span>
+            <SegmentedControl
+              ariaLabel="Trier les tâches"
+              taille="sm"
+              options={ORDRES.map((o) => ({ value: o.value, label: o.label }))}
               value={ordre}
-              onChange={(e) => setOrdre(e.target.value as OrdreTaches)}
-              aria-label="Trier les tâches"
-              className={`${input} min-h-11 min-w-0 py-1.5 text-small`}
-            >
-              {ORDRES.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={setOrdre}
+            />
+          </div>
+          {filtresReinitialisables && (
+            <button type="button" onClick={reinitialiserFiltres} className={`${textButton} self-start`}>
+              Réinitialiser
+            </button>
+          )}
         </div>
       </div>
 
@@ -407,13 +434,15 @@ export function TachesView() {
         <ErrorInline message="Impossible de charger les tâches." retry={() => refetchTaches()} />
       ) : recherche.trim() && filtered.length === 0 ? (
         <p className="py-6 text-center text-label text-ink-2">
-          Aucune tâche ne correspond à « {recherche.trim()} ».
+          Aucune tâche ne correspond à « {recherche.trim()} »
+          {vue !== "toutes" || listeActive ? ` dans ${[vue !== "toutes" ? libelleVue : null, listeActive?.nom ?? null].filter(Boolean).join(" · ")}` : ""}.
         </p>
       ) : (
         <TasksList
           taches={filtered}
           listes={listes}
           tags={tags}
+          messageVide={messageVide}
           reordonnable={reordonnable}
           highlightedId={tacheSurlignee}
           selectionMode={selection}
@@ -426,7 +455,14 @@ export function TachesView() {
     {/* Hors de PullToRefresh : ni le bouton ni sa feuille de saisie ne doivent
         partager les gestes tactiles du tirer-pour-rafraîchir. */}
     {selection && (
-      <SelectionBar ids={selectionVisible} taches={taches ?? []} listes={listes} onDone={quitterSelection} />
+      <SelectionBar
+        ids={selectionVisible}
+        taches={taches ?? []}
+        listes={listes}
+        toutesLesIds={toutSelectionnable}
+        onToutSelectionner={(ids) => setSelectionIds(new Set(ids))}
+        onDone={quitterSelection}
+      />
     )}
     {!ajoutInlineOuvert && !selection && (
       <QuickAddFab

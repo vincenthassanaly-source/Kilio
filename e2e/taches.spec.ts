@@ -76,7 +76,8 @@ test("supprime une tâche, puis « Annuler » la rétablit sans l'effacer de la 
   const titre = nom("Ranger le garage");
   await creerTache(page, titre);
 
-  await ligne(page, titre).getByRole("button", { name: "Suppr." }).click();
+  await ligne(page, titre).getByRole("button", { name: `Modifier « ${titre} »` }).click();
+  await page.getByRole("button", { name: "Supprimer" }).click();
   await expect(page.getByText(`« ${titre} » supprimée`)).toBeVisible();
   await expect(ligne(page, titre)).toHaveCount(0);
 
@@ -91,7 +92,7 @@ test("filtre les tâches avec la recherche", async ({ page }) => {
   await creerTache(page, rapport);
   await creerTache(page, train);
 
-  const recherche = page.getByRole("textbox", { name: "Rechercher une tâche…" });
+  const recherche = page.getByRole("textbox", { name: "Rechercher une tâche" });
   await recherche.fill("train");
   await expect(ligne(page, train)).toBeVisible();
   await expect(ligne(page, rapport)).toHaveCount(0);

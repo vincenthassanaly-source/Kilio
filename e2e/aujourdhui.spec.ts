@@ -28,12 +28,19 @@ test("affiche l'événement, la tâche du jour et le résumé des repas", async 
   await page.clock.setFixedTime(aujourdhuiParisA(process.env.E2E_HEURE_FIGEE ?? "07:00"));
   await page.goto("/aujourdhui");
 
-  await expect(page.getByRole("heading", { name: "Aujourd'hui", level: 1 })).toBeVisible();
+  // Écran du jour unique à la racine : le h1 est la salutation (qui varie avec l'heure).
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("button", { name: /09:00 Rendez-vous e2e, événement de 09:00 à 10:00/ })).toBeVisible();
   // La tâche figure aussi dans la carte « Plan du jour » : on cible la liste du jour.
   await expect(page.getByLabel("Tâches").getByText("Tâche e2e du jour")).toBeVisible();
-  // Le plan est replié par défaut : on l'ouvre (le clic peut précéder
-  // l'hydratation, donc on ne clique que tant qu'il n'est pas ouvert).
+  // Le plan vit dans la section « Plan, jour libre et revue », repliée par
+  // défaut, puis lui-même replié : on ouvre les deux (le clic peut précéder
+  // l'hydratation, donc on ne clique que tant qu'ils ne sont pas ouverts).
+  const section = page.locator("details").filter({ hasText: "Plan, jour libre et revue" });
+  await expect(async () => {
+    if ((await section.getAttribute("open")) === null) await section.locator("summary").click();
+    await expect(section).toHaveAttribute("open", "", { timeout: 1000 });
+  }).toPass();
   const bouton = page.getByRole("button", { name: /Plan du jour/ });
   await expect(async () => {
     if ((await bouton.getAttribute("aria-expanded")) !== "true") await bouton.click();
@@ -67,9 +74,11 @@ test("ajoute un événement depuis la frise", async ({ page }) => {
 
 test("la barre « Aujourd'hui » est joignable depuis la grille Plus", async ({ page }) => {
   await page.goto("/plus");
-  await page.locator('a[href="/aujourdhui"]').filter({ visible: true }).first().click();
-  await page.waitForURL((u) => u.pathname === "/aujourdhui");
-  await expect(page.getByRole("heading", { name: "Aujourd'hui", level: 1 })).toBeVisible();
+  // `/aujourdhui` redirige vers la racine : la barre du bas pointe désormais sur `/`.
+  await page.getByRole("navigation").locator('a[href="/"]').filter({ visible: true }).first().click();
+  await page.waitForURL((u) => u.pathname === "/");
+  // Écran du jour unique à la racine : le h1 est la salutation (qui varie avec l'heure).
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
 test("planifie une tâche sans heure dans un créneau libre", async ({ page }) => {
