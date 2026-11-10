@@ -36,7 +36,6 @@ import { ListView } from "./ListView";
 import { parseISODate, toISODate } from "@/lib/date/iso";
 import { errorText, secondaryButton } from "@/lib/ui";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 
 const AddTaskForm = dynamic(() => import("../taches/AddTaskForm").then((m) => m.AddTaskForm), {
   ssr: false,
@@ -127,6 +126,8 @@ export function AgendaView() {
     return dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? parseISODate(dateParam) : startOfToday();
   });
   const [fabOpen, setFabOpen] = useState(false);
+  // Menu du FAB unique (Tâche / Événement), fermé au tap extérieur et à Échap.
+  const [menuAjoutOpen, setMenuAjoutOpen] = useState(false);
   // Événement léger en cours d'édition (`{}` = création), voir EvenementForm.
   const [evenementForm, setEvenementForm] = useState<{ evenement?: Evenement } | null>(null);
   const [evenementsMasques, setEvenementsMasques] = useState<ReadonlySet<string>>(() => new Set());
@@ -221,6 +222,15 @@ export function AgendaView() {
     setFabOpen(false);
     setEvenementForm(null);
   });
+
+  useEffect(() => {
+    if (!menuAjoutOpen) return;
+    const surEchap = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuAjoutOpen(false);
+    };
+    window.addEventListener("keydown", surEchap);
+    return () => window.removeEventListener("keydown", surEchap);
+  }, [menuAjoutOpen]);
 
   function selectDay(date: Date) {
     setSelectedDate(date);
@@ -336,18 +346,69 @@ export function AgendaView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <button
-        type="button"
-        onClick={() => setFabOpen(true)}
-        aria-label="Ajouter une tâche"
+      {menuAjoutOpen && (
+        <div
+          aria-hidden
+          data-masquer-saisie
+          className="fixed inset-0 z-30"
+          onClick={() => setMenuAjoutOpen(false)}
+        />
+      )}
+      <div
         data-masquer-saisie
-        className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+        className="fixed right-4 z-40 flex flex-col items-end gap-2"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-      </button>
+        {menuAjoutOpen && (
+          <div role="menu" aria-label="Ajouter" className="flex flex-col items-end gap-2">
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setMenuAjoutOpen(false);
+                setEvenementForm({});
+              }}
+              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            >
+              Événement
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setMenuAjoutOpen(false);
+                setFabOpen(true);
+              }}
+              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            >
+              Tâche
+            </button>
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => setMenuAjoutOpen((v) => !v)}
+          aria-label="Ajouter une tâche ou un événement"
+          aria-haspopup="menu"
+          aria-expanded={menuAjoutOpen}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            aria-hidden="true"
+            className={reduceMotion ? "" : "transition-transform duration-200"}
+            style={{ transform: menuAjoutOpen ? "rotate(45deg)" : undefined }}
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+      </div>
 
       <AnimatePresence>
         {fabOpen && (
@@ -391,7 +452,7 @@ export function AgendaView() {
       </AnimatePresence>
 
       <div className="flex items-center gap-2">
-        <div className="flex flex-1 rounded-2xl border border-line bg-surface p-1">
+        <div role="group" aria-label="Vue de l'agenda" className="flex flex-1 rounded-2xl border border-line bg-surface p-1">
           {VIEWS.map((v) => (
             <button
               key={v.key}
@@ -413,17 +474,6 @@ export function AgendaView() {
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => setEvenementForm({})}
-          aria-label="Ajouter un événement"
-          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface px-3 text-small font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          Événement
-        </button>
       </div>
 
       {actualisationKo && (
@@ -434,7 +484,7 @@ export function AgendaView() {
       {etatListe === "chargement" ? (
         <div className="flex flex-col gap-4">
           <Skeleton className="h-10 w-full rounded-2xl" />
-          <ListItemSkeletonGroup count={5} withSubtitle />
+          <Skeleton className="h-[55vh] w-full rounded-2xl" />
         </div>
       ) : etatListe === "erreur" || !taches ? (
         <div className="flex flex-col items-center gap-3 py-4 text-center" role="alert">

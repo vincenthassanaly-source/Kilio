@@ -40,7 +40,9 @@ export function ArchivedTasksSection({
           className={`text-ink-2 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           aria-hidden
         >
-          ▾
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </span>
       </button>
       <AnimatePresence initial={false}>

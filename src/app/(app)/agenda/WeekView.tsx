@@ -47,6 +47,17 @@ const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffec
 
 type Tache = Tables<"taches">;
 
+// En dessous de cette largeur de colonne, la bande « sans heure » n'affiche
+// qu'un compteur : les titres y seraient illisibles (≈45 px au zoom plancher).
+const COLONNE_TITRES_MIN_PX = 80;
+
+function libelleJour(day: Date, nbTaches: number, nbEvenements: number): string {
+  const parts = [`Voir le ${format(day, "EEEE d MMMM", { locale: fr })}`];
+  if (nbTaches > 0) parts.push(`${nbTaches} tâche${nbTaches > 1 ? "s" : ""}`);
+  if (nbEvenements > 0) parts.push(`${nbEvenements} événement${nbEvenements > 1 ? "s" : ""}`);
+  return parts.join(", ");
+}
+
 export function WeekView({
   taches,
   creneaux,
@@ -183,15 +194,13 @@ export function WeekView({
                     type="button"
                     onClick={() => onSelectDay(day)}
                     aria-current={isToday(day) ? "date" : undefined}
-                    className={`sticky top-0 z-10 flex h-11 flex-col items-center justify-center gap-0 border-b border-line bg-surface text-center ${
-                      isToday(day) ? "text-agenda" : "text-ink"
-                    }`}
+                    className="sticky top-0 z-10 flex h-11 flex-col items-center justify-center gap-0 border-b border-line bg-surface text-center text-ink"
                   >
                     <span className="text-micro font-semibold">{format(day, "EEE", { locale: fr })}</span>
                     <span
-                      className={`text-micro text-ink-2 ${
-                        feries?.has(toISODate(day)) ? "font-semibold underline decoration-2 underline-offset-2" : ""
-                      }`}
+                      className={`text-micro ${
+                        isToday(day) ? "rounded-full bg-agenda px-1.5 font-bold text-on-agenda" : "text-ink-2"
+                      } ${feries?.has(toISODate(day)) ? "font-semibold underline decoration-2 underline-offset-2" : ""}`}
                     >
                       {format(day, "d MMM", { locale: fr })}
                     </span>
@@ -206,16 +215,27 @@ export function WeekView({
                     className="flex flex-wrap items-center gap-0.5 overflow-hidden border-b border-line/60 px-0.5 py-0.5"
                     style={{ height: UNSCHEDULED_BAND_HEIGHT }}
                   >
-                    {dayTachesSansHeure.slice(0, 2).map((t) => (
-                      <span
-                        key={t.id}
-                        className="truncate rounded bg-surface-alt px-1 py-0.5 text-micro font-medium text-ink-2"
-                      >
-                        {t.titre}
+                    {dayTachesSansHeure.length > 0 && dayColumnWidth < COLONNE_TITRES_MIN_PX ? (
+                      <span className="rounded bg-surface-alt px-1.5 py-0.5 text-micro font-semibold text-ink-2">
+                        <span aria-hidden>{dayTachesSansHeure.length}</span>
+                        <span className="sr-only">
+                          {dayTachesSansHeure.length} tâche{dayTachesSansHeure.length > 1 ? "s" : ""} sans heure
+                        </span>
                       </span>
-                    ))}
-                    {dayTachesSansHeure.length > 2 && (
-                      <span className="text-micro text-ink-2">+{dayTachesSansHeure.length - 2}</span>
+                    ) : (
+                      <>
+                        {dayTachesSansHeure.slice(0, 2).map((t) => (
+                          <span
+                            key={t.id}
+                            className="truncate rounded bg-surface-alt px-1 py-0.5 text-micro font-medium text-ink-2"
+                          >
+                            {t.titre}
+                          </span>
+                        ))}
+                        {dayTachesSansHeure.length > 2 && (
+                          <span className="text-micro text-ink-2">+{dayTachesSansHeure.length - 2}</span>
+                        )}
+                      </>
                     )}
                   </button>
 
@@ -224,7 +244,7 @@ export function WeekView({
                     onClick={() => onSelectDay(day)}
                     className="relative block w-full text-left"
                     style={{ height: gridHeight(zoom) }}
-                    aria-label={`Voir le ${format(day, "EEEE d MMMM", { locale: fr })}`}
+                    aria-label={libelleJour(day, dayTachesAvecHeure.length + dayTachesSansHeure.length, dayEvenements.length)}
                   >
                     <HourLines zoom={zoom} />
                     <WorkHoursBand creneaux={creneauxJour} zoom={zoom} />

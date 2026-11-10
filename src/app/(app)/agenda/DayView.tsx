@@ -130,12 +130,15 @@ export function DayView({
         {dayTachesSansHeure.length > 0 && (
           <div className="flex flex-wrap gap-1 border-b border-line/60 px-3 py-2">
             {dayTachesSansHeure.map((t) => (
-              <span
+              <button
                 key={t.id}
-                className="max-w-[220px] truncate rounded bg-surface-alt px-2 py-1 text-xs text-ink-2"
+                type="button"
+                onClick={() => onSelectTache(t.id)}
+                aria-label={`Tâche sans heure ${t.titre}. Voir la tâche`}
+                className="relative min-h-9 max-w-[220px] truncate rounded bg-surface-alt px-2 py-1 text-xs text-ink-2 after:absolute after:inset-x-0 after:-inset-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
               >
                 {t.titre}
-              </span>
+              </button>
             ))}
           </div>
         )}
@@ -178,7 +181,11 @@ export function DayView({
       </div>
 
       {dayTaches.length === 0 && dayTachesArchivees.length === 0 ? (
-        <p className="text-ink-2">Aucune tâche ce jour-là.</p>
+        <p className="text-ink-2">
+          {dayEvenements.length + dayJourneeEntiere.length > 0
+            ? "Aucune tâche ce jour-là, seulement des événements."
+            : "Journée libre : rien de prévu."}
+        </p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {dayTaches.map((tache) => (

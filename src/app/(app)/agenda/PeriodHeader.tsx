@@ -8,6 +8,14 @@ import { navArrowButton, sectionTitle } from "@/lib/ui";
 // affichée ne contient pas la date du jour, mais réserve toujours sa place
 // (rendu invisible plutôt qu'absent du DOM) pour que la hauteur de
 // l'en-tête ne saute jamais entre les deux états.
+function ChevronIcon({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={direction === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
+    </svg>
+  );
+}
+
 export function PeriodHeader({
   title,
   capitalizeTitle = false,
@@ -30,7 +38,7 @@ export function PeriodHeader({
   return (
     <div className="flex items-center justify-between gap-2">
       <button type="button" onClick={onPrev} className={navArrowButton} aria-label={prevLabel}>
-        ←
+        <ChevronIcon direction="left" />
       </button>
       <div className="flex flex-col items-center gap-0.5">
         <span className={`${sectionTitle} ${capitalizeTitle ? "capitalize" : ""}`}>{title}</span>
@@ -38,7 +46,7 @@ export function PeriodHeader({
           <button
             type="button"
             onClick={onToday}
-            className="text-caption font-semibold text-kcal underline"
+            className="relative text-caption font-semibold text-kcal underline after:absolute after:-inset-x-3 after:-inset-y-2.5"
           >
             Aujourd&apos;hui
           </button>
@@ -49,7 +57,7 @@ export function PeriodHeader({
         )}
       </div>
       <button type="button" onClick={onNext} className={navArrowButton} aria-label={nextLabel}>
-        →
+        <ChevronIcon direction="right" />
       </button>
     </div>
   );
