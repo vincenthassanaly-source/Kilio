@@ -39,7 +39,7 @@ export function BarreRepos({
           <div className="flex min-w-0 flex-col">
             <span className="text-small font-medium text-ink-2">{fini ? "Repos terminé" : "Repos"}</span>
             <span
-              className={`font-display text-[30px] font-semibold leading-none tabular-nums tracking-[-0.02em] ${
+              className={`font-display text-display font-semibold leading-none tabular-nums tracking-[-0.02em] ${
                 fini ? "text-kcal" : "text-ink"
               }`}
               role="timer"

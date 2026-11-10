@@ -1,5 +1,17 @@
+"use client";
+
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { card, errorText, linkButton, primaryButton } from "@/lib/ui";
+
+function subscribeConnexion(notifier: () => void) {
+  window.addEventListener("online", notifier);
+  window.addEventListener("offline", notifier);
+  return () => {
+    window.removeEventListener("online", notifier);
+    window.removeEventListener("offline", notifier);
+  };
+}
 
 function AlertIcon() {
   return (
@@ -26,6 +38,11 @@ function AlertIcon() {
  * à `reset`) ; le lien vers l'accueil sert de
  * secours si l'erreur persiste après le retry. */
 export function ErrorState({ retry }: { retry: () => void }) {
+  const enLigne = useSyncExternalStore(
+    subscribeConnexion,
+    () => navigator.onLine,
+    () => true
+  );
   return (
     <div className="flex flex-col items-center gap-4 py-10 text-center">
       <div className={`${card} flex w-full max-w-sm flex-col items-center gap-3`}>
@@ -38,7 +55,9 @@ export function ErrorState({ retry }: { retry: () => void }) {
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-heading-sm font-semibold text-ink">Une erreur est survenue</h1>
           <p className={errorText}>
-            Quelque chose s&apos;est mal passé de notre côté. Tu peux réessayer, ou revenir à l&apos;accueil.
+            {enLigne
+              ? "Quelque chose s'est mal passé de notre côté. Tu peux réessayer, ou revenir à l'accueil."
+              : "Tu es hors ligne : cet écran a besoin du réseau. Réessaie dès que la connexion revient."}
           </p>
         </div>
         <div className="flex w-full flex-col items-center gap-2 pt-1">

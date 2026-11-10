@@ -197,7 +197,7 @@ export function SeanceView() {
     <div className="flex flex-col gap-4 pb-44">
       {/* La taille vient du conteneur : sur écran tactile, globals.css impose
           `font-size: max(16px, 1em)` aux champs, où 1em est celle du parent. */}
-      <div className="font-display text-[26px] font-semibold leading-[1.15] tracking-[-0.02em] text-ink">
+      <div className="font-display text-display font-semibold leading-[1.15] tracking-[-0.02em] text-ink">
         <input
           value={b.nom}
           onChange={(e) => maj((courant) => ({ ...courant, nom: e.target.value.slice(0, 80) }))}
@@ -211,7 +211,7 @@ export function SeanceView() {
           <span
             role="timer"
             aria-label="Durée de la séance"
-            className="font-display text-[26px] font-semibold leading-none tracking-[-0.02em] text-ink"
+            className="font-display text-display font-semibold leading-none tracking-[-0.02em] text-ink"
           >
             <Chrono debutA={b.debutA} />
           </span>

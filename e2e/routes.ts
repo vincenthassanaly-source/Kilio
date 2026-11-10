@@ -18,7 +18,6 @@ export const ROUTES: RouteContract[] = [
   { path: "/courses", title: "Courses" },
   { path: "/notes", title: "Notes" },
   { path: "/agenda", title: "Agenda" },
-  { path: "/aujourdhui", title: "Aujourd'hui" },
   { path: "/nutrition/recettes", title: "Recettes" },
   { path: "/objectifs", title: "Objectifs" },
   { path: "/documents", title: "Documents" },

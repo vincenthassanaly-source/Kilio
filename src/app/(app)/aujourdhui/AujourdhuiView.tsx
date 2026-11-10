@@ -112,8 +112,6 @@ export function AujourdhuiView({ today }: { today: string }) {
     return () => window.clearTimeout(timer);
   }, [tacheSurlignee]);
 
-  const dateLabel = parseISODate(today).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
-
   function fermerFormulaire() {
     setFormulaire(null);
   }
@@ -156,9 +154,7 @@ export function AujourdhuiView({ today }: { today: string }) {
 
   return (
     <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
-      <p className="-mt-3 text-label font-medium text-ink-2 first-letter:uppercase">{dateLabel}</p>
-
-      {ferieDuJour && <FerieBadge nom={ferieDuJour} className="-mt-2 self-start" />}
+      {ferieDuJour && <FerieBadge nom={ferieDuJour} className="self-start" />}
 
       <ScoreDuJourCard today={today} tachesDuJour={duJour} tachesChargent={tachesChargent} />
 
@@ -194,33 +190,47 @@ export function AujourdhuiView({ today }: { today: string }) {
         <EnRetardSection taches={enRetard} today={today} compact />
       )}
 
-      {!tachesChargent && <PlanDuJourCard taches={taches ?? []} libres={libres} today={today} />}
-
       <DashboardHabitudesSection today={today} className={card} />
-
-      <SeancesCard today={today} />
 
       <RepasRestantsCard today={today} />
 
-      <JourLibreCard today={today} />
+      <SeancesCard today={today} />
 
+      {/* La pesée n'apparaît que lorsqu'elle est due (7 jours sans relevé). */}
       <PeseeCard today={today} />
 
-      {/* Revue hebdomadaire : mise en avant le dimanche, accessible tous les jours. */}
-      <TransitionLink
-        href="/revue"
-        className={`${cardTight} flex min-h-11 items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
-          parseISODate(today).getDay() === 0 ? "border-kcal/60" : ""
-        }`}
-      >
-        <span className="flex flex-col">
-          <span className="text-body font-semibold text-ink">Revue de la semaine</span>
-          <span className="text-small text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
-        </span>
-        <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
-          <path d="M9 5l7 7-7 7" />
-        </svg>
-      </TransitionLink>
+      {/* Le reste n'est pas ce qu'on consulte en premier : replié par défaut
+          pour que l'écran se lise en trois secondes. */}
+      <details className="group flex flex-col gap-4">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-1 text-label font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal [&::-webkit-details-marker]:hidden">
+          Plan, jour libre et revue
+          <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3 transition-transform group-open:rotate-90">
+            <path d="M9 5l7 7-7 7" />
+          </svg>
+        </summary>
+
+        <div className="flex flex-col gap-4">
+          {!tachesChargent && <PlanDuJourCard taches={taches ?? []} libres={libres} today={today} />}
+
+          <JourLibreCard today={today} />
+
+          {/* Revue hebdomadaire : mise en avant le dimanche, accessible tous les jours. */}
+          <TransitionLink
+            href="/revue"
+            className={`${cardTight} flex min-h-11 items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+              parseISODate(today).getDay() === 0 ? "border-kcal/60" : ""
+            }`}
+          >
+            <span className="flex flex-col">
+              <span className="text-body font-semibold text-ink">Revue de la semaine</span>
+              <span className="text-small text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
+            </span>
+            <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </TransitionLink>
+        </div>
+      </details>
 
       <QuickAddFab />
 

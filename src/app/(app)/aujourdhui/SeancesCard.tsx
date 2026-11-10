@@ -19,7 +19,7 @@ function Coche({ faite }: { faite: boolean }) {
     <span
       aria-hidden="true"
       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${
-        faite ? "border-kcal bg-kcal text-on-kcal" : "border-line text-transparent"
+        faite ? "border-kcal bg-kcal text-on-kcal" : "border-control-border text-transparent"
       }`}
     >
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
@@ -48,7 +48,7 @@ function Pastille({
       disabled={desactivee || vide}
       aria-label={`Commencer ${routine.nom}${routine.faite ? " (déjà faite cette semaine)" : ""}`}
       title={vide ? `${LIBELLES_TYPE[groupe.type]} ${routine.pastille} n'a pas d'exercice` : undefined}
-      className={`flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-full px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-40 ${
+      className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-40 ${
         routine.faite ? "bg-kcal-soft text-kcal" : "bg-surface-alt text-ink-2"
       }`}
     >

@@ -17,9 +17,11 @@ export type NavItem = {
 
 // Comportement actuel préservé si Vincent ne personnalise rien (voir
 // migration-preferences-navigation-2026-09-04.sql).
-// « Aujourd'hui » remplace Habitudes dans la barre par défaut : les habitudes du
-// jour y sont affichées, et /habitudes reste atteignable depuis « Plus ».
-export const DEFAULT_MODULES_BARRE_BASSE: readonly string[] = ["/", "/aujourdhui", "/nutrition", "/taches"];
+// « Aujourd'hui » (la racine, ex-« Accueil ») regroupe le jour : agenda, tâches,
+// habitudes, repas. Courses prend l'emplacement de l'ancien second tableau de
+// bord : c'est le module qu'on ouvre d'une main, en magasin ou en cuisine.
+// Un href enregistré qui n'existe plus (« /aujourdhui ») retombe sur le défaut.
+export const DEFAULT_MODULES_BARRE_BASSE: readonly string[] = ["/", "/courses", "/nutrition", "/taches"];
 
 const ACCUEIL_ICON = (c: string) =>
   createElement(
@@ -27,14 +29,6 @@ const ACCUEIL_ICON = (c: string) =>
     { width: 19, height: 19, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
     createElement("path", { d: "M4 11.5 12 4l8 7.5" }),
     createElement("path", { d: "M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9" })
-  );
-
-const AUJOURDHUI_ICON = (c: string) =>
-  createElement(
-    "svg",
-    { width: 19, height: 19, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
-    createElement("circle", { cx: 12, cy: 12, r: 8.5 }),
-    createElement("path", { d: "M12 7.5V12l3 2" })
   );
 
 const NUTRITION_ICON = (c: string) =>
@@ -182,17 +176,10 @@ const OPINIONS_ICON = (c: string) =>
 export const NAV_ITEMS: NavItem[] = [
   {
     href: "/",
-    label: "Accueil",
-    description: "Tableau de bord du jour",
+    label: "Aujourd'hui",
+    description: "Ta journée : agenda, tâches, habitudes, repas",
     icon: ACCUEIL_ICON,
     accentVar: "var(--accent-kcal)",
-  },
-  {
-    href: "/aujourdhui",
-    label: "Aujourd'hui",
-    description: "La journée en une frise : agenda, tâches, retard, repas",
-    icon: AUJOURDHUI_ICON,
-    accentVar: "var(--accent-agenda)",
   },
   {
     href: "/nutrition",

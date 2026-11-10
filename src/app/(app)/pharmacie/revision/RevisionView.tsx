@@ -71,7 +71,7 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
     return (
       <div className={`${card} flex flex-col gap-4`} role="status">
         <div>
-          <p className="font-display text-heading font-bold text-ink">Séance terminée</p>
+          <p className="kl-in font-display text-heading font-bold text-ink">Séance terminée, bien joué.</p>
           <p className="text-label text-ink-2">
             {fait} carte{fait > 1 ? "s" : ""} revue{fait > 1 ? "s" : ""}.
           </p>
