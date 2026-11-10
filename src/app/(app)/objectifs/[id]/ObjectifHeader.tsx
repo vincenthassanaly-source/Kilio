@@ -86,8 +86,8 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
           <button
             type="button"
             disabled={isPending}
-            onClick={() => {
-              if (!confirmDelete(`Supprimer l'objectif « ${objectif.titre} » ?`)) return;
+            onClick={async () => {
+              if (!(await confirmDelete(`Supprimer l'objectif « ${objectif.titre} » ?`))) return;
               setError(null);
               // Invalidée avant l'appel, pas après : `supprimerObjectif` se
               // termine par `redirect("/objectifs")`, qui jette et empêche

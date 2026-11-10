@@ -183,8 +183,8 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
     void queryClient.invalidateQueries({ queryKey: queryKeys.taches });
   }
 
-  function supprimer() {
-    if (!confirmDelete(`Supprimer la note « ${note.titre} » ?`)) return;
+  async function supprimer() {
+    if (!(await confirmDelete(`Supprimer la note « ${note.titre} » ?`))) return;
     setMode("closed");
     deleteMutation.mutate();
   }

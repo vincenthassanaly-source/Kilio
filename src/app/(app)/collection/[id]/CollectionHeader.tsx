@@ -41,8 +41,8 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
     });
   }
 
-  function handleDelete() {
-    if (!confirmDelete(`Supprimer la collection « ${collection.nom} » et toutes ses photos ?`)) return;
+  async function handleDelete() {
+    if (!(await confirmDelete(`Supprimer la collection « ${collection.nom} » et toutes ses photos ?`))) return;
 
     setError(null);
     startTransition(async () => {

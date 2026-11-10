@@ -33,7 +33,7 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
   const { date, depuisBilan } = await lireJourJournal(searchParams);
   const supabase = createAdminClient();
 
-  const [{ data: objectifs }, datesEntrainement, { data: entries }] = await Promise.all([
+  const [{ data: objectifs, error: erreurObjectifs }, datesEntrainement, { data: entries, error: erreurEntrees }] = await Promise.all([
     supabase.from("objectifs_nutritionnels").select("*"),
     getDatesEntrainement(date, date),
     supabase
@@ -43,6 +43,10 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
       )
       .eq("date", date),
   ]);
+
+  // Une panne ne doit pas se lire comme un journal vide : on laisse l'error
+  // boundary du segment proposer « Réessayer ».
+  if (erreurObjectifs || erreurEntrees) throw new Error("Journal illisible");
 
   // Une entrée sans `aliment` ni `recette` est orpheline (référence supprimée
   // en base) : vueRepas renvoie null et on l'ignore plutôt que de planter.

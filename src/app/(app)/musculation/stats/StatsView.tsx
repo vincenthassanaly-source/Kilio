@@ -13,6 +13,7 @@ import { joursDePeriode, type TypePeriode } from "@/lib/musculation/stats";
 import { queryKeys } from "@/lib/query/keys";
 import { card, cardTight, metaText, nameText, navArrowButton, screenTitle, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
+import { BackLink } from "@/components/BackLink";
 
 const OPTIONS = [
   { value: "semaine", label: "Semaine" },
@@ -113,6 +114,7 @@ export function StatsView() {
   const donnees = periode.data;
   return (
     <div className="flex flex-col gap-4 pb-8">
+      <BackLink href="/musculation">Musculation</BackLink>
       <h1 className={screenTitle}>Statistiques</h1>
 
       <SegmentedControl

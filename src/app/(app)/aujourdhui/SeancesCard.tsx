@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getRoutine } from "@/app/actions/musculation";
 import { getSemaineSeances } from "@/app/actions/seances";
+import { ErrorInline } from "@/components/ErrorInline";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showErrorToast } from "@/components/toast/toast-store";
 import { demarrerDepuisRoutine } from "@/lib/musculation/demarrer";
@@ -74,7 +75,7 @@ export function SeancesCard({ today }: { today: string }) {
   const enCours = useBrouillonEnCours();
   const [demarrage, setDemarrage] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.seancesSemaine(today),
     queryFn: () => getSemaineSeances(today),
   });
@@ -94,6 +95,14 @@ export function SeancesCard({ today }: { today: string }) {
       setDemarrage(false);
       showErrorToast("Impossible de démarrer la routine. Vérifie ta connexion.");
     }
+  }
+
+  if (isError && !data) {
+    return (
+      <div className={card}>
+        <ErrorInline message="Séances indisponibles pour le moment." retry={() => void refetch()} />
+      </div>
+    );
   }
 
   if (isLoading || !data) {

@@ -8,10 +8,13 @@ import { AujourdhuiContenu } from "./aujourdhui/AujourdhuiContenu";
 import { GlobalSearchBar } from "./GlobalSearchBar";
 import { ReveilButton } from "./ReveilButton";
 import { SaisieNaturelle } from "./SaisieNaturelle";
+import { heureParis } from "@/lib/date/paris";
 import { getToday } from "./today";
 
-function greeting(date: Date) {
-  const h = date.getHours();
+// Heure de Paris, pas celle du serveur (UTC sur Vercel) : « Bonjour » ne doit pas
+// durer jusqu'à 14 h.
+function greeting() {
+  const h = Number(heureParis().slice(0, 2));
   if (h < 12) return "Bonjour";
   if (h < 18) return "Bon après-midi";
   return "Bonsoir";
@@ -28,7 +31,7 @@ async function DashboardHeader() {
   return (
     <header className="flex flex-col gap-0.5">
       <p className="text-label font-medium text-ink-2 first-letter:uppercase">{dateLabel}</p>
-      <h1 className={screenTitle}>{greeting(new Date())}</h1>
+      <h1 className={screenTitle}>{greeting()}</h1>
     </header>
   );
 }

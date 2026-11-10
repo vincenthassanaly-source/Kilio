@@ -141,8 +141,8 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
     });
   }
 
-  function supprimer() {
-    if (!confirmDelete(`Supprimer l'habitude « ${habitude.nom} » ?`)) return;
+  async function supprimer() {
+    if (!(await confirmDelete(`Supprimer l'habitude « ${habitude.nom} » ?`))) return;
     startTransition(async () => {
       try {
         await supprimerHabitude(habitude.id);

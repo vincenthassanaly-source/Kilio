@@ -7,6 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteEvenement, getEvenements, type Evenement } from "@/app/actions/evenements";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
 import { getTachesAvecRelations } from "@/app/actions/taches";
+import { ErrorInline } from "@/components/ErrorInline";
 import { Modal } from "@/components/Modal";
 import { showToast } from "@/components/toast/toast-store";
 import { Skeleton } from "@/components/skeletons/Skeleton";
@@ -49,11 +50,20 @@ export function AujourdhuiView({ today }: { today: string }) {
 
   useBackClose(formulaire !== null, () => setFormulaire(null));
 
-  const { data: taches, isLoading: tachesChargent } = useQuery({
+  const {
+    data: taches,
+    isLoading: tachesChargent,
+    isError: tachesKo,
+    refetch: relancerTaches,
+  } = useQuery({
     queryKey: queryKeys.taches,
     queryFn: getTachesAvecRelations,
   });
-  const { data: evenements = [] } = useQuery({
+  const {
+    data: evenements = [],
+    isError: evenementsKo,
+    refetch: relancerEvenements,
+  } = useQuery({
     queryKey: queryKeys.evenementsDuJour(today),
     queryFn: () => getEvenements(today, today),
   });
@@ -189,8 +199,18 @@ export function AujourdhuiView({ today }: { today: string }) {
         onSelectTache={setTacheSurlignee}
       />
 
+      {evenementsKo && evenements.length === 0 && (
+        <div className={card}>
+          <ErrorInline message="Agenda indisponible pour le moment." retry={() => void relancerEvenements()} />
+        </div>
+      )}
+
       {tachesChargent ? (
         <Skeleton className="h-32 w-full rounded-card" />
+      ) : tachesKo && !taches ? (
+        <div className={card}>
+          <ErrorInline message="Tâches indisponibles pour le moment." retry={() => void relancerTaches()} />
+        </div>
       ) : (
         <TachesDuJour
           taches={duJour}
@@ -205,7 +225,7 @@ export function AujourdhuiView({ today }: { today: string }) {
           consulte d'abord ; le plan propose des créneaux dans la frise ci-dessus. */}
       {tachesChargent ? (
         <Skeleton className="h-24 w-full rounded-card" />
-      ) : (
+      ) : tachesKo && !taches ? null : (
         <EnRetardSection taches={enRetard} today={today} compact />
       )}
 

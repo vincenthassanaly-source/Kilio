@@ -11,6 +11,7 @@ import { NettoyageAutoRow } from "./NettoyageAutoRow";
 import { RevueHebdoRow } from "./RevueHebdoRow";
 import { NotificationsRow } from "./NotificationsRow";
 import { VidageRow } from "./VidageRow";
+import { BackLink } from "@/components/BackLink";
 
 const INFO_ICON_PROPS = {
   width: 16,
@@ -57,6 +58,7 @@ export default async function ReglagesPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <BackLink href="/plus">Plus</BackLink>
       <h1 className={screenTitle}>Réglages</h1>
 
       <div className="flex flex-col gap-2.5">

@@ -11,6 +11,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE } from "@/lib/seances/compute";
 import { card, cardTight, ghostButton, kcalPillTag, metaText, nameText, screenTitle, secondaryButton } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
+import { BackLink } from "@/components/BackLink";
 
 const PAGE = 30;
 
@@ -43,6 +44,7 @@ export function HistoriqueView() {
 
   return (
     <div className="flex flex-col gap-4">
+      <BackLink href="/musculation">Musculation</BackLink>
       <div className="flex items-center justify-between gap-3">
         <h1 className={screenTitle}>Historique</h1>
         <Link href="/musculation/historique/nouvelle" className={ghostButton}>

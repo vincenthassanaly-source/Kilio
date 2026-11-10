@@ -23,7 +23,7 @@ const DIAMETRE: Record<Epaisseur, number> = { 1: 4, 2: 8, 3: 13 };
 const LIBELLE_EPAISSEUR: Record<Epaisseur, string> = { 1: "Trait fin", 2: "Trait moyen", 3: "Trait épais" };
 
 const bouton =
-  "relative flex h-9 w-9 min-w-8 shrink items-center justify-center rounded-full text-ink transition min-[26rem]:h-11 min-[26rem]:w-11 active:scale-[0.94] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "relative flex h-9 w-9 min-w-8 shrink items-center after:absolute after:-inset-1 min-[26rem]:after:hidden justify-center rounded-full text-ink transition min-[26rem]:h-11 min-[26rem]:w-11 active:scale-[0.94] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 function Icone({ children }: { children: React.ReactNode }) {
   return (
@@ -127,7 +127,7 @@ export function BarreOutils({
           aria-busy={enTranscription}
           disabled={!peutTranscrire || enTranscription}
           onClick={onTranscrire}
-          className="flex h-9 min-w-9 shrink-0 items-center min-[26rem]:h-11 min-[26rem]:min-w-11 justify-center gap-2 rounded-full bg-ink px-2 min-[26rem]:px-3 text-sm font-medium text-surface transition active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal min-[30rem]:px-4"
+          className="relative flex h-9 min-w-9 shrink-0 items-center after:absolute after:-inset-1 min-[26rem]:after:hidden min-[26rem]:h-11 min-[26rem]:min-w-11 justify-center gap-2 rounded-full bg-ink px-2 min-[26rem]:px-3 text-sm font-medium text-surface transition active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal min-[30rem]:px-4"
         >
           {enTranscription ? (
             <Rotation />

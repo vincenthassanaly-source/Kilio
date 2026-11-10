@@ -27,6 +27,7 @@ import { formaterPoids, libellePrecedent } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
 import { card, dangerButton, input, metaText, primaryButton, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
+import { BackLink } from "@/components/BackLink";
 
 function Contenu({ detail }: { detail: EntrainementDetail }) {
   const router = useRouter();
@@ -110,6 +111,7 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
 
   return (
     <div className="flex flex-col gap-4 pb-8">
+      <BackLink href="/musculation/historique">Historique</BackLink>
       <div className="flex flex-col gap-1">
         <h1 className={screenTitle}>{detail.titre}</h1>
         <p className={metaText}>
