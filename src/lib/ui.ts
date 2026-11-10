@@ -54,7 +54,7 @@ export const addCardIcon =
 const zoneTap44 = "relative after:absolute after:inset-x-0 after:-inset-y-1.5";
 
 export const ghostButton =
-  `${zoneTap44} rounded-xl border border-line px-2.5 py-1.5 text-label font-medium text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
+  `${zoneTap44} rounded-xl border border-control-border px-2.5 py-1.5 text-label font-medium text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
 // Variante de `ghostButton` dédiée aux flèches de navigation de période
 // (Agenda : jour/semaine/mois précédent-suivant) — cible tactile 44×44px
 // minimum (h-11 w-11), contrairement à `ghostButton` (compact, utilisé

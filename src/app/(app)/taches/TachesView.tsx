@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
@@ -24,12 +25,14 @@ import { SelectionBar } from "./SelectionBar";
 import { TasksList } from "./TasksList";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { errorText, ghostButton, input, textButton } from "@/lib/ui";
+import { errorText, ghostButton, input, primaryButton, textButton } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { showToast } from "@/components/toast/toast-store";
 import { QuickAddFab } from "../QuickAddFab";
 import { preloadAddTaskFormWhenIdle } from "./preloadAddTaskForm";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { Modal } from "@/components/Modal";
+import { useBackClose } from "@/hooks/useBackClose";
 import { ErrorInline } from "@/components/ErrorInline";
 
 const SEARCH_ICON = (
@@ -54,11 +57,21 @@ const DUREE_SURBRILLANCE_MS = 3000;
 const DUREE_MAX_ATTENTE_CARTE_MS = 6000;
 
 const VUES: { key: VueKey; label: string }[] = [
-  { key: "aujourdhui", label: "Aujourd'hui" },
-  { key: "en_retard", label: "En retard" },
+  // « À faire » = le retard puis aujourd'hui : l'écran ne s'ouvre jamais vide
+  // quand des tâches sont dues. (« Aujourd'hui » est déjà le premier onglet de
+  // la barre du bas, avec un autre sens.)
+  { key: "aujourdhui", label: "À faire" },
+  { key: "en_retard", label: "Retard" },
   { key: "semaine", label: "7 jours" },
-  { key: "toutes", label: "Toutes" },
+  { key: "toutes", label: "Tout" },
 ];
+
+// Grammaire unique des chips de filtre (liste et priorité) : pilule de 44 px,
+// contour de contrôle (≥ 3:1), actif plein comme les segments.
+const CHIP_FILTRE =
+  "relative flex min-h-11 shrink-0 items-center gap-[7px] whitespace-nowrap rounded-full border px-3.5 text-label font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+const CHIP_ACTIF = "border-kcal bg-kcal text-on-kcal";
+const CHIP_INACTIF = "border-control-border bg-surface text-ink";
 
 const ORDRES: { value: OrdreTaches; label: string }[] = [
   { value: "manuel", label: "Ordre manuel" },
@@ -132,7 +145,11 @@ export function TachesView() {
 
     const visibles = taches.filter((tache) => {
       if (listeId !== "toutes" && tache.liste_id !== listeId) return false;
-      if (vue === "aujourdhui" && tache.echeance !== today) return false;
+      if (vue === "aujourdhui") {
+        const duAujourdhui = tache.echeance === today;
+        const enRetard = !tache.fait && tache.echeance !== null && tache.echeance < today;
+        if (!duAujourdhui && !enRetard) return false;
+      }
       if (vue === "en_retard") {
         if (!tache.echeance || tache.echeance >= today || tache.fait) return false;
       }
@@ -148,7 +165,14 @@ export function TachesView() {
       }
       return true;
     });
-    return trierTaches(filtrerParPriorite(visibles, priorites), ordre);
+    const triees = trierTaches(filtrerParPriorite(visibles, priorites), ordre);
+    // « À faire » en ordre manuel : le retard d'abord (tri stable, l'ordre
+    // manuel est conservé dans chaque groupe).
+    if (vue === "aujourdhui" && ordre === "manuel") {
+      const enRetard = (t: (typeof triees)[number]) => !t.fait && t.echeance !== null && t.echeance < today;
+      return [...triees.filter(enRetard), ...triees.filter((t) => !enRetard(t))];
+    }
+    return triees;
   }, [taches, vue, listeId, recherche, priorites, ordre, aujourdhui]);
 
   // Sélection restreinte aux tâches affichées : changer de vue, de liste ou de
@@ -233,9 +257,23 @@ export function TachesView() {
 
   const nbFiltresActifs = priorites.size;
   const trie = ordre !== "manuel";
+  // Compte aligné sur la liste affichée : il suit le filtre de liste actif.
   const nbEnRetard = useMemo(
-    () => (taches ?? []).filter((t) => !t.fait && t.echeance !== null && t.echeance < aujourdhui).length,
-    [taches, aujourdhui]
+    () =>
+      (taches ?? []).filter(
+        (t) => !t.fait && t.echeance !== null && t.echeance < aujourdhui && (listeId === "toutes" || t.liste_id === listeId)
+      ).length,
+    [taches, aujourdhui, listeId]
+  );
+  useBackClose(filtresOuverts, () => setFiltresOuverts(false));
+  // Chip actif ramené en vue à l'ouverture et à chaque changement de liste
+  // (la rangée défile : sans ça, « Toutes » pouvait rester hors cadre).
+  const rangeeListesRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      el?.querySelector<HTMLElement>('[aria-pressed="true"]')?.scrollIntoView({ inline: "nearest", block: "nearest" });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [listeId]
   );
   const listeActive = listeId !== "toutes" ? listes.find((l) => l.id === listeId) : undefined;
   // Résumé du filtre actif, visible même panneau replié : on voit tout de suite
@@ -266,7 +304,7 @@ export function TachesView() {
         </button>
       </>
     ) : vue === "aujourdhui" ? (
-      <>Rien de prévu aujourd’hui.</>
+      <>Rien à faire pour l’instant.</>
     ) : vue === "semaine" ? (
       <>Rien de prévu dans les 7 prochains jours.</>
     ) : (
@@ -286,7 +324,24 @@ export function TachesView() {
         taille="sm"
         options={VUES.map((v) => ({
           value: v.key,
-          label: v.key === "en_retard" && nbEnRetard > 0 ? `${v.label} · ${nbEnRetard}` : v.label,
+          // Compte en badge (jamais dans le libellé, qui se coupait sur deux
+          // lignes) : ambre au repos, teinté du texte sur le segment actif.
+          label:
+            v.key === "en_retard" && nbEnRetard > 0 ? (
+              <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                {v.label}
+                <span
+                  className={`rounded-full px-1.5 text-micro font-bold tabular-nums ${
+                    vue === "en_retard" ? "bg-on-kcal/20 text-on-kcal" : "bg-warning/15 text-warning"
+                  }`}
+                >
+                  {nbEnRetard}
+                </span>
+              </span>
+            ) : (
+              v.label
+            ),
+          ariaLabel: v.key === "en_retard" && nbEnRetard > 0 ? `${v.label}, ${nbEnRetard}` : undefined,
         }))}
         value={vue}
         onChange={setVue}
@@ -319,95 +374,108 @@ export function TachesView() {
         {etatListe === "liste" ? `${filtered.length} tâche${filtered.length > 1 ? "s" : ""} affichée${filtered.length > 1 ? "s" : ""}` : ""}
       </p>
 
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => setFiltresOuverts((o) => !o)}
-            aria-expanded={filtresOuverts}
-            aria-controls="taches-filtres"
-            className={`${ghostButton} min-w-0 max-w-full justify-start`}
-          >
-            <span className="truncate">
-              Filtres et tri
-              {resumeFiltres && <span className="ml-1 text-ink-3">· {resumeFiltres}</span>}
-            </span>
-          </button>
-          {/* Hors du panneau : la gestion des listes reste à un tap, sans ouvrir les filtres. */}
-          <Link href="/taches/listes" className={`${ghostButton} ml-auto shrink-0`}>
-            Listes
-          </Link>
-          <button
-            type="button"
-            onClick={() => (selection ? quitterSelection() : setSelection(true))}
-            aria-pressed={selection}
-            className={`${ghostButton} shrink-0`}
-          >
-            {selection ? "Fermer" : "Sélectionner"}
-          </button>
-        </div>
-        {/* Toujours dans le DOM (hidden) : aria-controls pointe vers un élément réel. */}
-        <div id="taches-filtres" hidden={!filtresOuverts} className="flex flex-col gap-3 rounded-card border border-line bg-surface p-3.5">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-small font-semibold text-ink-2">Liste</span>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1" data-swipe-ignore role="group" aria-label="Filtrer par liste">
-              {[{ id: "toutes", nom: "Toutes", couleur: null as string | null }, ...listes].map((liste) => {
-                const actif = listeId === liste.id;
-                return (
-                  <button
-                    key={liste.id}
-                    type="button"
-                    aria-pressed={actif}
-                    onClick={() => setListeId(liste.id)}
-                    className={`relative flex min-h-11 shrink-0 items-center gap-[7px] whitespace-nowrap rounded-2xl border px-3.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
-                      actif ? "border-kcal bg-kcal-soft" : "border-line bg-surface"
-                    }`}
-                  >
-                    <span className="h-[9px] w-[9px] rounded-full" style={{ background: liste.couleur ?? "var(--color-kcal)" }} />
-                    <span className="text-label font-semibold text-ink">{liste.nom}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <span className="text-small font-semibold text-ink-2">Priorité</span>
-            <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer par priorité">
-              {FILTRES_PRIORITE.map((f) => {
-                const actif = priorites.has(f.value);
-                return (
-                  <button
-                    key={f.value}
-                    type="button"
-                    aria-pressed={actif}
-                    onClick={() => basculerPriorite(f.value)}
-                    className={`relative after:absolute after:inset-x-0 after:-inset-y-1.5 min-h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
-                      actif ? "border-kcal bg-kcal-soft text-ink" : "border-line bg-surface text-ink-2"
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <span className="text-small font-semibold text-ink-2">Trier</span>
-            <SegmentedControl
-              ariaLabel="Trier les tâches"
-              taille="sm"
-              options={ORDRES.map((o) => ({ value: o.value, label: o.label }))}
-              value={ordre}
-              onChange={setOrdre}
-            />
-          </div>
-          {filtresReinitialisables && (
-            <button type="button" onClick={reinitialiserFiltres} className={`${textButton} self-start`}>
-              Réinitialiser
-            </button>
-          )}
-        </div>
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={() => setFiltresOuverts(true)}
+          aria-haspopup="dialog"
+          className={`${ghostButton} min-w-0 max-w-full justify-start`}
+        >
+          <span className="truncate">
+            Filtres et tri
+            {nbFiltresActifs + (listeActive ? 1 : 0) + (trie ? 1 : 0) > 0 && (
+              <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-kcal px-1.5 text-micro font-semibold text-on-kcal">
+                {nbFiltresActifs + (listeActive ? 1 : 0) + (trie ? 1 : 0)}
+              </span>
+            )}
+            {resumeFiltres && <span className="ml-1 text-ink-3">· {resumeFiltres}</span>}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => (selection ? quitterSelection() : setSelection(true))}
+          aria-pressed={selection}
+          className={`${ghostButton} shrink-0`}
+        >
+          {selection ? "Fermer" : "Sélectionner"}
+        </button>
       </div>
+
+      <AnimatePresence>
+        {filtresOuverts && (
+          <Modal key="filtres" title="Filtres et tri" onClose={() => history.back()}>
+            <div className="flex flex-col gap-4 pb-2">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-small font-semibold text-ink-2">Liste</span>
+                <div
+                  ref={rangeeListesRef}
+                  className="flex snap-x items-center gap-2 overflow-x-auto pb-1 pr-6 [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent)]"
+                  data-swipe-ignore
+                  role="group"
+                  aria-label="Filtrer par liste"
+                >
+                  {[{ id: "toutes", nom: "Toutes", couleur: null as string | null }, ...listes].map((liste) => {
+                    const actif = listeId === liste.id;
+                    return (
+                      <button
+                        key={liste.id}
+                        type="button"
+                        aria-pressed={actif}
+                        onClick={() => setListeId(liste.id)}
+                        className={`${CHIP_FILTRE} snap-start ${actif ? CHIP_ACTIF : CHIP_INACTIF}`}
+                      >
+                        <span className="h-[9px] w-[9px] rounded-full" style={{ background: liste.couleur ?? "var(--color-kcal)" }} />
+                        <span>{liste.nom}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-small font-semibold text-ink-2">Priorité</span>
+                <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer par priorité">
+                  {FILTRES_PRIORITE.map((f) => {
+                    const actif = priorites.has(f.value);
+                    return (
+                      <button
+                        key={f.value}
+                        type="button"
+                        aria-pressed={actif}
+                        onClick={() => basculerPriorite(f.value)}
+                        className={`${CHIP_FILTRE} ${actif ? CHIP_ACTIF : CHIP_INACTIF}`}
+                      >
+                        {f.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-small font-semibold text-ink-2">Trier</span>
+                <SegmentedControl
+                  ariaLabel="Trier les tâches"
+                  taille="sm"
+                  options={ORDRES.map((o) => ({ value: o.value, label: o.label }))}
+                  value={ordre}
+                  onChange={setOrdre}
+                />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                {filtresReinitialisables ? (
+                  <button type="button" onClick={reinitialiserFiltres} className={textButton}>
+                    Réinitialiser
+                  </button>
+                ) : (
+                  <span />
+                )}
+                <button type="button" onClick={() => history.back()} className={primaryButton}>
+                  Voir {filtered.length} tâche{filtered.length > 1 ? "s" : ""}
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
 
       {actualisationKo && (
         <p role="status" className={errorText}>
@@ -439,6 +507,12 @@ export function TachesView() {
           onToggleSelect={basculerSelection}
         />
       )}
+
+      {/* Gestion des listes : un lien discret en fin d'écran (action rare), plus un
+          bouton de même poids que le filtre. */}
+      <Link href="/taches/listes" className={`${textButton} self-center`}>
+        Gérer les listes
+      </Link>
     </div>
     </PullToRefresh>
     {/* Hors de PullToRefresh : ni le bouton ni sa feuille de saisie ne doivent
