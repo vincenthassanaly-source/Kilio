@@ -100,6 +100,7 @@ export function AddTaskForm({
   defaultHeure,
   initial,
   initialFiles,
+  enLigne = false,
   onDone,
 }: {
   tache?: TacheAvecRelations;
@@ -114,6 +115,9 @@ export function AddTaskForm({
   // Images de départ en création (partage natif d'un screenshot) : posées
   // dans l'input fichier au montage pour partir avec le formulaire.
   initialFiles?: File[];
+  // Édition dans la carte (liste de /taches) : pas de pied collant. Collé au
+  // bas du viewport, « Enregistrer » passait sous la barre du bas et le « + ».
+  enLigne?: boolean;
   // `id` : id de la tâche créée (création réussie uniquement, cf.
   // TacheFormState). `avertissement` : la tâche est créée mais une étape
   // secondaire (tags, images) a échoué. Les appelants qui n'en ont pas
@@ -786,8 +790,8 @@ export function AddTaskForm({
       </details>
 
       <div
-        className="sticky bottom-0 z-10 flex flex-col items-center gap-2 pt-3"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)" }}
+        className={`flex flex-col items-center gap-2 pt-3 ${enLigne ? "" : "sticky bottom-0 z-10"}`}
+        style={enLigne ? undefined : { paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)" }}
       >
         {state.error && (
           <p className={`${errorText} rounded-xl bg-surface px-3 py-1.5 shadow-card`} role="alert">

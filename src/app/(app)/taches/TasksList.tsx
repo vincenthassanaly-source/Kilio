@@ -397,6 +397,36 @@ export const TaskCard = memo(function TaskCard({
   // Rend le focus au titre quand l'édition se ferme (clavier, lecteur d'écran).
   const boutonTitreRef = useRef<HTMLButtonElement | null>(null);
   const editionDejaOuverte = useRef(false);
+  // Ramène la carte ouverte (boutons du bas compris) dans la zone visible, au-
+  // dessus de la barre du bas (voir scroll-mb sur le <li>). Posé au montage du
+  // <li> : AnimatePresence mode="wait" ne le monte qu'après la sortie de la carte.
+  const observeEdition = useRef<ResizeObserver | null>(null);
+  const editRef = useCallback((el: HTMLLIElement | null) => {
+    observeEdition.current?.disconnect();
+    observeEdition.current = null;
+    if (!el) return;
+    const zone = el.closest("main");
+    if (!zone) return;
+    // Le formulaire est chargé à la demande (dynamic) et la carte grandit après
+    // son montage : on recale à chaque changement de taille, pendant 1,5 s.
+    const recaler = () => {
+      const barre = document.querySelector("nav[aria-label]");
+      if (!barre) return;
+      // Dernier pixel visible : sommet de la barre du bas ou du « + » flottant
+      // (le plus haut des deux), moins un peu d'air.
+      const fab = document.querySelector('button[aria-label="Ajouter une tâche"]');
+      const sommet = Math.min(barre.getBoundingClientRect().top, fab?.getBoundingClientRect().top ?? Infinity);
+      const trop = el.getBoundingClientRect().bottom - (sommet - 16);
+      // Doux, sauf si le mouvement réduit est demandé.
+      const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (trop > 0) zone.scrollBy({ top: trop, behavior: reduit ? "auto" : "smooth" });
+    };
+    const observer = new ResizeObserver(recaler);
+    observer.observe(el);
+    observeEdition.current = observer;
+    window.setTimeout(() => observer.disconnect(), 1500);
+    requestAnimationFrame(recaler);
+  }, []);
   useEffect(() => {
     if (editing) editionDejaOuverte.current = true;
     else if (editionDejaOuverte.current) {
@@ -410,10 +440,11 @@ export const TaskCard = memo(function TaskCard({
   // Bascule carte compacte <-> formulaire d'édition : cross-fade (comme
   // AnimatedAddCard) plutôt que `layout`, qui interpolerait les dimensions
   // très différentes des deux états et produirait un effet d'étirement.
-  const editSwapTransition = reduceMotion ? { duration: 0 } : { duration: 0.18 };
+  // Arrivée 220 ms en décélération (--ease-out), sortie plus courte (120 ms).
+  const editSwapTransition = reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const };
   const editSwapInitial = reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98 };
   const editSwapAnimate = { opacity: 1, scale: 1 };
-  const editSwapExit = reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98 };
+  const editSwapExit = reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98, transition: { duration: 0.12 } };
   const queryClient = useQueryClient();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: tache.id,
@@ -545,14 +576,16 @@ export const TaskCard = memo(function TaskCard({
     return (
       <AnimatePresence mode="wait" propagate>
         <motion.li
+          ref={editRef}
           key="edit"
           initial={editSwapInitial}
           animate={editSwapAnimate}
           exit={editSwapExit}
           transition={editSwapTransition}
-          className={card}
+          className={`${card} mb-28 scroll-mb-[calc(env(safe-area-inset-bottom)+8rem)]`}
         >
           <AddTaskForm
+            enLigne
             tache={tache}
             listes={listes}
             tags={tags}

@@ -113,3 +113,28 @@ test("un titre très long est tronqué dans la liste, en entier à l'édition", 
   const ligneHauteur = await bouton.evaluate((el) => parseFloat(getComputedStyle(el).lineHeight));
   expect(hauteur).toBeLessThanOrEqual(ligneHauteur * 3 + 2);
 });
+
+test("l'éditeur en ligne garde « Enregistrer », « Annuler » et « Supprimer » au-dessus de la barre du bas et du « + »", async ({ page }) => {
+  const titre = nom("Tâche à éditer");
+  await creerTache(page, titre);
+
+  await ligne(page, titre).getByRole("button", { name: /\(modifier\)/ }).click();
+  const editeur = page.getByRole("listitem").filter({ has: page.getByRole("textbox", { name: "Titre" }) });
+  await expect(editeur).toBeVisible();
+
+  // La barre du bas et le « + » sont fixes : aucune action de l'éditeur ne doit passer dessous
+  // (le défilement qui les ramène à l'écran est animé : on attend qu'il se pose).
+  const barre = await page.getByRole("navigation").first().evaluate((el) => el.getBoundingClientRect().top);
+  const fab = await page.getByRole("button", { name: "Ajouter une tâche", exact: true }).evaluate((el) => el.getBoundingClientRect().top);
+  const haut = Math.min(barre, fab);
+  for (const nomBouton of ["Enregistrer", "Annuler", "Supprimer"]) {
+    const bouton = editeur.getByRole("button", { name: nomBouton, exact: true });
+    await expect(bouton).toBeVisible();
+    await expect
+      .poll(async () => {
+        const boite = await bouton.boundingBox();
+        return boite ? boite.y + boite.height : Infinity;
+      })
+      .toBeLessThanOrEqual(haut);
+  }
+});
