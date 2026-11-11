@@ -1,0 +1,51 @@
+{
+ "nom": "creer-tache",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches",
+   "note": "ouvrir"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter une tâche\"]",
+   "note": "ouvrir le formulaire"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/Titre/i]",
+   "valeur": "Acheter du pain"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/échéance à demain/i]"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Créer$/]"
+  },
+  {
+   "action": "screenshot",
+   "note": "envoi en cours"
+  },
+  {
+   "action": "wait",
+   "ms": 3000,
+   "note": "laisser finir l'envoi (faux Supabase ≈ 1,9 s)"
+  },
+  {
+   "action": "reload"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Tout$/]",
+   "note": "vue Tout"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Acheter du pain",
+   "note": "persistance"
+  }
+ ]
+}

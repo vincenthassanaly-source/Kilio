@@ -1,0 +1,224 @@
+{
+  "nom": "creer-tache",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/taches",
+      "note": "ouvrir",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1247,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter une tâche\"]",
+      "note": "ouvrir le formulaire",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 425,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "fill",
+      "cible": "role=textbox[name=/Titre/i]",
+      "valeur": "Acheter du pain",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 364,
+      "fichier": "03-fill.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/échéance à demain/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 392,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^Créer$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 404,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "screenshot",
+      "note": "envoi en cours",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Acheter du pain",
+            "echeance": "2026-11-12",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 1
+          }
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 349,
+      "fichier": "06-screenshot.png"
+    },
+    {
+      "n": 7,
+      "action": "wait",
+      "ms": 3331,
+      "note": "laisser finir l'envoi (faux Supabase ≈ 1,9 s)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.60478549-6a32-4143-b4d7-6c1e0d066d5c",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "fichier": "07-wait.png"
+    },
+    {
+      "n": 8,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 1132,
+      "fichier": "08-reload.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/^Tout$/]",
+      "note": "vue Tout",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 385,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_text",
+      "texte": "Acheter du pain",
+      "note": "persistance",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 332,
+      "fichier": "10-expect_text.png"
+    }
+  ]
+}

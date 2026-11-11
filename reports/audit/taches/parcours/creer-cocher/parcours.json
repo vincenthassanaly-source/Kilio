@@ -69,7 +69,7 @@
           ]
         }
       ],
-      "ms": 1428,
+      "ms": 1255,
       "fichier": "01-goto.png"
     },
     {
@@ -82,7 +82,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 453,
+      "ms": 439,
       "fichier": "02-click.png"
     },
     {
@@ -96,7 +96,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 372,
+      "ms": 358,
       "fichier": "03-fill.png"
     },
     {
@@ -109,7 +109,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 410,
+      "ms": 400,
       "fichier": "04-click.png"
     },
     {
@@ -127,7 +127,7 @@
           "query": "?select=id",
           "body": {
             "titre": "Acheter du pain",
-            "echeance": "2026-11-10",
+            "echeance": "2026-11-11",
             "heure": null,
             "heure_fin": null,
             "liste_id": "00000000-0000-4000-8000-000000000001",
@@ -143,7 +143,7 @@
         }
       ],
       "url": "http://localhost:3100/taches",
-      "ms": 368,
+      "ms": 354,
       "fichier": "05-expect_absent.png"
     },
     {
@@ -157,12 +157,12 @@
         {
           "method": "DELETE",
           "table": "taches_tags",
-          "query": "?tache_id=eq.23a6b1be-b394-45e0-9b3d-80d46c6e7720",
+          "query": "?tache_id=eq.f1a31e79-6afa-4efc-8e99-644b661de2e2",
           "body": null
         }
       ],
       "url": "http://localhost:3100/taches",
-      "ms": 364,
+      "ms": 354,
       "fichier": "06-expect_text.png"
     },
     {
@@ -176,12 +176,11 @@
         "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
-        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
       ],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 1131,
+      "ms": 1080,
       "fichier": "07-reload.png"
     },
     {
@@ -193,7 +192,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 5045,
+      "ms": 5031,
       "fichier": "08-expect_text.png"
     },
     {
@@ -206,7 +205,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 383,
+      "ms": 384,
       "fichier": "09-click.png"
     },
     {
@@ -223,12 +222,12 @@
           "query": "?id=eq.00000000-0000-4000-8000-000000000002",
           "body": {
             "fait": true,
-            "echeance": "2026-11-10"
+            "echeance": "2026-11-11"
           }
         }
       ],
       "url": "http://localhost:3100/taches",
-      "ms": 334,
+      "ms": 330,
       "fichier": "10-screenshot.png"
     },
     {
@@ -239,15 +238,15 @@
       "erreur": null,
       "anomalies": [
         "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)",
         "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
-        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)"
       ],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 1286,
+      "ms": 1074,
       "fichier": "11-reload.png"
     },
     {
@@ -259,7 +258,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 331,
+      "ms": 334,
       "fichier": "12-screenshot.png"
     }
   ]

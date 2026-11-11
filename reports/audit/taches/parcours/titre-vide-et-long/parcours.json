@@ -1,0 +1,191 @@
+{
+  "nom": "titre-vide-et-long",
+  "theme": "sombre",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1311,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter une tâche\"]",
+      "note": "ouvrir l'éventail +",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 416,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/^Créer$/]",
+      "note": "titre vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 397,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "expect_text",
+      "texte": "Donne un titre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 351,
+      "fichier": "04-expect_text.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=textbox[name=/Titre/i]",
+      "valeur": "Un titre extrêmement long qui doit tester le débordement horizontal et le retour à la ligne dans la carte de tâche Supercalifragilisticexpialidocious_Supercalifragilisticexpialidocious_Supercalifragilisticexpialidocious",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 357,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=/^Créer$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 419,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "dblclick",
+      "cible": "role=button[name=/^Créer$/]",
+      "note": "double clic éventuel",
+      "statut": "échec",
+      "erreur": "locator.dblclick: Timeout 5000ms exceeded.",
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Un titre extrêmement long qui doit tester le débordement horizontal et le retour à la ligne dans la carte de tâche Supercalifragilisticexpialidocious_Supercalifragilisticexpialidocious_Supercalifragilisticexpialidocious",
+            "echeance": "2026-11-11",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 1
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.16c87fcb-6973-426a-b395-a0dcf2e55b35",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 5036,
+      "fichier": "07-dblclick.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "après long titre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 325,
+      "fichier": "08-screenshot.png"
+    }
+  ]
+}

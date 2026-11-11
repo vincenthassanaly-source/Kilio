@@ -1,0 +1,13 @@
+{ "nom": "recherche-filtres-listes", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/taches" },
+ { "action": "fill", "cible": "role=textbox[name=/Rechercher une tâche/i]", "valeur": "zzzz" },
+ { "action": "screenshot", "note": "aucun résultat" },
+ { "action": "click", "cible": "role=button[name=/Effacer la recherche/i]" },
+ { "action": "click", "cible": "role=button[name=/Filtres et tri/i]" },
+ { "action": "screenshot", "note": "panneau filtres" },
+ { "action": "goto", "url": "/taches/listes" },
+ { "action": "screenshot", "note": "gérer les listes" },
+ { "action": "back" },
+ { "action": "click", "cible": "role=button[name=/^Retard$/]" },
+ { "action": "click", "cible": "role=button[name=/^7 jours$/]" },
+ { "action": "screenshot", "note": "états vides" } ] }
