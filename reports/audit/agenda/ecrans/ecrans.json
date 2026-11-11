@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/agenda",
+    "dynamique": false,
+    "url": "/agenda",
+    "theme": "clair",
+    "fichier": "agenda.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/agenda",
+    "dynamique": false,
+    "url": "/agenda",
+    "theme": "sombre",
+    "fichier": "agenda.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

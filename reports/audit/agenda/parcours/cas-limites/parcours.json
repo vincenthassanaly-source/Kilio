@@ -1,0 +1,275 @@
+{
+  "nom": "cas-limites",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "note": "ouvrir",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=15e7mRwwwrE2r08K (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 3137,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/Ajouter une tâche ou un événement/]",
+      "note": "ouvrir le +",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 422,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=\"Événement\"]",
+      "note": "nouvel événement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 442,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter\"]",
+      "note": "titre vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 422,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "message d'erreur titre vide ?",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 379,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Titre\"]",
+      "valeur": "Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue ",
+      "note": "titre très long",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 385,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "dblclick",
+      "cible": "role=button[name=\"Ajouter\"]",
+      "note": "double clic sur Ajouter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "evenements",
+          "query": "?select=id",
+          "body": {
+            "titre": "Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue",
+            "date": "2026-11-11",
+            "heure": "11:00",
+            "heure_fin": "12:00",
+            "notes": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "rappel_occurrence_envoyee": null,
+            "recurrence_frequence": null,
+            "recurrence_fin": null
+          }
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "ms": 428,
+      "fichier": "07-dblclick.png"
+    },
+    {
+      "n": 8,
+      "action": "wait",
+      "ms": 1835,
+      "note": "attendre",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=15e7mRwwwrE2r08K (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "fichier": "08-wait.png"
+    },
+    {
+      "n": 9,
+      "action": "screenshot",
+      "note": "débordement du titre long, doublon ?",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 333,
+      "fichier": "09-screenshot.png"
+    },
+    {
+      "n": 10,
+      "action": "back",
+      "note": "retour arrière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 367,
+      "fichier": "10-back.png"
+    },
+    {
+      "n": 11,
+      "action": "screenshot",
+      "note": "état après retour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 331,
+      "fichier": "11-screenshot.png"
+    }
+  ]
+}
