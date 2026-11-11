@@ -1,0 +1,60 @@
+{
+ "nom": "navigation-vues",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/agenda",
+   "note": "jour"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Jour suivant\"]",
+   "note": "jour suivant"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Aujourd'hui",
+   "note": "bouton retour à aujourd'hui"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Aujourd'hui\"]",
+   "note": "revenir"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Semaine\"]",
+   "note": "vue semaine"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Semaine suivante\"]",
+   "note": "semaine suivante"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Mois\"]",
+   "note": "vue mois"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Mois suivant\"]",
+   "note": "mois suivant"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Liste\"]",
+   "note": "vue liste"
+  },
+  {
+   "action": "screenshot",
+   "note": "liste"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Jour\"]",
+   "note": "retour jour"
+  }
+ ]
+}

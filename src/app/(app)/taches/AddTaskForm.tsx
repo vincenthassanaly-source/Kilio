@@ -467,7 +467,7 @@ export function AddTaskForm({
             className={`${input} min-w-0 flex-1`}
           />
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {raccourcisEcheance().map((r) => (
             <button
               key={r.label}

@@ -1,0 +1,58 @@
+{
+ "nom": "cas-limites",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/agenda",
+   "note": "ouvrir"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Ajouter une tâche ou un événement/]",
+   "note": "ouvrir le +"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Événement\"]",
+   "note": "nouvel événement"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter\"]",
+   "note": "titre vide"
+  },
+  {
+   "action": "screenshot",
+   "note": "message d'erreur titre vide ?"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Titre\"]",
+   "valeur": "Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue Réunion très longue ",
+   "note": "titre très long"
+  },
+  {
+   "action": "dblclick",
+   "cible": "role=button[name=\"Ajouter\"]",
+   "note": "double clic sur Ajouter"
+  },
+  {
+   "action": "wait",
+   "ms": 1500,
+   "note": "attendre"
+  },
+  {
+   "action": "screenshot",
+   "note": "débordement du titre long, doublon ?"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière"
+  },
+  {
+   "action": "screenshot",
+   "note": "état après retour"
+  }
+ ]
+}

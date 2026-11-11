@@ -1,0 +1,57 @@
+{
+ "nom": "modifier-supprimer-evenement",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/agenda",
+   "note": "ouvrir"
+  },
+  {
+   "action": "click",
+   "cible": "text=Rendez-vous e2e",
+   "note": "ouvrir l'événement existant"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Titre\"]",
+   "valeur": "Rendez-vous modifié",
+   "note": "changer le titre"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Enregistrer\"]",
+   "note": "enregistrer"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Événement modifié",
+   "note": "toast"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Rendez-vous modifié",
+   "note": "titre à jour"
+  },
+  {
+   "action": "click",
+   "cible": "text=Rendez-vous modifié",
+   "note": "rouvrir"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Supprimer\"]",
+   "note": "supprimer"
+  },
+  {
+   "action": "expect_text",
+   "texte": "supprimé",
+   "note": "toast Annuler"
+  },
+  {
+   "action": "expect_absent",
+   "texte": "09:00 Rendez-vous modifié",
+   "note": "masqué tout de suite"
+  }
+ ]
+}

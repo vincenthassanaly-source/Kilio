@@ -65,6 +65,9 @@ export function EvenementForm({
     String(evenement ? (dureeEvenement(evenement.heure, evenement.heure_fin) ?? DUREE_EVENEMENT_PAR_DEFAUT) : DUREE_EVENEMENT_PAR_DEFAUT)
   );
   const [erreur, setErreur] = useState<string | null>(null);
+  // Titre manquant : erreur de champ, affichée sous le champ Titre ; `erreur`
+  // ne porte que l'échec d'enregistrement, affiché près du bouton.
+  const [titreManquant, setTitreManquant] = useState(false);
   const [enCours, setEnCours] = useState(false);
 
   // Durée existante hors de la liste proposée (saisie ailleurs) : conservée.
@@ -76,10 +79,11 @@ export function EvenementForm({
     e.preventDefault();
     if (enCours) return;
     if (!titre.trim()) {
-      setErreur("Le titre est requis.");
+      setTitreManquant(true);
       titreRef.current?.focus();
       return;
     }
+    setTitreManquant(false);
     setErreur(null);
     setEnCours(true);
     const donnees = {
@@ -116,8 +120,18 @@ export function EvenementForm({
           placeholder="Dentiste, appel, déjeuner…"
           autoComplete="off"
           autoFocus={!evenement}
+          aria-invalid={titreManquant ? true : undefined}
+          aria-describedby={titreManquant ? `${uid}-erreur` : undefined}
           className={input}
         />
+        {/* Message d'erreur collé au champ qu'il concerne (et non au bas du
+            formulaire, hors de vue sur mobile quand « Rappel et répétition »
+            est ouvert). */}
+        {titreManquant && (
+          <p id={`${uid}-erreur`} role="alert" className={errorText}>
+            Le titre est requis.
+          </p>
+        )}
       </div>
 
       <div className="flex min-h-11 items-center justify-between gap-3">

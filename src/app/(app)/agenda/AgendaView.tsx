@@ -22,7 +22,7 @@ import { ferieParDate } from "@/lib/feries/compute";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { EvenementForm } from "../aujourdhui/EvenementForm";
 import { queryKeys } from "@/lib/query/keys";
-import { showToast } from "@/components/toast/toast-store";
+import { dismissInfoToasts, showToast } from "@/components/toast/toast-store";
 import { DUREE_TOAST_AVERTISSEMENT_MS, actualisationEchouee, etatListeTaches } from "@/lib/taches/compute";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
@@ -272,6 +272,9 @@ export function AgendaView() {
   // supprimé côté serveur à l'expiration du toast.
   function supprimerEvenement(evenement: Evenement) {
     setEvenementForm(null);
+    // La confirmation précédente (« Événement modifié ») serait périmée et
+    // contradictoire sous « supprimé · Annuler » : on la retire.
+    dismissInfoToasts();
     const retirer = () =>
       setEvenementsMasques((m) => {
         const suivant = new Set(m);
@@ -510,7 +513,7 @@ export function AgendaView() {
             type="button"
             onClick={() => setView(v.key)}
             aria-pressed={view === v.key}
-            className="relative flex-1 rounded-xl py-2 text-small font-semibold after:absolute after:inset-x-0 after:-inset-y-1"
+            className="relative flex-1 rounded-xl py-2 text-small font-semibold after:absolute after:inset-x-0 after:-inset-y-1.5"
           >
             {view === v.key && (
               <motion.div
@@ -589,6 +592,7 @@ export function AgendaView() {
                       selectDay(jour);
                       handleSelectTache(id);
                     }}
+                    evenementsFiables={evenementsFiables}
                   />
                 )}
                 {view === "mois" && (
@@ -601,6 +605,7 @@ export function AgendaView() {
                     selectedDate={selectedDate}
                     onChangeDate={handleChangeDate}
                     onSelectDay={selectDay}
+                    evenementsFiables={evenementsFiables}
                   />
                 )}
               </div>

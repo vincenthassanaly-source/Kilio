@@ -1,0 +1,55 @@
+{
+ "nom": "creer-tache-sombre",
+ "theme": "sombre",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/agenda",
+   "note": "ouvrir en sombre"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Ajouter une tâche ou un événement/]",
+   "note": "ouvrir le +"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Tâche\"]",
+   "note": "choisir Tâche"
+  },
+  {
+   "action": "screenshot",
+   "note": "formulaire tâche en sombre"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Titre\"]",
+   "valeur": "Acheter du pain",
+   "note": "titre"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Créer\"]",
+   "note": "créer"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Acheter du pain",
+   "note": "visible dans l'agenda"
+  },
+  {
+   "action": "wait",
+   "ms": 3000,
+   "note": "laisser finir l'enregistrement"
+  },
+  {
+   "action": "reload",
+   "note": "persistance"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Acheter du pain",
+   "note": "après rechargement"
+  }
+ ]
+}

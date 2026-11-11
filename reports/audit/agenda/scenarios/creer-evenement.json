@@ -1,0 +1,57 @@
+{
+ "nom": "creer-evenement",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/agenda",
+   "note": "ouvrir l'agenda"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Ajouter une tâche ou un événement/]",
+   "note": "ouvrir le +"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Événement\"]",
+   "note": "choisir Événement"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Titre\"]",
+   "valeur": "Dentiste",
+   "note": "titre"
+  },
+  {
+   "action": "fill",
+   "cible": "input[type=time]",
+   "valeur": "14:30",
+   "note": "heure 14:30"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter\"]",
+   "note": "valider"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Événement ajouté",
+   "note": "toast de confirmation"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Dentiste",
+   "note": "visible dans la grille"
+  },
+  {
+   "action": "reload",
+   "note": "persistance"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Dentiste",
+   "note": "toujours là après rechargement"
+  }
+ ]
+}

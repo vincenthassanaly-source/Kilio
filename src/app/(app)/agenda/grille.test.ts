@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { heureAvantGrille, pxToMinutes, getTacheBlockStyle } from "./TimeGrid";
+import { computeInitialScrollTop, heureAvantGrille, pxToMinutes, getTacheBlockStyle } from "./TimeGrid";
 import { majusculePremiere } from "./date-utils";
 
 describe("heureAvantGrille", () => {
@@ -29,6 +29,47 @@ describe("pxToMinutes", () => {
         expect(pxToMinutes(style!.top, zoom)).toBeCloseTo(h * 60 + m, 5);
       }
     }
+  });
+});
+
+describe("computeInitialScrollTop", () => {
+  const MIN = (h: number, m = 0) => h * 60 + m;
+
+  it("sans bloc : l'heure visée moins la marge, jamais négatif", () => {
+    const haut = computeInitialScrollTop(MIN(10, 50), 1);
+    expect(haut).toBeGreaterThan(0);
+    expect(computeInitialScrollTop(MIN(6), 1)).toBe(0);
+  });
+
+  it("remonte au début d'un bloc que le bord haut couperait", () => {
+    const sansBloc = computeInitialScrollTop(MIN(10, 50), 1);
+    const bloc = { start: MIN(9), end: MIN(10) };
+    const avecBloc = computeInitialScrollTop(MIN(10, 50), 1, [bloc]);
+    const topBloc = getTacheBlockStyle({ heure: "09:00", heure_fin: "10:00" }, 1)!.top;
+    expect(avecBloc).toBeLessThan(sansBloc);
+    // Le haut de la fenêtre tombe juste au-dessus du bloc : son étiquette d'heure reste visible.
+    expect(avecBloc).toBeLessThanOrEqual(topBloc);
+    expect(topBloc - avecBloc).toBeLessThan(20);
+  });
+
+  it("ne bouge pas si aucun bloc n'est coupé", () => {
+    const sansBloc = computeInitialScrollTop(MIN(10, 50), 1);
+    const loin = { start: MIN(7), end: MIN(8) };
+    expect(computeInitialScrollTop(MIN(10, 50), 1, [loin])).toBe(sansBloc);
+  });
+
+  it("garde le repère maintenant visible face à un bloc très long", () => {
+    const sansBloc = computeInitialScrollTop(MIN(16), 1);
+    const journeeLongue = { start: MIN(7), end: MIN(18) };
+    expect(computeInitialScrollTop(MIN(16), 1, [journeeLongue])).toBe(sansBloc);
+  });
+
+  it("enchaîne les blocs qui se chevauchent", () => {
+    const a = { start: MIN(9), end: MIN(10) };
+    const b = { start: MIN(8, 30), end: MIN(9, 30) };
+    const haut = computeInitialScrollTop(MIN(10, 50), 1, [a, b]);
+    const topB = getTacheBlockStyle({ heure: "08:30", heure_fin: "09:30" }, 1)!.top;
+    expect(haut).toBeLessThanOrEqual(topB);
   });
 });
 
