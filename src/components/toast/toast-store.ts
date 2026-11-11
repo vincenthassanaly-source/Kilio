@@ -61,6 +61,18 @@ export function showActionToast(
   return id;
 }
 
+// Retire les toasts purement informatifs (ni action « Annuler », ni erreur) :
+// à appeler avant d'afficher un toast à action, pour qu'une confirmation
+// périmée (« Événement modifié ») ne reste pas empilée sous un nouveau message
+// qui la contredit (« … supprimé · Annuler »). Les toasts à action et les
+// erreurs restent : on ne masque jamais un « Annuler » encore valable ni un échec.
+export function dismissInfoToasts() {
+  const restants = toasts.filter((t) => t.action || t.tone === "error");
+  if (restants.length === toasts.length) return;
+  toasts = restants;
+  emit();
+}
+
 export function dismissToast(id: number) {
   toasts = toasts.filter((t) => t.id !== id);
   emit();

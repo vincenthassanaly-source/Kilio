@@ -51,7 +51,11 @@ export function MonthView({
   selectedDate,
   onChangeDate,
   onSelectDay,
+  evenementsFiables = true,
 }: {
+  // false tant que les événements sont en chargement ou en échec : on
+  // n'affirme alors pas « rien de prévu ce mois-ci ».
+  evenementsFiables?: boolean;
   taches: Tache[];
   evenements?: Evenement[];
   feries?: ReadonlyMap<string, string>;
@@ -77,6 +81,15 @@ export function MonthView({
   for (const e of evenements) {
     evenementsByDay.set(e.date, (evenementsByDay.get(e.date) ?? 0) + 1);
   }
+
+  // Légende : uniquement les repères présents dans la grille affichée.
+  const isosGrille = days.map((d) => toISODate(d));
+  const legende: ("travail" | "ferie" | "tache" | "evenement")[] = [];
+  if (days.some((d) => getCreneauxDuJour(creneaux, d, exceptions).length > 0)) legende.push("travail");
+  if (isosGrille.some((iso) => feries?.has(iso))) legende.push("ferie");
+  if (isosGrille.some((iso) => countByDay.has(iso))) legende.push("tache");
+  if (isosGrille.some((iso) => evenementsByDay.has(iso))) legende.push("evenement");
+  const moisVide = !isosGrille.some((iso) => countByDay.has(iso) || evenementsByDay.has(iso));
 
   return (
     <div className="flex flex-col gap-3">
@@ -140,33 +153,49 @@ export function MonthView({
         })}
       </div>
 
+      {moisVide && evenementsFiables && (
+        <p className="text-center text-small text-ink-2">Rien de prévu ce mois-ci.</p>
+      )}
+
       {/* Légende décorative : le statut "jour travaillé"/nombre de tâches
           est déjà annoncé par case via monthCellAriaLabel ci-dessus, donc
-          masquée aux lecteurs d'écran pour ne pas doubler l'annonce. */}
-      <div aria-hidden className="flex items-center justify-center gap-1.5 text-micro font-medium text-ink-2">
-        <span className="flex items-center gap-1">
-          <span
-            className="h-2.5 w-2.5 rounded-[3px]"
-            style={{ backgroundColor: "var(--accent-planning-travail-soft)" }}
-          />
-          jour travaillé
-        </span>
-        <span>·</span>
-        <span className="flex items-center gap-1">
-          <span className="underline decoration-2 underline-offset-4">12</span>
-          férié
-        </span>
-        <span>·</span>
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-agenda" />
-          tâche(s)
-        </span>
-        <span>·</span>
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-3.5 rounded-full bg-agenda" />
-          événement(s)
-        </span>
-      </div>
+          masquée aux lecteurs d'écran pour ne pas doubler l'annonce. Elle ne
+          décrit que ce qui apparaît réellement dans la grille affichée. */}
+      {legende.length > 0 && (
+        <div aria-hidden className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-micro font-medium text-ink-2">
+          {legende.map((entree) => (
+            <span key={entree} className="flex items-center gap-1">
+              {entree === "travail" && (
+                <>
+                  <span
+                    className="h-2.5 w-2.5 rounded-[3px]"
+                    style={{ backgroundColor: "var(--accent-planning-travail-soft)" }}
+                  />
+                  jour travaillé
+                </>
+              )}
+              {entree === "ferie" && (
+                <>
+                  <span className="underline decoration-2 underline-offset-4">14</span>
+                  jour férié
+                </>
+              )}
+              {entree === "tache" && (
+                <>
+                  <span className="h-1.5 w-1.5 rounded-full bg-agenda" />
+                  tâche
+                </>
+              )}
+              {entree === "evenement" && (
+                <>
+                  <span className="h-1.5 w-3.5 rounded-full bg-agenda" />
+                  événement
+                </>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

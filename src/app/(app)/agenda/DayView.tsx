@@ -7,7 +7,7 @@ import type { TacheAvecRelations } from "@/app/actions/taches";
 import type { Evenement } from "@/app/actions/evenements";
 import type { Tables } from "@/lib/supabase/types";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
-import { layoutChevauchements } from "@/lib/agenda/compute";
+import { getBlocInterval, layoutChevauchements } from "@/lib/agenda/compute";
 import { TaskCard } from "../taches/TasksList";
 import { ArchivedTasksSection } from "./ArchivedTasksSection";
 import { FerieBadge } from "@/components/FerieBadge";
@@ -72,10 +72,13 @@ function PuceTache({ tache, onSelect }: { tache: TacheAvecRelations; onSelect: (
       type="button"
       onClick={() => onSelect(tache.id)}
       aria-label={`${heure ? `Tâche à ${heure}, avant le début de la grille` : "Tâche sans heure"} ${tache.titre}. Voir la tâche`}
-      className={`${PUCE_BASE} max-w-[220px] bg-surface-alt text-ink-2 focus-visible:ring-kcal`}
+      className={`${PUCE_BASE} flex max-w-[220px] items-center gap-1.5 border border-line bg-surface-alt text-ink-2 focus-visible:ring-kcal`}
     >
-      {heure && <span className="tabular-nums">{heure} </span>}
-      {tache.titre}
+      {/* Cercle de coche décoratif : même repère visuel que la carte de tâche
+          de la Liste (la puce ouvre la tâche, elle ne la coche pas). */}
+      <span aria-hidden className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-[var(--control-border)]" />
+      {heure && <span className="shrink-0 tabular-nums">{heure}</span>}
+      <span className="min-w-0 truncate">{tache.titre}</span>
     </button>
   );
 }
@@ -156,10 +159,19 @@ export function DayView({
   const creneauxJour = getCreneauxDuJour(creneaux, selectedDate, exceptions);
   const { zoom, touchHandlers } = useAgendaZoom();
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Blocs de la grille : le scroll initial ne doit couper aucun d'eux.
+  const blocsGrille = useMemo(
+    () =>
+      [...dayTachesGrille, ...dayEvenementsGrille]
+        .map((b) => getBlocInterval(b))
+        .filter((i): i is { start: number; end: number } => i !== null),
+    [dayTachesGrille, dayEvenementsGrille]
+  );
   useInitialScroll(
     scrollRef,
     computeInitialScrollMinutes({ showCurrentTime: isToday(selectedDate), creneaux: creneauxJour }),
-    zoom
+    zoom,
+    blocsGrille
   );
 
   // Création au créneau : appui long sur un espace vide de la grille.

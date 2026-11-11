@@ -16,7 +16,7 @@ import { fr } from "date-fns/locale";
 import type { Tables } from "@/lib/supabase/types";
 import type { Evenement } from "@/app/actions/evenements";
 import { getCreneauxDuJour } from "@/lib/agenda/planning-travail";
-import { layoutChevauchements } from "@/lib/agenda/compute";
+import { getBlocInterval, layoutChevauchements } from "@/lib/agenda/compute";
 import { PeriodHeader } from "./PeriodHeader";
 import { parseISODate, toISODate } from "@/lib/date/iso";
 import {
@@ -73,7 +73,11 @@ export function WeekView({
   onSelectDay,
   onSelectEvenement,
   onSelectTache,
+  evenementsFiables = true,
 }: {
+  // false tant que les événements sont en chargement ou en échec : on
+  // n'affirme alors pas « rien de prévu cette semaine ».
+  evenementsFiables?: boolean;
   taches: Tache[];
   creneaux: Tables<"horaires_travail_creneaux">[];
   exceptions: Tables<"horaires_travail_exceptions">[];
@@ -155,10 +159,37 @@ export function WeekView({
   const dayColumnWidth = BASE_DAY_COLUMN_WIDTH * zoom;
 
   const creneauxSelectedJour = getCreneauxDuJour(creneaux, selectedDate, exceptions);
+  // Blocs de toute la semaine : le scroll initial (partagé par les 7 colonnes)
+  // ne doit en couper aucun.
+  const blocsSemaine = useMemo(() => {
+    const intervalles: { start: number; end: number }[] = [];
+    for (const { dayTachesAvecHeure, dayEvenements } of parJour.values()) {
+      for (const b of [...dayTachesAvecHeure, ...dayEvenements]) {
+        const i = getBlocInterval(b);
+        if (i) intervalles.push(i);
+      }
+    }
+    return intervalles;
+  }, [parJour]);
   useInitialScroll(
     scrollRef,
     computeInitialScrollMinutes({ showCurrentTime: weekContainsToday, creneaux: creneauxSelectedJour }),
-    zoom
+    zoom,
+    blocsSemaine
+  );
+
+  // Indice de défilement : à zoom normal, ~3,5 colonnes sur 7 tiennent à
+  // l'écran. Un dégradé en bord droit signale qu'il y en a d'autres, tant que
+  // la grille n'est pas défilée jusqu'au bout.
+  const [encoreADroite, setEncoreADroite] = useState(false);
+  function majIndiceDefilement() {
+    const el = scrollRef.current;
+    if (el) setEncoreADroite(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+  }
+  useIsomorphicLayoutEffect(majIndiceDefilement, [zoom, containerWidth]);
+
+  const semaineVide = [...parJour.values()].every(
+    (j) => j.dayTachesAvecHeure.length + j.bandeTaches.length + j.dayEvenements.length + j.bandeEvenements.length === 0
   );
 
   return (
@@ -173,12 +204,24 @@ export function WeekView({
         onToday={() => onChangeDate(startOfToday())}
       />
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+      {semaineVide && evenementsFiables && (
+        <p className="text-center text-small text-ink-2">Rien de prévu cette semaine.</p>
+      )}
+
+      <div className="relative overflow-hidden rounded-2xl border border-line bg-surface">
+        {encoreADroite && (
+          <div
+            aria-hidden
+            data-testid="indice-defilement-semaine"
+            className="pointer-events-none absolute inset-y-0 right-0 z-30 w-8 bg-gradient-to-l from-ink/15 to-transparent"
+          />
+        )}
         <div
           ref={scrollRef}
           className="max-h-[65vh] overflow-auto"
           style={{ touchAction: "pan-x pan-y" }}
           data-swipe-ignore
+          onScroll={majIndiceDefilement}
           {...touchHandlers}
         >
           <div className="flex" style={{ width: GUTTER_WIDTH + days.length * dayColumnWidth }}>

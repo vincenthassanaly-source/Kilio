@@ -107,15 +107,48 @@ export function computeInitialScrollMinutes({
   return debuts.length > 0 ? Math.min(...debuts) : 8 * 60;
 }
 
+// Marge au-dessus de l'heure visée, et décalage maximal toléré pour ne pas
+// couper un bloc : au-delà, on garde le repère « maintenant » visible plutôt
+// que de remonter très haut pour un bloc très long.
+const MARGE_SCROLL_INITIAL_PX = 80;
+const REMONTEE_MAX_SCROLL_PX = 160;
+const MARGE_DEBUT_BLOC_PX = 6;
+
+// Position de scroll initiale : l'heure visée moins une marge, remontée au
+// début d'un bloc que ce bord haut couperait (sinon l'événement apparaît
+// tronqué, étiquette d'heure masquée, sans indice qu'il y a de la matière
+// au-dessus). Pur et sans DOM : testé dans grille.test.ts.
+export function computeInitialScrollTop(
+  targetMinutes: number,
+  zoom: number,
+  blocs: { start: number; end: number }[] = []
+): number {
+  let scrollTop = Math.max(minutesToPx(targetMinutes, zoom) - MARGE_SCROLL_INITIAL_PX, 0);
+  const plancher = Math.max(scrollTop - REMONTEE_MAX_SCROLL_PX, 0);
+  const intervalles = blocs.map((b) => ({ top: minutesToPx(b.start, zoom), bas: minutesToPx(b.end, zoom) }));
+  // Un bloc remonté peut en couper un autre (chevauchement) : on itère.
+  for (let i = 0; i < intervalles.length; i++) {
+    for (const { top, bas } of intervalles) {
+      if (top < scrollTop && bas > scrollTop) {
+        const cible = Math.max(top - MARGE_DEBUT_BLOC_PX, 0);
+        if (cible < plancher) return scrollTop;
+        scrollTop = cible;
+      }
+    }
+  }
+  return scrollTop;
+}
+
 export function useInitialScroll(
   containerRef: RefObject<HTMLDivElement | null>,
   targetMinutes: number,
-  zoom: number
+  zoom: number,
+  blocs: { start: number; end: number }[] = []
 ) {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    el.scrollTop = Math.max(minutesToPx(targetMinutes, zoom) - 80, 0);
+    el.scrollTop = computeInitialScrollTop(targetMinutes, zoom, blocs);
     // Positionnement au montage uniquement : un re-scroll à chaque rendu
     // (ou à chaque pinch) écraserait le scroll manuel de l'utilisateur. Si
     // le zoom mémorisé (localStorage) diffère du zoom par défaut utilisé le

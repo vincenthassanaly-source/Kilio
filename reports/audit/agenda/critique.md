@@ -30,5 +30,17 @@ Limites : captures du faux Supabase (1 tâche, 1 événement) ; Semaine/Mois peu
 - Heure « 11:00 AM » : probable locale du navigateur de test.
 - 404 `speed-insights` : script Vercel absent hors Vercel.
 
+## Correctifs appliqués (après accord : « Tout corriger P1 à P3 + tests »)
+- P1 scroll Jour/Semaine : `computeInitialScrollTop` (TimeGrid.tsx) remonte au début d'un bloc coupé (borné à 160 px pour garder « maintenant » visible).
+- P1 toasts : `dismissInfoToasts()` (toast-store.ts, ajout sans changement des fonctions existantes) appelée avant la suppression d'un événement ; les erreurs et toasts à « Annuler » ne sont jamais retirés.
+- P2 Semaine : dégradé de bord droit tant que la grille n'est pas défilée jusqu'au bout ; message « Rien de prévu cette semaine. » (seulement si les événements sont fiables).
+- P2 Mois : légende limitée aux repères présents (« jour férié », « tâche », « événement » au singulier) ; message « Rien de prévu ce mois-ci. ».
+- P2 puces de tâche (Jour) : cercle de coche décoratif + contour, titre tronqué dans un `<span>`.
+- P2 cibles tactiles : seul le sélecteur de vue passait sous 44 px une fois sa zone `::after` comptée (43,5 → 47,5 px). Les autres constats de B (case à cocher, titre de tâche, « + sous-tâches », puces) mesuraient la boîte visible : leur zone de tap est déjà étendue par `::after` / `hitSlop` à ≥ 44 px, donc rien à corriger.
+- P3 : « Le titre est requis. » sous le champ Titre (+ `aria-invalid`/`aria-describedby`), l'échec d'enregistrement reste près du bouton ; raccourcis d'échéance du formulaire tâche en grille 2×2 (plus d'orphelin).
+- Non traité volontairement : select natif « Durée » (liste de valeurs trop longue pour un segmenté), jour férié du 25 déc. non visible sur la capture (à vérifier avec de vraies données), heure AM/PM (locale du navigateur de test).
+- Tests : `grille.test.ts` (5 cas), `toast-store.test.ts` (3), `e2e/agenda.spec.ts` (5 scénarios × desktop/mobile). Suite unitaire 2406/2406, e2e agenda + aujourdhui + taches + parite verts.
+- Captures après correctifs : `apres-correctifs/`.
+
 ## Scores Nielsen (A) : 26/40
 Visibilité 3, correspondance 3, contrôle 3, cohérence 2, prévention 2, reconnaissance 3, flexibilité 3, minimalisme 3, récupération 2, aide 2.
