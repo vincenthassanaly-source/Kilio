@@ -417,7 +417,9 @@ export const TaskCard = memo(function TaskCard({
       const fab = document.querySelector('button[aria-label="Ajouter une tâche"]');
       const sommet = Math.min(barre.getBoundingClientRect().top, fab?.getBoundingClientRect().top ?? Infinity);
       const trop = el.getBoundingClientRect().bottom - (sommet - 16);
-      if (trop > 0) zone.scrollBy({ top: trop });
+      // Doux, sauf si le mouvement réduit est demandé.
+      const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (trop > 0) zone.scrollBy({ top: trop, behavior: reduit ? "auto" : "smooth" });
     };
     const observer = new ResizeObserver(recaler);
     observer.observe(el);
@@ -438,10 +440,11 @@ export const TaskCard = memo(function TaskCard({
   // Bascule carte compacte <-> formulaire d'édition : cross-fade (comme
   // AnimatedAddCard) plutôt que `layout`, qui interpolerait les dimensions
   // très différentes des deux états et produirait un effet d'étirement.
-  const editSwapTransition = reduceMotion ? { duration: 0 } : { duration: 0.18 };
+  // Arrivée 220 ms en décélération (--ease-out), sortie plus courte (120 ms).
+  const editSwapTransition = reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const };
   const editSwapInitial = reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98 };
   const editSwapAnimate = { opacity: 1, scale: 1 };
-  const editSwapExit = reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98 };
+  const editSwapExit = reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98, transition: { duration: 0.12 } };
   const queryClient = useQueryClient();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: tache.id,
