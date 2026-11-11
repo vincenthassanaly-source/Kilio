@@ -128,10 +128,10 @@ export function SelectionBar({
       className="fixed inset-x-3 z-40 mx-auto flex max-w-2xl flex-col gap-2 rounded-2xl border border-line bg-surface p-3 shadow-float"
       style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
     >
-      {/* Une seule sortie : le bouton « Fermer » de l'en-tête de la page (même
-          bouton que « Sélectionner », il bascule le mode). */}
+      {/* Sortie du mode : bouton « Quitter » ci-contre (Échap gère aussi, cf.
+          TachesView). L'entrée se fait par appui long sur une carte. */}
       <div className="flex items-center justify-between gap-2">
-        <p className="text-label font-semibold text-ink" aria-live="polite">
+        <p className="min-w-0 flex-1 text-label font-semibold text-ink" aria-live="polite">
           {vide ? "Touche des tâches pour les choisir" : pluriel(nombre) + (nombre > 1 ? " sélectionnées" : " sélectionnée")}
         </p>
         {nombre < toutesLesIds.length && (
@@ -139,6 +139,16 @@ export function SelectionBar({
             Tout sélectionner
           </button>
         )}
+        <button
+          type="button"
+          onClick={onDone}
+          aria-label="Quitter la sélection"
+          className="relative -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 transition-colors hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
       </div>
 
       {panneau === "reporter" && (

@@ -9,6 +9,8 @@ type Props = {
   /** « toutes » ou l'id d'une liste. */
   valeur: string;
   onChange: (id: string) => void;
+  /** « discret » : sans contour, à loger dans la barre de recherche (menu aligné à droite). */
+  variante?: "pilule" | "discret";
 };
 
 const TOUTES: ListeChoix = { id: "toutes", nom: "Toutes", couleur: null };
@@ -31,7 +33,8 @@ function Pastille({ couleur }: { couleur: string | null }) {
  * Sélecteur de liste : un tap ouvre le menu, un second choisit. Remplace la
  * rangée de pastilles qui vivait dans la modale « Filtres et tri ».
  */
-export function ListeSelect({ listes, valeur, onChange }: Props) {
+export function ListeSelect({ listes, valeur, onChange, variante = "pilule" }: Props) {
+  const discret = variante === "discret";
   const [ouvert, setOuvert] = useState(false);
   const racine = useRef<HTMLDivElement>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
@@ -89,7 +92,11 @@ export function ListeSelect({ listes, valeur, onChange }: Props) {
         aria-expanded={ouvert}
         aria-label={`Liste : ${active.nom}`}
         onClick={() => setOuvert((o) => !o)}
-        className="flex min-h-11 max-w-full items-center gap-2 rounded-full border border-control-border bg-surface px-3.5 text-label font-semibold text-ink transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        className={
+          discret
+            ? "flex min-h-11 max-w-[7.5rem] items-center gap-1 rounded-xl px-2 text-label font-semibold text-ink-2 transition-colors hover:bg-surface active:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            : "flex min-h-11 max-w-full items-center gap-2 rounded-full border border-control-border bg-surface px-3.5 text-label font-semibold text-ink transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        }
       >
         {active.id !== "toutes" && <Pastille couleur={active.couleur} />}
         <span className="min-w-0 truncate">{active.nom}</span>
@@ -115,7 +122,7 @@ export function ListeSelect({ listes, valeur, onChange }: Props) {
           role="menu"
           aria-label="Choisir une liste"
           data-swipe-ignore
-          className="absolute left-0 top-[calc(100%+8px)] z-30 flex max-h-[min(60vh,22rem)] w-64 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto overflow-x-hidden rounded-2xl border border-line bg-surface py-1 shadow-card"
+          className={`absolute ${discret ? "right-0" : "left-0"} top-[calc(100%+8px)] z-30 flex max-h-[min(60vh,22rem)] w-64 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto overflow-x-hidden rounded-2xl border border-line bg-surface py-1 shadow-card`}
         >
           {choix.map((l, i) => {
             const actif = l.id === valeur;
