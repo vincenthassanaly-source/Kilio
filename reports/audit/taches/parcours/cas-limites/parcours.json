@@ -69,7 +69,7 @@
           ]
         }
       ],
-      "ms": 1447,
+      "ms": 1251,
       "fichier": "01-goto.png"
     },
     {
@@ -82,7 +82,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 424,
+      "ms": 431,
       "fichier": "02-click.png"
     },
     {
@@ -95,7 +95,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 408,
+      "ms": 397,
       "fichier": "03-click.png"
     },
     {
@@ -107,7 +107,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 364,
+      "ms": 352,
       "fichier": "04-screenshot.png"
     },
     {
@@ -121,7 +121,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 368,
+      "ms": 370,
       "fichier": "05-fill.png"
     },
     {
@@ -134,17 +134,18 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 393,
+      "ms": 399,
       "fichier": "06-dblclick.png"
     },
     {
       "n": 7,
       "action": "wait",
-      "ms": 1859,
+      "ms": 1850,
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
         "requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)",
         "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)"
       ],
       "ecritures": [
@@ -154,7 +155,7 @@
           "query": "?select=id",
           "body": {
             "titre": "Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche Très long titre de tâche",
-            "echeance": "2026-11-10",
+            "echeance": "2026-11-11",
             "heure": null,
             "heure_fin": null,
             "liste_id": "00000000-0000-4000-8000-000000000001",
@@ -171,7 +172,7 @@
         {
           "method": "DELETE",
           "table": "taches_tags",
-          "query": "?tache_id=eq.8b95b984-3f61-47d8-b6f6-ce069f7bbecd",
+          "query": "?tache_id=eq.329fb247-8ce2-42a2-a592-689bec540533",
           "body": null
         }
       ],
@@ -187,7 +188,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 350,
+      "ms": 351,
       "fichier": "08-screenshot.png"
     }
   ]

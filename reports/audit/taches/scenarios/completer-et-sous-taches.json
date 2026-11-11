@@ -1,0 +1,48 @@
+{
+ "nom": "completer-et-sous-taches",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/\\+ sous-tâches/i]"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/Nouvelle sous-tâche/i]",
+   "valeur": "Étape 1"
+  },
+  {
+   "action": "press",
+   "touche": "Enter"
+  },
+  {
+   "action": "wait",
+   "ms": 3000,
+   "note": "laisser finir l'envoi"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Étape 1"
+  },
+  {
+   "action": "reload"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Tâche e2e du jour",
+   "note": "persistance"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Tâche e2e du jour/i]",
+   "note": "ouvrir/terminer"
+  },
+  {
+   "action": "screenshot"
+  }
+ ]
+}

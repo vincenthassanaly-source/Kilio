@@ -1,0 +1,42 @@
+{
+ "nom": "titre-vide-et-long",
+ "theme": "sombre",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter une tâche\"]",
+   "note": "ouvrir l'éventail +"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Créer$/]",
+   "note": "titre vide"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Donne un titre"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/Titre/i]",
+   "valeur": "Un titre extrêmement long qui doit tester le débordement horizontal et le retour à la ligne dans la carte de tâche Supercalifragilisticexpialidocious_Supercalifragilisticexpialidocious_Supercalifragilisticexpialidocious"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Créer$/]"
+  },
+  {
+   "action": "dblclick",
+   "cible": "role=button[name=/^Créer$/]",
+   "note": "double clic éventuel"
+  },
+  {
+   "action": "screenshot",
+   "note": "après long titre"
+  }
+ ]
+}
