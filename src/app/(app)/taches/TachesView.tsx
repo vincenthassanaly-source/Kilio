@@ -26,7 +26,7 @@ import { TasksList } from "./TasksList";
 import { ListeSelect } from "./ListeSelect";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { errorText, ghostButton, input, primaryButton, textButton } from "@/lib/ui";
+import { errorText, ghostButton, primaryButton, textButton } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { showToast } from "@/components/toast/toast-store";
 import { QuickAddFab } from "../QuickAddFab";
@@ -46,6 +46,14 @@ const SEARCH_ICON = (
 const CLEAR_ICON = (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
+);
+
+const FILTER_ICON = (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+    <circle cx="15" cy="7" r="2" />
+    <circle cx="9" cy="17" r="2" />
   </svg>
 );
 
@@ -206,6 +214,26 @@ export function TachesView() {
     setSelectionIds(new Set());
   }
 
+  // Entrée dans le mode (appui long ou action de la carte) : la carte visée
+  // est déjà cochée.
+  const entrerSelection = useCallback((id: string) => {
+    setSelection(true);
+    setSelectionIds(new Set([id]));
+  }, []);
+
+  // Échap quitte le mode sélection (clavier), sauf si une feuille est ouverte.
+  useEffect(() => {
+    if (!selection || filtresOuverts) return;
+    const auClavier = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelection(false);
+        setSelectionIds(new Set());
+      }
+    };
+    document.addEventListener("keydown", auClavier);
+    return () => document.removeEventListener("keydown", auClavier);
+  }, [selection, filtresOuverts]);
+
   // Le glisser-déposer renumérote la liste complète d'après la position
   // visuelle : il n'a de sens qu'en ordre manuel, sans filtre qui masque des
   // tâches.
@@ -270,15 +298,7 @@ export function TachesView() {
   );
   useBackClose(filtresOuverts, () => setFiltresOuverts(false));
   const listeActive = listeId !== "toutes" ? listes.find((l) => l.id === listeId) : undefined;
-  // Résumé du filtre actif, visible même panneau replié : on voit tout de suite
-  // pourquoi la liste est plus courte que prévu. La liste, elle, a son propre
-  // sélecteur à côté.
-  const resumeFiltres = [
-    nbFiltresActifs > 0 ? `${nbFiltresActifs} priorité${nbFiltresActifs > 1 ? "s" : ""}` : null,
-    trie ? `trié par ${ORDRES.find((o) => o.value === ordre)?.label.toLowerCase()}` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const nbReglages = nbFiltresActifs + (trie ? 1 : 0);
   const libelleVue = VUES.find((v) => v.key === vue)?.label ?? "";
   const filtresReinitialisables = listeId !== "toutes" || nbFiltresActifs > 0 || ordre !== "manuel";
   // Les filtres de la modale (priorité, tri) seulement : la liste se change
@@ -364,62 +384,55 @@ export function TachesView() {
         onChange={setVue}
       />
 
-      <div className="relative">
-        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2">{SEARCH_ICON}</span>
+      {/* Barre unique : recherche, liste et filtres/tri. Plus de rangée de boutons
+          sous elle ; la sélection multiple s'ouvre par appui long sur une carte. */}
+      <div className="flex min-h-12 items-center gap-0.5 rounded-2xl border border-control-border bg-surface-alt pl-3.5 pr-1 transition-colors focus-within:border-kcal/60">
+        <span className="pointer-events-none mr-2.5 shrink-0">{SEARCH_ICON}</span>
         <input
           type="text"
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
-          placeholder="Rechercher une tâche…"
+          placeholder="Rechercher…"
           aria-label="Rechercher une tâche"
-          className={`${input} w-full pl-10 ${recherche ? "pr-9" : ""}`}
+          className="min-w-0 flex-1 bg-transparent py-2.5 text-base text-ink outline-none placeholder:text-ink-3"
         />
         {recherche && (
           <button
             type="button"
             onClick={() => setRecherche("")}
             aria-label="Effacer la recherche"
-            className="absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-ink-3 transition-colors after:absolute after:-inset-2 hover:bg-surface-alt"
+            className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors after:absolute after:-inset-2 hover:bg-surface"
           >
             {CLEAR_ICON}
           </button>
         )}
+        <span className="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden="true" />
+        <ListeSelect listes={listes} valeur={listeId} onChange={setListeId} variante="discret" />
+        <button
+          type="button"
+          onClick={() => setFiltresOuverts(true)}
+          aria-haspopup="dialog"
+          aria-label={nbReglages > 0 ? `Filtres et tri, ${nbReglages} actif${nbReglages > 1 ? "s" : ""}` : "Filtres et tri"}
+          className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+            nbReglages > 0 ? "text-kcal" : "text-ink-2"
+          }`}
+        >
+          {FILTER_ICON}
+          {nbReglages > 0 && (
+            <span
+              aria-hidden="true"
+              className="absolute right-1 top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-kcal px-1 text-micro font-semibold tabular-nums text-on-kcal"
+            >
+              {nbReglages}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Annonce le nombre de tâches affichées aux lecteurs d'écran (recherche, filtres). */}
       <p role="status" className="sr-only">
         {etatListe === "liste" ? `${filtered.length} tâche${filtered.length > 1 ? "s" : ""} affichée${filtered.length > 1 ? "s" : ""}` : ""}
       </p>
-
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-1">
-          <ListeSelect listes={listes} valeur={listeId} onChange={setListeId} />
-          <button
-            type="button"
-            onClick={() => setFiltresOuverts(true)}
-            aria-haspopup="dialog"
-            className={`${ghostButton} min-w-0 justify-start text-left`}
-          >
-            <span className="block min-w-0 truncate">
-              Filtres
-              {nbFiltresActifs + (trie ? 1 : 0) > 0 && (
-                <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-kcal px-1.5 text-micro font-semibold text-on-kcal">
-                  {nbFiltresActifs + (trie ? 1 : 0)}
-                </span>
-              )}
-              {resumeFiltres && <span className="ml-1 text-ink-3">· {resumeFiltres}</span>}
-            </span>
-          </button>
-        </div>
-        <button
-          type="button"
-          onClick={() => (selection ? quitterSelection() : setSelection(true))}
-          aria-pressed={selection}
-          className={`${ghostButton} shrink-0`}
-        >
-          {selection ? "Fermer" : "Sélectionner"}
-        </button>
-      </div>
 
       <AnimatePresence>
         {filtresOuverts && (
@@ -507,6 +520,7 @@ export function TachesView() {
           selectionMode={selection}
           selectionIds={selectionVisible}
           onToggleSelect={basculerSelection}
+          onEnterSelect={entrerSelection}
         />
       )}
 

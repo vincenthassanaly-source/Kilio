@@ -295,6 +295,59 @@ function TacheImagesRow({ tache }: { tache: TacheAvecRelations }) {
   );
 }
 
+// Appui long (tactile/stylet) sur une carte : entre en mode sélection. Annulé
+// par un défilement ou un glisser (> 8 px), par un relâchement ou par la poignée
+// de réordonnancement. Le clic qui suit un appui long réussi est avalé
+// (`consommeClic`) pour ne pas ouvrir l'édition de la tâche.
+const DELAI_APPUI_LONG_MS = 450;
+const TOLERANCE_APPUI_LONG_PX = 8;
+
+function useAppuiLong(onAppuiLong: (() => void) | undefined) {
+  const minuteur = useRef<number | null>(null);
+  const depart = useRef<{ x: number; y: number } | null>(null);
+  const declenche = useRef(false);
+
+  const annuler = useCallback(() => {
+    if (minuteur.current !== null) window.clearTimeout(minuteur.current);
+    minuteur.current = null;
+    depart.current = null;
+  }, []);
+  useEffect(() => annuler, [annuler]);
+
+  if (!onAppuiLong) return undefined;
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      if (e.pointerType === "mouse" || !e.isPrimary) return;
+      if ((e.target as HTMLElement).closest("[data-drag-handle]")) return;
+      declenche.current = false;
+      depart.current = { x: e.clientX, y: e.clientY };
+      minuteur.current = window.setTimeout(() => {
+        minuteur.current = null;
+        declenche.current = true;
+        vibrate(20);
+        onAppuiLong();
+      }, DELAI_APPUI_LONG_MS);
+    },
+    onPointerMove: (e: React.PointerEvent) => {
+      const d = depart.current;
+      if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) > TOLERANCE_APPUI_LONG_PX) annuler();
+    },
+    onPointerUp: annuler,
+    onPointerCancel: annuler,
+    onPointerLeave: annuler,
+    // Évite le menu contextuel natif du navigateur après un appui long tactile.
+    onContextMenu: (e: React.MouseEvent) => {
+      if (declenche.current || minuteur.current !== null) e.preventDefault();
+    },
+    onClickCapture: (e: React.MouseEvent) => {
+      if (!declenche.current) return;
+      declenche.current = false;
+      e.preventDefault();
+      e.stopPropagation();
+    },
+  };
+}
+
 export const TaskCard = memo(function TaskCard({
   tache,
   listes,
@@ -305,6 +358,7 @@ export const TaskCard = memo(function TaskCard({
   selectionMode = false,
   selected = false,
   onToggleSelect,
+  onEnterSelect,
 }: {
   tache: TacheAvecRelations;
   listes: Tables<"listes_taches">[];
@@ -333,8 +387,12 @@ export const TaskCard = memo(function TaskCard({
   selectionMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
+  // Entrée dans le mode sélection depuis cette carte (appui long, ou bouton
+  // visible au survol/focus sur desktop). Absent : pas de geste (Agenda…).
+  onEnterSelect?: (id: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const appuiLong = useAppuiLong(onEnterSelect && !selectionMode ? () => onEnterSelect(tache.id) : undefined);
   useBackClose(editing, () => setEditing(false));
   // Rend le focus au titre quand l'édition se ferme (clavier, lecteur d'écran).
   const boutonTitreRef = useRef<HTMLButtonElement | null>(null);
@@ -530,6 +588,7 @@ export const TaskCard = memo(function TaskCard({
     <>
       <div
         className={`flex items-start gap-3 ${selectionMode ? "cursor-pointer" : ""}`}
+        {...appuiLong}
         onClick={
           selectionMode
             ? (e) => {
@@ -656,6 +715,21 @@ export const TaskCard = memo(function TaskCard({
           {expanded && !selectionMode && <SousTachesList tache={tache} />}
         </div>
       </div>
+      {onEnterSelect && !selectionMode && (
+        // Desktop : l'appui long n'existe pas. Bouton visible au survol et au
+        // focus clavier seulement (jamais sur écran tactile).
+        <button
+          type="button"
+          onClick={() => onEnterSelect(tache.id)}
+          aria-label={`Sélectionner « ${tache.titre} »`}
+          className="absolute right-2 top-2 hidden h-8 w-8 items-center justify-center rounded-lg text-ink-3 opacity-0 transition-opacity hover:bg-surface-alt hover:text-ink focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal group-hover/carte:opacity-100 [@media(hover:hover)]:flex"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="4" y="4" width="16" height="16" rx="4" />
+            <path d="m8.5 12 2.5 2.5 4.5-5" />
+          </svg>
+        </button>
+      )}
     </>
   );
 
@@ -676,7 +750,7 @@ export const TaskCard = memo(function TaskCard({
           animate={{ opacity: 1, y: 0 }}
           exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -8 }}
           transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-          className={`${listCard} ${highlighted ? "tache-surbrillance" : ""} ${selected ? "ring-2 ring-kcal" : ""}`}
+          className={`${listCard} group/carte relative ${highlighted ? "tache-surbrillance" : ""} ${selected ? "ring-2 ring-kcal" : ""}`}
           style={accentStyle}
         >
           {content}
@@ -713,7 +787,7 @@ export const TaskCard = memo(function TaskCard({
           animate={{ opacity: 1, y: 0 }}
           exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -8 }}
           transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-          className={`${listCard} ${highlighted ? "tache-surbrillance" : ""} ${selected ? "ring-2 ring-kcal" : ""}`}
+          className={`${listCard} group/carte relative ${highlighted ? "tache-surbrillance" : ""} ${selected ? "ring-2 ring-kcal" : ""}`}
           style={accentStyle}
         >
           {content}
@@ -768,11 +842,13 @@ function SortableTachesList({
   listes,
   tags,
   highlightedId,
+  onEnterSelect,
 }: {
   actives: TacheAvecRelations[];
   listes: Tables<"listes_taches">[];
   tags: Tables<"tags">[];
   highlightedId?: string | null;
+  onEnterSelect?: (id: string) => void;
 }) {
   const queryClient = useQueryClient();
   const sensors = useTaskDragSensors();
@@ -835,6 +911,7 @@ function SortableTachesList({
                 tags={tags}
                 reorderable
                 highlighted={tache.id === highlightedId}
+                onEnterSelect={onEnterSelect}
               />
             ))}
           </AnimatePresence>
@@ -854,6 +931,7 @@ export function TasksList({
   selectionMode = false,
   selectionIds,
   onToggleSelect,
+  onEnterSelect,
   grouperParJour = false,
 }: {
   taches: TacheAvecRelations[];
@@ -869,6 +947,7 @@ export function TasksList({
   selectionMode?: boolean;
   selectionIds?: ReadonlySet<string>;
   onToggleSelect?: (id: string) => void;
+  onEnterSelect?: (id: string) => void;
   // Tâche à faire défiler en vue et surligner (création réussie, cf.
   // TachesView) ; uniquement pour les tâches actives.
   highlightedId?: string | null;
@@ -899,7 +978,7 @@ export function TasksList({
       )}
       {actives.length > 0 &&
         (reordonnable && !selectionMode ? (
-          <SortableTachesList actives={actives} listes={listes} tags={tags} highlightedId={highlightedId} />
+          <SortableTachesList actives={actives} listes={listes} tags={tags} highlightedId={highlightedId} onEnterSelect={onEnterSelect} />
         ) : (
           <ul className="flex flex-col gap-2.5">
             <AnimatePresence initial={false}>
@@ -914,6 +993,7 @@ export function TasksList({
                     selectionMode={selectionMode}
                     selected={selectionIds?.has(tache.id) ?? false}
                     onToggleSelect={onToggleSelect}
+                    onEnterSelect={onEnterSelect}
                   />
                 );
                 if (!grouperParJour || (i > 0 && actives[i - 1].echeance === tache.echeance)) return [carte];
