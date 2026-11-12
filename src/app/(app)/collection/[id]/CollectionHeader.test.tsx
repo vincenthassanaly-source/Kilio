@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CollectionHeader } from "./CollectionHeader";
+import { renameCollection } from "@/app/actions/collections";
 import type { Tables } from "@/lib/supabase/types";
 import type { ComponentProps } from "react";
 
@@ -59,5 +60,46 @@ describe("CollectionHeader - useBackClose ferme le renommage sans quitter la pag
     });
     expect(screen.getByRole("button", { name: "Renommer" })).toBeInTheDocument();
     expect(push).not.toHaveBeenCalled();
+  });
+});
+
+function rendre() {
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <CollectionHeader collection={makeCollection()} />
+    </QueryClientProvider>
+  );
+}
+
+describe("CollectionHeader - renommage et suppression", () => {
+  it("affiche un message lisible (pas l'exception brute) quand le renommage échoue", async () => {
+    vi.mocked(renameCollection).mockRejectedValueOnce(new Error("An error occurred in the Server Components render."));
+    const user = userEvent.setup();
+    rendre();
+
+    await user.click(screen.getByRole("button", { name: "Renommer" }));
+    await user.type(screen.getByLabelText("Nom de la collection"), " 2");
+    await user.click(screen.getByRole("button", { name: "OK" }));
+
+    expect(await screen.findByText("Le renommage a échoué. Réessaie.")).toBeInTheDocument();
+    expect(screen.queryByText(/Server Components/)).not.toBeInTheDocument();
+  });
+
+  it("repart du nom actuel quand on rouvre le renommage", async () => {
+    const user = userEvent.setup();
+    rendre();
+
+    await user.click(screen.getByRole("button", { name: "Renommer" }));
+    await user.type(screen.getByLabelText("Nom de la collection"), " brouillon");
+    window.history.back();
+    await waitFor(() => expect(screen.queryByLabelText("Nom de la collection")).not.toBeInTheDocument());
+
+    await user.click(screen.getByRole("button", { name: "Renommer" }));
+    expect(screen.getByLabelText("Nom de la collection")).toHaveValue("Vacances");
+  });
+
+  it("le bouton de suppression a un nom accessible complet", () => {
+    rendre();
+    expect(screen.getByRole("button", { name: "Supprimer la collection" })).toHaveTextContent("Supprimer");
   });
 });
