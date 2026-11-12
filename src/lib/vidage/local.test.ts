@@ -1,13 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FeuilleVidage } from "@/app/actions/vidage";
+import { aujourdhuiParis } from "@/lib/date/paris";
 import type { Trait } from "./traits";
 
-type Ligne = { jour: string; traits: unknown; hauteur: number; modifie_le: string; a_envoyer: 0 | 1; erreur?: string };
+type Ligne = {
+  jour: string;
+  traits: unknown;
+  hauteur: number;
+  modifie_le: string;
+  a_envoyer: 0 | 1;
+  erreur?: string;
+  base_inconnue?: 1;
+};
 
 // Faux Dexie en mémoire : seule la surface utilisée par local.ts.
 const etat = vi.hoisted(() => ({
   lignes: new Map<string, Ligne>(),
   enregistrerFeuille: vi.fn(),
+  getFeuille: vi.fn(),
 }));
 
 vi.mock("@/lib/offline/db", () => {
@@ -28,13 +38,15 @@ vi.mock("@/lib/offline/db", () => {
     },
   };
 });
-vi.mock("@/app/actions/vidage", () => ({ enregistrerFeuille: etat.enregistrerFeuille }));
+vi.mock("@/app/actions/vidage", () => ({ enregistrerFeuille: etat.enregistrerFeuille, getFeuille: etat.getFeuille }));
 
 import {
   EVENEMENT_FEUILLES_ENVOYEES,
+  EVENEMENT_FEUILLE_FUSIONNEE,
   choisirFeuille,
   compterFeuillesEnAttente,
   ecrireFeuilleLocale,
+  fusionnerTraits,
   lireFeuilleLocale,
   memoriserFeuilleServeur,
   synchroniserFeuilles,
@@ -54,6 +66,8 @@ beforeEach(() => {
   etat.lignes.clear();
   etat.enregistrerFeuille.mockReset();
   etat.enregistrerFeuille.mockResolvedValue({ ok: true, data: { updatedAt: "x" } });
+  etat.getFeuille.mockReset();
+  etat.getFeuille.mockResolvedValue({ ok: true, data: serveur([]) });
   vi.useRealTimers();
 });
 
@@ -184,5 +198,96 @@ describe("synchroniserFeuilles", () => {
     await synchroniserFeuilles();
     expect(etat.lignes.has("2026-09-01")).toBe(false);
     expect(etat.lignes.has("2026-09-02")).toBe(true);
+  });
+});
+
+// C-1 (audit 2026-11-07) : une feuille ouverte alors que le serveur n'a pas répondu (et sans copie
+// locale) part d'un état « inconnu ». Son envoi ne doit jamais écraser ce que le serveur contient.
+describe("base inconnue : fusion avant envoi", () => {
+  const T2: Trait = { e: 2, p: [10, 20, 50, 30, 40, 50] };
+  const T3: Trait = { e: 3, p: [5, 6, 50, 7, 8, 50] };
+
+  it("fusionnerTraits : traits du serveur d'abord, puis ceux de la feuille locale qui n'y sont pas déjà", () => {
+    expect(fusionnerTraits([T2], [T])).toEqual([T2, T]);
+    expect(fusionnerTraits([T, T2], [T2, T3])).toEqual([T, T2, T3]);
+    expect(fusionnerTraits([], [T])).toEqual([T]);
+    expect(fusionnerTraits([T], [])).toEqual([T]);
+  });
+
+  it("marque la copie locale « base inconnue » seulement quand on le demande", async () => {
+    await ecrireFeuilleLocale("2026-10-19", [T], 2500, true);
+    expect((await lireFeuilleLocale("2026-10-19"))?.base_inconnue).toBe(1);
+    await ecrireFeuilleLocale("2026-10-20", [T], 2500);
+    expect((await lireFeuilleLocale("2026-10-20"))?.base_inconnue).toBeUndefined();
+  });
+
+  it("relit le serveur et envoie l'union, sans écraser ce qu'il contenait", async () => {
+    // Jour récent : la purge supprime les feuilles envoyées de plus de 7 jours.
+    const jourRecent = aujourdhuiParis();
+    etat.getFeuille.mockResolvedValue({ ok: true, data: serveur([T2]) });
+    await ecrireFeuilleLocale(jourRecent, [T], 2500, true);
+
+    const recus: unknown[] = [];
+    window.addEventListener(EVENEMENT_FEUILLE_FUSIONNEE, (e) => recus.push((e as CustomEvent).detail), { once: true });
+    const bilan = await synchroniserFeuilles();
+
+    expect(etat.getFeuille).toHaveBeenCalledWith(jourRecent);
+    expect(etat.enregistrerFeuille).toHaveBeenCalledWith(jourRecent, [T2, T], 2500);
+    expect(bilan.restantes).toBe(0);
+    const ligne = await lireFeuilleLocale(jourRecent);
+    expect(ligne?.a_envoyer).toBe(0);
+    expect(ligne?.base_inconnue).toBeUndefined();
+    expect(ligne?.traits).toEqual([T2, T]);
+    // La feuille ouverte à l'écran est prévenue pour intégrer les traits du serveur.
+    expect(recus).toEqual([{ jour: jourRecent, traits: [T2, T] }]);
+  });
+
+  it("n'envoie rien tant que le serveur n'a pas pu être relu (réseau) : tout reste en attente", async () => {
+    etat.getFeuille.mockRejectedValue(new Error("Failed to fetch"));
+    await ecrireFeuilleLocale("2026-10-19", [T], 2500, true);
+
+    const bilan = await synchroniserFeuilles();
+
+    expect(etat.enregistrerFeuille).not.toHaveBeenCalled();
+    expect(bilan.restantes).toBe(1);
+    expect((await lireFeuilleLocale("2026-10-19"))?.base_inconnue).toBe(1);
+  });
+
+  it("n'envoie rien si le serveur refuse la lecture, et garde la feuille avec le message", async () => {
+    etat.getFeuille.mockResolvedValue({ ok: false, error: "Session expirée." });
+    await ecrireFeuilleLocale("2026-10-19", [T], 2500, true);
+
+    const bilan = await synchroniserFeuilles();
+
+    expect(etat.enregistrerFeuille).not.toHaveBeenCalled();
+    expect(bilan.restantes).toBe(1);
+    expect(bilan.refus).toContain("Session expirée.");
+    expect((await lireFeuilleLocale("2026-10-19"))?.erreur).toBe("Session expirée.");
+  });
+
+  it("ne relit pas le serveur pour une feuille dont la base est connue (comportement inchangé)", async () => {
+    await ecrireFeuilleLocale("2026-10-19", [T], 2500);
+
+    await synchroniserFeuilles();
+
+    expect(etat.getFeuille).not.toHaveBeenCalled();
+    expect(etat.enregistrerFeuille).toHaveBeenCalledWith("2026-10-19", [T], 2500);
+  });
+
+  it("si la feuille est modifiée pendant l'envoi, elle reste à envoyer (et ne duplique rien au passage suivant)", async () => {
+    etat.getFeuille.mockResolvedValue({ ok: true, data: serveur([T2]) });
+    await ecrireFeuilleLocale("2026-10-19", [T], 2500, true);
+    etat.enregistrerFeuille.mockImplementationOnce(async () => {
+      await ecrireFeuilleLocale("2026-10-19", [T, T3], 2500, true);
+      return { ok: true, data: { updatedAt: "x" } };
+    });
+
+    const premier = await synchroniserFeuilles();
+    expect(premier.restantes).toBe(1);
+
+    // Le serveur contient maintenant [T2, T] : la deuxième passe n'ajoute que T3.
+    etat.getFeuille.mockResolvedValue({ ok: true, data: serveur([T2, T]) });
+    await synchroniserFeuilles();
+    expect(etat.enregistrerFeuille).toHaveBeenLastCalledWith("2026-10-19", [T2, T, T3], 2500);
   });
 });
