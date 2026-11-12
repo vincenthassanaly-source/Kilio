@@ -1,11 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NoteCard } from "./NoteCard";
 import { queryKeys } from "@/lib/query/keys";
 import { makeNote } from "@/test/fixtures";
 import type { NoteAvecRelations } from "@/app/actions/notes";
+
+afterEach(cleanup);
 
 vi.mock("@/app/actions/notes", () => ({
   toggleEpingle: vi.fn(),
@@ -74,7 +76,7 @@ describe("NoteCard - rollback scopé des mutations optimistes (CLICK-PATH-603)",
 
     renderWithClient(client, noteA);
 
-    await user.click(screen.getByRole("button", { name: "Cocher l'item" }));
+    await user.click(screen.getByRole("button", { name: "Cocher « Pain »" }));
 
     // Mutation indépendante concurrente sur note-b pendant que l'item de
     // note-a échoue et doit être annulé.
@@ -89,5 +91,34 @@ describe("NoteCard - rollback scopé des mutations optimistes (CLICK-PATH-603)",
 
     const notes = client.getQueryData<NoteAvecRelations[]>(queryKeys.notes)!;
     expect(notes.find((n) => n.id === "note-b")!.epingle).toBe(true);
+  });
+
+  it("épingle : libellé fixe et état annoncé par aria-pressed", () => {
+    const client = new QueryClient();
+    renderWithClient(client, makeNote({ id: "note-p", epingle: true }));
+    expect(screen.getByRole("button", { name: "Épingler" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("checklist : barre de progression annoncée et actions de la tuile nommées", () => {
+    const client = new QueryClient();
+    const item = { note_id: "note-c", created_at: "", updated_at: "", termine_le: null };
+    renderWithClient(
+      client,
+      makeNote({
+        id: "note-c",
+        titre: "Courses",
+        type: "checklist",
+        items: [
+          { ...item, id: "i1", libelle: "Pain", coche: true, position: 0 },
+          { ...item, id: "i2", libelle: "Lait", coche: false, position: 1 },
+        ],
+      })
+    );
+    const barre = screen.getByRole("progressbar");
+    expect(barre).toHaveAttribute("aria-valuenow", "1");
+    expect(barre).toHaveAttribute("aria-valuetext", "1 sur 2");
+    expect(screen.getByRole("button", { name: "Modifier la note « Courses »" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Supprimer la note « Courses »" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Décocher « Pain »" })).toBeInTheDocument();
   });
 });

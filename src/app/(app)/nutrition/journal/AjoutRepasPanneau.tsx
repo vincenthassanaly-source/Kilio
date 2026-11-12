@@ -20,7 +20,7 @@ import {
   type SaisieRecente,
 } from "@/lib/nutrition/compute";
 import { queryKeys } from "@/lib/query/keys";
-import { errorText, input, primaryButton } from "@/lib/ui";
+import { errorText, input, nameTextComplet, primaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
 
 const focusRing =
@@ -92,7 +92,7 @@ function LigneCatalogue({
         className={`flex min-h-[52px] w-full items-center justify-between gap-3 rounded-2xl px-3 py-2 text-left transition-colors hover:bg-surface-alt active:bg-surface-alt ${focusRing}`}
       >
         <span className="min-w-0">
-          <span className="block truncate text-body font-semibold text-ink">{item.nom}</span>
+          <span className={`block ${nameTextComplet} font-semibold`}>{item.nom}</span>
           <span className="block truncate text-xs text-ink-2">{detail}</span>
         </span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="shrink-0">
@@ -335,7 +335,7 @@ function EtapeQuantite({
           Quantité
         </label>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={() => ajuster(-pas)} aria-label={`Retirer ${String(pas).replace(".", ",")}`} className={boutonPas}>
+          <button type="button" onClick={() => ajuster(-pas)} aria-label={`Retirer ${String(pas).replace(".", ",")} ${uniteSaisie(item, mode, pas)}`} className={boutonPas}>
             −
           </button>
           <div className="relative min-w-0 flex-1">
@@ -354,7 +354,7 @@ function EtapeQuantite({
               {uniteSaisie(item, mode, valide ? valeur : 1)}
             </span>
           </div>
-          <button type="button" onClick={() => ajuster(pas)} aria-label={`Ajouter ${String(pas).replace(".", ",")}`} className={boutonPas}>
+          <button type="button" onClick={() => ajuster(pas)} aria-label={`Ajouter ${String(pas).replace(".", ",")} ${uniteSaisie(item, mode, pas)}`} className={boutonPas}>
             +
           </button>
         </div>

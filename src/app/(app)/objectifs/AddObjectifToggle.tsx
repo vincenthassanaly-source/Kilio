@@ -12,9 +12,7 @@ export function AddObjectifToggle({ onSaved }: { onSaved?: () => void }) {
 
   const trigger = (
     <button type="button" onClick={() => setOpen(true)} className={addCard}>
-      <div
-        className={addCardIcon}
-      >
+      <div aria-hidden="true" className={addCardIcon}>
         +
       </div>
       <div className="flex flex-col gap-[1px]">

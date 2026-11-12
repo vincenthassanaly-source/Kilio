@@ -61,14 +61,14 @@ export function BarreOutils({
       <div
         role="toolbar"
         aria-label="Outils d'écriture"
-        className="flex max-w-full items-center gap-0.5 rounded-full border border-line bg-surface/95 p-1 shadow-card backdrop-blur min-[26rem]:p-1.5"
+        className="flex max-w-full items-center gap-0.5 rounded-full border border-line bg-surface/95 p-1 shadow-float backdrop-blur min-[26rem]:p-1.5"
       >
         <button
           type="button"
           aria-label="Stylo"
           aria-pressed={outil === "stylo"}
           onClick={() => onOutil("stylo")}
-          className={`${bouton} ${outil === "stylo" ? "bg-surface-alt" : ""}`}
+          className={`${bouton} ${outil === "stylo" ? "bg-kcal-soft text-kcal" : ""}`}
         >
           <Icone>
             <path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1z" />
@@ -80,7 +80,7 @@ export function BarreOutils({
           aria-label="Gomme"
           aria-pressed={outil === "gomme"}
           onClick={() => onOutil("gomme")}
-          className={`${bouton} ${outil === "gomme" ? "bg-surface-alt" : ""}`}
+          className={`${bouton} ${outil === "gomme" ? "bg-kcal-soft text-kcal" : ""}`}
         >
           <Icone>
             <path d="M19 20H9L4.3 15.3a1.4 1.4 0 0 1 0-2l8.9-8.9a1.4 1.4 0 0 1 2 0l4.5 4.5a1.4 1.4 0 0 1 0 2L12 18" />
@@ -97,9 +97,9 @@ export function BarreOutils({
             aria-label={LIBELLE_EPAISSEUR[e]}
             aria-pressed={epaisseur === e}
             onClick={() => onEpaisseur(e)}
-            className={`${bouton} ${epaisseur === e ? "bg-surface-alt" : ""}`}
+            className={`${bouton} ${epaisseur === e ? "bg-kcal-soft" : ""}`}
           >
-            <span className="rounded-full bg-ink" style={{ width: DIAMETRE[e], height: DIAMETRE[e] }} />
+            <span className={`rounded-full ${epaisseur === e ? "bg-kcal" : "bg-ink"}`} style={{ width: DIAMETRE[e], height: DIAMETRE[e] }} />
           </button>
         ))}
 
@@ -127,13 +127,14 @@ export function BarreOutils({
           aria-busy={enTranscription}
           disabled={!peutTranscrire || enTranscription}
           onClick={onTranscrire}
-          className="relative flex h-9 min-w-9 shrink-0 items-center after:absolute after:-inset-1 min-[26rem]:after:hidden min-[26rem]:h-11 min-[26rem]:min-w-11 justify-center gap-2 rounded-full bg-ink px-2 min-[26rem]:px-3 text-sm font-medium text-surface transition active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal min-[30rem]:px-4"
+          className="relative flex h-9 min-w-9 shrink-0 items-center after:absolute after:-inset-1 min-[26rem]:after:hidden min-[26rem]:h-11 min-[26rem]:min-w-11 justify-center gap-2 rounded-full bg-ink px-2 min-[26rem]:px-3 text-label font-medium text-surface transition active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal min-[30rem]:px-4"
         >
           {enTranscription ? (
             <Rotation />
           ) : (
             <Icone>
-              <path d="M5 6h14M5 12h14M5 18h9" />
+              <path d="M4 7V5h9v2M8.5 5v9M7 14h3" />
+              <path d="M16 11h4M18 11v8M16 19h4" />
             </Icone>
           )}
           <span className="hidden min-[30rem]:inline">{libelleTranscrire}</span>

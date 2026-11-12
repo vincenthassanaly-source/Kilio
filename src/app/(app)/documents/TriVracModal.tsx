@@ -198,12 +198,16 @@ export function TriVracModal({
   }
 
   return (
-    <Modal title="Trier le vrac" onClose={fermer}>
+    // Pas de fermeture pendant l'application : une erreur tardive serait perdue (démontage).
+    <Modal title="Trier le vrac" onClose={etape === "application" ? () => {} : fermer}>
       {etape === "analyse" && (
-        <div className="flex flex-col gap-4 pb-1" aria-busy="true">
+        <div className="flex flex-col gap-4 pb-1">
           <div className="flex flex-col gap-2">
             <p className="text-sm text-ink" aria-live="polite">
-              Gemini lit tes documents… {analyses} / {lot.length}
+              Gemini lit tes documents…{" "}
+              <span className="tabular-nums">
+                {analyses} / {lot.length}
+              </span>
             </p>
             <div
               role="progressbar"
@@ -227,8 +231,9 @@ export function TriVracModal({
                   {document.nom}
                 </span>
                 {index < analyses && (
-                  <span className="text-xs font-semibold text-kcal" aria-label="Analysé">
-                    ✓
+                  <span className="text-xs font-semibold text-kcal">
+                    <span aria-hidden="true">✓</span>
+                    <span className="sr-only">Analysé</span>
                   </span>
                 )}
               </li>
@@ -339,6 +344,10 @@ export function TriVracModal({
               </li>
             ))}
           </ul>
+
+          {nomsVides && (
+            <p className="text-sm text-ink-2">Un nom est vide : renseigne-le ou décoche le document pour appliquer.</p>
+          )}
 
           {erreurApplication && (
             <p role="alert" className={errorText}>

@@ -177,7 +177,7 @@ export function ReorganiserModal({ categories, onClose }: { categories: string[]
   const occupe = etape === "application";
 
   return (
-    <Modal title="Réorganiser les documents" onClose={onClose}>
+    <Modal title="Réorganiser les documents" onClose={occupe ? () => {} : onClose}>
       {etape === "instruction" && (
         <div className="flex flex-col gap-4 pb-1">
           <p className="text-sm text-ink-2">
@@ -216,7 +216,7 @@ export function ReorganiserModal({ categories, onClose }: { categories: string[]
       )}
 
       {etape === "analyse" && (
-        <div className="flex flex-col gap-4 pb-1" aria-busy="true">
+        <div className="flex flex-col gap-4 pb-1">
           <p className="flex items-center gap-3 text-sm text-ink" aria-live="polite">
             <span
               aria-hidden="true"
@@ -286,7 +286,7 @@ export function ReorganiserModal({ categories, onClose }: { categories: string[]
                           <FlecheIcon />
                           <span className="break-words">{vers}</span>
                         </p>
-                        <span className="shrink-0 text-xs tabular-nums text-ink-3">{pluriel(ids.length, "doc.")}</span>
+                        <span className="shrink-0 text-xs tabular-nums text-ink-3">{pluriel(ids.length, "doc.", "doc.")}</span>
                       </div>
 
                       <select
@@ -304,8 +304,22 @@ export function ReorganiserModal({ categories, onClose }: { categories: string[]
                         ))}
                       </select>
 
-                      <details>
-                        <summary className="flex min-h-11 cursor-pointer list-none items-center text-small font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
+                      <details className="group">
+                        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-small font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                            className="shrink-0 transition-transform duration-150 group-open:rotate-90"
+                          >
+                            <path d="M9 6l6 6-6 6" />
+                          </svg>
                           Voir les documents
                         </summary>
                         <ul className="flex flex-col">

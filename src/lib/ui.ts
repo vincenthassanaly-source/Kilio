@@ -1,6 +1,11 @@
 // Shared Tailwind class fragments for the "Kilio — mobile" design system.
 // Keeps cards/buttons/inputs visually consistent across screens.
 
+// `focus-visible:ring-*` (jamais `focus:`, pour ne pas afficher l'anneau au
+// clic souris/tap) : anneau détaché du fond (`ring-offset-2`) donc visible
+// quel que soit le fond du bouton, y compris sur `primaryButton` (bg-kcal).
+const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+
 export const card = "rounded-card border border-line bg-surface p-4 shadow-card";
 // `cardTight` : toujours une ligne de liste (un ingrédient, une étape, une
 // entrée de journal...), jamais un conteneur groupant plusieurs éléments
@@ -11,7 +16,7 @@ export const card = "rounded-card border border-line bg-surface p-4 shadow-card"
 // `active:scale` ferait "trembler" tout le groupe/formulaire au moindre tap
 // sur un champ ou un bouton interne, pas seulement l'élément pressé — non
 // modifié ici pour cette raison (voir reports/2026-09-13-fluidite-4-chantiers.md).
-export const cardTight = "rounded-row border border-line bg-surface p-3.5 shadow-card transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.985]";
+export const cardTight = `rounded-row border border-line bg-surface p-3.5 shadow-card transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.985] ${focusRing}`;
 
 // `text-balance` (T-polish) : titres courts (1-3 lignes) répartis plus
 // régulièrement entre les lignes, pour éviter une dernière ligne orpheline
@@ -20,10 +25,6 @@ export const screenTitle = "font-display text-display leading-[1.1] font-semibol
 export const sectionTitle = "text-body font-semibold tracking-[-0.01em] text-ink text-balance";
 export const eyebrow = "text-small font-medium text-ink-3";
 
-// `focus-visible:ring-*` (jamais `focus:`, pour ne pas afficher l'anneau au
-// clic souris/tap) : anneau détaché du fond (`ring-offset-2`) donc visible
-// quel que soit le fond du bouton, y compris sur `primaryButton` (bg-kcal).
-const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 // 16 px (et non 15) : en dessous, iOS zoome la page au focus d'un champ (T15).
 export const input = `rounded-2xl border border-control-border bg-surface-alt px-3.5 py-2.5 text-base text-ink outline-none focus:border-kcal/60 transition-colors ${focusRing}`;
@@ -36,9 +37,9 @@ export const errorText = "text-label text-alert";
 export const COULEUR_PAR_DEFAUT = "#007eb3";
 
 export const primaryButton =
-  `rounded-2xl bg-kcal px-4 py-2.5 font-semibold text-on-kcal transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
+  `rounded-2xl bg-kcal px-4 py-2.5 font-semibold text-on-kcal transition-[color,background-color,border-color,opacity,transform] active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 export const secondaryButton =
-  `rounded-2xl border border-line bg-surface px-4 py-2.5 font-semibold text-ink transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
+  `rounded-2xl border border-line bg-surface px-4 py-2.5 font-semibold text-ink transition-[color,background-color,border-color,opacity,transform] active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 export const addCard =
   `flex w-full items-center gap-[13px] rounded-card border border-line bg-surface p-4 shadow-card text-left transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.99] ${focusRing}`;
 // Icône « + » des cartes d'ajout (T9) : aplat vert Kcal, sans le dégradé ni
@@ -54,16 +55,16 @@ export const addCardIcon =
 const zoneTap44 = "relative after:absolute after:inset-x-0 after:-inset-y-1.5";
 
 export const ghostButton =
-  `${zoneTap44} rounded-xl border border-control-border px-2.5 py-1.5 text-label font-medium text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
+  `${zoneTap44} rounded-xl border border-control-border px-2.5 py-1.5 text-label font-medium text-ink transition-[color,background-color,border-color,opacity,transform] active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
 // Variante de `ghostButton` dédiée aux flèches de navigation de période
 // (Agenda : jour/semaine/mois précédent-suivant) — cible tactile 44×44px
 // minimum (h-11 w-11), contrairement à `ghostButton` (compact, utilisé
 // ailleurs dans l'app) qu'on ne modifie pas pour ne pas grossir tous ses
 // autres usages.
 export const navArrowButton =
-  `flex h-11 w-11 items-center justify-center rounded-xl border border-line text-ink transition active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
+  `flex h-11 w-11 items-center justify-center rounded-xl border border-line text-ink transition-[color,background-color,border-color,opacity,transform] active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
 export const dangerButton =
-  `${zoneTap44} rounded-xl border border-alert/30 px-2.5 py-1.5 text-label font-medium text-alert transition active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
+  `${zoneTap44} rounded-xl border border-alert/30 px-2.5 py-1.5 text-label font-medium text-alert transition-[color,background-color,border-color,opacity,transform] active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 // Lien-texte discret (« Annuler » sous un formulaire) : zone de tap de 44 px.
 export const textButton = `relative inline-flex min-h-11 items-center text-label text-ink-2 underline ${focusRing}`;
 export const linkButton = `relative after:absolute after:-inset-x-2 after:-inset-y-3 text-label font-semibold text-kcal ${focusRing}`;

@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import type { PageBrouillon } from "@/lib/scanner/brouillon";
 import { genererPdf, PARAMS_QUALITE, type QualitePdf } from "@/lib/scanner/pdf";
 import { nomFichierSur, nomsPagesJpeg, partager, peutPartager, telecharger, telechargerTous } from "@/lib/scanner/partage";
 import { jpegPourExport } from "@/lib/scanner/traitement";
-import { card, errorText, input, label, primaryButton, secondaryButton, sectionTitle } from "@/lib/ui";
+import { card, dangerButton, errorText, input, label, primaryButton, secondaryButton, sectionTitle } from "@/lib/ui";
 
 type Format = "pdf" | "jpeg";
 
@@ -23,7 +24,12 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
   // « Élevée » par défaut (2400 px, JPEG 0,88) : le Standard (1600 px) donnait des pages nettement moins
   // définies que CamScanner (3000 px). Le choix reste libre.
   const [qualite, setQualite] = useState<QualitePdf>("elevee");
-  const [fichiers, setFichiers] = useState<File[] | null>(null);
+  const [fichiersBruts, setFichiers] = useState<File[] | null>(null);
+  // Signature des pages au moment de la génération : si les pages changent ensuite
+  // (reprise, suppression, ajout), les fichiers prêts sont périmés et ne sont plus proposés.
+  const [signatureGeneree, setSignatureGeneree] = useState<string | null>(null);
+  const signature = pages.map((p) => p.id).join("|");
+  const fichiers = fichiersBruts !== null && signatureGeneree === signature ? fichiersBruts : null;
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [confirmerVidage, setConfirmerVidage] = useState(false);
@@ -40,6 +46,7 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
   async function generer() {
     setEnCours(true);
     setErreur(null);
+    const signatureAuDepart = signature;
     try {
       const { coteMax, jpeg } = PARAMS_QUALITE[qualite];
       const jpegs: Uint8Array[] = [];
@@ -51,8 +58,9 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
         const noms = nomsPagesJpeg(nom, jpegs.length);
         setFichiers(jpegs.map((octets, i) => new File([octets as BlobPart], noms[i], { type: "image/jpeg" })));
       }
-    } catch (e) {
-      setErreur(e instanceof Error ? e.message : "La génération a échoué.");
+      setSignatureGeneree(signatureAuDepart);
+    } catch {
+      setErreur("La génération a échoué. Réessaie.");
     } finally {
       setEnCours(false);
     }
@@ -97,40 +105,32 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
         <input id="scanner-nom" className={input} value={nom} onChange={(e) => modifier(setNom)(e.target.value)} maxLength={80} />
       </div>
 
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className={label}>Format</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {([["pdf", "PDF"], ["jpeg", "Images JPEG"]] as const).map(([valeur, texte]) => (
-            <button
-              key={valeur}
-              type="button"
-              aria-pressed={format === valeur}
-              onClick={() => modifier(setFormat)(valeur)}
-              className={format === valeur ? primaryButton : secondaryButton}
-            >
-              {texte}
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      <div className="flex flex-col gap-1.5">
+        <span className={label}>Format</span>
+        <SegmentedControl<Format>
+          ariaLabel="Format"
+          value={format}
+          onChange={modifier(setFormat)}
+          options={[
+            { value: "pdf", label: "PDF" },
+            { value: "jpeg", label: "Images JPEG" },
+          ]}
+        />
+      </div>
 
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className={label}>Qualité</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {([["standard", "Standard"], ["elevee", "Élevée"]] as const).map(([valeur, texte]) => (
-            <button
-              key={valeur}
-              type="button"
-              aria-pressed={qualite === valeur}
-              onClick={() => modifier(setQualite)(valeur)}
-              className={qualite === valeur ? primaryButton : secondaryButton}
-            >
-              {texte}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-col gap-1.5">
+        <span className={label}>Qualité</span>
+        <SegmentedControl<QualitePdf>
+          ariaLabel="Qualité"
+          value={qualite}
+          onChange={modifier(setQualite)}
+          options={[
+            { value: "standard", label: "Standard" },
+            { value: "elevee", label: "Élevée" },
+          ]}
+        />
         <p className="text-xs text-ink-3">Élevée donne des fichiers plus lourds et plus nets.</p>
-      </fieldset>
+      </div>
 
       {!fichiers ? (
         <button type="button" className={primaryButton} onClick={generer} disabled={enCours || pages.length === 0}>
@@ -141,10 +141,10 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
               : `Créer ${pages.length} image${pluriel}`}
         </button>
       ) : (
-        <div className="flex flex-col gap-2" role="status">
-          <p className="text-sm text-ink-2">
+        <div className="flex flex-col gap-2">
+          <p role="status" className="text-sm tabular-nums text-ink-2">
             {fichiers.length === 1
-              ? `${fichiers[0].name} · ${(fichiers[0].size / 1024 / 1024).toFixed(2)} Mo`
+              ? `${fichiers[0].name} · ${(fichiers[0].size / 1024 / 1024).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mo`
               : `${fichiers.length} images prêtes`}
           </p>
           {partageDispo && (
@@ -155,7 +155,7 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
           <button type="button" className={partageDispo ? secondaryButton : primaryButton} onClick={telechargerFichiers}>
             Télécharger
           </button>
-          <button type="button" className={secondaryButton} onClick={() => setConfirmerVidage(true)}>
+          <button type="button" className={dangerButton} onClick={() => setConfirmerVidage(true)}>
             Vider le brouillon
           </button>
         </div>

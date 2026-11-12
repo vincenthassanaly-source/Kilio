@@ -127,7 +127,7 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
             <img src={url} alt="Photo à recadrer" className="block max-h-[calc(100dvh-13rem)] max-w-full select-none" draggable={false} />
             <svg
               ref={svgRef}
-              className="absolute inset-0 h-full w-full touch-none"
+              className="absolute inset-0 h-full w-full touch-none overflow-visible"
               viewBox={`0 0 ${w} ${h}`}
               onPointerMove={deplacer}
               onPointerUp={() => setGeste(null)}
@@ -171,7 +171,7 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
         </p>
       )}
       {!valide && (
-        <p className="px-5 pb-2 text-center text-xs text-red-300">Les coins se croisent : replace-les pour former un quadrilatère.</p>
+        <p role="alert" className="px-5 pb-2 text-center text-xs text-red-300">Les coins se croisent : replace-les pour former un quadrilatère.</p>
       )}
 
       <div className="flex items-center justify-between gap-2 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-2">

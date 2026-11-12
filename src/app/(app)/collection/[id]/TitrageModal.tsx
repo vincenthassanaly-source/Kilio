@@ -175,7 +175,7 @@ export function TitrageModal({
         <div className="flex flex-col gap-4 pb-1" aria-busy="true">
           <div className="flex flex-col gap-2">
             <p className="text-sm text-ink" aria-live="polite">
-              Gemini regarde tes éléments… {analyses} / {lot.length}
+              Gemini regarde tes éléments… <span className="tabular-nums">{analyses} / {lot.length}</span>
             </p>
             <div
               role="progressbar"
@@ -199,8 +199,9 @@ export function TitrageModal({
                   {element.titre || libelleNature(element.type)}
                 </span>
                 {index < analyses && (
-                  <span className="text-xs font-semibold text-kcal" aria-label="Analysé">
-                    ✓
+                  <span className="text-xs font-semibold text-kcal">
+                    <span aria-hidden="true">✓</span>
+                    <span className="sr-only">Analysé</span>
                   </span>
                 )}
               </li>

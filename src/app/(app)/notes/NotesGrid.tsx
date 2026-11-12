@@ -10,7 +10,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { NoteCard } from "./NoteCard";
 import { AddNoteToggle } from "./AddNoteToggle";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
-import { input, pillTag, sectionTitle } from "@/lib/ui";
+import { input, pillTag, sectionTitle, zoneTapPill } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ErrorInline } from "@/components/ErrorInline";
 
@@ -102,19 +102,21 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
             placeholder="Rechercher une note…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Rechercher une note"
             className={input}
           />
 
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-2 gap-y-4">
               {tagsAffiches.map((tag) => (
                 <button
                   key={tag.id}
                   type="button"
                   onClick={() => toggleTagFilter(tag.id)}
-                  className={
-                    tagFilter.includes(tag.id) ? `${pillTag} bg-kcal-soft text-kcal font-bold` : pillTag
-                  }
+                  aria-pressed={tagFilter.includes(tag.id)}
+                  className={`${zoneTapPill} ${
+                    tagFilter.includes(tag.id) ? `${pillTag} bg-kcal-soft text-kcal` : pillTag
+                  }`}
                 >
                   #{tag.nom}
                 </button>

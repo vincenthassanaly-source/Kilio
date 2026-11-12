@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { getCollectionsAvecApercu, type CollectionAvecApercu } from "@/app/actions/collections";
@@ -14,6 +14,7 @@ import { ghostButton, nameText } from "@/lib/ui";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ErrorInline } from "@/components/ErrorInline";
+import { showErrorToast } from "@/components/toast/toast-store";
 
 function CollectionsMosaic({ collections }: { collections: CollectionAvecApercu[] }) {
   if (collections.length === 0) {
@@ -36,11 +37,11 @@ function CollectionsMosaic({ collections }: { collections: CollectionAvecApercu[
               photos={collection.photos_apercu}
               viewTransitionName={`collection-cover-${collection.id}`}
             />
-            <p className={nameText} style={{ viewTransitionName: `collection-title-${collection.id}` }}>
+            <p className={`${nameText} line-clamp-2 whitespace-normal text-balance`} style={{ viewTransitionName: `collection-title-${collection.id}` }}>
               {collection.nom}
             </p>
             <p className="text-xs text-ink-3">
-              {collection.nb_photos} photo{collection.nb_photos > 1 ? "s" : ""}
+              {collection.nb_photos} élément{collection.nb_photos > 1 ? "s" : ""}
             </p>
           </TransitionLink>
         </motion.li>
@@ -51,12 +52,18 @@ function CollectionsMosaic({ collections }: { collections: CollectionAvecApercu[
 
 export function CollectionsGrid() {
   const queryClient = useQueryClient();
-  const { data: collections, isLoading, isError, refetch } = useQuery({
+  const { data: collections, isLoading, isError, isRefetchError, refetch } = useQuery({
     queryKey: queryKeys.collections,
     queryFn: getCollectionsAvecApercu,
   });
 
   const [reorganiser, setReorganiser] = useState(false);
+
+  // Un rechargement en échec garde la grille déjà affichée : on le signale
+  // par un toast plutôt que de la remplacer par un message d'erreur.
+  useEffect(() => {
+    if (isRefetchError) showErrorToast("Actualisation impossible. Les collections affichées peuvent être périmées.");
+  }, [isRefetchError]);
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: queryKeys.collections });
@@ -80,7 +87,7 @@ export function CollectionsGrid() {
         {reorganiser && <ReorganiserCollectionsModal onClose={() => setReorganiser(false)} />}
         {isLoading ? (
           <GridSkeleton />
-        ) : isError ? (
+        ) : isError && !collections ? (
           <ErrorInline message="Impossible de charger les collections." retry={() => refetch()} />
         ) : (
           <CollectionsMosaic collections={collections ?? []} />

@@ -56,6 +56,7 @@ export function ScannerApp() {
   const [remplacerId, setRemplacerId] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
+  const [importEnCours, setImportEnCours] = useState(false);
   const [erreurRecadrage, setErreurRecadrage] = useState<string | null>(null);
   /** Index de la page ouverte en aperçu agrandi, ou null. */
   const [apercu, setApercu] = useState<number | null>(null);
@@ -105,12 +106,15 @@ export function ScannerApp() {
     e.target.value = "";
     if (fichiers.length === 0) return;
     setErreur(null);
+    setImportEnCours(true);
     try {
       const images: ImageData[] = [];
       for (const f of fichiers) images.push(await chargerImage(f));
       mettreEnFile(images);
     } catch {
       setErreur("Impossible de lire cette image.");
+    } finally {
+      setImportEnCours(false);
     }
   }
 
@@ -128,8 +132,8 @@ export function ScannerApp() {
       if (remplacerId) fermerViseur();
       setRemplacerId(null);
       setFile((f) => f.slice(1));
-    } catch (e) {
-      setErreurRecadrage(e instanceof Error ? e.message : "Le traitement de la page a échoué.");
+    } catch {
+      setErreurRecadrage("Le traitement de la page a échoué. Réessaie.");
     } finally {
       setEnCours(false);
     }
@@ -183,18 +187,22 @@ export function ScannerApp() {
         aria-label="Importer des photos"
       />
 
-      <p className="text-sm text-ink-2">
-        Photographie tes documents, recadre-les, puis exporte-les en PDF ou en images. Rien n&apos;est envoyé en ligne : les pages restent sur cet appareil.
-      </p>
+      <p className="text-sm text-ink-2">Rien n&apos;est envoyé en ligne : les pages restent sur cet appareil.</p>
 
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" className={primaryButton} onClick={() => ouvrirViseur()}>
+        <button type="button" className={primaryButton} onClick={() => ouvrirViseur()} disabled={importEnCours}>
           Scanner
         </button>
-        <button type="button" className={secondaryButton} onClick={ouvrirSelecteur}>
+        <button type="button" className={secondaryButton} onClick={ouvrirSelecteur} disabled={importEnCours}>
           Importer
         </button>
       </div>
+
+      {importEnCours && (
+        <p role="status" className="text-sm text-ink-2">
+          Lecture des photos…
+        </p>
+      )}
 
       {erreur && <p role="alert" className={errorText}>{erreur}</p>}
 
@@ -212,7 +220,7 @@ export function ScannerApp() {
                     type="button"
                     onClick={() => setApercu(i)}
                     aria-label={`Agrandir la page ${i + 1}`}
-                    className="block w-full rounded-lg transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+                    className="block w-full rounded-lg transition-transform active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
                   >
                     <Miniature page={p} numero={i + 1} />
                   </button>

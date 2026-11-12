@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { listerJoursEcrits, type JourEcrit } from "@/app/actions/vidage";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { TransitionLink } from "@/components/TransitionLink";
@@ -28,7 +28,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
   const moisCourant = aujourdhui.slice(0, 7);
   const [mois, setMois] = useState(moisCourant);
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, isPlaceholderData, refetch } = useQuery({
     queryKey: queryKeys.vidageMois(mois),
     queryFn: async (): Promise<JourEcrit[]> => {
       const resultat = await listerJoursEcrits(mois);
@@ -38,6 +38,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
     // Toujours recharger à l'ouverture : un mois lu juste avant l'arrivée d'une feuille sur
     // le serveur restait « vide » en cache. L'appel est court, et les URL signées (1 h) sont
     // ainsi toujours neuves.
+    placeholderData: keepPreviousData,
     staleTime: 0,
     refetchOnMount: "always",
   });
@@ -85,16 +86,16 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-72 w-full rounded-card" />
+        <Skeleton className="aspect-[7/8] w-full rounded-card" />
       ) : isError ? (
         <div className="flex flex-col items-start gap-2">
-          <p className="text-sm text-alert">Le calendrier n&apos;a pas pu être chargé.</p>
+          <p className="text-label text-alert">Le calendrier n&apos;a pas pu être chargé.</p>
           <button type="button" className={linkButton} onClick={() => void refetch()}>
             Réessayer
           </button>
         </div>
       ) : (
-        <ul className="grid grid-cols-7 gap-1.5">
+        <ul className={`grid grid-cols-7 gap-1.5 transition-opacity ${isPlaceholderData ? "opacity-50" : ""}`} aria-busy={isPlaceholderData}>
           {cases.map((numero, i) => {
             if (numero === null) return <li key={`vide-${i}`} aria-hidden="true" />;
             const jour = `${mois}-${String(numero).padStart(2, "0")}`;
@@ -112,8 +113,9 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
               <li key={jour}>
                 <TransitionLink
                   href={jour === aujourdhui ? "/journal" : `/journal/${jour}`}
+                  aria-current={jour === aujourdhui ? "date" : undefined}
                   aria-label={feuille ? `Relire le ${numero}` : `Écrire le ${numero}`}
-                  className={`${base} h-full w-full ${feuille ? "border-line bg-surface text-ink" : "border-line/60 text-ink-2"}`}
+                  className={`${base} h-full w-full ${feuille ? "border-line bg-surface text-ink" : "border-line/60 text-ink-2"} ${jour === aujourdhui ? "ring-1 ring-kcal" : ""}`}
                 >
                   {feuille?.apercuUrl && (
                     // Vignette d'un bucket privé (URL signée) : <img> plutôt que next/image, dont
@@ -121,7 +123,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={feuille.apercuUrl} alt="" className="absolute inset-0 h-full w-full object-cover object-top" loading="lazy" />
                   )}
-                  <span className={feuille?.apercuUrl ? "relative rounded-md bg-surface/85 px-1" : "relative"}>{numero}</span>
+                  <span className={feuille?.apercuUrl ? "relative rounded-lg bg-surface/85 px-1" : "relative"}>{numero}</span>
                   {feuille && !feuille.apercuUrl && (
                     <span className="absolute bottom-1.5 right-1.5 h-2 w-2 rounded-full" style={{ background: "var(--accent-vidage)" }} aria-hidden="true" />
                   )}
@@ -132,7 +134,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
         </ul>
       )}
 
-      {data && (
+      {data && !isPlaceholderData && (
         <p className={`${eyebrow} text-center`}>
           {data.length === 0 ? "Aucune feuille ce mois-ci." : data.length === 1 ? "1 soir écrit ce mois-ci." : `${data.length} soirs écrits ce mois-ci.`}
         </p>

@@ -32,7 +32,7 @@ import { IngredientsLibresManager } from "@/app/(app)/nutrition/recettes/[id]/In
 const NOM_LONG = "Attestation d'assurance habitation avec un nom vraiment très très long";
 
 /** Vérifie la disposition d'une ligne : nom complet, boutons dans une rangée dédiée. */
-function verifierLigne(nom: HTMLElement, boutons: string[]) {
+function verifierLigne(nom: HTMLElement, boutons: (string | RegExp)[]) {
   expect(nom.className).not.toContain("truncate");
   expect(nom.className).toContain("break-words");
 
@@ -78,7 +78,7 @@ describe("lignes de gestion avec un nom long", () => {
         ingredients={[{ id: "I1", recette_id: "R1", nom: NOM_LONG, quantite: "1 sachet" } as never]}
       />
     );
-    verifierLigne(screen.getByText(NOM_LONG), ["Éditer", "Suppr."]);
+    verifierLigne(screen.getByText(NOM_LONG), ["Éditer", /^Supprimer/]);
   });
 
   it("Étapes : l'intitulé de l'étape passe à la ligne et les boutons sont dans leur rangée", () => {
@@ -88,6 +88,6 @@ describe("lignes de gestion avec un nom long", () => {
         etapes={[{ id: "S1", recette_id: "R1", titre: NOM_LONG, consigne: "Mélanger", astuce: null, ordre: 1 } as never]}
       />
     );
-    verifierLigne(screen.getByText(new RegExp(NOM_LONG)), ["Éditer", "Suppr."]);
+    verifierLigne(screen.getByText(new RegExp(NOM_LONG)), ["Éditer", /^Supprimer/]);
   });
 });

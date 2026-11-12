@@ -44,6 +44,15 @@ function champ(name: string) {
 afterEach(cleanup);
 
 describe("DocumentForm", () => {
+  it("garde le champ fichier requis focalisable (sr-only, pas display:none) pour que l'oubli soit signalé", () => {
+    render(<DocumentForm categories={CATEGORIES} />);
+
+    const fichiers = champ("fichiers") as HTMLInputElement;
+    expect(fichiers).toBeRequired();
+    expect(fichiers).toHaveClass("sr-only");
+    expect(fichiers).not.toHaveClass("hidden");
+  });
+
   it("n'a plus de champ étiquette, échéance ni mois concerné, et garde nom, catégorie et notes", () => {
     render(<DocumentForm categories={CATEGORIES} />);
 

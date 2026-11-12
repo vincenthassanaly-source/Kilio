@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -135,6 +135,8 @@ export function DocumentsBrowser({
   // NotesGrid, le volume mono-utilisateur ne justifie pas une recherche
   // full-text Postgres.
   const iaActive = ia !== null && ongletActif === "documents";
+  // Le bouton « Chercher avec l'IA » disparaît avec le résultat : le focus passe au bandeau.
+  const bandeauIaRef = useRef<HTMLDivElement>(null);
   const filtres = useMemo(() => {
     const term = normalizeSearch(search);
     const filtrer = ongletActif === "documents" && categorieFilter.length > 0;
@@ -315,7 +317,9 @@ export function DocumentsBrowser({
           {ongletActif === "documents" && search.trim() !== "" && (!ia || ia.question !== search.trim()) && (
             <button
               type="button"
-              onClick={() => void chercherAvecIa()}
+              onClick={() =>
+                void chercherAvecIa().then(() => requestAnimationFrame(() => bandeauIaRef.current?.focus()))
+              }
               disabled={iaEnCours}
               aria-busy={iaEnCours}
               className={`${secondaryButton} flex min-h-11 items-center justify-center gap-2 text-sm`}
@@ -332,7 +336,12 @@ export function DocumentsBrowser({
           )}
 
           {iaActive && (
-            <div role="status" className="flex items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5">
+            <div
+              ref={bandeauIaRef}
+              role="status"
+              tabIndex={-1}
+              className="flex items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5 focus:outline-none"
+            >
               <p className="min-w-0 text-sm text-ink">
                 <span className="font-semibold">Sélection de l’IA</span> pour «&nbsp;{ia.question}&nbsp;»
                 {" · "}

@@ -47,7 +47,7 @@ describe("JournalRepas", () => {
     rendre([entree("a", 300), entree("b", 200)]);
     expect(screen.getByTestId("kcal").textContent).toBe("500");
 
-    await userEvent.click(screen.getAllByRole("button", { name: "Suppr." })[0]);
+    await userEvent.click(screen.getAllByRole("button", { name: /^Supprimer « Repas / })[0]);
 
     expect(screen.getByTestId("kcal").textContent).toBe("200");
   });
@@ -55,7 +55,7 @@ describe("JournalRepas", () => {
   it("affiche l'état vide avec son bouton quand le dernier repas est masqué", async () => {
     rendre([entree("a", 300)]);
 
-    await userEvent.click(screen.getByRole("button", { name: "Suppr." }));
+    await userEvent.click(screen.getByRole("button", { name: /^Supprimer « Repas / }));
 
     expect(screen.getByText("Aucun repas enregistré pour ce jour.")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Ajouter un repas" })).toBeTruthy();

@@ -8,7 +8,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Tables } from "@/lib/supabase/types";
-import { dangerButton, listCard, nameText } from "@/lib/ui";
+import { dangerButton, listCard, nameTextComplet } from "@/lib/ui";
 import { CheckToggle } from "@/components/CheckToggle";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -18,7 +18,7 @@ import { restaurerArticlesCourses } from "./undo";
 // Extrait de CoursesList pour être réutilisé tel quel par
 // ArchivedCoursesSection (mêmes mutations optimistes toggle/suppression pour
 // les articles archivés), sans import circulaire entre les deux fichiers.
-function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
+function CourseItemRowBase({ item, plat = false }: { item: Tables<"courses_items">; plat?: boolean }) {
   const queryClient = useQueryClient();
   // Article créé hors ligne, encore affiché avec son id optimiste
   // `temp-<uuid>` tant que la création n'a pas été confirmée par le serveur
@@ -220,17 +220,22 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.18 }}
-      className={listCard}
+      // `plat` : ligne imbriquée dans une carte (archive) — pas de seconde
+      // ombre, rayon concentrique (22 - 16 = 6 px), fond de surface alternée.
+      className={plat ? "flex flex-col gap-1.5 rounded-md bg-surface-alt p-3.5" : listCard}
       aria-busy={enAttenteDeCreation || undefined}
     >
-      <div className={`flex items-center gap-3 ${enAttenteDeCreation ? "opacity-60" : ""}`}>
-        <CheckToggle
-          checked={item.coche}
-          disabled={toggleMutation.isPending || enAttenteDeCreation}
-          onToggle={() => toggleMutation.mutate()}
-          color="var(--accent-courses)"
-          label={item.coche ? "Décocher l'article" : "Cocher l'article"}
-        />
+      <div className="flex items-center gap-3">
+        {/* Nom stable (le libellé) : `aria-pressed` annonce l'état coché. */}
+        <div className={enAttenteDeCreation ? "opacity-60" : ""}>
+          <CheckToggle
+            checked={item.coche}
+            disabled={toggleMutation.isPending || enAttenteDeCreation}
+            onToggle={() => toggleMutation.mutate()}
+            color="var(--accent-courses)"
+            label={item.libelle}
+          />
+        </div>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           {renaming ? (
             <input
@@ -260,11 +265,11 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
               onClick={handleStartRenaming}
               disabled={enAttenteDeCreation}
               aria-label={`Renommer « ${item.libelle} »`}
-              className="flex min-h-[44px] w-full flex-col justify-center text-left disabled:cursor-default"
+              className={`flex min-h-[44px] w-full min-w-0 flex-col justify-center text-left disabled:cursor-default ${enAttenteDeCreation ? "opacity-60" : ""}`}
             >
-              <p className={`${nameText} ${item.coche ? "text-ink-2 line-through" : ""}`}>
+              <span className={`${nameTextComplet} ${item.coche ? "text-ink-2 line-through" : ""}`}>
                 {item.libelle}
-              </p>
+              </span>
             </button>
           )}
           {enAttenteDeCreation && (
@@ -282,9 +287,10 @@ function CourseItemRowBase({ item }: { item: Tables<"courses_items"> }) {
           // bouton précis au minimum recommandé, sans changer sa couleur,
           // son rayon ni sa police — juste un peu plus de hauteur, centrée
           // sur le texte.
+          aria-label={`Supprimer « ${item.libelle} »`}
           className={`${dangerButton} flex min-h-11 items-center justify-center`}
         >
-          Suppr.
+          Supprimer
         </button>
       </div>
     </motion.li>

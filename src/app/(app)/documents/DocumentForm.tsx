@@ -39,7 +39,7 @@ async function ajouterApercusPdf(formData: FormData) {
 
 function FichierIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="4.5" width="18" height="15" rx="2.5" />
       <circle cx="8.5" cy="9.5" r="1.6" />
       <path d="M3.8 16.5l5-5a1.8 1.8 0 0 1 2.5 0l3.4 3.4M14.5 12.7l1.4-1.4a1.8 1.8 0 0 1 2.5 0l2.4 2.4" />
@@ -49,7 +49,7 @@ function FichierIcon() {
 
 function PdfIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 3.5h9l3 3V19a1.5 1.5 0 0 1-1.5 1.5h-10.5A1.5 1.5 0 0 1 4.5 19V5A1.5 1.5 0 0 1 6 3.5z" />
       <path d="M9 13h6M9 16.5h4" />
     </svg>
@@ -139,7 +139,7 @@ function RectoVersoSlot({
         id={name}
         name={name}
         accept="image/*,application/pdf"
-        className="hidden"
+        className="peer sr-only"
         onChange={(e) => setFile(e.target.files?.[0] ?? null)}
       />
       {existing ? (
@@ -159,7 +159,7 @@ function RectoVersoSlot({
       ) : (
         <label
           htmlFor={name}
-          className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-line text-ink-2 transition-colors hover:bg-surface-alt"
+          className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-line text-ink-2 transition-colors hover:bg-surface-alt peer-focus-visible:ring-2 peer-focus-visible:ring-kcal peer-focus-visible:ring-offset-2"
           aria-label={`Ajouter le ${label.toLowerCase()}`}
         >
           <FichierIcon />
@@ -399,13 +399,6 @@ export function DocumentForm({
             {document ? "Fichiers (photos ou PDF)" : "Fichiers (photos ou PDF)"}
           </span>
           <div className="flex flex-wrap items-center gap-2">
-            <label
-              htmlFor={`${uid}-document-fichiers`}
-              className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-line text-ink-2 transition-colors hover:bg-surface-alt"
-              aria-label="Ajouter des fichiers"
-            >
-              <FichierIcon />
-            </label>
             <input
               ref={fileInputRef}
               type="file"
@@ -414,9 +407,16 @@ export function DocumentForm({
               accept="image/*,application/pdf"
               multiple
               required={aucunFichier}
-              className="hidden"
+              className="peer sr-only"
               onChange={handleFilesChange}
             />
+            <label
+              htmlFor={`${uid}-document-fichiers`}
+              className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-line text-ink-2 transition-colors hover:bg-surface-alt peer-focus-visible:ring-2 peer-focus-visible:ring-kcal peer-focus-visible:ring-offset-2"
+              aria-label="Ajouter des fichiers"
+            >
+              <FichierIcon />
+            </label>
 
             {fichiersVisibles.map((fichier) => (
               <FichierThumb

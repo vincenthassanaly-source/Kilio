@@ -89,7 +89,7 @@ function RepartitionMuscles({ parMuscle }: { parMuscle: { muscle: keyof typeof M
           <span className="truncate text-label text-ink">{MUSCLE_LABELS[m.muscle]}</span>
           <span className="h-3 overflow-hidden" aria-hidden="true">
             <span
-              className="block h-3 rounded-r-[4px]"
+              className="block h-3 rounded-full"
               style={{ width: `${Math.max(4, (m.nbSeries / max) * 100)}%`, background: "var(--accent-musculation)" }}
             />
           </span>

@@ -6,6 +6,12 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { normalizeSearch } from "@/lib/normalize";
 import { input, kcalPillTag, listCard, metaText, nameText, pillTag, zoneTapPill } from "@/lib/ui";
 
+// Classes d'état exclusives : `pillTag` porte déjà bg-surface-alt/text-ink-2,
+// on retire donc ces trois classes de la base plutôt que d'en empiler d'autres.
+const chipBase = pillTag.replace("bg-surface-alt", "").replace("text-ink-2", "").replace("font-semibold", "");
+const CHIP_ACTIF = "bg-kcal-soft text-kcal font-bold";
+const CHIP_INACTIF = "bg-surface-alt text-ink-2 font-semibold";
+
 const SOURCE_LABEL: Record<string, string> = {
   manuel: "Manuel",
   hellofresh: "HelloFresh",
@@ -77,34 +83,32 @@ export function RecettesList({
         className={input}
       />
       <div className="flex flex-wrap gap-x-2 gap-y-4">
+        <div role="group" aria-label="Temps de préparation" className="contents">
         {TEMPS_CHIPS.map((chip) => (
           <button
             key={chip.value}
             type="button"
             onClick={() => setTempsFilter((prev) => (prev === chip.value ? null : chip.value))}
-            className={
-              tempsFilter === chip.value
-                ? `${pillTag} ${zoneTapPill} bg-kcal-soft text-kcal font-bold`
-                : `${pillTag} ${zoneTapPill}`
-            }
+            aria-pressed={tempsFilter === chip.value}
+            className={`${chipBase} ${zoneTapPill} ${tempsFilter === chip.value ? CHIP_ACTIF : CHIP_INACTIF}`}
           >
             {chip.label}
           </button>
         ))}
+        </div>
+        <div role="group" aria-label="Calories par portion" className="contents">
         {KCAL_CHIPS.map((chip) => (
           <button
             key={chip.value}
             type="button"
             onClick={() => setKcalFilter((prev) => (prev === chip.value ? null : chip.value))}
-            className={
-              kcalFilter === chip.value
-                ? `${pillTag} ${zoneTapPill} bg-kcal-soft text-kcal font-bold`
-                : `${pillTag} ${zoneTapPill}`
-            }
+            aria-pressed={kcalFilter === chip.value}
+            className={`${chipBase} ${zoneTapPill} ${kcalFilter === chip.value ? CHIP_ACTIF : CHIP_INACTIF}`}
           >
             {chip.label}
           </button>
         ))}
+        </div>
       </div>
       {filtered.length === 0 ? (
         <p className="py-5 text-center text-sm text-ink-3">Aucune recette ne correspond à ta recherche.</p>

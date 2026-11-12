@@ -7,7 +7,7 @@ export function HabitudesSkeleton() {
   return (
     <>
       <Skeleton className="h-10 w-full rounded-2xl" />
-      <Skeleton className="h-11 w-full rounded-2xl" />
+      <Skeleton className="h-[70px] w-full rounded-2xl" />
       <ListItemSkeletonGroup count={3} withSubtitle />
     </>
   );

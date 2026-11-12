@@ -29,7 +29,8 @@ export async function JournalJourNavigation({ searchParams }: { searchParams: Jo
 }
 
 export async function JournalJour({ searchParams }: { searchParams: JournalSearchParams }) {
-  const { date, depuisBilan } = await lireJourJournal(searchParams);
+  const { date, depuisBilan, aujourdhui } = await lireJourJournal(searchParams);
+  const estAujourdhui = date === aujourdhui;
   const supabase = createAdminClient();
 
   const [{ data: objectifs, error: erreurObjectifs }, datesEntrainement, { data: entries, error: erreurEntrees }] = await Promise.all([
@@ -77,7 +78,7 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
           <ObjectifForm repos={objectifRepos} entrainement={objectifEntrainement} />
         </div>
 
-        <JournalRepas entries={views} cible={cible} date={date} />
+        <JournalRepas entries={views} cible={cible} date={date} estAujourdhui={estAujourdhui} jourType={jourType} />
         {/* Réserve la place du bouton flottant pour ne jamais masquer la
             dernière entrée. */}
         <div aria-hidden="true" className="h-16" />
@@ -85,7 +86,7 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
     </JournalJourAnime>
     {/* Hors de JournalJourAnime : son glissement (transform) décalerait un
         élément `fixed` le temps de l'animation. */}
-    <AjoutRepasBouton date={date} />
+    <AjoutRepasBouton date={date} estAujourdhui={estAujourdhui} />
     </>
   );
 }

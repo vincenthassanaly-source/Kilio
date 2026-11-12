@@ -2,12 +2,12 @@
 
 import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { deleteDocument, type DocumentAvecFichiers } from "@/app/actions/documents";
 import { DocumentForm } from "../DocumentForm";
 import { ImageLightbox } from "@/components/ImageLightbox";
-import { card, dangerButton, errorText, ghostButton, pillTag, primaryButton, secondaryButton, textButton } from "@/lib/ui";
+import { actionsLigne, card, dangerButton, errorText, ghostButton, pillTag, primaryButton, secondaryButton, textButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
+import { runAction } from "@/lib/actions/runAction";
 import { chargerFichiers, nomDeFichier, partager, peutPartager, telecharger } from "@/lib/documents/partage";
 import { BoutonDescription } from "../BoutonDescription";
 import { BoutonRemettreEnVrac } from "../BoutonRemettreEnVrac";
@@ -15,7 +15,7 @@ import { BackLink } from "@/components/BackLink";
 
 function PdfIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 3.5h9l3 3V19a1.5 1.5 0 0 1-1.5 1.5h-10.5A1.5 1.5 0 0 1 4.5 19V5A1.5 1.5 0 0 1 6 3.5z" />
       <path d="M9 13h6M9 16.5h4" />
     </svg>
@@ -98,11 +98,11 @@ export function DocumentDetail({
     <div className="flex flex-col gap-4">
       <BackLink href="/documents">Documents</BackLink>
 
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-3">
         <div className="min-w-0">
           <h1
             style={{ viewTransitionName: `document-title-${document.id}` }}
-            className="mt-1 truncate font-display text-heading font-semibold text-ink"
+            className="mt-1 text-balance break-words font-display text-heading font-semibold text-ink"
           >
             {document.nom}
           </h1>
@@ -110,11 +110,11 @@ export function DocumentDetail({
             {document.categorie && <span className={pillTag}>{document.categorie}</span>}
           </div>
         </div>
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+        <div className={actionsLigne}>
           <BoutonDescription document={document} />
           {!document.en_vrac && <BoutonRemettreEnVrac document={document} />}
           <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-            Éditer
+            Modifier
           </button>
           <button
             type="button"
@@ -122,16 +122,12 @@ export function DocumentDetail({
             onClick={async () => {
               if (!(await confirmDelete(`Supprimer le document « ${document.nom} » ?`))) return;
               setError(null);
+              // Contrat T1 : `runAction` affiche un toast français (hors ligne
+              // compris) et relance l'erreur de `redirect()` (CLICK-PATH-701).
               startTransition(async () => {
-                try {
-                  await deleteDocument(document.id);
-                } catch (e) {
-                  // `deleteDocument` réussit puis appelle `redirect()`, qui lève
-                  // une erreur signal devant remonter jusqu'au framework — ne
-                  // pas l'avaler ici comme un échec de suppression (CLICK-PATH-701).
-                  if (isRedirectError(e)) throw e;
-                  setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                }
+                await runAction(() => deleteDocument(document.id), {
+                  erreur: `Le document « ${document.nom} » n'a pas pu être supprimé. Réessaie.`,
+                });
               });
             }}
             className={dangerButton}
@@ -160,7 +156,7 @@ export function DocumentDetail({
                     setLightboxAlt(caption ? `${caption} — ${document.nom}` : document.nom);
                   }}
                   className="relative aspect-square w-full overflow-hidden rounded-2xl border border-line bg-surface-alt"
-                  aria-label="Agrandir l'image"
+                  aria-label={caption ? `Agrandir le ${caption.toLowerCase()}` : `Agrandir l'image ${index + 1}`}
                 >
                   <Image
                     src={fichier.url}
@@ -179,6 +175,7 @@ export function DocumentDetail({
                   href={fichier.url}
                   target="_blank"
                   rel="noreferrer"
+                  aria-label={`Ouvrir le PDF${caption ? ` (${caption.toLowerCase()})` : document.fichiers.length > 1 ? ` ${index + 1} sur ${document.fichiers.length}` : ""} (nouvel onglet)`}
                   className="relative flex aspect-square w-full flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border border-line text-ink-2"
                 >
                   {fichier.apercu_url ? (
@@ -229,7 +226,7 @@ export function DocumentDetail({
         </div>
       )}
 
-      {error && <p className={errorText}>{error}</p>}
+      {error && <p role="alert" className={errorText}>{error}</p>}
 
       {lightboxSrc && (
         <ImageLightbox src={lightboxSrc} alt={lightboxAlt} onClose={() => setLightboxSrc(null)} />

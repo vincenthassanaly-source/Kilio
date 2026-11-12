@@ -46,6 +46,9 @@ export function Viseur({
   const [pret, setPret] = useState(false);
   const [enCapture, setEnCapture] = useState(false);
   const [flash, setFlash] = useState(false);
+  const [echecCapture, setEchecCapture] = useState(false);
+  /** Incrémenté par « Réessayer » : relance l'ouverture de la caméra. */
+  const [essai, setEssai] = useState(0);
   const [detection, setDetection] = useState<{ quad: Quad | null; largeur: number; hauteur: number } | null>(null);
 
   // Reste actif même en pause : l'écran de recadrage empile sa propre entrée
@@ -80,6 +83,14 @@ export function Viseur({
         const video = videoRef.current;
         if (!video) return;
         pisteRef.current = flux.getVideoTracks()[0] ?? null;
+        // Flux coupé par le système (retour d'arrière-plan sur mobile) : on bascule sur l'erreur, avec « Réessayer ».
+        if (pisteRef.current) {
+          pisteRef.current.onended = () => {
+            if (annule) return;
+            setPret(false);
+            setErreur("indisponible");
+          };
+        }
         video.srcObject = flux;
         await video.play();
         setPret(true);
@@ -91,9 +102,10 @@ export function Viseur({
     })();
     return () => {
       annule = true;
+      if (pisteRef.current) pisteRef.current.onended = null;
       flux?.getTracks().forEach((t) => t.stop());
     };
-  }, []);
+  }, [essai]);
 
   // Détection en direct (cadre vert sur le document repéré). Boucle séquentielle : la
   // suivante ne démarre qu'après la fin de la précédente, donc rien ne s'empile si le
@@ -126,19 +138,29 @@ export function Viseur({
     };
   }, [pret, enPause]);
 
+  function reessayer() {
+    setErreur(null);
+    setPret(false);
+    setEssai((n) => n + 1);
+  }
+
   async function capturer() {
     const video = videoRef.current;
     if (!video || !pret || enCapture) return;
     setEnCapture(true);
-    // Pas d'éclair si le système demande moins de mouvement : un flash blanc est plus gênant qu'une transition.
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setFlash(true);
-      window.setTimeout(() => setFlash(false), 110);
-    }
+    setEchecCapture(false);
     try {
-      onCapture(await capturerPhoto(video, pisteRef.current));
+      const image = await capturerPhoto(video, pisteRef.current);
+      // Pas d'éclair si le système demande moins de mouvement : un flash blanc est plus gênant qu'une transition.
+      // Il n'a lieu qu'après une capture réussie : il ne promet jamais une photo qui n'est pas partie.
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setFlash(true);
+        window.setTimeout(() => setFlash(false), 110);
+      }
+      onCapture(image);
     } catch {
-      // Ni photo ni image du flux (caméra coupée entre-temps) : on reste sur le viseur.
+      // Ni photo ni image du flux (caméra coupée entre-temps) : on reste sur le viseur, avec un message.
+      setEchecCapture(true);
     } finally {
       setEnCapture(false);
     }
@@ -184,9 +206,14 @@ export function Viseur({
             className={`pointer-events-none absolute inset-0 bg-white ${flash ? "opacity-60" : "opacity-0 transition-opacity duration-300"}`}
           />
 
+          {!pret && !erreur && (
+            <p role="status" className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-8 text-center text-sm text-white/70">
+              Ouverture de la caméra…
+            </p>
+          )}
+
           {pret && !erreur && !enPause && (
             <p
-              role="status"
               className="absolute left-4 top-[calc(env(safe-area-inset-top)+16px)] flex h-11 items-center gap-2 rounded-full bg-black/50 px-4 text-xs font-semibold"
             >
               <span aria-hidden="true" className={`h-2 w-2 rounded-full ${quad ? "bg-[rgb(80,220,140)]" : "bg-white/50"}`} />
@@ -194,8 +221,14 @@ export function Viseur({
             </p>
           )}
 
+          {echecCapture && !erreur && (
+            <p role="alert" className="absolute inset-x-4 bottom-4 rounded-2xl bg-black/60 px-4 py-3 text-center text-sm font-semibold">
+              La photo n&apos;a pas pu être prise. Réessaie.
+            </p>
+          )}
+
           {erreur && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black px-8 text-center">
+            <div role="alert" className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black px-8 text-center">
               <p className="text-base font-semibold">
                 {erreur === "refuse" ? "L'accès à la caméra est refusé." : "La caméra n'est pas disponible."}
               </p>
@@ -206,8 +239,15 @@ export function Viseur({
               </p>
               <button
                 type="button"
-                onClick={onImporter}
+                onClick={reessayer}
                 className="rounded-2xl bg-white px-5 py-3 font-semibold text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              >
+                Réessayer
+              </button>
+              <button
+                type="button"
+                onClick={onImporter}
+                className="rounded-2xl bg-white/15 px-5 py-3 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 Importer une photo
               </button>
@@ -240,7 +280,7 @@ export function Viseur({
             disabled={!pret || enCapture}
             aria-busy={enCapture}
             aria-label={enCapture ? "Prise de la photo en cours" : "Prendre la photo"}
-            className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-white transition active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-white transition-transform active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             <span className="h-14 w-14 rounded-full bg-white" />
           </button>

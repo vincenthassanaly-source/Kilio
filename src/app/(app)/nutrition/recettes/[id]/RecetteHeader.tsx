@@ -5,7 +5,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { useState, useTransition } from "react";
 import { deleteRecette } from "@/app/actions/recettes";
 import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, errorText, ghostButton } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton, textButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { BackLink } from "@/components/BackLink";
 
@@ -29,7 +29,7 @@ export function RecetteHeader({
     return (
       <div className={card}>
         <RecetteForm recette={recette} onDone={() => setEditing(false)} />
-        <button type="button" onClick={() => setEditing(false)} className="mt-2 text-sm text-ink-2 underline">
+        <button type="button" onClick={() => setEditing(false)} className={`mt-2 ${textButton}`}>
           Annuler
         </button>
       </div>
@@ -43,7 +43,7 @@ export function RecetteHeader({
         <div className="min-w-0">
           <h1
             style={{ viewTransitionName: `recette-title-${recette.id}` }}
-            className="mt-1 truncate font-display text-heading font-semibold text-ink"
+            className="mt-1 text-balance break-words font-display text-heading font-semibold text-ink"
           >
             {recette.nom}
           </h1>
@@ -76,6 +76,7 @@ export function RecetteHeader({
                 }
               });
             }}
+            aria-label={`Supprimer la recette « ${recette.nom} »`}
             className={dangerButton}
           >
             Suppr.

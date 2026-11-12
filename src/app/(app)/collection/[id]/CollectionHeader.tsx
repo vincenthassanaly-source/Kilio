@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteCollection, renameCollection } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
+import { runAction } from "@/lib/actions/runAction";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, errorText, ghostButton, input } from "@/lib/ui";
@@ -30,14 +31,17 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
 
     setError(null);
     startTransition(async () => {
-      try {
-        await renameCollection(collection.id, trimmed);
-        queryClient.invalidateQueries({ queryKey: queryKeys.collection(collection.id) });
-        queryClient.invalidateQueries({ queryKey: queryKeys.collections });
-        setEditing(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Erreur inconnue.");
-      }
+      // Contrat T1 : message lisible (celui d'une exception de Server Action
+      // est masqué en production), affiché en ligne sous l'en-tête.
+      const res = await runAction(() => renameCollection(collection.id, trimmed), {
+        erreur: "Le renommage a échoué. Réessaie.",
+        silencieux: true,
+        onError: setError,
+      });
+      if (!res.ok) return;
+      queryClient.invalidateQueries({ queryKey: queryKeys.collection(collection.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.collections });
+      setEditing(false);
     });
   }
 
@@ -46,13 +50,14 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
 
     setError(null);
     startTransition(async () => {
-      try {
-        await deleteCollection(collection.id);
-        queryClient.invalidateQueries({ queryKey: queryKeys.collections });
-        router.push("/collection");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Erreur inconnue.");
-      }
+      const res = await runAction(() => deleteCollection(collection.id), {
+        erreur: "La suppression a échoué. Réessaie.",
+        silencieux: true,
+        onError: setError,
+      });
+      if (!res.ok) return;
+      queryClient.invalidateQueries({ queryKey: queryKeys.collections });
+      router.push("/collection");
     });
   }
 
@@ -65,6 +70,7 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
           <form onSubmit={handleRename} className="flex flex-1 items-center gap-2">
             <input
               autoFocus
+              aria-label="Nom de la collection"
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               className={`${input} flex-1`}
@@ -84,12 +90,19 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
 
         <div className="flex shrink-0 gap-2">
           {!editing && (
-            <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
+            <button type="button" onClick={() => {
+                // Repart du nom actuel, pas d'un brouillon abandonné ou périmé.
+                setNom(collection.nom);
+                setEditing(true);
+              }} className={ghostButton}>
               Renommer
             </button>
           )}
-          <button type="button" disabled={isPending} onClick={handleDelete} className={dangerButton}>
-            Suppr.
+          <button type="button" disabled={isPending} onClick={handleDelete}
+            aria-label="Supprimer la collection"
+            className={dangerButton}
+          >
+            Supprimer
           </button>
         </div>
       </div>

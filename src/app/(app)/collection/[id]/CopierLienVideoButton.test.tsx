@@ -3,6 +3,9 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 
 import { CopierLienVideoButton } from "./CopierLienVideoButton";
 
+const showErrorToast = vi.hoisted(() => vi.fn());
+vi.mock("@/components/toast/toast-store", () => ({ showErrorToast }));
+
 const URL_VIDEO = "https://www.youtube.com/watch?v=abc123";
 
 function mockPressePapier(writeText: (texte: string) => Promise<void>) {
@@ -55,5 +58,6 @@ describe("CopierLienVideoButton", () => {
     await cliquer();
 
     expect(screen.getByRole("status").textContent).toBe("Échec de la copie");
+    expect(showErrorToast).toHaveBeenCalledWith("Copie impossible");
   });
 });

@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { removeJournalEntry } from "@/app/actions/journal";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { addNutrition, zeroNutrition, type Nutrition } from "@/lib/nutrition/compute";
+import type { JourType } from "@/lib/nutrition/planning";
 import { queryKeys } from "@/lib/query/keys";
 import { card, sectionTitle } from "@/lib/ui";
 import { AjoutRepasBouton } from "./AjoutRepasBouton";
@@ -21,10 +22,14 @@ export function JournalRepas({
   entries,
   cible,
   date,
+  estAujourdhui = true,
+  jourType,
 }: {
   entries: JournalEntryView[];
   cible: Nutrition | null;
   date: string;
+  estAujourdhui?: boolean;
+  jourType?: JourType;
 }) {
   const queryClient = useQueryClient();
   const [masques, setMasques] = useState<ReadonlySet<string>>(() => new Set());
@@ -61,20 +66,20 @@ export function JournalRepas({
     <>
       <div className="flex flex-col gap-2">
         <h2 className={sectionTitle}>Résumé du jour</h2>
-        <ResumeJour consomme={consomme} cible={cible} />
+        <ResumeJour consomme={consomme} cible={cible} estAujourdhui={estAujourdhui} jourType={jourType} />
       </div>
 
       <div className="flex flex-col gap-2">
         <h2 className={sectionTitle}>Repas du jour</h2>
         {visibles.length === 0 ? (
           <div className={`${card} flex flex-col items-center gap-2.5 py-8 text-center`}>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" aria-hidden="true">
               <line x1="5" y1="19" x2="5" y2="11" />
               <line x1="12" y1="19" x2="12" y2="5" />
               <line x1="19" y1="19" x2="19" y2="14" />
             </svg>
             <p className="text-body font-bold text-ink">Aucun repas enregistré pour ce jour.</p>
-            <AjoutRepasBouton date={date} variante="carte" />
+            <AjoutRepasBouton date={date} variante="carte" estAujourdhui={estAujourdhui} />
           </div>
         ) : (
           <JournalEntriesList entries={visibles} onDelete={supprimer} />

@@ -130,7 +130,7 @@ export function RecetteMacros({
       <div className="grid grid-cols-4 gap-2">
         {CHIPS.map((chip) => (
           <div key={chip.key} className="rounded-xl bg-surface-alt px-1.5 py-2.5 text-center">
-            <div className="font-display text-base font-semibold" style={{ color: chip.color }}>
+            <div className="font-display text-base font-semibold tabular-nums" style={{ color: chip.color }}>
               {fmt(perPortion[chip.key] * count)}
               {chip.unit}
             </div>

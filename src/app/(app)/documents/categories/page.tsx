@@ -30,9 +30,9 @@ export default function CategoriesPage() {
   return (
     <div className="flex flex-col gap-5">
       <div>
+        <BackLink href="/documents">Documents</BackLink>
         <p className={eyebrow}>Documents</p>
         <h1 className={screenTitle}>Catégories</h1>
-        <BackLink href="/documents">Documents</BackLink>
       </div>
 
       <Suspense fallback={<CategoriesListeSkeleton />}>

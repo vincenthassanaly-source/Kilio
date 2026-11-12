@@ -56,7 +56,7 @@ describe("MenuFeuille", () => {
   });
 
   it("désactive Effacer sur une feuille vide", async () => {
-    rendre({ peutEffacer: false });
+    rendre({ peutEffacer: false, aTexte: true });
     await ouvrir();
     expect(screen.getByRole("menuitem", { name: "Effacer la feuille" })).toBeDisabled();
   });
@@ -79,5 +79,10 @@ describe("MenuFeuille", () => {
     await ouvrir();
     await userEvent.click(document.body);
     expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("désactive le déclencheur quand aucune action n'est possible", () => {
+    rendre({ aTexte: false, peutEffacer: false });
+    expect(screen.getByRole("button", { name: "Plus d'actions" })).toBeDisabled();
   });
 });

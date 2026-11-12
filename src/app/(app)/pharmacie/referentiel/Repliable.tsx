@@ -24,7 +24,7 @@ function Chevron({ ouvert }: { ouvert: boolean }) {
     <svg
       aria-hidden
       viewBox="0 0 20 20"
-      className={`size-4 shrink-0 text-ink-3 transition-transform duration-200 ease-out ${ouvert ? "rotate-180" : ""}`}
+      className={`size-4 shrink-0 text-ink-3 transition-transform duration-200 ease-[var(--ease-out)] ${ouvert ? "rotate-180" : ""}`}
       fill="none"
       stroke="currentColor"
       strokeWidth={2}

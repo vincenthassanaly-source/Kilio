@@ -227,7 +227,7 @@ function ApercuTags({
                 actif ? "border-kcal bg-kcal text-on-kcal" : "border-line bg-surface text-ink-2"
               }`}
             >
-              #{nom} <span className="ml-1 text-micro font-medium opacity-80">nouveau</span>
+              #{nom} <span className="ml-1 text-micro font-medium">nouveau</span>
             </button>
           );
         })}

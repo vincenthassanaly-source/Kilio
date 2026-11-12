@@ -79,7 +79,7 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
         <ul className="grid grid-cols-4 gap-2 text-center">
           {NOTES_REVISION.map((note) => (
             <li key={note} className="rounded-2xl bg-surface-alt px-1 py-2">
-              <p className="font-display text-heading-sm font-bold text-ink">{bilan[note]}</p>
+              <p className="font-display text-heading-sm font-bold tabular-nums text-ink">{bilan[note]}</p>
               <p className="text-micro font-semibold text-ink-2">{LIBELLES[note]}</p>
             </li>
           ))}
@@ -122,10 +122,10 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
   return (
     <section className="flex flex-col gap-4" aria-label="Carte de révision">
       <div className="flex items-center justify-between text-small font-semibold text-ink-3">
-        <span>
+        <span className="tabular-nums">
           {fait} / {total}
         </span>
-        <span aria-live="polite">{file.length} restante{file.length > 1 ? "s" : ""}</span>
+        <span aria-live="polite" className="tabular-nums">{file.length} restante{file.length > 1 ? "s" : ""}</span>
       </div>
 
       <div className={`${card} flex min-h-[220px] flex-col justify-center gap-4 rounded-hero p-6`}>

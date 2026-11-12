@@ -3,6 +3,7 @@
 import { useId, useActionState, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { upsertObjectif, type ObjectifFormState } from "@/app/actions/objectifs-nutritionnels";
+import { showToast } from "@/components/toast/toast-store";
 import type { Tables } from "@/lib/supabase/types";
 import type { JourType } from "@/lib/nutrition/planning";
 import { card, errorText, input, label as labelClass, linkButton, primaryButton, secondaryButton } from "@/lib/ui";
@@ -49,7 +50,7 @@ function ChampsCible({ jourType, objectif, uid }: { jourType: JourType; objectif
             min="0"
             max="1000"
             step="1"
-            defaultValue={objectif?.proteines_cible_g ?? 0}
+            defaultValue={objectif?.proteines_cible_g ?? ""}
             className={input}
           />
         </div>
@@ -65,7 +66,7 @@ function ChampsCible({ jourType, objectif, uid }: { jourType: JourType; objectif
             min="0"
             max="1000"
             step="1"
-            defaultValue={objectif?.glucides_cible_g ?? 0}
+            defaultValue={objectif?.glucides_cible_g ?? ""}
             className={input}
           />
         </div>
@@ -81,7 +82,7 @@ function ChampsCible({ jourType, objectif, uid }: { jourType: JourType; objectif
             min="0"
             max="1000"
             step="1"
-            defaultValue={objectif?.lipides_cible_g ?? 0}
+            defaultValue={objectif?.lipides_cible_g ?? ""}
             className={input}
           />
         </div>
@@ -111,6 +112,10 @@ export function ObjectifForm({
   useEffect(() => {
     if (prevPending.current && !pending && !state.error) {
       queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
+      showToast("Objectifs enregistrés");
+      // Le formulaire s'ouvre de lui-même tant qu'aucun objectif n'existe : on
+      // ne le referme qu'une fois la saisie enregistrée.
+      setOpen(false);
     }
     prevPending.current = pending;
   }, [pending, state.error, queryClient]);

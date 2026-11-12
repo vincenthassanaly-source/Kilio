@@ -42,7 +42,7 @@ test("crée une checklist avec ses éléments, dans l'ordre", async ({ page }) =
   await page.getByRole("button", { name: "Checklist" }).click();
   await page.getByRole("textbox", { name: "Titre" }).fill(titre);
 
-  const item = page.getByRole("textbox", { name: "Ajouter un item…" });
+  const item = page.getByRole("textbox", { name: "Ajouter un item" });
   await item.fill("Pain");
   await page.getByRole("button", { name: "Ajouter", exact: true }).click();
   await item.fill("Lait");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { showErrorToast } from "@/components/toast/toast-store";
 
 type Etat = "repos" | "copie" | "echec";
 
@@ -28,6 +29,7 @@ export function CopierLienVideoButton({ url }: { url: string }) {
       resultat = "copie";
     } catch {
       resultat = "echec";
+      showErrorToast("Copie impossible");
     }
     setEtat(resultat);
     if (minuterie.current) clearTimeout(minuterie.current);
@@ -49,7 +51,7 @@ export function CopierLienVideoButton({ url }: { url: string }) {
             {etat === "copie" ? (
               <path d="M5 12.5l4.5 4.5L19 7.5" />
             ) : etat === "echec" ? (
-              <path d="M6 6l12 12M18 6L6 18" />
+              <path d="M12 7v6M12 17h.01" />
             ) : (
               <>
                 <rect x="9" y="9" width="11" height="11" rx="2.5" />

@@ -92,6 +92,8 @@ describe("ReorganiserModal", () => {
 
     expect(screen.getByLabelText("Reclasser 2 documents de Autre vers Travail")).toBeChecked();
     expect(screen.getByText(/Nouvelle catégorie :/)).toHaveTextContent("Travail");
+    // Abréviation invariable : « 2 doc. », jamais « 2 doc.s ».
+    expect(screen.getByText("2 doc.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Appliquer (2)" })).toBeEnabled();
     expect(screen.getByLabelText(/Supprimer la catégorie vidée/)).toBeChecked();
     // Rien n'a été écrit avant « Appliquer ».

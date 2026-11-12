@@ -27,7 +27,7 @@ describe("ComparaisonObjectif", () => {
 
   it("passe en alerte au-delà de 10 %", () => {
     render(<ComparaisonObjectif prevu={prevu(2400)} cible={cible} libre={false} />);
-    const message = screen.getByText("dépassé de 400 kcal");
+    const message = screen.getByText("400 kcal au-dessus");
     expect(message).toHaveClass("text-alert");
   });
 
@@ -39,7 +39,7 @@ describe("ComparaisonObjectif", () => {
   it("suspend la comparaison un jour libre", () => {
     render(<ComparaisonObjectif prevu={prevu(3000)} cible={cible} libre />);
     expect(screen.getByText("Jour libre")).toBeInTheDocument();
-    expect(screen.queryByText(/dépassé/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/au-dessus/)).not.toBeInTheDocument();
   });
 
   it("signale l'absence d'objectif sans inventer de cible", () => {

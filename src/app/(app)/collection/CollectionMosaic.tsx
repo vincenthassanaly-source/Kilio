@@ -23,7 +23,7 @@ export function CollectionMosaic({
 }) {
   if (photos.length === 0) {
     return (
-      <div className="flex aspect-square items-center justify-center rounded-2xl bg-surface-alt">
+      <div className="flex aspect-square items-center justify-center rounded-2xl border border-line bg-surface-alt">
         <PhotoPlaceholderIcon />
       </div>
     );

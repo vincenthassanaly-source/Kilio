@@ -41,9 +41,9 @@ function LigneTraitement({ ligne }: { ligne: LigneResolue }) {
       <div className="flex items-start gap-3">
         <span
           className="flex size-8 shrink-0 items-center justify-center rounded-full bg-kcal-soft font-display text-body font-bold text-kcal"
-          aria-label={`Étape ${ligne.ligne.rang}`}
         >
-          {ligne.ligne.rang}
+          <span aria-hidden>{ligne.ligne.rang}</span>
+          <span className="sr-only">Étape {ligne.ligne.rang}</span>
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {nbMedicaments && (

@@ -6,7 +6,7 @@ export default function ObjectifsLoading() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className={screenTitle}>Objectifs</h1>
-      <Skeleton className="h-11 w-full rounded-2xl" />
+      <Skeleton className="h-[70px] w-full rounded-card" />
       <ListItemSkeletonGroup count={4} withSubtitle />
     </div>
   );

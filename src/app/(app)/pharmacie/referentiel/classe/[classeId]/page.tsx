@@ -85,7 +85,8 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
               {molecules.length > 0 && (
                 <section className="flex flex-col gap-2.5" aria-labelledby="titre-molecules">
                   <h2 id="titre-molecules" className={sectionTitle}>
-                    Médicaments ({molecules.length})
+                    Médicaments{" "}
+                    <span className="font-normal text-ink-3 tabular-nums">{molecules.length}</span>
                   </h2>
                   <ul className="flex flex-col gap-2">
                     {molecules.map((molecule) => {

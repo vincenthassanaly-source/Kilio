@@ -122,7 +122,7 @@ export function SeanceFlottante() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
       // Au-dessus de la barre du bas (≈ 66 px de haut + 14 px de marge) + 8 px d'écart.
       className="fixed inset-x-0 z-40 flex justify-center px-3"
       style={{ bottom: "calc(env(safe-area-inset-bottom) + 88px)", viewTransitionName: "seance-flottante" }}
@@ -162,7 +162,7 @@ export function SeanceFlottante() {
           </button>
         ) : (
           <Link href={URL_SEANCE} className={boutonAction}>
-            Terminer
+            Voir la séance
           </Link>
         )}
 

@@ -31,11 +31,12 @@ import {
 import { formaterMinutes } from "@/lib/musculation/seance";
 import type { ExerciceCatalogue } from "@/lib/musculation/serveur";
 import { queryKeys } from "@/lib/query/keys";
-import { card, dangerButton, errorText, ghostButton, input, label, metaText, nameText, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton, input, label, metaText, nameText, primaryButton, screenTitle, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { AnimationVignette } from "../../AnimationExercice";
 import { ChampNombre } from "../../seance/ChampNombre";
 import { SelecteurExercices } from "../../seance/SelecteurExercices";
 import { BackLink } from "@/components/BackLink";
+import { ErrorInline } from "@/components/ErrorInline";
 
 const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance", vitesse_kmh: "vitesse" } as const;
 const REPOS_PAR_DEFAUT_AFFICHE_S = 90;
@@ -135,7 +136,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
   }
 
   const chip = (actif: boolean) =>
-    `rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+    `${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
       actif ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
     }`;
 
@@ -159,7 +160,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
 
         <div className="flex flex-col gap-1.5" role="group" aria-label="Type de séance">
           <span className={label}>Type de séance</span>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-x-2 gap-y-4 py-1">
             <button type="button" aria-pressed={typeSeance === null} className={chip(typeSeance === null)} onClick={() => setTypeSeance(null)}>
               Aucun
             </button>
@@ -266,7 +267,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                       })}
                     </div>
                     {ouvert && (
-                      <div className="flex flex-wrap gap-2 px-1" role="group" aria-label={`Type de la série ${rang + 1}`}>
+                      <div className="flex flex-wrap gap-x-2 gap-y-4 px-1 py-1" role="group" aria-label={`Type de la série ${rang + 1}`}>
                         {TYPES_SERIE.map((type) => (
                           <button
                             key={type}
@@ -276,7 +277,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                               surSerie(index, rang, { type });
                               setTypeOuvert(null);
                             }}
-                            className={`rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                            className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                               serie.type === type ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                             }`}
                           >
@@ -363,7 +364,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
 
 /** Création (`routineId` null) ou modification d'une routine. */
 export function RoutineEditeur({ routineId }: { routineId: string | null }) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.musculationRoutine(routineId ?? "nouvelle"),
     queryFn: () => getRoutine(routineId!),
     enabled: routineId !== null,
@@ -378,6 +379,21 @@ export function RoutineEditeur({ routineId }: { routineId: string | null }) {
       </div>
     );
   }
-  if (!data) return <p className={errorText}>Cette routine n&apos;existe plus.</p>;
+  if (isError) {
+    return (
+      <div className="flex flex-col gap-4">
+        <BackLink href="/musculation">Musculation</BackLink>
+        <ErrorInline message="Impossible de charger la routine. Vérifie ta connexion." retry={() => void refetch()} />
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <div className="flex flex-col gap-4">
+        <BackLink href="/musculation">Musculation</BackLink>
+        <p className={errorText}>Cette routine n&apos;existe plus.</p>
+      </div>
+    );
+  }
   return <Formulaire initial={data} />;
 }

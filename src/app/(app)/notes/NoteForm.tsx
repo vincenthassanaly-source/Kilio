@@ -96,7 +96,7 @@ function NoteItemsEditor({ noteId, items }: { noteId: string; items: Tables<"not
           <CheckToggle
             checked={item.coche}
             onToggle={() => toggleMutation.mutate({ itemId: item.id, coche: !item.coche })}
-            label={item.coche ? "Décocher l'item" : "Cocher l'item"}
+            label={item.coche ? `Décocher « ${item.libelle} »` : `Cocher « ${item.libelle} »`}
             size={20}
             // `flex flex-col gap-1.5` (6px) entre lignes : hitSlop réduit, voir
             // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md.
@@ -104,6 +104,14 @@ function NoteItemsEditor({ noteId, items }: { noteId: string; items: Tables<"not
           />
           <input
             defaultValue={item.libelle}
+            aria-label={`Libellé de l'item « ${item.libelle} »`}
+            onKeyDown={(e) => {
+              // Entrée valide le champ (via blur) sans soumettre ni fermer le formulaire.
+              if (e.key === "Enter") {
+                e.preventDefault();
+                e.currentTarget.blur();
+              }
+            }}
             onBlur={(e) => {
               const value = e.target.value.trim();
               if (value && value !== item.libelle) {
@@ -160,6 +168,7 @@ function NoteItemsEditor({ noteId, items }: { noteId: string; items: Tables<"not
               ajouter();
             }
           }}
+          aria-label="Ajouter un item"
           placeholder="Ajouter un item…"
           className={`${input} flex-1 py-1.5`}
         />
@@ -216,6 +225,7 @@ function NoteItemsDraft({
               ajouter();
             }
           }}
+          aria-label="Ajouter un item"
           placeholder="Ajouter un item…"
           className={`${input} flex-1 py-1.5`}
         />
@@ -362,6 +372,7 @@ export function NoteForm({
             type="button"
             onClick={() => setCouleur(null)}
             aria-label="Aucune couleur"
+            aria-pressed={couleur === null}
             className={`relative after:absolute after:-inset-1.5 h-7 w-7 rounded-full border-2 bg-surface ${
               couleur === null ? "border-kcal" : "border-line"
             }`}
@@ -372,8 +383,9 @@ export function NoteForm({
               type="button"
               onClick={() => setCouleur(c.cle)}
               aria-label={c.label}
+              aria-pressed={couleur === c.cle}
               className={`relative after:absolute after:-inset-1.5 h-7 w-7 rounded-full border-2 ${
-                couleur === c.cle ? "border-kcal" : "border-transparent"
+                couleur === c.cle ? "border-kcal" : "border-line"
               }`}
               style={{ backgroundColor: `var(--note-${c.cle})` }}
             />
@@ -390,6 +402,7 @@ export function NoteForm({
                 key={tag.id}
                 type="button"
                 onClick={() => toggleTag(tag.id)}
+                aria-pressed={tagIds.includes(tag.id)}
                 className={`rounded-full px-2.5 py-1 text-caption font-semibold transition-colors ${
                   tagIds.includes(tag.id) ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                 }`}
@@ -421,7 +434,7 @@ export function NoteForm({
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Enregistrement..." : note ? "Enregistrer" : "Créer la note"}
+        {pending ? "Enregistrement…" : note ? "Enregistrer" : "Créer la note"}
       </button>
     </form>
   );
