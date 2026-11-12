@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AddPhotoButton } from "./AddPhotoButton";
@@ -50,3 +50,5 @@ describe("AddPhotoButton - erreurs d'ajout", () => {
     expect(screen.getByRole("button", { name: "Lien vidéo" })).toHaveAttribute("aria-expanded", "false");
   });
 });
+
+afterEach(cleanup);
