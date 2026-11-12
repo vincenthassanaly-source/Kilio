@@ -88,7 +88,7 @@ test("coche un article : l'état est enregistré", async ({ page }) => {
   // Attend que l'article soit confirmé par le serveur (id définitif) avant de le cocher.
   await expect.poll(async () => (await ecritures("courses_items", "POST")).length).toBe(1);
 
-  const case_ = ligne(page, libelle).getByRole("button", { name: "Cocher l'article" });
+  const case_ = ligne(page, libelle).getByRole("button", { name: libelle, exact: true, pressed: false });
   await expect(case_).toBeEnabled();
   await case_.click();
 

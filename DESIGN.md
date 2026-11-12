@@ -160,6 +160,9 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 - **Échelle de priorité des tâches** : les badges et blocs de priorité (basse / moyenne / haute) utilisent `agenda` / `carbs` / `alert` en **teinte de fond à 10-15 %**, toujours doublée d'un marqueur non chromatique (glyphe ou libellé). Ce sont des indicateurs passifs, jamais des contrôles ; le sélecteur de priorité, lui, est un contrôle segmenté standard (actif en vert Kcal).
 - **Barre de navigation** : les labels de la barre du bas sont en 11px (plancher du système).
 - **Journal** : teinte `--accent-vidage` (`oklch(0.55 0.14 250)`, identité du module et vignette du calendrier). L'écran d'écriture est **immersif** : pas de barre du bas, une barre d'outils flottante à sa place (stylo, gomme, 3 épaisseurs, annuler/rétablir, cibles 44 px). L'encre est `--ink` (suit clair/sombre) sur la surface, avec des lignes d'écriture `--line` ; les aperçus PNG du calendrier restent en encre sombre sur papier clair quel que soit le thème (image opaque).
+- **Scanner** : viseur et aperçu sont **immersifs** sur fond noir (indépendant du thème, comme un viseur d'appareil photo). Le cadre de détection est vert `rgb(80,220,140)` et les erreurs rouges, choisis pour le contraste sur une image de caméra et non issus des tokens. L'ombre du cadre est ad hoc. Ces couleurs ne sortent pas des écrans Scanner.
+- **Musculation** : teinte `--accent-musculation` (`oklch(0.55 0.14 20)`, identité du module). Sa teinte est voisine de `--alert` (25) : ne jamais la placer à côté d'une alerte sans marqueur non chromatique.
+- **Avertissement (`--accent-warning`)** : en clair, `oklch(0.53 0.15 55)` (et non 0.6) pour tenir 4,5:1 en texte sur `surface`. Le fond `bg-warning/15` reste une teinte douce.
 ## Typography
 
 **Display Font:** Sora (600/700/800), fallback `ui-sans-serif, system-ui`

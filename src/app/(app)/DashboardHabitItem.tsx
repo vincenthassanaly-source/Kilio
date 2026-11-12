@@ -85,7 +85,7 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
       aria-pressed={habitude.type === "quantifiee" ? undefined : fait}
       className="flex w-[60px] shrink-0 flex-col items-center gap-1.5"
     >
-      <ProgressRing size={50} strokeWidth={5} pct={pct} color="var(--accent-habitudes)">
+      <ProgressRing size={50} strokeWidth={5} pct={pct} color="var(--accent-habitudes)" trackColor="var(--control-border)">
         <span className="text-base leading-none">{habitude.icone || <CheckIcon size={16} />}</span>
       </ProgressRing>
       {/* Deux lignes plutôt qu'une coupure à ~12 caractères : « Boire 2 L … » ne dit pas quelle habitude. */}

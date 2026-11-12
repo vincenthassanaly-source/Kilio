@@ -36,7 +36,7 @@
   --accent-protein: oklch(0.52 0.13 265);
   --accent-carbs: oklch(0.52 0.14 85);
   --accent-fat: oklch(0.53 0.15 340);
-  --accent-warning: oklch(0.6 0.15 55);
+  --accent-warning: oklch(0.53 0.15 55);
   --accent-alert: oklch(0.52 0.19 25);
   --accent-agenda: oklch(0.55 0.14 230);
   /* Texte/icône posés sur un fond --accent-agenda plein (segment actif du

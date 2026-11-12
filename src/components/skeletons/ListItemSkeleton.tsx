@@ -7,7 +7,7 @@ import { listCard } from "@/lib/ui";
  * ré-écrive la boucle. */
 function ListItemSkeleton({ withSubtitle = false }: { withSubtitle?: boolean }) {
   return (
-    <div className={`${listCard} flex-row items-center gap-3`}>
+    <div className={`${listCard} min-h-[70px] flex-row items-center gap-3`}>
       <Skeleton className="h-[22px] w-[22px] shrink-0 rounded-full" />
       <div className="flex flex-1 flex-col gap-1.5">
         <Skeleton className="h-3.5 w-3/5" />
