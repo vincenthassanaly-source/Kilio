@@ -42,6 +42,8 @@ type VidageFeuilleLocale = {
   modifie_le: string;
   a_envoyer: 0 | 1;
   erreur?: string;
+  /** Voir `FeuilleLocale.base_inconnue` (lib/vidage/local.ts) : champ non indexé, sans migration. */
+  base_inconnue?: 1;
 };
 
 // Module « Scanner » : pages numérisées en cours (brouillon local, jamais

@@ -31,9 +31,11 @@ import {
 } from "@/lib/vidage/historique";
 import {
   EVENEMENT_FEUILLE_EN_ATTENTE,
+  EVENEMENT_FEUILLE_FUSIONNEE,
   choisirFeuille,
   compterFeuillesEnAttente,
   ecrireFeuilleLocale,
+  fusionnerTraits,
   lireFeuilleLocale,
   memoriserFeuilleServeur,
   synchroniserFeuilles,
@@ -161,6 +163,10 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
   const traitsCourants = useRef<Trait[]>([]);
   const minuteurApercu = useRef<number | undefined>(undefined);
   const apercuAFaire = useRef(false);
+  // Le serveur n'a pas répondu à l'ouverture et il n'y avait pas de copie locale : la feuille part
+  // d'un état « inconnu ». Chaque écriture locale le dit, pour que l'envoi relise le serveur et
+  // fusionne au lieu de l'écraser (audit C-1). Levé quand la fusion est intégrée à l'écran.
+  const baseInconnue = useRef(false);
 
   const traits = historique.traits;
   const hauteur = useMemo(() => hauteurRequise(traits), [traits]);
@@ -181,6 +187,8 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
       const choix = choisirFeuille(local, serveur, HAUTEUR_MIN);
       derniersEcrits.current = choix.traits;
       traitsCourants.current = choix.traits;
+      // « vide » = ni copie locale ni réponse du serveur (getFeuille répond `ok` même sans ligne).
+      baseInconnue.current = choix.source === "vide" || (local?.a_envoyer === 1 && local.base_inconnue === 1);
       setHistorique(historiqueVide(choix.traits));
       setTranscription(serveur?.transcription ?? null);
       setPret(true);
@@ -198,7 +206,7 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
     if (!pret || traits === derniersEcrits.current) return;
     derniersEcrits.current = traits;
     traitsCourants.current = traits;
-    void ecrireFeuilleLocale(jour, traits, hauteur);
+    void ecrireFeuilleLocale(jour, traits, hauteur, baseInconnue.current);
     apercuAFaire.current = true;
     window.clearTimeout(minuteurApercu.current);
     minuteurApercu.current = window.setTimeout(() => {
@@ -206,6 +214,21 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
       void envoyerApercu(jour, traitsCourants.current);
     }, DELAI_APERCU_MS);
   }, [pret, traits, hauteur, jour]);
+
+  // Fusion avec le serveur terminée (voir synchroniserFeuilles) : les traits qu'il contenait
+  // rejoignent la feuille ouverte, qui ne part plus d'un état inconnu. Le trait en cours d'écriture
+  // ou ajouté entre-temps est conservé (fusionnerTraits ne retire jamais rien).
+  useEffect(() => {
+    const surFusion = (e: Event) => {
+      const detail = (e as CustomEvent<{ jour: string; traits: Trait[] }>).detail;
+      if (!pret || detail.jour !== jour) return;
+      baseInconnue.current = false;
+      const fusionnes = fusionnerTraits(detail.traits, traitsCourants.current);
+      if (fusionnes.length !== traitsCourants.current.length) setHistorique(historiqueVide(fusionnes));
+    };
+    window.addEventListener(EVENEMENT_FEUILLE_FUSIONNEE, surFusion);
+    return () => window.removeEventListener(EVENEMENT_FEUILLE_FUSIONNEE, surFusion);
+  }, [jour, pret]);
 
   // En quittant l'écran, l'aperçu en attente part tout de suite.
   useEffect(

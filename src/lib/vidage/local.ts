@@ -1,6 +1,6 @@
 "use client";
 
-import { enregistrerFeuille, type FeuilleVidage } from "@/app/actions/vidage";
+import { enregistrerFeuille, getFeuille, type FeuilleVidage } from "@/app/actions/vidage";
 import { shiftDate } from "@/lib/date/iso";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { isNetworkError } from "@/lib/network";
@@ -18,6 +18,12 @@ export type FeuilleLocale = {
   modifie_le: string;
   a_envoyer: 0 | 1;
   erreur?: string;
+  /**
+   * La feuille est partie d'un état « inconnu » : le serveur n'avait pas répondu à l'ouverture et il
+   * n'y avait pas de copie locale. L'envoi relit alors le serveur et fusionne (voir
+   * `fusionnerTraits`) au lieu de le remplacer, pour ne jamais écraser une feuille écrite ailleurs.
+   */
+  base_inconnue?: 1;
 };
 
 /** Émis après chaque écriture locale en attente d'envoi : voir VidageSync. */
@@ -28,6 +34,11 @@ export const EVENEMENT_FEUILLE_EN_ATTENTE = "kilio:vidage-en-attente";
  * quittant la feuille) : le calendrier de relecture se rafraîchit dessus.
  */
 export const EVENEMENT_FEUILLES_ENVOYEES = "kilio:vidage-envoyees";
+/**
+ * Émis (avec `{ jour, traits }`) quand une feuille « base inconnue » vient d'être fusionnée avec le
+ * serveur et envoyée : la feuille ouverte à l'écran intègre alors les traits du serveur.
+ */
+export const EVENEMENT_FEUILLE_FUSIONNEE = "kilio:vidage-fusionnee";
 
 // Une feuille déjà envoyée n'est gardée localement que quelques jours (lecture
 // hors ligne des dernières soirées) ; le serveur garde tout.
@@ -56,9 +67,34 @@ export async function lireFeuilleLocale(jour: string): Promise<FeuilleLocale | n
   }
 }
 
-/** Écrit la feuille sur le téléphone et la marque « à envoyer ». */
-export async function ecrireFeuilleLocale(jour: string, traits: Trait[], hauteur: number): Promise<void> {
-  await (await base()).vidage_feuilles.put({ jour, traits, hauteur, modifie_le: maintenantUnique(), a_envoyer: 1 });
+/**
+ * Union de la feuille du serveur et de la feuille locale : les traits du serveur d'abord, puis ceux
+ * de la feuille locale qui n'y figurent pas déjà (comparaison de contenu, donc un renvoi après une
+ * fusion déjà envoyée ne duplique rien).
+ */
+export function fusionnerTraits(serveur: Trait[], locaux: Trait[]): Trait[] {
+  const deja = new Set(serveur.map((t) => JSON.stringify(t)));
+  return [...serveur, ...locaux.filter((t) => !deja.has(JSON.stringify(t)))];
+}
+
+/**
+ * Écrit la feuille sur le téléphone et la marque « à envoyer ». `baseInconnue` : la feuille n'a pas
+ * pu être comparée au serveur (voir `FeuilleLocale.base_inconnue`).
+ */
+export async function ecrireFeuilleLocale(
+  jour: string,
+  traits: Trait[],
+  hauteur: number,
+  baseInconnue = false
+): Promise<void> {
+  await (await base()).vidage_feuilles.put({
+    jour,
+    traits,
+    hauteur,
+    modifie_le: maintenantUnique(),
+    a_envoyer: 1,
+    ...(baseInconnue ? { base_inconnue: 1 as const } : {}),
+  });
   if (typeof window !== "undefined") window.dispatchEvent(new Event(EVENEMENT_FEUILLE_EN_ATTENTE));
 }
 
@@ -137,11 +173,33 @@ async function envoyerEnAttente(): Promise<ResultatEnvoi> {
 
   for (const feuille of enAttente) {
     try {
-      const resultat = await enregistrerFeuille(feuille.jour, feuille.traits as Trait[], feuille.hauteur);
+      let traits = feuille.traits as Trait[];
+      let hauteur = feuille.hauteur;
+      const fusion = feuille.base_inconnue === 1;
+      if (fusion) {
+        // Base inconnue : on ne remplace jamais le serveur sans l'avoir relu. Une erreur réseau
+        // (levée) arrête la boucle, tout reste en attente ; un refus garde la feuille avec son message.
+        const lecture = await getFeuille(feuille.jour);
+        if (!lecture.ok) {
+          await db.vidage_feuilles.update(feuille.jour, { erreur: lecture.error });
+          refus.push(lecture.error);
+          continue;
+        }
+        traits = fusionnerTraits(lecture.data.traits, traits);
+        hauteur = Math.max(lecture.data.hauteur, hauteur);
+      }
+      const resultat = await enregistrerFeuille(feuille.jour, traits, hauteur);
       if (resultat.ok) {
         const courante = await db.vidage_feuilles.get(feuille.jour);
         if (courante && courante.modifie_le === feuille.modifie_le) {
-          await db.vidage_feuilles.update(feuille.jour, { a_envoyer: 0, erreur: undefined });
+          await db.vidage_feuilles.update(feuille.jour, {
+            a_envoyer: 0,
+            erreur: undefined,
+            ...(fusion ? { traits, hauteur, base_inconnue: undefined } : {}),
+          });
+        }
+        if (fusion && typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent(EVENEMENT_FEUILLE_FUSIONNEE, { detail: { jour: feuille.jour, traits } }));
         }
         envoyees += 1;
       } else {
