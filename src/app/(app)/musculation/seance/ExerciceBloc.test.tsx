@@ -52,11 +52,10 @@ describe("ExerciceBloc", () => {
   });
 
   it("masque la colonne « Précédent » en modification d'une séance passée", () => {
-    const { rerender, container } = rendre();
+    const { container } = rendre();
     expect(container.textContent).toContain("Précédent");
     cleanup();
     const { container: edition } = rendre({ edition: true });
     expect(edition.textContent).not.toContain("Précédent");
-    void rerender;
   });
 });
