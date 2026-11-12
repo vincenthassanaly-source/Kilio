@@ -256,8 +256,18 @@ export function DocumentForm({
     return () => previews.forEach((url) => URL.revokeObjectURL(url));
   }, [previews]);
 
+  // Un document se photographie page par page : chaque prise AJOUTE à la
+  // sélection (le navigateur, lui, remplace le contenu de l'input à chaque
+  // choix). Un `change` vide (sélecteur annulé, Chrome vide l'input) ne retire
+  // rien. L'input est ensuite réaligné sur la sélection, car le FormData lit
+  // l'input, pas l'état.
   function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSelectedFiles(Array.from(e.target.files ?? []));
+    const nouveaux = Array.from(e.target.files ?? []);
+    const next = nouveaux.length > 0 ? [...selectedFiles, ...nouveaux] : selectedFiles;
+    setSelectedFiles(next);
+    const dataTransfer = new DataTransfer();
+    next.forEach((file) => dataTransfer.items.add(file));
+    e.target.files = dataTransfer.files;
   }
 
   function removeSelectedFile(index: number) {

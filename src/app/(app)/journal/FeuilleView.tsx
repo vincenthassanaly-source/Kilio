@@ -404,7 +404,7 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
       />
 
       {mode === "clavier" ? (
-        <SaisieClavier onAjouter={ajouterNote} />
+        <SaisieClavier jour={jour} onAjouter={ajouterNote} />
       ) : (
         <>
           <label className="flex min-h-11 items-center justify-between gap-3">

@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Server Actions et rendu PDF (pdfjs) : inutiles pour tester les champs du formulaire.
 vi.mock("@/app/actions/documents", () => ({
@@ -123,5 +123,48 @@ describe("DocumentForm", () => {
 
     expect(screen.getByRole("button", { name: "Document" })).toHaveAttribute("aria-pressed", "true");
     expect(champ("fichiers")).not.toBeNull();
+  });
+
+  describe("sélection de fichiers (prise de photo page par page)", () => {
+    // jsdom n'a ni DataTransfer ni URL.createObjectURL : doublures minimales.
+    class FauxDataTransfer {
+      files: File[] = [];
+      items = { add: (f: File) => void this.files.push(f) };
+    }
+
+    beforeEach(() => {
+      vi.stubGlobal("DataTransfer", FauxDataTransfer);
+      URL.createObjectURL = vi.fn(() => "blob:test");
+      URL.revokeObjectURL = vi.fn();
+    });
+    afterEach(() => vi.unstubAllGlobals());
+
+    const page = (nom: string) => new File(["x"], nom, { type: "image/jpeg" });
+    const retraits = () => screen.queryAllByRole("button", { name: "Retirer ce fichier de la sélection" });
+    const noms = (input: HTMLInputElement) => Array.from(input.files ?? []).map((f) => f.name);
+
+    it("ajoute la page 2 à la page 1 au lieu de la remplacer", () => {
+      render(<DocumentForm categories={CATEGORIES} />);
+      const input = champ("fichiers") as HTMLInputElement;
+
+      fireEvent.change(input, { target: { files: [page("page1.jpg")] } });
+      fireEvent.change(input, { target: { files: [page("page2.jpg")] } });
+
+      expect(retraits()).toHaveLength(2);
+      // Ce qui est réellement envoyé (le FormData lit l'input) garde les deux pages, dans l'ordre.
+      expect(noms(input)).toEqual(["page1.jpg", "page2.jpg"]);
+    });
+
+    it("garde la sélection quand le sélecteur de fichiers est annulé (change vide)", () => {
+      render(<DocumentForm categories={CATEGORIES} />);
+      const input = champ("fichiers") as HTMLInputElement;
+
+      fireEvent.change(input, { target: { files: [page("page1.jpg")] } });
+      // Chrome vide l'input quand on annule le sélecteur : l'état et l'input doivent rester alignés.
+      fireEvent.change(input, { target: { files: [] } });
+
+      expect(retraits()).toHaveLength(1);
+      expect(noms(input)).toEqual(["page1.jpg"]);
+    });
   });
 });
