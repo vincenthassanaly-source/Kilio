@@ -123,9 +123,8 @@ const ouvrirMenu = (page: import("@playwright/test").Page) => page.getByRole("bu
 test("effacer la feuille demande confirmation puis se laisse annuler", async ({ page }) => {
   const canvas = await ouvrir(page);
   await expect(page.getByRole("button", { name: "Transcrire" })).toBeDisabled();
-  await ouvrirMenu(page);
-  await expect(page.getByRole("menuitem", { name: "Effacer la feuille" })).toBeDisabled();
-  await page.keyboard.press("Escape");
+  // Feuille vide : aucune action possible, le déclencheur du menu est lui-même désactivé.
+  await expect(page.getByRole("button", { name: "Plus d'actions" })).toBeDisabled();
   await tracer(canvas, "pen", diagonale);
   await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
 
