@@ -94,7 +94,6 @@ export function ApercuPage({
     if (cible < 0 || cible >= pages.length || cible === index) return;
     setIndex(cible);
     setVue(VUE_INITIALE);
-    setUrl(null);
   }
 
   /** Zoom d'un facteur autour d'un point (centre du conteneur par défaut). */
@@ -196,7 +195,7 @@ export function ApercuPage({
   }
 
   const boutonRond =
-    "flex h-11 w-11 items-center justify-center rounded-full bg-white/15 transition active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
+    "flex h-11 w-11 items-center justify-center rounded-full bg-white/15 transition-transform active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
 
   return (
     <Portal>
@@ -267,7 +266,7 @@ export function ApercuPage({
                   type="button"
                   aria-pressed={versionAffichee === valeur}
                   onClick={() => setVersion(valeur)}
-                  className={`min-h-11 rounded-xl px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                  className={`min-h-11 rounded-xl px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                     versionAffichee === valeur ? "bg-white text-black" : "text-white/80"
                   }`}
                 >

@@ -56,7 +56,7 @@ export function BasculeEntrainementJour({
       aria-label={`Jour d'entraînement, ${jourLabel}`}
       disabled={enCours}
       onClick={basculer}
-      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition active:scale-[0.97] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kcal ${
+      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition active:scale-[0.97] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
         actif ? "border-transparent bg-kcal text-on-kcal" : "border-line bg-surface text-ink-2 hover:bg-surface-alt"
       }`}
     >

@@ -53,7 +53,15 @@ export function HabitudeForm({
         <label htmlFor={`${uid}-nom`} className={labelClass}>
           Nom
         </label>
-        <input id={`${uid}-nom`} name="nom" required defaultValue={habitude?.nom} className={input} />
+        <input
+          id={`${uid}-nom`}
+          name="nom"
+          required
+          autoFocus={!habitude}
+          autoComplete="off"
+          defaultValue={habitude?.nom}
+          className={input}
+        />
       </div>
 
       <div className="flex flex-col gap-1">

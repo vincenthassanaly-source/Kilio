@@ -69,7 +69,16 @@ export function ObjectifDetailView({ id }: { id: string }) {
       {objectif.type_suivi === "habitudes" && (
         <ObjectifSuiviHabitudes objectif={objectif} habitudes={habitudes} progression={progression ?? 0} />
       )}
-      {objectif.type_suivi === "nutrition" && suiviNutrition && <ObjectifSuiviNutrition suivi={suiviNutrition} />}
+      {objectif.type_suivi === "nutrition" &&
+        (suiviNutrition ? (
+          <ObjectifSuiviNutrition suivi={suiviNutrition} />
+        ) : (
+          <ErrorInline
+            titre="Suivi indisponible"
+            message="Le suivi nutrition n'a pas pu être calculé."
+            retry={() => refetch()}
+          />
+        ))}
     </div>
   );
 }

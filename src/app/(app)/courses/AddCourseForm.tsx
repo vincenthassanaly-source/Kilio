@@ -222,6 +222,7 @@ export function AddCourseForm({
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setTexte(e.target.value);
     setErreur(null);
+    setMessageStatut(null);
     setSuggestionActiveIndex(-1);
   }
 

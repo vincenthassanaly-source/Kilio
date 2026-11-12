@@ -32,7 +32,7 @@ export function ObjectifSuiviHabitudes({
           aria-valuemax={100}
           aria-valuenow={Math.round(progression * 100)}
           aria-label="Taux de réussite de l'objectif"
-          className="h-2 overflow-hidden rounded-full bg-line"
+          className="h-2 overflow-hidden rounded-full bg-surface-alt"
         >
           <div
             className="h-full rounded-full"

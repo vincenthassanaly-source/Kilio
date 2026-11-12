@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useRef, useState, useTransition } from "react";
+import { useBackClose } from "@/hooks/useBackClose";
+import { useRef, useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ajouterLienVideo, uploadCollectionPhotos } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
@@ -15,7 +16,7 @@ import {
 import { errorText, input, primaryButton } from "@/lib/ui";
 
 const ADD_PHOTO_BUTTON =
-  "flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-small font-semibold text-kcal transition-colors hover:bg-kcal-soft";
+  "flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-small font-semibold text-kcal transition-colors hover:bg-kcal-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kcal has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-kcal";
 
 function CameraIcon() {
   return (
@@ -59,19 +60,20 @@ export function AddPhotoButton({
   /** Appelé une fois les nouveaux éléments rechargés (le parent propose alors de les décrire). */
   onAjoute?: () => void;
 }) {
-  // Ids uniques par instance (T11) : formulaire rendu en ajout et en édition.
-  const uid = useId();
   const queryClient = useQueryClient();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galerieInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [etape, setEtape] = useState<string | null>(null);
+  const [source, setSource] = useState<"camera" | "galerie" | null>(null);
 
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
   const [videoPending, startVideoTransition] = useTransition();
   const [videoError, setVideoError] = useState<string | null>(null);
+  // Cohérent avec AddCollectionToggle : le geste retour ferme le formulaire.
+  useBackClose(videoOpen, () => setVideoOpen(false));
 
   // Résolue une fois la collection rechargée : `onAjoute` lit alors les
   // éléments à jour dans le cache.
@@ -84,11 +86,17 @@ export function AddPhotoButton({
   // photos de téléphone (2-5 Mo) dépassaient à deux ou trois le plafond de
   // 4 Mo des Server Actions. Les photos compressées partent ensuite par lots
   // qui tiennent chacun sous ce plafond.
-  function handleFiles(files: FileList | null, inputRef: React.RefObject<HTMLInputElement | null>) {
+  function handleFiles(
+    files: FileList | null,
+    inputRef: React.RefObject<HTMLInputElement | null>,
+    origine: "camera" | "galerie",
+  ) {
     if (!files || files.length === 0) return;
     const selection = Array.from(files);
 
     setError(null);
+    setVideoError(null);
+    setSource(origine);
     setEtape("Compression…");
     startTransition(async () => {
       try {
@@ -131,6 +139,7 @@ export function AddPhotoButton({
     if (!lien) return;
 
     setVideoError(null);
+    setError(null);
     startVideoTransition(async () => {
       try {
         await ajouterLienVideo(collectionId, lien);
@@ -147,42 +156,43 @@ export function AddPhotoButton({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex gap-2">
-        <label htmlFor={`${uid}-collection-add-photo-camera`} className={`${ADD_PHOTO_BUTTON} ${isPending ? "opacity-60" : ""}`}>
+        {/* Inputs `sr-only` (et non `hidden`) dans leur label : atteignables au
+            clavier et au lecteur d'écran ; l'anneau de focus passe sur le label. */}
+        <label className={`${ADD_PHOTO_BUTTON} relative ${isPending ? "opacity-60" : ""}`}>
           <CameraIcon />
-          {isPending ? (etape ?? "Envoi…") : "Appareil photo"}
+          {isPending && source === "camera" ? (etape ?? "Envoi…") : "Appareil photo"}
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            multiple
+            disabled={isPending}
+            className="sr-only"
+            onChange={(e) => handleFiles(e.target.files, cameraInputRef, "camera")}
+          />
         </label>
-        <input
-          ref={cameraInputRef}
-          type="file"
-          id={`${uid}-collection-add-photo-camera`}
-          accept="image/*"
-          capture="environment"
-          multiple
-          disabled={isPending}
-          className="hidden"
-          onChange={(e) => handleFiles(e.target.files, cameraInputRef)}
-        />
 
-        <label htmlFor={`${uid}-collection-add-photo-galerie`} className={`${ADD_PHOTO_BUTTON} ${isPending ? "opacity-60" : ""}`}>
+        <label className={`${ADD_PHOTO_BUTTON} relative ${isPending ? "opacity-60" : ""}`}>
           <GalerieIcon />
-          {isPending ? (etape ?? "Envoi…") : "Galerie"}
+          {isPending && source === "galerie" ? (etape ?? "Envoi…") : "Galerie"}
+          <input
+            ref={galerieInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            disabled={isPending}
+            className="sr-only"
+            onChange={(e) => handleFiles(e.target.files, galerieInputRef, "galerie")}
+          />
         </label>
-        <input
-          ref={galerieInputRef}
-          type="file"
-          id={`${uid}-collection-add-photo-galerie`}
-          accept="image/*"
-          multiple
-          disabled={isPending}
-          className="hidden"
-          onChange={(e) => handleFiles(e.target.files, galerieInputRef)}
-        />
       </div>
 
       <div className="flex gap-2">
         <button
           type="button"
           onClick={() => setVideoOpen((v) => !v)}
+          aria-expanded={videoOpen}
           className={`${ADD_PHOTO_BUTTON} ${videoPending ? "opacity-60" : ""}`}
         >
           <VideoIcon />
@@ -203,7 +213,7 @@ export function AddPhotoButton({
             disabled={videoPending}
             className={`${input} min-w-0 flex-1`}
           />
-          <button type="submit" disabled={videoPending} className={primaryButton}>
+          <button type="submit" disabled={videoPending} aria-label="Ajouter la vidéo" className={primaryButton}>
             {videoPending ? "…" : "OK"}
           </button>
         </form>

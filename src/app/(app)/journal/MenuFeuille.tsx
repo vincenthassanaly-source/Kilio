@@ -94,8 +94,9 @@ export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte,
         aria-haspopup="menu"
         aria-expanded={ouvert}
         aria-busy={enTranscription}
+        disabled={!enTranscription && !aTexte && !peutEffacer}
         onClick={() => setOuvert((o) => !o)}
-        className="flex h-11 w-11 items-center justify-center rounded-xl border border-line text-ink transition hover:bg-surface-alt active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        className="flex h-11 w-11 items-center justify-center rounded-xl border border-line text-ink transition hover:bg-surface-alt active:scale-[0.97] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
       >
         {enTranscription ? (
           <Rotation />
@@ -113,7 +114,7 @@ export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte,
           ref={menu}
           role="menu"
           aria-label="Actions de la feuille"
-          className="absolute right-0 top-[calc(100%+8px)] z-30 flex w-60 flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-card"
+          className="absolute right-0 top-[calc(100%+8px)] z-30 flex w-60 flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-float"
         >
           {aTexte && (
             <>

@@ -27,7 +27,7 @@ export function BarreRepos({
   const progression = fini ? 100 : Math.max(0, Math.min(100, ((repos.dureeS - restant) / repos.dureeS) * 100));
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+    <div data-masquer-saisie className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
       <div className="flex w-full max-w-md flex-col gap-3 rounded-card border border-line bg-surface p-3.5 shadow-float">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-alt" aria-hidden="true">
           <div

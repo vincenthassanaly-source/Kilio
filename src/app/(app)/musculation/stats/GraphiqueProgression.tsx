@@ -72,16 +72,16 @@ export function GraphiqueProgression({ points, unite, libelle }: { points: Point
           {echelle.ticks.map((t) => (
             <g key={t}>
               <line x1={MARGE.gauche} x2={L - MARGE.droite} y1={yDe(t)} y2={yDe(t)} strokeWidth={1} style={{ stroke: "var(--line)" }} />
-              <text x={MARGE.gauche - 8} y={yDe(t) + 4} textAnchor="end" fontSize={11} style={{ fill: "var(--ink-3)" }}>
+              <text x={MARGE.gauche - 8} y={yDe(t) + 5} textAnchor="end" fontSize={14} style={{ fill: "var(--ink-3)" }}>
                 {formaterPoids(t)}
               </text>
             </g>
           ))}
-          <text x={xs[0]} y={H - 8} textAnchor={points.length > 1 ? "start" : "middle"} fontSize={11} style={{ fill: "var(--ink-3)" }}>
+          <text x={xs[0]} y={H - 8} textAnchor={points.length > 1 ? "start" : "middle"} fontSize={14} style={{ fill: "var(--ink-3)" }}>
             {formatDateCourte.format(enDate(points[0].date))}
           </text>
           {points.length > 1 && (
-            <text x={xs.at(-1)} y={H - 8} textAnchor="end" fontSize={11} style={{ fill: "var(--ink-3)" }}>
+            <text x={xs.at(-1)} y={H - 8} textAnchor="end" fontSize={14} style={{ fill: "var(--ink-3)" }}>
               {formatDateCourte.format(enDate(points.at(-1)!.date))}
             </text>
           )}
@@ -114,7 +114,7 @@ export function GraphiqueProgression({ points, unite, libelle }: { points: Point
               x={Math.min(xs.at(-1)!, L - MARGE.droite - 4)}
               y={ys.at(-1)! - 10}
               textAnchor="end"
-              fontSize={12}
+              fontSize={14}
               fontWeight={600}
               style={{ fill: "var(--ink)" }}
             >
@@ -131,7 +131,9 @@ export function GraphiqueProgression({ points, unite, libelle }: { points: Point
             fill="transparent"
             onPointerMove={(e) => plusProche(e.clientX, e.currentTarget.ownerSVGElement!.getBoundingClientRect())}
             onPointerDown={(e) => plusProche(e.clientX, e.currentTarget.ownerSVGElement!.getBoundingClientRect())}
-            onPointerLeave={() => setActif(null)}
+            onPointerLeave={(e) => {
+              if (e.pointerType === "mouse") setActif(null);
+            }}
           />
           {points.map((pt, i) => (
             <circle

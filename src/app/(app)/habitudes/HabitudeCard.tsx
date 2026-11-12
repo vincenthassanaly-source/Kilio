@@ -10,7 +10,7 @@ import { restaurerElement } from "@/lib/query/rollback";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { HabitudeForm } from "./HabitudeForm";
 import { ProgressRing } from "@/components/ProgressRing";
-import { card, dangerButton, ghostButton, input, listCard, metaText, nameText, pillTag } from "@/lib/ui";
+import { card, dangerButton, ghostButton, input, listCard, metaText, nameTextComplet, pillTag, textButton } from "@/lib/ui";
 import { vibrate } from "@/lib/haptics";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -103,7 +103,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
         <button
           type="button"
           onClick={() => setEditing(false)}
-          className="mt-2 text-sm text-ink-2 underline"
+          className={`mt-2 ${textButton}`}
         >
           Annuler
         </button>
@@ -173,32 +173,45 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
       animate={{ opacity: 1, y: 0 }}
       exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -8 }}
       transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-      className={listCard}
+      className={`${listCard} active:scale-100!`}
     >
       <div className="flex items-start gap-3">
-        <ProgressRing size={34} strokeWidth={4} pct={pct} color="var(--accent-habitudes)">
+        <ProgressRing
+          size={34}
+          strokeWidth={4}
+          pct={pct}
+          color="var(--accent-habitudes)"
+          trackColor={habitude.type === "quantifiee" ? undefined : "var(--control-border)"}
+        >
           {habitude.type !== "quantifiee" && (
             <button
               type="button"
               disabled={toggleMutation.isPending}
               onClick={() => toggleMutation.mutate(fait ? 0 : 1)}
-              aria-label={fait ? "Marquer non fait" : "Marquer fait"}
-              className="flex h-full w-full items-center justify-center"
+              aria-label={habitude.nom}
+              aria-pressed={fait}
+              className="relative flex h-full w-full items-center justify-center after:absolute after:-inset-[5px]"
             >
               {fait ? (
                 <svg width="12" height="12" viewBox="0 0 12 12">
                   <path d="M1 6l3.2 3.2L11 2" stroke="var(--accent-habitudes)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               ) : (
-                <span className="text-sm">{habitude.icone || ""}</span>
+                habitude.icone ? (
+                  <span className="text-sm">{habitude.icone}</span>
+                ) : (
+                  <span className="text-ink-3">
+                    <CheckIcon size={12} />
+                  </span>
+                )
               )}
             </button>
           )}
         </ProgressRing>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex min-w-0 items-center justify-between gap-2">
-            <p className={nameText}>
-              {habitude.icone && <span className="mr-1.5">{habitude.icone}</span>}
+            <p className={nameTextComplet}>
+              {habitude.type === "quantifiee" && habitude.icone && <span className="mr-1.5">{habitude.icone}</span>}
               {habitude.nom}
             </p>
             {habitude.streak > 0 && (habitude.type === "streak" || habitude.frequence_hebdo != null) && (
@@ -233,8 +246,12 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
                 value={valeurInput}
                 onChange={(e) => setValeurInput(e.target.value)}
                 onBlur={enregistrerValeur}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.currentTarget.blur();
+                }}
+                enterKeyHint="done"
                 disabled={isPending}
-                className={`${input} w-24 py-1.5`}
+                className={`${input} w-24 py-2.5`}
               />
               <span className={metaText}>
                 {habitude.unite}

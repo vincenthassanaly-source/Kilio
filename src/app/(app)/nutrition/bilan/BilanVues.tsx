@@ -32,7 +32,7 @@ function libelleStatut(jour: JourBilan): string {
       return "dans les clous";
     case "rate":
       return jour.cible && Math.round(jour.consomme.kcal) > jour.cible.kcal
-        ? "kcal dépassées"
+        ? "kcal au-dessus de l'objectif"
         : "protéines en dessous de l'objectif";
     case "en_cours":
       return "journée en cours";
@@ -154,7 +154,7 @@ export function CalendrierMois({ jours }: { jours: JourBilan[] }) {
   const decalage = jours.length > 0 ? indexSemaine(jours[0].date) : 0;
 
   return (
-    <div className="mx-auto grid w-full max-w-sm grid-cols-7 gap-1.5">
+    <div className="mx-auto grid w-full max-w-sm grid-cols-7 gap-1">
       {ENTETES_SEMAINE.map((lettre, i) => (
         <span key={i} aria-hidden="true" className="pb-0.5 text-center text-micro font-medium text-ink-3">
           {lettre}
@@ -170,7 +170,7 @@ export function CalendrierMois({ jours }: { jours: JourBilan[] }) {
             key={jour.date}
             href={hrefJournal(jour.date)}
             aria-label={`${libelleLong(jour.date)} : ${libelleStatut(jour)}`}
-            className={`flex aspect-square items-center justify-center rounded-xl text-caption font-semibold tabular-nums ${classesMarque(jour)} ${
+            className={`relative flex aspect-square items-center justify-center rounded-xl after:absolute after:-inset-0.5 text-caption font-semibold tabular-nums ${classesMarque(jour)} ${
               estAujourdhui ? "ring-2 ring-ink ring-offset-2 ring-offset-surface" : ""
             } ${FOCUS}`}
           >
@@ -185,7 +185,7 @@ export function CalendrierMois({ jours }: { jours: JourBilan[] }) {
 export function LegendeStatuts() {
   const exemples: { jour: Pick<JourBilan, "statut" | "gravite">; libelle: string }[] = [
     { jour: { statut: "reussi", gravite: null }, libelle: "Dans les clous" },
-    { jour: { statut: "rate", gravite: "leger" }, libelle: "Hors objectif" },
+    { jour: { statut: "rate", gravite: "leger" }, libelle: "Hors de la cible" },
     { jour: { statut: "libre", gravite: null }, libelle: "Jour libre" },
     { jour: { statut: "vide", gravite: null }, libelle: "Sans saisie" },
   ];
@@ -282,20 +282,16 @@ export function ResumeTaux({
 }
 
 export function LigneSerie({ jours, tronquee }: { jours: number; tronquee: boolean }) {
+  // Une série à zéro se lirait comme une rupture : on n'affiche rien.
+  if (jours === 0) return null;
   return (
     <p className="text-label text-ink-2 text-pretty">
-      {jours === 0 ? (
-        "Pas de série en cours."
-      ) : (
-        <>
-          Série en cours :{" "}
-          <span className="font-semibold text-ink">
-            {jours}
-            {tronquee ? "+" : ""} {pluriel(jours)}
-          </span>{" "}
-          de suite.
-        </>
-      )}
+      Série en cours :{" "}
+      <span className="font-semibold text-ink">
+        {jours}
+        {tronquee ? "+" : ""} {pluriel(jours)}
+      </span>{" "}
+      de suite.
     </p>
   );
 }

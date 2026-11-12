@@ -1,5 +1,6 @@
 import type { Nutrition } from "@/lib/nutrition/compute";
 import { severiteDepassement, type SeveriteDepassement } from "@/lib/nutrition/bilan";
+import type { JourType } from "@/lib/nutrition/planning";
 import { card } from "@/lib/ui";
 
 const RADIUS = 56;
@@ -60,7 +61,7 @@ function MacroBar({
         </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-surface-alt">
-        <div className="h-full rounded-full transition-[width]" style={{ width: `${pct}%`, background: barColor }} />
+        <div className="h-full rounded-full transition-[width] duration-300 ease-[var(--ease-out)]" style={{ width: `${pct}%`, background: barColor }} />
       </div>
     </div>
   );
@@ -69,14 +70,22 @@ function MacroBar({
 export function ResumeJour({
   consomme,
   cible,
+  estAujourdhui = true,
+  jourType,
 }: {
   consomme: Nutrition;
   cible: Nutrition | null;
+  /** Faux pour un autre jour que le jour courant : « aujourd'hui » serait faux. */
+  estAujourdhui?: boolean;
+  /** Type du jour affiché, pour nommer l'objectif manquant. */
+  jourType?: JourType;
 }) {
   if (!cible) {
+    const manquant =
+      jourType === "entrainement" ? " d'entraînement" : jourType === "repos" ? " de repos" : "";
     return (
       <p className="text-sm text-ink-2">
-        Définis un objectif ci-dessus pour voir ton résumé du jour.
+        Définis l&apos;objectif{manquant} (« Modifier les objectifs ») pour voir ton résumé du jour.
       </p>
     );
   }
@@ -87,10 +96,8 @@ export function ResumeJour({
   const kcalOffset = CIRCUMFERENCE * (1 - kcalPct / 100);
   const resteLabel =
     reste >= 0
-      ? `${Math.round(reste)} kcal restantes aujourd'hui`
-      : kcalSeverite === "leger"
-        ? `${Math.round(-reste)} kcal au-dessus de l'objectif`
-        : `Objectif dépassé de ${Math.round(-reste)} kcal`;
+      ? `${Math.round(reste)} kcal restantes ${estAujourdhui ? "aujourd'hui" : "sur la journée"}`
+      : `${Math.round(-reste)} kcal au-dessus de l'objectif`;
   const resteTexteClass =
     kcalSeverite === "marque" ? "text-alert" : kcalSeverite === "leger" ? "text-warning" : "text-ink-2";
 
@@ -111,6 +118,7 @@ export function ResumeJour({
               transform="rotate(-90 66 66)"
               strokeDasharray={CIRCUMFERENCE}
               strokeDashoffset={kcalOffset}
+              className="transition-[stroke-dashoffset] duration-300 ease-[var(--ease-out)]"
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">

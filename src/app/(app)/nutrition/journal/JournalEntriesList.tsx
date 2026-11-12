@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { Nutrition } from "@/lib/nutrition/compute";
 import type { Enums } from "@/lib/supabase/types";
-import { cardTight, dangerButton } from "@/lib/ui";
+import { cardTight, dangerButton, nameTextComplet } from "@/lib/ui";
 
 export type JournalEntryView = {
   id: string;
@@ -13,7 +13,7 @@ export type JournalEntryView = {
   nutrition: Nutrition;
 };
 
-const MOMENT_ORDER: Enums<"moment_repas">[] = ["petit_dej", "dejeuner", "diner", "collation"];
+const MOMENT_ORDER: Enums<"moment_repas">[] = ["petit_dej", "dejeuner", "collation", "diner"];
 const MOMENT_LABEL: Record<string, string> = {
   petit_dej: "Petit-déj",
   dejeuner: "Déjeuner",
@@ -36,11 +36,11 @@ function EntryRow({ entry, onDelete }: { entry: JournalEntryView; onDelete: (id:
       </span>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-body font-semibold text-ink">{entry.label}</p>
+          <p className={`${nameTextComplet} font-semibold`}>{entry.label}</p>
           <p className="text-xs text-ink-2">{entry.detail}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="font-display text-body font-semibold text-ink">
+          <span className="font-display text-body font-semibold tabular-nums text-ink">
             {Math.round(entry.nutrition.kcal)} kcal
           </span>
           <button
@@ -53,6 +53,7 @@ function EntryRow({ entry, onDelete }: { entry: JournalEntryView; onDelete: (id:
             // `data-swipe-ignore` (delta de scroll) utilisée ailleurs dans
             // l'app pour les zones réellement scrollables.
             onTouchStart={(e) => e.stopPropagation()}
+            aria-label={`Supprimer « ${entry.label} »`}
             className={dangerButton}
           >
             Suppr.

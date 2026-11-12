@@ -69,14 +69,16 @@ export function FicheExercice({ exerciceId }: { exerciceId: string }) {
 
   return (
     <div className="flex flex-col gap-4 pb-8">
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-4">
         <BackLink href="/musculation/stats">Statistiques</BackLink>
-        <h1 className={screenTitle}>{exercice.nom}</h1>
-        <p className={metaText}>
-          {MUSCLE_LABELS[exercice.muscle]}
-          {exercice.materiel ? ` · ${exercice.materiel}` : ""} · {MODE_SAISIE_LABELS[exercice.mode]} · {stats.nbSeances} séance
-          {stats.nbSeances > 1 ? "s" : ""}
-        </p>
+        <div className="flex flex-col gap-1">
+          <h1 className={screenTitle}>{exercice.nom}</h1>
+          <p className={metaText}>
+            {MUSCLE_LABELS[exercice.muscle]}
+            {exercice.materiel ? ` · ${exercice.materiel}` : ""} · {MODE_SAISIE_LABELS[exercice.mode]} · {stats.nbSeances} séance
+            {stats.nbSeances > 1 ? "s" : ""}
+          </p>
+        </div>
       </div>
 
       {stats.nbSeances === 0 && <p className={metaText}>Pas encore de séance avec cet exercice.</p>}

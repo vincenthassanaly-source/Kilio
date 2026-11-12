@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AddCourseForm } from "./AddCourseForm";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card } from "@/lib/ui";
+import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
 
 export function AddCourseToggle() {
   const [open, setOpen] = useState(false);
@@ -32,7 +32,7 @@ export function AddCourseToggle() {
             est désormais la seule façon de refermer la carte volontairement
             (avec le retour, via useBackClose ci-dessus) — "Fermer" plutôt
             que "Annuler", puisqu'il n'annule plus rien en cours. */}
-        <button type="button" onClick={() => setOpen(false)} className="mt-2 text-sm text-ink-2 underline">
+        <button type="button" onClick={() => setOpen(false)} className={`mt-2 ${textButton}`}>
           Fermer
         </button>
       </div>

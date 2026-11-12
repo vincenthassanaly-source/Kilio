@@ -34,7 +34,7 @@ import { signalerFinRepos, useMinuteurRepos } from "@/lib/musculation/useMinuteu
 import { useWakeLock } from "@/lib/musculation/useWakeLock";
 import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE, ORDRE_TYPES } from "@/lib/seances/compute";
-import { metaText, primaryButton, secondaryButton } from "@/lib/ui";
+import { metaText, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { BarreRepos } from "./BarreRepos";
 import { ExerciceBloc } from "./ExerciceBloc";
 import { SelecteurExercices } from "./SelecteurExercices";
@@ -220,11 +220,11 @@ export function SeanceView() {
           </span>
         </div>
         <div className="flex shrink-0 gap-2">
-          <button type="button" className={`${secondaryButton} h-11 !py-0 text-label`} onClick={() => setConfirmation("abandonner")}>
+          <button type="button" className={`${secondaryButton} h-11 !py-0 text-label`} onClick={() => setConfirmation("abandonner")} disabled={envoi}>
             Quitter
           </button>
-          <button type="button" className={`${primaryButton} h-11 !py-0 text-label`} onClick={demanderFin} disabled={envoi}>
-            Terminer
+          <button type="button" className={`${primaryButton} h-11 !py-0 text-label`} onClick={demanderFin} disabled={envoi} aria-busy={envoi}>
+            {envoi ? "Enregistrement…" : "Terminer"}
           </button>
         </div>
       </div>
@@ -232,7 +232,7 @@ export function SeanceView() {
       {b.routineId === null && (
         <div className="flex flex-col gap-1.5" role="group" aria-label="Type de séance">
           <span className={metaText}>Type de séance (facultatif)</span>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-x-2 gap-y-4 py-1">
             {ORDRE_TYPES.map((type) => {
               const actif = b.typeSeance === type;
               return (
@@ -241,7 +241,7 @@ export function SeanceView() {
                   type="button"
                   aria-pressed={actif}
                   onClick={() => maj((courant) => ({ ...courant, typeSeance: actif ? null : type }))}
-                  className={`rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                  className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                     actif ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                   }`}
                 >
@@ -295,8 +295,8 @@ export function SeanceView() {
       </button>
 
       {b.exercices.length > 0 && (
-        <button type="button" className={`${primaryButton} h-12`} onClick={demanderFin} disabled={envoi}>
-          Terminer la séance
+        <button type="button" className={`${primaryButton} h-12`} onClick={demanderFin} disabled={envoi} aria-busy={envoi}>
+          {envoi ? "Enregistrement…" : "Terminer la séance"}
         </button>
       )}
 
@@ -380,7 +380,7 @@ export function SeanceView() {
       >
         <p>
           {total - faites} série{total - faites > 1 ? "s" : ""} non validée{total - faites > 1 ? "s" : ""} ne seront pas
-          enregistrées. Seules les {faites} série{faites > 1 ? "s" : ""} cochée{faites > 1 ? "s" : ""} comptent.
+          enregistrées. Seules les {faites} série{faites > 1 ? "s" : ""} cochée{faites > 1 ? "s" : ""} comptent. Choisis « Garder » pour reprendre la séance.
         </p>
       </ConfirmDialog>
     </div>

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { getCoursesItems } from "@/app/actions/courses";
 import { creerAttributeurDeCles } from "@/lib/courses/cles-affichage";
 import { queryKeys } from "@/lib/query/keys";
@@ -39,22 +39,30 @@ export function CoursesList() {
     <div className="flex flex-col gap-2.5">
       {actifs.length > 0 && (
         <>
-          <p className="px-1 text-xs text-ink-2">
+          <p className="px-1 text-xs tabular-nums text-ink-2">
             {progression.actifs} article{progression.actifs > 1 ? "s" : ""} à prendre
           </p>
           <div className="flex flex-col gap-4">
-            {sectionsRayon.map((section) => (
-              <div key={section.rayon} className="flex flex-col gap-2.5">
-                <p className={`px-1 ${eyebrow}`}>{section.rayon}</p>
-                <ul className="flex flex-col gap-2.5">
+            <AnimatePresence initial={false}>
+            {sectionsRayon.map((section, index) => (
+              <motion.div
+                key={section.rayon}
+                layout
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="flex flex-col gap-2.5"
+              >
+                <h2 id={`rayon-titre-${index}`} className={`px-1 ${eyebrow}`}>{section.rayon}</h2>
+                <ul aria-labelledby={`rayon-titre-${index}`} className="flex flex-col gap-2.5">
                   <AnimatePresence initial={false}>
                     {section.items.map((item) => (
                       <CourseItemRow key={cleAffichage(item)} item={item} />
                     ))}
                   </AnimatePresence>
                 </ul>
-              </div>
+              </motion.div>
             ))}
+            </AnimatePresence>
           </div>
         </>
       )}

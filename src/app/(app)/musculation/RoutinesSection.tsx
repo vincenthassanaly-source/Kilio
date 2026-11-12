@@ -45,7 +45,7 @@ function LigneRoutine({
           <span className={nameText}>{routine.nom}</span>
           <span className={metaText}>
             {routine.typeSeance ? `${routine.typeSeance} · ` : ""}
-            {routine.nbExercices} exercice{routine.nbExercices > 1 ? "s" : ""}
+            {routine.nbExercices === 0 ? "Aucun exercice" : `${routine.nbExercices} exercice${routine.nbExercices > 1 ? "s" : ""}`}
           </span>
         </span>
         <span aria-hidden="true" className="shrink-0 text-heading-sm leading-none text-ink-3">
@@ -181,6 +181,10 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
           </Link>
         </div>
       </div>
+
+      {seanceEnCours && data.routines.length > 0 && (
+        <p className={metaText}>Termine ta séance en cours pour en lancer une autre.</p>
+      )}
 
       {data.routines.length === 0 && data.dossiers.length === 0 && (
         <section className={`${card} flex flex-col gap-1.5`}>

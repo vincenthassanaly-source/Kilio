@@ -161,11 +161,11 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
         <Link href={`/musculation/historique/${detail.id}/modifier`} className={`${secondaryButton} h-12 text-center leading-[1.6]`}>
           Modifier la séance
         </Link>
-        <button type="button" className={secondaryButton} onClick={() => setModalRoutine(true)} disabled={enCours}>
+        <button type="button" className={`${secondaryButton} h-12`} onClick={() => setModalRoutine(true)} disabled={enCours}>
           Enregistrer comme routine
         </button>
         {detail.routineId && (
-          <button type="button" className={secondaryButton} onClick={() => void preparerMiseAJour()} disabled={enCours}>
+          <button type="button" className={`${secondaryButton} h-12`} onClick={() => void preparerMiseAJour()} disabled={enCours}>
             Mettre à jour la routine
           </button>
         )}

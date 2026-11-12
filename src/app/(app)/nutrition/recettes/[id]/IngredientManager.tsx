@@ -115,6 +115,7 @@ function IngredientLine({
                   }
                 });
               }}
+              aria-label={`Supprimer l'ingrédient « ${ingredient.aliment.nom} »`}
               className={dangerButton}
             >
               Suppr.
@@ -151,8 +152,7 @@ function AddIngredientForm({
   if (aliments.length === 0) {
     return (
       <p className="text-sm text-ink-2">
-        Ajoute d&apos;abord des aliments dans l&apos;onglet Aliments pour pouvoir composer cette
-        recette.
+        Aucun aliment en base pour l&apos;instant : impossible de composer cette recette.
       </p>
     );
   }

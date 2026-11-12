@@ -110,7 +110,7 @@ export function ObjectifSuiviEtapes({
     <div className={`${card} flex flex-col gap-3`}>
       <div className="flex items-center justify-between">
         <h2 className={sectionTitle}>Étapes</h2>
-        <span className="text-small text-ink-2">
+        <span className="text-small text-ink-2 tabular-nums">
           {faites}/{etapes.length}
         </span>
       </div>
@@ -118,27 +118,28 @@ export function ObjectifSuiviEtapes({
       {etapes.length === 0 ? (
         <p className="text-ink-2">Aucune étape pour l&apos;instant.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-3">
           {etapes.map((etape, index) => (
             <li key={etape.id} className="flex items-center gap-2">
               <CheckToggle
                 checked={etape.fait}
-                disabled={toggleMutation.isPending}
+                disabled={toggleMutation.isPending && toggleMutation.variables?.id === etape.id}
                 onToggle={() => toggleMutation.mutate(etape)}
                 color="var(--accent-objectifs)"
-                label={etape.fait ? "Marquer non fait" : "Marquer fait"}
-                // `<ul className="gap-2">` (8px) : hitSlop réduit, voir
+                label="Fait"
+                describedBy={`etape-titre-${etape.id}`}
+                // `<ul className="gap-3">` (12px) : hitSlop réduit, voir
                 // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md.
                 hitSlop={3}
               />
-              <span className={`flex-1 text-body text-ink ${etape.fait ? "text-ink-2 line-through" : ""}`}>
+              <span id={`etape-titre-${etape.id}`} className={`flex-1 text-body text-ink ${etape.fait ? "text-ink-2 line-through" : ""}`}>
                 {etape.titre}
               </span>
               <button
                 type="button"
                 disabled={isPending || index === 0}
                 onClick={() => handleDeplacer(etape, "haut")}
-                className={`${ghostButton} px-2 py-1 disabled:opacity-30`}
+                className={`${ghostButton} min-w-9 px-2 py-1 disabled:opacity-30`}
                 aria-label="Monter"
               >
                 ↑
@@ -147,7 +148,7 @@ export function ObjectifSuiviEtapes({
                 type="button"
                 disabled={isPending || index === etapes.length - 1}
                 onClick={() => handleDeplacer(etape, "bas")}
-                className={`${ghostButton} px-2 py-1 disabled:opacity-30`}
+                className={`${ghostButton} min-w-9 px-2 py-1 disabled:opacity-30`}
                 aria-label="Descendre"
               >
                 ↓
@@ -156,9 +157,10 @@ export function ObjectifSuiviEtapes({
                 type="button"
                 disabled={isPending}
                 onClick={() => handleSupprimer(etape)}
+                aria-label={`Supprimer l'étape ${etape.titre}`}
                 className={`${dangerButton} px-2 py-1`}
               >
-                Suppr.
+                Supprimer
               </button>
             </li>
           ))}
@@ -168,12 +170,13 @@ export function ObjectifSuiviEtapes({
       <form ref={formRef} action={handleAjouter} className="flex gap-2">
         <input
           name="titre"
+          aria-label="Nouvelle étape"
           placeholder="Nouvelle étape…"
           value={titre}
           onChange={(e) => setTitre(e.target.value)}
           className={`${input} min-w-0 flex-1`}
         />
-        <button type="submit" disabled={isPending} className={ghostButton}>
+        <button type="submit" disabled={isPending || !titre.trim()} className={ghostButton}>
           Ajouter
         </button>
       </form>

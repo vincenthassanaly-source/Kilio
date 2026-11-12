@@ -8,7 +8,7 @@ import { deleteDocument, enregistrerApercuPdf, type DocumentAvecFichiers } from 
 import { genererApercuPdf } from "@/lib/pdf/apercuPdf";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, dangerButton, ghostButton, listCard, nameText, pillTag, textButton } from "@/lib/ui";
+import { card, dangerButton, ghostButton, listCard, nameTextComplet, pillTag, textButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { runAction } from "@/lib/actions/runAction";
 import { BoutonDescription } from "./BoutonDescription";
@@ -33,7 +33,7 @@ async function rattraperApercu(fichierId: string, url: string) {
 
 function PdfIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 3.5h9l3 3V19a1.5 1.5 0 0 1-1.5 1.5h-10.5A1.5 1.5 0 0 1 4.5 19V5A1.5 1.5 0 0 1 6 3.5z" />
       <path d="M9 13h6M9 16.5h4" />
     </svg>
@@ -97,7 +97,7 @@ export function DocumentCard({
       transition={{ duration: 0.18 }}
       className={listCard}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-stretch gap-3">
         {apercu && apercu.fichier_type === "image" ? (
           <button
             type="button"
@@ -136,13 +136,11 @@ export function DocumentCard({
           </a>
         ) : null}
 
-        <TransitionLink href={`/documents/${document.id}`} className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <div className="flex items-center justify-between gap-2">
-            <p className={nameText} style={{ viewTransitionName: `document-title-${document.id}` }}>
-              {document.nom}
-            </p>
-            {document.categorie && <span className={pillTag}>{document.categorie}</span>}
-          </div>
+        <TransitionLink href={`/documents/${document.id}`} className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 self-stretch">
+          <p className={nameTextComplet} style={{ viewTransitionName: `document-title-${document.id}` }}>
+            {document.nom}
+          </p>
+          {document.categorie && <span className={`${pillTag} self-start`}>{document.categorie}</span>}
         </TransitionLink>
       </div>
       <div className="flex flex-wrap items-center justify-end gap-2">

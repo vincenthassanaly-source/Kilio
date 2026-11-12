@@ -6,11 +6,12 @@ import { changerStatutObjectif, supprimerObjectif } from "@/app/actions/objectif
 import { queryKeys } from "@/lib/query/keys";
 import { ObjectifForm } from "../ObjectifForm";
 import type { Enums, Tables } from "@/lib/supabase/types";
-import { card, dangerButton, errorText, ghostButton } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton, textButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
 import { runAction } from "@/lib/actions/runAction";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { BackLink } from "@/components/BackLink";
+import { useBackClose } from "@/hooks/useBackClose";
 
 const STATUT_LABELS: Record<Enums<"statut_objectif">, string> = {
   en_cours: "En cours",
@@ -36,6 +37,7 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  useBackClose(editing, () => setEditing(false));
 
   function invalidate() {
     // Les pages liste et détail lisent deux clés TanStack Query disjointes
@@ -56,7 +58,7 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
             invalidate();
           }}
         />
-        <button type="button" onClick={() => setEditing(false)} className="mt-2 text-sm text-ink-2 underline">
+        <button type="button" onClick={() => setEditing(false)} className={textButton}>
           Annuler
         </button>
       </div>
@@ -70,7 +72,7 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
         <div className="min-w-0">
           <h1
             style={{ viewTransitionName: `objectif-title-${objectif.id}` }}
-            className="mt-1 truncate font-display text-heading font-semibold text-ink"
+            className="mt-1 break-words text-balance font-display text-heading font-semibold text-ink"
           >
             {objectif.titre}
           </h1>
@@ -96,14 +98,15 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
               startTransition(async () => {
                 try {
                   await supprimerObjectif(objectif.id);
-                } catch (e) {
-                  setError(e instanceof Error ? e.message : "Erreur inconnue.");
+                } catch {
+                  setError("Impossible de supprimer l'objectif. Réessaie.");
                 }
               });
             }}
+            aria-label={`Supprimer l'objectif ${objectif.titre}`}
             className={dangerButton}
           >
-            Suppr.
+            Supprimer
           </button>
         </div>
       </div>
@@ -131,7 +134,11 @@ export function ObjectifHeader({ objectif }: { objectif: Tables<"objectifs"> }) 
         }}
       />
 
-      {error && <p className={errorText}>{error}</p>}
+      {error && (
+        <p role="alert" className={errorText}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }

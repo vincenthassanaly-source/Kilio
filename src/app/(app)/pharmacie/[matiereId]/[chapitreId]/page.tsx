@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
@@ -41,6 +41,16 @@ function Chapitre({
 
   const matiere = snapshot.matieres.find((m) => m.id === matiereId);
   const chapitre = snapshot.chapitres.find((c) => c.id === chapitreId && c.matiere_id === matiereId);
+  const chapitreTrouve = Boolean(matiere && chapitre);
+
+  // Lien profond `#notion-…` : si le chapitre a d'abord rendu le squelette, le
+  // navigateur n'a pas trouvé la cible. On défile une fois les notions montées.
+  useEffect(() => {
+    if (!chapitreTrouve) return;
+    const cible = decodeURIComponent(window.location.hash.slice(1));
+    if (!cible.startsWith("notion-")) return;
+    document.getElementById(cible)?.scrollIntoView({ block: "start" });
+  }, [chapitreTrouve, chapitreId]);
 
   if (!matiere || !chapitre) {
     return (
@@ -71,7 +81,7 @@ function Chapitre({
             <button
               type="button"
               onClick={() => setSommaireOuvert(true)}
-              className={`${secondaryButton} shrink-0 px-3 py-1.5 text-small`}
+              className={`${secondaryButton} inline-flex min-h-11 shrink-0 items-center px-3 py-1.5 text-small`}
             >
               Sommaire
             </button>

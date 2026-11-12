@@ -61,6 +61,7 @@ const CLE_DOIGT = "kilio:vidage-doigt";
 const DELAI_SERVEUR_MS = 4_000;
 // Pause d'écriture avant de régénérer l'aperçu image du calendrier.
 const DELAI_APERCU_MS = 8_000;
+const DELAI_ATTENTE_LONGUE_MS = 10_000;
 
 // Préférence « écrire aussi au doigt » : localStorage via useSyncExternalStore (jamais lue au
 // rendu serveur), avec une copie en mémoire si le stockage est indisponible.
@@ -143,6 +144,10 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
   const [outil, setOutil] = useState<Outil>("stylo");
   const [epaisseur, setEpaisseur] = useState<Epaisseur>(2);
   const [enAttente, setEnAttente] = useState(0);
+  // Attente d'envoi qui dure (> 10 s) : seule elle justifie d'en parler, la pause de 2 s avant
+  // chaque envoi est normale.
+  const [attenteLongue, setAttenteLongue] = useState(false);
+  const [horsLigne, setHorsLigne] = useState(false);
   const [dialogue, setDialogue] = useState<Dialogue>(null);
   const [mode, setMode] = useState<Mode>("stylo");
   // Texte du jour : transcriptions validées et notes tapées, avec leur heure. Indépendant de la
@@ -214,7 +219,15 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
   // Indicateur d'envoi : relevé à chaque écriture, puis à intervalle régulier.
   useEffect(() => {
     let actif = true;
-    const relever = () => void compterFeuillesEnAttente().then((n) => actif && setEnAttente(n));
+    let depuis: number | null = null;
+    const relever = () =>
+      void compterFeuillesEnAttente().then((n) => {
+        if (!actif) return;
+        setEnAttente(n);
+        if (n === 0) depuis = null;
+        else depuis ??= Date.now();
+        setAttenteLongue(depuis !== null && Date.now() - depuis > DELAI_ATTENTE_LONGUE_MS);
+      });
     relever();
     const intervalle = window.setInterval(relever, 2_500);
     window.addEventListener(EVENEMENT_FEUILLE_EN_ATTENTE, relever);
@@ -222,6 +235,18 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
       actif = false;
       window.clearInterval(intervalle);
       window.removeEventListener(EVENEMENT_FEUILLE_EN_ATTENTE, relever);
+    };
+  }, []);
+
+  // Connexion de l'appareil : « Gardé sur ton téléphone » ne s'affiche que hors ligne.
+  useEffect(() => {
+    const maj = () => setHorsLigne(!navigator.onLine);
+    maj();
+    window.addEventListener("online", maj);
+    window.addEventListener("offline", maj);
+    return () => {
+      window.removeEventListener("online", maj);
+      window.removeEventListener("offline", maj);
     };
   }, []);
 
@@ -325,11 +350,14 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
   const estAujourdhui = jour === aujourdhui;
   const statut = enTranscription
     ? "Transcription en cours…"
-    : enAttente > 0
-      ? "Gardé sur ton téléphone, envoi en attente"
+    : enAttente > 0 && (horsLigne || attenteLongue)
+      ? "Gardé sur ton téléphone, envoi dès que le réseau revient"
       : traits.length > 0
         ? "Enregistré"
         : "";
+
+  // « Enregistré » est un état de fond : pas d'annonce vocale à chaque pause d'écriture.
+  const statutTransitoire = statut === "Enregistré";
 
   return (
     <div className="flex flex-col gap-4">
@@ -339,9 +367,19 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
         <div className="flex min-w-0 flex-col gap-1">
           <h1 className={screenTitle}>{estAujourdhui ? "Journal" : "Feuille du soir"}</h1>
           <p className={eyebrow}>{libelleJour(jour)}</p>
+          {mode === "stylo" && (
+            <p
+              className={`${eyebrow} min-h-5`}
+              role="status"
+              aria-live={statutTransitoire ? "off" : "polite"}
+              data-testid="vidage-statut"
+            >
+              {statut}
+            </p>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <TransitionLink href="/journal/calendrier" className={ghostButton}>
+          <TransitionLink href="/journal/calendrier" className={`${ghostButton} inline-flex min-h-11 items-center`}>
             Relire
           </TransitionLink>
           <MenuFeuille
@@ -369,10 +407,10 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
         <SaisieClavier onAjouter={ajouterNote} />
       ) : (
         <>
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-sm font-medium text-ink">Écrire aussi au doigt</span>
+          <label className="flex min-h-11 items-center justify-between gap-3">
+            <span className="text-label font-medium text-ink">Écrire aussi au doigt</span>
             <Switch checked={ecritAuDoigt} onToggle={() => ecrireDoigt(!ecritAuDoigt)} label="Écrire aussi au doigt" />
-          </div>
+          </label>
 
           {pret ? (
             <FeuilleCanvas
@@ -388,9 +426,6 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
             <Skeleton className="h-[60vh] w-full rounded-card" />
           )}
 
-          <p className={`${eyebrow} min-h-5 text-center`} role="status" aria-live="polite" data-testid="vidage-statut">
-            {statut}
-          </p>
         </>
       )}
 

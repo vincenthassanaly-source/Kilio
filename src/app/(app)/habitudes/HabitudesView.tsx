@@ -68,7 +68,7 @@ export function HabitudesView({ today }: { today: string }) {
         </div>
       )}
 
-      {view === "historique" && <HistoriqueView habitudes={habitudes} />}
+      {view === "historique" && <HistoriqueView habitudes={habitudes} isError={isError} />}
     </div>
     </PullToRefresh>
   );

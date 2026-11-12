@@ -4,7 +4,7 @@ import { useState } from "react";
 import { HabitudeForm } from "./HabitudeForm";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card } from "@/lib/ui";
+import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
 
 export function AddHabitudeToggle({ onSaved }: { onSaved?: () => void }) {
   const [open, setOpen] = useState(false);
@@ -33,7 +33,7 @@ export function AddHabitudeToggle({ onSaved }: { onSaved?: () => void }) {
             onSaved?.();
           }}
         />
-        <button type="button" onClick={() => setOpen(false)} className="mt-2 text-sm text-ink-2 underline">
+        <button type="button" onClick={() => setOpen(false)} className={`mt-2 ${textButton}`}>
           Annuler
         </button>
       </div>

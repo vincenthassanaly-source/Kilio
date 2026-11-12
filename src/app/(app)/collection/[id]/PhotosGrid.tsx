@@ -121,7 +121,7 @@ export function PhotosGrid({
   }
 
   if (visibles.length === 0) {
-    return <p className="text-ink-2">Aucune photo pour l&apos;instant.</p>;
+    return <p className="text-ink-2">Aucun élément pour l&apos;instant.</p>;
   }
 
   return (
@@ -141,9 +141,13 @@ export function PhotosGrid({
                 layout
                 className="relative aspect-square overflow-hidden rounded-2xl border border-line bg-surface-alt"
                 initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.22, delay: Math.min(index * 0.03, 0.3) }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  transition: { duration: 0.22, delay: Math.min(index * 0.03, 0.3) },
+                }}
+                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.18, delay: 0 } }}
+                transition={{ duration: 0.22 }}
               >
                 <button
                   type="button"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { showToast } from "@/components/toast/toast-store";
 import { vibrate } from "@/lib/haptics";
 import {
@@ -26,7 +26,7 @@ import { deverrouillerAudio } from "@/lib/musculation/useMinuteurRepos";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { AnimationMiniature } from "../AnimationExercice";
 import { ChampNombre } from "./ChampNombre";
-import { ghostButton, metaText, nameText, secondaryButton } from "@/lib/ui";
+import { ghostButton, metaText, nameText, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { CheckIcon } from "@/components/icons";
 
 type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distance" | "vitesse" | "type">>;
@@ -107,12 +107,14 @@ export function ExerciceBloc({
   const [confirmerRetrait, setConfirmerRetrait] = useState(false);
   // Série dont le sélecteur de type (normale, échauffement…) est ouvert.
   const [typeOuvertPour, setTypeOuvertPour] = useState<string | null>(null);
+  // Horodatage du dernier tap sur un ✓ : un double tap involontaire ne doit pas valider puis annuler la série.
+  const dernierTap = useRef<{ id: string; t: number } | null>(null);
   const { mode, cle } = exercice;
   const champs = CHAMPS_PAR_MODE[mode];
   // Marche (durée + vitesse) : une seule ligne, ni ajout de série ni repos.
   const uneLigne = mode === "duree_vitesse";
 
-  const colonnes = ["40px", "minmax(0,1fr)", ...champs.map((c) => LARGEUR_CHAMP[c]), ...(edition ? [] : ["48px"])].join(" ");
+  const colonnes = ["40px", ...(edition ? [] : ["minmax(0,1fr)"]), ...champs.map((c) => LARGEUR_CHAMP[c]), ...(edition ? [] : ["48px"])].join(" ");
   const entete = "text-center text-caption font-semibold uppercase tracking-wide text-ink-3";
   const faites = exercice.series.filter((s) => s.fait).length;
   // Records battus par les séries validées (les autres sont traitées comme un échauffement : ignorées).
@@ -153,7 +155,7 @@ export function ExerciceBloc({
 
       {options && (
         <div
-          role="menu"
+          role="group"
           aria-label={`Options de ${exercice.nom}`}
           onKeyDown={(e) => {
             if (e.key === "Escape") setOptions(false);
@@ -186,13 +188,13 @@ export function ExerciceBloc({
           )}
 
           {onDeplacer && (
-            <button type="button" role="menuitem" className={ligneMenu} onClick={() => onDeplacer(cle, -1)} disabled={premier}>
+            <button type="button" className={ligneMenu} onClick={() => onDeplacer(cle, -1)} disabled={premier}>
               <IconeMenu d="M12 19V5m0 0-6 6m6-6 6 6" />
               Monter l&apos;exercice
             </button>
           )}
           {onDeplacer && (
-            <button type="button" role="menuitem" className={ligneMenu} onClick={() => onDeplacer(cle, 1)} disabled={dernier}>
+            <button type="button" className={ligneMenu} onClick={() => onDeplacer(cle, 1)} disabled={dernier}>
               <IconeMenu d="M12 5v14m0 0 6-6m-6 6-6-6" />
               Descendre l&apos;exercice
             </button>
@@ -200,7 +202,7 @@ export function ExerciceBloc({
           {onRemplacer && (
             <button
               type="button"
-              role="menuitem"
+             
               className={ligneMenu}
               onClick={() => {
                 setOptions(false);
@@ -214,7 +216,7 @@ export function ExerciceBloc({
           {!uneLigne && (
             <button
               type="button"
-              role="menuitem"
+             
               className={ligneMenu}
               onClick={() => onRetirerDerniereSerie(cle)}
               disabled={exercice.series.length <= 1}
@@ -225,7 +227,7 @@ export function ExerciceBloc({
           )}
           <button
             type="button"
-            role="menuitem"
+           
             className={`${ligneMenu} !text-alert`}
             onClick={() => (faites > 0 ? setConfirmerRetrait(true) : onRetirerExercice(cle))}
           >
@@ -252,9 +254,9 @@ export function ExerciceBloc({
       </ConfirmDialog>
 
       <div className="flex flex-col gap-1.5">
-        <div className="grid items-end gap-2" style={{ gridTemplateColumns: colonnes }} aria-hidden="true">
+        <div className="grid items-end gap-2" style={{ gridTemplateColumns: colonnes, justifyContent: edition ? "space-between" : undefined }} aria-hidden="true">
           <span className={entete}>Série</span>
-          <span className={entete}>Précédent</span>
+          {!edition && <span className={entete}>Précédent</span>}
           {champs.map((c) => (
             <span key={c} className={entete}>
               {enteteChamp(c, mode)}
@@ -279,8 +281,8 @@ export function ExerciceBloc({
           return (
             <div key={serie.id} data-serie-id={serie.id} className="flex flex-col gap-1.5">
               <div
-                className={`grid items-center gap-2 rounded-2xl py-1 transition-colors ${serie.fait && !edition ? "bg-kcal-soft" : ""}`}
-                style={{ gridTemplateColumns: colonnes }}
+                className={`grid items-center gap-2 rounded-2xl px-1 py-1 transition-colors ${serie.fait && !edition ? "bg-kcal-soft" : ""}`}
+                style={{ gridTemplateColumns: colonnes, justifyContent: edition ? "space-between" : undefined }}
               >
                 <button
                   type="button"
@@ -295,9 +297,11 @@ export function ExerciceBloc({
                   {serie.type === "dropset" && <span aria-hidden="true">↓</span>}
                   {serie.type === "echec" && <span aria-hidden="true">!</span>}
                 </button>
-                <span className="truncate text-center text-small tabular-nums text-ink-2">
-                  {libellePrecedent(mode, precedent)}
-                </span>
+                {!edition && (
+                  <span className="truncate text-center text-small tabular-nums text-ink-2">
+                    {libellePrecedent(mode, precedent)}
+                  </span>
+                )}
                 {champs.map((champ) => {
                   const cleSerie = CLE_SERIE[champ];
                   const enMinutes = dureeEnMinutes(mode, champ);
@@ -319,6 +323,10 @@ export function ExerciceBloc({
                     aria-pressed={serie.fait}
                     aria-label={serie.fait ? `Annuler la série ${index + 1}` : `Valider la série ${index + 1}`}
                     onClick={() => {
+                      const maintenant = Date.now();
+                      const precedentTap = dernierTap.current;
+                      dernierTap.current = { id: serie.id, t: maintenant };
+                      if (precedentTap && precedentTap.id === serie.id && maintenant - precedentTap.t < 400) return;
                       if (!serie.fait) {
                         deverrouillerAudio();
                         vibrate(15);
@@ -347,7 +355,7 @@ export function ExerciceBloc({
                 </p>
               )}
               {typeOuvert && (
-                <div className="flex flex-wrap gap-2 px-1" role="group" aria-label={`Type de la série ${index + 1}`}>
+                <div className="flex flex-wrap gap-x-2 gap-y-4 px-1 py-1" role="group" aria-label={`Type de la série ${index + 1}`}>
                   {TYPES_SERIE.map((type: TypeSerie) => (
                     <button
                       key={type}
@@ -357,7 +365,7 @@ export function ExerciceBloc({
                         onModifierSerie(cle, serie.id, { type });
                         setTypeOuvertPour(null);
                       }}
-                      className={`rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                      className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                         serie.type === type ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                       }`}
                     >

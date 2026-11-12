@@ -158,7 +158,7 @@ function Sommaire({ snapshot }: { snapshot: PharmaRefSnapshot }) {
         </div>
       </SectionRepliable>
 
-      <SectionRepliable id="ref-az" titre="Médicaments A–Z" compteur={`(${snapshot.molecules.length})`}>
+      <SectionRepliable id="ref-az" titre="Médicaments A–Z" compteur={snapshot.molecules.length}>
         <div className="flex flex-col gap-3">
           {index.map(({ initiale, molecules }) => (
             <GroupeRepliable

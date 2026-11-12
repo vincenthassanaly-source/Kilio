@@ -155,7 +155,7 @@ export function NotionEditeur({
             <button type="button" onClick={() => setConfirmerSuppression(true)} disabled={enCours} className={dangerButton}>
               Supprimer
             </button>
-            <button type="submit" disabled={enCours} className={primaryButton}>
+            <button type="submit" disabled={enCours} className={`${primaryButton} min-h-11`}>
               {enCours ? "Enregistrement…" : "Enregistrer"}
             </button>
           </div>

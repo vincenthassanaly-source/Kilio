@@ -1,7 +1,7 @@
 "use client";
 
 import { TransitionLink } from "@/components/TransitionLink";
-import { cardTight, pillTag } from "@/lib/ui";
+import { cardTight, eyebrow, pillTag } from "@/lib/ui";
 import { enTexteBrut } from "@/lib/pharmacie/contenu";
 import { cheminDeNotion, rechercherNotions } from "@/lib/pharmacie/selecteurs";
 import type { PharmaSnapshot } from "@/lib/pharmacie/types";
@@ -28,7 +28,7 @@ export function ResultatsRecherche({ snapshot, requete }: { snapshot: PharmaSnap
               href={`/pharmacie/${chemin.matiere.id}/${chemin.chapitre.id}#notion-${notion.id}`}
               className={`${cardTight} flex flex-col gap-1`}
             >
-              <span className="text-micro font-semibold uppercase tracking-wide text-ink-3">
+              <span className={eyebrow}>
                 {chemin.matiere.nom} › {chemin.chapitre.nom}
               </span>
               <span className="text-body font-semibold text-ink">{notion.titre}</span>

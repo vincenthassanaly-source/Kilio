@@ -154,7 +154,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                 </section>
               )}
 
-              <button type="button" onClick={() => setEdition(true)} className={`${secondaryButton} self-start`}>
+              <button type="button" onClick={() => setEdition(true)} className={`${secondaryButton} min-h-11 self-start`}>
                 Modifier la fiche
               </button>
               {edition && <MoleculeEditeur molecule={molecule} onClose={() => setEdition(false)} />}

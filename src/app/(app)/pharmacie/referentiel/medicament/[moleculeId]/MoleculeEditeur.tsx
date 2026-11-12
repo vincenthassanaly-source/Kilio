@@ -65,7 +65,7 @@ export function MoleculeEditeur({ molecule, onClose }: { molecule: PharmaMolecul
             {erreur}
           </p>
         )}
-        <button type="submit" disabled={enCours} className={`${primaryButton} self-end`}>
+        <button type="submit" disabled={enCours} className={`${primaryButton} min-h-11 self-end`}>
           {enCours ? "Enregistrement…" : "Enregistrer"}
         </button>
       </form>

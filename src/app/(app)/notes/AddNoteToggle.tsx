@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card } from "@/lib/ui";
+import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
 
 const NoteForm = dynamic(() => import("./NoteForm").then((m) => m.NoteForm), { ssr: false });
 
@@ -45,7 +45,7 @@ export function AddNoteToggle({
             onSaved?.();
           }}
         />
-        <button type="button" onClick={() => setOpen(false)} className="mt-2 text-sm text-ink-2 underline">
+        <button type="button" onClick={() => setOpen(false)} className={`${textButton} mt-2`}>
           Annuler
         </button>
       </div>

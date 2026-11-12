@@ -9,8 +9,9 @@ import { showToast } from "@/components/toast/toast-store";
 import { ObjectifForm } from "./ObjectifForm";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, dangerButton, ghostButton, listCard, metaText, nameText, pillTag } from "@/lib/ui";
+import { card, dangerButton, ghostButton, listCard, metaText, nameText, pillTag, textButton } from "@/lib/ui";
 import { confirmDelete } from "@/lib/confirm";
+import { useBackClose } from "@/hooks/useBackClose";
 
 const TYPE_SUIVI_LABELS: Record<Enums<"type_suivi_objectif">, string> = {
   valeur: "Valeur",
@@ -31,6 +32,7 @@ function formatEcheance(iso: string) {
 function ObjectifCardBase({ objectif }: { objectif: Tables<"objectifs"> }) {
   const [editing, setEditing] = useState(false);
   const queryClient = useQueryClient();
+  useBackClose(editing, () => setEditing(false));
 
   function invalidate() {
     // Symétrique à ObjectifHeader : la page détail lit `objectif(id)`, une
@@ -79,11 +81,7 @@ function ObjectifCardBase({ objectif }: { objectif: Tables<"objectifs"> }) {
             invalidate();
           }}
         />
-        <button
-          type="button"
-          onClick={() => setEditing(false)}
-          className="mt-2 text-sm text-ink-2 underline"
-        >
+        <button type="button" onClick={() => setEditing(false)} className={textButton}>
           Annuler
         </button>
       </motion.li>
@@ -114,7 +112,12 @@ function ObjectifCardBase({ objectif }: { objectif: Tables<"objectifs"> }) {
         )}
       </TransitionLink>
       <div className="flex justify-end gap-2">
-        <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          aria-label={`Modifier ${objectif.titre}`}
+          className={ghostButton}
+        >
           Modifier
         </button>
         <button
@@ -124,9 +127,10 @@ function ObjectifCardBase({ objectif }: { objectif: Tables<"objectifs"> }) {
             if (!(await confirmDelete(`Supprimer l'objectif « ${objectif.titre} » ?`))) return;
             deleteMutation.mutate();
           }}
+          aria-label={`Supprimer l'objectif ${objectif.titre}`}
           className={dangerButton}
         >
-          Suppr.
+          Supprimer
         </button>
       </div>
     </motion.li>

@@ -55,9 +55,7 @@ export function ComparaisonObjectif({
   const resume =
     reste >= 0
       ? `il reste ${fr(reste)} kcal`
-      : severite === "leger"
-        ? `${fr(-reste)} kcal au-dessus`
-        : `dépassé de ${fr(-reste)} kcal`;
+      : `${fr(-reste)} kcal au-dessus`;
 
   return (
     <div className="flex flex-col gap-1.5">

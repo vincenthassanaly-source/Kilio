@@ -123,6 +123,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                     }
                   });
                 }}
+                aria-label={`Supprimer l'étape ${index + 1}`}
                 className={dangerButton}
               >
                 Suppr.

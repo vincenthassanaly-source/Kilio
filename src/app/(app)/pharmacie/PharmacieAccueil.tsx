@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ProgressRing } from "@/components/ProgressRing";
 import { TransitionLink } from "@/components/TransitionLink";
@@ -45,9 +45,21 @@ export function PharmacieAccueil() {
 }
 
 function Accueil({ snapshot }: { snapshot: PharmaSnapshot }) {
-  // Instant de lecture figé à la première rendu : la liste « à réviser » ne
-  // doit pas bouger sous les doigts pendant qu'on consulte l'écran.
-  const [maintenant] = useState(() => new Date());
+  // Instant de lecture rafraîchi au retour au premier plan et quand les cartes
+  // changent : une PWA restée ouverte ne doit pas afficher le compteur du matin.
+  const [maintenant, setMaintenant] = useState(() => new Date());
+  const [cartesVues, setCartesVues] = useState(snapshot.cartes);
+  if (cartesVues !== snapshot.cartes) {
+    setCartesVues(snapshot.cartes);
+    setMaintenant(new Date());
+  }
+  useEffect(() => {
+    const auRetour = () => {
+      if (document.visibilityState === "visible") setMaintenant(new Date());
+    };
+    document.addEventListener("visibilitychange", auRetour);
+    return () => document.removeEventListener("visibilitychange", auRetour);
+  }, []);
 
   if (snapshot.matieres.length === 0) {
     return (
@@ -77,7 +89,7 @@ function Accueil({ snapshot }: { snapshot: PharmaSnapshot }) {
             </p>
           </div>
           {aRevoir > 0 && (
-            <TransitionLink href="/pharmacie/revision" className={`${primaryButton} self-start text-label`}>
+            <TransitionLink href="/pharmacie/revision" className={`${primaryButton} inline-flex min-h-11 items-center self-start text-label`}>
               Commencer
             </TransitionLink>
           )}

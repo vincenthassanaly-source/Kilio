@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { Tables } from "@/lib/supabase/types";
 import { deleteCourseItems, type CourseItemARestaurer } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";
@@ -24,6 +24,7 @@ function versSnapshot(item: Tables<"courses_items">): CourseItemARestaurer {
 
 export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items">[] }) {
   const [open, setOpen] = useState(false);
+  const reduceMotion = useReducedMotion() ?? false;
   const queryClient = useQueryClient();
 
   // Bouton « Vider les cochés » : les ids exacts des articles archivés
@@ -84,10 +85,10 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-1.5 py-1"
+          className="flex min-h-11 items-center gap-1.5"
           aria-expanded={open}
         >
-          <span className={sectionTitle}>Articles archivés ({items.length})</span>
+          <span className={sectionTitle}>Articles archivés (<span className="tabular-nums">{items.length}</span>)</span>
           <span
             className={`text-ink-2 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
             aria-hidden
@@ -110,13 +111,13 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
             className="overflow-hidden"
           >
             <ul className="mt-2.5 flex flex-col gap-2.5">
               <AnimatePresence initial={false}>
                 {items.map((item) => (
-                  <CourseItemRow key={item.id} item={item} />
+                  <CourseItemRow key={item.id} item={item} plat />
                 ))}
               </AnimatePresence>
             </ul>

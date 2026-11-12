@@ -30,6 +30,7 @@ describe("BarreOutils", () => {
     expect(screen.getByRole("button", { name: "Gomme" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Stylo" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("button", { name: "Trait épais" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Gomme" })).toHaveClass("bg-kcal-soft", "text-kcal");
   });
 
   it("change d'outil et d'épaisseur", async () => {

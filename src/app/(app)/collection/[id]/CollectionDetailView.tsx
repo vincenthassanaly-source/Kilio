@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCollectionAvecPhotos, type CollectionAvecPhotos } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
@@ -15,6 +15,7 @@ import { TitrageModal } from "./TitrageModal";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
 import { ErrorInline } from "@/components/ErrorInline";
+import { showErrorToast } from "@/components/toast/toast-store";
 import { BackLink } from "@/components/BackLink";
 
 // Vue client : la donnée est préchargée côté serveur (page.tsx, patron de
@@ -23,12 +24,17 @@ import { BackLink } from "@/components/BackLink";
 // Server Components, un élément introuvable affiche un message inline.
 export function CollectionDetailView({ id }: { id: string }) {
   const queryClient = useQueryClient();
-  const { data: collection, isLoading, isError, refetch } = useQuery({
+  const { data: collection, isLoading, isError, isRefetchError, refetch } = useQuery({
     queryKey: queryKeys.collection(id),
     queryFn: () => getCollectionAvecPhotos(id),
   });
   // Lot en cours de titrage par Gemini (null = fenêtre fermée).
   const [lotTitrage, setLotTitrage] = useState<Tables<"collection_items">[] | null>(null);
+
+  // Un rechargement en échec garde l'écran déjà affiché : toast, pas d'effacement.
+  useEffect(() => {
+    if (isRefetchError) showErrorToast("Actualisation impossible. L'affichage peut être périmé.");
+  }, [isRefetchError]);
 
   // Ouvre le titrage sur les éléments sans description, les plus récents
   // d'abord. Lit le cache plutôt que la valeur rendue : après un ajout, la
@@ -52,7 +58,7 @@ export function CollectionDetailView({ id }: { id: string }) {
     );
   }
 
-  if (isError || !collection) {
+  if (!collection) {
     return (
       <div className="flex flex-col gap-3">
         <BackLink href="/collection">Collection</BackLink>
@@ -80,14 +86,14 @@ export function CollectionDetailView({ id }: { id: string }) {
             <span className="font-semibold text-ink">
               {nbADecrire} élément{nbADecrire > 1 ? "s" : ""}
             </span>{" "}
-            sans description
+            à décrire avec l&apos;IA
             {nbADecrire > TAILLE_LOT_TITRAGE ? ` (${TAILLE_LOT_TITRAGE} à la fois)` : ""}
           </p>
           <button
             type="button"
             onClick={ouvrirTitrage}
             aria-label="Décrire ces éléments avec l'IA"
-            className={`${secondaryButton} flex shrink-0 items-center justify-center gap-2`}
+            className={`${secondaryButton} rounded-xl! flex shrink-0 items-center justify-center gap-2`}
           >
             <EtincelleIcon />
             Décrire

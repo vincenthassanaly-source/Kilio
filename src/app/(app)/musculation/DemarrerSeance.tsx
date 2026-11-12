@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showErrorToast } from "@/components/toast/toast-store";
 import { demarrerSeanceVide } from "@/lib/musculation/demarrer";
 import { compterSeries } from "@/lib/musculation/seance";
@@ -18,7 +19,8 @@ export function DemarrerSeance({ catalogueVide }: { catalogueVide: boolean }) {
   const brouillon = useBrouillonEnCours();
   const [demarrage, setDemarrage] = useState(false);
 
-  if (brouillon === undefined) return null;
+  // Même hauteur que la carte : la liste des routines ne saute pas quand la lecture locale aboutit.
+  if (brouillon === undefined) return <Skeleton className="h-36 w-full rounded-card" />;
 
   if (brouillon) {
     const { faites, total } = compterSeries(brouillon);

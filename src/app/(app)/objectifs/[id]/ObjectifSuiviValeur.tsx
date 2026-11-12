@@ -6,7 +6,7 @@ import { enregistrerEntreeObjectif, supprimerEntreeObjectif } from "@/app/action
 import { queryKeys } from "@/lib/query/keys";
 import { runAction } from "@/lib/actions/runAction";
 import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, errorText, ghostButton, input, label as labelClass, metaText, sectionTitle } from "@/lib/ui";
+import { card, dangerButton, errorText, input, label as labelClass, metaText, primaryButton, sectionTitle } from "@/lib/ui";
 import { toISODate } from "@/lib/date/iso";
 import { moyenneGlissante, progressionValeur } from "@/lib/objectifs/valeur";
 
@@ -64,7 +64,7 @@ function EvolutionChart({
             y1={cibleY}
             x2={width - padding}
             y2={cibleY}
-            stroke="var(--line)"
+            stroke="var(--control-border)"
             strokeDasharray="4 3"
             strokeWidth={1}
           />
@@ -91,16 +91,26 @@ function EvolutionChart({
           />
         )}
       </svg>
-      {lissage && (
+      {(lissage || cibleY != null) && (
         <p className="flex items-center gap-3 text-xs text-ink-2">
-          <span className="flex items-center gap-1.5">
-            <span aria-hidden="true" className="h-0.5 w-3.5 rounded-full bg-ink-3" />
-            Mesure
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span aria-hidden="true" className="h-[3px] w-3.5 rounded-full bg-kcal" />
-            Moyenne 7 jours
-          </span>
+          {lissage && (
+            <>
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden="true" className="h-0.5 w-3.5 rounded-full bg-ink-3" />
+                Mesure
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden="true" className="h-[3px] w-3.5 rounded-full bg-kcal" />
+                Moyenne 7 jours
+              </span>
+            </>
+          )}
+          {cibleY != null && (
+            <span className="flex items-center gap-1.5">
+              <span aria-hidden="true" className="w-3.5 border-t border-dashed border-control-border" />
+              Cible
+            </span>
+          )}
         </p>
       )}
     </div>
@@ -180,10 +190,17 @@ export function ObjectifSuiviValeur({
 
       {objectif.valeur_cible != null && (
         <div className="flex flex-col gap-1.5">
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface-alt">
+          <div
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round((ratio ?? 0) * 100)}
+            aria-label="Progression vers la valeur cible"
+            className="h-2.5 w-full overflow-hidden rounded-full bg-surface-alt"
+          >
             <div
-              className="h-full rounded-full bg-kcal transition-[width]"
-              style={{ width: `${(ratio ?? 0) * 100}%` }}
+              className="h-full rounded-full transition-[width]"
+              style={{ width: `${(ratio ?? 0) * 100}%`, background: "var(--accent-objectifs)" }}
             />
           </div>
           <span className={metaText}>
@@ -196,7 +213,13 @@ export function ObjectifSuiviValeur({
 
       <EvolutionChart entries={entries} cible={objectif.valeur_cible} />
 
-      <div className="flex items-end gap-2">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          enregistrer();
+        }}
+        className="flex items-end gap-2"
+      >
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={dateId} className={labelClass}>
             Date
@@ -232,10 +255,10 @@ export function ObjectifSuiviValeur({
             className={input}
           />
         </div>
-        <button type="button" disabled={isPending} onClick={enregistrer} className={`${ghostButton} min-h-11`}>
+        <button type="submit" disabled={isPending} className={`${primaryButton} min-h-11`}>
           {isPending ? "Enregistrement…" : "Enregistrer"}
         </button>
-      </div>
+      </form>
       {erreur && (
         <p id={erreurId} role="alert" className={errorText}>
           {erreur}

@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { createCollection, type CollectionFormState } from "@/app/actions/collections";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card, errorText, input, primaryButton } from "@/lib/ui";
+import { addCard, addCardIcon, card, errorText, input, primaryButton, textButton } from "@/lib/ui";
 
 const initialState: CollectionFormState = { error: null };
 
@@ -39,7 +39,7 @@ export function AddCollectionToggle({ onSaved }: { onSaved?: () => void }) {
   return (
     <AnimatedAddCard open={open} trigger={trigger}>
       <form action={formAction} className={`${card} flex flex-col gap-3`}>
-        <input name="nom" autoFocus required placeholder="Nom de la collection" className={input} />
+        <input name="nom" aria-label="Nom de la collection" autoFocus required placeholder="Nom de la collection" className={input} />
 
         {state.error && (
           <p className={errorText} role="alert">
@@ -51,7 +51,7 @@ export function AddCollectionToggle({ onSaved }: { onSaved?: () => void }) {
           <button type="submit" disabled={pending} className={primaryButton}>
             {pending ? "Création..." : "Créer"}
           </button>
-          <button type="button" onClick={() => setOpen(false)} className="text-sm text-ink-2 underline">
+          <button type="button" onClick={() => setOpen(false)} className={textButton}>
             Annuler
           </button>
         </div>

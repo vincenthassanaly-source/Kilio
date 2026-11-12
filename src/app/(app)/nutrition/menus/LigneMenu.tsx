@@ -62,7 +62,11 @@ export function LigneMenu({ repas }: { repas: RepasPlanifie }) {
   // semaine sont calculés côté serveur sur les repas planifiés, et un repas
   // seulement masqué fausserait ces chiffres pendant le délai.
   async function retirer() {
-    if (!(await confirmDelete(`Retirer « ${repas.label} » du menu ?`))) return;
+    if (!(await confirmDelete(
+        mange
+          ? `Retirer « ${repas.label} » du menu ? Il reste dans le Carnet alimentaire.`
+          : `Retirer « ${repas.label} » du menu ?`
+      ))) return;
     setRetire(true);
     startTransition(async () => {
       const resultat = await runAction(() => removeMenuEntry(repas.id));
@@ -77,7 +81,7 @@ export function LigneMenu({ repas }: { repas: RepasPlanifie }) {
       <CheckToggle
         checked={mange}
         onToggle={basculer}
-        label={mange ? `Annuler « ${repas.label} » mangé` : `Marquer « ${repas.label} » comme mangé`}
+        label={`Marquer « ${repas.label} » comme mangé`}
         hitSlop={11}
       />
       <div className="min-w-0 flex-1">

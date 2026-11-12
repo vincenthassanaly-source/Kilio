@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { aujourdhuiParis } from "@/lib/date/paris";
 
-export type JourJournal = { date: string; depuisBilan: boolean };
+export type JourJournal = { date: string; depuisBilan: boolean; aujourdhui: string };
 export type JournalSearchParams = Promise<{ date?: string; from?: string }>;
 
 /**
@@ -20,6 +20,7 @@ export type JournalSearchParams = Promise<{ date?: string; from?: string }>;
 export async function lireJourJournal(searchParams: JournalSearchParams): Promise<JourJournal> {
   const { date: dateParam, from } = await searchParams;
   if (!dateParam) await connection();
-  const date = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : aujourdhuiParis();
-  return { date, depuisBilan: from === "bilan" };
+  const aujourdhui = aujourdhuiParis();
+  const date = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : aujourdhui;
+  return { date, depuisBilan: from === "bilan", aujourdhui };
 }

@@ -21,7 +21,17 @@ import { CheckToggle } from "@/components/CheckToggle";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, ghostButton, linkButton, nameText, pillTag, primaryButton } from "@/lib/ui";
+import {
+  actionsLigne,
+  card,
+  dangerButton,
+  ghostButton,
+  linkButton,
+  nameTextComplet,
+  pillTag,
+  primaryButton,
+  textButton,
+} from "@/lib/ui";
 import { EtincelleIcon } from "@/components/EtincelleIcon";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -35,7 +45,34 @@ const ITEMS_PREVIEW_LIMIT = 6;
 
 function couleurTagStyle(couleur: string | null) {
   if (!couleur) return undefined;
-  return { backgroundColor: `${couleur}1a`, color: couleur };
+  return { backgroundColor: `${couleur}1a`, color: `color-mix(in oklch, ${couleur} 55%, var(--ink))` };
+}
+
+// Barre de progression d'une checklist : annoncée « n sur total » aux lecteurs
+// d'écran, piste en mélange --ink (visible sur une note teintée), largeur animée.
+function Progression({ coches, total }: { coches: number; total: number }) {
+  const pourcent = total > 0 ? Math.round((coches / total) * 100) : 0;
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        role="progressbar"
+        aria-label="Progression"
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-valuenow={coches}
+        aria-valuetext={`${coches} sur ${total}`}
+        className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink/10"
+      >
+        <div
+          className="h-full rounded-full bg-kcal transition-[width] duration-200"
+          style={{ width: `${pourcent}%` }}
+        />
+      </div>
+      <span className="text-micro tabular-nums text-ink-2" aria-hidden="true">
+        {coches}/{total}
+      </span>
+    </div>
+  );
 }
 
 function PinIcon({ filled }: { filled: boolean }) {
@@ -203,7 +240,6 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
   if (masquee) return null;
 
   const itemsCoches = note.items.filter((i) => i.coche).length;
-  const progression = note.items.length > 0 ? Math.round((itemsCoches / note.items.length) * 100) : 0;
   const itemsAffiches = note.items.slice(0, ITEMS_PREVIEW_LIMIT);
   const itemsRestants = note.items.length - itemsAffiches.length;
 
@@ -225,7 +261,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
           type="button"
           onClick={() => setMode("view")}
           aria-label={`Ouvrir la note ${note.titre}`}
-          className={`${nameText} min-w-0 flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal rounded-md`}
+          className={`${nameTextComplet} min-w-0 flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal rounded-md`}
         >
           {note.titre}
         </button>
@@ -233,7 +269,8 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
           type="button"
           disabled={pinMutation.isPending}
           onClick={() => pinMutation.mutate()}
-          aria-label={note.epingle ? "Désépingler" : "Épingler"}
+          aria-label="Épingler"
+          aria-pressed={note.epingle}
           // Épingle de 18 px : zone de tap étendue à 44 px (T6) et focus visible.
           className={`relative -m-1 shrink-0 rounded-lg p-1 after:absolute after:-inset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${note.epingle ? "text-kcal" : "text-ink-3"}`}
         >
@@ -256,16 +293,14 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
       ) : (
         <div className="flex flex-col gap-1.5">
           {note.items.length > 0 && (
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-alt">
-              <div className="h-full rounded-full bg-kcal" style={{ width: `${progression}%` }} />
-            </div>
+            <Progression coches={itemsCoches} total={note.items.length} />
           )}
           {itemsAffiches.map((item) => (
             <div key={item.id} className="flex items-center gap-2">
               <CheckToggle
                 checked={item.coche}
                 onToggle={() => itemMutation.mutate({ itemId: item.id, coche: !item.coche })}
-                label={item.coche ? "Décocher l'item" : "Cocher l'item"}
+                label={item.coche ? `Décocher « ${item.libelle} »` : `Cocher « ${item.libelle} »`}
                 size={18}
                 // `flex flex-col gap-1.5` (6px) entre lignes : hitSlop réduit, voir
                 // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md.
@@ -277,7 +312,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
             </div>
           ))}
           {itemsRestants > 0 && (
-            <button type="button" onClick={() => setMode("view")} className="self-start text-xs text-ink-2">
+            <button type="button" onClick={() => setMode("view")} className={`${linkButton} self-start`}>
               +{itemsRestants} autres
             </button>
           )}
@@ -294,17 +329,23 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
         </div>
       )}
 
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={() => setMode("edit")} className={ghostButton}>
+      <div className={actionsLigne}>
+        <button
+          type="button"
+          onClick={() => setMode("edit")}
+          aria-label={`Modifier la note « ${note.titre} »`}
+          className={ghostButton}
+        >
           Modifier
         </button>
         <button
           type="button"
           disabled={deleteMutation.isPending}
           onClick={supprimer}
+          aria-label={`Supprimer la note « ${note.titre} »`}
           className={dangerButton}
         >
-          Suppr.
+          Supprimer
         </button>
       </div>
 
@@ -321,16 +362,14 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
               ) : (
                 <div className="flex flex-col gap-3">
                   {note.items.length > 0 && (
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-alt">
-                      <div className="h-full rounded-full bg-kcal" style={{ width: `${progression}%` }} />
-                    </div>
+                    <Progression coches={itemsCoches} total={note.items.length} />
                   )}
                   {note.items.map((item) => (
                     <div key={item.id} className="flex items-start gap-3">
                       <CheckToggle
                         checked={item.coche}
                         onToggle={() => itemMutation.mutate({ itemId: item.id, coche: !item.coche })}
-                        label={item.coche ? "Décocher l'item" : "Cocher l'item"}
+                        label={item.coche ? `Décocher « ${item.libelle} »` : `Cocher « ${item.libelle} »`}
                         size={22}
                         hitSlop={6}
                       />
@@ -409,7 +448,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                 invalidate();
               }}
             />
-            <button type="button" onClick={() => setMode("closed")} className="mt-2 text-sm text-ink-2 underline">
+            <button type="button" onClick={() => setMode("closed")} className={`${textButton} mt-2`}>
               Annuler
             </button>
           </Modal>

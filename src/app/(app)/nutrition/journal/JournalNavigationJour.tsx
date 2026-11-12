@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { JourJournal } from "./jour";
 import { shiftDate } from "@/lib/date/iso";
 import { hrefJourJournal } from "./liens";
+import { linkButton } from "@/lib/ui";
 
 const boutonJour =
   "flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-base";
@@ -21,7 +22,16 @@ export function JourNavigation({ jour }: { jour?: JourJournal }) {
   }
 
   return (
-    <div className="flex gap-1.5">
+    <div className="flex items-center gap-1.5">
+      {jour.date !== jour.aujourdhui && (
+        <Link
+          href={hrefJourJournal(jour.aujourdhui, jour.depuisBilan)}
+          replace
+          className={`${linkButton} mr-1.5`}
+        >
+          Aujourd&apos;hui
+        </Link>
+      )}
       <Link
         href={hrefJourJournal(shiftDate(jour.date, -1), jour.depuisBilan)}
         replace

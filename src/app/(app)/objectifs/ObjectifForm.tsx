@@ -60,7 +60,7 @@ export function ObjectifForm({
     queryFn: getHabitudesActives,
     enabled: typeSuivi === "habitudes",
   });
-  const { data: idsLies } = useQuery({
+  const { data: idsLies, isError: idsLiesErreur } = useQuery({
     queryKey: queryKeys.habitudesDeLObjectif(objectif?.id ?? ""),
     queryFn: () => getHabitudeIdsDeLObjectif(objectif!.id),
     enabled: typeSuivi === "habitudes" && !!objectif,
@@ -187,7 +187,7 @@ export function ObjectifForm({
       {typeSuivi === "habitudes" && (
         <fieldset className="flex flex-col gap-2">
           <legend className={labelClass}>Habitudes rattachées</legend>
-          {!habitudesActives ? (
+          {!habitudesActives || (objectif && !idsLies && !idsLiesErreur) ? (
             <p className="text-sm text-ink-2">Chargement…</p>
           ) : habitudesActives.length === 0 ? (
             <p className="text-sm text-ink-2">
@@ -195,11 +195,12 @@ export function ObjectifForm({
             </p>
           ) : (
             habitudesActives.map((h) => (
-              // key change quand les liens existants arrivent : remonte la case
-              // avec le bon defaultChecked (champ non contrôlé).
-              <label key={`${h.id}-${idsLies ? "l" : "n"}`} className="flex items-center gap-2 text-body text-ink">
+              // En édition, la liste n'est rendue qu'une fois les liens connus
+              // (voir plus haut) : defaultChecked est correct dès le montage.
+              <label key={h.id} className="flex min-h-11 items-center gap-2 text-body text-ink">
                 <input
                   type="checkbox"
+                  className="h-5 w-5 shrink-0 accent-kcal"
                   name="habitude_ids"
                   value={h.id}
                   defaultChecked={idsLies?.includes(h.id) ?? false}

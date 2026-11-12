@@ -9,7 +9,7 @@ import { formaterDateLongue, formaterDureeS, type EntrainementResume } from "@/l
 import { formaterPoids } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE } from "@/lib/seances/compute";
-import { card, cardTight, ghostButton, kcalPillTag, metaText, nameText, screenTitle, secondaryButton } from "@/lib/ui";
+import { card, cardTight, ghostButton, metaText, pillTag, nameText, screenTitle, secondaryButton } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
 
@@ -21,7 +21,7 @@ export function LigneEntrainement({ entrainement: e }: { entrainement: Entrainem
       <Link href={`/musculation/historique/${e.id}`} className={`${cardTight} flex flex-col gap-0.5`}>
         <span className="flex min-w-0 items-center gap-2">
           <span className={`${nameText} min-w-0`}>{e.titre}</span>
-          {e.typeSeance && <span className={kcalPillTag}>{LIBELLES_TYPE[e.typeSeance].toUpperCase()}</span>}
+          {e.typeSeance && <span className={pillTag}>{LIBELLES_TYPE[e.typeSeance].toUpperCase()}</span>}
         </span>
         <span className={metaText}>{formaterDateLongue(e.date)}</span>
         <span className={metaText}>
@@ -36,7 +36,7 @@ export function LigneEntrainement({ entrainement: e }: { entrainement: Entrainem
 
 export function HistoriqueView() {
   const [limite, setLimite] = useState(PAGE);
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, isPlaceholderData, refetch } = useQuery({
     queryKey: queryKeys.musculationHistorique(limite),
     queryFn: () => getEntrainements(limite),
     placeholderData: keepPreviousData,
@@ -72,8 +72,14 @@ export function HistoriqueView() {
         </ul>
       )}
       {data && data.length >= limite && (
-        <button type="button" className={secondaryButton} onClick={() => setLimite((n) => n + PAGE)}>
-          Voir plus
+        <button
+          type="button"
+          className={secondaryButton}
+          onClick={() => setLimite((n) => n + PAGE)}
+          disabled={isPlaceholderData}
+          aria-busy={isPlaceholderData}
+        >
+          {isPlaceholderData ? "Chargement…" : "Voir plus"}
         </button>
       )}
     </div>
