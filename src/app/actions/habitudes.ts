@@ -119,11 +119,10 @@ export async function modifierHabitude(
 
 // Archivage plutôt que suppression : `actif = false` retire l'habitude de la
 // vue "Aujourd'hui" tout en conservant habitude_entries (ON DELETE CASCADE
-// sinon détruirait l'historique/heatmap). `archivee_le` borne la période
-// comptée dans les objectifs liés (l'habitude cesse de peser dessus).
+// sinon détruirait l'historique/heatmap). `archivee_le` date l'archivage.
 // `archiveeLe` : jour (AAAA-MM-JJ) où l'utilisateur a supprimé l'habitude. Une
 // suppression rejouée depuis la file hors ligne arrive parfois des jours plus
-// tard : sans cette date, la période comptée dans les objectifs serait rallongée.
+// tard : sans cette date, l'archivage serait daté du jour du rejeu.
 export async function supprimerHabitude(id: string, archiveeLe?: string) {
   const supabase = createAdminClient();
   const jour =
@@ -139,7 +138,6 @@ export async function supprimerHabitude(id: string, archiveeLe?: string) {
 
   revalidatePath("/habitudes");
   updateTag(HABITUDES_TAG);
-  revalidatePath("/objectifs");
 }
 
 export async function enregistrerEntreeHabitude(
@@ -159,8 +157,7 @@ export async function enregistrerEntreeHabitude(
   if (error) throw new Error(error.message);
 
   revalidatePath("/habitudes");
-  // La progression des objectifs par habitudes et le dashboard en dépendent.
-  revalidatePath("/objectifs");
+  // Le dashboard en dépend.
   revalidatePath("/");
   updateTag(HABITUDES_TAG);
 }
@@ -171,8 +168,6 @@ export type HabitudeDuJour = Tables<"habitudes"> & {
   streak: number;
   // Fréquence hebdo uniquement : check faits cette semaine (lundi-dimanche).
   faitsCetteSemaine: number;
-  // Objectifs auxquels l'habitude contribue.
-  objectifs: { id: string; titre: string }[];
 };
 
 export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]> {
@@ -198,21 +193,14 @@ export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]
   uneAnneeAvant.setUTCDate(uneAnneeAvant.getUTCDate() - 365);
   const dateMin = streakIds.length > 0 ? uneAnneeAvant.toISOString().slice(0, 10) : date;
 
-  const [{ data: entries, error: entriesError }, { data: liens, error: liensError }] = await Promise.all([
-    supabase
-      .from("habitude_entries")
-      .select("*")
-      .in("habitude_id", idsAJour)
-      .gte("date", dateMin)
-      .lte("date", date),
-    supabase
-      .from("objectif_habitudes")
-      .select("habitude_id, objectifs(id, titre, statut)")
-      .in("habitude_id", idsAJour),
-  ]);
+  const { data: entries, error: entriesError } = await supabase
+    .from("habitude_entries")
+    .select("*")
+    .in("habitude_id", idsAJour)
+    .gte("date", dateMin)
+    .lte("date", date);
 
   if (entriesError) throw new Error(entriesError.message);
-  if (liensError) throw new Error(liensError.message);
 
   const entriesParHabitude = new Map<string, Map<string, number>>();
   const entreeDuJourParHabitude = new Map<string, Tables<"habitude_entries">>();
@@ -222,15 +210,6 @@ export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]
     }
     entriesParHabitude.get(entry.habitude_id)!.set(entry.date, entry.valeur);
     if (entry.date === date) entreeDuJourParHabitude.set(entry.habitude_id, entry);
-  }
-
-  const objectifsParHabitude = new Map<string, { id: string; titre: string }[]>();
-  for (const lien of liens ?? []) {
-    const objectif = lien.objectifs;
-    if (!objectif || objectif.statut !== "en_cours") continue;
-    const liste = objectifsParHabitude.get(lien.habitude_id) ?? [];
-    liste.push({ id: objectif.id, titre: objectif.titre });
-    objectifsParHabitude.set(lien.habitude_id, liste);
   }
 
   const lundi = lundiDe(date);
@@ -255,7 +234,6 @@ export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]
           ? calculerStreak(entriesDeLHabitude, date)
           : 0,
       faitsCetteSemaine,
-      objectifs: objectifsParHabitude.get(habitude.id) ?? [],
     };
   });
 }

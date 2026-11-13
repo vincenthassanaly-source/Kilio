@@ -1,4 +1,3 @@
-import { aujourdhuiParis } from "@/lib/date/paris";
 import { shiftDate } from "@/lib/date/iso";
 
 // Le streak se calcule côté serveur (JS, pas SQL récursif) : on remonte
@@ -18,7 +17,7 @@ export function calculerStreak(entriesParDate: Map<string, number>, date: string
   return streak;
 }
 
-// --- Fréquence hebdomadaire et progression d'objectif ---
+// --- Fréquence hebdomadaire ---
 
 // Lundi de la semaine contenant `date` (semaines ISO, lundi-dimanche).
 export function lundiDe(date: string): string {
@@ -116,34 +115,4 @@ export function calculerTauxReussite(
   let faits = 0;
   for (const n of parSemaine.values()) faits += Math.min(n, frequence);
   return { faits, attendus: (frequence * jours) / 7 };
-}
-
-export type HabitudeLiee = HabitudeCalcul & {
-  created_at: string;
-  archivee_le: string | null;
-  entriesParDate: Map<string, number>;
-};
-
-// Progression d'un objectif "habitudes" : moyenne des taux de réussite des
-// habitudes liées, entre la création de l'objectif et son échéance (ou
-// aujourd'hui). Chaque habitude est bornée à sa propre vie : pas avant sa
-// création, pas après son archivage. Résultat entre 0 et 1.
-export function progressionObjectif(
-  habitudes: HabitudeLiee[],
-  debutObjectif: string,
-  echeance: string | null,
-  aujourdhui: string
-): number {
-  const finObjectif = echeance && echeance < aujourdhui ? echeance : aujourdhui;
-
-  const taux = habitudes.map((h) => {
-    const debutHabitude = aujourdhuiParis(new Date(h.created_at));
-    const debut = debutHabitude > debutObjectif ? debutHabitude : debutObjectif;
-    const fin = h.archivee_le && h.archivee_le < finObjectif ? h.archivee_le : finObjectif;
-    const { faits, attendus } = calculerTauxReussite(h, h.entriesParDate, debut, fin);
-    return attendus > 0 ? Math.min(1, faits / attendus) : 0;
-  });
-
-  if (taux.length === 0) return 0;
-  return taux.reduce((a, b) => a + b, 0) / taux.length;
 }

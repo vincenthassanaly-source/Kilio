@@ -19,7 +19,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 // requis pour les FK : on ne supprime que les items eux-mêmes (sous_taches,
 // note_items), jamais leurs parents (taches, notes), donc aucune cascade
 // n'est déclenchée par ces suppressions.
-const TABLES = ["taches", "sous_taches", "objectif_etapes", "courses_items", "note_items"] as const;
+const TABLES = ["taches", "sous_taches", "courses_items", "note_items"] as const;
 
 Deno.serve(async () => {
   const { data: reglages, error: reglagesError } = await supabase

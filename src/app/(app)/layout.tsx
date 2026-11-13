@@ -28,7 +28,7 @@ export default async function AppLayout({
       <div className="relative flex h-full flex-1 flex-col bg-background">
         {/* NavigationEditProvider, TabSwipeWrapper et BottomNav lisent
             usePathname(), inconnu au build sur les routes à paramètre
-            dynamique (/objectifs/[id], /documents/[id]…) : seul cas où cette
+            dynamique (/collection/[id], /documents/[id]…) : seul cas où cette
             frontière s'active (chargement initial de ces routes). Partout
             ailleurs le chemin est connu au prérendu et tout reste dans la
             coquille statique. */}

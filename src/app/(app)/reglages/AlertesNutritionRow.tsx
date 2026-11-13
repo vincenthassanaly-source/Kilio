@@ -6,6 +6,7 @@ import { Switch } from "@/components/Switch";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
+import { DependsOnNotifications } from "./NotificationsContext";
 
 function Pastille({ children }: { children: React.ReactNode }) {
   return (
@@ -33,7 +34,7 @@ const ICONE = {
 const HEURE_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 /** Alerte à l'approche de la limite kcal (85 %) et rappel de saisie du soir. */
-export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_briefing"> }) {
+export function AlertesNutritionRow({ reglages }: { reglages: Pick<Tables<"reglages_briefing">, "alerte_kcal_actif" | "rappel_saisie_actif" | "rappel_saisie_heure"> }) {
   const [alerteKcal, setAlerteKcal] = useState(reglages.alerte_kcal_actif);
   const initialSaisie = { actif: reglages.rappel_saisie_actif, heure: (reglages.rappel_saisie_heure ?? "20:00").slice(0, 5) };
   const [saisie, setSaisie] = useState(initialSaisie);
@@ -82,7 +83,7 @@ export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_b
   }
 
   return (
-    <>
+    <DependsOnNotifications>
       <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2.5 text-label font-medium text-ink">
@@ -99,7 +100,7 @@ export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_b
         </div>
         <p className="text-small leading-snug text-ink-2">
           {alerteKcal
-            ? "Une notification (une par jour) quand tu atteins 85 % de ta limite kcal. Pas d'alerte un jour libre. Nécessite les notifications ci-dessus."
+            ? "Une notification (une par jour) quand tu atteins 85 % de ta limite kcal. Pas d'alerte un jour libre."
             : "Désactivée : aucune alerte quand tu approches de ta limite kcal."}
         </p>
       </div>
@@ -146,6 +147,6 @@ export function AlertesNutritionRow({ reglages }: { reglages: Tables<"reglages_b
           </p>
         )}
       </div>
-    </>
+    </DependsOnNotifications>
   );
 }

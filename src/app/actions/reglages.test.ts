@@ -7,7 +7,7 @@ const etat = vi.hoisted(() => ({ client: null as unknown, revalidatePath: vi.fn(
 vi.mock("next/cache", () => ({ revalidatePath: etat.revalidatePath }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client }));
 
-import { getReglagesBriefing, updateReglagesBriefing, updateReglagesRevue } from "./briefing";
+import { getJourRevue, getReglagesBriefing, updateReglagesBriefing, updateReglagesRevue } from "./briefing";
 import { upsertObjectif } from "./objectifs-nutritionnels";
 
 function brancher(repondre?: Repondre) {
@@ -120,6 +120,21 @@ describe("briefing", () => {
     await expect(getReglagesBriefing()).rejects.toThrow("ko");
   });
 
+  it("getJourRevue lit revue_jour, et retombe sur dimanche si le réglage est absent ou illisible", async () => {
+    const fake = brancher(() => ({ data: { revue_jour: 5 } }));
+    expect(await getJourRevue()).toBe(5);
+    expect(fake.appels[0].filtres).toContainEqual(["eq", "id", 1]);
+
+    brancher(() => ({ data: { revue_jour: 0 } }));
+    expect(await getJourRevue()).toBe(0);
+    brancher(() => ({ data: null }));
+    expect(await getJourRevue()).toBe(0);
+    brancher(() => ({ data: { revue_jour: 9 } }));
+    expect(await getJourRevue()).toBe(0);
+    brancher(() => ({ error: { message: "ko" } }));
+    expect(await getJourRevue()).toBe(0);
+  });
+
   it.each([["8h"], ["24:00"], ["12:60"], [""]])("updateReglagesBriefing refuse l'heure %j", async (heure) => {
     const fake = brancher();
     expect(await updateReglagesBriefing(true, heure)).toEqual({ ok: false, error: "Heure invalide (format HH:MM)." });
@@ -160,6 +175,8 @@ describe("briefing", () => {
       { revue_actif: true, revue_jour: 0, revue_heure: "18:00" },
       { revue_actif: false, revue_jour: 6, revue_heure: "09:15" },
     ]);
+    // Le jour réglé pilote la mise en avant de la carte Revue sur l'écran du jour.
+    expect(etat.revalidatePath).toHaveBeenCalledWith("/");
   });
 
   it("updateReglagesRevue masque l'erreur brute", async () => {

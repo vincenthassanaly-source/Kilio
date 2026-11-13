@@ -134,7 +134,7 @@ export function RevueView({ today }: { today: string }) {
             return (
               <li key={jour.date}>
                 <TransitionLink
-                  href={`/agenda?date=${jour.date}`}
+                  href={`/agenda?date=${jour.date}&from=revue`}
                   aria-label={`Ouvrir ${format(parseISODate(jour.date), "EEEE d MMMM", { locale: fr })} dans l'agenda`}
                   className="flex min-h-11 flex-col gap-1 rounded-xl bg-surface-alt px-3 py-2.5 transition active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
                 >

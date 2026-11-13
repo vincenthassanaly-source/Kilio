@@ -22,7 +22,7 @@ describe("BackLink", () => {
   });
 
   it("cache le chevron aux lecteurs d'écran", () => {
-    render(<BackLink href="/objectifs">Objectifs</BackLink>);
+    render(<BackLink href="/courses">Courses</BackLink>);
 
     expect(screen.getByRole("link").querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
   });

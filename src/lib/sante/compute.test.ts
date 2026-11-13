@@ -1,13 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { nutritionEntree, type EntreeJournal, type JourBilan } from "@/lib/nutrition/bilan";
 import {
-  bilanDu,
-  composerBilanHebdo,
   kcalParJour,
+  lignesSanteHebdo,
   semaineDe,
   type EntreeKcal,
   type JourKcal,
-} from "../../../supabase/functions/envoyer-bilan-hebdo/compose";
+} from "../../../supabase/functions/_shared/bilan";
 import {
   evolutionPoids,
   evolutionTaille,
@@ -165,26 +164,14 @@ describe("joursKcalDepuisBilan", () => {
   });
 });
 
-describe("semaineDe / bilanDu", () => {
+describe("semaineDe", () => {
   it("la semaine va du lundi au dimanche", () => {
     expect(semaineDe("2026-10-14")).toEqual({ debut: "2026-10-12", fin: "2026-10-18" });
     expect(semaineDe("2026-10-11")).toEqual({ debut: "2026-10-05", fin: "2026-10-11" });
   });
-
-  const base = { today: "2026-10-11", jour: 0, heure: "18:00:00", dernierEnvoi: null };
-  it("dimanche à 18h : oui ; avant : non ; autre jour : non", () => {
-    expect(bilanDu({ ...base, maintenantMinutes: 18 * 60 })).toBe(true);
-    expect(bilanDu({ ...base, maintenantMinutes: 18 * 60 - 1 })).toBe(false);
-    expect(bilanDu({ ...base, today: "2026-10-12", maintenantMinutes: 18 * 60 })).toBe(false);
-  });
-  it("rattrape un retard dans la tolérance, jamais deux fois", () => {
-    expect(bilanDu({ ...base, maintenantMinutes: 21 * 60 })).toBe(true);
-    expect(bilanDu({ ...base, maintenantMinutes: 21 * 60 + 1 })).toBe(false);
-    expect(bilanDu({ ...base, dernierEnvoi: "2026-10-11", maintenantMinutes: 18 * 60 })).toBe(false);
-  });
 });
 
-describe("formaterDelta / composerBilanHebdo", () => {
+describe("formaterDelta / lignesSanteHebdo", () => {
   it("signe les écarts avec un vrai moins, et dit « stable » à zéro", () => {
     expect(formaterDelta(-0.6, "kg")).toBe(`−${nombreFr(0.6, 1)} kg`);
     expect(formaterDelta(0.4, "kg")).toBe(`+${nombreFr(0.4, 1)} kg`);
@@ -192,14 +179,13 @@ describe("formaterDelta / composerBilanHebdo", () => {
   });
 
   it("résume la semaine, ton neutre", () => {
-    const message = composerBilanHebdo({
+    const lignes = lignesSanteHebdo({
       kcal: { moyenne: 1920, cibleMoyenne: 2000, nbJours: 6, nbDansLimite: 5 },
       seances: { faites: 2, total: 3 },
       poids: { actuel: 82.4, delta: -0.6, ageJours: 0 },
       taille: { actuel: 91, delta: -1, ageJours: 0 },
     });
-    expect(message.title).toBe("Bilan de la semaine");
-    expect(message.body.split("\n")).toEqual([
+    expect(lignes).toEqual([
       `Kcal : ${nombreFr(1920)} / ${nombreFr(2000)} en moyenne (6 jours)`,
       "Séances : 2/3 faites",
       `Poids : ${nombreFr(82.4, 1)} kg (−${nombreFr(0.6, 1)} kg)`,
@@ -208,13 +194,13 @@ describe("formaterDelta / composerBilanHebdo", () => {
   });
 
   it("dit simplement ce qui manque, sans reproche", () => {
-    const message = composerBilanHebdo({
+    const lignes = lignesSanteHebdo({
       kcal: null,
       seances: { faites: 0, total: 0 },
       poids: { actuel: 82.4, delta: null, ageJours: 12 },
       taille: null,
     });
-    expect(message.body.split("\n")).toEqual([
+    expect(lignes).toEqual([
       "Kcal : pas assez de jours saisis",
       "Séances : aucune planifiée",
       `Poids : ${nombreFr(82.4, 1)} kg · relevé il y a 12 jours`,

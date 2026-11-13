@@ -30,12 +30,12 @@ describe("rechercheGlobale", () => {
     expect(fake.appels).toHaveLength(0);
   });
 
-  it("interroge les sept sources avec un motif « contient » échappé, limité à 5 résultats", async () => {
+  it("interroge les six sources avec un motif « contient » échappé, limité à 5 résultats", async () => {
     const fake = brancher();
     await rechercheGlobale("  50%_  ");
 
     expect(fake.appels.map((a) => a.table).sort()).toEqual(
-      ["courses_items", "evenements", "note_items", "notes", "objectifs", "recettes", "taches"].sort()
+      ["courses_items", "evenements", "note_items", "notes", "recettes", "taches"].sort()
     );
     const taches = fake.appels.find((a) => a.table === "taches")!;
     expect(taches.filtres).toContainEqual(["ilike", "titre", "%50\\%\\_%"]);
@@ -56,7 +56,6 @@ describe("rechercheGlobale", () => {
         ],
         evenements: [{ id: "e1", titre: "Voyage Rome", date: "2026-10-20", heure: "09:30:00" }],
         recettes: [{ id: "r1", nom: "Voyage au Maroc" }],
-        objectifs: [{ id: "o1", titre: "Voyager plus" }],
         courses_items: [{ id: "c1", libelle: "Valise voyage" }],
       })
     );
@@ -69,7 +68,6 @@ describe("rechercheGlobale", () => {
     expect(par("t2")).toMatchObject({ href: "/taches", sousTitre: undefined });
     expect(par("e1")).toEqual({ id: "e1", module: "evenements", titre: "Voyage Rome", sousTitre: "2026-10-20 09:30", href: "/agenda?date=2026-10-20" });
     expect(par("r1")).toMatchObject({ module: "recettes", href: "/nutrition/recettes/r1" });
-    expect(par("o1")).toMatchObject({ module: "objectifs", href: "/objectifs/o1" });
     expect(par("c1")).toMatchObject({ module: "courses", href: "/courses" });
   });
 

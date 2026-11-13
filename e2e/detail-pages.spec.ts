@@ -1,4 +1,4 @@
-// Pages détail [id] (collection, objectif) : la coquille reste servie sous
+// Pages détail [id] (collection) : la coquille reste servie sous
 // instant(), et la donnée est préchargée côté serveur (patron
 // HydrationBoundary) — présente dans le HTML sans exécuter de JavaScript,
 // donc sans l'aller-retour Server Action qui suivait l'hydratation.
@@ -9,7 +9,6 @@ const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0
 
 const DETAILS = [
   { path: `/collection/${uuid(1001)}`, retour: "Retour vers Collection", titre: "Voyage Lisbonne" },
-  { path: `/objectifs/${uuid(1101)}`, retour: "Retour vers Objectifs", titre: "Courir un semi-marathon" },
 ];
 
 for (const detail of DETAILS) {

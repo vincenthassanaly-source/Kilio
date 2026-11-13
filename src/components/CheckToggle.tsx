@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
  * Par défaut 11px (cercle 22px -> cible 44×44px), sûr partout où une seule
  * coche existe par carte/ligne isolée (ex. TaskCard, CourseItemRow). Les
  * listes qui empilent plusieurs coches dans une même carte avec un `gap`
- * serré (Dashboard "Aujourd'hui", étapes d'objectif, items de note,
+ * serré (Dashboard "Aujourd'hui", items de note,
  * sous-tâches) passent une valeur plus petite, calculée pour que deux zones
  * de tap voisines ne se chevauchent jamais (2×hitSlop ≤ gap entre lignes). */
 export function CheckToggle({

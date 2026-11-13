@@ -39,6 +39,22 @@ describe("getPreferencesNavigationResolues", () => {
     expect(mocks.cacheLife).toHaveBeenCalledWith("days");
   });
 
+  it("fait apparaître la Revue en fin de grille même si l'ordre enregistré ne la contient pas", async () => {
+    const sansRevue = tousLesHrefs.filter((href) => href !== "/revue").reverse();
+    mocks.single.mockResolvedValue({
+      data: { ordre_grille_plus: sansRevue, modules_barre_basse: [] },
+      error: null,
+    });
+
+    const res = await getPreferencesNavigationResolues();
+
+    expect(tousLesHrefs).toContain("/revue");
+    expect(res.ordreGrillePlus).toEqual([...sansRevue, "/revue"]);
+    // Jamais épinglée par défaut à la barre du bas.
+    expect(DEFAULT_MODULES_BARRE_BASSE).not.toContain("/revue");
+    expect(res.modulesBarreBasse).not.toContain("/revue");
+  });
+
   it("ignore les hrefs inconnus et dédoublonne via le registre", async () => {
     mocks.single.mockResolvedValue({
       data: { ordre_grille_plus: ["/module-supprime", tousLesHrefs[0]], modules_barre_basse: [] },
@@ -63,6 +79,26 @@ describe("getPreferencesNavigationResolues", () => {
     expect(res.modulesBarreBasse[0]).toBe(perso);
     expect(res.modulesBarreBasse[1]).toBe(DEFAULT_MODULES_BARRE_BASSE[1]);
     expect(res.modulesBarreBasse).toHaveLength(DEFAULT_MODULES_BARRE_BASSE.length);
+  });
+
+  it("nettoie le module retiré « /objectifs » encore présent dans la ligne en base", async () => {
+    mocks.single.mockResolvedValue({
+      data: {
+        ordre_grille_plus: ["/objectifs", tousLesHrefs[1], tousLesHrefs[0]],
+        modules_barre_basse: ["/objectifs", "/agenda", "/objectifs"],
+      },
+      error: null,
+    });
+
+    const res = await getPreferencesNavigationResolues();
+
+    expect(tousLesHrefs).not.toContain("/objectifs");
+    expect(res.ordreGrillePlus).not.toContain("/objectifs");
+    expect(res.ordreGrillePlus.slice(0, 2)).toEqual([tousLesHrefs[1], tousLesHrefs[0]]);
+    expect(res.ordreGrillePlus).toHaveLength(tousLesHrefs.length);
+    expect(res.modulesBarreBasse).not.toContain("/objectifs");
+    expect(res.modulesBarreBasse).toHaveLength(DEFAULT_MODULES_BARRE_BASSE.length);
+    expect(new Set(res.modulesBarreBasse).size).toBe(res.modulesBarreBasse.length);
   });
 
   it("retombe sur l'ordre par défaut avec un cache court si Supabase renvoie une erreur", async () => {

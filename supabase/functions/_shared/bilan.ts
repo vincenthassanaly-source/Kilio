@@ -1,7 +1,8 @@
-// Bilan de la semaine (santé) : logique pure, sans API Deno ni réseau. Source
-// unique du calcul : la fonction d'envoi l'importe, et l'app la réexporte
-// (src/lib/sante/compute.ts) pour que le Bilan à l'écran et la notification
-// affichent les mêmes chiffres. Testée dans src/lib/sante/compute.test.ts.
+// Santé de la semaine : logique pure, sans API Deno ni réseau. Source unique
+// du calcul : la notification de revue (envoyer-revue-hebdo) l'importe, et
+// l'app la réexporte (src/lib/sante/compute.ts) pour que le Bilan à l'écran et
+// la notification affichent les mêmes chiffres. Testée dans
+// src/lib/sante/compute.test.ts.
 
 // --- Dates (arithmétique UTC, indépendante du fuseau d'exécution) -------------
 
@@ -25,22 +26,6 @@ export function semaineDe(date: string): { debut: string; fin: string } {
 
 function ecartJours(a: string, b: string): number {
   return Math.round((Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 86_400_000);
-}
-
-/** Faut-il envoyer maintenant ? Bon jour, heure atteinte, pas déjà envoyé aujourd'hui. */
-export function bilanDu(input: {
-  today: string;
-  maintenantMinutes: number; // minutes depuis minuit, heure de Paris
-  jour: number; // 0 = dimanche
-  heure: string; // HH:MM[:SS]
-  dernierEnvoi: string | null;
-  toleranceMin?: number;
-}): boolean {
-  if (input.dernierEnvoi === input.today) return false;
-  if (jourDeSemaine(input.today) !== input.jour) return false;
-  const [h, m] = input.heure.split(":").map(Number);
-  const ecart = input.maintenantMinutes - (h * 60 + m);
-  return ecart >= 0 && ecart <= (input.toleranceMin ?? 180);
 }
 
 // --- Kcal ----------------------------------------------------------------------
@@ -204,10 +189,10 @@ function ligneCorps(libelle: string, unite: string, evolution: EvolutionCorps | 
   return `${libelle} : ${nombreFr(evolution.actuel, 1)} ${unite}${delta}${ancien}`;
 }
 
-/** Message du push du dimanche : un coup d'œil sur la semaine, ton neutre. */
-export function composerBilanHebdo(synthese: SyntheseHebdo): { title: string; body: string } {
+/** Les quatre lignes santé de la notification de revue : un coup d'œil, ton neutre. */
+export function lignesSanteHebdo(synthese: SyntheseHebdo): string[] {
   const { kcal, seances } = synthese;
-  const lignes = [
+  return [
     kcal
       ? `Kcal : ${nombreFr(kcal.moyenne)} / ${nombreFr(kcal.cibleMoyenne)} en moyenne (${kcal.nbJours} ${kcal.nbJours > 1 ? "jours" : "jour"})`
       : "Kcal : pas assez de jours saisis",
@@ -215,5 +200,4 @@ export function composerBilanHebdo(synthese: SyntheseHebdo): { title: string; bo
     ligneCorps("Poids", "kg", synthese.poids),
     ligneCorps("Tour de taille", "cm", synthese.taille),
   ];
-  return { title: "Bilan de la semaine", body: lignes.join("\n") };
 }

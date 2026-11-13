@@ -9,6 +9,16 @@ import {
 } from "@/lib/push/subscribe";
 import { Switch } from "@/components/Switch";
 import { errorText } from "@/lib/ui";
+import { useSetNotificationsActives } from "./NotificationsContext";
+
+// Les erreurs de subscribeToPush sont techniques (clé VAPID, variables
+// d'environnement…) : le détail reste en console, l'écran dit quoi faire.
+function messageActivation(): string {
+  if (typeof Notification !== "undefined" && Notification.permission === "denied") {
+    return "Les notifications sont bloquées pour ce site. Autorise-les dans les réglages de ton navigateur, puis réessaie.";
+  }
+  return "Impossible d'activer les notifications pour le moment. Réessaie dans un instant.";
+}
 
 function NotificationsIcon() {
   return (
@@ -27,6 +37,12 @@ export function NotificationsRow() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [supported, setSupported] = useState(true);
+  const setActives = useSetNotificationsActives();
+
+  // Les réglages qui dépendent des notifications (briefing, revue…) lisent cet état.
+  useEffect(() => {
+    if (on !== null) setActives(on);
+  }, [on, setActives]);
 
   useEffect(() => {
     let cancelled = false;
@@ -78,7 +94,8 @@ export function NotificationsRow() {
         setOn(true);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de l'activation des notifications.");
+      console.error("Notifications push : échec de l'activation ou de la désactivation", err);
+      setError(on ? "Impossible de désactiver les notifications pour le moment. Réessaie dans un instant." : messageActivation());
     } finally {
       setPending(false);
     }

@@ -126,7 +126,6 @@ describe("supprimerHabitude", () => {
 
     expect(ecritures(fake.appels, "habitudes", "delete")).toHaveLength(0);
     expect(ecritures(fake.appels, "habitudes", "update")[0].payload).toEqual({ actif: false, archivee_le: "2026-10-09" });
-    expect(etat.revalidatePath).toHaveBeenCalledWith("/objectifs");
     expect(etat.updateTag).toHaveBeenCalledWith("habitudes");
   });
 
@@ -171,7 +170,7 @@ describe("getHabitudesDuJour", () => {
     expect(fake.appels.map((a) => a.table)).toEqual(["habitudes"]);
   });
 
-  it("calcule série, entrée du jour et objectifs en cours uniquement", async () => {
+  it("calcule série et entrée du jour", async () => {
     const fake = brancher((a) => {
       if (a.table === "habitudes") {
         return { data: [{ ...base, id: ID, type: "streak" }, { ...base, id: ID2, type: "boolean" }] };
@@ -185,15 +184,6 @@ describe("getHabitudesDuJour", () => {
           ],
         };
       }
-      if (a.table === "objectif_habitudes") {
-        return {
-          data: [
-            { habitude_id: ID, objectifs: { id: "o1", titre: "Lire plus", statut: "en_cours" } },
-            { habitude_id: ID, objectifs: { id: "o2", titre: "Ancien", statut: "atteint" } },
-            { habitude_id: ID2, objectifs: null },
-          ],
-        };
-      }
       return undefined;
     });
 
@@ -202,10 +192,8 @@ describe("getHabitudesDuJour", () => {
     const [streak, simple] = res;
     expect(streak.streak).toBe(2); // 9 et 8 ; le 7 manque
     expect(streak.entreeDuJour).toMatchObject({ date: "2026-10-09", valeur: 1 });
-    expect(streak.objectifs).toEqual([{ id: "o1", titre: "Lire plus" }]);
     expect(simple.streak).toBe(0);
     expect(simple.entreeDuJour).toBeNull();
-    expect(simple.objectifs).toEqual([]);
 
     // Une série réclame un an d'historique.
     const lectureEntrees = fake.appels.find((a) => a.table === "habitude_entries")!;
@@ -251,15 +239,6 @@ describe("getHabitudesDuJour", () => {
           : undefined
     );
     await expect(getHabitudesDuJour(date)).rejects.toThrow("entrées ko");
-
-    brancher((a) =>
-      a.table === "habitudes"
-        ? { data: [{ ...base, id: ID, type: "boolean" }] }
-        : a.table === "objectif_habitudes"
-          ? { error: { message: "liens ko" } }
-          : undefined
-    );
-    await expect(getHabitudesDuJour(date)).rejects.toThrow("liens ko");
   });
 });
 

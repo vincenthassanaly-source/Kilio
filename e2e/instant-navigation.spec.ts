@@ -55,7 +55,6 @@ const SOFT_NAVS: SoftNav[] = [
   { from: "/taches", to: "/plus", trigger: bottomNav("/plus") },
   { from: "/plus", to: "/habitudes", trigger: byHref("/habitudes") },
   { from: "/plus", to: "/courses", trigger: byHref("/courses") },
-  { from: "/plus", to: "/objectifs", trigger: byHref("/objectifs") },
   { from: "/plus", to: "/collection", trigger: byHref("/collection") },
   { from: "/plus", to: "/documents", trigger: byHref("/documents") },
   { from: "/plus", to: "/reglages", trigger: byHref("/reglages") },

@@ -50,14 +50,9 @@ const fixtures = {
       revue_jour: 0,
       revue_heure: "18:00",
       revue_dernier_envoi: null,
-      // Colonnes NOT NULL ajoutées depuis (bilan, rappel de saisie, vidage,
-      // alerte kcal ; voir src/lib/supabase/types.ts) : sans elles,
-      // BilanHebdoRow plantait côté client (`bilan_heure.slice`), invisible
-      // tant que la page n'était rendue qu'en JS (2026-11-04).
-      bilan_actif: false,
-      bilan_jour: 0,
-      bilan_heure: "18:00:00",
-      bilan_dernier_envoi: null,
+      // Colonnes NOT NULL ajoutées depuis (rappel de saisie, vidage, alerte kcal ;
+      // voir src/lib/supabase/types.ts) : sans elles, les lignes de réglages
+      // plantaient côté client, invisible tant que la page n'était rendue qu'en JS.
       rappel_saisie_actif: false,
       rappel_saisie_heure: "20:00:00",
       rappel_saisie_dernier_envoi: null,
@@ -221,19 +216,12 @@ fixtures.journal_repas = [
   repas(8, "__DAY(1)__", "collation", "skyr", 125),
 ];
 
-// Pages détail [id] (collection, objectif) : une entrée de chaque, pour
+// Pages détail [id] (collection) : une entrée, pour
 // vérifier que la donnée est préchargée côté serveur (e2e/detail-pages.spec.ts).
 fixtures.collections = [
   { id: uuid(1001), nom: "Voyage Lisbonne", ordre: 0, created_at: ts, updated_at: ts },
 ];
 fixtures.collection_items = [];
-fixtures.objectifs = [
-  { id: uuid(1101), titre: "Courir un semi-marathon", description: null, categorie: "perso", type_suivi: "etapes", statut: "en_cours", unite: null, valeur_cible: null, date_echeance: null, ordre: 0, created_at: ts, updated_at: ts },
-];
-fixtures.objectif_etapes = [
-  { id: uuid(1111), objectif_id: uuid(1101), titre: "Courir 10 km", ordre: 0, fait: false, termine_le: null, created_at: ts },
-];
-fixtures.objectif_entries = [];
 
 // Embeds PostgREST (`alias:table(...)`) : reconstitués à la lecture à partir
 // des clés étrangères, uniquement si la requête les demande dans `select`.

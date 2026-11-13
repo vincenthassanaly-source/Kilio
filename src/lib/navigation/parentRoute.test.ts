@@ -18,7 +18,7 @@ describe("parentRoute", () => {
 
   it("ramène un module non épinglé à la grille Plus", () => {
     expect(parentRoute("/courses", BARRE)).toBe("/plus");
-    expect(parentRoute("/objectifs", BARRE)).toBe("/plus");
+    expect(parentRoute("/collection", BARRE)).toBe("/plus");
     expect(parentRoute("/musculation", BARRE)).toBe("/plus");
   });
 
@@ -29,7 +29,7 @@ describe("parentRoute", () => {
   it("remonte une sous-page d'un segment", () => {
     expect(parentRoute("/nutrition/recettes/abc", BARRE)).toBe("/nutrition/recettes");
     expect(parentRoute("/nutrition/recettes", BARRE)).toBe("/nutrition");
-    expect(parentRoute("/objectifs/abc", BARRE)).toBe("/objectifs");
+    expect(parentRoute("/collection/abc", BARRE)).toBe("/collection");
     expect(parentRoute("/pharmacie/m1/c1", BARRE)).toBe("/pharmacie/m1");
   });
 
@@ -111,5 +111,28 @@ describe("retourHistoriqueAutorise : Journal ouvert depuis le Bilan", () => {
   it("ne s'applique qu'au retour vers le Bilan", () => {
     expect(retourHistoriqueAutorise("/nutrition/journal", "/nutrition", "?from=bilan")).toBe(false);
     expect(retourHistoriqueAutorise("/nutrition/recettes", "/nutrition/bilan", "?from=bilan")).toBe(false);
+  });
+});
+
+describe("retourHistoriqueAutorise : Revue", () => {
+  it("ramène à la Revue un jour des 7 prochains jours ouvert dans l'Agenda (from=revue)", () => {
+    expect(retourHistoriqueAutorise("/agenda", "/revue", "?date=2026-10-12&from=revue")).toBe(true);
+    expect(retourHistoriqueAutorise("/agenda/", "/revue", "?from=revue")).toBe(true);
+  });
+
+  it("garde le retour logique de l'Agenda sans from=revue ou vers une autre page", () => {
+    expect(retourHistoriqueAutorise("/agenda", "/revue", "?date=2026-10-12")).toBe(false);
+    expect(retourHistoriqueAutorise("/agenda", "/revue")).toBe(false);
+    expect(retourHistoriqueAutorise("/agenda", "/", "?from=revue")).toBe(false);
+  });
+
+  it("la Revue revient à Aujourd'hui ou à Plus, d'où on l'a ouverte", () => {
+    expect(retourHistoriqueAutorise("/revue", "/")).toBe(true);
+    expect(retourHistoriqueAutorise("/revue", "/plus")).toBe(true);
+    expect(retourHistoriqueAutorise("/revue", "/taches")).toBe(false);
+  });
+
+  it("la Revue est un module de la grille Plus : parent logique /plus", () => {
+    expect(parentRoute("/revue", BARRE)).toBe("/plus");
   });
 });

@@ -73,15 +73,6 @@ const COURSES_ICON = (c: string) =>
     createElement("path", { d: "M5.5 8h13l-1 11.5a1.5 1.5 0 0 1-1.5 1.5H8a1.5 1.5 0 0 1-1.5-1.5L5.5 8z" })
   );
 
-const OBJECTIFS_ICON = (c: string) =>
-  createElement(
-    "svg",
-    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
-    createElement("circle", { cx: 12, cy: 12, r: 8.5 }),
-    createElement("circle", { cx: 12, cy: 12, r: 4.5 }),
-    createElement("circle", { cx: 12, cy: 12, r: 0.8, fill: c })
-  );
-
 const COLLECTION_ICON = (c: string) =>
   createElement(
     "svg",
@@ -163,9 +154,18 @@ const OPINIONS_ICON = (c: string) =>
     createElement("path", { d: "M5 7.5 2.8 13a2.9 2.9 0 0 0 4.4 0zM19 7.5 16.8 13a2.9 2.9 0 0 0 4.4 0z" })
   );
 
+const REVUE_ICON = (c: string) =>
+  createElement(
+    "svg",
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    createElement("rect", { x: 4, y: 4.5, width: 16, height: 16, rx: 3 }),
+    createElement("path", { d: "M8 3v3M16 3v3M4 10h16" }),
+    createElement("path", { d: "m9 15 2 2 4-4" })
+  );
+
 // Ordre canonique : les 4 modules primaires (épinglés en barre du bas par
 // défaut) puis les 7 modules secondaires. La grille "Plus" liste TOUJOURS
-// les 11 items (voir resolveOrdreGrillePlus dans
+// tous les items (voir resolveOrdreGrillePlus dans
 // src/app/actions/preferences-navigation.ts) : un module reste accessible
 // depuis /plus même s'il est aussi épinglé en barre du bas, pour ne jamais
 // perdre l'accès à un module qu'on aurait délogé de la barre du bas (ex.
@@ -217,13 +217,6 @@ export const NAV_ITEMS: NavItem[] = [
     icon: COURSES_ICON,
   },
   {
-    href: "/objectifs",
-    label: "Objectifs",
-    description: "Objectifs perso et pro, avec échéance",
-    accentVar: "var(--accent-objectifs)",
-    icon: OBJECTIFS_ICON,
-  },
-  {
     href: "/collection",
     label: "Collection",
     description: "Photos organisées par collection",
@@ -264,6 +257,13 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Écrire à la main pour poser la journée",
     accentVar: "var(--accent-vidage)",
     icon: VIDAGE_ICON,
+  },
+  {
+    href: "/revue",
+    label: "Revue",
+    description: "Le point de la semaine : bilan, retards, 7 prochains jours",
+    accentVar: "var(--accent-agenda)",
+    icon: REVUE_ICON,
   },
   {
     href: "/reglages",

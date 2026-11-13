@@ -1,9 +1,9 @@
 // Calculs de la synthèse santé (kcal moyens, séances, poids lissé, tour de
-// taille). La logique vit dans l'Edge Function du bilan hebdomadaire — source
+// taille). La logique vit dans supabase/functions/_shared/bilan.ts — source
 // unique, pour que l'écran et la notification affichent les mêmes chiffres —
 // et est réexportée ici ; ce module y ajoute le seul pont propre à l'app.
 import type { JourBilan } from "@/lib/nutrition/bilan";
-import type { JourKcal } from "../../../supabase/functions/envoyer-bilan-hebdo/compose";
+import type { JourKcal } from "../../../supabase/functions/_shared/bilan";
 
 export {
   evolutionPoids,
@@ -15,7 +15,7 @@ export {
   type EvolutionCorps,
   type Mesure,
   type SyntheseHebdo,
-} from "../../../supabase/functions/envoyer-bilan-hebdo/compose";
+} from "../../../supabase/functions/_shared/bilan";
 
 /** Jours du Bilan (statuts déjà évalués) vus comme des jours de kcal à moyenner. */
 export function joursKcalDepuisBilan(jours: readonly JourBilan[], today: string): JourKcal[] {

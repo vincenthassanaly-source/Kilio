@@ -40,7 +40,9 @@ const DUREE_SURBRILLANCE_MS = 2600;
 
 type Formulaire = { evenement?: Evenement } | null;
 
-export function AujourdhuiView({ today }: { today: string }) {
+// `jourRevue` : jour réglé pour la revue hebdomadaire (0 = dimanche), le même
+// que celui de sa notification ; dimanche si le réglage n'est pas fourni.
+export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRevue?: number }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [formulaire, setFormulaire] = useState<Formulaire>(null);
@@ -162,13 +164,13 @@ export function AujourdhuiView({ today }: { today: string }) {
     });
   }
 
-  // Le dimanche, la revue sort du pli : c'est le jour où on la consulte.
-  const dimanche = parseISODate(today).getDay() === 0;
+  // Le jour réglé (dimanche par défaut), la revue sort du pli : c'est le jour où on la consulte.
+  const jourDeRevue = parseISODate(today).getDay() === jourRevue;
   const revueCarte = (
     <TransitionLink
         href="/revue"
         className={`${cardTight} flex min-h-11 items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
-          dimanche ? "border-kcal/60" : ""
+          jourDeRevue ? "border-kcal/60" : ""
         }`}
       >
         <span className="flex flex-col">
@@ -238,7 +240,7 @@ export function AujourdhuiView({ today }: { today: string }) {
       {/* La pesée n'apparaît que lorsqu'elle est due (7 jours sans relevé). */}
       <PeseeCard today={today} />
 
-      {dimanche && revueCarte}
+      {jourDeRevue && revueCarte}
 
       {/* Le reste n'est pas ce qu'on consulte en premier : replié par défaut
           pour que l'écran se lise en trois secondes. */}
@@ -255,7 +257,7 @@ export function AujourdhuiView({ today }: { today: string }) {
 
           <JourLibreCard today={today} />
 
-          {!dimanche && revueCarte}
+          {!jourDeRevue && revueCarte}
         </div>
       </details>
 

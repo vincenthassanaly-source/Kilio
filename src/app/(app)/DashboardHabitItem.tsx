@@ -68,7 +68,6 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.habitudes(date) });
-      queryClient.invalidateQueries({ queryKey: ["objectif"] });
     },
   });
 

@@ -19,6 +19,20 @@ export async function getReglagesBriefing(): Promise<ReglagesBriefing> {
   return data;
 }
 
+/**
+ * Jour de la semaine (0 = dimanche … 6 = samedi) où la revue hebdomadaire est
+ * mise en avant : celui réglé pour la notification (`revue_jour`). Dimanche si
+ * le réglage est absent, invalide ou illisible : l'écran du jour ne doit jamais
+ * échouer pour si peu.
+ */
+export async function getJourRevue(): Promise<number> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.from("reglages_briefing").select("revue_jour").eq("id", REGLAGES_ID).maybeSingle();
+  if (error) return 0;
+  const jour = data?.revue_jour;
+  return typeof jour === "number" && Number.isInteger(jour) && jour >= 0 && jour <= 6 ? jour : 0;
+}
+
 export async function updateReglagesBriefing(actif: boolean, heure: string): Promise<ActionResult> {
   if (!HEURE_REGEX.test(heure)) return fail("Heure invalide (format HH:MM).");
 
@@ -55,21 +69,6 @@ export async function updateReglagesRappelSaisie(actif: boolean, heure: string):
   return ok();
 }
 
-export async function updateReglagesBilan(actif: boolean, jour: number, heure: string): Promise<ActionResult> {
-  if (!Number.isInteger(jour) || jour < 0 || jour > 6) return fail("Jour invalide.");
-  if (!HEURE_REGEX.test(heure)) return fail("Heure invalide (format HH:MM).");
-
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("reglages_briefing")
-    .update({ bilan_actif: actif, bilan_jour: jour, bilan_heure: heure })
-    .eq("id", REGLAGES_ID);
-  if (error) return fail("Le réglage n'a pas pu être enregistré. Réessaie.");
-
-  revalidatePath("/reglages");
-  return ok();
-}
-
 export async function updateReglagesRevue(actif: boolean, jour: number, heure: string): Promise<ActionResult> {
   if (!Number.isInteger(jour) || jour < 0 || jour > 6) return fail("Jour invalide.");
   if (!HEURE_REGEX.test(heure)) return fail("Heure invalide (format HH:MM).");
@@ -82,5 +81,7 @@ export async function updateReglagesRevue(actif: boolean, jour: number, heure: s
   if (error) return fail("Le réglage n'a pas pu être enregistré. Réessaie.");
 
   revalidatePath("/reglages");
+  // La carte Revue d'Aujourd'hui est mise en avant le jour réglé.
+  revalidatePath("/");
   return ok();
 }

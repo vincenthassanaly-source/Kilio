@@ -21,6 +21,23 @@ function retourJournalVersBilan(de: string, vers: string, searchCourant: string)
 }
 
 /**
+ * Exception au retour « parent logique » : un jour des « 7 prochains jours » de
+ * la Revue ouvre l'Agenda (`?from=revue`) ; le retour ramène à la Revue, pas à
+ * l'écran parent de l'Agenda.
+ */
+function retourAgendaVersRevue(de: string, vers: string, searchCourant: string): boolean {
+  return de === "/agenda" && vers === "/revue" && new URLSearchParams(searchCourant).get("from") === "revue";
+}
+
+/**
+ * La Revue s'ouvre depuis la carte d'Aujourd'hui ou depuis la grille « Plus » :
+ * le retour revient là d'où l'on vient, sans trancher entre les deux.
+ */
+function retourRevueVersOrigine(de: string, vers: string): boolean {
+  return de === "/revue" && (vers === "/" || vers === "/plus");
+}
+
+/**
  * Exception au retour « parent logique » : depuis une fiche du référentiel
  * (classe, médicament, pathologie), le retour suit l'historique réel tant
  * qu'il reste dans le référentiel — on revient ainsi à la pathologie, à la
@@ -32,6 +49,8 @@ export function retourHistoriqueAutorise(courant: string, arrivee: string, searc
   const vers = normaliser(arrivee);
   if (de === vers) return false;
   if (retourJournalVersBilan(de, vers, searchCourant)) return true;
+  if (retourAgendaVersRevue(de, vers, searchCourant)) return true;
+  if (retourRevueVersOrigine(de, vers)) return true;
   if (!FICHE_REFERENTIEL.test(de)) return false;
   return vers === "/pharmacie/referentiel" || FICHE_REFERENTIEL.test(vers);
 }

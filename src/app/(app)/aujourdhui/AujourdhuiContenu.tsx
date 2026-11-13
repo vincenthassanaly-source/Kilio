@@ -1,4 +1,5 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getJourRevue } from "@/app/actions/briefing";
 import { getEvenements } from "@/app/actions/evenements";
 import { getResumeNutritionJour } from "@/app/actions/journal";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
@@ -20,7 +21,8 @@ import { AujourdhuiView } from "./AujourdhuiView";
 export async function AujourdhuiContenu() {
   const today = await getToday();
   const queryClient = makeServerQueryClient();
-  await Promise.all([
+  const [jourRevue] = await Promise.all([
+    getJourRevue(),
     queryClient.prefetchQuery({ queryKey: queryKeys.taches, queryFn: getTachesAvecRelationsEnCache }),
     queryClient.prefetchQuery({
       queryKey: queryKeys.evenementsDuJour(today),
@@ -60,7 +62,7 @@ export async function AujourdhuiContenu() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <AujourdhuiView today={today} />
+      <AujourdhuiView today={today} jourRevue={jourRevue} />
     </HydrationBoundary>
   );
 }

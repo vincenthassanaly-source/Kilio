@@ -9,9 +9,8 @@ import { CollectionDetailView } from "./CollectionDetailView";
 // de l'image + Gemini, jusqu'à 50 s) : au-delà du plafond par défaut d'une fonction.
 export const maxDuration = 60;
 
-// Server Component async : précharge côté serveur (même patron que
-// objectifs/page.tsx), hydraté avant que CollectionDetailView ne prenne le relais côté
-// client. Évite l'aller-retour Server Action déclenché après hydratation.
+// Server Component async : précharge côté serveur, hydraté avant que
+// CollectionDetailView ne prenne le relais côté client. Évite l'aller-retour Server Action déclenché après hydratation.
 export default async function CollectionDetailPage({
   params,
 }: {
