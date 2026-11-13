@@ -20,7 +20,7 @@ import { deleteEvenement, getEvenements, type Evenement } from "@/app/actions/ev
 import { getJoursFeries } from "@/app/actions/jours-feries";
 import { ferieParDate } from "@/lib/feries/compute";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
-import { EvenementForm } from "../aujourdhui/EvenementForm";
+import { EvenementForm } from "../_accueil/EvenementForm";
 import { queryKeys } from "@/lib/query/keys";
 import { dismissInfoToasts, showToast } from "@/components/toast/toast-store";
 import { DUREE_TOAST_AVERTISSEMENT_MS, actualisationEchouee, etatListeTaches } from "@/lib/taches/compute";

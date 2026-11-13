@@ -20,7 +20,7 @@ vi.mock("next/dynamic", () => ({
       );
     },
 }));
-vi.mock("./aujourdhui/EvenementForm", () => ({
+vi.mock("./_accueil/EvenementForm", () => ({
   EvenementForm: () => <div data-testid="formulaire-evenement" />,
 }));
 vi.mock("./courses/AddCourseForm", () => ({ AddCourseForm: () => null }));

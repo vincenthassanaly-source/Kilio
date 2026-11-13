@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AddCourseForm } from "./courses/AddCourseForm";
-import { EvenementForm } from "./aujourdhui/EvenementForm";
+import { EvenementForm } from "./_accueil/EvenementForm";
 import { Modal } from "@/components/Modal";
 import { goBackSteps, useBackClose } from "@/hooks/useBackClose";
 import { getListes, getTags } from "@/app/actions/taches";
