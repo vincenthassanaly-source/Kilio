@@ -7,12 +7,16 @@ import { estMiniatureStockee, estUrlMiniatureTiktokCopiable } from "@/lib/collec
 import { extraireIdVideoTiktok, recupererMetadonneesTiktok } from "@/lib/collection/tiktok";
 import { estTypeVideo, recupererMetadonneesVideo, recupererMetadonneesVideoOuLien } from "@/lib/collection/video";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  IMAGE_JPEG_QUALITY,
+  compresserEtUploaderImage,
+  extraireCheminStorage as extraireCheminStockageBucket,
+  retirerObjetsStorage,
+} from "@/lib/storage/objets";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import type { Tables, TablesInsert } from "@/lib/supabase/types";
 
 const COLLECTION_IMAGES_BUCKET = "collection-images";
-const COLLECTION_IMAGE_MAX_DIMENSION = 1600;
-const COLLECTION_IMAGE_JPEG_QUALITY = 75;
 // Miniature vidéo copiée dans le bucket : la tuile fait ~200 px de large.
 const MINIATURE_MAX_DIMENSION = 640;
 const MINIATURE_MAX_OCTETS = 5 * 1024 * 1024;
@@ -34,38 +38,14 @@ type SupabaseClient = ReturnType<typeof createAdminClient>;
 // par un id de collection : réutilisé tel quel par la réception de partage
 // (route.ts), où la collection de destination n'est pas encore connue.
 async function compresserEtUploaderPhoto(supabase: SupabaseClient, fichier: File): Promise<string> {
-  const buffer = Buffer.from(await fichier.arrayBuffer());
-  const compresse = await sharp(buffer)
-    .rotate()
-    .resize(COLLECTION_IMAGE_MAX_DIMENSION, COLLECTION_IMAGE_MAX_DIMENSION, {
-      fit: "inside",
-      withoutEnlargement: true,
-    })
-    .jpeg({ quality: COLLECTION_IMAGE_JPEG_QUALITY })
-    .toBuffer();
-
-  const chemin = `${crypto.randomUUID()}.jpg`;
-
-  const { error: uploadError } = await supabase.storage
-    .from(COLLECTION_IMAGES_BUCKET)
-    .upload(chemin, compresse, { contentType: "image/jpeg" });
-  if (uploadError) throw new Error(uploadError.message);
-
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from(COLLECTION_IMAGES_BUCKET).getPublicUrl(chemin);
-
-  return publicUrl;
+  return compresserEtUploaderImage(supabase, COLLECTION_IMAGES_BUCKET, Buffer.from(await fichier.arrayBuffer()));
 }
 
 // Chemin de stockage attendu : `${uuid}.jpg`, sous
-// `/storage/v1/object/public/collection-images/`. Même logique que
-// extraireCheminStorage dans src/app/actions/taches.ts.
+// `/storage/v1/object/public/collection-images/` (logique commune dans
+// src/lib/storage/objets.ts).
 function extraireCheminStorage(url: string): string | null {
-  const marqueur = `/${COLLECTION_IMAGES_BUCKET}/`;
-  const index = url.indexOf(marqueur);
-  if (index === -1) return null;
-  return url.slice(index + marqueur.length);
+  return extraireCheminStockageBucket(url, COLLECTION_IMAGES_BUCKET);
 }
 
 // Copie une miniature TikTok dans le bucket (les URLs du CDN TikTok sont
@@ -89,7 +69,7 @@ async function copierMiniatureTiktok(supabase: SupabaseClient, urlSource: string
     const compresse = await sharp(source)
       .rotate()
       .resize(MINIATURE_MAX_DIMENSION, MINIATURE_MAX_DIMENSION, { fit: "inside", withoutEnlargement: true })
-      .jpeg({ quality: COLLECTION_IMAGE_JPEG_QUALITY })
+      .jpeg({ quality: IMAGE_JPEG_QUALITY })
       .toBuffer();
 
     const chemin = `miniatures/${crypto.randomUUID()}.jpg`;
@@ -117,7 +97,7 @@ async function miniatureAEnregistrer(
 
 async function supprimerMiniatureStockee(supabase: SupabaseClient, miniature: string | null | undefined) {
   const chemin = miniature && estMiniatureStockee(miniature) ? extraireCheminStorage(miniature) : null;
-  if (chemin) await supabase.storage.from(COLLECTION_IMAGES_BUCKET).remove([chemin]);
+  if (chemin) await retirerObjetsStorage(supabase, COLLECTION_IMAGES_BUCKET, [chemin]);
 }
 
 // --- Collections ---
@@ -235,10 +215,8 @@ export async function deleteCollection(id: string) {
   const chemins = (photos ?? [])
     .flatMap((p) => [extraireCheminStorage(p.url), estMiniatureStockee(p.thumbnail_url) ? extraireCheminStorage(p.thumbnail_url!) : null])
     .filter((c): c is string => c !== null);
-  if (chemins.length > 0) {
-    const { error: removeError } = await supabase.storage.from(COLLECTION_IMAGES_BUCKET).remove(chemins);
-    if (removeError) throw new Error(removeError.message);
-  }
+  const removeError = await retirerObjetsStorage(supabase, COLLECTION_IMAGES_BUCKET, chemins);
+  if (removeError) throw new Error(removeError.message);
 
   const { error } = await supabase.from("collections").delete().eq("id", id);
   if (error) throw new Error(error.message);
@@ -328,10 +306,8 @@ export async function deleteCollectionItem(itemId: string) {
     extraireCheminStorage(item.url),
     estMiniatureStockee(item.thumbnail_url) ? extraireCheminStorage(item.thumbnail_url!) : null,
   ].filter((c): c is string => c !== null);
-  if (chemins.length > 0) {
-    const { error: removeError } = await supabase.storage.from(COLLECTION_IMAGES_BUCKET).remove(chemins);
-    if (removeError) throw new Error(removeError.message);
-  }
+  const removeError = await retirerObjetsStorage(supabase, COLLECTION_IMAGES_BUCKET, chemins);
+  if (removeError) throw new Error(removeError.message);
 
   const { error } = await supabase.from("collection_items").delete().eq("id", itemId);
   if (error) throw new Error(error.message);
