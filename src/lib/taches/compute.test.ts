@@ -12,7 +12,6 @@ import {
   libelleNombreTaches,
   messageAvertissementCreation,
   messageHorsLigne,
-  messageSuppressionListe,
   parseDureeMinutes,
   trierTaches,
   type ChampsAvancesTache,
@@ -128,38 +127,6 @@ describe("messageHorsLigne", () => {
   it("distingue création et édition", () => {
     expect(messageHorsLigne(false)).toContain("n'a pas été enregistrée");
     expect(messageHorsLigne(true)).toContain("n'ont pas été enregistrées");
-  });
-});
-
-describe("messageSuppressionListe", () => {
-  it("liste vide -> confirmation simple sans détail", () => {
-    expect(messageSuppressionListe("Courses", 0, 0)).toBe("Supprimer la liste « Courses » ?");
-  });
-
-  it("une seule tâche, pas faite", () => {
-    expect(messageSuppressionListe("Courses", 1, 0)).toBe(
-      "Supprimer la liste « Courses » et sa tâche ? Cette action est définitive : la tâche, ses sous-tâches et ses images seront supprimées."
-    );
-  });
-
-  it("une seule tâche, déjà faite", () => {
-    expect(messageSuppressionListe("Courses", 1, 1)).toContain("sa tâche (déjà faite)");
-  });
-
-  it("plusieurs tâches, aucune faite", () => {
-    expect(messageSuppressionListe("Courses", 5, 0)).toContain("ses 5 tâches ?");
-  });
-
-  it("plusieurs tâches, toutes faites", () => {
-    expect(messageSuppressionListe("Courses", 5, 5)).toContain("ses 5 tâches (toutes faites)");
-  });
-
-  it("plusieurs tâches, une seule faite", () => {
-    expect(messageSuppressionListe("Courses", 5, 1)).toContain("ses 5 tâches (dont 1 faite)");
-  });
-
-  it("plusieurs tâches, plusieurs faites (pas toutes)", () => {
-    expect(messageSuppressionListe("Courses", 5, 3)).toContain("ses 5 tâches (dont 3 faites)");
   });
 });
 

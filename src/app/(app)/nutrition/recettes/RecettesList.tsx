@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { Tables } from "@/lib/supabase/types";
 import { TransitionLink } from "@/components/TransitionLink";
 import { normalizeSearch } from "@/lib/normalize";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { input, kcalPillTag, listCard, metaText, nameText, pillTag, zoneTapPill } from "@/lib/ui";
 
 // Classes d'état exclusives : `pillTag` porte déjà bg-surface-alt/text-ink-2,
@@ -35,10 +36,16 @@ const KCAL_CHIPS: { value: NonNullable<KcalFilter>; label: string }[] = [
 ];
 
 export function RecettesList({
-  recettes,
+  recettes: toutesLesRecettes,
 }: {
   recettes: RecetteView[];
 }) {
+  // Recettes en cours de suppression (toast « Annuler » encore affiché) : cachées.
+  const masquees = useMasques("recette");
+  const recettes = useMemo(
+    () => (masquees.size === 0 ? toutesLesRecettes : toutesLesRecettes.filter((r) => !masquees.has(r.id))),
+    [toutesLesRecettes, masquees]
+  );
   const [search, setSearch] = useState("");
   const [tempsFilter, setTempsFilter] = useState<TempsFilter>(null);
   const [kcalFilter, setKcalFilter] = useState<KcalFilter>(null);

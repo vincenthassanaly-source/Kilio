@@ -12,10 +12,10 @@ import {
   supprimerProgramme,
   supprimerProposition,
 } from "@/app/actions/opinions-partis";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate";
 import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import {
   compterLues,
   filtrerSuivi,
@@ -40,11 +40,6 @@ import { PartiFormModal, ProgrammeFormModal, PropositionFormModal } from "./Part
 import { AxeBarre } from "./ProfilView";
 
 type Formulaire = "parti" | "programme-nouveau" | "programme-modifier" | null;
-type Suppression =
-  | { type: "parti" }
-  | { type: "programme" }
-  | { type: "proposition"; proposition: PropositionParti }
-  | null;
 
 function libelleProgramme(programme: ProgrammeParti): string {
   return programme.date_programme
@@ -83,7 +78,6 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
   const [formulaire, setFormulaire] = useState<Formulaire>(null);
   // `"nouvelle"` : formulaire de création ; une proposition : modification.
   const [propositionEditee, setPropositionEditee] = useState<PropositionParti | "nouvelle" | null>(null);
-  const [suppression, setSuppression] = useState<Suppression>(null);
   const [enCours, startTransition] = useTransition();
 
   const programmes = useMemo(() => programmesParRecence(parti.programmes), [parti.programmes]);
@@ -193,42 +187,50 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
     });
   }
 
-  function confirmerSuppression() {
-    const cible = suppression;
-    if (!cible) return;
-    const programmeId = programme?.id ?? "";
-    startTransition(async () => {
-      const resultat = await runAction(
-        () =>
-          cible.type === "parti"
-            ? supprimerParti(parti.id)
-            : cible.type === "programme"
-              ? supprimerProgramme(programmeId)
-              : supprimerProposition(cible.proposition.id),
-        { erreur: "La suppression a échoué. Réessaie." }
-      );
-      setSuppression(null);
-      if (resultat.ok) {
-        setPropositionEditee(null);
-        if (cible.type === "programme") setChoix(null);
-        invalidatePartis();
-        showToast("Supprimé", 1800);
-      }
+  // Suppressions différées : l'élément disparaît tout de suite (et ce qu'il
+  // contient avec lui), « Annuler » le ramène pendant le délai du toast ; le
+  // serveur n'est appelé qu'ensuite. Annuler = rien n'a changé, enfants compris.
+  function supprimerLeParti() {
+    const n = parti.programmes.length;
+    const contenu = n === 0 ? "" : ` avec ${n === 1 ? "son programme" : `ses ${n} programmes`}`;
+    supprimerAvecAnnulation({
+      texte: `Parti « ${libelleParti(parti)} » supprimé${contenu}`,
+      ariaLabel: `Annuler la suppression du parti « ${libelleParti(parti)} »`,
+      masque: { type: "parti", id: parti.id },
+      supprimer: () => supprimerParti(parti.id),
+      erreur: "La suppression du parti a échoué. Réessaie.",
+      onSupprime: invalidatePartis,
     });
   }
 
-  const titreSuppression =
-    suppression?.type === "parti"
-      ? `Supprimer ${libelleParti(parti)} ?`
-      : suppression?.type === "programme"
-        ? "Supprimer ce programme ?"
-        : "Supprimer cette proposition ?";
-  const texteSuppression =
-    suppression?.type === "parti"
-      ? `Le parti, ses ${parti.programmes.length} programme${parti.programmes.length > 1 ? "s" : ""} et toutes leurs propositions seront définitivement supprimés.`
-      : suppression?.type === "programme"
-        ? `Le programme « ${programme?.echeance ?? ""} » et ses ${propositions.length} proposition${propositions.length > 1 ? "s" : ""} seront définitivement supprimés.`
-        : "La proposition sera définitivement supprimée. Les idées déjà reprises de celle-ci sont conservées.";
+  function supprimerLeProgramme() {
+    if (!programme) return;
+    const n = propositions.length;
+    const contenu = n === 0 ? "" : ` avec ${n === 1 ? "sa proposition" : `ses ${n} propositions`}`;
+    const cible = programme;
+    supprimerAvecAnnulation({
+      texte: `Programme « ${cible.echeance} » supprimé${contenu}`,
+      ariaLabel: `Annuler la suppression du programme « ${cible.echeance} »`,
+      masque: { type: "programme", id: cible.id },
+      masquer: () => setChoix(null),
+      supprimer: () => supprimerProgramme(cible.id),
+      erreur: "La suppression du programme a échoué. Réessaie.",
+      onSupprime: invalidatePartis,
+    });
+  }
+
+  function supprimerLaProposition(proposition: PropositionParti) {
+    // Les idées déjà reprises de cette proposition sont conservées.
+    supprimerAvecAnnulation({
+      texte: "Proposition supprimée",
+      ariaLabel: "Annuler la suppression de la proposition",
+      masque: { type: "proposition", id: proposition.id },
+      masquer: () => setPropositionEditee(null),
+      supprimer: () => supprimerProposition(proposition.id),
+      erreur: "La suppression de la proposition a échoué. Réessaie.",
+      onSupprime: invalidatePartis,
+    });
+  }
 
   const nombreTotal = parti.programmes.length;
 
@@ -295,7 +297,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
                 <button type="button" className={ghostButton} onClick={() => setFormulaire("programme-modifier")}>
                   Modifier
                 </button>
-                <button type="button" className={dangerButton} onClick={() => setSuppression({ type: "programme" })}>
+                <button type="button" className={dangerButton} onClick={supprimerLeProgramme}>
                   Supprimer
                 </button>
               </>
@@ -398,7 +400,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
             <button type="button" className={secondaryButton} onClick={() => setFormulaire("parti")}>
               Renommer le parti
             </button>
-            <button type="button" className={dangerButton} onClick={() => setSuppression({ type: "parti" })}>
+            <button type="button" className={dangerButton} onClick={supprimerLeParti}>
               Supprimer le parti
             </button>
           </div>
@@ -431,25 +433,11 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
             onSupprimer={
               propositionEditee === "nouvelle"
                 ? undefined
-                : () => {
-                    setSuppression({ type: "proposition", proposition: propositionEditee });
-                    setPropositionEditee(null);
-                  }
+                : () => supprimerLaProposition(propositionEditee)
             }
           />
         )}
       </AnimatePresence>
-
-      <ConfirmDialog
-        open={suppression !== null}
-        titre={titreSuppression}
-        confirmer="Supprimer"
-        enCours={enCours}
-        onConfirm={confirmerSuppression}
-        onClose={() => setSuppression(null)}
-      >
-        <p>{texteSuppression}</p>
-      </ConfirmDialog>
     </section>
   );
 }

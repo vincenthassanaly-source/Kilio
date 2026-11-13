@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -9,7 +9,7 @@ import { genererApercuPdf } from "@/lib/pdf/apercuPdf";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { TransitionLink } from "@/components/TransitionLink";
 import { card, dangerButton, ghostButton, listCard, nameTextComplet, pillTag, textButton } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { runAction } from "@/lib/actions/runAction";
 import { BoutonDescription } from "./BoutonDescription";
 import { BoutonRemettreEnVrac } from "./BoutonRemettreEnVrac";
@@ -48,7 +48,6 @@ export function DocumentCard({
   categories: string[];
 }) {
   const [editing, setEditing] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   // Rattrapage : un PDF ajouté avant les aperçus (ou dont le rendu avait
@@ -151,16 +150,19 @@ export function DocumentCard({
         </button>
         <button
           type="button"
-          disabled={isPending}
-          onClick={async () => {
-            if (!(await confirmDelete(`Supprimer le document « ${document.nom} » ?`))) return;
+          onClick={() =>
+            // Suppression différée : la carte disparaît tout de suite, le document
+            // et ses fichiers (stockage compris) ne sont supprimés qu'après le
+            // délai d'« Annuler », même si on quitte l'écran entre-temps.
             // Contrat T1 : un échec Storage s'affiche en toast, pas error.tsx.
-            startTransition(async () => {
-              await runAction(() => deleteDocument(document.id), {
-                erreur: `Le document « ${document.nom} » n'a pas pu être supprimé. Réessaie.`,
-              });
-            });
-          }}
+            supprimerAvecAnnulation({
+              texte: `Document « ${document.nom} » supprimé`,
+              ariaLabel: `Annuler la suppression du document « ${document.nom} »`,
+              masque: { type: "document", id: document.id },
+              supprimer: () => deleteDocument(document.id),
+              erreur: `Le document « ${document.nom} » n'a pas pu être supprimé. Réessaie.`,
+            })
+          }
           className={dangerButton}
         >
           Supprimer

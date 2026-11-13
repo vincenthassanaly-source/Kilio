@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { enregistrerRoutine, getRoutine, getRoutines, supprimerRoutine } from "@/app/actions/musculation";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import {
   CHAMPS_PAR_MODE,
   dureeEnMinutes,
@@ -73,7 +73,6 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
   const [dossierId, setDossierId] = useState<string | null>(initial?.dossierId ?? null);
   const [exercices, setExercices] = useState<RoutineExerciceDetail[]>(initial?.exercices ?? []);
   const [selecteur, setSelecteur] = useState(false);
-  const [suppression, setSuppression] = useState(false);
   const [enCours, setEnCours] = useState(false);
   // Série dont le sélecteur de type est ouvert, sous la forme « exercice-rang ».
   const [typeOuvert, setTypeOuvert] = useState<string | null>(null);
@@ -134,16 +133,21 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
     router.replace("/musculation");
   }
 
-  async function supprimer() {
+  // Suppression différée : retour à la liste (où la routine est masquée),
+  // « Annuler » la ramène pendant le délai du toast. Les séances déjà faites ne
+  // sont pas touchées, avant comme après la suppression.
+  function supprimer() {
     if (!initial) return;
-    setEnCours(true);
-    const resultat = await runAction(() => supprimerRoutine(initial.id));
-    setEnCours(false);
-    setSuppression(false);
-    if (!resultat.ok) return;
-    invalider();
-    showToast("Routine supprimée");
-    router.replace("/musculation");
+    const cible = initial;
+    supprimerAvecAnnulation({
+      texte: `Routine « ${cible.nom} » supprimée`,
+      ariaLabel: `Annuler la suppression de la routine « ${cible.nom} »`,
+      masque: { type: "routine", id: cible.id },
+      masquer: () => router.replace("/musculation"),
+      supprimer: () => supprimerRoutine(cible.id),
+      erreur: `Impossible de supprimer la routine « ${cible.nom} ». Réessaie.`,
+      onSupprime: invalider,
+    });
   }
 
   const chip = (actif: boolean) =>
@@ -358,7 +362,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
           Enregistrer
         </button>
         {initial && (
-          <button type="button" className={dangerButton} onClick={() => setSuppression(true)} disabled={enCours}>
+          <button type="button" className={dangerButton} onClick={supprimer} disabled={enCours}>
             Supprimer la routine
           </button>
         )}
@@ -372,17 +376,6 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
           setExercices((courant) => [...courant, exerciceDepuisCatalogue(e)]);
         }}
       />
-
-      <ConfirmDialog
-        open={suppression}
-        titre="Supprimer la routine ?"
-        confirmer="Supprimer la routine"
-        enCours={enCours}
-        onClose={() => setSuppression(false)}
-        onConfirm={() => void supprimer()}
-      >
-        <p>La routine « {initial?.nom} » sera supprimée. Les séances déjà faites ne sont pas touchées.</p>
-      </ConfirmDialog>
     </div>
   );
 }

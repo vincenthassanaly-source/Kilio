@@ -9,10 +9,11 @@ const dangerPleinButton =
   "rounded-2xl bg-alert px-4 py-2.5 font-semibold text-on-accent transition active:scale-[0.97] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 /**
- * Confirmation explicite, avec les conséquences, pour les actions qu'on ne
- * peut pas annuler par un toast (suppression en cascade, réglage qui
- * supprime des données plus tard) — constat T2 de l'audit. Pour une
- * suppression simple, préférer `supprimerAvecAnnulation` (toast « Annuler »).
+ * Confirmation explicite, avec les conséquences, pour les actions qui ne sont
+ * PAS la suppression d'un élément : quitter sans enregistrer, remise à zéro,
+ * vidage d'un brouillon, réglage qui supprimera des données plus tard. Toute
+ * suppression d'élément passe par `supprimerAvecAnnulation` (toast « Annuler »,
+ * voir lib/actions/suppressionDifferee.ts), jamais par ce dialogue.
  *
  * Le bouton de confirmation nomme l'action (« Supprimer le compte et
  * 42 transactions »), le bouton sûr est le premier dans l'ordre de tabulation.

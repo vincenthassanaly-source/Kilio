@@ -163,7 +163,9 @@ export async function deleteRecette(id: string) {
     throw new Error("Suppression impossible : cette recette est partagée et non modifiable.");
   }
 
+  // Pas de `redirect()` : la suppression est différée (toast « Annuler ») et
+  // part après le délai, parfois depuis un autre écran. C'est l'écran de la
+  // recette qui renvoie vers la liste au moment du geste.
   revalidatePath("/nutrition/recettes");
   updateTag(RECETTES_TAG);
-  redirect("/nutrition/recettes");
 }

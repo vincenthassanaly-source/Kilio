@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query/keys";
 import { deleteTag } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, ghostButton, listCard, nameText } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
-import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { AddTagForm } from "./AddTagForm";
 
 function TagRow({ tag }: { tag: Tables<"tags"> }) {
   const [editing, setEditing] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
 
   if (editing) {
@@ -25,15 +24,22 @@ function TagRow({ tag }: { tag: Tables<"tags"> }) {
           </button>
           <button
             type="button"
-            disabled={isPending}
-            onClick={async () => {
-              if (!(await confirmDelete(`Supprimer le tag « #${tag.nom} » ?`))) return;
-              startTransition(async () => {
-                await runAction(() => deleteTag(tag.id), { erreur: `Impossible de supprimer l'étiquette « ${tag.nom} ». Réessaie.` });
-                queryClient.invalidateQueries({ queryKey: queryKeys.tags });
-                queryClient.invalidateQueries({ queryKey: queryKeys.taches });
-              });
-            }}
+            onClick={() =>
+              // Suppression différée : le tag disparaît tout de suite, « Annuler »
+              // le ramène (avec ses tâches associées, intactes) pendant le délai.
+              supprimerAvecAnnulation({
+                texte: `Tag « #${tag.nom} » supprimé`,
+                ariaLabel: `Annuler la suppression du tag « #${tag.nom} »`,
+                masque: { type: "tag", id: tag.id },
+                masquer: () => setEditing(false),
+                supprimer: () => deleteTag(tag.id),
+                erreur: `Impossible de supprimer le tag « #${tag.nom} ». Réessaie.`,
+                onSupprime: () => {
+                  queryClient.invalidateQueries({ queryKey: queryKeys.tags });
+                  queryClient.invalidateQueries({ queryKey: queryKeys.taches });
+                },
+              })
+            }
             className={dangerButton}
           >
             Supprimer
@@ -59,13 +65,16 @@ function TagRow({ tag }: { tag: Tables<"tags"> }) {
 }
 
 export function TagsManager({ tags }: { tags: Tables<"tags">[] }) {
-  if (tags.length === 0) {
+  // Tags en cours de suppression (toast « Annuler » encore affiché) : cachés.
+  const masques = useMasques("tag");
+  const visibles = tags.filter((t) => !masques.has(t.id));
+  if (visibles.length === 0) {
     return <p className="text-ink-2">Aucun tag pour l&apos;instant.</p>;
   }
 
   return (
     <ul className="flex flex-col gap-2.5">
-      {tags.map((tag) => (
+      {visibles.map((tag) => (
         <TagRow key={tag.id} tag={tag} />
       ))}
     </ul>

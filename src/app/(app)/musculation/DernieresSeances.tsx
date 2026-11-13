@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getEntrainements } from "@/app/actions/musculation";
 import { queryKeys } from "@/lib/query/keys";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { ghostButton, sectionTitle } from "@/lib/ui";
 import { LigneEntrainement } from "./historique/HistoriqueView";
 
@@ -11,10 +12,13 @@ const NB_RECENTES = 3;
 
 /** Les dernières séances de l'accueil, avec accès à l'historique complet. Rien tant qu'il n'y en a pas. */
 export function DernieresSeances() {
-  const { data } = useQuery({
+  const { data: toutes } = useQuery({
     queryKey: queryKeys.musculationHistorique(NB_RECENTES),
     queryFn: () => getEntrainements(NB_RECENTES),
   });
+  // Séances en cours de suppression (toast « Annuler » encore affiché) : cachées.
+  const masquees = useMasques("entrainement");
+  const data = toutes?.filter((e) => !masquees.has(e.id));
   if (!data || data.length === 0) return null;
 
   return (

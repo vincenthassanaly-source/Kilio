@@ -16,6 +16,8 @@ import { Modal } from "@/components/Modal";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showErrorToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { demarrerDepuisRoutine } from "@/lib/musculation/demarrer";
 import { LIBELLES_TYPE } from "@/lib/seances/compute";
 import type { DossierRoutines, RoutineResume } from "@/lib/musculation/routines";
@@ -73,7 +75,7 @@ function DossierModal({ dossier, onClose }: { dossier: DossierRoutines | null; o
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
 
-  async function lancer(action: () => ReturnType<typeof creerDossier> | ReturnType<typeof supprimerDossier>) {
+  async function lancer(action: () => ReturnType<typeof creerDossier> | ReturnType<typeof renommerDossier>) {
     setEnCours(true);
     setErreur(null);
     const resultat = await runAction(action, { silencieux: true, onError: setErreur });
@@ -81,6 +83,22 @@ function DossierModal({ dossier, onClose }: { dossier: DossierRoutines | null; o
     if (!resultat.ok) return;
     await queryClient.invalidateQueries({ queryKey: queryKeys.musculationRoutines });
     onClose();
+  }
+
+  // Suppression différée : le dossier disparaît tout de suite (la fenêtre se
+  // ferme), « Annuler » le ramène pendant le délai du toast. Ses routines ne
+  // sont jamais supprimées : elles passent « sans dossier » (affichage immédiat,
+  // enregistré à l'expiration du délai). Annuler = rien n'a changé.
+  function supprimer(cible: DossierRoutines) {
+    supprimerAvecAnnulation({
+      texte: `Dossier « ${cible.nom} » supprimé · ses routines passent sans dossier`,
+      ariaLabel: `Annuler la suppression du dossier « ${cible.nom} »`,
+      masque: { type: "dossier-routines", id: cible.id },
+      masquer: onClose,
+      supprimer: () => supprimerDossier(cible.id),
+      erreur: `Impossible de supprimer le dossier « ${cible.nom} ». Réessaie.`,
+      onSupprime: () => void queryClient.invalidateQueries({ queryKey: queryKeys.musculationRoutines }),
+    });
   }
 
   return (
@@ -111,7 +129,7 @@ function DossierModal({ dossier, onClose }: { dossier: DossierRoutines | null; o
         </button>
         {dossier && (
           <>
-            <button type="button" className={dangerButton} disabled={enCours} onClick={() => void lancer(() => supprimerDossier(dossier.id))}>
+            <button type="button" className={dangerButton} disabled={enCours} onClick={() => supprimer(dossier)}>
               Supprimer le dossier
             </button>
             <p className={metaText}>Ses routines ne sont pas supprimées : elles passent « sans dossier ».</p>
@@ -130,6 +148,9 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
   // undefined : fermé ; null : nouveau dossier ; sinon dossier à modifier.
   const [dossierOuvert, setDossierOuvert] = useState<DossierRoutines | null | undefined>(undefined);
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.musculationRoutines, queryFn: getRoutines });
+  // Routines et dossiers en cours de suppression (toast « Annuler » encore affiché) : cachés.
+  const routinesMasquees = useMasques("routine");
+  const dossiersMasques = useMasques("dossier-routines");
 
   async function demarrer(id: string) {
     setDemarrage(true);
@@ -160,10 +181,13 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
     return <ErrorInline message="Impossible de charger les routines. Vérifie ta connexion." retry={() => refetch()} />;
   }
 
-  // Sans exercice au catalogue on ne peut rien composer : la page l'explique déjà, inutile d'empiler une seconde carte vide.
-  if (catalogueVide && data.routines.length === 0 && data.dossiers.length === 0) return null;
+  const routines = data.routines.filter((r) => !routinesMasquees.has(r.id));
+  const dossiers = data.dossiers.filter((d) => !dossiersMasques.has(d.id));
 
-  const sansDossier = data.routines.filter((r) => !r.dossierId || !data.dossiers.some((d) => d.id === r.dossierId));
+  // Sans exercice au catalogue on ne peut rien composer : la page l'explique déjà, inutile d'empiler une seconde carte vide.
+  if (catalogueVide && routines.length === 0 && dossiers.length === 0) return null;
+
+  const sansDossier = routines.filter((r) => !r.dossierId || !dossiers.some((d) => d.id === r.dossierId));
   const seanceEnCours = Boolean(enCours);
   const ligne = (r: RoutineResume) => (
     <LigneRoutine key={r.id} routine={r} seanceEnCours={seanceEnCours} demarrage={demarrage} onDemarrer={(id) => void demarrer(id)} />
@@ -183,11 +207,11 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
         </div>
       </div>
 
-      {seanceEnCours && data.routines.length > 0 && (
+      {seanceEnCours && routines.length > 0 && (
         <p className={metaText}>Termine ta séance en cours pour en lancer une autre.</p>
       )}
 
-      {data.routines.length === 0 && data.dossiers.length === 0 && (
+      {routines.length === 0 && dossiers.length === 0 && (
         <section className={`${card} flex flex-col gap-1.5`}>
           <p className={eyebrow}>
             Une routine est un modèle de séance : tes exercices et tes séries cibles, à relancer en un tap.
@@ -198,8 +222,8 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
         </section>
       )}
 
-      {data.dossiers.map((dossier) => {
-        const routines = data.routines.filter((r) => r.dossierId === dossier.id);
+      {dossiers.map((dossier) => {
+        const duDossier = routines.filter((r) => r.dossierId === dossier.id);
         return (
           <section key={dossier.id} className={`${card} flex flex-col gap-3`} aria-label={`Dossier ${dossier.nom}`}>
             <div className="flex items-center justify-between gap-2">
@@ -208,14 +232,14 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
                 Modifier
               </button>
             </div>
-            {routines.length === 0 ? <p className={metaText}>Aucune routine dans ce dossier.</p> : <ul className="flex flex-col divide-y divide-line">{routines.map(ligne)}</ul>}
+            {duDossier.length === 0 ? <p className={metaText}>Aucune routine dans ce dossier.</p> : <ul className="flex flex-col divide-y divide-line">{duDossier.map(ligne)}</ul>}
           </section>
         );
       })}
 
       {sansDossier.length > 0 && (
         <section className={`${card} flex flex-col gap-3`} aria-label="Routines sans dossier">
-          {data.dossiers.length > 0 && <h3 className={sectionTitle}>Sans dossier</h3>}
+          {dossiers.length > 0 && <h3 className={sectionTitle}>Sans dossier</h3>}
           <ul className="flex flex-col divide-y divide-line">{sansDossier.map(ligne)}</ul>
         </section>
       )}

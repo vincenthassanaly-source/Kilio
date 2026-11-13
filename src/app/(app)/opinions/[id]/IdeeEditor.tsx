@@ -11,11 +11,11 @@ import {
   type IdeeAvecVersions,
   type VersionIdee,
 } from "@/app/actions/opinions";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { showToast } from "@/components/toast/toast-store";
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate";
 import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import {
   ARGUMENTS_MAX,
   AXES,
@@ -64,7 +64,6 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
   const [saisie, setSaisie] = useState(initiale);
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, startTransition] = useTransition();
-  const [confirmerSuppression, setConfirmerSuppression] = useState(false);
 
   const statut = idee.statut;
   const modifie = !champsIdentiques(saisie, initiale);
@@ -122,14 +121,19 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
     });
   }
 
+  // Suppression différée : retour à la liste (où l'idée est masquée), « Annuler »
+  // la ramène pendant le délai du toast ; l'idée et son historique de versions
+  // ne sont supprimés qu'à l'expiration, même si on quitte l'écran entre-temps.
   function onSupprimer() {
-    startTransition(async () => {
-      const resultat = await runAction(() => supprimerIdee(idee.id), { erreur: "La suppression a échoué. Réessaie." });
-      setConfirmerSuppression(false);
-      if (resultat.ok) {
-        invalidate();
-        navigate("/opinions");
-      }
+    const extrait = idee.position.length > 40 ? `${idee.position.slice(0, 40).trimEnd()}…` : idee.position;
+    supprimerAvecAnnulation({
+      texte: `Idée « ${extrait} » supprimée`,
+      ariaLabel: `Annuler la suppression de l'idée « ${extrait} »`,
+      masque: { type: "idee", id: idee.id },
+      masquer: () => navigate("/opinions"),
+      supprimer: () => supprimerIdee(idee.id),
+      erreur: "La suppression de l'idée a échoué. Réessaie.",
+      onSupprime: invalidate,
     });
   }
 
@@ -325,21 +329,10 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
         type="button"
         className={`${dangerButton} self-start`}
         disabled={enCours}
-        onClick={() => setConfirmerSuppression(true)}
+        onClick={onSupprimer}
       >
         Supprimer l&apos;idée
       </button>
-
-      <ConfirmDialog
-        open={confirmerSuppression}
-        titre="Supprimer cette idée ?"
-        confirmer="Supprimer l'idée"
-        enCours={enCours}
-        onConfirm={onSupprimer}
-        onClose={() => setConfirmerSuppression(false)}
-      >
-        <p>L&apos;idée et son historique de versions seront définitivement supprimés.</p>
-      </ConfirmDialog>
     </div>
   );
 }

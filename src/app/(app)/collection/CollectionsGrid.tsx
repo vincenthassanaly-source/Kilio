@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { getCollectionsAvecApercu, type CollectionAvecApercu } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { CollectionMosaic } from "./CollectionMosaic";
 import { AddCollectionToggle } from "./AddCollectionToggle";
 import { ReorganiserCollectionsModal } from "./ReorganiserCollectionsModal";
@@ -58,6 +59,9 @@ export function CollectionsGrid() {
   });
 
   const [reorganiser, setReorganiser] = useState(false);
+  // Collection en cours de suppression (toast « Annuler » encore affiché) : cachée.
+  const masquees = useMasques("collection");
+  const visibles = collections?.filter((c) => !masquees.has(c.id));
 
   // Un rechargement en échec garde la grille déjà affichée : on le signale
   // par un toast plutôt que de la remplacer par un message d'erreur.
@@ -73,7 +77,7 @@ export function CollectionsGrid() {
     <PullToRefresh onRefresh={invalidate}>
       <div className="flex flex-col gap-4">
         <AddCollectionToggle onSaved={invalidate} />
-        {(collections?.length ?? 0) > 0 && (
+        {(visibles?.length ?? 0) > 0 && (
           <button
             type="button"
             onClick={() => setReorganiser(true)}
@@ -90,7 +94,7 @@ export function CollectionsGrid() {
         ) : isError && !collections ? (
           <ErrorInline message="Impossible de charger les collections." retry={() => refetch()} />
         ) : (
-          <CollectionsMosaic collections={collections ?? []} />
+          <CollectionsMosaic collections={visibles ?? []} />
         )}
       </div>
     </PullToRefresh>

@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { formaterDateLongue, formaterDureeS, type EntrainementResume } from "@/lib/musculation/historique";
 import { formaterPoids } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { LIBELLES_TYPE } from "@/lib/seances/compute";
 import { card, cardTight, ghostButton, metaText, pillTag, nameText, screenTitle, secondaryButton } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
@@ -36,11 +37,14 @@ export function LigneEntrainement({ entrainement: e }: { entrainement: Entrainem
 
 export function HistoriqueView() {
   const [limite, setLimite] = useState(PAGE);
-  const { data, isLoading, isError, isPlaceholderData, refetch } = useQuery({
+  const { data: toutes, isLoading, isError, isPlaceholderData, refetch } = useQuery({
     queryKey: queryKeys.musculationHistorique(limite),
     queryFn: () => getEntrainements(limite),
     placeholderData: keepPreviousData,
   });
+  // Séances en cours de suppression (toast « Annuler » encore affiché) : cachées.
+  const masquees = useMasques("entrainement");
+  const data = toutes?.filter((e) => !masquees.has(e.id));
 
   return (
     <div className="flex flex-col gap-4">
@@ -71,7 +75,7 @@ export function HistoriqueView() {
           ))}
         </ul>
       )}
-      {data && data.length >= limite && (
+      {toutes && toutes.length >= limite && (
         <button
           type="button"
           className={secondaryButton}

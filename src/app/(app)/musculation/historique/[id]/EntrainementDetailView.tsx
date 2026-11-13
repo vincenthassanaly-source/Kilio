@@ -11,6 +11,7 @@ import { Modal } from "@/components/Modal";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { demarrerDepuisEntrainement } from "@/lib/musculation/demarrer";
 import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { TYPE_SERIE_LABELS } from "@/lib/musculation/constantes";
@@ -36,7 +37,6 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
   const [modalRoutine, setModalRoutine] = useState(false);
   const [nomRoutine, setNomRoutine] = useState(detail.titre);
   const [routineACibler, setRoutineACibler] = useState<RoutineDetail | null>(null);
-  const [suppression, setSuppression] = useState(false);
   const [enCours, setEnCours] = useState(false);
   const [demarrage, setDemarrage] = useState(false);
   const brouillonEnCours = useBrouillonEnCours();
@@ -98,16 +98,22 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
     }
   }
 
-  async function supprimer() {
-    setEnCours(true);
-    const resultat = await runAction(() => supprimerEntrainement(detail.id));
-    setEnCours(false);
-    setSuppression(false);
-    if (!resultat.ok) return;
-    void queryClient.invalidateQueries({ queryKey: ["musculation-historique"] });
-    queryClient.removeQueries({ queryKey: queryKeys.musculationEntrainement(detail.id) });
-    showToast("Séance supprimée");
-    router.replace("/musculation/historique");
+  // Suppression différée : retour à l'historique (où la séance est masquée),
+  // « Annuler » la ramène pendant le délai du toast ; la séance et ses séries ne
+  // sont supprimées qu'à l'expiration, même si on quitte l'écran entre-temps.
+  function supprimer() {
+    supprimerAvecAnnulation({
+      texte: `Séance « ${detail.titre} » du ${formaterDateLongue(detail.date)} supprimée`,
+      ariaLabel: `Annuler la suppression de la séance « ${detail.titre} »`,
+      masque: { type: "entrainement", id: detail.id },
+      masquer: () => router.replace("/musculation/historique"),
+      supprimer: () => supprimerEntrainement(detail.id),
+      erreur: `Impossible de supprimer la séance « ${detail.titre} ». Réessaie.`,
+      onSupprime: () => {
+        void queryClient.invalidateQueries({ queryKey: ["musculation-historique"] });
+        queryClient.removeQueries({ queryKey: queryKeys.musculationEntrainement(detail.id) });
+      },
+    });
   }
 
   return (
@@ -170,7 +176,7 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
             Mettre à jour la routine
           </button>
         )}
-        <button type="button" className={dangerButton} onClick={() => setSuppression(true)} disabled={enCours}>
+        <button type="button" className={dangerButton} onClick={supprimer} disabled={enCours}>
           Supprimer la séance
         </button>
       </div>
@@ -217,19 +223,6 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
         <p>
           Les exercices et séries de « {routineACibler?.nom} » seront remplacés par ceux de cette séance. Son nom, son type et son
           dossier ne changent pas.
-        </p>
-      </ConfirmDialog>
-
-      <ConfirmDialog
-        open={suppression}
-        titre="Supprimer la séance ?"
-        confirmer="Supprimer la séance"
-        enCours={enCours}
-        onClose={() => setSuppression(false)}
-        onConfirm={() => void supprimer()}
-      >
-        <p>
-          « {detail.titre} » du {formaterDateLongue(detail.date)} et ses {nbSeries} série{nbSeries > 1 ? "s" : ""} seront supprimées.
         </p>
       </ConfirmDialog>
     </div>

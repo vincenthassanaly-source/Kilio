@@ -156,9 +156,11 @@ describe("updateRecette", () => {
 });
 
 describe("deleteRecette", () => {
-  it("supprime la recette puis redirige vers la liste", async () => {
+  it("supprime la recette sans rediriger (suppression différée : l'écran renvoie vers la liste)", async () => {
     const fake = brancher(ligneTouchee);
-    await expect(deleteRecette(ID)).rejects.toThrow("REDIRECT:/nutrition/recettes");
+    await deleteRecette(ID);
+    expect(etat.redirect).not.toHaveBeenCalled();
+    expect(etat.revalidatePath).toHaveBeenCalledWith("/nutrition/recettes");
     expect(ecritures(fake.appels, "recettes", "delete")[0].filtres).toContainEqual(["eq", "id", ID]);
     expect(etat.updateTag).toHaveBeenCalledWith("recettes");
   });

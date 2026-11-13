@@ -349,20 +349,21 @@ describe("deleteDocumentFichier", () => {
 });
 
 describe("deleteDocument", () => {
-  it("nettoie le stockage, supprime le document puis redirige", async () => {
+  it("nettoie le stockage puis supprime le document, sans rediriger", async () => {
     const fake = brancher((a) =>
       a.table === "document_fichiers"
         ? { data: [{ url: `${URL_PUBLIQUE}/a.jpg`, apercu_url: null }, { url: `${URL_PUBLIQUE}/b.pdf`, apercu_url: `${URL_PUBLIQUE}/c.jpg` }] }
         : undefined
     );
-    await expect(deleteDocument(ID)).rejects.toThrow("REDIRECT:/documents");
+    await deleteDocument(ID);
+    expect(etat.redirect).not.toHaveBeenCalled();
     expect(fake.stockage[0].chemins).toEqual(["a.jpg", "b.pdf", "c.jpg"]);
     expect(ecritures(fake.appels, "documents", "delete")[0].filtres).toContainEqual(["eq", "id", ID]);
   });
 
   it("supprime un document sans fichier sans toucher au stockage", async () => {
     const fake = brancher();
-    await expect(deleteDocument(ID)).rejects.toThrow("REDIRECT:/documents");
+    await deleteDocument(ID);
     expect(fake.stockage).toHaveLength(0);
   });
 

@@ -1,11 +1,10 @@
 "use client";
 
-import { use, useState, useTransition, type ReactNode } from "react";
+import { use, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { supprimerHuile } from "@/app/actions/huiles";
-import { showToast } from "@/components/toast/toast-store";
-import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { queryKeys } from "@/lib/query/keys";
 import { card, dangerButton, eyebrow, pillIndication, pillTag, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
 import { huileParId, libelleVoie, type PharmaHuile } from "@/lib/pharmacie/huiles";
@@ -83,8 +82,6 @@ function Fiche({ huile, huiles }: { huile: PharmaHuile; huiles: PharmaHuile[] })
   const router = useRouter();
   const queryClient = useQueryClient();
   const [edition, setEdition] = useState(false);
-  const [confirmation, setConfirmation] = useState(false);
-  const [enCours, startTransition] = useTransition();
 
   const identite = [
     ["Famille botanique", huile.famille],
@@ -93,16 +90,22 @@ function Fiche({ huile, huiles }: { huile: PharmaHuile; huiles: PharmaHuile[] })
   ].filter((l): l is [string, string] => Boolean(l[1]));
   const aDesAlertes = huile.dermocaustique || huile.photosensibilisante || huile.precautions.length > 0 || huile.precautions_details;
 
+  // Suppression différée : retour à la liste (où l'huile est masquée), « Annuler »
+  // la ramène pendant le délai du toast. Les cartes de révision de cette huile
+  // sont supprimées avec elle à l'expiration du délai ; annuler = rien n'a changé.
   function supprimer() {
-    startTransition(async () => {
-      const resultat = await runAction(() => supprimerHuile(huile.id), { erreur: "La suppression a échoué." });
-      if (!resultat.ok) return;
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.pharmacieHuiles }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.pharmacie }),
-      ]);
-      showToast("Huile supprimée");
-      router.push("/pharmacie/huiles-essentielles");
+    supprimerAvecAnnulation({
+      texte: `Huile « ${huile.nom_fr} » supprimée avec ses cartes de révision`,
+      ariaLabel: `Annuler la suppression de l'huile « ${huile.nom_fr} »`,
+      masque: { type: "huile", id: huile.id },
+      masquer: () => router.push("/pharmacie/huiles-essentielles"),
+      supprimer: () => supprimerHuile(huile.id),
+      erreur: `Impossible de supprimer l'huile « ${huile.nom_fr} ». Réessaie.`,
+      onSupprime: () =>
+        void Promise.all([
+          queryClient.invalidateQueries({ queryKey: queryKeys.pharmacieHuiles }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.pharmacie }),
+        ]),
     });
   }
 
@@ -183,22 +186,10 @@ function Fiche({ huile, huiles }: { huile: PharmaHuile; huiles: PharmaHuile[] })
         <button type="button" onClick={() => setEdition(true)} className={`${secondaryButton} min-h-11`}>
           Modifier la fiche
         </button>
-        {confirmation ? (
-          <div className="flex items-center gap-2" role="group" aria-label="Confirmer la suppression">
-            <button type="button" onClick={supprimer} disabled={enCours} className={`${dangerButton} min-h-11`}>
-              {enCours ? "Suppression…" : "Confirmer la suppression"}
-            </button>
-            <button type="button" onClick={() => setConfirmation(false)} className={`${secondaryButton} min-h-11`}>
-              Annuler
-            </button>
-          </div>
-        ) : (
-          <button type="button" onClick={() => setConfirmation(true)} className={`${dangerButton} min-h-11`}>
-            Supprimer
-          </button>
-        )}
+        <button type="button" onClick={supprimer} className={`${dangerButton} min-h-11`}>
+          Supprimer
+        </button>
       </div>
-      {confirmation && <p className={eyebrow}>Les cartes de révision de cette huile seront supprimées avec elle.</p>}
       {edition && <HuileEditeur huile={huile} huiles={huiles} onClose={() => setEdition(false)} />}
     </div>
   );

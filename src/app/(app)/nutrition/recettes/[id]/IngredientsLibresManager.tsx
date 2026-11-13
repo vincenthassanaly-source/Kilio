@@ -18,7 +18,8 @@ import {
   nameTextComplet,
   primaryButton,
 } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { useMasques } from "@/lib/actions/elementsMasques";
 
 type IngredientLibreRow = Tables<"recette_ingredients_libres">;
 
@@ -102,18 +103,17 @@ function IngredientLibreLine({
             </button>
             <button
               type="button"
-              disabled={isPending}
-              onClick={async () => {
-                if (!(await confirmDelete(`Supprimer l'ingrédient « ${ingredient.nom} » ?`))) return;
-                setError(null);
-                startTransition(async () => {
-                  try {
-                    await removeIngredientLibre(ingredient.id, recetteId);
-                  } catch (e) {
-                    setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                  }
-                });
-              }}
+              onClick={() =>
+                // Suppression différée : la ligne disparaît tout de suite,
+                // « Annuler » la ramène pendant le délai du toast.
+                supprimerAvecAnnulation({
+                  texte: `Ingrédient « ${ingredient.nom} » supprimé`,
+                  ariaLabel: `Annuler la suppression de l'ingrédient « ${ingredient.nom} »`,
+                  masque: { type: "recette-ingredient-libre", id: ingredient.id },
+                  supprimer: () => removeIngredientLibre(ingredient.id, recetteId),
+                  erreur: `Impossible de supprimer l'ingrédient « ${ingredient.nom} ». Réessaie.`,
+                })
+              }
               aria-label={`Supprimer l'ingrédient « ${ingredient.nom} »`}
               className={dangerButton}
             >
@@ -169,13 +169,16 @@ export function IngredientsLibresManager({
   recetteId: string;
   ingredients: IngredientLibreRow[];
 }) {
+  // Ingrédients en cours de suppression (toast « Annuler » encore affiché) : cachés.
+  const masques = useMasques("recette-ingredient-libre");
+  const visibles = ingredients.filter((i) => !masques.has(i.id));
   return (
     <div className="flex flex-col gap-3">
-      {ingredients.length === 0 ? (
+      {visibles.length === 0 ? (
         <p className="text-sm text-ink-2">Aucun ingrédient pour l&apos;instant.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
-          {ingredients.map((ing) => (
+          {visibles.map((ing) => (
             <IngredientLibreLine key={ing.id} ingredient={ing} recetteId={recetteId} />
           ))}
         </ul>

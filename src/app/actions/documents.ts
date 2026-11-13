@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { detecterFormat } from "@/lib/documents/detecterFormat";
@@ -411,10 +410,11 @@ export async function deleteDocument(id: string) {
   const { error } = await supabase.from("documents").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
-  // Redirige vers /documents dans les deux cas d'appel (depuis la liste, où
-  // c'est un no-op, et depuis le détail, où ça ramène à la liste).
+  // Pas de `redirect()` : la suppression est différée (toast « Annuler »,
+  // voir lib/actions/suppressionDifferee.ts) et part après le délai, parfois
+  // depuis un autre écran. Un redirect ramènerait de force sur /documents ; c'est
+  // l'écran de détail qui renvoie vers la liste au moment du geste.
   revalidateDocumentsPaths();
-  redirect("/documents");
 }
 
 // Chemin de secours du partage Android (service worker absent, voir

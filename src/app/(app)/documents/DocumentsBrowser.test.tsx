@@ -43,6 +43,8 @@ vi.mock("./DocumentsList", async () => {
 });
 
 import { DocumentsBrowser } from "./DocumentsBrowser";
+import { masquerElement, reafficherElement } from "@/lib/actions/elementsMasques";
+import { act } from "@testing-library/react";
 
 const CATEGORIES = ["Identité", "Logement", "Santé", "Travail"];
 
@@ -174,6 +176,20 @@ describe("DocumentsBrowser : catégories", () => {
 
     expect(noms()).not.toContain("Reçu au vrac");
     expect(screen.getByRole("button", { name: "Vrac, 1 à trier" })).toBeInTheDocument();
+  });
+});
+
+describe("DocumentsBrowser : suppression en attente d'annulation", () => {
+  it("cache un document dont la suppression est en cours, et le réaffiche si on annule", () => {
+    render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
+    expect(noms()).toContain("Facture EDF");
+
+    act(() => masquerElement("document", "2"));
+    expect(noms()).not.toContain("Facture EDF");
+    expect(noms()).toContain("Bail");
+
+    act(() => reafficherElement("document", "2"));
+    expect(noms()).toContain("Facture EDF");
   });
 });
 

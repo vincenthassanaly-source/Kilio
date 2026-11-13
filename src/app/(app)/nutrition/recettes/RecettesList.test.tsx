@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RecettesList, type RecetteView } from "./RecettesList";
+import { masquerElement, reafficherElement } from "@/lib/actions/elementsMasques";
 
 vi.mock("@/components/TransitionLink", () => ({
   TransitionLink: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
@@ -21,5 +22,14 @@ describe("RecettesList", () => {
     expect(chip).toHaveAttribute("aria-pressed", "false");
     await userEvent.click(chip);
     expect(chip).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("cache une recette dont la suppression est en cours, et la réaffiche si on annule", () => {
+    render(<RecettesList recettes={[recette]} />);
+    expect(screen.getByText("Soupe")).toBeInTheDocument();
+    act(() => masquerElement("recette", "r1"));
+    expect(screen.queryByText("Soupe")).not.toBeInTheDocument();
+    act(() => reafficherElement("recette", "r1"));
+    expect(screen.getByText("Soupe")).toBeInTheDocument();
   });
 });

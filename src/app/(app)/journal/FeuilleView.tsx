@@ -18,6 +18,7 @@ import { Switch } from "@/components/Switch";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { TransitionLink } from "@/components/TransitionLink";
 import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { genererApercu, genererTranches } from "@/lib/vidage/apercu";
 import {
   ajouter,
@@ -49,7 +50,7 @@ import { SaisieClavier } from "./SaisieClavier";
 import { TranscriptionDialog } from "./TranscriptionDialog";
 import { BackLink } from "@/components/BackLink";
 
-type Dialogue = "proposition" | "texte" | "effacer" | "supprimer-texte" | null;
+type Dialogue = "proposition" | "texte" | "effacer" | null;
 type Mode = "stylo" | "clavier";
 
 type Props = {
@@ -325,6 +326,7 @@ export function FeuilleView({ jour, retour }: Props) {
   // Valider ajoute le texte au texte du jour puis vide la feuille, sans retour possible (pas
   // d'historique : le manuscrit n'est pas gardé).
   async function validerProposition(texte: string) {
+    suppressionTexte.current?.annuler();
     const resultat = await runAction(() => validerTranscription(jour, texte), {
       erreur: "Le texte n'a pas pu être ajouté. Réessaie.",
     });
@@ -339,6 +341,7 @@ export function FeuilleView({ jour, retour }: Props) {
 
   // Note tapée au clavier : elle rejoint le texte du jour, la feuille n'est pas touchée.
   async function ajouterNote(texte: string): Promise<boolean> {
+    suppressionTexte.current?.annuler();
     const resultat = await runAction(() => ajouterTexte(jour, texte), { erreur: "Le texte n'a pas pu être ajouté. Réessaie." });
     if (!resultat.ok) return false;
     setTranscription(resultat.data.texte);
@@ -362,12 +365,25 @@ export function FeuilleView({ jour, retour }: Props) {
     showToast(propre === "" ? "Texte supprimé" : "Texte enregistré");
   }
 
-  async function supprimerTexte() {
-    const resultat = await runAction(() => supprimerTranscription(jour), { erreur: "Le texte n'a pas pu être supprimé. Réessaie." });
-    if (!resultat.ok) return;
-    setTranscription(null);
-    setDialogue(null);
-    showToast("Texte supprimé");
+  // Suppression différée du texte du jour : il disparaît tout de suite, « Annuler »
+  // le ramène pendant le délai du toast, le serveur n'est appelé qu'ensuite. Si du
+  // texte est ajouté entre-temps (note, transcription), la suppression est annulée
+  // d'office : elle emporterait aussi ce nouveau texte, qui rejoint l'ancien côté serveur.
+  const suppressionTexte = useRef<{ annuler: () => void } | null>(null);
+  function supprimerTexte() {
+    const avant = transcription;
+    if (avant === null) return;
+    suppressionTexte.current = supprimerAvecAnnulation({
+      texte: "Texte du jour supprimé",
+      ariaLabel: "Annuler la suppression du texte du jour",
+      masquer: () => {
+        setTranscription(null);
+        setDialogue(null);
+      },
+      restaurer: () => setTranscription((courant) => courant ?? avant),
+      supprimer: () => supprimerTranscription(jour),
+      erreur: "Le texte n'a pas pu être supprimé. Réessaie.",
+    });
   }
 
   const statut = enTranscription
@@ -462,23 +478,13 @@ export function FeuilleView({ jour, retour }: Props) {
         <p>Tu pourras revenir en arrière avec « Annuler » tant que tu restes sur cet écran.</p>
       </ConfirmDialog>
 
-      <ConfirmDialog
-        open={dialogue === "supprimer-texte"}
-        titre="Supprimer le texte ?"
-        confirmer="Supprimer le texte"
-        onConfirm={() => void supprimerTexte()}
-        onClose={() => setDialogue(null)}
-      >
-        <p>Le texte du jour sera supprimé en entier, sans retour possible. Ce que tu as écrit au stylo sur la feuille reste intact.</p>
-      </ConfirmDialog>
-
       <TranscriptionDialog
         open={dialogue === "proposition" ? proposition !== null : dialogue === "texte" && transcription !== null}
         mode={dialogue === "proposition" ? "proposition" : "texte"}
         texte={(dialogue === "proposition" ? proposition : transcription) ?? ""}
         onFermer={(texte) => (dialogue === "proposition" ? fermerProposition() : void fermerTexte(texte))}
         onValider={validerProposition}
-        onSupprimer={() => setDialogue("supprimer-texte")}
+        onSupprimer={supprimerTexte}
       />
 
       {mode === "stylo" && (

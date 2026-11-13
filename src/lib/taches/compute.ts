@@ -56,30 +56,6 @@ export function messageHorsLigne(edition: boolean): string {
     : "Connexion impossible : la tâche n'a pas été enregistrée. Vérifie ta connexion et réessaie.";
 }
 
-/**
- * Texte de confirmation avant la suppression d'une liste. Une liste vide se
- * supprime avec une confirmation simple ; sinon le message annonce le nombre
- * exact de tâches (et combien sont déjà faites) et précise que la
- * suppression est définitive et emporte sous-tâches et images.
- */
-export function messageSuppressionListe(nom: string, total: number, faites: number): string {
-  if (total <= 0) return `Supprimer la liste « ${nom} » ?`;
-
-  const tachesTxt = total === 1 ? "sa tâche" : `ses ${total} tâches`;
-  let faitesTxt = "";
-  if (faites > 0) {
-    if (total === 1) faitesTxt = " (déjà faite)";
-    else if (faites === total) faitesTxt = " (toutes faites)";
-    else if (faites === 1) faitesTxt = " (dont 1 faite)";
-    else faitesTxt = ` (dont ${faites} faites)`;
-  }
-  const emporte =
-    total === 1
-      ? "la tâche, ses sous-tâches et ses images seront supprimées"
-      : "les tâches, leurs sous-tâches et leurs images seront supprimées";
-  return `Supprimer la liste « ${nom} » et ${tachesTxt}${faitesTxt} ? Cette action est définitive : ${emporte}.`;
-}
-
 /** Libellé discret du nombre de tâches d'une liste (« 12 tâches »). */
 export function libelleNombreTaches(total: number): string {
   if (total <= 0) return "Aucune tâche";
