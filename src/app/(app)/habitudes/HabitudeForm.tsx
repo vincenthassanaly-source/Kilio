@@ -6,7 +6,12 @@ import type { Enums, Tables } from "@/lib/supabase/types";
 import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
 
-const initialState: HabitudeFormState = { error: null };
+// `valeurs` : la saisie renvoyée avec l'état. React 19 remet les champs non
+// contrôlés à leur valeur par défaut à la fin de l'action, même en cas d'erreur ;
+// les rejouer en `defaultValue` évite de perdre ce que la personne vient de taper.
+type EtatForm = HabitudeFormState & { valeurs?: Record<string, string> };
+
+const initialState: EtatForm = { error: null };
 
 // Libellés courts pour les segments (3 sur la largeur d'un téléphone).
 const TYPE_COURT: Record<Enums<"habitude_type">, string> = {
@@ -30,8 +35,16 @@ export function HabitudeForm({
 }) {
   // Ids uniques par instance (T11) : formulaire rendu en ajout et en édition.
   const uid = useId();
-  const action = habitude ? modifierHabitude : creerHabitude;
+  const actionServeur = habitude ? modifierHabitude : creerHabitude;
+  const action = async (precedent: EtatForm, formData: FormData): Promise<EtatForm> => {
+    const valeurs: Record<string, string> = {};
+    for (const [cle, valeur] of formData.entries()) {
+      if (typeof valeur === "string") valeurs[cle] = valeur;
+    }
+    return { ...(await actionServeur(precedent, formData)), valeurs };
+  };
   const [state, formAction, pending] = useActionState(action, initialState);
+  const saisie = state.valeurs;
   const prevPending = useRef(pending);
   const [type, setType] = useState<Enums<"habitude_type">>(habitude?.type ?? "boolean");
   const [rythme, setRythme] = useState<"quotidien" | "hebdo">(
@@ -59,7 +72,7 @@ export function HabitudeForm({
           required
           autoFocus={!habitude}
           autoComplete="off"
-          defaultValue={habitude?.nom}
+          defaultValue={saisie?.nom ?? habitude?.nom}
           className={input}
         />
       </div>
@@ -108,7 +121,7 @@ export function HabitudeForm({
             max="6"
             step="1"
             required
-            defaultValue={habitude?.frequence_hebdo ?? 3}
+            defaultValue={saisie?.frequence_hebdo ?? habitude?.frequence_hebdo ?? 3}
             className={input}
           />
         </div>
@@ -124,7 +137,7 @@ export function HabitudeForm({
               id={`${uid}-unite`}
               name="unite"
               placeholder="verres, min…"
-              defaultValue={habitude?.unite ?? ""}
+              defaultValue={saisie?.unite ?? habitude?.unite ?? ""}
               className={input}
             />
           </div>
@@ -139,7 +152,7 @@ export function HabitudeForm({
               inputMode="decimal"
               min="0"
               step="any"
-              defaultValue={habitude?.valeur_cible ?? ""}
+              defaultValue={saisie?.valeur_cible ?? habitude?.valeur_cible ?? ""}
               className={input}
             />
           </div>
@@ -154,7 +167,7 @@ export function HabitudeForm({
           id={`${uid}-icone`}
           name="icone"
           placeholder="🏃"
-          defaultValue={habitude?.icone ?? ""}
+          defaultValue={saisie?.icone ?? habitude?.icone ?? ""}
           className={input}
         />
       </div>

@@ -12,6 +12,8 @@ import {
   momentParDefaut,
   nutritionSaisie,
   pasSaisie,
+  QUANTITE_MAX_ALIMENT,
+  QUANTITE_MAX_PORTIONS,
   rechercherCatalogue,
   saisieParDefaut,
   type CatalogueItem,
@@ -244,12 +246,21 @@ function EtapeQuantite({
 }) {
   const champId = useId();
   const erreurId = useId();
+  const quantiteErreurId = useId();
   const depart = saisieParDefaut(item, recent);
   const [mode, setMode] = useState<ModeSaisie>(depart.mode);
   // Texte brut du champ (accepte « 1,5 ») ; la valeur numérique en dérive.
   const [texte, setTexte] = useState(String(depart.valeur).replace(".", ","));
   const valeur = Number(texte.replace(",", "."));
-  const valide = Number.isFinite(valeur) && valeur > 0;
+  // Plafond dans l'unité saisie (pièces : l'équivalent de 5 000 g) ; le serveur le revérifie.
+  const maxSaisie =
+    item.type === "recette"
+      ? QUANTITE_MAX_PORTIONS
+      : mode === "piece" && item.poidsUniteG
+        ? Math.max(1, Math.floor(QUANTITE_MAX_ALIMENT / item.poidsUniteG))
+        : QUANTITE_MAX_ALIMENT;
+  const tropGrand = Number.isFinite(valeur) && valeur > maxSaisie;
+  const valide = Number.isFinite(valeur) && valeur > 0 && !tropGrand;
   const pas = pasSaisie(item, mode);
   const nutrition = valide ? nutritionSaisie(item, mode, valeur) : null;
   const avecPieces = item.type === "aliment" && item.poidsUniteG !== null;
@@ -347,7 +358,7 @@ function EtapeQuantite({
               inputMode="decimal"
               autoComplete="off"
               aria-invalid={!valide}
-              aria-describedby={etat.error ? erreurId : undefined}
+              aria-describedby={[etat.error ? erreurId : null, !valide ? quantiteErreurId : null].filter(Boolean).join(" ") || undefined}
               className={`${input} w-full pr-20 text-center font-display text-xl font-semibold tabular-nums`}
             />
             <span className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-sm text-ink-2">
@@ -373,6 +384,13 @@ function EtapeQuantite({
             </button>
           ))}
         </div>
+        {!valide && (
+          <p id={quantiteErreurId} className={errorText}>
+            {tropGrand
+              ? `Maximum ${formatNombre(maxSaisie)} ${uniteSaisie(item, mode, maxSaisie)}.`
+              : "Saisis une quantité supérieure à 0."}
+          </p>
+        )}
       </div>
 
       <div className="flex items-baseline justify-between rounded-2xl bg-surface-alt px-4 py-3" aria-live="polite">

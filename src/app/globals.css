@@ -295,14 +295,17 @@ body {
   overscroll-behavior-y: contain;
 }
 
-/* Finition typographique : titres équilibrés, paragraphes sans ligne orpheline. */
+/* Finition typographique : titres équilibrés, paragraphes sans ligne orpheline.
+   On règle seulement `text-wrap-style` : le raccourci `text-wrap` remet aussi
+   `text-wrap-mode: wrap` et, non layered, battrait les utilitaires Tailwind
+   `truncate` / `whitespace-nowrap` (les titres longs ne seraient plus tronqués). */
 h1,
 h2,
 h3 {
-  text-wrap: balance;
+  text-wrap-style: balance;
 }
 p {
-  text-wrap: pretty;
+  text-wrap-style: pretty;
 }
 
 input::placeholder,

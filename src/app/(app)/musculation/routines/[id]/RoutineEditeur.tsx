@@ -11,6 +11,7 @@ import { runAction } from "@/lib/actions/runAction";
 import {
   CHAMPS_PAR_MODE,
   dureeEnMinutes,
+  LIMITES_CHAMP,
   minutesVersSecondes,
   secondesVersMinutes,
   TYPES_SEANCE,
@@ -254,9 +255,13 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                         const cle = CLE_SERIE[champ];
                         const enMinutes = dureeEnMinutes(exercice.mode, champ);
                         const valeurSerie = serie[cle] ?? null;
+                        const limites = LIMITES_CHAMP[champ];
+                        const facteur = enMinutes ? 60 : 1;
                         return (
                           <ChampNombre
                             key={champ}
+                            min={limites.min / facteur}
+                            max={limites.max / facteur}
                             valeur={enMinutes ? secondesVersMinutes(valeurSerie) : valeurSerie}
                             entier={champ === "reps" || (champ === "duree_s" && !enMinutes)}
                             signe={champ === "poids_kg" && exercice.mode === "poids_corps_reps"}

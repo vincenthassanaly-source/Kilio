@@ -6,6 +6,7 @@ import { vibrate } from "@/lib/haptics";
 import {
   CHAMPS_PAR_MODE,
   dureeEnMinutes,
+  LIMITES_CHAMP,
   minutesVersSecondes,
   secondesVersMinutes,
   TYPES_SERIE,
@@ -306,9 +307,13 @@ export function ExerciceBloc({
                   const cleSerie = CLE_SERIE[champ];
                   const enMinutes = dureeEnMinutes(mode, champ);
                   const valeurSerie = serie[cleSerie] ?? null;
+                  const limites = LIMITES_CHAMP[champ];
+                  const facteur = enMinutes ? 60 : 1;
                   return (
                     <ChampNombre
                       key={champ}
+                      min={limites.min / facteur}
+                      max={limites.max / facteur}
                       valeur={enMinutes ? secondesVersMinutes(valeurSerie) : valeurSerie}
                       entier={champ === "reps" || (champ === "duree_s" && !enMinutes)}
                       signe={champ === "poids_kg" && mode === "poids_corps_reps"}

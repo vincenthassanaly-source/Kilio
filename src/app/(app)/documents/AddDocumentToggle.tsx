@@ -23,7 +23,7 @@ export function AddDocumentToggle({ categories }: { categories: string[] }) {
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">
           Ajouter un document
         </span>
-        <span className="text-xs font-medium text-ink-3">Photo ou PDF, échéance optionnelle</span>
+        <span className="text-xs font-medium text-ink-3">Photo ou PDF</span>
       </div>
     </button>
   );
