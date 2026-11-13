@@ -62,6 +62,19 @@ export const minutesVersSecondes = (m: number | null): number | null => (m === n
 
 export type ChampSerie = "poids_kg" | "reps" | "duree_s" | "distance_m" | "vitesse_kmh";
 
+/**
+ * Bornes acceptées pour chaque champ d'une série, dans l'unité stockée (secondes,
+ * mètres). Le serveur les revérifie à l'envoi (`validerPayload`) : la saisie les
+ * applique pour qu'une séance ne puisse pas être refusée une fois terminée.
+ */
+export const LIMITES_CHAMP: Record<ChampSerie, { min: number; max: number }> = {
+  poids_kg: { min: -500, max: 1000 },
+  reps: { min: 0, max: 1000 },
+  duree_s: { min: 0, max: 86400 },
+  distance_m: { min: 0, max: 1_000_000 },
+  vitesse_kmh: { min: 0, max: 100 },
+};
+
 /** Colonnes saisies pour une série, selon le mode de saisie de l'exercice. */
 export const CHAMPS_PAR_MODE: Record<ModeSaisie, readonly ChampSerie[]> = {
   poids_reps: ["poids_kg", "reps"],

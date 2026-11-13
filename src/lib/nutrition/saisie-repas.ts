@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Enums } from "@/lib/supabase/types";
 import { aujourdhuiParis } from "@/lib/date/paris";
+import { QUANTITE_MAX_ALIMENT, QUANTITE_MAX_PORTIONS } from "./compute";
 
 const MOMENTS: readonly Enums<"moment_repas">[] = ["petit_dej", "dejeuner", "diner", "collation"];
 
@@ -41,6 +42,9 @@ export async function lireSaisieRepas(formData: FormData): Promise<{ error: stri
   }
   if (type === "aliment" && !aliment_id) return { error: "Aliment requis." };
   if (type === "recette" && !recette_id) return { error: "Recette requise." };
+  if (type === "recette" && quantiteSaisie > QUANTITE_MAX_PORTIONS) {
+    return { error: `Une recette se saisit jusqu'à ${QUANTITE_MAX_PORTIONS} portions.` };
+  }
   if (saisieMode !== "grammes" && saisieMode !== "piece") {
     return { error: "Mode de saisie invalide." };
   }
@@ -61,6 +65,9 @@ export async function lireSaisieRepas(formData: FormData): Promise<{ error: stri
       };
     }
     quantite = quantiteSaisie * aliment.poids_unite_g;
+  }
+  if (type === "aliment" && quantite > QUANTITE_MAX_ALIMENT) {
+    return { error: `Une quantité se saisit jusqu'à ${QUANTITE_MAX_ALIMENT.toLocaleString("fr-FR")} g ou ml.` };
   }
 
   return {

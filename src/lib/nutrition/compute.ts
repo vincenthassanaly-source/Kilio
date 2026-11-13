@@ -1,5 +1,13 @@
 import { normalizeSearch } from "@/lib/normalize";
 
+/**
+ * Plafonds d'une saisie de repas : au-delà, c'est une erreur de frappe (99999 g
+ * affichait « 109 999 kcal »). Partagés par le panneau d'ajout et la validation serveur.
+ * Aliment : grammes ou ml (pièces déjà converties) ; recette : portions.
+ */
+export const QUANTITE_MAX_ALIMENT = 5000;
+export const QUANTITE_MAX_PORTIONS = 50;
+
 export type Nutrition = {
   kcal: number;
   proteines: number;

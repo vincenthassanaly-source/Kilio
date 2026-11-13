@@ -215,6 +215,9 @@ function NoteItemsDraft({
           </button>
         </div>
       ))}
+      {/* Un item tapé mais pas encore validé par « Ajouter » part quand même avec
+          le formulaire : sinon il disparaissait en silence à la création. */}
+      {nouvelItem.trim() && <input type="hidden" name="item_libelle" value={nouvelItem.trim()} />}
       <div className="flex items-center gap-2">
         <input
           value={nouvelItem}
