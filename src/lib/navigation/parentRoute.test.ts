@@ -33,6 +33,14 @@ describe("parentRoute", () => {
     expect(parentRoute("/pharmacie/m1/c1", BARRE)).toBe("/pharmacie/m1");
   });
 
+  it("fait du Carnet la racine de Nutrition : pas de boucle /nutrition <-> /nutrition/journal", () => {
+    expect(parentRoute("/nutrition", BARRE)).toBe("/");
+    expect(parentRoute("/nutrition/journal", BARRE)).toBe("/");
+    expect(parentRoute("/nutrition/journal", ["/", "/taches"])).toBe("/plus");
+    expect(parentRoute("/nutrition/bilan", BARRE)).toBe("/nutrition");
+    expect(parentRoute("/nutrition/menus", BARRE)).toBe("/nutrition");
+  });
+
   it("ramène l'éditeur de routine à l'accueil Musculation, et la séance en direct aussi", () => {
     expect(parentRoute("/musculation/routines/abc", BARRE)).toBe("/musculation");
     expect(parentRoute("/musculation/routines/nouvelle", BARRE)).toBe("/musculation");

@@ -53,11 +53,12 @@ test("affiche l'événement, la tâche du jour et le résumé des repas", async 
   await expect(page.getByRole("heading", { name: "En retard" })).toHaveCount(0);
 });
 
-test("ajoute un événement depuis la frise", async ({ page }) => {
+test("ajoute un événement depuis le bouton « + »", async ({ page }) => {
   // Horloge figée le matin : la frise reste déroulée (voir le test « soirée » ci-dessous).
   await page.clock.setFixedTime(aujourdhuiParisA("07:00"));
   await page.goto("/aujourdhui");
-  await page.getByRole("button", { name: "Événement", exact: true }).click();
+  await page.locator("[data-masquer-saisie]").getByRole("button", { name: "Ajouter", exact: true }).click();
+  await page.getByRole("button", { name: "Nouvel événement" }).click();
 
   const dialogue = page.getByRole("dialog", { name: "Nouvel événement" });
   await expect(dialogue).toBeVisible();
@@ -126,10 +127,18 @@ test("la frise se replie le soir quand il ne reste rien de prévu", async ({ pag
   await expect(page.getByRole("region", { name: "Grille horaire du jour" })).toBeVisible();
 });
 
-// Audit « aujourdhui » : deux boutons « Ajouter » identiques sur l'écran.
-test("les deux champs d'ajout ont un bouton au nom distinct", async ({ page }) => {
+// Audit « structure » (lot 3) : Aujourd'hui ne garde que deux portes de création,
+// la saisie naturelle et le bouton « + » (éventail). L'ajout rapide de tâche et
+// le bouton « Événement » de la frise n'existent plus.
+test("seules la saisie naturelle et le bouton « + » créent depuis Aujourd'hui", async ({ page }) => {
   await page.clock.setFixedTime(aujourdhuiParisA("07:00"));
   await page.goto("/aujourdhui");
-  await expect(page.getByRole("button", { name: "Ajouter", exact: true })).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Ajouter la tâche" })).toHaveCount(1);
+  await expect(page.getByRole("form", { name: "Ajouter en langage naturel" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Ajouter la tâche" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Événement", exact: true })).toHaveCount(0);
+
+  await page.locator("[data-masquer-saisie]").getByRole("button", { name: "Ajouter", exact: true }).click();
+  for (const nom of ["Ajouter un repas", "Courses", "Nouvelle tâche", "Nouvel événement", "Nouvelle note"]) {
+    await expect(page.getByRole("button", { name: nom, exact: true })).toBeVisible();
+  }
 });

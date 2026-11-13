@@ -20,7 +20,8 @@ export function NutritionSubNav() {
   return (
     <nav className={SEGMENT_CADRE} aria-label="Nutrition">
       {TABS.map((tab) => {
-        const active = pathname.startsWith(tab.href);
+        // `/nutrition` (onglet de la barre du bas) sert le Carnet : « Journal » y est actif.
+        const active = pathname.startsWith(tab.href) || (tab.href === "/nutrition/journal" && pathname === "/nutrition");
         return (
           <TransitionLink
             key={tab.href}

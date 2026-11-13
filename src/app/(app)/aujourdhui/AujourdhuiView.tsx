@@ -196,7 +196,6 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
         creneaux={creneauxDuJour}
         libres={libres}
         maintenant={maintenant}
-        onAddEvenement={() => setFormulaire({})}
         onSelectEvenement={(evenement) => setFormulaire({ evenement })}
         onSelectTache={setTacheSurlignee}
       />
@@ -219,7 +218,6 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
           today={today}
           libres={libres}
           tacheSurlignee={tacheSurlignee}
-          onTacheCreee={setTacheSurlignee}
         />
       )}
 
@@ -267,7 +265,7 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
         {formulaire && (
           <Modal
             key="evenement"
-            title={formulaire.evenement ? "Modifier l'événement" : "Nouvel événement"}
+            title="Modifier l'événement"
             onClose={fermerFormulaire}
           >
             <EvenementForm
