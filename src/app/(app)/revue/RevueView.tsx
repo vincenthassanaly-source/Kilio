@@ -15,7 +15,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { bilanSemaine, nbSansDate, semaineProchaine } from "@/lib/revue/compute";
 import { libelleDuree } from "@/lib/taches/compute";
 import { card, linkButton, sectionTitle } from "@/lib/ui";
-import { EnRetardSection } from "../aujourdhui/EnRetardSection";
+import { EnRetardSection } from "../_accueil/EnRetardSection";
 import { BoutonAssistantRevue } from "./BoutonAssistantRevue";
 import { SyntheseSemaine } from "../nutrition/bilan/SyntheseSemaine";
 

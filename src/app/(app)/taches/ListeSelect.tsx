@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export type ListeChoix = { id: string; nom: string; couleur: string | null };
+type ListeChoix = { id: string; nom: string; couleur: string | null };
 
 type Props = {
   listes: readonly ListeChoix[];

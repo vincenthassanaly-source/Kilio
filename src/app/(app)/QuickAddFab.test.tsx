@@ -10,7 +10,7 @@ vi.mock("next/dynamic", () => ({ default: () => () => null }));
 vi.mock("@/app/actions/taches", () => ({ getListes: vi.fn(async () => []), getTags: vi.fn(async () => []) }));
 vi.mock("./taches/preloadAddTaskForm", () => ({ preloadAddTaskForm: vi.fn() }));
 vi.mock("./courses/AddCourseForm", () => ({ AddCourseForm: () => <p>formulaire courses</p> }));
-vi.mock("./aujourdhui/EvenementForm", () => ({ EvenementForm: () => <p>formulaire événement</p> }));
+vi.mock("./_accueil/EvenementForm", () => ({ EvenementForm: () => <p>formulaire événement</p> }));
 vi.mock("./nutrition/journal/AjoutRepasBouton", () => ({ useAjoutRepasTermine: () => vi.fn() }));
 
 afterEach(() => {

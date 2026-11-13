@@ -26,7 +26,7 @@ import {
   WorkHoursBand,
 } from "./TimeGrid";
 import { TacheBlock } from "./TacheBlock";
-import { EvenementBlock } from "../aujourdhui/EvenementBlock";
+import { EvenementBlock } from "../_accueil/EvenementBlock";
 import { evenementsHoraires, evenementsJourneeEntiere } from "@/lib/evenements/compute";
 import { useAgendaZoom } from "./useAgendaZoom";
 

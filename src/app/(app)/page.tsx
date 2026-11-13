@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { screenTitle } from "@/lib/ui";
-import { AujourdhuiContenu } from "./aujourdhui/AujourdhuiContenu";
+import { AujourdhuiContenu } from "./_accueil/AujourdhuiContenu";
 import { GlobalSearchBar } from "./GlobalSearchBar";
 import { ReveilButton } from "./ReveilButton";
 import { SaisieNaturelle } from "./SaisieNaturelle";

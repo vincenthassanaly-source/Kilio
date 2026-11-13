@@ -6,14 +6,18 @@ import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { detecterFormat } from "@/lib/documents/detecterFormat";
 import { planifierIndexation } from "@/lib/documents/indexation";
 import { CATEGORIE_MAX, CATEGORIES_PAR_DEFAUT, nomDepuisFichier } from "@/lib/documents/tri";
+import {
+  IMAGE_JPEG_QUALITY,
+  compresserEtUploaderImage,
+  extraireCheminStorage as extraireCheminStockageBucket,
+  retirerObjetsStorage,
+} from "@/lib/storage/objets";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types";
 
 export type DocumentFormState = { error: string | null };
 
 const DOCUMENTS_FICHIERS_BUCKET = "documents-fichiers";
-const DOCUMENT_IMAGE_MAX_DIMENSION = 1600;
-const DOCUMENT_IMAGE_JPEG_QUALITY = 75;
 
 function revalidateDocumentsPaths(id?: string) {
   revalidatePath("/documents");
@@ -23,13 +27,10 @@ function revalidateDocumentsPaths(id?: string) {
 type SupabaseClient = ReturnType<typeof createAdminClient>;
 
 // Chemin de stockage attendu : `${uuid}.jpg` ou `${uuid}.pdf`, sous
-// `/storage/v1/object/public/documents-fichiers/`. Même logique que
-// extraireCheminStorage dans src/app/actions/collections.ts.
+// `/storage/v1/object/public/documents-fichiers/` (logique commune dans
+// src/lib/storage/objets.ts).
 function extraireCheminStorage(url: string): string | null {
-  const marqueur = `/${DOCUMENTS_FICHIERS_BUCKET}/`;
-  const index = url.indexOf(marqueur);
-  if (index === -1) return null;
-  return url.slice(index + marqueur.length);
+  return extraireCheminStockageBucket(url, DOCUMENTS_FICHIERS_BUCKET);
 }
 
 type FichierUploade = { url: string; fichier_type: "image" | "pdf"; apercu_url: string | null };
@@ -48,7 +49,7 @@ async function uploaderApercu(supabase: SupabaseClient, apercu: File | null): Pr
         fit: "inside",
         withoutEnlargement: true,
       })
-      .jpeg({ quality: DOCUMENT_IMAGE_JPEG_QUALITY })
+      .jpeg({ quality: IMAGE_JPEG_QUALITY })
       .toBuffer();
     const chemin = `${crypto.randomUUID()}.jpg`;
     const { error } = await supabase.storage
@@ -65,7 +66,7 @@ function fichierOuNull(valeur: FormDataEntryValue | null): File | null {
   return valeur instanceof File && valeur.size > 0 ? valeur : null;
 }
 
-// Compresse les images (même pattern que compresserEtUploaderPhoto dans
+// Compresse les images (compresserEtUploaderImage, partagé avec
 // collections.ts) ; les PDF sont uploadés tels quels, sharp ne les
 // supportant pas. Le format est reconnu d'après le contenu si le type MIME
 // est vide (voir detecterFormat). `apercu` : image de la 1re page d'un PDF.
@@ -78,27 +79,8 @@ async function uploaderFichier(
   const format = detecterFormat(fichier, buffer);
 
   if (format === "image") {
-    const compresse = await sharp(buffer)
-      .rotate()
-      .resize(DOCUMENT_IMAGE_MAX_DIMENSION, DOCUMENT_IMAGE_MAX_DIMENSION, {
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .jpeg({ quality: DOCUMENT_IMAGE_JPEG_QUALITY })
-      .toBuffer();
-
-    const chemin = `${crypto.randomUUID()}.jpg`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(DOCUMENTS_FICHIERS_BUCKET)
-      .upload(chemin, compresse, { contentType: "image/jpeg" });
-    if (uploadError) throw new Error(uploadError.message);
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(DOCUMENTS_FICHIERS_BUCKET).getPublicUrl(chemin);
-
-    return { url: publicUrl, fichier_type: "image", apercu_url: null };
+    const url = await compresserEtUploaderImage(supabase, DOCUMENTS_FICHIERS_BUCKET, buffer);
+    return { url, fichier_type: "image", apercu_url: null };
   }
 
   if (format !== "pdf") {
@@ -216,12 +198,8 @@ export async function deleteDocumentFichier(fichierId: string) {
   const chemins = [fichier.url, fichier.apercu_url]
     .map((u) => (u ? extraireCheminStorage(u) : null))
     .filter((c): c is string => c !== null);
-  if (chemins.length > 0) {
-    const { error: removeError } = await supabase.storage
-      .from(DOCUMENTS_FICHIERS_BUCKET)
-      .remove(chemins);
-    if (removeError) throw new Error(removeError.message);
-  }
+  const removeError = await retirerObjetsStorage(supabase, DOCUMENTS_FICHIERS_BUCKET, chemins);
+  if (removeError) throw new Error(removeError.message);
 
   const { error } = await supabase.from("document_fichiers").delete().eq("id", fichierId);
   if (error) throw new Error(error.message);
@@ -311,10 +289,8 @@ async function retirerDocumentEtFichiers(supabase: ReturnType<typeof createAdmin
 
   const { error } = await supabase.from("documents").delete().eq("id", id);
   if (error) console.error("retirerDocumentEtFichiers: document non supprimé", error);
-  if (chemins.length > 0) {
-    const { error: removeError } = await supabase.storage.from(DOCUMENTS_FICHIERS_BUCKET).remove(chemins);
-    if (removeError) console.error("retirerDocumentEtFichiers: fichiers non supprimés", removeError);
-  }
+  const removeError = await retirerObjetsStorage(supabase, DOCUMENTS_FICHIERS_BUCKET, chemins);
+  if (removeError) console.error("retirerDocumentEtFichiers: fichiers non supprimés", removeError);
   revalidateDocumentsPaths();
 }
 
@@ -400,10 +376,8 @@ export async function deleteDocument(id: string) {
     .flatMap((f) => [f.url, f.apercu_url])
     .map((u) => (u ? extraireCheminStorage(u) : null))
     .filter((c): c is string => c !== null);
-  if (chemins.length > 0) {
-    const { error: removeError } = await supabase.storage.from(DOCUMENTS_FICHIERS_BUCKET).remove(chemins);
-    if (removeError) throw new Error(removeError.message);
-  }
+  const removeError = await retirerObjetsStorage(supabase, DOCUMENTS_FICHIERS_BUCKET, chemins);
+  if (removeError) throw new Error(removeError.message);
 
   // document_fichiers est supprimé en cascade par la contrainte
   // `on delete cascade` (migration-documents-fichiers-multiples-2026-09-11.sql).

@@ -9,6 +9,7 @@
     "public/sw.js"
   ],
   "ignoreDependencies": [
-    "npm"
+    "npm",
+    "@vitest/coverage-v8"
   ]
 }
