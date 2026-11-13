@@ -9,7 +9,7 @@ import { runAction } from "@/lib/actions/runAction";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, errorText, ghostButton, input } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { BackLink } from "@/components/BackLink";
 
 export function CollectionHeader({ collection }: { collection: Tables<"collections"> }) {
@@ -45,19 +45,23 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
     });
   }
 
-  async function handleDelete() {
-    if (!(await confirmDelete(`Supprimer la collection « ${collection.nom} » et toutes ses photos ?`))) return;
-
+  // Suppression différée : la collection disparaît tout de suite (retour à la
+  // liste, où elle est masquée), « Annuler » la ramène pendant le délai du toast.
+  // La Server Action (qui supprime aussi les photos du stockage) ne part qu'après
+  // ce délai ; elle part même si on quitte l'écran entre-temps.
+  function handleDelete() {
     setError(null);
-    startTransition(async () => {
-      const res = await runAction(() => deleteCollection(collection.id), {
-        erreur: "La suppression a échoué. Réessaie.",
-        silencieux: true,
-        onError: setError,
-      });
-      if (!res.ok) return;
-      queryClient.invalidateQueries({ queryKey: queryKeys.collections });
-      router.push("/collection");
+    supprimerAvecAnnulation({
+      texte: `Collection « ${collection.nom} » supprimée`,
+      ariaLabel: `Annuler la suppression de la collection « ${collection.nom} »`,
+      masque: { type: "collection", id: collection.id },
+      masquer: () => router.push("/collection"),
+      supprimer: () => deleteCollection(collection.id),
+      erreur: `Impossible de supprimer la collection « ${collection.nom} ». Réessaie.`,
+      onSupprime: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.collections });
+        queryClient.invalidateQueries({ queryKey: queryKeys.collection(collection.id) });
+      },
     });
   }
 

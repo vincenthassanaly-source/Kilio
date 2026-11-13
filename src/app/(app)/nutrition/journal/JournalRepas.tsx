@@ -40,7 +40,7 @@ export function JournalRepas({
     const entry = entries.find((e) => e.id === id);
     const nom = entry ? `« ${entry.label} »` : "ce repas";
     supprimerAvecAnnulation({
-      texte: `${nom} supprimé du journal`,
+      texte: `${nom} supprimé du Carnet alimentaire`,
       ariaLabel: `Annuler la suppression de ${nom}`,
       masquer: () => setMasques((m) => new Set(m).add(id)),
       restaurer: () =>

@@ -38,7 +38,7 @@ export function SyntheseSemaine({ synthese, lienBilan = false }: { synthese: Syn
           valeur={kcal ? `${nombreFr(kcal.moyenne)} kcal` : "—"}
           detail={
             kcal
-              ? `limite moyenne ${nombreFr(kcal.cibleMoyenne)} · ${kcal.nbDansLimite}/${kcal.nbJours} ${kcal.nbJours > 1 ? "jours" : "jour"} dans la limite`
+              ? `limite moyenne ${nombreFr(kcal.cibleMoyenne)} · ${kcal.nbDansLimite}/${kcal.nbJours} ${kcal.nbJours > 1 ? "jours" : "jour"} sous la limite kcal`
               : "Pas assez de jours saisis"
           }
         />

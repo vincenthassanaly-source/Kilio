@@ -202,7 +202,7 @@ export function SeanceView() {
           value={b.nom}
           onChange={(e) => maj((courant) => ({ ...courant, nom: e.target.value.slice(0, 80) }))}
           aria-label="Nom de la séance"
-          className="w-full rounded-xl bg-transparent pr-14 outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="w-full rounded-xl bg-transparent pr-1 text-ellipsis outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         />
       </div>
 
@@ -334,6 +334,7 @@ export function SeanceView() {
         open={confirmation === "abandonner" || confirmation === "vide"}
         titre={confirmation === "vide" ? "Aucune série validée" : "Quitter la séance ?"}
         confirmer="Quitter sans enregistrer"
+        gardePrimaire={confirmation === "vide"}
         onClose={() => setConfirmation(null)}
         onConfirm={() => {
           setConfirmation(null);

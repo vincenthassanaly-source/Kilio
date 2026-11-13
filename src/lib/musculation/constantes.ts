@@ -96,7 +96,7 @@ export const TYPE_SERIE_LABELS: Record<TypeSerie, string> = {
 };
 
 /** Types de séance planifiable : ceux du module Séances (src/lib/seances/compute.ts). */
-export { TYPES_SEANCE, type TypeSeance } from "@/lib/seances/compute";
+export { type TypeSeance } from "@/lib/seances/compute";
 
 export function estMuscle(valeur: unknown): valeur is Muscle {
   return typeof valeur === "string" && (MUSCLES as readonly string[]).includes(valeur);

@@ -35,7 +35,7 @@ export function CheckToggle({
   hitSlop?: number;
   color?: string;
   label: string;
-  /** Id de l'élément qui nomme la tâche : le lecteur d'écran lit « Marquer fait, <titre> ». */
+  /** Id d'un élément qui complète le nom accessible (le `label` porte déjà le titre : « Marquer « <titre> » comme fait »). */
   describedBy?: string;
   className?: string;
 }) {

@@ -19,7 +19,7 @@ export function AddListeToggle() {
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une liste</span>
-        <span className="text-caption font-medium text-ink-3">Nouvelle liste</span>
+        <span className="text-caption font-medium text-ink-3">Une liste pour regrouper des tâches</span>
       </div>
     </button>
   );

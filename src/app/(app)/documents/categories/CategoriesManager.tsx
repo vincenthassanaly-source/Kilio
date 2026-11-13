@@ -11,7 +11,8 @@ import {
 } from "@/app/actions/documents-categories";
 import { runAction } from "@/lib/actions/runAction";
 import type { ActionResult } from "@/lib/actions/result";
-import { confirmDelete } from "@/lib/confirm";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { CATEGORIE_MAX } from "@/lib/documents/tri";
 import {
   actionsLigne,
@@ -90,13 +91,23 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
     });
   }
 
-  async function supprimer() {
-    const phrase =
+  // Suppression différée : la catégorie disparaît tout de suite, « Annuler » la
+  // ramène pendant le délai du toast. Les documents qui la portent ne sont
+  // touchés qu'à l'expiration du délai : ils gardent alors leur contenu mais
+  // n'ont plus de catégorie. Annuler = rien n'a changé.
+  function supprimer() {
+    setErreur(null);
+    const consequence =
       categorie.nb > 0
-        ? `Supprimer la catégorie « ${categorie.nom} » ? Ses ${categorie.nb} document${categorie.nb > 1 ? "s" : ""} ne seront pas supprimés mais n'auront plus de catégorie.`
-        : `Supprimer la catégorie « ${categorie.nom} » ?`;
-    if (!(await confirmDelete(phrase))) return;
-    executer(() => supprimerCategorie(categorie.id));
+        ? ` · ${categorie.nb} document${categorie.nb > 1 ? "s" : ""} sans catégorie`
+        : "";
+    supprimerAvecAnnulation({
+      texte: `Catégorie « ${categorie.nom} » supprimée${consequence}`,
+      ariaLabel: `Annuler la suppression de la catégorie « ${categorie.nom} »`,
+      masque: { type: "categorie-document", id: categorie.id },
+      supprimer: () => supprimerCategorie(categorie.id),
+      erreur: `Impossible de supprimer la catégorie « ${categorie.nom} ». Réessaie.`,
+    });
   }
 
   if (mode === "renommer") {
@@ -235,8 +246,8 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
               Fusionner
             </button>
           )}
-          <button type="button" disabled={enCours} onClick={supprimer} className={dangerButton}>
-            Suppr.
+          <button type="button" onClick={supprimer} className={dangerButton}>
+            Supprimer
           </button>
         </div>
       </div>
@@ -249,7 +260,10 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
   );
 }
 
-export function CategoriesManager({ categories }: { categories: CategorieAvecCompte[] }) {
+export function CategoriesManager({ categories: toutes }: { categories: CategorieAvecCompte[] }) {
+  // Catégories en cours de suppression (toast « Annuler » encore affiché) : cachées.
+  const masquees = useMasques("categorie-document");
+  const categories = toutes.filter((c) => !masquees.has(c.id));
   return (
     <div className="flex flex-col gap-4">
       <AjoutCategorie />

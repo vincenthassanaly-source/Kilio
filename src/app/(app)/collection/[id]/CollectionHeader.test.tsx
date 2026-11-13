@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CollectionHeader } from "./CollectionHeader";
-import { renameCollection } from "@/app/actions/collections";
+import { deleteCollection, renameCollection } from "@/app/actions/collections";
+import { dismissToast, getToasts } from "@/components/toast/toast-store";
+import { reafficherElement } from "@/lib/actions/elementsMasques";
 import type { Tables } from "@/lib/supabase/types";
 import type { ComponentProps } from "react";
 
@@ -101,6 +103,53 @@ describe("CollectionHeader - renommage et suppression", () => {
   it("le bouton de suppression a un nom accessible complet", () => {
     rendre();
     expect(screen.getByRole("button", { name: "Supprimer la collection" })).toHaveTextContent("Supprimer");
+  });
+});
+
+describe("CollectionHeader - suppression avec annulation différée", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    for (const t of [...getToasts()]) dismissToast(t.id);
+    reafficherElement("collection", "col-1");
+    vi.clearAllMocks();
+  });
+
+  function supprimer() {
+    vi.useFakeTimers();
+    vi.mocked(deleteCollection).mockResolvedValue(undefined);
+    rendre();
+    fireEvent.click(screen.getByRole("button", { name: "Supprimer la collection" }));
+  }
+
+  it("quitte la collection tout de suite, sans boîte de confirmation ni appel serveur, et propose « Annuler »", () => {
+    supprimer();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(push).toHaveBeenCalledWith("/collection");
+    expect(deleteCollection).not.toHaveBeenCalled();
+    const toast = getToasts().find((t) => t.action);
+    expect(toast?.text).toBe("Collection « Vacances » supprimée");
+    expect(toast?.action?.label).toBe("Annuler");
+  });
+
+  it("« Annuler » ne fait aucun appel serveur", async () => {
+    supprimer();
+    act(() => getToasts().find((t) => t.action)?.action?.onAction());
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(deleteCollection).not.toHaveBeenCalled();
+  });
+
+  it("supprime la collection (et ses photos côté serveur) après le délai", async () => {
+    supprimer();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5900);
+    });
+    expect(deleteCollection).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(200);
+    });
+    expect(deleteCollection).toHaveBeenCalledWith("col-1");
   });
 });
 

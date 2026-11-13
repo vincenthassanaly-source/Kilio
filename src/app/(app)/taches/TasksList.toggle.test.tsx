@@ -54,7 +54,7 @@ describe("TaskCard : cocher une tâche (CLICK-PATH T01/T02)", () => {
     vi.mocked(setTacheFait).mockResolvedValue(undefined);
     const { invalidateSpy } = monter();
 
-    await userEvent.click(screen.getByRole("button", { name: "Marquer fait" }));
+    await userEvent.click(screen.getByRole("button", { name: /^Marquer « .* » comme fait$/ }));
 
     await waitFor(() => expect(setTacheFait).toHaveBeenCalledWith("t1", true, "2026-09-30"));
     expect(enqueueAction).not.toHaveBeenCalled();
@@ -66,7 +66,7 @@ describe("TaskCard : cocher une tâche (CLICK-PATH T01/T02)", () => {
     vi.mocked(enqueueAction).mockResolvedValue(undefined);
     const { client, invalidateSpy } = monter();
 
-    await userEvent.click(screen.getByRole("button", { name: "Marquer fait" }));
+    await userEvent.click(screen.getByRole("button", { name: /^Marquer « .* » comme fait$/ }));
 
     await waitFor(() =>
       expect(enqueueAction).toHaveBeenCalledWith("taches", "setTacheFait", ["t1", true, "2026-09-30"])
@@ -84,7 +84,7 @@ describe("TaskCard : cocher une tâche (CLICK-PATH T01/T02)", () => {
     vi.mocked(setTacheFait).mockRejectedValue(new Error("boom"));
     const { client, invalidateSpy } = monter();
 
-    await userEvent.click(screen.getByRole("button", { name: "Marquer fait" }));
+    await userEvent.click(screen.getByRole("button", { name: /^Marquer « .* » comme fait$/ }));
 
     await waitFor(() => expect(showToast).toHaveBeenCalledWith("Impossible de mettre à jour la tâche."));
     expect(enqueueAction).not.toHaveBeenCalled();

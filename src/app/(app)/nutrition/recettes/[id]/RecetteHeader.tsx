@@ -1,12 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { deleteRecette } from "@/app/actions/recettes";
 import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, errorText, ghostButton, textButton } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
+import { card, dangerButton, ghostButton, textButton } from "@/lib/ui";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { BackLink } from "@/components/BackLink";
 
 const RecetteForm = dynamic(() => import("../RecetteForm").then((m) => m.RecetteForm), { ssr: false });
@@ -22,8 +22,7 @@ export function RecetteHeader({
   recette: Tables<"recettes">;
 }) {
   const [editing, setEditing] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   if (editing) {
     return (
@@ -60,31 +59,27 @@ export function RecetteHeader({
           </button>
           <button
             type="button"
-            disabled={isPending}
-            onClick={async () => {
-              if (!(await confirmDelete(`Supprimer la recette « ${recette.nom} » ?`))) return;
-              setError(null);
-              startTransition(async () => {
-                try {
-                  await deleteRecette(recette.id);
-                } catch (e) {
-                  // `deleteRecette` réussit puis appelle `redirect()`, qui lève
-                  // une erreur signal devant remonter jusqu'au framework — ne
-                  // pas l'avaler ici comme un échec de suppression (CLICK-PATH-201).
-                  if (isRedirectError(e)) throw e;
-                  setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                }
-              });
-            }}
+            onClick={() =>
+              // Suppression différée : retour à la liste (où la recette est
+              // masquée), « Annuler » la ramène pendant le délai du toast ; ses
+              // ingrédients et étapes partent avec elle à l'expiration.
+              supprimerAvecAnnulation({
+                texte: `Recette « ${recette.nom} » supprimée`,
+                ariaLabel: `Annuler la suppression de la recette « ${recette.nom} »`,
+                masque: { type: "recette", id: recette.id },
+                masquer: () => router.push("/nutrition/recettes"),
+                supprimer: () => deleteRecette(recette.id),
+                erreur: `Impossible de supprimer la recette « ${recette.nom} ». Réessaie.`,
+              })
+            }
             aria-label={`Supprimer la recette « ${recette.nom} »`}
             className={dangerButton}
           >
-            Suppr.
+            Supprimer
           </button>
         </div>
       </div>
       {recette.description && <p className="text-sm text-ink text-pretty">{recette.description}</p>}
-      {error && <p className={errorText}>{error}</p>}
     </div>
   );
 }

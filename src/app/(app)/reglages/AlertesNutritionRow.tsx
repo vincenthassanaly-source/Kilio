@@ -113,7 +113,7 @@ export function AlertesNutritionRow({ reglages }: { reglages: Pick<Tables<"regla
                 <path d="M5 6.5h14M5 12h14M5 17.5h8" />
               </svg>
             </Pastille>
-            Rappel de saisie
+            Rappel de saisie des repas
           </span>
           <Switch
             checked={saisie.actif}
@@ -123,8 +123,8 @@ export function AlertesNutritionRow({ reglages }: { reglages: Pick<Tables<"regla
         </div>
         <p className="text-small leading-snug text-ink-2">
           {saisie.actif
-            ? "Si ton journal est vide à l'heure choisie, une notification te rappelle de saisir tes repas."
-            : "Désactivé : aucun rappel quand le journal reste vide."}
+            ? "Si ton Carnet alimentaire est vide à l'heure choisie, une notification te rappelle de saisir tes repas."
+            : "Désactivé : aucun rappel quand le Carnet alimentaire reste vide."}
         </p>
         {saisie.actif && (
           <div className="flex flex-col gap-1.5">

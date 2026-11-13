@@ -124,16 +124,19 @@ function nullOuNombre(valeur: unknown, min: number, max: number): boolean {
   return valeur === null || (typeof valeur === "number" && Number.isFinite(valeur) && valeur >= min && valeur <= max);
 }
 
+/** Erreur de nom : l'éditeur l'affiche sous le champ « Nom », les autres sous la liste. */
+export const ERREUR_NOM_ROUTINE = "Le nom de la routine est requis (80 caractères maximum).";
+
 /** `null` si la routine est valide, sinon le message à renvoyer à l'appelant. */
 export function validerRoutine(routine: unknown): string | null {
   if (!estObjet(routine)) return "Routine invalide.";
   const { id, nom, typeSeance, dossierId, exercices } = routine;
   if (id !== undefined && !estUuid(id)) return "Identifiant de routine invalide.";
   if (typeof nom !== "string" || nom.trim().length < 1 || nom.trim().length > 80) {
-    return "Le nom de la routine est requis (80 caractères maximum).";
+    return ERREUR_NOM_ROUTINE;
   }
   if (typeSeance !== null && !(typeof typeSeance === "string" && estTypeSeance(typeSeance))) {
-    return "Type de séance invalide (LEGS, PUSH ou PULL).";
+    return "Type de séance invalide (Push, Pull ou Legs).";
   }
   if (dossierId !== null && !estUuid(dossierId)) return "Dossier invalide.";
   if (!Array.isArray(exercices) || exercices.length < 1 || exercices.length > NB_EXERCICES_ROUTINE_MAX) {

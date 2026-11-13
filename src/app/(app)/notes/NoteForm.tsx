@@ -172,7 +172,7 @@ function NoteItemsEditor({ noteId, items }: { noteId: string; items: Tables<"not
           placeholder="Ajouter un item…"
           className={`${input} flex-1 py-1.5`}
         />
-        <button type="button" onClick={ajouter} className={ghostButton}>
+        <button type="button" onClick={ajouter} aria-label="Ajouter l'item" className={ghostButton}>
           Ajouter
         </button>
       </div>
@@ -232,7 +232,7 @@ function NoteItemsDraft({
           placeholder="Ajouter un item…"
           className={`${input} flex-1 py-1.5`}
         />
-        <button type="button" onClick={ajouter} className={ghostButton}>
+        <button type="button" onClick={ajouter} aria-label="Ajouter l'item" className={ghostButton}>
           Ajouter
         </button>
       </div>
@@ -437,7 +437,7 @@ export function NoteForm({
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Enregistrement…" : note ? "Enregistrer" : "Créer la note"}
+        {pending ? "Enregistrement…" : note ? "Enregistrer" : "Ajouter"}
       </button>
     </form>
   );

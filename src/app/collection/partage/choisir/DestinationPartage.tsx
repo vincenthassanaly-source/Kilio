@@ -57,7 +57,7 @@ export function DestinationPartage({
 
   const documents = documentsContenu ? (
     <button type="button" onClick={() => setDestination("documents")} className={`${card} text-left`}>
-      <span className="font-semibold text-ink">Documents (vrac)</span>
+      <span className="font-semibold text-ink">Ajouter aux documents (vrac)</span>
       <span className="block text-sm text-ink-2">Photo ou PDF, à trier plus tard avec Gemini</span>
     </button>
   ) : null;
@@ -73,7 +73,7 @@ export function DestinationPartage({
         className={`${card} text-left ${seulementDocuments ? indisponible : ""}`}
       >
         <span className="font-semibold text-ink">Ajouter à une collection</span>
-        <span className="block text-sm text-ink-2">Photos, inspirations, idées</span>
+        <span className="block text-sm text-ink-2">Des photos ou des liens vidéo, rangés par collection</span>
       </button>
       <button
         type="button"
@@ -81,7 +81,7 @@ export function DestinationPartage({
         disabled={seulementDocuments}
         className={`${card} text-left ${seulementDocuments ? indisponible : ""}`}
       >
-        <span className="font-semibold text-ink">Nouvelle tâche</span>
+        <span className="font-semibold text-ink">Ajouter une tâche</span>
         <span className="block text-sm text-ink-2">L&apos;image est jointe à la tâche</span>
       </button>
       {seulementDocuments && (

@@ -64,7 +64,7 @@ export function VidageRow({ reglages }: { reglages: Pick<Tables<"reglages_briefi
             >
               <VidageIcon />
             </span>
-            Journal
+            Rappel du soir pour le Journal
           </span>
           <Switch
             checked={etat.actif}
@@ -74,8 +74,8 @@ export function VidageRow({ reglages }: { reglages: Pick<Tables<"reglages_briefi
         </div>
         <p className="text-small leading-snug text-ink-2">
           {etat.actif
-            ? "Chaque soir à l'heure choisie, une notification te propose d'écrire, sauf si ta feuille du jour est déjà écrite."
-            : "Désactivé : aucun rappel (la feuille reste accessible dans Plus › Journal)."}
+            ? "Chaque soir à l'heure choisie, une notification te propose d'écrire dans le Journal, sauf si la page du jour est déjà écrite."
+            : "Désactivé : aucun rappel (le Journal reste accessible dans Plus › Journal)."}
         </p>
         {etat.actif && (
           <div className="flex flex-col gap-1.5">

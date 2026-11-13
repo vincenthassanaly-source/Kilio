@@ -1,4 +1,4 @@
-// Module « Journal » : écriture au stylet sur la feuille du soir.
+// Module « Journal » : écriture au stylet sur la page du jour.
 // Les événements de pointeur sont injectés avec pointerType « pen » (Playwright
 // ne simule pas un vrai stylet) : on vérifie le tracé, la gomme, le refus du
 // doigt, la sauvegarde locale puis l'envoi au serveur (faux Supabase).
@@ -44,7 +44,7 @@ const diagonale: Point[] = [
 
 async function ouvrir(page: import("@playwright/test").Page) {
   await page.goto("/journal");
-  const canvas = page.getByRole("img", { name: /Feuille du soir/ });
+  const canvas = page.getByRole("img", { name: /Journal : écris ici au stylet/ });
   await expect(canvas).toBeVisible();
   return canvas;
 }
@@ -95,7 +95,7 @@ test("la feuille écrite est retrouvée après un rechargement", async ({ page }
   await expect(page.getByTestId("vidage-statut")).toContainText("Enregistré");
 
   await page.reload();
-  const apres = page.getByRole("img", { name: /Feuille du soir/ });
+  const apres = page.getByRole("img", { name: /Journal : écris ici au stylet/ });
   await expect(apres).toBeVisible();
   await expect.poll(() => pixelsEncres(apres)).toBeGreaterThan(50);
 });
@@ -171,7 +171,7 @@ test("Clavier : la note tapée rejoint le texte du jour avec l'heure, la feuille
   await ouvrir(page);
   await page.getByRole("button", { name: "Clavier", exact: true }).click();
   // La feuille et ses outils laissent la place à la zone de texte.
-  await expect(page.getByRole("img", { name: /Feuille du soir/ })).toHaveCount(0);
+  await expect(page.getByRole("img", { name: /Journal : écris ici au stylet/ })).toHaveCount(0);
   await expect(page.getByRole("toolbar", { name: "Outils d'écriture" })).toHaveCount(0);
 
   const champ = page.getByRole("textbox", { name: "Ce que tu as en tête" });
@@ -198,7 +198,7 @@ test("Clavier : la note tapée rejoint le texte du jour avec l'heure, la feuille
   // Revenir au stylo retrouve la feuille.
   await page.getByRole("button", { name: "Fermer" }).click();
   await page.getByRole("button", { name: "Stylo", exact: true }).click();
-  await expect(page.getByRole("img", { name: /Feuille du soir/ })).toBeVisible();
+  await expect(page.getByRole("img", { name: /Journal : écris ici au stylet/ })).toBeVisible();
 });
 
 test("le calendrier montre la feuille qu'on vient d'écrire, même si on l'ouvre aussitôt", async ({ page }) => {
@@ -207,18 +207,18 @@ test("le calendrier montre la feuille qu'on vient d'écrire, même si on l'ouvre
   await tracer(canvas, "pen", diagonale);
   await expect.poll(() => pixelsEncres(canvas)).toBeGreaterThan(50);
 
-  await page.getByRole("link", { name: "Relire", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Relire" })).toBeVisible();
-  await expect(page.locator('a[href="/journal"][aria-label^="Relire le"]')).toBeVisible({ timeout: 15_000 });
+  await page.getByRole("link", { name: "Calendrier", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Calendrier" })).toBeVisible();
+  await expect(page.locator('a[href="/journal"][aria-label^="Voir le"]')).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText("1 soir écrit ce mois-ci.")).toBeVisible();
 });
 
-test("la barre du bas est masquée sur la feuille du soir mais pas sur le calendrier", async ({ page }) => {
+test("la barre du bas est masquée sur la page du jour du Journal mais pas sur le calendrier", async ({ page }) => {
   await ouvrir(page);
   await expect(page.getByRole("toolbar", { name: "Outils d'écriture" })).toBeVisible();
   await expect(page.getByRole("navigation")).toHaveCount(0);
 
   await page.goto("/journal/calendrier");
-  await expect(page.getByRole("heading", { name: "Relire" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Calendrier" })).toBeVisible();
   await expect(page.getByRole("navigation")).toHaveCount(1);
 });

@@ -30,8 +30,8 @@ export function AddCollectionToggle({ onSaved }: { onSaved?: () => void }) {
         +
       </div>
       <div className="flex flex-col gap-[1px]">
-        <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Nouvelle collection</span>
-        <span className="text-xs font-medium text-ink-3">Nouveau classeur</span>
+        <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une collection</span>
+        <span className="text-xs font-medium text-ink-3">Un ensemble de photos ou de liens vidéo</span>
       </div>
     </button>
   );
@@ -49,7 +49,7 @@ export function AddCollectionToggle({ onSaved }: { onSaved?: () => void }) {
 
         <div className="flex gap-2">
           <button type="submit" disabled={pending} className={primaryButton}>
-            {pending ? "Création..." : "Créer"}
+            {pending ? "Ajout..." : "Ajouter"}
           </button>
           <button type="button" onClick={() => setOpen(false)} className={textButton}>
             Annuler

@@ -1,5 +1,5 @@
 // Logique pure du fil vidéo plein écran du module Collection : sélection des
-// vidéos d'un classeur et calcul de l'index affiché à partir du scroll.
+// vidéos d'une collection et calcul de l'index affiché à partir du scroll.
 
 import { estTypeVideo } from "./video";
 

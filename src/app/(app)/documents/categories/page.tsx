@@ -4,7 +4,7 @@ import { getCategoriesAvecCompte } from "@/app/actions/documents-categories";
 import { BackLink } from "@/components/BackLink";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
-import { eyebrow, screenTitle } from "@/lib/ui";
+import { screenTitle } from "@/lib/ui";
 import { CategoriesManager } from "./CategoriesManager";
 
 // Seule la liste lit la base : l'en-tête (titre, retour) reste dans la
@@ -31,7 +31,6 @@ export default function CategoriesPage() {
     <div className="flex flex-col gap-5">
       <div>
         <BackLink href="/documents">Documents</BackLink>
-        <p className={eyebrow}>Documents</p>
         <h1 className={screenTitle}>Catégories</h1>
       </div>
 

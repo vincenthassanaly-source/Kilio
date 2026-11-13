@@ -52,8 +52,8 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <BackLink href="/journal">Feuille du soir</BackLink>
-      <h1 className={screenTitle}>Relire</h1>
+      <BackLink href="/journal">Journal</BackLink>
+      <h1 className={screenTitle}>Calendrier</h1>
 
       <div className="flex items-center justify-between gap-3">
         <button type="button" aria-label="Mois précédent" className={navArrowButton} onClick={() => setMois((m) => decaler(m, -1))}>
@@ -114,7 +114,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
                 <TransitionLink
                   href={jour === aujourdhui ? "/journal" : `/journal/${jour}`}
                   aria-current={jour === aujourdhui ? "date" : undefined}
-                  aria-label={feuille ? `Relire le ${numero}` : `Écrire le ${numero}`}
+                  aria-label={feuille ? `Voir le ${numero}` : `Écrire le ${numero}`}
                   className={`${base} h-full w-full ${feuille ? "border-line bg-surface text-ink" : "border-line/60 text-ink-2"} ${jour === aujourdhui ? "ring-1 ring-kcal" : ""}`}
                 >
                   {feuille?.apercuUrl && (
@@ -136,7 +136,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
 
       {data && !isPlaceholderData && (
         <p className={`${eyebrow} text-center`}>
-          {data.length === 0 ? "Aucune feuille ce mois-ci." : data.length === 1 ? "1 soir écrit ce mois-ci." : `${data.length} soirs écrits ce mois-ci.`}
+          {data.length === 0 ? "Aucune page écrite ce mois-ci." : data.length === 1 ? "1 soir écrit ce mois-ci." : `${data.length} soirs écrits ce mois-ci.`}
         </p>
       )}
     </div>

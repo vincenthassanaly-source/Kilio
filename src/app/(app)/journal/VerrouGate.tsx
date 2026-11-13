@@ -162,7 +162,7 @@ export function VerrouGate({ children }: { children: ReactNode }) {
       <span className="text-ink-2">
         <Cadenas />
       </span>
-      <h1 className={screenTitle}>{inscrit ? "Le Journal est verrouillé" : "Protège ton journal"}</h1>
+      <h1 className={screenTitle}>{inscrit ? "Le Journal est verrouillé" : "Protège ton Journal"}</h1>
       <p className={`${eyebrow} max-w-sm normal-case tracking-normal`}>
         {!configure
           ? "Le verrou n'est pas encore configuré côté serveur (variable VIDAGE_SESSION_SECRET)."

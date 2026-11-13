@@ -82,6 +82,12 @@ export function parentRoute(pathname: string, modulesBarreBasse: readonly string
 
   if (EDITEUR_ROUTINE.test(chemin)) return "/musculation";
 
+  // `/nutrition` sert le Carnet (l'onglet de la barre du bas n'a plus de hub) :
+  // remonter de `/nutrition/journal` à `/nutrition` rouvrirait le même écran.
+  // Le Carnet est donc la racine du module ; Bilan, Menus et Recettes
+  // remontent vers lui par le parent « d'un segment » ci-dessous.
+  if (chemin === "/nutrition/journal") return parentRoute("/nutrition", modulesBarreBasse);
+
   // Une feuille d'un autre jour s'ouvre depuis le calendrier de relecture.
   if (FEUILLE_VIDAGE.test(chemin)) return "/journal/calendrier";
 

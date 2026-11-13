@@ -10,6 +10,7 @@ import { DocumentsList } from "./DocumentsList";
 import { rechercherDocuments } from "@/app/actions/documents-recherche";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { runAction } from "@/lib/actions/runAction";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { TAILLE_LOT_TRI } from "@/lib/documents/tri";
 import { normalizeSearch } from "@/lib/normalize";
 import { card, errorText, input, kcalPillTag, pillTag, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
@@ -69,7 +70,7 @@ function useFiltresAdresse(categoriesInitiales: string[], vracInitial: boolean) 
 }
 
 export function DocumentsBrowser({
-  documents,
+  documents: tousLesDocuments,
   categories,
   vracInitial = false,
   categoriesInitiales = [],
@@ -82,6 +83,12 @@ export function DocumentsBrowser({
   /** Catégories présélectionnées (`?categorie=` : lien depuis l'écran Catégories). */
   categoriesInitiales?: string[];
 }) {
+  // Documents en cours de suppression (toast « Annuler » encore affiché) : cachés.
+  const masques = useMasques("document");
+  const documents = useMemo(
+    () => (masques.size === 0 ? tousLesDocuments : tousLesDocuments.filter((d) => !masques.has(d.id))),
+    [tousLesDocuments, masques]
+  );
   const [search, setSearch] = useState("");
   const { categorieFilter, definirCategories, vracAdresse } = useFiltresAdresse(categoriesInitiales, vracInitial);
   const [tri, setTri] = useState<TriCle>("recent");

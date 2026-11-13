@@ -18,7 +18,7 @@ import { useNavigationEdit } from "@/lib/navigation/NavigationEditContext";
 // Agenda) réactive quand même le swipe entre onglets sur ces routes, sans
 // conflit puisque `<main>` n'y a aucun handler attaché.
 // « Journal » : un trait de stylet horizontal ne doit jamais changer d'onglet.
-const ROUTES_SWIPE_INTERNE = ["/agenda", "/journal"];
+const ROUTES_SWIPE_INTERNE = ["/agenda", "/journal", "/nutrition"];
 
 // Hauteur (hors safe-area) de la bande vide en haut de `<main>`, au-dessus
 // du contenu de page : sert à la fois de `paddingTop` de `<main>` et de

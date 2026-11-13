@@ -18,7 +18,8 @@ import {
   nameTextComplet,
   primaryButton,
 } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { useMasques } from "@/lib/actions/elementsMasques";
 
 const UNITE_LABEL: Record<string, string> = { g: "g", ml: "ml", piece: "pièce" };
 
@@ -103,22 +104,22 @@ function IngredientLine({
             </button>
             <button
               type="button"
-              disabled={isPending}
-              onClick={async () => {
-                if (!(await confirmDelete(`Supprimer l'ingrédient « ${ingredient.aliment.nom} » ?`))) return;
-                setError(null);
-                startTransition(async () => {
-                  try {
-                    await removeIngredient(ingredient.id, recetteId);
-                  } catch (e) {
-                    setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                  }
-                });
-              }}
+              onClick={() =>
+                // Suppression différée : la ligne disparaît tout de suite,
+                // « Annuler » la ramène pendant le délai du toast. Les macros de
+                // la recette (calculées côté serveur) suivent à l'expiration.
+                supprimerAvecAnnulation({
+                  texte: `Ingrédient « ${ingredient.aliment.nom} » supprimé`,
+                  ariaLabel: `Annuler la suppression de l'ingrédient « ${ingredient.aliment.nom} »`,
+                  masque: { type: "recette-ingredient", id: ingredient.id },
+                  supprimer: () => removeIngredient(ingredient.id, recetteId),
+                  erreur: `Impossible de supprimer l'ingrédient « ${ingredient.aliment.nom} ». Réessaie.`,
+                })
+              }
               aria-label={`Supprimer l'ingrédient « ${ingredient.aliment.nom} »`}
               className={dangerButton}
             >
-              Suppr.
+              Supprimer
             </button>
           </>
         )}
@@ -220,13 +221,16 @@ export function IngredientManager({
   aliments: Tables<"aliments">[];
   hideEmptyMessage?: boolean;
 }) {
+  // Ingrédients en cours de suppression (toast « Annuler » encore affiché) : cachés.
+  const masques = useMasques("recette-ingredient");
+  const visibles = ingredients.filter((i) => !masques.has(i.id));
   return (
     <div className="flex flex-col gap-3">
-      {ingredients.length === 0 ? (
+      {visibles.length === 0 ? (
         hideEmptyMessage ? null : <p className="text-sm text-ink-2">Aucun ingrédient pour l&apos;instant.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
-          {ingredients.map((ing) => (
+          {visibles.map((ing) => (
             <IngredientLine key={ing.id} ingredient={ing} recetteId={recetteId} />
           ))}
         </ul>

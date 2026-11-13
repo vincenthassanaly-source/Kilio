@@ -27,7 +27,8 @@ export const ROUTES: RouteContract[] = [
   { path: "/reglages", title: "Réglages" },
   // Ajoutées le 2026-11-04 (mission de nuit performance) : routes principales
   // du menu Plus et des sous-navigations qui n'étaient gardées par aucun test.
-  { path: "/nutrition", title: "Nutrition" },
+  // `/nutrition` (onglet de la barre du bas) sert directement le Carnet : même coquille que /nutrition/journal.
+  { path: "/nutrition", title: "Carnet alimentaire" },
   { path: "/nutrition/menus", title: "Menus" },
   { path: "/nutrition/bilan", title: "Bilan" },
   { path: "/revue", title: "Revue de la semaine" },

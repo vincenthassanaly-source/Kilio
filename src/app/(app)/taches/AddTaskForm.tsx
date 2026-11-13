@@ -260,7 +260,7 @@ export function AddTaskForm({
   // Entrée dans le titre = enregistrer (Maj+Entrée = saut de ligne). Le titre
   // reste un <textarea> pour afficher les titres longs, mais on n'y saisit
   // presque jamais de retour à la ligne : sur clavier mobile, valider doit
-  // être un seul geste, sans fermer le clavier pour viser « Créer ».
+  // être un seul geste, sans fermer le clavier pour viser « Ajouter ».
   const envoyerDepuisTitre = useCallback(() => {
     const form = titreRef.current?.form;
     if (!form || pendingRef.current || submitLockRef.current) return;
@@ -374,7 +374,7 @@ export function AddTaskForm({
       titreRef.current?.focus();
       return;
     }
-    // Jamais deux envois en même temps (double tap, Entrée + « Créer ») : le
+    // Jamais deux envois en même temps (double tap, Entrée + « Ajouter ») : le
     // verrou couvre l'intervalle avant que `pending` ne soit rendu à vrai.
     if (pendingRef.current || submitLockRef.current) return;
     submitLockRef.current = true;
@@ -800,7 +800,7 @@ export function AddTaskForm({
         )}
 
         <button type="submit" disabled={pending} className={`${primaryButton} min-h-11 w-full shadow-card`}>
-          {pending ? "Enregistrement..." : tache ? "Enregistrer" : "Créer"}
+          {pending ? "Enregistrement..." : tache ? "Enregistrer" : "Ajouter"}
         </button>
       </div>
     </form>

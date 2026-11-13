@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition, type FormEvent } from "react";
+import { useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { creerIdee, getIdees, type Idee } from "@/app/actions/opinions";
@@ -22,6 +22,7 @@ import {
   type Theme,
 } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { cardTight, errorText, input, label, metaText, pillTag, primaryButton } from "@/lib/ui";
 import { PartisView } from "./PartisView";
 import { PrioritesEditor } from "./PrioritesEditor";
@@ -89,7 +90,13 @@ export function OpinionsView() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [ajoutEnCours, startAjout] = useTransition();
   const champRef = useRef<HTMLInputElement>(null);
-  const { data: idees, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.opinions, queryFn: getIdees });
+  const { data: toutesIdees, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.opinions, queryFn: getIdees });
+  // Idées en cours de suppression (toast « Annuler » encore affiché) : cachées.
+  const masquees = useMasques("idee");
+  const idees = useMemo(
+    () => (masquees.size === 0 ? toutesIdees : toutesIdees?.filter((i) => !masquees.has(i.id))),
+    [toutesIdees, masquees]
+  );
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: queryKeys.opinions });

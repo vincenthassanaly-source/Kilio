@@ -11,7 +11,6 @@ import {
   libelleDuree,
   type Plage,
 } from "@/lib/programme/disponibilites";
-import { ghostButton } from "@/lib/ui";
 import {
   computeInitialScrollMinutes,
   getTacheBlockStyle,
@@ -30,21 +29,6 @@ import { EvenementBlock } from "./EvenementBlock";
 const ZOOM = 1;
 // Sous cette hauteur (px), un trou libre n'a plus la place d'afficher sa durée.
 const HAUTEUR_MIN_LIBELLE_PX = 26;
-
-const PLUS_ICON = (
-  <svg
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.2"
-    strokeLinecap="round"
-    aria-hidden="true"
-  >
-    <path d="M12 5v14M5 12h14" />
-  </svg>
-);
 
 type Positions = ReturnType<typeof layoutChevauchements>;
 
@@ -168,7 +152,6 @@ export function DayTimeline({
   creneaux,
   libres,
   maintenant,
-  onAddEvenement,
   onSelectEvenement,
   onSelectTache,
 }: {
@@ -182,7 +165,6 @@ export function DayTimeline({
   // planification des tâches (`plagesLibresDuJour`, testé).
   libres: Plage[];
   maintenant: string;
-  onAddEvenement: () => void;
   onSelectEvenement: (evenement: Evenement) => void;
   onSelectTache: (id: string) => void;
 }) {
@@ -243,14 +225,6 @@ export function DayTimeline({
           </h2>
           {resume && <p className="truncate text-small text-ink-2">{resume}</p>}
         </div>
-        <button
-          type="button"
-          onClick={onAddEvenement}
-          className={`${ghostButton} flex shrink-0 items-center gap-1.5`}
-        >
-          {PLUS_ICON}
-          Événement
-        </button>
       </div>
 
       {replie ? (

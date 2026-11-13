@@ -5,7 +5,6 @@ import type { TacheAvecRelations } from "@/app/actions/taches";
 import { card } from "@/lib/ui";
 import type { Plage } from "@/lib/programme/disponibilites";
 import { DashboardTaskItem } from "../DashboardTaskItem";
-import { AjoutRapideTache } from "./AjoutRapideTache";
 import { PlanifierPanneau } from "./PlanifierPanneau";
 
 // Pastille « Planifier » : 36 px visibles, zone de tap étendue à 44 px.
@@ -81,7 +80,6 @@ export function TachesDuJour({
   today,
   libres,
   tacheSurlignee,
-  onTacheCreee,
 }: {
   // Toutes les tâches du jour (faites ou non), déjà triées.
   taches: TacheAvecRelations[];
@@ -89,8 +87,6 @@ export function TachesDuJour({
   // Trous libres du jour, pour « Planifier ».
   libres: Plage[];
   tacheSurlignee: string | null;
-  // Une tâche vient d'être ajoutée via le champ rapide : l'appelant la surligne.
-  onTacheCreee: (id: string) => void;
 }) {
   // Un seul panneau de planification ouvert à la fois.
   const [planificationId, setPlanificationId] = useState<string | null>(null);
@@ -109,8 +105,6 @@ export function TachesDuJour({
           </span>
         )}
       </div>
-
-      <AjoutRapideTache today={today} onCreated={onTacheCreee} />
 
       {taches.length === 0 ? (
         <p className="text-label text-ink-2">Rien de prévu aujourd&apos;hui.</p>

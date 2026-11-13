@@ -96,7 +96,7 @@ export function lignesAnalyse(d: DonneesAnalyse): string[] {
     const s = d.sante;
     const morceaux = [
       s.kcal
-        ? `kcal moyens ${Math.round(s.kcal.moyenne)} pour une limite moyenne de ${Math.round(s.kcal.cibleMoyenne)}, ${s.kcal.nbDansLimite} jour(s) sur ${s.kcal.nbJours} dans la limite`
+        ? `kcal moyens ${Math.round(s.kcal.moyenne)} pour une limite moyenne de ${Math.round(s.kcal.cibleMoyenne)}, ${s.kcal.nbDansLimite} jour(s) sur ${s.kcal.nbJours} sous la limite kcal`
         : "pas assez de repas saisis pour juger les kcal",
       `séances de sport ${s.seances.faites}/${s.seances.total}`,
       s.poids ? `poids ${arrondi(s.poids.actuel)} kg${deltaTexte(s.poids.delta, "kg")}` : null,

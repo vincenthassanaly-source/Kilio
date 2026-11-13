@@ -3,10 +3,10 @@
 import { useId, useRef, useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { modifierNotion, supprimerNotion } from "@/app/actions/pharmacie";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { showToast } from "@/components/toast/toast-store";
 import { queryKeys } from "@/lib/query/keys";
 import { dangerButton, errorText, input, label, primaryButton } from "@/lib/ui";
@@ -35,14 +35,11 @@ export function NotionEditeur({
   const [contenu, setContenu] = useState(notion.contenu);
   const [tags, setTags] = useState(notion.tags.join(", "));
   const [erreur, setErreur] = useState<string | null>(null);
-  const [confirmerSuppression, setConfirmerSuppression] = useState(false);
   const [enCours, startTransition] = useTransition();
   const idContenu = useId();
   const zoneRef = useRef<HTMLTextAreaElement>(null);
 
-  // Retour ferme d'abord la confirmation (entrée du dessus), puis l'éditeur.
   useBackClose(true, onClose);
-  useBackClose(confirmerSuppression, () => setConfirmerSuppression(false));
 
   // Colore la ligne du curseur (ou toutes les lignes de la sélection) sans
   // que l'utilisateur ait à taper la syntaxe `[couleur]` à la main.
@@ -77,13 +74,18 @@ export function NotionEditeur({
     });
   }
 
+  // Suppression différée : la notion disparaît tout de suite du chapitre (la
+  // fenêtre se ferme), « Annuler » la ramène pendant le délai du toast. Ses cartes
+  // de révision partent avec elle à l'expiration du délai ; annuler = rien n'a changé.
   function supprimer() {
-    startTransition(async () => {
-      const resultat = await runAction(() => supprimerNotion(notion.id), { onError: () => setConfirmerSuppression(false) });
-      if (!resultat.ok) return;
-      await queryClient.invalidateQueries({ queryKey: queryKeys.pharmacie });
-      showToast("Notion supprimée");
-      onClose();
+    supprimerAvecAnnulation({
+      texte: `Notion « ${notion.titre} » supprimée${nbCartes > 0 ? ` avec ${pluriel(nbCartes, "carte")} de révision` : ""}`,
+      ariaLabel: `Annuler la suppression de la notion « ${notion.titre} »`,
+      masque: { type: "pharma-notion", id: notion.id },
+      masquer: onClose,
+      supprimer: () => supprimerNotion(notion.id),
+      erreur: `Impossible de supprimer la notion « ${notion.titre} ». Réessaie.`,
+      onSupprime: () => void queryClient.invalidateQueries({ queryKey: queryKeys.pharmacie }),
     });
   }
 
@@ -152,7 +154,7 @@ export function NotionEditeur({
             </p>
           )}
           <div className="flex items-center justify-between gap-3">
-            <button type="button" onClick={() => setConfirmerSuppression(true)} disabled={enCours} className={dangerButton}>
+            <button type="button" onClick={supprimer} disabled={enCours} className={dangerButton}>
               Supprimer
             </button>
             <button type="submit" disabled={enCours} className={`${primaryButton} min-h-11`}>
@@ -161,16 +163,6 @@ export function NotionEditeur({
           </div>
         </form>
       </Modal>
-      <ConfirmDialog
-        open={confirmerSuppression}
-        titre="Supprimer cette notion ?"
-        confirmer={nbCartes > 0 ? `Supprimer la notion et ${pluriel(nbCartes, "carte")}` : "Supprimer la notion"}
-        enCours={enCours}
-        onConfirm={supprimer}
-        onClose={() => setConfirmerSuppression(false)}
-      >
-        <p>« {notion.titre} » sera supprimée définitivement, ainsi que ses cartes de révision.</p>
-      </ConfirmDialog>
     </>
   );
 }

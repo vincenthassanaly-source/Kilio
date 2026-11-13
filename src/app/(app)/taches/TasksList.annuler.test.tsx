@@ -56,7 +56,7 @@ describe("TaskCard : annuler une suppression", () => {
     const confirmSpy = vi.spyOn(window, "confirm");
     monter();
 
-    await userEvent.click(screen.getByRole("button", { name: /Appeler le dentiste/ }));
+    await userEvent.click(screen.getByRole("button", { name: /Appeler le dentiste.*\(modifier\)/ }));
     await userEvent.click(await screen.findByRole("button", { name: "Supprimer" }));
 
     expect(confirmSpy).not.toHaveBeenCalled();
@@ -80,7 +80,7 @@ describe("TaskCard : annuler une coche", () => {
     vi.mocked(annulerCochage).mockResolvedValue({ ok: true, data: undefined });
     monter();
 
-    await userEvent.click(screen.getByRole("button", { name: "Marquer fait" }));
+    await userEvent.click(screen.getByRole("button", { name: "Marquer « Appeler le dentiste » comme fait" }));
     await waitFor(() => expect(setTacheFait).toHaveBeenCalled());
 
     await waitFor(() => expect(() => toastAvecAction("faite")).not.toThrow());
@@ -94,7 +94,7 @@ describe("TaskCard : annuler une coche", () => {
     vi.mocked(annulerCochage).mockResolvedValue({ ok: true, data: undefined });
     monter(makeTache({ id: "t1", titre: "Arroser", echeance: "2026-09-30", recurrence_frequence: "quotidien" }));
 
-    await userEvent.click(screen.getByRole("button", { name: "Marquer fait" }));
+    await userEvent.click(screen.getByRole("button", { name: "Marquer « Arroser » comme fait" }));
     await waitFor(() => expect(() => toastAvecAction("« Arroser » faite")).not.toThrow());
     act(() => toastAvecAction("« Arroser » faite").onAction());
 

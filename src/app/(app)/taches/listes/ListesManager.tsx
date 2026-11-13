@@ -10,13 +10,13 @@ import { dangerButton, ghostButton, listCard, nameText } from "@/lib/ui";
 // de TasksList) au lieu du glyphe nu de 13×23 px.
 const flecheOrdre =
   "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-body text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
-import { confirmDelete } from "@/lib/confirm";
-import { libelleNombreTaches, messageSuppressionListe } from "@/lib/taches/compute";
+import { libelleNombreTaches } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
-import { showToast } from "@/components/toast/toast-store";
-import { isNetworkError } from "@/lib/offline/queue";
 import { AddListeForm } from "./AddListeForm";
 import { runAction } from "@/lib/actions/runAction";
+import { fail, ok } from "@/lib/actions/result";
+import { useMasques } from "@/lib/actions/elementsMasques";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 
 type CompteTaches = { total: number; faites: number };
 
@@ -33,7 +33,6 @@ function ListeRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   if (editing) {
@@ -47,26 +46,15 @@ function ListeRow({
           {/* La suppression vit ici, hors de la ligne : plus de bouton rouge
               sous le pouce à côté de « Modifier ». */}
           {liste.nom !== "Général" && (
-            <button type="button" disabled={isPending} onClick={handleDelete} className={dangerButton}>
+            <button type="button" onClick={handleDelete} className={dangerButton}>
               Supprimer la liste
             </button>
           )}
         </div>
-        {error && (
-          <p className="text-label text-alert" role="alert">
-            {error}
-          </p>
-        )}
       </li>
     );
   }
 
-  // Supprimer une liste supprime aussi TOUTES ses tâches (faites ou non),
-  // leurs sous-tâches et leurs images : la confirmation annonce le nombre
-  // exact. Le compte affiché peut être périmé (page chargée avant un ajout
-  // ou une suppression ailleurs) : il est transmis au serveur comme total
-  // attendu ; s'il ne correspond plus, rien n'est supprimé et le serveur
-  // renvoie les chiffres réels pour une nouvelle confirmation.
   function reordonner(sens: "haut" | "bas") {
     startTransition(async () => {
       await runAction(() => reordonnerListes(liste.id, sens));
@@ -74,40 +62,34 @@ function ListeRow({
     });
   }
 
-  async function handleDelete() {
-    if (!(await confirmDelete(messageSuppressionListe(liste.nom, compte.total, compte.faites)))) return;
-    setError(null);
-    startTransition(async () => {
-      try {
-        let resultat = await deleteListe(liste.id, compte.total > 0, compte.total);
-
+  // Supprimer une liste supprime aussi TOUTES ses tâches (faites ou non), leurs
+  // sous-tâches et leurs images. Suppression différée : la liste disparaît tout de
+  // suite, le toast annonce le nombre de tâches emportées, « Annuler » ramène la
+  // liste (et ses tâches, intactes) pendant le délai. Le compte affiché peut être
+  // périmé (page chargée avant un ajout ailleurs) : il part au serveur comme total
+  // attendu ; s'il ne correspond plus à l'expiration du délai, rien n'est supprimé,
+  // la liste revient et un message l'explique (le serveur garde ce garde-fou).
+  function handleDelete() {
+    const taches = compte.total === 0 ? "" : compte.total === 1 ? " avec sa tâche" : ` avec ses ${compte.total} tâches`;
+    supprimerAvecAnnulation({
+      texte: `Liste « ${liste.nom} » supprimée${taches}`,
+      ariaLabel: `Annuler la suppression de la liste « ${liste.nom} »`,
+      masque: { type: "liste-taches", id: liste.id },
+      masquer: () => setEditing(false),
+      supprimer: async () => {
+        const resultat = await deleteListe(liste.id, compte.total > 0, compte.total);
         if (resultat.confirmation) {
-          const reel = resultat.confirmation;
-          if (!(await confirmDelete(messageSuppressionListe(liste.nom, reel.total, reel.faites)))) return;
-          resultat = await deleteListe(liste.id, true, reel.total);
-          if (resultat.confirmation) {
-            setError("Le contenu de la liste vient encore de changer : rien n'a été supprimé. Réessaie.");
-            return;
-          }
+          return fail("Le contenu de la liste vient de changer : rien n'a été supprimé. Réessaie.");
         }
-
-        if (resultat.error) {
-          setError(resultat.error);
-          return;
-        }
-
-        // /taches lit ses données via TanStack Query (30 s de fraîcheur) :
-        // sans invalidation, la liste et ses tâches y resteraient affichées.
+        return resultat.error ? fail(resultat.error) : ok();
+      },
+      erreur: `Impossible de supprimer la liste « ${liste.nom} ». Réessaie.`,
+      // /taches lit ses données via TanStack Query (30 s de fraîcheur) :
+      // sans invalidation, la liste et ses tâches y resteraient affichées.
+      onSupprime: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.taches });
         queryClient.invalidateQueries({ queryKey: queryKeys.listes });
-        showToast("Liste supprimée");
-      } catch (err) {
-        setError(
-          isNetworkError(err)
-            ? "Connexion impossible : la liste n'a pas été supprimée. Vérifie ta connexion et réessaie."
-            : "Une erreur est survenue : la liste n'a peut-être pas été supprimée. Réessaie."
-        );
-      }
+      },
     });
   }
 
@@ -150,11 +132,6 @@ function ListeRow({
           </button>
         </div>
       </div>
-      {error && (
-        <p className="text-label text-alert" role="alert">
-          {error}
-        </p>
-      )}
     </li>
   );
 }
@@ -166,18 +143,21 @@ export function ListesManager({
   listes: Tables<"listes_taches">[];
   comptes: Record<string, CompteTaches>;
 }) {
-  if (listes.length === 0) {
+  // Listes en cours de suppression (toast « Annuler » encore affiché) : cachées.
+  const masquees = useMasques("liste-taches");
+  const visibles = listes.filter((l) => !masquees.has(l.id));
+  if (visibles.length === 0) {
     return <p className="text-ink-2">Aucune liste pour l&apos;instant.</p>;
   }
 
   return (
     <ul className="flex flex-col gap-2.5">
-      {listes.map((liste, index) => (
+      {visibles.map((liste, index) => (
         <ListeRow
           key={liste.id}
           liste={liste}
           index={index}
-          total={listes.length}
+          total={visibles.length}
           compte={comptes[liste.id] ?? { total: 0, faites: 0 }}
         />
       ))}

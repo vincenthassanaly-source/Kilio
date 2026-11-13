@@ -56,7 +56,7 @@ function EntryRow({ entry, onDelete }: { entry: JournalEntryView; onDelete: (id:
             aria-label={`Supprimer « ${entry.label} »`}
             className={dangerButton}
           >
-            Suppr.
+            Supprimer
           </button>
         </div>
       </div>

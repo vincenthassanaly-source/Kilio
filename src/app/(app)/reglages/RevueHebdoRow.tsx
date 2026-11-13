@@ -65,7 +65,7 @@ export function RevueHebdoRow({ reglages }: { reglages: Pick<Tables<"reglages_br
             >
               <RevueIcon />
             </span>
-            Rappel de revue hebdo
+            Rappel de la revue hebdomadaire
           </span>
           <Switch
             checked={etat.actif}

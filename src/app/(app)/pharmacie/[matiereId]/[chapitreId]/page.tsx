@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { card, linkButton, pillTag, screenTitle, secondaryButton } from "@/lib/ui";
 import { notionsDeChapitre } from "@/lib/pharmacie/selecteurs";
 import { pluriel } from "@/lib/pharmacie/format";
@@ -36,6 +37,8 @@ function Chapitre({
 }) {
   const [sommaireOuvert, setSommaireOuvert] = useState(false);
   const [enEdition, setEnEdition] = useState<PharmaNotion | null>(null);
+  // Notions en cours de suppression (toast « Annuler » encore affiché) : cachées.
+  const masquees = useMasques("pharma-notion");
 
   useBackClose(sommaireOuvert, () => setSommaireOuvert(false));
 
@@ -61,7 +64,7 @@ function Chapitre({
     );
   }
 
-  const notions = notionsDeChapitre(snapshot, chapitre.id);
+  const notions = notionsDeChapitre(snapshot, chapitre.id).filter((n) => !masquees.has(n.id));
 
   function allerA(notionId: string) {
     setSommaireOuvert(false);

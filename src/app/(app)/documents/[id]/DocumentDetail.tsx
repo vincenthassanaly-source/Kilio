@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { deleteDocument, type DocumentAvecFichiers } from "@/app/actions/documents";
 import { DocumentForm } from "../DocumentForm";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { actionsLigne, card, dangerButton, errorText, ghostButton, pillTag, primaryButton, secondaryButton, textButton } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
-import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { chargerFichiers, nomDeFichier, partager, peutPartager, telecharger } from "@/lib/documents/partage";
 import { BoutonDescription } from "../BoutonDescription";
 import { BoutonRemettreEnVrac } from "../BoutonRemettreEnVrac";
@@ -30,7 +30,7 @@ export function DocumentDetail({
   categories: string[];
 }) {
   const [editing, setEditing] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [lightboxAlt, setLightboxAlt] = useState<string>("Photo agrandie");
@@ -118,21 +118,25 @@ export function DocumentDetail({
           </button>
           <button
             type="button"
-            disabled={isPending}
-            onClick={async () => {
-              if (!(await confirmDelete(`Supprimer le document « ${document.nom} » ?`))) return;
+            onClick={() => {
               setError(null);
-              // Contrat T1 : `runAction` affiche un toast français (hors ligne
-              // compris) et relance l'erreur de `redirect()` (CLICK-PATH-701).
-              startTransition(async () => {
-                await runAction(() => deleteDocument(document.id), {
-                  erreur: `Le document « ${document.nom} » n'a pas pu être supprimé. Réessaie.`,
-                });
+              // Suppression différée : retour à la liste (où le document est
+              // masqué), « Annuler » le ramène pendant le délai du toast ; le
+              // document et ses fichiers (stockage compris) ne sont supprimés
+              // qu'ensuite, même si on quitte l'écran entre-temps. Le serveur ne
+              // redirige plus (voir deleteDocument).
+              supprimerAvecAnnulation({
+                texte: `Document « ${document.nom} » supprimé`,
+                ariaLabel: `Annuler la suppression du document « ${document.nom} »`,
+                masque: { type: "document", id: document.id },
+                masquer: () => router.push("/documents"),
+                supprimer: () => deleteDocument(document.id),
+                erreur: `Le document « ${document.nom} » n'a pas pu être supprimé. Réessaie.`,
               });
             }}
             className={dangerButton}
           >
-            Suppr.
+            Supprimer
           </button>
         </div>
       </div>

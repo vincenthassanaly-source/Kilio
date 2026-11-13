@@ -200,7 +200,7 @@ export function RecetteForm({
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Enregistrement..." : recette ? "Enregistrer" : "Créer la recette"}
+        {pending ? "Enregistrement..." : recette ? "Enregistrer" : "Ajouter"}
       </button>
     </form>
   );

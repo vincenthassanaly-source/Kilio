@@ -4,17 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { enregistrerRoutine, getRoutine, getRoutines, supprimerRoutine } from "@/app/actions/musculation";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import {
   CHAMPS_PAR_MODE,
   dureeEnMinutes,
   LIMITES_CHAMP,
   minutesVersSecondes,
   secondesVersMinutes,
-  TYPES_SEANCE,
   TYPES_SERIE,
   TYPE_SERIE_LABELS,
   type ChampSerie,
@@ -24,6 +23,7 @@ import {
 import {
   NB_EXERCICES_ROUTINE_MAX,
   NB_SERIES_EXERCICE_MAX,
+  ERREUR_NOM_ROUTINE,
   validerRoutine,
   type RoutineDetail,
   type RoutineExerciceDetail,
@@ -32,6 +32,7 @@ import {
 import { formaterMinutes } from "@/lib/musculation/seance";
 import type { ExerciceCatalogue } from "@/lib/musculation/serveur";
 import { queryKeys } from "@/lib/query/keys";
+import { LIBELLES_TYPE, ORDRE_TYPES } from "@/lib/seances/compute";
 import { card, dangerButton, errorText, ghostButton, input, label, metaText, nameText, primaryButton, screenTitle, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { AnimationVignette } from "../../AnimationExercice";
 import { ChampNombre } from "../../seance/ChampNombre";
@@ -72,11 +73,12 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
   const [dossierId, setDossierId] = useState<string | null>(initial?.dossierId ?? null);
   const [exercices, setExercices] = useState<RoutineExerciceDetail[]>(initial?.exercices ?? []);
   const [selecteur, setSelecteur] = useState(false);
-  const [suppression, setSuppression] = useState(false);
   const [enCours, setEnCours] = useState(false);
   // Série dont le sélecteur de type est ouvert, sous la forme « exercice-rang ».
   const [typeOuvert, setTypeOuvert] = useState<string | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
+  // Erreur propre au champ « Nom » : affichée juste dessous, pas sous la liste d'exercices.
+  const [erreurNom, setErreurNom] = useState<string | null>(null);
 
   const { data: liste } = useQuery({ queryKey: queryKeys.musculationRoutines, queryFn: getRoutines });
   const dossiers = liste?.dossiers ?? [];
@@ -111,10 +113,17 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
     };
     const message = validerRoutine(entree);
     if (message) {
-      setErreur(message);
+      if (message === ERREUR_NOM_ROUTINE) {
+        setErreur(null);
+        setErreurNom(message);
+      } else {
+        setErreurNom(null);
+        setErreur(message);
+      }
       return;
     }
     setErreur(null);
+    setErreurNom(null);
     setEnCours(true);
     const resultat = await runAction(() => enregistrerRoutine(entree), { silencieux: true, onError: setErreur });
     setEnCours(false);
@@ -124,16 +133,21 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
     router.replace("/musculation");
   }
 
-  async function supprimer() {
+  // Suppression différée : retour à la liste (où la routine est masquée),
+  // « Annuler » la ramène pendant le délai du toast. Les séances déjà faites ne
+  // sont pas touchées, avant comme après la suppression.
+  function supprimer() {
     if (!initial) return;
-    setEnCours(true);
-    const resultat = await runAction(() => supprimerRoutine(initial.id));
-    setEnCours(false);
-    setSuppression(false);
-    if (!resultat.ok) return;
-    invalider();
-    showToast("Routine supprimée");
-    router.replace("/musculation");
+    const cible = initial;
+    supprimerAvecAnnulation({
+      texte: `Routine « ${cible.nom} » supprimée`,
+      ariaLabel: `Annuler la suppression de la routine « ${cible.nom} »`,
+      masque: { type: "routine", id: cible.id },
+      masquer: () => router.replace("/musculation"),
+      supprimer: () => supprimerRoutine(cible.id),
+      erreur: `Impossible de supprimer la routine « ${cible.nom} ». Réessaie.`,
+      onSupprime: invalider,
+    });
   }
 
   const chip = (actif: boolean) =>
@@ -152,11 +166,21 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
           <input
             value={nom}
             maxLength={80}
-            onChange={(e) => setNom(e.target.value)}
+            onChange={(e) => {
+              setNom(e.target.value);
+              setErreurNom(null);
+            }}
             placeholder="Ex. Push A"
             autoComplete="off"
+            aria-invalid={erreurNom ? true : undefined}
+            aria-describedby={erreurNom ? "erreur-nom-routine" : undefined}
             className={input}
           />
+          {erreurNom && (
+            <span id="erreur-nom-routine" role="alert" className={errorText}>
+              {erreurNom}
+            </span>
+          )}
         </label>
 
         <div className="flex flex-col gap-1.5" role="group" aria-label="Type de séance">
@@ -165,9 +189,9 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
             <button type="button" aria-pressed={typeSeance === null} className={chip(typeSeance === null)} onClick={() => setTypeSeance(null)}>
               Aucun
             </button>
-            {TYPES_SEANCE.map((t) => (
+            {ORDRE_TYPES.map((t) => (
               <button key={t} type="button" aria-pressed={typeSeance === t} className={chip(typeSeance === t)} onClick={() => setTypeSeance(t)}>
-                {t}
+                {LIBELLES_TYPE[t]}
               </button>
             ))}
           </div>
@@ -338,7 +362,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
           Enregistrer
         </button>
         {initial && (
-          <button type="button" className={dangerButton} onClick={() => setSuppression(true)} disabled={enCours}>
+          <button type="button" className={dangerButton} onClick={supprimer} disabled={enCours}>
             Supprimer la routine
           </button>
         )}
@@ -352,17 +376,6 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
           setExercices((courant) => [...courant, exerciceDepuisCatalogue(e)]);
         }}
       />
-
-      <ConfirmDialog
-        open={suppression}
-        titre="Supprimer la routine ?"
-        confirmer="Supprimer la routine"
-        enCours={enCours}
-        onClose={() => setSuppression(false)}
-        onConfirm={() => void supprimer()}
-      >
-        <p>La routine « {initial?.nom} » sera supprimée. Les séances déjà faites ne sont pas touchées.</p>
-      </ConfirmDialog>
     </div>
   );
 }

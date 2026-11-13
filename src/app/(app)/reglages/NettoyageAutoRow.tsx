@@ -12,7 +12,7 @@ import { errorText, input } from "@/lib/ui";
 // constante TABLES) : à tenir aligné avec elle.
 const ELEMENTS_NETTOYES = [
   "les tâches et sous-tâches faites",
-  "les articles de courses cochés",
+  "les articles de courses pris",
   "les items de notes cochés",
 ];
 import type { Tables } from "@/lib/supabase/types";

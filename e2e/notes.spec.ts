@@ -23,7 +23,7 @@ test("crée une note texte avec une couleur", async ({ page }) => {
   await page.getByRole("textbox", { name: "Titre" }).fill(titre);
   await page.getByRole("textbox", { name: "Contenu" }).fill("Lisbonne en mai");
   await page.getByRole("button", { name: "Sauge" }).click();
-  await page.getByRole("button", { name: "Créer la note" }).click();
+  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
 
   await expect(page.getByRole("main").getByText(titre)).toBeVisible();
   await expect
@@ -44,11 +44,11 @@ test("crée une checklist avec ses éléments, dans l'ordre", async ({ page }) =
 
   const item = page.getByRole("textbox", { name: "Ajouter un item" });
   await item.fill("Pain");
-  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
+  await page.getByRole("button", { name: "Ajouter l'item", exact: true }).click();
   await item.fill("Lait");
-  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
+  await page.getByRole("button", { name: "Ajouter l'item", exact: true }).click();
 
-  await page.getByRole("button", { name: "Créer la note" }).click();
+  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
 
   await expect(page.getByRole("main").getByText(titre)).toBeVisible();
   await expect

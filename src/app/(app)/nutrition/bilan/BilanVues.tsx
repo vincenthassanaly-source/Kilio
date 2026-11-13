@@ -29,7 +29,7 @@ const pluriel = (n: number) => (n > 1 ? "jours" : "jour");
 function libelleStatut(jour: JourBilan): string {
   switch (jour.statut) {
     case "reussi":
-      return "dans les clous";
+      return "cibles kcal et protéines atteintes";
     case "rate":
       return jour.cible && Math.round(jour.consomme.kcal) > jour.cible.kcal
         ? "kcal au-dessus de l'objectif"
@@ -276,7 +276,7 @@ export function ResumeTaux({
       <span className="font-semibold text-ink">
         {reussis} {pluriel(reussis)} sur {evalues}
       </span>{" "}
-      dans les clous sur {periode} ({pct} %).
+      avec les cibles kcal et protéines atteintes sur {periode} ({pct} %).
     </p>
   );
 }

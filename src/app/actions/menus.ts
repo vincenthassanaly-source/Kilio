@@ -78,7 +78,7 @@ export async function validerMenuEntry(id: string): Promise<ActionResult> {
 
   if (erreurJournal || !entree) {
     await supabase.from("menus_repas").update({ mange: false }).eq("id", id);
-    return fail("Le repas n'a pas pu être ajouté au Journal. Réessaie.");
+    return fail("Le repas n'a pas pu être ajouté au Carnet alimentaire. Réessaie.");
   }
 
   const { error: erreurLien } = await supabase

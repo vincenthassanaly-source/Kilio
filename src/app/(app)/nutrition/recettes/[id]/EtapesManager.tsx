@@ -13,7 +13,8 @@ import {
   nameTextComplet,
   primaryButton,
 } from "@/lib/ui";
-import { confirmDelete } from "@/lib/confirm";
+import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { useMasques } from "@/lib/actions/elementsMasques";
 
 type EtapeRow = Tables<"recette_etapes">;
 
@@ -111,22 +112,22 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
               </button>
               <button
                 type="button"
-                disabled={isPending}
-                onClick={async () => {
-                  if (!(await confirmDelete(`Supprimer l'étape ${index + 1} ?`))) return;
-                  setError(null);
-                  startTransition(async () => {
-                    try {
-                      await removeEtape(etape.id, recetteId);
-                    } catch (e) {
-                      setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                    }
-                  });
-                }}
+                onClick={() =>
+                  // Suppression différée : l'étape disparaît tout de suite (les
+                  // suivantes se renumérotent), « Annuler » la ramène pendant le
+                  // délai du toast.
+                  supprimerAvecAnnulation({
+                    texte: `Étape ${index + 1} supprimée`,
+                    ariaLabel: `Annuler la suppression de l'étape ${index + 1}`,
+                    masque: { type: "recette-etape", id: etape.id },
+                    supprimer: () => removeEtape(etape.id, recetteId),
+                    erreur: `Impossible de supprimer l'étape ${index + 1}. Réessaie.`,
+                  })
+                }
                 aria-label={`Supprimer l'étape ${index + 1}`}
                 className={dangerButton}
               >
-                Suppr.
+                Supprimer
               </button>
             </>
           )}
@@ -174,13 +175,16 @@ function AddEtapeForm({ recetteId }: { recetteId: string }) {
 }
 
 export function EtapesManager({ recetteId, etapes }: { recetteId: string; etapes: EtapeRow[] }) {
+  // Étapes en cours de suppression (toast « Annuler » encore affiché) : cachées.
+  const masquees = useMasques("recette-etape");
+  const visibles = etapes.filter((e) => !masquees.has(e.id));
   return (
     <div className="flex flex-col gap-3">
-      {etapes.length === 0 ? (
+      {visibles.length === 0 ? (
         <p className="text-sm text-ink-2">Aucune étape pour l&apos;instant.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
-          {etapes.map((etape, index) => (
+          {visibles.map((etape, index) => (
             <EtapeLine key={etape.id} etape={etape} index={index} recetteId={recetteId} />
           ))}
         </ul>

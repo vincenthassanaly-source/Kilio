@@ -10,6 +10,7 @@ import { classerPartis, libelleParti, moyennesParAxe, type Marqueur } from "@/li
 import { calculerProfil } from "@/lib/opinions/profil";
 import { AXES, type AxeId } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
+import { useMasques } from "@/lib/actions/elementsMasques";
 import { addCard, addCardIcon, card, sectionTitle } from "@/lib/ui";
 import { ClassementProximite } from "./ClassementProximite";
 import { MarqueursAxes } from "./MarqueursAxes";
@@ -23,9 +24,30 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
   const partis = useQuery({ queryKey: queryKeys.opinionsPartis, queryFn: getPartis });
   const priorites = useQuery({ queryKey: queryKeys.opinionsPriorites, queryFn: getPriorites });
 
+  // Partis, programmes et propositions en cours de suppression (toast « Annuler »
+  // encore affiché) : cachés, avec leurs enfants, et exclus des calculs de proximité.
+  const partisMasques = useMasques("parti");
+  const programmesMasques = useMasques("programme");
+  const propositionsMasquees = useMasques("proposition");
+  const donnees = useMemo(() => {
+    if (!partis.data) return undefined;
+    if (partisMasques.size + programmesMasques.size + propositionsMasquees.size === 0) return partis.data;
+    return partis.data
+      .filter((parti) => !partisMasques.has(parti.id))
+      .map((parti) => ({
+        ...parti,
+        programmes: parti.programmes
+          .filter((programme) => !programmesMasques.has(programme.id))
+          .map((programme) => ({
+            ...programme,
+            propositions: programme.propositions.filter((proposition) => !propositionsMasquees.has(proposition.id)),
+          })),
+      }));
+  }, [partis.data, partisMasques, programmesMasques, propositionsMasquees]);
+
   const classement = useMemo(
-    () => (partis.data ? classerPartis(partis.data, idees, priorites.data ?? {}) : []),
-    [partis.data, idees, priorites.data]
+    () => (donnees ? classerPartis(donnees, idees, priorites.data ?? {}) : []),
+    [donnees, idees, priorites.data]
   );
   const profil = useMemo(() => calculerProfil(idees), [idees]);
   const aDesIdees = profil.some((p) => p.nombre > 0);
@@ -49,7 +71,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
   }, [profil, classement]);
 
   if (partis.isLoading) return <ListItemSkeletonGroup withSubtitle />;
-  if (partis.isError || !partis.data) {
+  if (partis.isError || !donnees) {
     return (
       <ErrorInline message="Impossible de charger les partis." retry={() => partis.refetch()} />
     );
@@ -95,7 +117,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
           </div>
         </button>
 
-        {partis.data.length === 0 ? (
+        {donnees.length === 0 ? (
           <p className="text-ink-2">Aucun parti pour l&apos;instant.</p>
         ) : (
           <ul className="flex flex-col gap-2.5">
@@ -112,7 +134,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
         {ajout && (
           <PartiFormModal
             key="ajout"
-            couleursUtilisees={partis.data.map((p) => p.couleur)}
+            couleursUtilisees={donnees.map((p) => p.couleur)}
             onClose={() => setAjout(false)}
             onSaved={() => {
               setAjout(false);
