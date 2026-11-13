@@ -3,6 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PageBrouillon } from "@/lib/scanner/brouillon";
 import { ExportPanel } from "./ExportPanel";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("@/app/actions/documents-vrac", () => ({
+  preparerUploadsVrac: vi.fn(),
+  enregistrerDocumentsVrac: vi.fn(),
+}));
 vi.mock("@/lib/scanner/traitement", () => ({
   jpegPourExport: vi.fn(async () => new Uint8Array([1, 2, 3])),
 }));
@@ -40,6 +45,22 @@ describe("ExportPanel : fichier prêt", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Télécharger" })).toBeTruthy());
     rerender(<ExportPanel pages={[page(1)]} onVider={vi.fn()} />);
     expect(screen.getByRole("button", { name: "Télécharger" })).toBeTruthy();
+  });
+
+  it("propose « Enregistrer dans Documents » pour un PDF, nommé « Scan du … »", async () => {
+    render(<ExportPanel pages={[page(1)]} onVider={vi.fn()} />);
+    expect((screen.getByLabelText("Nom du fichier") as HTMLInputElement).value).toMatch(/^Scan du \d{1,2} \p{L}+ \d{4}$/u);
+    fireEvent.click(screen.getByRole("button", { name: /Créer le PDF/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Enregistrer dans Documents" })).toBeTruthy());
+    expect(screen.getByRole("button", { name: "Vider le brouillon" })).toBeTruthy();
+  });
+
+  it("ne propose pas « Enregistrer dans Documents » pour des images JPEG", async () => {
+    render(<ExportPanel pages={[page(1)]} onVider={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Images JPEG" }));
+    fireEvent.click(screen.getByRole("button", { name: /Créer 1 image/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Télécharger" })).toBeTruthy());
+    expect(screen.queryByRole("button", { name: "Enregistrer dans Documents" })).toBeNull();
   });
 
   it("affiche le poids avec la virgule française", async () => {

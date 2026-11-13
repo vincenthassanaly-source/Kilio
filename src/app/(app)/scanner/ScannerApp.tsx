@@ -187,7 +187,7 @@ export function ScannerApp() {
         aria-label="Importer des photos"
       />
 
-      <p className="text-sm text-ink-2">Rien n&apos;est envoyé en ligne : les pages restent sur cet appareil.</p>
+      <p className="text-sm text-ink-2">Les pages restent sur cet appareil tant que tu n&apos;appuies pas sur « Enregistrer dans Documents ».</p>
 
       <div className="grid grid-cols-2 gap-2">
         <button type="button" className={primaryButton} onClick={() => ouvrirViseur()} disabled={importEnCours}>

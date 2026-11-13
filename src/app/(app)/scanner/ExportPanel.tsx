@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { EnregistrerDansDocuments } from "./EnregistrerDansDocuments";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import type { PageBrouillon } from "@/lib/scanner/brouillon";
 import { genererPdf, PARAMS_QUALITE, type QualitePdf } from "@/lib/scanner/pdf";
@@ -11,10 +12,10 @@ import { card, dangerButton, errorText, input, label, primaryButton, secondaryBu
 
 type Format = "pdf" | "jpeg";
 
+// Date en toutes lettres, sans tiret : le nom du fichier devient aussi le nom du
+// document dans Documents (les tirets y seraient remplacés par des espaces).
 function nomParDefaut(): string {
-  const d = new Date();
-  const jour = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
-  return `Scan ${jour}`;
+  return `Scan du ${new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}`;
 }
 
 /** Réglages d'export, génération locale puis partage / téléchargement. */
@@ -155,6 +156,9 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
           <button type="button" className={partageDispo ? secondaryButton : primaryButton} onClick={telechargerFichiers}>
             Télécharger
           </button>
+          {fichiers.length === 1 && fichiers[0].type === "application/pdf" && (
+            <EnregistrerDansDocuments fichier={fichiers[0]} />
+          )}
           <button type="button" className={dangerButton} onClick={() => setConfirmerVidage(true)}>
             Vider le brouillon
           </button>
@@ -171,7 +175,7 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
         onConfirm={vider}
         onClose={() => setConfirmerVidage(false)}
       >
-        Les pages scannées seront effacées de cet appareil. Assure-toi d&apos;avoir enregistré le fichier exporté : rien n&apos;est stocké en ligne.
+        Les pages scannées seront effacées de cet appareil. Assure-toi d&apos;avoir enregistré le fichier exporté (Partager, Télécharger ou Enregistrer dans Documents) : le scan n&apos;est stocké nulle part ailleurs.
       </ConfirmDialog>
     </section>
   );
