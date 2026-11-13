@@ -18,9 +18,8 @@ import { ErrorInline } from "@/components/ErrorInline";
 import { showErrorToast } from "@/components/toast/toast-store";
 import { BackLink } from "@/components/BackLink";
 
-// Vue client : la donnée est préchargée côté serveur (page.tsx, patron de
-// objectifs/page.tsx) puis relue ici via TanStack Query, pour partager le cache
-// avec les mutations optimistes. `notFound()` n'étant documenté que pour les
+// Vue client : la donnée est préchargée côté serveur (page.tsx) puis relue ici
+// via TanStack Query, pour partager le cache avec les mutations optimistes. `notFound()` n'étant documenté que pour les
 // Server Components, un élément introuvable affiche un message inline.
 export function CollectionDetailView({ id }: { id: string }) {
   const queryClient = useQueryClient();

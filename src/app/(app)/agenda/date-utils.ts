@@ -1,5 +1,5 @@
 // parseISODate/toISODate ont déménagé dans src/lib/date/iso.ts (partagées
-// avec habitudes/objectifs/nutrition-journal, qui en avaient chacun leur
+// avec habitudes/nutrition-journal, qui en avaient chacun leur
 // copie). Ne restent ici que les utilitaires propres aux échéances
 // (heure, pas date).
 

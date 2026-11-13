@@ -3,7 +3,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { guillemetsPostgrest, motifContient } from "@/lib/supabase/like";
 
-export type ModuleRecherche = "notes" | "taches" | "evenements" | "recettes" | "objectifs" | "courses";
+export type ModuleRecherche = "notes" | "taches" | "evenements" | "recettes" | "courses";
 
 export type ResultatRecherche = {
   id: string;
@@ -31,7 +31,6 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
     notesResult,
     tachesResult,
     recettesResult,
-    objectifsResult,
     coursesResult,
     evenementsResult,
     noteItemsResult,
@@ -50,11 +49,6 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
         .from("recettes")
         .select("id, nom")
         .ilike("nom", like)
-        .limit(LIMIT_PAR_SOURCE),
-      supabase
-        .from("objectifs")
-        .select("id, titre")
-        .ilike("titre", like)
         .limit(LIMIT_PAR_SOURCE),
       supabase
         .from("courses_items")
@@ -80,7 +74,6 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
     notesResult,
     tachesResult,
     recettesResult,
-    objectifsResult,
     coursesResult,
     evenementsResult,
     noteItemsResult,
@@ -150,17 +143,6 @@ export async function rechercheGlobale(query: string): Promise<ResultatRecherche
         module: "recettes",
         titre: recette.nom,
         href: `/nutrition/recettes/${recette.id}`,
-      });
-    }
-  }
-
-  if (objectifsResult.status === "fulfilled" && objectifsResult.value.data) {
-    for (const objectif of objectifsResult.value.data) {
-      resultats.push({
-        id: objectif.id,
-        module: "objectifs",
-        titre: objectif.titre,
-        href: `/objectifs/${objectif.id}`,
       });
     }
   }

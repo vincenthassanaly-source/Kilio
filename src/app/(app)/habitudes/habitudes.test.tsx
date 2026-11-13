@@ -33,7 +33,6 @@ const base = {
   faitsCetteSemaine: 0,
   valeur_cible: null,
   unite: null,
-  objectifs: [],
   entreeDuJour: null,
 };
 

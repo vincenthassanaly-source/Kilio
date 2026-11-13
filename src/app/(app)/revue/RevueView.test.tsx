@@ -83,7 +83,7 @@ describe("RevueView", () => {
   it("chaque jour à venir renvoie vers l'agenda de ce jour", () => {
     monter([makeTache({ id: "t1", titre: "Lundi matin", echeance: "2026-10-12" })]);
     const lien = screen.getByRole("link", { name: "Ouvrir lundi 12 octobre dans l'agenda" });
-    expect(lien.getAttribute("href")).toBe("/agenda?date=2026-10-12");
+    expect(lien.getAttribute("href")).toBe("/agenda?date=2026-10-12&from=revue");
   });
 
   it("signale un jour chargé par un libellé neutre", () => {

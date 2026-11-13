@@ -166,8 +166,7 @@ function parseTacheInput(formData: FormData): ParseResult {
       programme_jour,
       recurrence_frequence: frequence,
       // La date de fin de récurrence n'a de sens qu'accompagnée d'une
-      // fréquence : silencieusement ignorée sinon (même logique que
-      // unite/valeur_cible pour les objectifs de type "valeur").
+      // fréquence : silencieusement ignorée sinon.
       recurrence_fin: frequence && recurrence_fin ? recurrence_fin : null,
       toute_la_journee,
       rappel_minutes,

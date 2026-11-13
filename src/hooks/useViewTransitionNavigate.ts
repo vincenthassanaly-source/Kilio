@@ -94,7 +94,7 @@ type NavigationEnAttente = {
 let enAttente: NavigationEnAttente | null = null;
 
 // Déduit le sens avance/recule à partir de la hiérarchie des deux chemins
-// (ex. /objectifs -> /objectifs/abc = avance, l'inverse = recule) quand
+// (ex. /collection -> /collection/abc = avance, l'inverse = recule) quand
 // l'appelant ne précise pas explicitement de direction (cas des onglets de
 // la barre du bas, dont le sens suit l'ordre des onglets et pas la
 // hiérarchie des routes — voir TabSwipeWrapper/BottomNav). Undefined si les

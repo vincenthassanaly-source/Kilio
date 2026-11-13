@@ -5,10 +5,10 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { screenTitle, sectionTitle } from "@/lib/ui";
 import { AlertesNutritionRow } from "./AlertesNutritionRow";
 import { AppearanceRow } from "./AppearanceRow";
-import { BilanHebdoRow } from "./BilanHebdoRow";
 import { BriefingRow } from "./BriefingRow";
 import { NettoyageAutoRow } from "./NettoyageAutoRow";
 import { RevueHebdoRow } from "./RevueHebdoRow";
+import { BandeauNotificationsEteintes, NotificationsProvider } from "./NotificationsContext";
 import { NotificationsRow } from "./NotificationsRow";
 import { VidageRow } from "./VidageRow";
 import { BackLink } from "@/components/BackLink";
@@ -84,12 +84,14 @@ export default async function ReglagesPage() {
           <div className="border-t border-line">
             <AppearanceRow />
           </div>
-          <NotificationsRow />
-          <BriefingRow reglages={reglagesBriefing} />
-          <RevueHebdoRow reglages={reglagesBriefing} />
-          <AlertesNutritionRow reglages={reglagesBriefing} />
-          <BilanHebdoRow reglages={reglagesBriefing} />
-          <VidageRow reglages={reglagesBriefing} />
+          <NotificationsProvider>
+            <NotificationsRow />
+            <BandeauNotificationsEteintes />
+            <BriefingRow reglages={reglagesBriefing} />
+            <RevueHebdoRow reglages={reglagesBriefing} />
+            <AlertesNutritionRow reglages={reglagesBriefing} />
+            <VidageRow reglages={reglagesBriefing} />
+          </NotificationsProvider>
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
       </div>

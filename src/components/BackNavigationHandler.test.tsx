@@ -99,9 +99,9 @@ describe("BackNavigationHandler", () => {
   });
 
   it("ne touche pas aux couches sur la même URL (modale, mode édition)", () => {
-    pathnameMock = "/objectifs/abc";
+    pathnameMock = "/collection/abc";
     render(<BackNavigationHandler />);
-    retourVers("/objectifs/abc", { backCloseToken: "x" });
+    retourVers("/collection/abc", { backCloseToken: "x" });
     expect(replace).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
   });

@@ -53,7 +53,6 @@ import {
   calculerStreakHebdo,
   calculerTauxReussite,
   lundiDe,
-  progressionObjectif,
 } from "./compute";
 
 const hebdo3 = { type: "boolean" as const, valeur_cible: null, frequence_hebdo: 3 };
@@ -116,35 +115,5 @@ describe("calculerTauxReussite", () => {
     const eau = { type: "quantifiee" as const, valeur_cible: 8, frequence_hebdo: null };
     const entries = new Map([["2026-09-01", 8], ["2026-09-02", 5]]);
     expect(calculerTauxReussite(eau, entries, "2026-09-01", "2026-09-02").faits).toBe(1);
-  });
-});
-
-describe("progressionObjectif", () => {
-  const liee = (over: Partial<Parameters<typeof progressionObjectif>[0][number]> = {}) => ({
-    ...quotidienne,
-    created_at: "2026-09-01T08:00:00Z",
-    archivee_le: null,
-    entriesParDate: new Map([["2026-09-01", 1], ["2026-09-02", 1]]),
-    ...over,
-  });
-
-  it("moyenne les taux des habitudes liées", () => {
-    const p = progressionObjectif(
-      [liee(), liee({ entriesParDate: new Map() })],
-      "2026-09-01",
-      null,
-      "2026-09-04"
-    );
-    expect(p).toBeCloseTo(0.25); // (2/4 + 0/4) / 2
-  });
-
-  it("arrête de compter à l'archivage de l'habitude", () => {
-    const p = progressionObjectif([liee({ archivee_le: "2026-09-02" })], "2026-09-01", null, "2026-09-10");
-    expect(p).toBe(1);
-  });
-
-  it("borne la période à l'échéance passée et renvoie 0 sans habitude", () => {
-    expect(progressionObjectif([liee()], "2026-09-01", "2026-09-02", "2026-09-30")).toBe(1);
-    expect(progressionObjectif([], "2026-09-01", null, "2026-09-04")).toBe(0);
   });
 });

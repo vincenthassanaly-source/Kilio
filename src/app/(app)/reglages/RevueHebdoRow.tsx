@@ -6,6 +6,7 @@ import { Switch } from "@/components/Switch";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
+import { DependsOnNotifications } from "./NotificationsContext";
 
 // 0 = dimanche, comme Date#getDay et la colonne revue_jour.
 const JOURS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"] as const;
@@ -22,7 +23,7 @@ function RevueIcon() {
 
 type Etat = { actif: boolean; jour: number; heure: string };
 
-export function RevueHebdoRow({ reglages }: { reglages: Tables<"reglages_briefing"> }) {
+export function RevueHebdoRow({ reglages }: { reglages: Pick<Tables<"reglages_briefing">, "revue_actif" | "revue_jour" | "revue_heure"> }) {
   const initial: Etat = { actif: reglages.revue_actif, jour: reglages.revue_jour, heure: reglages.revue_heure.slice(0, 5) };
   const [etat, setEtat] = useState<Etat>(initial);
   // Dernier état enregistré : référence pour le retour arrière après un échec.
@@ -54,62 +55,64 @@ export function RevueHebdoRow({ reglages }: { reglages: Tables<"reglages_briefin
   }
 
   return (
-    <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-          <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
-          >
-            <RevueIcon />
-          </span>
-          Rappel de revue hebdo
-        </span>
-        <Switch
-          checked={etat.actif}
-          onToggle={() => persister({ ...etat, actif: !etat.actif })}
-          label="Rappel de la revue hebdomadaire"
-        />
-      </div>
-      <p className="text-small leading-snug text-ink-2">
-        {etat.actif
-          ? "Une fois par semaine, une notification t'invite à faire le point : bilan, retards à replanifier, 7 prochains jours. Nécessite les notifications ci-dessus."
-          : "Désactivé : aucun rappel de revue (la revue reste accessible depuis Aujourd'hui)."}
-      </p>
-      {etat.actif && (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="jour-revue" className="text-small text-ink-2">
-            Jour et heure
-          </label>
-          <div className="flex items-center gap-2">
-            <select
-              id="jour-revue"
-              value={etat.jour}
-              onChange={(e) => persister({ ...etat, jour: Number(e.target.value) })}
-              className={`${input} min-h-11 min-w-0 flex-1`}
+    <DependsOnNotifications>
+      <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2.5 text-label font-medium text-ink">
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+              style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
             >
-              {JOURS.map((nom, i) => (
-                <option key={nom} value={i}>
-                  {nom}
-                </option>
-              ))}
-            </select>
-            <input
-              type="time"
-              aria-label="Heure du rappel de revue"
-              value={etat.heure}
-              onChange={(e) => setEtat({ ...etat, heure: e.target.value })}
-              onBlur={(e) => persister({ ...etat, heure: e.target.value })}
-              className={`${input} min-h-11 w-28 shrink-0 text-center tabular-nums`}
-            />
-          </div>
+              <RevueIcon />
+            </span>
+            Rappel de revue hebdo
+          </span>
+          <Switch
+            checked={etat.actif}
+            onToggle={() => persister({ ...etat, actif: !etat.actif })}
+            label="Rappel de la revue hebdomadaire"
+          />
         </div>
-      )}
-      {error && (
-        <p role="alert" className={errorText}>
-          {error}
+        <p className="text-small leading-snug text-ink-2">
+          {etat.actif
+            ? "Une fois par semaine, une notification t'invite à faire le point : tâches terminées, retards à replanifier, 7 prochains jours et ta santé de la semaine (kcal moyens, séances, poids, tour de taille)."
+            : "Désactivé : aucun rappel de revue (la revue reste accessible depuis Plus)."}
         </p>
-      )}
-    </div>
+        {etat.actif && (
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="jour-revue" className="text-small text-ink-2">
+              Jour et heure
+            </label>
+            <div className="flex items-center gap-2">
+              <select
+                id="jour-revue"
+                value={etat.jour}
+                onChange={(e) => persister({ ...etat, jour: Number(e.target.value) })}
+                className={`${input} min-h-11 min-w-0 flex-1`}
+              >
+                {JOURS.map((nom, i) => (
+                  <option key={nom} value={i}>
+                    {nom}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="time"
+                aria-label="Heure du rappel de revue"
+                value={etat.heure}
+                onChange={(e) => setEtat({ ...etat, heure: e.target.value })}
+                onBlur={(e) => persister({ ...etat, heure: e.target.value })}
+                className={`${input} min-h-11 w-28 shrink-0 text-center tabular-nums`}
+              />
+            </div>
+          </div>
+        )}
+        {error && (
+          <p role="alert" className={errorText}>
+            {error}
+          </p>
+        )}
+      </div>
+    </DependsOnNotifications>
   );
 }

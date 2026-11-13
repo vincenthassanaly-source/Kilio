@@ -17,11 +17,10 @@ const MODULE_INFO: Record<ModuleRecherche, { label: string; accentVar: string }>
   taches: { label: "Tâches", accentVar: "var(--accent-agenda)" },
   evenements: { label: "Événements", accentVar: "var(--accent-agenda)" },
   recettes: { label: "Recettes", accentVar: "var(--accent-kcal)" },
-  objectifs: { label: "Objectifs", accentVar: "var(--accent-objectifs)" },
   courses: { label: "Courses", accentVar: "var(--accent-courses)" },
 };
 
-const ORDRE_MODULES: ModuleRecherche[] = ["notes", "taches", "evenements", "recettes", "objectifs", "courses"];
+const ORDRE_MODULES: ModuleRecherche[] = ["notes", "taches", "evenements", "recettes", "courses"];
 
 function SearchIcon({ color }: { color: string }) {
   return (

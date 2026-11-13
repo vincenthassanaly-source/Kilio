@@ -6,6 +6,7 @@ import { Switch } from "@/components/Switch";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
+import { DependsOnNotifications } from "./NotificationsContext";
 
 function BriefingIcon() {
   return (
@@ -16,7 +17,7 @@ function BriefingIcon() {
   );
 }
 
-export function BriefingRow({ reglages }: { reglages: Tables<"reglages_briefing"> }) {
+export function BriefingRow({ reglages }: { reglages: Pick<Tables<"reglages_briefing">, "actif" | "heure"> }) {
   const [actif, setActif] = useState(reglages.actif);
   const [heure, setHeure] = useState(reglages.heure.slice(0, 5));
   // Dernière heure enregistrée : référence pour ignorer un blur sans changement
@@ -59,44 +60,46 @@ export function BriefingRow({ reglages }: { reglages: Tables<"reglages_briefing"
   }
 
   return (
-    <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-          <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
-          >
-            <BriefingIcon />
+    <DependsOnNotifications>
+      <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2.5 text-label font-medium text-ink">
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+              style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
+            >
+              <BriefingIcon />
+            </span>
+            Briefing du matin
           </span>
-          Briefing du matin
-        </span>
-        <Switch checked={actif} onToggle={toggle} label="Briefing du matin" />
-      </div>
-      <p className="text-small leading-snug text-ink-2">
-        {actif
-          ? "Chaque matin, une notification résume ta journée : rendez-vous, tâches du jour et retards. Rien n'est envoyé si la journée est vide. Nécessite les notifications ci-dessus."
-          : "Désactivé : aucune notification le matin."}
-      </p>
-      {actif && (
-        <div className="flex items-center justify-between gap-2">
-          <label htmlFor="heure-briefing" className="text-small text-ink-2">
-            Heure d&apos;envoi
-          </label>
-          <input
-            id="heure-briefing"
-            type="time"
-            value={heure}
-            onChange={(e) => setHeure(e.target.value)}
-            onBlur={(e) => validerHeure(e.target.value)}
-            className={`${input} min-h-11 w-28 shrink-0 text-center tabular-nums`}
-          />
+          <Switch checked={actif} onToggle={toggle} label="Briefing du matin" />
         </div>
-      )}
-      {error && (
-        <p role="alert" className={errorText}>
-          {error}
+        <p className="text-small leading-snug text-ink-2">
+          {actif
+            ? "Chaque matin, une notification résume ta journée : rendez-vous, tâches du jour et retards. Rien n'est envoyé si la journée est vide."
+            : "Désactivé : aucune notification le matin."}
         </p>
-      )}
-    </div>
+        {actif && (
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor="heure-briefing" className="text-small text-ink-2">
+              Heure d&apos;envoi
+            </label>
+            <input
+              id="heure-briefing"
+              type="time"
+              value={heure}
+              onChange={(e) => setHeure(e.target.value)}
+              onBlur={(e) => validerHeure(e.target.value)}
+              className={`${input} min-h-11 w-28 shrink-0 text-center tabular-nums`}
+            />
+          </div>
+        )}
+        {error && (
+          <p role="alert" className={errorText}>
+            {error}
+          </p>
+        )}
+      </div>
+    </DependsOnNotifications>
   );
 }

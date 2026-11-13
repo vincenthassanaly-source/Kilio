@@ -411,8 +411,7 @@ export async function deleteDocument(id: string) {
   const { error } = await supabase.from("documents").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
-  // Même pattern que supprimerObjectif dans src/app/actions/objectifs.ts :
-  // redirige vers /documents dans les deux cas d'appel (depuis la liste, où
+  // Redirige vers /documents dans les deux cas d'appel (depuis la liste, où
   // c'est un no-op, et depuis le détail, où ça ramène à la liste).
   revalidateDocumentsPaths();
   redirect("/documents");

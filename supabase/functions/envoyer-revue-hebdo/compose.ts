@@ -1,5 +1,8 @@
 // Rappel de la revue hebdomadaire : logique pure (aucune API Deno ni réseau),
-// testée côté app (src/lib/revue/rappel.test.ts).
+// testée côté app (src/lib/revue/rappel.test.ts). Une seule notification par
+// semaine : tâches, puis les quatre lignes santé du Bilan (calculées par
+// ../_shared/bilan.ts, que l'Edge Function importe : ce module reste sans import
+// pour être compilable par tsc comme par Deno).
 
 /** Jour de la semaine (0 = dimanche … 6 = samedi) d'une date AAAA-MM-JJ. */
 export function jourDeSemaine(date: string): number {
@@ -32,11 +35,14 @@ export function composerRappelRevue(input: {
   terminees: number;
   enRetard: number;
   prevues: number;
+  /** Lignes santé de la semaine (lignesSanteHebdo) ; sans elles, le message ne parle que des tâches. */
+  lignesSante?: readonly string[];
 }): { title: string; body: string } {
   const lignes = [
     `${pluriel(input.terminees, "tâche terminée", "tâches terminées")} cette semaine`,
     input.enRetard > 0 ? `${input.enRetard} en retard à replanifier` : "Rien en retard",
     `${pluriel(input.prevues, "tâche prévue", "tâches prévues")} les 7 prochains jours`,
+    ...(input.lignesSante ?? []),
   ];
   return { title: "C'est l'heure de la revue de la semaine", body: lignes.join("\n") };
 }

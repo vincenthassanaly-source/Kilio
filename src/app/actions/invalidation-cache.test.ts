@@ -45,13 +45,6 @@ const MODULES: Module[] = [
   { fichier: "src/app/actions/courses.ts", expiration: /updateTag\(COURSES_TAG\)/ },
   { fichier: "src/app/actions/habitudes.ts", expiration: /updateTag\(HABITUDES_TAG\)/ },
   {
-    // Seules les écritures qui changent ce que lit getHabitudesDuJour
-    // (objectifs et liens objectif-habitude) expirent le tag des habitudes.
-    fichier: "src/app/actions/objectifs.ts",
-    expiration: /updateTag\(HABITUDES_TAG\)/,
-    seulement: ["creerObjectif", "modifierObjectif", "changerStatutObjectif", "supprimerObjectif"],
-  },
-  {
     fichier: "src/app/actions/notes.ts",
     expiration: /updateTag\(NOTES_TAG\)/,
     exemptions: {

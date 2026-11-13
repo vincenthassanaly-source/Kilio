@@ -12,7 +12,6 @@ import { errorText, input } from "@/lib/ui";
 // constante TABLES) : à tenir aligné avec elle.
 const ELEMENTS_NETTOYES = [
   "les tâches et sous-tâches faites",
-  "les étapes d'objectif terminées",
   "les articles de courses cochés",
   "les items de notes cochés",
 ];
@@ -110,7 +109,7 @@ export function NettoyageAutoRow({ reglages }: { reglages: Tables<"reglages_nett
       </div>
       <p className="text-small leading-snug text-ink-2">
         {actif
-          ? `Chaque jour, supprime définitivement ce qui est terminé depuis plus de ${delaiAffiche} jour${delaiAffiche > 1 ? "s" : ""} : tâches, sous-tâches, étapes d'objectif, courses et items de notes.`
+          ? `Chaque jour, supprime définitivement ce qui est terminé depuis plus de ${delaiAffiche} jour${delaiAffiche > 1 ? "s" : ""} : tâches, sous-tâches, courses et items de notes.`
           : "Désactivé : rien n'est supprimé automatiquement."}
       </p>
       {actif && (
