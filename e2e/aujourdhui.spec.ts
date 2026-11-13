@@ -58,7 +58,7 @@ test("ajoute un événement depuis le bouton « + »", async ({ page }) => {
   await page.clock.setFixedTime(aujourdhuiParisA("07:00"));
   await page.goto("/aujourdhui");
   await page.locator("[data-masquer-saisie]").getByRole("button", { name: "Ajouter", exact: true }).click();
-  await page.getByRole("button", { name: "Nouvel événement" }).click();
+  await page.getByRole("button", { name: "Ajouter un événement" }).click();
 
   const dialogue = page.getByRole("dialog", { name: "Nouvel événement" });
   await expect(dialogue).toBeVisible();
@@ -138,7 +138,7 @@ test("seules la saisie naturelle et le bouton « + » créent depuis Aujourd'hui
   await expect(page.getByRole("button", { name: "Événement", exact: true })).toHaveCount(0);
 
   await page.locator("[data-masquer-saisie]").getByRole("button", { name: "Ajouter", exact: true }).click();
-  for (const nom of ["Ajouter un repas", "Courses", "Nouvelle tâche", "Nouvel événement", "Nouvelle note"]) {
+  for (const nom of ["Ajouter un repas", "Courses", "Ajouter une tâche", "Ajouter un événement", "Ajouter une note"]) {
     await expect(page.getByRole("button", { name: nom, exact: true })).toBeVisible();
   }
 });

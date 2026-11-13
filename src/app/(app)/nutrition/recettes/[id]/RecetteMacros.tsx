@@ -84,7 +84,7 @@ export function RecetteMacros({
           queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
           showActionToast(`${count} portion${count > 1 ? "s" : ""} de « ${nom} » ajoutée${count > 1 ? "s" : ""} ${AJOUT_LABELS[moment]}`, {
             label: "Voir",
-            ariaLabel: "Voir le journal du jour",
+            ariaLabel: "Voir le Carnet du jour",
             onAction: () => router.push("/nutrition/journal"),
           });
         }
@@ -152,7 +152,7 @@ export function RecetteMacros({
           onChange={setMoment}
         />
         <button type="submit" disabled={enCours} className={`${primaryButton} min-h-12 w-full`}>
-          {enCours ? "Ajout…" : "Ajouter au journal"}
+          {enCours ? "Ajout…" : "Ajouter au Carnet"}
         </button>
         {etat.error && (
           <p role="alert" className={errorText}>

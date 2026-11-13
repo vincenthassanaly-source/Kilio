@@ -380,7 +380,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                         type="button"
                         disabled={creationEnCours}
                         onClick={() => creerTache(() => noteItemVersTache(item.id))}
-                        aria-label={`Créer une tâche : ${item.libelle}`}
+                        aria-label={`Ajouter une tâche : ${item.libelle}`}
                         className={`${linkButton} shrink-0`}
                       >
                         → Tâche
@@ -404,7 +404,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                 onClick={() => creerTache(() => noteVersTache(note.id))}
                 className={ghostButton}
               >
-                Créer une tâche depuis cette note
+                Ajouter une tâche depuis cette note
               </button>
               <button
                 type="button"

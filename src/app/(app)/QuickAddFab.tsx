@@ -253,7 +253,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
         <button
           type="button"
           onClick={() => setMode("tache")}
-          aria-label="Nouvelle tâche"
+          aria-label="Ajouter une tâche"
           tabIndex={dialInteractive ? 0 : -1}
           // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
           inert={!dialInteractive}
@@ -277,7 +277,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
         <button
           type="button"
           onClick={() => setMode("evenement")}
-          aria-label="Nouvel événement"
+          aria-label="Ajouter un événement"
           tabIndex={dialInteractive ? 0 : -1}
           // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
           inert={!dialInteractive}
@@ -302,7 +302,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
         <button
           type="button"
           onClick={() => setMode("note")}
-          aria-label="Nouvelle note"
+          aria-label="Ajouter une note"
           tabIndex={dialInteractive ? 0 : -1}
           // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
           inert={!dialInteractive}

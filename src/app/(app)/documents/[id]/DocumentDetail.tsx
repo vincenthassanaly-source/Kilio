@@ -132,7 +132,7 @@ export function DocumentDetail({
             }}
             className={dangerButton}
           >
-            Suppr.
+            Supprimer
           </button>
         </div>
       </div>

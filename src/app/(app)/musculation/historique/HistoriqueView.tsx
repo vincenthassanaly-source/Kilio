@@ -21,7 +21,7 @@ export function LigneEntrainement({ entrainement: e }: { entrainement: Entrainem
       <Link href={`/musculation/historique/${e.id}`} className={`${cardTight} flex flex-col gap-0.5`}>
         <span className="flex min-w-0 items-center gap-2">
           <span className={`${nameText} min-w-0`}>{e.titre}</span>
-          {e.typeSeance && <span className={pillTag}>{LIBELLES_TYPE[e.typeSeance].toUpperCase()}</span>}
+          {e.typeSeance && <span className={pillTag}>{LIBELLES_TYPE[e.typeSeance]}</span>}
         </span>
         <span className={metaText}>{formaterDateLongue(e.date)}</span>
         <span className={metaText}>

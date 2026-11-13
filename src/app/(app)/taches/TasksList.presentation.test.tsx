@@ -52,9 +52,9 @@ describe("TaskCard : présentation", () => {
     expect(screen.getByText(/2027/)).toBeTruthy();
   });
 
-  it("ne montre plus de boutons Modifier / Suppr. permanents : le titre ouvre l'édition", () => {
+  it("ne montre plus de boutons Modifier / Supprimer permanents : le titre ouvre l'édition", () => {
     monter([makeTache({ id: "t1", titre: "Payer" })]);
-    expect(screen.queryByRole("button", { name: "Suppr." })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Supprimer" })).toBeNull();
     expect(screen.getByRole("button", { name: /Payer\s*\(modifier\)/ })).toBeTruthy();
   });
 
@@ -76,10 +76,8 @@ describe("TaskCard : présentation", () => {
     expect(screen.getByText(/En retard · /)).toBeTruthy();
   });
 
-  it("relie la coche au titre de la tâche pour les lecteurs d'écran", () => {
+  it("nomme la coche avec le titre de la tâche pour les lecteurs d'écran", () => {
     monter([makeTache({ id: "t1", titre: "Payer" })]);
-    const coche = screen.getByRole("button", { name: "Marquer fait" });
-    expect(coche.getAttribute("aria-describedby")).toBe("tache-titre-t1");
-    expect(document.getElementById("tache-titre-t1")?.textContent).toContain("Payer");
+    expect(screen.getByRole("button", { name: "Marquer « Payer » comme fait" })).toBeTruthy();
   });
 });

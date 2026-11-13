@@ -288,7 +288,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
 
           <div className="flex flex-wrap gap-x-2 gap-y-4">
             <button type="button" className={ghostButton} onClick={() => setFormulaire("programme-nouveau")}>
-              Nouveau programme
+              Ajouter un programme
             </button>
             {programme && (
               <>

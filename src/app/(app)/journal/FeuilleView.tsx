@@ -136,11 +136,11 @@ async function envoyerApercu(jour: string, traits: Trait[]): Promise<void> {
 }
 
 /**
- * Feuille du soir : écriture manuscrite, sauvegarde locale à chaque trait (la
+ * Page du jour du Journal : écriture manuscrite, sauvegarde locale à chaque trait (la
  * synchronisation vers le serveur est faite par VidageSync). Des modifications
  * locales non envoyées priment toujours sur la version du serveur.
  */
-export function FeuilleView({ jour, aujourdhui, retour }: Props) {
+export function FeuilleView({ jour, retour }: Props) {
   const [pret, setPret] = useState(false);
   const [historique, setHistorique] = useState<Historique>(() => historiqueVide());
   const [outil, setOutil] = useState<Outil>("stylo");
@@ -370,7 +370,6 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
     showToast("Texte supprimé");
   }
 
-  const estAujourdhui = jour === aujourdhui;
   const statut = enTranscription
     ? "Transcription en cours…"
     : enAttente > 0 && (horsLigne || attenteLongue)
@@ -388,7 +387,7 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
 
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className={screenTitle}>{estAujourdhui ? "Journal" : "Feuille du soir"}</h1>
+          <h1 className={screenTitle}>Journal</h1>
           <p className={eyebrow}>{libelleJour(jour)}</p>
           {mode === "stylo" && (
             <p
@@ -403,7 +402,7 @@ export function FeuilleView({ jour, aujourdhui, retour }: Props) {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <TransitionLink href="/journal/calendrier" className={`${ghostButton} inline-flex min-h-11 items-center`}>
-            Relire
+            Calendrier
           </TransitionLink>
           <MenuFeuille
             aTexte={transcription !== null}

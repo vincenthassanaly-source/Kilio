@@ -19,7 +19,7 @@ export function AddCourseToggle() {
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un article</span>
-        <span className="text-xs font-medium text-ink-3">Nouvel article à la liste</span>
+        <span className="text-xs font-medium text-ink-3">Un article pour la liste de courses</span>
       </div>
     </button>
   );

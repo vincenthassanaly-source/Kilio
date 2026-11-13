@@ -27,7 +27,7 @@ async function FeuilleDuJourChoisi({ params }: { params: Promise<{ jour: string 
 
 export default function VidageJourPage({ params }: { params: Promise<{ jour: string }> }) {
   return (
-    <Suspense fallback={<FeuilleChargement titre="Feuille du soir" />}>
+    <Suspense fallback={<FeuilleChargement titre="Journal" />}>
       <FeuilleDuJourChoisi params={params} />
     </Suspense>
   );

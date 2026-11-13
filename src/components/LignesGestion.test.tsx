@@ -25,7 +25,7 @@ import { EtapesManager } from "@/app/(app)/nutrition/recettes/[id]/EtapesManager
 import { IngredientsLibresManager } from "@/app/(app)/nutrition/recettes/[id]/IngredientsLibresManager";
 
 // Régression : sur l'ancien écran Étiquettes, un nom long (« Attestation
-// d'assurance habitation ») repoussait « Modifier » et « Suppr. » hors de la
+// d'assurance habitation ») repoussait « Modifier » et « Supprimer » hors de la
 // carte, où ils étaient coupés. Le nom passe maintenant à la ligne, en entier
 // (deux noms qui ne diffèrent qu'à la fin restent distinguables), et les boutons
 // forment une rangée alignée à droite sous le texte (Catégories, Recettes).
@@ -67,7 +67,7 @@ describe("lignes de gestion avec un nom long", () => {
     expect(Array.from(rangee.querySelectorAll("button")).map((b) => b.textContent)).toEqual([
       "Modifier",
       "Fusionner",
-      "Suppr.",
+      "Supprimer",
     ]);
   });
 

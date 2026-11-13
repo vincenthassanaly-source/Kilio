@@ -27,7 +27,7 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
   const reduceMotion = useReducedMotion() ?? false;
   const queryClient = useQueryClient();
 
-  // Bouton « Vider les cochés » : les ids exacts des articles archivés
+  // Bouton « Supprimer les articles pris » : les ids exacts des articles archivés
   // affichés (jamais un `where coche = true` côté serveur), pour que
   // « Annuler » restaure précisément le même ensemble, même si un autre
   // article a été coché entre-temps. `networkMode: "always"` : même motif
@@ -63,7 +63,7 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(queryKeys.courses, context.previous);
-      showToast("Impossible de supprimer les articles cochés.");
+      showToast("Impossible de supprimer les articles pris.");
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.courses }),
   });
@@ -78,7 +78,7 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
   return (
     <div className={card}>
       {/* Deux contrôles distincts côte à côte (pas de <button> imbriqué dans
-          un autre) : le dépliage à gauche, « Vider les cochés » à droite —
+          un autre) : le dépliage à gauche, « Supprimer les articles pris » à droite —
           visible même section repliée, pour vider en sortant du magasin
           sans avoir à déplier. */}
       <div className="flex items-center justify-between gap-2">
@@ -88,7 +88,7 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
           className="flex min-h-11 items-center gap-1.5"
           aria-expanded={open}
         >
-          <span className={sectionTitle}>Articles archivés (<span className="tabular-nums">{items.length}</span>)</span>
+          <span className={sectionTitle}>Articles pris (<span className="tabular-nums">{items.length}</span>)</span>
           <span
             className={`text-ink-2 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
             aria-hidden
@@ -102,7 +102,7 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
           disabled={viderMutation.isPending}
           className={ghostButton}
         >
-          Vider les cochés
+          Supprimer les articles pris
         </button>
       </div>
       <AnimatePresence initial={false}>

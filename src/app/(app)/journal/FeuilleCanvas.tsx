@@ -340,7 +340,7 @@ export function FeuilleCanvas({ traits, hauteur, outil, epaisseur, ecritAuDoigt,
       <canvas
         ref={canvasRef}
         role="img"
-        aria-label="Feuille du soir : écris ici au stylet"
+        aria-label="Journal : écris ici au stylet"
         className="absolute left-0 top-0 select-none text-ink"
         style={{
           touchAction: "none",

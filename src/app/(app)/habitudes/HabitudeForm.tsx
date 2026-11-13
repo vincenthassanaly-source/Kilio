@@ -179,7 +179,7 @@ export function HabitudeForm({
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Enregistrement..." : habitude ? "Enregistrer" : "Créer l'habitude"}
+        {pending ? "Enregistrement..." : habitude ? "Enregistrer" : "Ajouter"}
       </button>
     </form>
   );

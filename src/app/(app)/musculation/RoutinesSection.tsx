@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showErrorToast } from "@/components/toast/toast-store";
 import { runAction } from "@/lib/actions/runAction";
 import { demarrerDepuisRoutine } from "@/lib/musculation/demarrer";
+import { LIBELLES_TYPE } from "@/lib/seances/compute";
 import type { DossierRoutines, RoutineResume } from "@/lib/musculation/routines";
 import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { queryKeys } from "@/lib/query/keys";
@@ -44,7 +45,7 @@ function LigneRoutine({
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className={nameText}>{routine.nom}</span>
           <span className={metaText}>
-            {routine.typeSeance ? `${routine.typeSeance} · ` : ""}
+            {routine.typeSeance ? `${LIBELLES_TYPE[routine.typeSeance]} · ` : ""}
             {routine.nbExercices === 0 ? "Aucun exercice" : `${routine.nbExercices} exercice${routine.nbExercices > 1 ? "s" : ""}`}
           </span>
         </span>
@@ -106,7 +107,7 @@ function DossierModal({ dossier, onClose }: { dossier: DossierRoutines | null; o
           </p>
         )}
         <button type="submit" className={primaryButton} disabled={enCours}>
-          {dossier ? "Renommer" : "Créer le dossier"}
+          {dossier ? "Renommer" : "Ajouter"}
         </button>
         {dossier && (
           <>
@@ -174,10 +175,10 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
         <h2 className={sectionTitle}>Routines</h2>
         <div className="flex gap-2">
           <button type="button" className={ghostButton} onClick={() => setDossierOuvert(null)}>
-            + Dossier
+            Ajouter un dossier
           </button>
           <Link href="/musculation/routines/nouvelle" className={ghostButton}>
-            + Routine
+            Ajouter une routine
           </Link>
         </div>
       </div>
@@ -192,7 +193,7 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
             Une routine est un modèle de séance : tes exercices et tes séries cibles, à relancer en un tap.
           </p>
           <Link href="/musculation/routines/nouvelle" className={`${secondaryButton} self-start`}>
-            Créer ma première routine
+            Ajouter ma première routine
           </Link>
         </section>
       )}

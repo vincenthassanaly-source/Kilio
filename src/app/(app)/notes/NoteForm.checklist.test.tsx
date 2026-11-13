@@ -62,7 +62,7 @@ describe("NoteForm : checklist en création", () => {
     const { container } = rendreChecklist();
 
     await user.type(screen.getByLabelText("Ajouter un item"), "Beurre");
-    await user.click(screen.getByRole("button", { name: "Ajouter" }));
+    await user.click(screen.getByRole("button", { name: "Ajouter l'item" }));
 
     expect(itemsEnvoyes(container)).toEqual(["Pain", "Lait", "Beurre"]);
   });

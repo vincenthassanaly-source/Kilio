@@ -31,7 +31,7 @@ describe("NutritionSubNav", () => {
     ]);
   });
 
-  it("marque le Journal actif sur /nutrition, l'onglet de la barre du bas qui ouvre le Carnet", () => {
+  it("marque le Carnet actif sur /nutrition, l'onglet de la barre du bas qui ouvre le Carnet", () => {
     pathnameMock = "/nutrition";
     render(<NutritionSubNav />);
     expect(actif()).toEqual(["/nutrition/journal"]);

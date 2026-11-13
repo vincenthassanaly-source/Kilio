@@ -97,7 +97,7 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
         checked={fait}
         disabled={toggleMutation.isPending}
         onToggle={() => toggleMutation.mutate()}
-        label={fait ? "Marquer non fait" : "Marquer fait"}
+        label={`Marquer « ${titre} » comme ${fait ? "non fait" : "fait"}`}
         // Lignes empilées avec `gap-2.5` (10px, DashboardTachesSection) : hitSlop
         // réduit pour que deux zones de tap voisines ne se chevauchent pas (voir
         // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md).

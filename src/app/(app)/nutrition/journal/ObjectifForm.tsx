@@ -133,7 +133,7 @@ export function ObjectifForm({
       action={formAction}
       // Empêche un drag sur un champ/bouton du formulaire (ex. ajuster un
       // input number) d'être lu comme un swipe de changement de jour par
-      // JournalSwipeWrapper — voir la même garde sur le bouton "Suppr." de
+      // JournalSwipeWrapper — voir la même garde sur le bouton "Supprimer" de
       // JournalEntriesList.tsx.
       onTouchStart={(e) => e.stopPropagation()}
       className={`${card} flex flex-col gap-4`}

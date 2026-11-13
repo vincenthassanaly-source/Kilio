@@ -25,6 +25,7 @@ import {
 import type { RoutineDetail } from "@/lib/musculation/routines";
 import { formaterPoids, libellePrecedent } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
+import { LIBELLES_TYPE } from "@/lib/seances/compute";
 import { card, dangerButton, input, metaText, primaryButton, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
@@ -194,10 +195,10 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
               />
               <p className={metaText}>
                 Les exercices, séries et repos de cette séance deviennent les cibles de la routine
-                {detail.typeSeance ? ` (type ${detail.typeSeance})` : ""}.
+                {detail.typeSeance ? ` (type ${LIBELLES_TYPE[detail.typeSeance]})` : ""}.
               </p>
               <button type="submit" className={primaryButton} disabled={enCours || nomRoutine.trim() === ""}>
-                Créer la routine
+                Ajouter la routine
               </button>
             </form>
           </Modal>

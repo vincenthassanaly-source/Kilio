@@ -79,7 +79,7 @@ export function RecetteHeader({
             aria-label={`Supprimer la recette « ${recette.nom} »`}
             className={dangerButton}
           >
-            Suppr.
+            Supprimer
           </button>
         </div>
       </div>

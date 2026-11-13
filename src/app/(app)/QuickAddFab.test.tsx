@@ -30,7 +30,7 @@ describe("QuickAddFab", () => {
     monter();
     await userEvent.click(screen.getByRole("button", { name: "Ajouter" }));
 
-    for (const nom of ["Ajouter un repas", "Courses", "Nouvelle tâche", "Nouvel événement", "Nouvelle note"]) {
+    for (const nom of ["Ajouter un repas", "Courses", "Ajouter une tâche", "Ajouter un événement", "Ajouter une note"]) {
       expect(screen.getByRole("button", { name: nom })).toBeVisible();
     }
   });
@@ -38,7 +38,7 @@ describe("QuickAddFab", () => {
   it("ouvre le formulaire d'événement depuis l'éventail", async () => {
     monter();
     await userEvent.click(screen.getByRole("button", { name: "Ajouter" }));
-    await userEvent.click(screen.getByRole("button", { name: "Nouvel événement" }));
+    await userEvent.click(screen.getByRole("button", { name: "Ajouter un événement" }));
 
     expect(await screen.findByText("formulaire événement")).toBeInTheDocument();
   });

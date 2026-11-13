@@ -25,7 +25,7 @@ describe("HabitudeForm : saisie conservée après une erreur serveur", () => {
     await user.click(screen.getByRole("button", { name: "Quantifiée" }));
     await user.type(screen.getByLabelText("Unité"), "verres");
     await user.type(screen.getByLabelText("Objectif (optionnel)"), "0");
-    await user.click(screen.getByRole("button", { name: "Créer l'habitude" }));
+    await user.click(screen.getByRole("button", { name: "Ajouter" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("L'objectif doit être un nombre positif.");
     await waitFor(() => expect(screen.getByLabelText("Nom")).toHaveValue("Boire de l'eau"));

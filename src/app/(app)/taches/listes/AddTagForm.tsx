@@ -60,7 +60,7 @@ export function AddTagForm({ tag, onDone }: { tag?: Tables<"tags">; onDone?: () 
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Enregistrement..." : tag ? "Enregistrer" : "Créer le tag"}
+        {pending ? "Enregistrement..." : tag ? "Enregistrer" : "Ajouter"}
       </button>
     </form>
   );

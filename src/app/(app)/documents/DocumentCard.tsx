@@ -163,7 +163,7 @@ export function DocumentCard({
           }}
           className={dangerButton}
         >
-          Suppr.
+          Supprimer
         </button>
       </div>
 

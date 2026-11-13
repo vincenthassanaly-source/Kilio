@@ -19,7 +19,7 @@ export function AddTagToggle() {
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un tag</span>
-        <span className="text-caption font-medium text-ink-3">Nouveau tag</span>
+        <span className="text-caption font-medium text-ink-3">Un tag pour classer tes tâches</span>
       </div>
     </button>
   );

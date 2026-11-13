@@ -8,7 +8,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Tables } from "@/lib/supabase/types";
-import { dangerButton, listCard, nameTextComplet } from "@/lib/ui";
+import { ghostButton, listCard, nameTextComplet } from "@/lib/ui";
 import { CheckToggle } from "@/components/CheckToggle";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -280,15 +280,13 @@ function CourseItemRowBase({ item, plat = false }: { item: Tables<"courses_items
           type="button"
           disabled={deleteMutation.isPending || enAttenteDeCreation}
           onClick={() => deleteMutation.mutate()}
-          // `dangerButton` (src/lib/ui.ts) mesure ~34px de haut, partagé par
-          // une vingtaine d'écrans : on ne le modifie pas pour ne pas
-          // agrandir tous ses autres usages (même motif que `navArrowButton`
-          // dans ui.ts). `min-h-11` (44px) porte la cible de tap de CE
-          // bouton précis au minimum recommandé, sans changer sa couleur,
-          // son rayon ni sa police — juste un peu plus de hauteur, centrée
-          // sur le texte.
+          // Ton neutre (`ghostButton`) : ce bouton est répété sur chaque
+          // ligne et la suppression est annulable par le toast, le rouge
+          // plein d'alerte n'a pas lieu d'être ici. `min-h-11` (44px) porte
+          // la cible de tap au minimum recommandé sans toucher au style
+          // partagé de `ghostButton` (voir `navArrowButton` dans ui.ts).
           aria-label={`Supprimer « ${item.libelle} »`}
-          className={`${dangerButton} flex min-h-11 items-center justify-center`}
+          className={`${ghostButton} flex min-h-11 items-center justify-center`}
         >
           Supprimer
         </button>

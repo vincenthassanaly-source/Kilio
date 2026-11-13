@@ -7,7 +7,7 @@ import { SegmentedPill } from "@/components/SegmentedControl";
 import { SEGMENT_CADRE, segmentClasseGlissant } from "@/lib/segmented";
 
 const TABS = [
-  { href: "/nutrition/journal", label: "Journal" },
+  { href: "/nutrition/journal", label: "Carnet" },
   { href: "/nutrition/bilan", label: "Bilan" },
   { href: "/nutrition/recettes", label: "Recettes" },
   { href: "/nutrition/menus", label: "Menus" },

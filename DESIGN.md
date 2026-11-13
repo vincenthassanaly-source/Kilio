@@ -229,6 +229,7 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 - **Ghost / Danger / Link:** sans fond (ou fond transparent avec hover `surface-alt`), texte `ink` (ghost), `alert` (danger) ou `kcal` (link) ; toujours le même `active:scale-[0.97]`.
 - **Focus:** anneau `focus-visible:ring-2 ring-kcal ring-offset-2` — jamais sur simple `focus`/clic souris, toujours détaché du fond par l'offset.
 - **Cible tactile : 44px minimum.** Les boutons compacts (`ghostButton`, `dangerButton` ≈ 32px, `iconButton` 36px) gardent leur taille visible mais portent une zone de tap étendue (pseudo-élément `after:`) jusqu'à 44px ; `navArrowButton` fait 44×44px en propre.
+- **Libellés :** les verbes des boutons suivent la charte « Vocabulaire des actions » de `GLOSSARY.md` (Ajouter / Enregistrer / Supprimer / Retirer / Annuler) ; jamais d'abréviation (« Suppr. »). Dans un dialogue de confirmation déclenché par l'action inverse (ex. « Terminer » sans série validée), le bouton sûr « Garder » est le bouton primaire et l'action destructrice passe en style `dangerButton` (`ConfirmDialog` : `gardePrimaire`).
 
 ### Chips / Pills
 - **Style:** fond `surface-alt`, texte `ink-2`, entièrement arrondi, 11px semibold — usage neutre (tag générique).

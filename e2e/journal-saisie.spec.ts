@@ -1,6 +1,6 @@
-// Vague 1 de l'audit impeccable : le Journal Nutrition n'est plus en lecture
-// seule. Saisie d'un repas depuis le Journal (recherche → quantité → ajout)
-// et depuis la fiche recette (« Ajouter au journal »). Données :
+// Vague 1 de l'audit impeccable : le Carnet alimentaire n'est plus en lecture
+// seule. Saisie d'un repas depuis le Carnet (recherche → quantité → ajout)
+// et depuis la fiche recette (« Ajouter au Carnet »). Données :
 // e2e/mock-supabase.mjs.
 import { test, expect, type Page } from "@playwright/test";
 
@@ -21,7 +21,7 @@ test.beforeEach(async () => {
   await fetch(`${MOCK}/__reset`);
 });
 
-test("Journal : rechercher un aliment, doser, ajouter", async ({ page }) => {
+test("Carnet : rechercher un aliment, doser, ajouter", async ({ page }) => {
   await page.goto("/nutrition/journal");
   await expect(main(page).getByText("Skyr nature").first()).toBeVisible();
 
@@ -46,14 +46,14 @@ test("Journal : rechercher un aliment, doser, ajouter", async ({ page }) => {
     .toBe(true);
 });
 
-test("Fiche recette : « Ajouter au journal » enregistre les portions", async ({ page }) => {
+test("Fiche recette : « Ajouter au Carnet » enregistre les portions", async ({ page }) => {
   await page.goto("/nutrition/recettes");
   await main(page).getByText("Curry de légumes HelloFresh").first().click();
   await expect(main(page).getByText("Portions consommées")).toBeVisible();
 
   await main(page).getByRole("button", { name: "Ajouter une portion" }).click();
   await main(page).getByRole("button", { name: "Déjeuner" }).click();
-  await main(page).getByRole("button", { name: "Ajouter au journal" }).click();
+  await main(page).getByRole("button", { name: "Ajouter au Carnet" }).click();
 
   await expect(page.getByText(/2 portions de « Curry de légumes HelloFresh » ajoutées au déjeuner/)).toBeVisible();
   await expect

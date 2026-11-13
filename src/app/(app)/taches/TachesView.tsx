@@ -315,7 +315,7 @@ export function TachesView() {
   const boutonAjout = (
     <button
       type="button"
-      onClick={() => document.querySelector<HTMLButtonElement>('button[aria-label="Nouvelle tâche"]')?.click()}
+      onClick={() => document.querySelector<HTMLButtonElement>('button[aria-label="Ajouter une tâche"]')?.click()}
       className={`${ghostButton} mx-auto mt-2`}
     >
       Ajouter une tâche
@@ -351,7 +351,7 @@ export function TachesView() {
   return (
     <>
     <PullToRefresh onRefresh={handleRefresh}>
-    {/* pb-12 : dégage les dernières cartes (boutons « Modifier / Suppr. » à
+    {/* pb-12 : dégage les dernières cartes (boutons « Modifier / Supprimer » à
         droite) du FAB, posé au-dessus de la barre du bas. */}
     <div className={`flex flex-col gap-4 ${selection ? "pb-52" : "pb-12"}`}>
       {/* Contrôle segmenté partagé (T7) : actif en vert Kcal au lieu de

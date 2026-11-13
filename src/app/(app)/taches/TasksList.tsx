@@ -204,7 +204,7 @@ function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
                 disabled={isPending}
                 onToggle={() => executer(() => toggleSousTache(sousTache.id, !sousTache.fait))}
                 size={17}
-                label={sousTache.fait ? "Marquer non fait" : "Marquer fait"}
+                label={`Marquer « ${sousTache.titre} » comme ${sousTache.fait ? "non fait" : "fait"}`}
                 // Lignes de 44 px : la zone de tap du CheckToggle n'a plus
                 // besoin d'être étendue au-delà (voir
                 // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md).
@@ -651,8 +651,7 @@ export const TaskCard = memo(function TaskCard({
             checked={selected}
             onToggle={() => onToggleSelect?.(tache.id)}
             className="mt-0.5"
-            describedBy={`tache-titre-${tache.id}`}
-            label={selected ? "Désélectionner" : "Sélectionner"}
+            label={`${selected ? "Désélectionner" : "Sélectionner"} « ${tache.titre} »`}
           />
         ) : (
           <CheckToggle
@@ -660,8 +659,7 @@ export const TaskCard = memo(function TaskCard({
             disabled={toggleMutation.isPending}
             onToggle={() => toggleMutation.mutate()}
             className="mt-0.5"
-            describedBy={`tache-titre-${tache.id}`}
-            label={tache.fait ? "Marquer non fait" : "Marquer fait"}
+            label={`Marquer « ${tache.titre} » comme ${tache.fait ? "non fait" : "fait"}`}
           />
         )}
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">

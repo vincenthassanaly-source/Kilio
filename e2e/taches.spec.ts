@@ -24,7 +24,7 @@ async function creerTache(page: Page, titre: string) {
   await page.goto("/taches");
   await page.getByRole("button", { name: "Ajouter une tâche", exact: true }).click();
   await page.getByRole("textbox", { name: "Titre" }).fill(titre);
-  await page.getByRole("button", { name: "Créer", exact: true }).click();
+  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
   await expect(ligne(page, titre)).toBeVisible();
 }
 
@@ -40,7 +40,7 @@ test("crée une tâche depuis le formulaire", async ({ page }) => {
 test("le formulaire de création n'enregistre rien sans titre", async ({ page }) => {
   await page.goto("/taches");
   await page.getByRole("button", { name: "Ajouter une tâche", exact: true }).click();
-  await page.getByRole("button", { name: "Créer", exact: true }).click();
+  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
 
   // Le titre est requis : le formulaire reste ouvert, un message en français
   // s'affiche (pas la bulle native) et rien n'est envoyé.
@@ -68,7 +68,7 @@ test("coche une tâche : l'état est enregistré", async ({ page }) => {
   // Attend que la tâche soit enregistrée avant de la cocher.
   await expect.poll(async () => (await ecritures("taches", "POST")).length).toBe(1);
 
-  await ligne(page, titre).getByRole("button", { name: "Marquer fait" }).click();
+  await ligne(page, titre).getByRole("button", { name: `Marquer « ${titre} » comme fait` }).click();
 
   await expect
     .poll(async () => (await ecritures("taches", "PATCH")).some((t) => t.fait === true))

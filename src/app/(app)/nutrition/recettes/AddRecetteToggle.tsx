@@ -21,7 +21,7 @@ export function AddRecetteToggle() {
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une recette</span>
-        <span className="text-xs font-medium text-ink-3">Nouvelle recette au carnet</span>
+        <span className="text-xs font-medium text-ink-3">Une recette avec ses ingrédients et ses étapes</span>
       </div>
     </button>
   );

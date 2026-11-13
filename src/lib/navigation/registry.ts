@@ -1,7 +1,7 @@
 import { createElement, type ReactNode } from "react";
 
-// Registre unique de tous les items navigables de Kilio : les 4 modules
-// "primaires" (historiquement codés en dur dans BottomNav.ITEMS) et les 7
+// Registre unique de tous les items navigables de Kilio : les modules
+// "primaires" (historiquement codés en dur dans BottomNav.ITEMS) et les
 // modules "secondaires" (historiquement MODULES dans src/lib/modules.ts).
 // src/lib/modules.ts et BottomNav lisent tous les deux ce registre, pour
 // que la personnalisation de navigation (préférences_navigation) puisse
@@ -163,8 +163,8 @@ const REVUE_ICON = (c: string) =>
     createElement("path", { d: "m9 15 2 2 4-4" })
   );
 
-// Ordre canonique : les 4 modules primaires (épinglés en barre du bas par
-// défaut) puis les 7 modules secondaires. La grille "Plus" liste TOUJOURS
+// Ordre canonique : les modules primaires (épinglés en barre du bas par
+// défaut) puis les modules secondaires. La grille "Plus" liste TOUJOURS
 // tous les items (voir resolveOrdreGrillePlus dans
 // src/app/actions/preferences-navigation.ts) : un module reste accessible
 // depuis /plus même s'il est aussi épinglé en barre du bas, pour ne jamais
@@ -205,7 +205,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/agenda",
     label: "Agenda",
-    description: "Vues calendrier des tâches à échéance",
+    description: "Calendrier de tes tâches à échéance et de tes événements",
     accentVar: "var(--accent-agenda)",
     icon: AGENDA_ICON,
   },
@@ -219,7 +219,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/collection",
     label: "Collection",
-    description: "Photos organisées par collection",
+    description: "Collections de photos et de liens vidéo",
     accentVar: "var(--accent-collection)",
     icon: COLLECTION_ICON,
   },
@@ -293,7 +293,7 @@ export function findNavItem(href: string): NavItem | undefined {
 }
 
 // Routes "racine" de module au sens de la navigation top-level (voir
-// useViewTransitionNavigate) : les 11 items du registre, plus /plus elle-même
+// useViewTransitionNavigate) : tous les items du registre, plus /plus elle-même
 // — pas un module au sens strict, mais un écran de même niveau que les autres
 // dans la barre du bas, d'où l'on peut aussi rejoindre n'importe quel module
 // non épinglé. Match exact uniquement (pas de sous-route type /taches/abc),

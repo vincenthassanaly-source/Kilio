@@ -118,7 +118,7 @@ function IngredientLine({
               aria-label={`Supprimer l'ingrédient « ${ingredient.aliment.nom} »`}
               className={dangerButton}
             >
-              Suppr.
+              Supprimer
             </button>
           </>
         )}

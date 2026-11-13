@@ -236,7 +236,7 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
             </button>
           )}
           <button type="button" disabled={enCours} onClick={supprimer} className={dangerButton}>
-            Suppr.
+            Supprimer
           </button>
         </div>
       </div>

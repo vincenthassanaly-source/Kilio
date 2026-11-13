@@ -265,7 +265,7 @@ export async function createTache(
 
   // À partir d'ici la tâche existe. Un échec des étapes secondaires (tags,
   // images) ne doit plus être renvoyé comme une erreur de formulaire : le
-  // formulaire resterait ouvert et un nouvel appui sur « Créer » créerait un
+  // formulaire resterait ouvert et un nouvel appui sur « Ajouter » créerait un
   // doublon. On renvoie donc un succès accompagné d'un avertissement, et on
   // revalide sur tous les chemins de sortie.
   let echecTags = false;

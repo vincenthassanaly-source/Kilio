@@ -30,7 +30,7 @@ export function AddNoteToggle({
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une note</span>
-        <span className="text-xs font-medium text-ink-3">Nouvelle note libre</span>
+        <span className="text-xs font-medium text-ink-3">Une note libre, avec ou sans liste</span>
       </div>
     </button>
   );

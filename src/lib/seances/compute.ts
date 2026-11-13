@@ -5,7 +5,7 @@
 import { shiftDate } from "@/lib/date/iso";
 
 /** Types de séance (liste fermée, doublée par une contrainte SQL). */
-export const TYPES_SEANCE = ["LEGS", "PUSH", "PULL"] as const;
+const TYPES_SEANCE = ["LEGS", "PUSH", "PULL"] as const;
 export type TypeSeance = (typeof TYPES_SEANCE)[number];
 
 export function estTypeSeance(valeur: string): valeur is TypeSeance {
