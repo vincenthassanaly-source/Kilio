@@ -121,7 +121,17 @@ export function PhotosGrid({
   }
 
   if (visibles.length === 0) {
-    return <p className="text-ink-2">Aucun élément pour l&apos;instant.</p>;
+    return (
+      <div className="flex flex-col items-center gap-1 rounded-card border border-dashed border-control-border px-6 py-10 text-center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
+          <circle cx="9" cy="9.5" r="1.3" />
+          <path d="M4.5 16.5l4.5-4.5 3 3 3.5-3.5 4.5 4.5" />
+        </svg>
+        <p className="mt-1 text-body font-semibold text-ink">Aucun élément pour l&apos;instant</p>
+        <p className="text-small text-ink-2 text-balance">Ajoute des photos ou un lien vidéo avec les boutons ci-dessus.</p>
+      </div>
+    );
   }
 
   return (
@@ -152,7 +162,7 @@ export function PhotosGrid({
                 <button
                   type="button"
                   onClick={() => setLightboxItem(photo)}
-                  aria-label={ariaLabelOuverture(photo.type)}
+                  aria-label={photo.titre ? `${ariaLabelOuverture(photo.type)} : ${photo.titre}` : ariaLabelOuverture(photo.type)}
                   className="relative block h-full w-full"
                 >
                   {miniatureIndisponible ? (

@@ -69,7 +69,10 @@ export default async function ChoisirCollectionPage({
             video={video}
           />
         ) : photos.length === 0 && !video ? (
-          <p className="text-ink-2">Rien reçu.</p>
+          <div className="flex flex-col gap-1 rounded-card border border-dashed border-control-border px-6 py-10 text-center">
+            <p className="text-body font-semibold text-ink">Rien reçu</p>
+            <p className="text-small text-ink-2 text-balance">Partage une photo ou un lien vidéo depuis une autre application pour le ranger ici.</p>
+          </div>
         ) : (
           <>
             <div className="flex gap-2 overflow-x-auto pb-1">

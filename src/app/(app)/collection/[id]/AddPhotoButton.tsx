@@ -16,7 +16,7 @@ import {
 import { errorText, input, primaryButton } from "@/lib/ui";
 
 const ADD_PHOTO_BUTTON =
-  "flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-small font-semibold text-kcal transition-colors hover:bg-kcal-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kcal has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-kcal";
+  "flex flex-1 cursor-pointer items-center justify-center gap-1.5 min-h-11 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-small font-semibold text-kcal transition-colors hover:bg-kcal-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kcal has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-kcal";
 
 function CameraIcon() {
   return (
@@ -213,8 +213,8 @@ export function AddPhotoButton({
             disabled={videoPending}
             className={`${input} min-w-0 flex-1`}
           />
-          <button type="submit" disabled={videoPending} aria-label="Ajouter la vidéo" className={primaryButton}>
-            {videoPending ? "…" : "OK"}
+          <button type="submit" disabled={videoPending} className={primaryButton}>
+            {videoPending ? "Ajout…" : "Ajouter"}
           </button>
         </form>
       )}

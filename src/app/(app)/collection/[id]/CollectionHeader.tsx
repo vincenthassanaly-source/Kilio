@@ -8,7 +8,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { runAction } from "@/lib/actions/runAction";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
-import { dangerButton, errorText, ghostButton, input } from "@/lib/ui";
+import { dangerButton, errorText, ghostButton, input, primaryButton, textButton } from "@/lib/ui";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { BackLink } from "@/components/BackLink";
 
@@ -69,49 +69,63 @@ export function CollectionHeader({ collection }: { collection: Tables<"collectio
     <div className="flex flex-col gap-2">
       <BackLink href="/collection">Collection</BackLink>
 
-      <div className="flex items-start justify-between gap-3">
-        {editing ? (
-          <form onSubmit={handleRename} className="flex flex-1 items-center gap-2">
-            <input
-              autoFocus
-              aria-label="Nom de la collection"
-              value={nom}
-              onChange={(e) => setNom(e.target.value)}
-              className={`${input} flex-1`}
-            />
-            <button type="submit" disabled={isPending} className={ghostButton}>
-              OK
+      {editing ? (
+        <form onSubmit={handleRename} className="flex flex-col gap-2">
+          <input
+            autoFocus
+            aria-label="Nom de la collection"
+            value={nom}
+            onChange={(e) => setNom(e.target.value)}
+            className={`${input} w-full`}
+          />
+          <div className="flex items-center gap-2">
+            <button type="submit" disabled={isPending} className={primaryButton}>
+              Enregistrer
             </button>
-          </form>
-        ) : (
+            <button type="button" onClick={() => setEditing(false)} className={textButton}>
+              Annuler
+            </button>
+          </div>
+        </form>
+      ) : (
+        <>
+          {/* Le nom passe à la ligne : tronqué, un nom long ne se lit nulle part. */}
           <h1
             style={{ viewTransitionName: `collection-title-${collection.id}` }}
-            className="mt-1 truncate font-display text-heading font-semibold text-ink"
+            className="mt-1 break-words font-display text-heading font-semibold text-ink text-balance"
           >
             {collection.nom}
           </h1>
-        )}
-
-        <div className="flex shrink-0 gap-2">
-          {!editing && (
-            <button type="button" onClick={() => {
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
                 // Repart du nom actuel, pas d'un brouillon abandonné ou périmé.
                 setNom(collection.nom);
                 setEditing(true);
-              }} className={ghostButton}>
+              }}
+              className={ghostButton}
+            >
               Renommer
             </button>
-          )}
-          <button type="button" disabled={isPending} onClick={handleDelete}
-            aria-label="Supprimer la collection"
-            className={dangerButton}
-          >
-            Supprimer
-          </button>
-        </div>
-      </div>
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={handleDelete}
+              aria-label="Supprimer la collection"
+              className={dangerButton}
+            >
+              Supprimer
+            </button>
+          </div>
+        </>
+      )}
 
-      {error && <p className={errorText}>{error}</p>}
+      {error && (
+        <p className={errorText} role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

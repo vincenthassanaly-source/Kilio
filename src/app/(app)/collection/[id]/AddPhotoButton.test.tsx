@@ -37,7 +37,7 @@ describe("AddPhotoButton - erreurs d'ajout", () => {
 
     await user.click(screen.getByRole("button", { name: "Lien vidéo" }));
     await user.type(screen.getByLabelText("Lien TikTok ou YouTube"), "https://exemple.test/x");
-    await user.click(screen.getByRole("button", { name: "Ajouter la vidéo" }));
+    await user.click(screen.getByRole("button", { name: "Ajouter" }));
 
     const alerte = await screen.findByText("Lien TikTok ou YouTube invalide");
     expect(alerte).toBeInTheDocument();

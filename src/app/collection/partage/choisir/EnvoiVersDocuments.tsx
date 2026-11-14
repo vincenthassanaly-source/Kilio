@@ -164,7 +164,7 @@ export function EnvoiVersDocuments({ id, nb }: { id: string; nb: number }) {
 
   return (
     <div className="flex flex-col gap-2" aria-busy="true">
-      <p className="text-sm text-ink" aria-live="polite">
+      <p className="text-label text-ink" aria-live="polite">
         {etat.message} {etat.total > 0 && etat.message === "Envoi…" ? `${etat.fait} / ${etat.total}` : ""}
       </p>
       <div
