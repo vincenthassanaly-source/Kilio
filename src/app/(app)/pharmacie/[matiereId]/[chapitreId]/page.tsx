@@ -78,8 +78,8 @@ function Chapitre({
     <>
       <div className="flex flex-col gap-1">
         <BackLink href={`/pharmacie/${matiere.id}`}>{matiere.nom}</BackLink>
-        <div className="flex items-start justify-between gap-3">
-          <h1 className={screenTitle}>{chapitre.nom}</h1>
+        <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+          <h1 className={`${screenTitle} min-w-0 [overflow-wrap:break-word]`}>{chapitre.nom}</h1>
           {notions.length > 1 && (
             <button
               type="button"
@@ -100,7 +100,7 @@ function Chapitre({
           {notions.map((notion) => (
             <article key={notion.id} id={`notion-${notion.id}`} className="scroll-mt-20 py-4 first:pt-2 last:pb-2">
               <div className="flex items-start justify-between gap-3">
-                <h2 className="text-body font-bold text-ink text-balance">{notion.titre}</h2>
+                <h2 className="min-w-0 text-body font-bold text-ink text-balance [overflow-wrap:anywhere]">{notion.titre}</h2>
                 <button
                   type="button"
                   onClick={() => setEnEdition(notion)}

@@ -29,7 +29,7 @@ export default function MatierePage({ params }: { params: Promise<{ matiereId: s
             <>
               <div className="flex flex-col gap-1">
                 <BackLink href="/pharmacie">Pharmacie</BackLink>
-                <h1 className={screenTitle}>{matiere.nom}</h1>
+                <h1 className={`${screenTitle} [overflow-wrap:anywhere]`}>{matiere.nom}</h1>
               </div>
               {chapitres.length === 0 ? (
                 <IntrouvableCarte message="Aucun chapitre pour l'instant." />
@@ -43,7 +43,7 @@ export default function MatierePage({ params }: { params: Promise<{ matiereId: s
                           href={`/pharmacie/${matiere.id}/${chapitre.id}`}
                           className={`${cardTight} flex items-baseline justify-between gap-3`}
                         >
-                          <span className="truncate text-body font-semibold text-ink">{chapitre.nom}</span>
+                          <span className="line-clamp-2 min-w-0 text-body font-semibold text-ink [overflow-wrap:anywhere]">{chapitre.nom}</span>
                           <span className={`${eyebrow} shrink-0 font-normal`}>{pluriel(notions.length, "notion")}</span>
                         </TransitionLink>
                       </li>

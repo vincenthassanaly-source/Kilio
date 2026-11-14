@@ -108,7 +108,7 @@ function Accueil({ snapshot }: { snapshot: PharmaSnapshot }) {
               <li key={matiere.id}>
                 <TransitionLink href={`/pharmacie/${matiere.id}`} className={`${cardTight} flex flex-col gap-2`}>
                   <span className="flex items-baseline justify-between gap-3">
-                    <span className="truncate text-body font-semibold text-ink">{matiere.nom}</span>
+                    <span className="line-clamp-2 min-w-0 text-body font-semibold text-ink [overflow-wrap:anywhere]">{matiere.nom}</span>
                     <span className="shrink-0 text-caption text-ink-2">
                       {pluriel(stats.chapitres, "chapitre")} · {pluriel(stats.notions, "notion")}
                     </span>
@@ -145,7 +145,7 @@ function Accueil({ snapshot }: { snapshot: PharmaSnapshot }) {
                     <span className={eyebrow}>
                       {chemin.matiere.nom} › {chemin.chapitre.nom}
                     </span>
-                    <span className="truncate text-body font-semibold text-ink">{notion.titre}</span>
+                    <span className="line-clamp-2 text-body font-semibold text-ink [overflow-wrap:anywhere]">{notion.titre}</span>
                   </TransitionLink>
                 </li>
               );
