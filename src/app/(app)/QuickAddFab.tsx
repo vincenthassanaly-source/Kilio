@@ -397,7 +397,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
         )}
 
         {mode === "course" && (
-          <Modal key="course" title="Ajouter à la liste de courses" onClose={() => history.back()}>
+          <Modal key="course" title="Ajouter un article" onClose={() => history.back()}>
             {/* Le formulaire reste ouvert après chaque ajout (#1) : la
                 fermeture se fait uniquement par le bouton de fermeture de la
                 Modal ou par le retour (useBackClose ci-dessus), plus par

@@ -25,7 +25,7 @@ Valider la modification d'un élément existant (même bouton que « Ajouter » 
 _Avoid_: Valider, Sauvegarder
 
 **Supprimer**:
-Détruire un élément. Toujours écrit en entier, jamais « Suppr. ». Un seul patron : l'élément disparaît tout de suite, un toast « X supprimé · Annuler » reste 6 secondes, et l'appel serveur ne part qu'à la fin de ce délai (annuler ne fait aucun appel réseau ; quitter l'écran n'empêche pas la suppression, fermer l'app avant la fin la fait renoncer et l'élément réapparaît). Aucune boîte de confirmation pour supprimer : elles sont réservées aux pertes de brouillon (« Quitter sans enregistrer », « Vider le brouillon »).
+Détruire un élément. Toujours écrit en entier, jamais « Suppr. ». Un seul patron : l'élément disparaît tout de suite, un toast « X supprimé · Annuler » reste 6 secondes, et l'appel serveur ne part qu'à la fin de ce délai (annuler ne fait aucun appel réseau ; quitter l'écran n'empêche pas la suppression, fermer l'app avant la fin la fait renoncer et l'élément réapparaît). Aucune boîte de confirmation pour supprimer : elles sont réservées aux pertes de brouillon (« Quitter sans enregistrer », « Vider le brouillon »). Exception : Courses supprime tout de suite côté serveur et restaure par réinsertion si on touche « Annuler » (patron d'origine de `supprimerAvecAnnulation`).
 _Avoid_: Suppr., Effacer (réservé à « Effacer la feuille » du Journal, qui vide les traits sans supprimer la page), Vider
 
 **Retirer**:
