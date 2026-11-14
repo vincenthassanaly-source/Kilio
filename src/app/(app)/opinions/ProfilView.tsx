@@ -1,7 +1,7 @@
 import { TransitionLink } from "@/components/TransitionLink";
 import { calculerProfil, decrireMoyenne, sujetsACreuser, trouverTensions, type AxeProfil, type IdeePourProfil } from "@/lib/opinions/profil";
 import { AXES, LIBELLE_THEME } from "@/lib/opinions/types";
-import { card, cardTight, metaText, pillTag, sectionTitle } from "@/lib/ui";
+import { card, cardTight, emptyState, metaText, pillTag, sectionTitle } from "@/lib/ui";
 
 // Barre divergente : le centre est « équilibré », la barre part du centre vers
 // le pôle de gauche (-2) ou de droite (+2). Le texte (description + nombre
@@ -59,7 +59,7 @@ export function ProfilView({ idees }: { idees: readonly IdeePourProfil[] }) {
 
   if (nombreValidees === 0) {
     return (
-      <p className="rounded-card border border-dashed border-control-border px-4 py-6 text-center text-small text-ink-2 text-pretty">
+      <p className={emptyState}>
         Ton profil se dessine à partir des idées <strong className="font-semibold text-ink">validées</strong>. Note une
         idée, choisis son thème, place-la sur les axes puis valide-la.
       </p>

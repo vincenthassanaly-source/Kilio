@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AddCourseForm } from "./AddCourseForm";
-import { PlusIcon } from "./CoursesIcons";
+import { PlusIcon } from "@/components/icons";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
 import { addCard, addCardIcon, card, textButton } from "@/lib/ui";

@@ -1,6 +1,6 @@
 import { libelleParti, type PartiClasse } from "@/lib/opinions/partis";
 import { varCouleurParti } from "@/lib/opinions/couleurs";
-import { metaText, pillTag } from "@/lib/ui";
+import { emptyState, metaText, pillTag } from "@/lib/ui";
 import { PastilleParti } from "./CouleursOpinions";
 
 const LIGNE = "flex flex-col gap-2 rounded-row border border-line bg-surface p-3.5 shadow-card";
@@ -10,7 +10,7 @@ const COUVERTURE_PARTIELLE = 0.5;
 export function ClassementProximite({ classement, aDesIdees }: { classement: readonly PartiClasse[]; aDesIdees: boolean }) {
   if (!aDesIdees) {
     return (
-      <p className="rounded-card border border-dashed border-control-border px-4 py-5 text-center text-small text-ink-2 text-pretty">
+      <p className={emptyState}>
         Valide quelques idées, avec un thème et des scores, pour voir quels partis te ressemblent.
       </p>
     );

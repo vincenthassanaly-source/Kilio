@@ -48,7 +48,7 @@ function ModuleTile({ href, isEditing }: { href: string; isEditing: boolean }) {
       onClick={handleClick}
       data-nav-edit-tile
       style={style}
-      className={`${card} flex flex-col gap-2.5${isEditing ? " select-none plus-tuile-edition" : ""}`}
+      className={`${card} flex w-full flex-col gap-2.5${isEditing ? " select-none plus-tuile-edition" : ""}`}
       {...attributes}
       {...listeners}
     >
@@ -76,6 +76,7 @@ export function ModulesGrid() {
         {ordreGrillePlus.map((href, index) => (
           <motion.div
             key={href}
+            className="flex"
             initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={reduceMotion ? { duration: 0 } : { duration: 0.2, delay: index * 0.03 }}

@@ -11,14 +11,14 @@ import { calculerProfil } from "@/lib/opinions/profil";
 import { AXES, type AxeId } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
 import { useMasques } from "@/lib/actions/elementsMasques";
-import { addCard, addCardIcon, card, sectionTitle } from "@/lib/ui";
+import { addCard, addCardIcon, card, emptyState, sectionTitle } from "@/lib/ui";
+import { PlusIcon } from "@/components/icons";
 import { ClassementProximite } from "./ClassementProximite";
 import { MarqueursAxes } from "./MarqueursAxes";
 import { PartiCard } from "./PartiCard";
 import { PartiFormModal } from "./PartisForms";
 import { ErrorInline } from "@/components/ErrorInline";
 
-const VIDE = "rounded-card border border-dashed border-control-border px-4 py-6 text-center text-small text-ink-2 text-pretty";
 
 export function PartisView({ idees }: { idees: readonly Idee[] }) {
   const queryClient = useQueryClient();
@@ -112,7 +112,9 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
           Les partis
         </h2>
         <button type="button" onClick={() => setAjout(true)} className={addCard}>
-          <div className={addCardIcon}>+</div>
+          <div className={addCardIcon}>
+        <PlusIcon size={18} />
+      </div>
           <div className="flex flex-col gap-[1px]">
             <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un parti</span>
             <span className="text-xs font-medium text-ink-3">Puis demande à Claude d&apos;importer son programme</span>
@@ -120,7 +122,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
         </button>
 
         {donnees.length === 0 ? (
-          <p className={VIDE}>Aucun parti pour l&apos;instant. Ajoute le premier ci-dessus.</p>
+          <p className={emptyState}>Aucun parti pour l&apos;instant. Ajoute le premier ci-dessus.</p>
         ) : (
           <ul className="flex flex-col gap-2.5">
             {classement.map(({ parti, proximite }) => (

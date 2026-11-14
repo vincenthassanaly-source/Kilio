@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { rechercheGlobale, type ModuleRecherche, type ResultatRecherche } from "@/app/actions/recherche";
-import { input } from "@/lib/ui";
+import { inputAvecIcone } from "@/lib/ui";
 import { runAction } from "@/lib/actions/runAction";
 
 function idOption(item: ResultatRecherche): string {
@@ -155,7 +155,7 @@ export function GlobalSearchBar() {
           role="combobox"
           aria-autocomplete="list"
           autoComplete="off"
-          className={`${input} w-full pl-10 pr-9`}
+          className={`${inputAvecIcone} w-full pr-9`}
         />
         {isPending && (
           <span

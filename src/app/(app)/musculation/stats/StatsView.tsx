@@ -14,6 +14,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { card, cardTight, metaText, nameText, nameTextComplet, navArrowButton, screenTitle, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
+import { ChevronIcon } from "@/components/icons";
 
 const OPTIONS = [
   { value: "semaine", label: "Semaine" },
@@ -32,15 +33,6 @@ function libellePeriode(type: TypePeriode, debut: string, fin: string): string {
   return type === "mois"
     ? formatMois.format(enDate(debut))
     : `${formatJourMois.format(enDate(debut))} – ${formatJourMois.format(enDate(fin))}`;
-}
-
-/** Chevron tracé des flèches de période (remplace les glyphes ‹ › du texte). */
-function ChevronPeriode({ d }: { d: string }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={d} />
-    </svg>
-  );
 }
 
 function Tuile({ libelle, valeur }: { libelle: string; valeur: string }) {
@@ -139,13 +131,13 @@ export function StatsView() {
 
       <div className="flex items-center justify-between gap-2">
         <button type="button" className={navArrowButton} onClick={() => setDecalage((d) => d - 1)} aria-label="Période précédente">
-          <ChevronPeriode d="m15 6-6 6 6 6" />
+          <ChevronIcon sens="gauche" size={18} />
         </button>
         <span className={`${nameText} capitalize`} aria-live="polite">
           {donnees ? libellePeriode(type, donnees.debut, donnees.fin) : "…"}
         </span>
         <button type="button" className={navArrowButton} onClick={() => setDecalage((d) => Math.min(0, d + 1))} disabled={decalage === 0} aria-label="Période suivante">
-          <ChevronPeriode d="m9 6 6 6-6 6" />
+          <ChevronIcon sens="droite" size={18} />
         </button>
       </div>
 

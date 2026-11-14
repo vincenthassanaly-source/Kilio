@@ -11,7 +11,7 @@ import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 import { restaurerArticlesCourses } from "./undo";
 import { CourseItemRow } from "./CourseItemRow";
 import { card, ghostButton, sectionTitle } from "@/lib/ui";
-import { ChevronBasIcon } from "./CoursesIcons";
+import { ChevronIcon } from "@/components/icons";
 
 function versSnapshot(item: Tables<"courses_items">): CourseItemARestaurer {
   return {
@@ -90,7 +90,8 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
           aria-expanded={open}
         >
           <span className={sectionTitle}>Articles pris (<span className="tabular-nums">{items.length}</span>)</span>
-          <ChevronBasIcon
+          <ChevronIcon
+            sens="bas"
             size={18}
             className={`shrink-0 text-ink-2 transition-transform duration-200 ease-[var(--ease-out)] ${open ? "rotate-180" : ""}`}
           />

@@ -191,6 +191,22 @@ export function WeekView({
   }
   useIsomorphicLayoutEffect(majIndiceDefilement, [zoom, containerWidth]);
 
+  // À l'ouverture, sur mobile (où ~3,5 colonnes sur 7 tiennent), la colonne du
+  // jour est amenée juste après la gouttière : jeudi à dimanche seraient sinon
+  // hors écran. Une seule fois, dès que la largeur est mesurée : ni à chaque
+  // rendu, ni quand on change de semaine. Le défilement est instantané (pas
+  // d'animation, donc rien à désactiver pour prefers-reduced-motion).
+  const defilementJourFait = useRef(false);
+  useIsomorphicLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el || containerWidth === null || defilementJourFait.current) return;
+    defilementJourFait.current = true;
+    const indexAujourdhui = days.findIndex((d) => isSameDay(d, new Date()));
+    if (indexAujourdhui <= 0) return;
+    const largeurColonne = (el.scrollWidth - GUTTER_WIDTH) / days.length;
+    el.scrollLeft = indexAujourdhui * largeurColonne;
+  }, [containerWidth]);
+
 
   const semaineVide = [...parJour.values()].every(
     (j) => j.dayTachesAvecHeure.length + j.bandeTaches.length + j.dayEvenements.length + j.bandeEvenements.length === 0

@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
 import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
+import { PlusIcon } from "@/components/icons";
 
 // Carte « + Ajouter … » qui se déplie en formulaire (carte + animation +
 // retour arrière + bouton Annuler). Partagée par AddDocumentToggle et
@@ -27,7 +28,9 @@ export function AddCardToggle({
 
   const trigger = (
     <button type="button" onClick={() => setOpen(true)} className={addCard}>
-      <div className={addCardIcon}>+</div>
+      <div className={addCardIcon}>
+        <PlusIcon size={18} />
+      </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">{titre}</span>
         <span className="text-xs font-medium text-ink-3">{sousTitre}</span>

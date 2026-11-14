@@ -6,7 +6,7 @@ import { interpreterSaisie } from "@/app/actions/saisie";
 import { Modal } from "@/components/Modal";
 import { runAction } from "@/lib/actions/runAction";
 import { LONGUEUR_MAX_SAISIE, type ElementSaisie } from "@/lib/saisie/compute";
-import { errorText, input } from "@/lib/ui";
+import { errorText, inputAvecIcone } from "@/lib/ui";
 import { ApercuSaisie } from "./ApercuSaisie";
 
 /**
@@ -69,7 +69,7 @@ export function SaisieNaturelle() {
               autoComplete="off"
               maxLength={LONGUEUR_MAX_SAISIE}
               aria-describedby={erreur ? `${uid}-erreur` : undefined}
-              className={`${input} min-h-11 w-full pl-10 placeholder:text-ink-2`}
+              className={`${inputAvecIcone} min-h-11 w-full placeholder:text-ink-2`}
             />
           </div>
           <button

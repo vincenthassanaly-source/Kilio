@@ -1,6 +1,7 @@
 "use client";
 
 import { navArrowButton } from "@/lib/ui";
+import { ChevronIcon } from "@/components/icons";
 
 // La date affichée est le vrai contenu de l'écran : elle passe devant le
 // titre « Agenda » (28 px) plutôt que d'être reléguée à 15 px.
@@ -12,14 +13,6 @@ const TITRE_PERIODE = "font-display text-heading leading-tight font-semibold tra
 // affichée ne contient pas la date du jour, mais réserve toujours sa place
 // (rendu invisible plutôt qu'absent du DOM) pour que la hauteur de
 // l'en-tête ne saute jamais entre les deux états.
-function ChevronIcon({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={direction === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
-    </svg>
-  );
-}
-
 export function PeriodHeader({
   title,
   capitalizeTitle = false,
@@ -42,7 +35,7 @@ export function PeriodHeader({
   return (
     <div className="flex items-center justify-between gap-2">
       <button type="button" onClick={onPrev} className={navArrowButton} aria-label={prevLabel}>
-        <ChevronIcon direction="left" />
+        <ChevronIcon sens="gauche" size={18} />
       </button>
       <div className="flex flex-col items-center gap-0.5">
         <span className={`${TITRE_PERIODE} ${capitalizeTitle ? "capitalize" : ""}`}>{title}</span>
@@ -61,7 +54,7 @@ export function PeriodHeader({
         )}
       </div>
       <button type="button" onClick={onNext} className={navArrowButton} aria-label={nextLabel}>
-        <ChevronIcon direction="right" />
+        <ChevronIcon sens="droite" size={18} />
       </button>
     </div>
   );

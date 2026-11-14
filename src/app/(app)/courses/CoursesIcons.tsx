@@ -1,6 +1,5 @@
-// Pictogrammes SVG propres au module Courses (décoratifs, `aria-hidden`) :
-// remplacent les glyphes texte « + » et « ▾ ». Même tracé que src/components/icons.tsx
-// (24×24, trait arrondi, `currentColor`).
+// Pictogramme SVG propre au module Courses (décoratif, `aria-hidden`). Même tracé que
+// src/components/icons.tsx (24×24, trait arrondi, `currentColor`).
 
 type IconeProps = { size?: number; className?: string };
 
@@ -20,22 +19,6 @@ function Svg({ size = 18, className, children }: IconeProps & { children: React.
     >
       {children}
     </svg>
-  );
-}
-
-export function PlusIcon(props: IconeProps) {
-  return (
-    <Svg {...props}>
-      <path d="M12 5v14M5 12h14" />
-    </Svg>
-  );
-}
-
-export function ChevronBasIcon(props: IconeProps) {
-  return (
-    <Svg {...props}>
-      <path d="m6 9 6 6 6-6" />
-    </Svg>
   );
 }
 

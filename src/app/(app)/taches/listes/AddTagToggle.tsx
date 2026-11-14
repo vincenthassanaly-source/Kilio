@@ -5,6 +5,7 @@ import { AddTagForm } from "./AddTagForm";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
 import { addCard, addCardIcon, card } from "@/lib/ui";
+import { PlusIcon } from "@/components/icons";
 
 export function AddTagToggle() {
   const [open, setOpen] = useState(false);
@@ -15,7 +16,7 @@ export function AddTagToggle() {
       <div
         className={addCardIcon}
       >
-        +
+        <PlusIcon size={18} />
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un tag</span>

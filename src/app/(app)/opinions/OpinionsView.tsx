@@ -23,7 +23,7 @@ import {
 } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
 import { useMasques } from "@/lib/actions/elementsMasques";
-import { cardTight, errorText, input, label, metaText, pillTag, primaryButton, textButton } from "@/lib/ui";
+import { cardTight, emptyState, errorText, input, label, metaText, pillTag, primaryButton, textButton } from "@/lib/ui";
 import { PartisView } from "./PartisView";
 import { PrioritesEditor } from "./PrioritesEditor";
 import { ProfilView } from "./ProfilView";
@@ -40,7 +40,6 @@ const ONGLETS: { value: Onglet; label: string }[] = [
   { value: "profil", label: "Profil" },
 ];
 
-const VIDE = "rounded-card border border-dashed border-control-border px-4 py-6 text-center text-small text-ink-2 text-pretty";
 
 const FILTRES: { value: Filtre; label: string }[] = [
   { value: "tous", label: "Toutes" },
@@ -189,7 +188,7 @@ export function OpinionsView() {
             </select>
 
             {visibles.length === 0 ? (
-              <div className={`${VIDE} flex flex-col items-center gap-1`}>
+              <div className={`${emptyState} flex flex-col items-center gap-1`}>
                 {idees.length === 0 ? (
                   <p>Aucune idée pour l&apos;instant. Note la première ci-dessus.</p>
                 ) : (

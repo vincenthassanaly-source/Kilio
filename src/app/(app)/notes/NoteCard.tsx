@@ -22,6 +22,7 @@ import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
 import {
+  actionTuile,
   actionsLigne,
   card,
   dangerButton,
@@ -42,12 +43,6 @@ const AssistantNoteModal = dynamic(() => import("./AssistantNoteModal").then((m)
 });
 
 const ITEMS_PREVIEW_LIMIT = 6;
-
-// Actions de la tuile : texte seul (pas de contour), pour que deux boutons
-// bordés n'écrasent pas chaque tuile de la grille ; zone de tap étendue à
-// 44 px par le pseudo-élément, comme les autres boutons compacts.
-const actionTuile =
-  "relative rounded-lg px-1.5 py-1.5 text-small font-semibold transition-[color,background-color,transform] active:scale-[0.97] after:absolute after:inset-x-0 after:-inset-y-1.5 hover:bg-ink/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-60";
 
 function couleurTagStyle(couleur: string | null) {
   if (!couleur) return undefined;

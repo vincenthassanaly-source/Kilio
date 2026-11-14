@@ -33,7 +33,7 @@ import { formaterMinutes } from "@/lib/musculation/seance";
 import type { ExerciceCatalogue } from "@/lib/musculation/serveur";
 import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE, ORDRE_TYPES } from "@/lib/seances/compute";
-import { card, dangerButton, errorText, ghostButton, input, label, metaText, nameText, primaryButton, screenTitle, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton, ghostButtonIcone, input, label, metaText, nameText, primaryButton, screenTitle, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { AnimationVignette } from "../../AnimationExercice";
 import { ChampNombre } from "../../seance/ChampNombre";
 import { SelecteurExercices } from "../../seance/SelecteurExercices";
@@ -238,7 +238,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  className={`${ghostButton} inline-flex min-w-11 items-center justify-center disabled:opacity-40`}
+                  className={`${ghostButtonIcone} disabled:opacity-40`}
                   onClick={() => deplacer(index, -1)}
                   disabled={index === 0}
                   aria-label={`Monter ${exercice.nom}`}
@@ -247,7 +247,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                 </button>
                 <button
                   type="button"
-                  className={`${ghostButton} inline-flex min-w-11 items-center justify-center disabled:opacity-40`}
+                  className={`${ghostButtonIcone} disabled:opacity-40`}
                   onClick={() => deplacer(index, 1)}
                   disabled={index === exercices.length - 1}
                   aria-label={`Descendre ${exercice.nom}`}

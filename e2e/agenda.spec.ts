@@ -86,8 +86,32 @@ test("vue Semaine : indice de défilement à droite, et message sur une semaine 
   await choisirVue(page, "Semaine");
   // Sur grand écran les 7 colonnes tiennent : l'indice n'a de sens qu'en mobile.
   if (testInfo.project.name === "mobile") {
+    // À l'ouverture la grille est défilée jusqu'au jour courant (variable selon le
+    // jour de la semaine) : on revient au bord gauche pour tester l'indice de droite.
+    await page.locator("[data-swipe-ignore]").evaluate((el) => {
+      el.scrollLeft = 0;
+    });
     await expect(page.getByTestId("indice-defilement-semaine")).toBeVisible();
   }
+  await page.getByRole("button", { name: "Semaine suivante" }).click();
+  await expect(page.getByText("Rien de prévu cette semaine.")).toBeVisible();
+});
+
+test("vue Semaine : à l'ouverture sur mobile, la colonne d'aujourd'hui est visible", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "Sur grand écran les 7 colonnes tiennent.");
+  await ouvrirAgenda(page);
+  await choisirVue(page, "Semaine");
+  const grilleSemaine = page.locator("[data-swipe-ignore]");
+  const aujourdhui = grilleSemaine.locator('[aria-current="date"]');
+  await expect(aujourdhui).toBeVisible();
+  // Poll : le défilement part dès la mesure de la largeur, juste après l'affichage.
+  await expect
+    .poll(async () => {
+      const [col, cadre] = [await aujourdhui.boundingBox(), await grilleSemaine.boundingBox()];
+      return col && cadre ? col.x >= cadre.x - 0.5 && col.x + col.width <= cadre.x + cadre.width + 0.5 : false;
+    })
+    .toBe(true);
+  // Une seule fois : changer de semaine ne rebouge pas la grille vers un « aujourd'hui » absent.
   await page.getByRole("button", { name: "Semaine suivante" }).click();
   await expect(page.getByText("Rien de prévu cette semaine.")).toBeVisible();
 });

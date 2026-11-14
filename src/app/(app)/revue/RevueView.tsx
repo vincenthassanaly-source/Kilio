@@ -117,7 +117,7 @@ export function RevueView({ today }: { today: string }) {
           {enRetard.length > 0 && <BoutonAssistantRevue mode="replanifier" libelle="Replanifier" />}
         </div>
         {enRetard.length > 0 ? (
-          <EnRetardSection taches={enRetard} today={today} />
+          <EnRetardSection taches={enRetard} today={today} masquerTitre />
         ) : (
           <p className={`${card} text-label text-ink-2`}>Rien en retard. Bien joué.</p>
         )}

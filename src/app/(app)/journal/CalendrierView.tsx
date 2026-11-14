@@ -9,6 +9,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { eyebrow, linkButton, navArrowButton, screenTitle } from "@/lib/ui";
 import { premierEtDernierJour } from "@/lib/vidage/jours";
 import { BackLink } from "@/components/BackLink";
+import { ChevronIcon } from "@/components/icons";
 
 const JOURS_SEMAINE = ["L", "M", "M", "J", "V", "S", "D"] as const;
 
@@ -57,9 +58,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
 
       <div className="flex items-center justify-between gap-3">
         <button type="button" aria-label="Mois précédent" className={navArrowButton} onClick={() => setMois((m) => decaler(m, -1))}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
+          <ChevronIcon sens="gauche" size={20} />
         </button>
         <p className="text-heading-sm font-semibold text-ink" aria-live="polite">
           {libelleMois(mois)}
@@ -71,9 +70,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
           className={`${navArrowButton} disabled:opacity-35`}
           onClick={() => setMois((m) => decaler(m, 1))}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+          <ChevronIcon sens="droite" size={20} />
         </button>
       </div>
 

@@ -22,14 +22,7 @@ import { input, navArrowButton } from "@/lib/ui";
 import { HabitudesVides } from "./HabitudesVides";
 import { useSwipeHorizontal, type SensSwipe } from "@/hooks/useSwipeHorizontal";
 import { toISODate } from "@/lib/date/iso";
-
-function ChevronMois({ sens }: { sens: SensSwipe }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={sens === "precedent" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"} />
-    </svg>
-  );
-}
+import { ChevronIcon } from "@/components/icons";
 
 const WEEKDAY_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
 
@@ -127,7 +120,7 @@ export function HistoriqueView({
                 className={navArrowButton}
                 aria-label="Mois précédent"
               >
-                <ChevronMois sens="precedent" />
+                <ChevronIcon sens="gauche" size={18} />
               </button>
               <span aria-live="polite" className="font-display text-heading-sm font-semibold capitalize text-ink">
                 {format(mois, "MMMM yyyy", { locale: fr })}
@@ -141,7 +134,7 @@ export function HistoriqueView({
                 className={navArrowButton}
                 aria-label="Mois suivant"
               >
-                <ChevronMois sens="suivant" />
+                <ChevronIcon sens="droite" size={18} />
               </button>
             </div>
 
