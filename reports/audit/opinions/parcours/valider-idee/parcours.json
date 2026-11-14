@@ -1,0 +1,136 @@
+{
+  "nom": "valider-idee",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/opinions",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1740,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "text=taxer davantage",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 424,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "select",
+      "cible": "role=combobox[name=/^thème/i]",
+      "valeur": "economie",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f?_rsc=QpD8K469s62sby8Z (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 1171,
+      "fichier": "03-select.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=\"+1\"]",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 5068,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^valider$/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 403,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "screenshot",
+      "note": "validée",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "opinions_idees",
+          "query": "?id=eq.ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+          "body": {
+            "statut": "validee",
+            "updated_at": "2026-11-14T19:19:28.350Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 354,
+      "fichier": "06-screenshot.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=link[name=/retour vers opinions/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 442,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/^profil$/i]",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=nfXfEqHTDEtSUN0d (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5?_rsc=lVrswEfOS8BwOM5C (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions",
+      "ms": 642,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "screenshot",
+      "note": "profil",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions",
+      "ms": 349,
+      "fichier": "09-screenshot.png"
+    }
+  ]
+}

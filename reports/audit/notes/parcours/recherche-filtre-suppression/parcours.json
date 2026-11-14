@@ -13,10 +13,11 @@
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ap_U6Chp7ZClI43I (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "ms": 1602,
+      "ms": 1845,
       "fichier": "01-goto.png"
     },
     {
@@ -29,7 +30,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 375,
+      "ms": 362,
       "fichier": "02-fill.png"
     },
     {
@@ -41,7 +42,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 335,
+      "ms": 339,
       "fichier": "03-screenshot.png"
     },
     {
@@ -54,7 +55,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 351,
+      "ms": 344,
       "fichier": "04-fill.png"
     },
     {
@@ -66,7 +67,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 331,
+      "ms": 334,
       "fichier": "05-screenshot.png"
     },
     {
@@ -78,7 +79,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 5035,
+      "ms": 5036,
       "fichier": "06-click.png"
     },
     {
@@ -91,7 +92,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 375,
+      "ms": 350,
       "fichier": "07-fill.png"
     },
     {
@@ -99,12 +100,51 @@
       "action": "click",
       "cible": "role=button[name=/^#urgent$/]",
       "note": "filtre tag",
-      "statut": "ok",
-      "erreur": null,
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
       "anomalies": [],
-      "ecritures": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "opinions_versions",
+          "query": "?select=id",
+          "body": {
+            "idee_id": "ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+            "position": "Il faut taxer davantage les très hauts patrimoines",
+            "theme": null,
+            "conviction": "plutot",
+            "arguments_pour": "",
+            "arguments_contre": "",
+            "source": "",
+            "score_economique": null,
+            "score_societal": null,
+            "score_autorite": null,
+            "score_ecologie": null,
+            "score_identite": null
+          }
+        },
+        {
+          "method": "PATCH",
+          "table": "opinions_idees",
+          "query": "?id=eq.ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+          "body": {
+            "position": "Il faut taxer davantage les très hauts patrimoines",
+            "theme": "economie",
+            "conviction": "plutot",
+            "arguments_pour": "",
+            "arguments_contre": "",
+            "source": "",
+            "score_economique": null,
+            "score_societal": null,
+            "score_autorite": null,
+            "score_ecologie": null,
+            "score_identite": null,
+            "updated_at": "2026-11-14T19:19:02.105Z"
+          }
+        }
+      ],
       "url": "http://localhost:3100/notes",
-      "ms": 393,
+      "ms": 5051,
       "fichier": "08-click.png"
     },
     {
@@ -116,25 +156,25 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 332,
+      "ms": 329,
       "fichier": "09-screenshot.png"
     },
     {
       "n": 10,
       "action": "click",
       "cible": "role=button[name=/Supprimer la note « Courses week-end »/]",
-      "statut": "échec",
-      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "statut": "ok",
+      "erreur": null,
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 5035,
+      "ms": 417,
       "fichier": "10-click.png"
     },
     {
       "n": 11,
       "action": "wait",
-      "ms": 835,
+      "ms": 865,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -151,25 +191,25 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 332,
+      "ms": 338,
       "fichier": "12-screenshot.png"
     },
     {
       "n": 13,
       "action": "click",
       "cible": "role=button[name=/Annuler la suppression/]",
-      "statut": "échec",
-      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "statut": "ok",
+      "erreur": null,
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 5030,
+      "ms": 383,
       "fichier": "13-click.png"
     },
     {
       "n": 14,
       "action": "wait",
-      "ms": 838,
+      "ms": 853,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -186,7 +226,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 330,
+      "ms": 355,
       "fichier": "15-screenshot.png"
     },
     {
@@ -196,20 +236,20 @@
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
+        "requête échouée : POST http://localhost:3100/notes?action=new (net::ERR_ABORTED)",
         "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
-        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3100/notes?action=new (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "ms": 1423,
+      "ms": 1694,
       "fichier": "16-goto.png"
     },
     {
       "n": 17,
       "action": "wait",
-      "ms": 1145,
+      "ms": 1154,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -226,7 +266,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes?action=new",
-      "ms": 335,
+      "ms": 363,
       "fichier": "18-screenshot.png"
     }
   ]

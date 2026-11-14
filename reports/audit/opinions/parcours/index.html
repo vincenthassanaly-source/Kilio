@@ -2,88 +2,48 @@
 <style>body{font:14px system-ui;margin:16px;background:#f4f4f4}.film{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
 figure{margin:0;flex:0 0 220px;background:#fff;padding:8px;border-radius:8px;border:2px solid #ccc}img{width:100%;border:1px solid #ddd}
 .ok{border-color:#3a3}.anomalie{border-color:#e90}.échec{border-color:#c33}.tag{font-weight:600}small{color:#666}</style>
-<h1>Parcours utilisateur</h1><h2>fiche-idee <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<h1>Parcours utilisateur</h1><h2>valider-idee <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
 <figcaption><b>1. goto</b> http://localhost:3100/opinions<br>
 <span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5?_rsc=lVrswEfOS8BwOM5C (net::ERR_ABORTED)
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)
 </figcaption></figure>
 <figure class="ok"><img loading="lazy" src="02-click.png">
-<figcaption><b>2. click</b> ouvrir la fiche<br>
+<figcaption><b>2. click</b> text=taxer davantage<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="03-expect_text.png">
-<figcaption><b>3. expect_text</b> http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f<br>
+<figure class="anomalie"><img loading="lazy" src="03-select.png">
+<figcaption><b>3. select</b> role=combobox[name=/^thème/i]<br>
 <span class="tag">anomalie</span> 
 <br>⚠ requête échouée : GET http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f?_rsc=QpD8K469s62sby8Z (net::ERR_ABORTED)
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="04-screenshot.png">
-<figcaption><b>4. screenshot</b> fiche brouillon<br>
-<span class="tag">ok</span> 
+<figure class="échec"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> role=button[name=&quot;+1&quot;]<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
 
 </figcaption></figure>
 <figure class="ok"><img loading="lazy" src="05-click.png">
-<figcaption><b>5. click</b> valider sans thème<br>
+<figcaption><b>5. click</b> role=button[name=/^valider$/i]<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
 <figure class="ok"><img loading="lazy" src="06-screenshot.png">
-<figcaption><b>6. screenshot</b> erreur thème<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="07-select.png">
-<figcaption><b>7. select</b> role=combobox[name=/thème/i]<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="08-click.png">
-<figcaption><b>8. click</b> score<br>
-<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="09-click.png">
-<figcaption><b>9. click</b> role=button[name=/^valider$/i]<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="10-screenshot.png">
-<figcaption><b>10. screenshot</b> validée<br>
+<figcaption><b>6. screenshot</b> validée<br>
 <span class="tag">ok</span> 
 
 <br>✎ 1 écriture(s) base</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="11-click.png">
-<figcaption><b>11. click</b> role=link[name=/retour vers opinions/i]<br>
+<figure class="ok"><img loading="lazy" src="07-click.png">
+<figcaption><b>7. click</b> role=link[name=/retour vers opinions/i]<br>
 <span class="tag">ok</span> 
 
-<br>✎ 1 écriture(s) base</figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="12-click.png">
-<figcaption><b>12. click</b> role=button[name=/^profil$/i]<br>
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="08-click.png">
+<figcaption><b>8. click</b> role=button[name=/^profil$/i]<br>
 <span class="tag">anomalie</span> 
 <br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=nfXfEqHTDEtSUN0d (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5?_rsc=lVrswEfOS8BwOM5C (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f (net::ERR_ABORTED)
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="13-screenshot.png">
-<figcaption><b>13. screenshot</b> profil<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="14-goto.png">
-<figcaption><b>14. goto</b> http://localhost:3100/opinions<br>
-<span class="tag">anomalie</span> 
-<br>⚠ requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=nfXfEqHTDEtSUN0d (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="15-click.png">
-<figcaption><b>15. click</b> text=loyers<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="16-click.png">
-<figcaption><b>16. click</b> role=button[name=/supprimer l'idée/i]<br>
-<span class="tag">échec</span> <br>locator.click: InvalidSelectorError: Error while parsing selector `button[name=/supprimer l'idée/i] &gt;&gt; nth=0` - unexpected symbol &quot;&gt;&quot; at position 33
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="17-screenshot.png">
-<figcaption><b>17. screenshot</b> supprimée + annuler<br>
+<figure class="ok"><img loading="lazy" src="09-screenshot.png">
+<figcaption><b>9. screenshot</b> profil<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure></div>
