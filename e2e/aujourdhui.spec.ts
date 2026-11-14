@@ -67,12 +67,21 @@ test("ajoute un événement depuis le bouton « + »", async ({ page }) => {
   await dialogue.getByLabel("Heure").fill("11:00");
   await dialogue.getByLabel("Durée").selectOption("60");
 
-  const action = page.waitForResponse((r) => r.request().method() === "POST" && r.request().headers()["next-action"] !== undefined);
+  // On attend la réponse de l'action de création (son corps contient le titre),
+  // pas la première Server Action venue : à l'ouverture de l'écran, d'autres
+  // actions (préchargement) passent avant dans la file.
+  const action = page.waitForResponse(
+    (r) => r.request().method() === "POST" && r.request().headers()["next-action"] !== undefined && (r.request().postData() ?? "").includes("Dentiste e2e")
+  );
   await dialogue.getByRole("button", { name: "Ajouter" }).click();
   expect((await action).ok()).toBe(true);
 
-  await expect(dialogue).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /11:00 Dentiste e2e, événement de 11:00 à 12:00/ })).toBeVisible();
+  // Marge large : entre minuit et 7 h à Paris, l'horloge figée à 07:00 est dans
+  // le futur du serveur, les données préchargées paraissent périmées et une
+  // dizaine de Server Actions de relecture se mettent en file avant la
+  // fermeture de la modale (≈ 5 s, plus en CI).
+  await expect(dialogue).toHaveCount(0, { timeout: 20_000 });
+  await expect(page.getByRole("button", { name: /11:00 Dentiste e2e, événement de 11:00 à 12:00/ })).toBeVisible({ timeout: 10_000 });
 });
 
 test("la barre « Aujourd'hui » est joignable depuis la grille Plus", async ({ page }) => {
