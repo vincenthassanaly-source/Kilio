@@ -1,6 +1,7 @@
 "use client";
 
 import { basculerTheme } from "@/lib/theme";
+import { Pastille, ReglageEntete } from "./ReglageUi";
 
 const toggleTheme = basculerTheme;
 
@@ -16,24 +17,25 @@ function AppearanceIcon() {
 // lequel afficher : pas d'état React, donc pas de mismatch d'hydratation.
 export function AppearanceRow() {
   return (
-    <div className="flex items-center justify-between gap-3 py-3.5">
-      <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-        <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
-          style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
-        >
-          <AppearanceIcon />
-        </span>
-        Apparence
-      </span>
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="min-h-11 rounded-full bg-surface-alt px-4 text-small font-semibold text-ink transition active:scale-[0.97] hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
-      >
-        <span className="dark:hidden">Clair</span>
-        <span className="hidden dark:inline">Sombre</span>
-      </button>
+    <div className="py-3.5">
+      <ReglageEntete
+        icone={
+          <Pastille>
+            <AppearanceIcon />
+          </Pastille>
+        }
+        titre="Apparence"
+        action={
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="min-h-11 shrink-0 rounded-full bg-surface-alt px-4 text-small font-semibold text-ink transition-[background-color,transform] active:scale-[0.97] hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          >
+            <span className="dark:hidden">Clair</span>
+            <span className="hidden dark:inline">Sombre</span>
+          </button>
+        }
+      />
     </div>
   );
 }

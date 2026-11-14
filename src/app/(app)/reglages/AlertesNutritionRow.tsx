@@ -7,17 +7,7 @@ import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
 import { DependsOnNotifications } from "./NotificationsContext";
-
-function Pastille({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
-      style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
-    >
-      {children}
-    </span>
-  );
-}
+import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 const ICONE = {
   width: 16,
@@ -84,9 +74,9 @@ export function AlertesNutritionRow({ reglages }: { reglages: Pick<Tables<"regla
 
   return (
     <DependsOnNotifications>
-      <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
-        <div className="flex items-center justify-between gap-3">
-          <span className="flex items-center gap-2.5 text-label font-medium text-ink">
+      <div className="flex flex-col gap-2 border-t border-line py-3.5">
+        <ReglageEntete
+          icone={
             <Pastille>
               <svg {...ICONE}>
                 <path d="M12 3.5 22 20.5H2L12 3.5Z" />
@@ -94,58 +84,64 @@ export function AlertesNutritionRow({ reglages }: { reglages: Pick<Tables<"regla
                 <circle cx="12" cy="17.5" r="0.6" fill="var(--accent-kcal)" />
               </svg>
             </Pastille>
-            Alerte limite kcal
-          </span>
-          <Switch checked={alerteKcal} onToggle={basculerAlerteKcal} label="Alerte à l'approche de la limite kcal" />
-        </div>
-        <p className="text-small leading-snug text-ink-2">
-          {alerteKcal
-            ? "Une notification (une par jour) quand tu atteins 85 % de ta limite kcal. Pas d'alerte un jour libre."
-            : "Désactivée : aucune alerte quand tu approches de ta limite kcal."}
-        </p>
+          }
+          titre="Alerte limite kcal"
+          action={<Switch checked={alerteKcal} onToggle={basculerAlerteKcal} label="Alerte à l'approche de la limite kcal" />}
+        />
+        <ReglageDetail>
+          <p className="text-small leading-snug text-ink-2">
+            {alerteKcal
+              ? "Une notification (une par jour) quand tu atteins 85 % de ta limite kcal. Pas d'alerte un jour libre."
+              : "Désactivée : aucune alerte quand tu approches de ta limite kcal."}
+          </p>
+        </ReglageDetail>
       </div>
 
-      <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
-        <div className="flex items-center justify-between gap-3">
-          <span className="flex items-center gap-2.5 text-label font-medium text-ink">
+      <div className="flex flex-col gap-2 border-t border-line py-3.5">
+        <ReglageEntete
+          icone={
             <Pastille>
               <svg {...ICONE}>
                 <path d="M5 6.5h14M5 12h14M5 17.5h8" />
               </svg>
             </Pastille>
-            Rappel de saisie des repas
-          </span>
-          <Switch
-            checked={saisie.actif}
-            onToggle={() => persisterSaisie({ ...saisie, actif: !saisie.actif })}
-            label="Rappel de saisie des repas"
-          />
-        </div>
-        <p className="text-small leading-snug text-ink-2">
-          {saisie.actif
-            ? "Si ton Carnet alimentaire est vide à l'heure choisie, une notification te rappelle de saisir tes repas."
-            : "Désactivé : aucun rappel quand le Carnet alimentaire reste vide."}
-        </p>
-        {saisie.actif && (
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="heure-rappel-saisie" className="text-small text-ink-2">
-              Heure du rappel
-            </label>
-            <input
-              id="heure-rappel-saisie"
-              type="time"
-              value={saisie.heure}
-              onChange={(e) => setSaisie({ ...saisie, heure: e.target.value })}
-              onBlur={(e) => persisterSaisie({ ...saisie, heure: e.target.value })}
-              className={`${input} min-h-11 w-28 text-center tabular-nums`}
+          }
+          titre="Rappel de saisie des repas"
+          action={
+            <Switch
+              checked={saisie.actif}
+              onToggle={() => persisterSaisie({ ...saisie, actif: !saisie.actif })}
+              label="Rappel de saisie des repas"
             />
-          </div>
-        )}
-        {error && (
-          <p role="alert" className={errorText}>
-            {error}
+          }
+        />
+        <ReglageDetail>
+          <p className="text-small leading-snug text-ink-2">
+            {saisie.actif
+              ? "Si ton Carnet alimentaire est vide à l'heure choisie, une notification te rappelle de saisir tes repas."
+              : "Désactivé : aucun rappel quand le Carnet alimentaire reste vide."}
           </p>
-        )}
+          {saisie.actif && (
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="heure-rappel-saisie" className="text-small text-ink-2">
+                Heure du rappel
+              </label>
+              <input
+                id="heure-rappel-saisie"
+                type="time"
+                value={saisie.heure}
+                onChange={(e) => setSaisie({ ...saisie, heure: e.target.value })}
+                onBlur={(e) => persisterSaisie({ ...saisie, heure: e.target.value })}
+                className={`${input} min-h-11 w-28 shrink-0 text-center tabular-nums`}
+              />
+            </div>
+          )}
+          {error && (
+            <p role="alert" className={errorText}>
+              {error}
+            </p>
+          )}
+        </ReglageDetail>
       </div>
     </DependsOnNotifications>
   );
