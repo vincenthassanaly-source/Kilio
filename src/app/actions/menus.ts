@@ -127,7 +127,11 @@ export async function annulerValidationMenuEntry(id: string): Promise<ActionResu
   return ok();
 }
 
-export type ResultatEnvoiCourses = { ajoutes: number; dejaPresents: number };
+/**
+ * `ajoutes` : articles créés. `reactives` : articles déjà sur la liste mais
+ * cochés « pris », remis à prendre. `dejaPresents` : déjà à prendre, inchangés.
+ */
+export type ResultatEnvoiCourses = { ajoutes: number; reactives: number; dejaPresents: number };
 
 /**
  * Envoie aux Courses les ingrédients des repas pas encore mangés de la
@@ -176,14 +180,16 @@ export async function envoyerMenuAuxCourses(lundi: string): Promise<ActionResult
 
   try {
     let ajoutes = 0;
+    let reactives = 0;
     let dejaPresents = 0;
     // L'ajout multiple est plafonné : un menu de 7 jours dépasse facilement 30 lignes.
     for (let i = 0; i < libelles.length; i += PLAFOND_ARTICLES_COURSES) {
       const resultat = await ajouterArticlesCourses(libelles.slice(i, i + PLAFOND_ARTICLES_COURSES));
-      ajoutes += resultat.crees + resultat.reactives;
+      ajoutes += resultat.crees;
+      reactives += resultat.reactives;
       dejaPresents += resultat.dejaPresents.length;
     }
-    return ok({ ajoutes, dejaPresents });
+    return ok({ ajoutes, reactives, dejaPresents });
   } catch {
     return fail("Les courses n'ont pas pu être mises à jour. Réessaie.");
   }

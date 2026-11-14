@@ -27,11 +27,14 @@ export function EnvoyerCoursesBouton({ lundi, nbAVenir }: { lundi: string; nbAVe
     if (!resultat.ok) return;
 
     void queryClient.invalidateQueries({ queryKey: queryKeys.courses });
-    const { ajoutes, dejaPresents } = resultat.data;
+    const { ajoutes, reactives, dejaPresents } = resultat.data;
+    const parties: string[] = [];
+    if (ajoutes > 0) parties.push(`${pluriel(ajoutes, "article")} ajouté${ajoutes > 1 ? "s" : ""}`);
+    if (reactives > 0) parties.push(`${reactives} remis à prendre`);
     const complement = dejaPresents > 0 ? ` (${dejaPresents} déjà sur la liste)` : "";
     showActionToast(
-      ajoutes > 0
-        ? `${pluriel(ajoutes, "article")} ajouté${ajoutes > 1 ? "s" : ""} aux Courses${complement}`
+      parties.length > 0
+        ? `${parties.join(", ")} aux Courses${complement}`
         : `Tout est déjà sur la liste${complement}`,
       { label: "Voir", ariaLabel: "Ouvrir la liste de courses", onAction: () => router.push("/courses") }
     );

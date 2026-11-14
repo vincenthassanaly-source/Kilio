@@ -143,7 +143,7 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - Ne jamais écrire `text-white` sur un fond d'accent : il échoue en thème sombre.
 
 ### Module Accents (optional)
-Chaque module a sa propre teinte identitaire (agenda `230`, habitudes `45`, courses `305`, collection `280`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent uniquement à colorer l'icône/l'identité de leur module dans la grille "Plus" ; elles ne remplacent jamais le vert Kcal comme couleur interactive à l'intérieur d'un module.
+Chaque module a sa propre teinte identitaire (agenda `230`, habitudes `45`, courses `305`, collection `280`, documents `25`, planning-travail `150` foncé), toutes construites avec la même formule `oklch(0.55 0.14 <hue>)` que le vert Kcal — seule la teinte change. Elles servent à colorer l'icône/l'identité de leur module dans la grille "Plus", et la coche des éléments cochables de ce module (Courses en violet, Habitudes en orange : décision du 2026-11-14) ; elles ne remplacent jamais le vert Kcal pour les autres contrôles interactifs d'un module (boutons, segments, champs, FAB).
 
 ### Note Tints (optional)
 Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavande`, `--note-ciel`, `--note-rose`, `--note-citron`, `--note-menthe`, `--note-argile`) réservées aux fonds de note du module Notes — hors périmètre du Carnet alimentaire, listées ici pour mémoire de complétude du système.
