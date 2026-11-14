@@ -78,7 +78,9 @@ export function CollectionDetailView({ id }: { id: string }) {
   return (
     <div className="flex flex-col gap-4">
       <CollectionHeader collection={collection} />
-      <AddPhotoButton collectionId={id} onAjoute={ouvrirTitrage} />
+      {/* Pas d'ouverture automatique de « Décrire » après un ajout (décision du
+          2026-11-14) : la bannière ci-dessous propose le geste. */}
+      <AddPhotoButton collectionId={id} />
       {nbADecrire > 0 && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-3.5 py-2.5">
           <p className="min-w-0 text-small text-ink-2">

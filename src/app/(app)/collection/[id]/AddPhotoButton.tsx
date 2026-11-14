@@ -13,7 +13,7 @@ import {
   formatTaille,
   repartirEnLots,
 } from "@/lib/images/compression";
-import { errorText, input, primaryButton } from "@/lib/ui";
+import { errorText, input, primaryButton, textButton } from "@/lib/ui";
 
 const ADD_PHOTO_BUTTON =
   "flex flex-1 cursor-pointer items-center justify-center gap-1.5 min-h-11 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-small font-semibold text-kcal transition-colors hover:bg-kcal-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kcal has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-kcal";
@@ -201,7 +201,10 @@ export function AddPhotoButton({
       </div>
 
       {videoOpen && (
-        <form onSubmit={handleAjouterVideo} className="flex gap-2">
+        // noValidate : sans lui, un texte qui n'est pas une URL déclenche la bulle
+        // native du navigateur (« Please enter a URL. », en anglais). Le serveur
+        // renvoie déjà « Lien TikTok ou YouTube invalide », affiché en français.
+        <form onSubmit={handleAjouterVideo} noValidate className="flex flex-wrap items-center gap-2">
           <input
             autoFocus
             type="url"
@@ -211,10 +214,22 @@ export function AddPhotoButton({
             onChange={(e) => setVideoUrl(e.target.value)}
             placeholder="https://www.tiktok.com/… ou https://youtube.com/…"
             disabled={videoPending}
-            className={`${input} min-w-0 flex-1`}
+            className={`${input} min-w-[12rem] flex-1`}
           />
           <button type="submit" disabled={videoPending} className={primaryButton}>
             {videoPending ? "Ajout…" : "Ajouter"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setVideoOpen(false);
+              setVideoUrl("");
+              setVideoError(null);
+            }}
+            disabled={videoPending}
+            className={textButton}
+          >
+            Annuler
           </button>
         </form>
       )}
