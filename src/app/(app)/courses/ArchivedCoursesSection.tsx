@@ -11,6 +11,7 @@ import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 import { restaurerArticlesCourses } from "./undo";
 import { CourseItemRow } from "./CourseItemRow";
 import { card, ghostButton, sectionTitle } from "@/lib/ui";
+import { ChevronIcon } from "@/components/icons";
 
 function versSnapshot(item: Tables<"courses_items">): CourseItemARestaurer {
   return {
@@ -81,26 +82,25 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
           un autre) : le dépliage à gauche, « Supprimer les articles pris » à droite —
           visible même section repliée, pour vider en sortant du magasin
           sans avoir à déplier. */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex min-h-11 items-center gap-1.5"
+          className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           aria-expanded={open}
         >
           <span className={sectionTitle}>Articles pris (<span className="tabular-nums">{items.length}</span>)</span>
-          <span
-            className={`text-ink-2 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-            aria-hidden
-          >
-            ▾
-          </span>
+          <ChevronIcon
+            sens="bas"
+            size={18}
+            className={`shrink-0 text-ink-2 transition-transform duration-200 ease-[var(--ease-out)] ${open ? "rotate-180" : ""}`}
+          />
         </button>
         <button
           type="button"
           onClick={handleVider}
           disabled={viderMutation.isPending}
-          className={ghostButton}
+          className={`${ghostButton} flex min-h-11 w-full items-center justify-center disabled:opacity-60`}
         >
           Supprimer les articles pris
         </button>

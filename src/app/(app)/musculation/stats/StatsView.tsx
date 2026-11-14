@@ -11,9 +11,10 @@ import { formaterDateLongue, formaterDureeS } from "@/lib/musculation/historique
 import { formaterPoids } from "@/lib/musculation/seance";
 import { joursDePeriode, type TypePeriode } from "@/lib/musculation/stats";
 import { queryKeys } from "@/lib/query/keys";
-import { card, cardTight, metaText, nameText, navArrowButton, screenTitle, sectionTitle } from "@/lib/ui";
+import { card, cardTight, metaText, nameText, nameTextComplet, navArrowButton, screenTitle, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
+import { ChevronIcon } from "@/components/icons";
 
 const OPTIONS = [
   { value: "semaine", label: "Semaine" },
@@ -130,13 +131,13 @@ export function StatsView() {
 
       <div className="flex items-center justify-between gap-2">
         <button type="button" className={navArrowButton} onClick={() => setDecalage((d) => d - 1)} aria-label="Période précédente">
-          ‹
+          <ChevronIcon sens="gauche" size={18} />
         </button>
         <span className={`${nameText} capitalize`} aria-live="polite">
           {donnees ? libellePeriode(type, donnees.debut, donnees.fin) : "…"}
         </span>
         <button type="button" className={navArrowButton} onClick={() => setDecalage((d) => Math.min(0, d + 1))} disabled={decalage === 0} aria-label="Période suivante">
-          ›
+          <ChevronIcon sens="droite" size={18} />
         </button>
       </div>
 
@@ -173,7 +174,7 @@ export function StatsView() {
             {exercices.data.map((e) => (
               <li key={e.id}>
                 <Link href={`/musculation/stats/${e.id}`} className={`${cardTight} flex flex-col gap-0.5`}>
-                  <span className={nameText}>{e.nom}</span>
+                  <span className={nameTextComplet}>{e.nom}</span>
                   <span className={metaText}>
                     {MUSCLE_LABELS[e.muscle]} · {e.nbSeances} séance{e.nbSeances > 1 ? "s" : ""} · dernière le {formaterDateLongue(e.derniereSeance)}
                   </span>

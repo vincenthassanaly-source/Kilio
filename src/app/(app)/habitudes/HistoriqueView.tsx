@@ -7,6 +7,7 @@ import {
   eachDayOfInterval,
   endOfMonth,
   format,
+  isAfter,
   isSameMonth,
   isToday,
   startOfMonth,
@@ -18,8 +19,10 @@ import { getHistoriqueHabitude } from "@/app/actions/habitudes";
 import { queryKeys } from "@/lib/query/keys";
 import type { Tables } from "@/lib/supabase/types";
 import { input, navArrowButton } from "@/lib/ui";
+import { HabitudesVides } from "./HabitudesVides";
 import { useSwipeHorizontal, type SensSwipe } from "@/hooks/useSwipeHorizontal";
 import { toISODate } from "@/lib/date/iso";
+import { ChevronIcon } from "@/components/icons";
 
 const WEEKDAY_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
 
@@ -70,7 +73,7 @@ export function HistoriqueView({
     return <ErrorInline message="Impossible de charger les habitudes." />;
   }
   if (habitudes.length === 0) {
-    return <p className="text-ink-2">Aucune habitude pour l&apos;instant.</p>;
+    return <HabitudesVides depuisHistorique />;
   }
 
   const valeurParDate = new Map(entries.map((e) => [e.date, e.valeur]));
@@ -81,6 +84,7 @@ export function HistoriqueView({
   return (
     <div className="flex flex-col gap-4">
       <select
+        aria-label="Habitude affichée"
         value={habitudeId}
         onChange={(e) => setHabitudeId(e.target.value)}
         className={input}
@@ -116,9 +120,9 @@ export function HistoriqueView({
                 className={navArrowButton}
                 aria-label="Mois précédent"
               >
-                ←
+                <ChevronIcon sens="gauche" size={18} />
               </button>
-              <span className="text-sm font-semibold capitalize text-ink">
+              <span aria-live="polite" className="font-display text-heading-sm font-semibold capitalize text-ink">
                 {format(mois, "MMMM yyyy", { locale: fr })}
               </span>
               <button
@@ -130,11 +134,11 @@ export function HistoriqueView({
                 className={navArrowButton}
                 aria-label="Mois suivant"
               >
-                →
+                <ChevronIcon sens="droite" size={18} />
               </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-center text-micro font-semibold text-ink-2">
+            <div aria-hidden="true" className="grid grid-cols-7 gap-1 text-center text-micro font-semibold text-ink-2">
               {WEEKDAY_LABELS.map((label, i) => (
                 <span key={i}>{label}</span>
               ))}
@@ -152,6 +156,7 @@ export function HistoriqueView({
                 const iso = toISODate(day);
                 const ratio = intensite(habitude, valeurParDate.get(iso));
                 const inMonth = isSameMonth(day, mois);
+                const aVenir = isAfter(day, new Date());
                 const valeur = valeurParDate.get(iso);
                 const etat =
                   ratio === 0
@@ -168,7 +173,7 @@ export function HistoriqueView({
                     aria-current={isToday(day) ? "date" : undefined}
                     className={`flex aspect-square flex-col items-center justify-center rounded-xl border text-small tabular-nums ${
                       isToday(day) ? "border-habitudes" : "border-line"
-                    } ${inMonth ? "text-ink" : "text-ink-3"} ${
+                    } ${inMonth && !aVenir ? "text-ink" : "text-ink-3"} ${
                       ratio > 0
                         ? "bg-[color-mix(in_oklch,var(--accent-habitudes)_var(--mix),transparent)] dark:bg-[color-mix(in_oklch,var(--accent-habitudes)_var(--mix-sombre),transparent)]"
                         : ""

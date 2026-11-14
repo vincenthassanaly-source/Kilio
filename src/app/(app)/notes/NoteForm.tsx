@@ -21,8 +21,13 @@ import { vibrate } from "@/lib/haptics";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { NOTE_PALETTE, estCouleurValide, type NoteCouleur } from "@/lib/notes/palette";
 import { CheckToggle } from "@/components/CheckToggle";
-import { errorText, ghostButton, input, label as labelClass, primaryButton } from "@/lib/ui";
+import { errorText, ghostButton, input, label as labelClass, primaryButton, zoneTapPill } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
+
+// Pastille de couleur : 36 px visibles, zone de tap portée à 44 px, anneau de
+// focus clavier (ces boutons n'en avaient aucun).
+const PASTILLE_COULEUR =
+  "relative h-9 w-9 rounded-full border-2 transition-colors after:absolute after:-inset-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 const initialState: NoteFormState = { error: null };
 
@@ -121,7 +126,7 @@ function NoteItemsEditor({ noteId, items }: { noteId: string; items: Tables<"not
                 );
               }
             }}
-            className={`${input} flex-1 py-1.5 ${item.coche ? "text-ink-2 line-through" : ""}`}
+            className={`${input} min-w-0 flex-1 py-1.5 ${item.coche ? "text-ink-2 line-through" : ""}`}
           />
           <button
             type="button"
@@ -204,7 +209,7 @@ function NoteItemsDraft({
       {items.map((libelle, index) => (
         <div key={index} className="flex items-center gap-2">
           <input type="hidden" name="item_libelle" value={libelle} />
-          <span className="flex-1 text-sm text-ink">{libelle}</span>
+          <span className="min-w-0 flex-1 break-words text-sm text-ink">{libelle}</span>
           <button
             type="button"
             onClick={() => onChange(items.filter((_, i) => i !== index))}
@@ -370,15 +375,13 @@ export function NoteForm({
 
       <div className="flex flex-col gap-1">
         <span className={labelClass}>Couleur</span>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setCouleur(null)}
             aria-label="Aucune couleur"
             aria-pressed={couleur === null}
-            className={`relative after:absolute after:-inset-1.5 h-7 w-7 rounded-full border-2 bg-surface ${
-              couleur === null ? "border-kcal" : "border-line"
-            }`}
+            className={`${PASTILLE_COULEUR} bg-surface ${couleur === null ? "border-kcal" : "border-control-border"}`}
           />
           {NOTE_PALETTE.map((c) => (
             <button
@@ -387,9 +390,7 @@ export function NoteForm({
               onClick={() => setCouleur(c.cle)}
               aria-label={c.label}
               aria-pressed={couleur === c.cle}
-              className={`relative after:absolute after:-inset-1.5 h-7 w-7 rounded-full border-2 ${
-                couleur === c.cle ? "border-kcal" : "border-line"
-              }`}
+              className={`${PASTILLE_COULEUR} ${couleur === c.cle ? "border-kcal" : "border-line"}`}
               style={{ backgroundColor: `var(--note-${c.cle})` }}
             />
           ))}
@@ -399,14 +400,14 @@ export function NoteForm({
       {tags.length > 0 && (
         <div className="flex flex-col gap-1">
           <span className={labelClass}>Tags</span>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-x-1.5 gap-y-4">
             {tags.map((tag) => (
               <button
                 key={tag.id}
                 type="button"
                 onClick={() => toggleTag(tag.id)}
                 aria-pressed={tagIds.includes(tag.id)}
-                className={`rounded-full px-2.5 py-1 text-caption font-semibold transition-colors ${
+                className={`${zoneTapPill} max-w-full truncate rounded-full px-2.5 py-1 text-caption font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                   tagIds.includes(tag.id) ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                 }`}
               >

@@ -60,3 +60,35 @@ export function StarIcon({ filled = false, ...props }: IconeProps & { filled?: b
     </Svg>
   );
 }
+
+export function PlusIcon(props: IconeProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 5v14M5 12h14" />
+    </Svg>
+  );
+}
+
+const CHEVRONS = {
+  gauche: "m15 6-6 6 6 6",
+  droite: "m9 6 6 6-6 6",
+  bas: "m6 9 6 6 6-6",
+} as const;
+
+/** Chevron tracé (flèches de période, déplier) : remplace les glyphes ‹ › ▾ et les SVG recopiés. */
+export function ChevronIcon({ sens, ...props }: IconeProps & { sens: keyof typeof CHEVRONS }) {
+  return (
+    <Svg {...props}>
+      <path d={CHEVRONS[sens]} />
+    </Svg>
+  );
+}
+
+export function AlerteIcon(props: IconeProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 9v4M12 16.5h.01" />
+      <path d="M10.29 3.86 1.82 18a1.5 1.5 0 0 0 1.3 2.25h17.76a1.5 1.5 0 0 0 1.3-2.25L13.71 3.86a1.5 1.5 0 0 0-2.42 0Z" />
+    </Svg>
+  );
+}

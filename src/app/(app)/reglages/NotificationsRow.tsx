@@ -10,6 +10,7 @@ import {
 import { Switch } from "@/components/Switch";
 import { errorText } from "@/lib/ui";
 import { useSetNotificationsActives } from "./NotificationsContext";
+import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 // Les erreurs de subscribeToPush sont techniques (clé VAPID, variables
 // d'environnement…) : le détail reste en console, l'écran dit quoi faire.
@@ -102,28 +103,29 @@ export function NotificationsRow() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 border-t border-line py-3.5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-          <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
-          >
+    <div className="flex flex-col gap-2 py-3.5">
+      <ReglageEntete
+        icone={
+          <Pastille>
             <NotificationsIcon />
-          </span>
-          Notifications
-        </span>
-        <Switch
-          checked={on ?? false}
-          onToggle={toggle}
-          disabled={pending || on === null}
-          label="Activer les notifications"
-        />
-      </div>
+          </Pastille>
+        }
+        titre="Notifications"
+        action={
+          <Switch
+            checked={on ?? false}
+            onToggle={toggle}
+            disabled={pending || on === null}
+            label="Activer les notifications"
+          />
+        }
+      />
       {error && (
-        <p role="alert" className={errorText}>
-          {error}
-        </p>
+        <ReglageDetail>
+          <p role="alert" className={errorText}>
+            {error}
+          </p>
+        </ReglageDetail>
       )}
     </div>
   );

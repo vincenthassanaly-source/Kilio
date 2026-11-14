@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 
-import { CheckIcon, CrossIcon, FlameIcon, StarIcon } from "./icons";
+import { AlerteIcon, CheckIcon, ChevronIcon, CrossIcon, FlameIcon, PlusIcon, StarIcon } from "./icons";
 
 afterEach(() => cleanup());
 
@@ -11,6 +11,9 @@ describe("icônes partagées", () => {
     ["CrossIcon", <CrossIcon key="x" />],
     ["FlameIcon", <FlameIcon key="f" />],
     ["StarIcon", <StarIcon key="s" />],
+    ["PlusIcon", <PlusIcon key="p" />],
+    ["AlerteIcon", <AlerteIcon key="a" />],
+    ["ChevronIcon", <ChevronIcon key="v" sens="bas" />],
   ])("%s est décorative (aria-hidden) et suit la couleur du texte", (_nom, icone) => {
     const { container } = render(icone);
     const svg = container.querySelector("svg");

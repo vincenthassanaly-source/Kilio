@@ -28,6 +28,8 @@ export const eyebrow = "text-small font-medium text-ink-3";
 
 // 16 px (et non 15) : en dessous, iOS zoome la page au focus d'un champ (T15).
 export const input = `rounded-2xl border border-control-border bg-surface-alt px-3.5 py-2.5 text-base text-ink outline-none focus:border-kcal/60 transition-colors ${focusRing}`;
+// Champ précédé d'une icône posée en `absolute left-3` : réserve la place de l'icône.
+export const inputAvecIcone = `${input} pl-10`;
 export const label = "text-label font-medium text-ink";
 export const errorText = "text-label text-alert";
 
@@ -37,11 +39,11 @@ export const secondaryButton =
   `rounded-2xl border border-line bg-surface px-4 py-2.5 font-semibold text-ink transition-[color,background-color,border-color,opacity,transform] active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 export const addCard =
   `flex w-full items-center gap-[13px] rounded-card border border-line bg-surface p-4 shadow-card text-left transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.99] ${focusRing}`;
-// Icône « + » des cartes d'ajout (T9) : aplat vert Kcal, sans le dégradé ni
+// Pastille de l'icône « + » des cartes d'ajout (T9, `PlusIcon` de components/icons) : aplat vert Kcal, sans le dégradé ni
 // la seconde ombre colorée copiés-collés dans chaque *Toggle (Single Shadow
 // Rule, One Accent Rule) — un seul endroit à modifier désormais.
 export const addCardIcon =
-  "flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[13px] bg-kcal text-on-kcal text-lg font-semibold";
+  "flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[13px] bg-kcal text-on-kcal";
 
 // Zone de tap étendue à 44 px de haut (T6) sans grossir le bouton visible :
 // pseudo-élément transparent débordant de 6 px en haut et en bas (le bouton
@@ -51,6 +53,10 @@ const zoneTap44 = "relative after:absolute after:inset-x-0 after:-inset-y-1.5";
 
 export const ghostButton =
   `${zoneTap44} rounded-xl border border-control-border px-2.5 py-1.5 text-label font-medium text-ink transition-[color,background-color,border-color,opacity,transform] active:scale-[0.97] hover:bg-surface-alt ${focusRing}`;
+// `ghostButton` à icône seule : le bouton est plus étroit que 44 px, donc on
+// garantit aussi la largeur de tap (`zoneTap44` n'étend que la hauteur). Variante
+// à part pour ne pas élargir les `ghostButton` à texte.
+export const ghostButtonIcone = `${ghostButton} inline-flex min-w-11 items-center justify-center`;
 // Variante de `ghostButton` dédiée aux flèches de navigation de période
 // (Agenda : jour/semaine/mois précédent-suivant) — cible tactile 44×44px
 // minimum (h-11 w-11), contrairement à `ghostButton` (compact, utilisé
@@ -70,6 +76,16 @@ export const linkButton = `relative after:absolute after:-inset-x-2 after:-inset
 // l'utilisent gardent donc au moins 16 px entre deux rangées de pills pour ne
 // jamais chevaucher la zone du voisin.
 export const zoneTapPill = "relative after:absolute after:inset-x-0 after:-inset-y-2";
+
+// Action texte seule d'une tuile (Modifier, Supprimer…) : pas de contour, pour que
+// deux boutons bordés n'écrasent pas chaque tuile d'une grille ; zone de tap de 44 px
+// par pseudo-élément. La couleur du texte est donnée par l'appelant.
+export const actionTuile =
+  "relative rounded-lg px-1.5 py-1.5 text-small font-semibold transition-[color,background-color,transform] active:scale-[0.97] after:absolute after:inset-x-0 after:-inset-y-1.5 hover:bg-ink/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-60";
+
+// Carte vide sans icône : bordure pointillée, texte d'aide centré.
+export const emptyState =
+  "rounded-card border border-dashed border-control-border px-4 py-6 text-center text-small text-ink-2 text-pretty";
 
 export const pillTag =
   "shrink-0 rounded-full bg-surface-alt px-2.5 py-1 text-micro font-semibold text-ink-2";

@@ -22,6 +22,7 @@ import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
 import {
+  actionTuile,
   actionsLigne,
   card,
   dangerButton,
@@ -253,7 +254,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
       animate={{ opacity: 1, y: 0 }}
       exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
       transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-      className={`${card} mb-3 flex flex-col gap-2 break-inside-avoid transition active:scale-[0.97]`}
+      className={`${card} mb-3 flex flex-col gap-2 break-inside-avoid !p-3.5 transition-transform active:scale-[0.97]`}
       style={noteBackgroundStyle(note.couleur)}
     >
       <div className="flex items-start justify-between gap-2">
@@ -261,7 +262,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
           type="button"
           onClick={() => setMode("view")}
           aria-label={`Ouvrir la note ${note.titre}`}
-          className={`${nameTextComplet} min-w-0 flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal rounded-md`}
+          className={`${nameTextComplet} line-clamp-4 min-w-0 flex-1 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
         >
           {note.titre}
         </button>
@@ -269,10 +270,10 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
           type="button"
           disabled={pinMutation.isPending}
           onClick={() => pinMutation.mutate()}
-          aria-label="Épingler"
+          aria-label={`Épingler la note « ${note.titre} »`}
           aria-pressed={note.epingle}
           // Épingle de 18 px : zone de tap étendue à 44 px (T6) et focus visible.
-          className={`relative -m-1 shrink-0 rounded-lg p-1 after:absolute after:-inset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${note.epingle ? "text-kcal" : "text-ink-3"}`}
+          className={`relative -m-1 shrink-0 rounded-lg p-1 transition-colors after:absolute after:-inset-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${note.epingle ? "text-kcal" : "text-ink-3"}`}
         >
           <PinIcon filled={note.epingle} />
         </button>
@@ -296,7 +297,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
             <Progression coches={itemsCoches} total={note.items.length} />
           )}
           {itemsAffiches.map((item) => (
-            <div key={item.id} className="flex items-center gap-2">
+            <div key={item.id} className="flex items-start gap-2">
               <CheckToggle
                 checked={item.coche}
                 onToggle={() => itemMutation.mutate({ itemId: item.id, coche: !item.coche })}
@@ -306,7 +307,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                 // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md.
                 hitSlop={2}
               />
-              <span className={`text-sm ${item.coche ? "text-ink-2 line-through" : "text-ink-2"}`}>
+              <span className={`min-w-0 break-words pt-px text-sm ${item.coche ? "text-ink-2 line-through" : "text-ink-2"}`}>
                 {item.libelle}
               </span>
             </div>
@@ -322,19 +323,19 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
       {note.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {note.tags.map((tag) => (
-            <span key={tag.id} className={pillTag} style={couleurTagStyle(tag.couleur)}>
+            <span key={tag.id} className={`${pillTag} max-w-full truncate`} style={couleurTagStyle(tag.couleur)}>
               #{tag.nom}
             </span>
           ))}
         </div>
       )}
 
-      <div className={actionsLigne}>
+      <div className={`${actionsLigne} -mx-1.5 -mb-1 gap-0.5`}>
         <button
           type="button"
           onClick={() => setMode("edit")}
           aria-label={`Modifier la note « ${note.titre} »`}
-          className={ghostButton}
+          className={`${actionTuile} text-ink-2`}
         >
           Modifier
         </button>
@@ -343,7 +344,7 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
           disabled={deleteMutation.isPending}
           onClick={supprimer}
           aria-label={`Supprimer la note « ${note.titre} »`}
-          className={dangerButton}
+          className={`${actionTuile} text-alert`}
         >
           Supprimer
         </button>

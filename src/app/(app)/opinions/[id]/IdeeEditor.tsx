@@ -150,7 +150,7 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
       {idee.origine && (
         <section className={`${card} flex flex-col gap-1`}>
           <p className="text-xs font-semibold text-ink-3">Reprise d&apos;une proposition de parti</p>
-          <p className="text-body leading-snug text-ink">« {idee.origine.proposition} »</p>
+          <p className="break-words text-body leading-snug text-ink">« {idee.origine.proposition} »</p>
           <p className="text-xs text-ink-2">
             {idee.origine.parti} · {idee.origine.echeance}
           </p>

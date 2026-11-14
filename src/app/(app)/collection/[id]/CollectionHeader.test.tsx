@@ -81,7 +81,7 @@ describe("CollectionHeader - renommage et suppression", () => {
 
     await user.click(screen.getByRole("button", { name: "Renommer" }));
     await user.type(screen.getByLabelText("Nom de la collection"), " 2");
-    await user.click(screen.getByRole("button", { name: "OK" }));
+    await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
     expect(await screen.findByText("Le renommage a échoué. Réessaie.")).toBeInTheDocument();
     expect(screen.queryByText(/Server Components/)).not.toBeInTheDocument();

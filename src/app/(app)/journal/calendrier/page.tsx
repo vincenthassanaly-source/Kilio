@@ -18,6 +18,7 @@ export default function VidageCalendrierPage() {
     <Suspense
       fallback={
         <div className="flex flex-col gap-4">
+          <div className="h-5" aria-hidden="true" />
           <h1 className={screenTitle}>Calendrier</h1>
           <Skeleton className="h-[60vh] w-full rounded-card" />
         </div>

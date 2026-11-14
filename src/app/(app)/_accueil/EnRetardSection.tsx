@@ -102,11 +102,14 @@ export function EnRetardSection({
   taches,
   today,
   compact = false,
+  masquerTitre = false,
 }: {
   taches: TacheAvecRelations[];
   today: string;
   /** Une ligne par tâche, puces de report à la demande (écran Aujourd'hui). La Revue garde les puces visibles. */
   compact?: boolean;
+  /** Masque le titre « En retard » et sa pastille de nombre, quand un titre d'étape les porte déjà (Revue). */
+  masquerTitre?: boolean;
 }) {
   const [deplie, setDeplie] = useState(false);
   if (taches.length === 0) return null;
@@ -116,18 +119,20 @@ export function EnRetardSection({
 
   return (
     <section
-      aria-labelledby="aujourdhui-retard"
+      {...(masquerTitre ? { "aria-label": "Tâches en retard" } : { "aria-labelledby": "aujourdhui-retard" })}
       className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4 shadow-card"
     >
-      <div className="flex items-center justify-between gap-2">
-        <h2 id="aujourdhui-retard" className="text-body font-semibold tracking-[-0.01em] text-ink">
-          En retard
-        </h2>
-        <span className="rounded-full bg-alert/10 px-2.5 py-1 text-micro font-bold tabular-nums text-alert">
-          {taches.length}
-        </span>
-      </div>
-      {!compact && <p className="-mt-1.5 text-small text-ink-2">Reporte d&apos;un tap : aujourd&apos;hui, demain ou lundi.</p>}
+      {!masquerTitre && (
+        <div className="flex items-center justify-between gap-2">
+          <h2 id="aujourdhui-retard" className="text-body font-semibold tracking-[-0.01em] text-ink">
+            En retard
+          </h2>
+          <span className="rounded-full bg-alert/10 px-2.5 py-1 text-micro font-bold tabular-nums text-alert">
+            {taches.length}
+          </span>
+        </div>
+      )}
+      {!compact && <p className={`${masquerTitre ? "" : "-mt-1.5 "}text-small text-ink-2`}>Reporte d&apos;un tap : aujourd&apos;hui, demain ou lundi.</p>}
       <ul className="flex flex-col gap-3.5">
         {visibles.map((tache) => (
           <LigneRetard key={tache.id} tache={tache} today={today} compact={compact} />

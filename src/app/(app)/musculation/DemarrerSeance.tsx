@@ -20,7 +20,7 @@ export function DemarrerSeance({ catalogueVide }: { catalogueVide: boolean }) {
   const [demarrage, setDemarrage] = useState(false);
 
   // Même hauteur que la carte : la liste des routines ne saute pas quand la lecture locale aboutit.
-  if (brouillon === undefined) return <Skeleton className="h-36 w-full rounded-card" />;
+  if (brouillon === undefined) return <Skeleton className="h-40 w-full rounded-card" />;
 
   if (brouillon) {
     const { faites, total } = compterSeries(brouillon);

@@ -49,7 +49,9 @@ export function HuilesAccueil() {
             <>
               <button type="button" onClick={() => setAjout(true)} className={addCard}>
                 <span aria-hidden className={addCardIcon}>
-                  +
+                  <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth={2.25} strokeLinecap="round">
+                    <path d="M10 4v12M4 10h12" />
+                  </svg>
                 </span>
                 <span className="text-body font-semibold text-ink">Ajouter une huile essentielle</span>
               </button>

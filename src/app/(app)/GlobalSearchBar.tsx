@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { rechercheGlobale, type ModuleRecherche, type ResultatRecherche } from "@/app/actions/recherche";
-import { input } from "@/lib/ui";
+import { inputAvecIcone } from "@/lib/ui";
 import { runAction } from "@/lib/actions/runAction";
 
 function idOption(item: ResultatRecherche): string {
@@ -148,16 +148,20 @@ export function GlobalSearchBar() {
           onFocus={() => setOuvert(true)}
           onKeyDown={handleKeyDown}
           placeholder="Rechercher dans Kilio…"
+          aria-label="Rechercher dans Kilio"
           aria-expanded={dropdownVisible}
           aria-controls="recherche-globale-listbox"
           aria-activedescendant={flatItems[activeIndex] ? idOption(flatItems[activeIndex]) : undefined}
           role="combobox"
           aria-autocomplete="list"
           autoComplete="off"
-          className={`${input} w-full pl-10 pr-9`}
+          className={`${inputAvecIcone} w-full pr-9`}
         />
         {isPending && (
-          <span className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-line border-t-ink-3" />
+          <span
+            aria-hidden
+            className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-line border-t-ink-3 motion-reduce:animate-none"
+          />
         )}
       </div>
 
@@ -197,7 +201,7 @@ export function GlobalSearchBar() {
                         role="option"
                         aria-selected={active}
                         onClick={fermer}
-                        className={`flex flex-col rounded-2xl px-2.5 py-2 transition-colors hover:bg-surface-alt ${
+                        className={`flex min-h-11 flex-col justify-center rounded-2xl px-2.5 py-2 transition-colors hover:bg-surface-alt ${
                           active ? "bg-surface-alt" : ""
                         }`}
                       >

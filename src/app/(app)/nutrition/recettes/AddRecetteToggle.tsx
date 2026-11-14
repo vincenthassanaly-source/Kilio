@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
 import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
+import { PlusIcon } from "@/components/icons";
 
 const RecetteForm = dynamic(() => import("./RecetteForm").then((m) => m.RecetteForm), { ssr: false });
 
@@ -17,7 +18,7 @@ export function AddRecetteToggle() {
       <div
         className={addCardIcon}
       >
-        +
+        <PlusIcon size={18} />
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une recette</span>

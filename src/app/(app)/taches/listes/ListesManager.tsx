@@ -9,10 +9,11 @@ import { dangerButton, ghostButton, listCard, nameText } from "@/lib/ui";
 // Flèches d'ordre : cible réelle de 36×44 px (même gabarit que `sousTacheBouton`
 // de TasksList) au lieu du glyphe nu de 13×23 px.
 const flecheOrdre =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-body text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 import { libelleNombreTaches } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
 import { AddListeForm } from "./AddListeForm";
+import { IconeDescendre, IconeMonter } from "../iconesOrdre";
 import { runAction } from "@/lib/actions/runAction";
 import { fail, ok } from "@/lib/actions/result";
 import { useMasques } from "@/lib/actions/elementsMasques";
@@ -101,6 +102,7 @@ function ListeRow({
             <span
               className="h-3 w-3 shrink-0 rounded-full"
               style={{ backgroundColor: liste.couleur }}
+              aria-hidden="true"
             />
           )}
           <div className="flex min-w-0 flex-col">
@@ -116,7 +118,7 @@ function ListeRow({
             className={flecheOrdre}
             aria-label="Monter"
           >
-            ↑
+            <IconeMonter />
           </button>
           <button
             type="button"
@@ -125,7 +127,7 @@ function ListeRow({
             className={flecheOrdre}
             aria-label="Descendre"
           >
-            ↓
+            <IconeDescendre />
           </button>
           <button type="button" onClick={() => setEditing(true)} className={`${ghostButton} ml-1`}>
             Modifier

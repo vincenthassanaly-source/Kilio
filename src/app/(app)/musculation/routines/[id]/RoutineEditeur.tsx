@@ -33,7 +33,7 @@ import { formaterMinutes } from "@/lib/musculation/seance";
 import type { ExerciceCatalogue } from "@/lib/musculation/serveur";
 import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE, ORDRE_TYPES } from "@/lib/seances/compute";
-import { card, dangerButton, errorText, ghostButton, input, label, metaText, nameText, primaryButton, screenTitle, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { card, dangerButton, errorText, ghostButton, ghostButtonIcone, input, label, metaText, nameText, primaryButton, screenTitle, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { AnimationVignette } from "../../AnimationExercice";
 import { ChampNombre } from "../../seance/ChampNombre";
 import { SelecteurExercices } from "../../seance/SelecteurExercices";
@@ -44,6 +44,15 @@ const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_
 const REPOS_PAR_DEFAUT_AFFICHE_S = 90;
 
 const serieVide = (): RoutineSerie => ({ type: "normale", poids: null, reps: null, duree: null, distance: null, vitesse: null });
+
+/** Flèche tracée (même trait que le menu de l'exercice en séance) : remplace les glyphes ↑ ↓ du texte. */
+function FlecheIcone({ d }: { d: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={d} />
+    </svg>
+  );
+}
 
 function enteteChamp(champ: ChampSerie, mode: ModeSaisie): string {
   if (champ === "poids_kg") return mode === "poids_corps_reps" ? "+kg" : "kg";
@@ -220,18 +229,35 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
         const entete = "text-center text-caption font-semibold uppercase tracking-wide text-ink-3";
         return (
           <section key={`${exercice.exerciceId}-${index}`} className={`${card} flex flex-col gap-3`} aria-label={exercice.nom}>
-            <header className="flex items-center gap-2">
-              <AnimationVignette animation={exercice.animation} nom={exercice.nom} />
-              <span className={`${nameText} min-w-0 flex-1 !whitespace-normal`}>{exercice.nom}</span>
-              <button type="button" className={ghostButton} onClick={() => deplacer(index, -1)} disabled={index === 0} aria-label={`Monter ${exercice.nom}`}>
-                ↑
-              </button>
-              <button type="button" className={ghostButton} onClick={() => deplacer(index, 1)} disabled={index === exercices.length - 1} aria-label={`Descendre ${exercice.nom}`}>
-                ↓
-              </button>
-              <button type="button" className={dangerButton} onClick={() => setExercices((c) => c.filter((_, i) => i !== index))} aria-label={`Retirer ${exercice.nom}`}>
-                Retirer
-              </button>
+            <header className="flex flex-col gap-2.5">
+              {/* Le nom garde toute la largeur de la carte ; les actions passent dessous (voir `actionsLigne`). */}
+              <div className="flex items-center gap-2">
+                <AnimationVignette animation={exercice.animation} nom={exercice.nom} />
+                <span className={`${nameText} min-w-0 flex-1 !whitespace-normal`}>{exercice.nom}</span>
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  className={`${ghostButtonIcone} disabled:opacity-40`}
+                  onClick={() => deplacer(index, -1)}
+                  disabled={index === 0}
+                  aria-label={`Monter ${exercice.nom}`}
+                >
+                  <FlecheIcone d="M12 19V5m0 0-6 6m6-6 6 6" />
+                </button>
+                <button
+                  type="button"
+                  className={`${ghostButtonIcone} disabled:opacity-40`}
+                  onClick={() => deplacer(index, 1)}
+                  disabled={index === exercices.length - 1}
+                  aria-label={`Descendre ${exercice.nom}`}
+                >
+                  <FlecheIcone d="M12 5v14m0 0 6-6m-6 6-6-6" />
+                </button>
+                <button type="button" className={dangerButton} onClick={() => setExercices((c) => c.filter((_, i) => i !== index))} aria-label={`Retirer ${exercice.nom}`}>
+                  Retirer
+                </button>
+              </div>
             </header>
 
             <div className="flex items-center gap-2">

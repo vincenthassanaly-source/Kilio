@@ -5,6 +5,7 @@ import { createCollection, type CollectionFormState } from "@/app/actions/collec
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
 import { addCard, addCardIcon, card, errorText, input, primaryButton, textButton } from "@/lib/ui";
+import { PlusIcon } from "@/components/icons";
 
 const initialState: CollectionFormState = { error: null };
 
@@ -27,7 +28,7 @@ export function AddCollectionToggle({ onSaved }: { onSaved?: () => void }) {
       <div
         className={addCardIcon}
       >
-        +
+        <PlusIcon size={18} />
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une collection</span>

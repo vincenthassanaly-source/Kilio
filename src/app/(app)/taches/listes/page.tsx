@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { getComptesTachesParListe, getListes, getTags } from "@/app/actions/taches";
-import { eyebrow, screenTitle, sectionTitle } from "@/lib/ui";
+import { screenTitle, sectionTitle } from "@/lib/ui";
 import { AddListeToggle } from "./AddListeToggle";
 import { ListesManager } from "./ListesManager";
 import { AddTagToggle } from "./AddTagToggle";
@@ -14,7 +14,6 @@ export default async function ListesTachesPage() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <p className={eyebrow}>Tâches</p>
         <h1 className={screenTitle}>Listes &amp; tags</h1>
         <BackLink href="/taches">Tâches</BackLink>
       </div>

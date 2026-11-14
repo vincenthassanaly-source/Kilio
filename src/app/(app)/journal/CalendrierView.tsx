@@ -9,6 +9,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { eyebrow, linkButton, navArrowButton, screenTitle } from "@/lib/ui";
 import { premierEtDernierJour } from "@/lib/vidage/jours";
 import { BackLink } from "@/components/BackLink";
+import { ChevronIcon } from "@/components/icons";
 
 const JOURS_SEMAINE = ["L", "M", "M", "J", "V", "S", "D"] as const;
 
@@ -57,9 +58,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
 
       <div className="flex items-center justify-between gap-3">
         <button type="button" aria-label="Mois précédent" className={navArrowButton} onClick={() => setMois((m) => decaler(m, -1))}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
+          <ChevronIcon sens="gauche" size={20} />
         </button>
         <p className="text-heading-sm font-semibold text-ink" aria-live="polite">
           {libelleMois(mois)}
@@ -71,9 +70,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
           className={`${navArrowButton} disabled:opacity-35`}
           onClick={() => setMois((m) => decaler(m, 1))}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+          <ChevronIcon sens="droite" size={20} />
         </button>
       </div>
 
@@ -89,7 +86,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
         <Skeleton className="aspect-[7/8] w-full rounded-card" />
       ) : isError ? (
         <div className="flex flex-col items-start gap-2">
-          <p className="text-label text-alert">Le calendrier n&apos;a pas pu être chargé.</p>
+          <p className="text-label text-alert" role="alert">Le calendrier n&apos;a pas pu être chargé.</p>
           <button type="button" className={linkButton} onClick={() => void refetch()}>
             Réessayer
           </button>
@@ -104,7 +101,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
             const base = "relative flex aspect-[3/4] items-start justify-start overflow-hidden rounded-xl border p-1 text-caption font-medium tabular-nums";
             if (futur) {
               return (
-                <li key={jour} className={`${base} border-line/50 text-ink-3`}>
+                <li key={jour} className={`${base} border-transparent text-ink-3`}>
                   {numero}
                 </li>
               );
@@ -115,7 +112,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
                   href={jour === aujourdhui ? "/journal" : `/journal/${jour}`}
                   aria-current={jour === aujourdhui ? "date" : undefined}
                   aria-label={feuille ? `Voir le ${numero}` : `Écrire le ${numero}`}
-                  className={`${base} h-full w-full ${feuille ? "border-line bg-surface text-ink" : "border-line/60 text-ink-2"} ${jour === aujourdhui ? "ring-1 ring-kcal" : ""}`}
+                  className={`${base} h-full w-full ${feuille ? "border-line bg-surface text-ink" : "border-line/60 text-ink-2"} ${jour === aujourdhui ? "border-kcal font-semibold ring-1 ring-kcal" : ""}`}
                 >
                   {feuille?.apercuUrl && (
                     // Vignette d'un bucket privé (URL signée) : <img> plutôt que next/image, dont
@@ -123,7 +120,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={feuille.apercuUrl} alt="" className="absolute inset-0 h-full w-full object-cover object-top" loading="lazy" />
                   )}
-                  <span className={feuille?.apercuUrl ? "relative rounded-lg bg-surface/85 px-1" : "relative"}>{numero}</span>
+                  <span className={feuille?.apercuUrl ? "relative min-w-5 rounded-lg bg-surface/90 px-1 text-center" : "relative"}>{numero}</span>
                   {feuille && !feuille.apercuUrl && (
                     <span className="absolute bottom-1.5 right-1.5 h-2 w-2 rounded-full" style={{ background: "var(--accent-vidage)" }} aria-hidden="true" />
                   )}

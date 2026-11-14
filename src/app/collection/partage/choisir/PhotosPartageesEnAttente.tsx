@@ -193,7 +193,7 @@ function EnvoiVersCollection({
             )
           )}
         </div>
-        <p className="text-sm text-ink-2" aria-live="polite">
+        <p className="text-label text-ink-2" aria-live="polite">
           {etat.phase === "envoi" ? etat.message : "Lecture des photos…"}
         </p>
       </div>

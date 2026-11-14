@@ -79,20 +79,26 @@ export function ListView({
         </h2>
         {feries?.has(iso) && <FerieBadge nom={feries.get(iso)!} className="self-start" />}
         <ul className="flex flex-col gap-2.5">
-          {dayEvenements.map((evenement) => (
-            <li key={evenement.id}>
-              <button
-                type="button"
-                onClick={() => onSelectEvenement?.(evenement)}
-                disabled={!onSelectEvenement}
-                aria-label={`Événement ${evenement.titre}, ${libellePlage(evenement.heure, evenement.heure_fin)}. Modifier`}
-                className="flex min-h-11 w-full items-center gap-2 rounded-xl bg-agenda px-3 py-2 text-left text-label font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
-              >
-                <span className="tabular-nums">{libellePlage(evenement.heure, evenement.heure_fin)}</span>
-                <span className="truncate">{evenement.titre}</span>
-              </button>
-            </li>
-          ))}
+          {dayEvenements.map((evenement) => {
+            // Une journée entière est stockée en 00:00 – 23:59 : on l'écrit en toutes lettres.
+            const plage = evenement.toute_la_journee
+              ? "Journée entière"
+              : libellePlage(evenement.heure, evenement.heure_fin);
+            return (
+              <li key={evenement.id}>
+                <button
+                  type="button"
+                  onClick={() => onSelectEvenement?.(evenement)}
+                  disabled={!onSelectEvenement}
+                  aria-label={`Événement ${evenement.titre}, ${plage}. Modifier`}
+                  className="flex min-h-11 w-full items-baseline gap-x-3 rounded-xl bg-agenda px-3 py-2 text-left text-label font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                >
+                  <span className="shrink-0 whitespace-nowrap tabular-nums">{plage}</span>
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">{evenement.titre}</span>
+                </button>
+              </li>
+            );
+          })}
           {dayTaches.map((tache) => (
             <TaskCard key={tache.id} tache={tache} listes={listes} tags={tags} colorByListe />
           ))}
@@ -102,7 +108,11 @@ export function ListView({
   }
 
   if (sortedDates.length === 0 && withoutDate.length === 0 && archivees.length === 0) {
-    return <p className="text-ink-2">Rien d&apos;agendé pour l&apos;instant. Ajoute une tâche ou un événement avec le bouton +.</p>;
+    return (
+      <p className="py-8 text-center text-ink-2 text-balance">
+        Rien d&apos;agendé pour l&apos;instant. Ajoute une tâche ou un événement avec le bouton +.
+      </p>
+    );
   }
 
   return (

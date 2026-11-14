@@ -7,7 +7,8 @@ import { getTacheBlockStyle } from "../agenda/TimeGrid";
 
 // Un événement est un engagement horodaté, pas une tâche à cocher : plein
 // aplat `agenda` (texte `on-agenda`), là où les tâches de la frise sont
-// teintées. Même géométrie que TacheBlock (chevauchements compris).
+// teintées ; comme elles, il porte un contour fin de 1 px (jamais de barre
+// latérale), ici l'agenda assombri vers l'encre. Même géométrie que TacheBlock (chevauchements compris).
 export function EvenementBlock({
   evenement,
   zoom,
@@ -37,7 +38,7 @@ export function EvenementBlock({
   // Pas d'`overflow-hidden` sur le bouton : la troncature est portée par le
   // <span> interne, et le pseudo-élément `after:` étend la zone de tap
   // verticalement (un bloc de 15 à 30 min ferait sinon moins de 44 px).
-  const className = `absolute ${insetClass} bg-agenda ${sizingClass} text-left font-semibold leading-tight text-on-agenda`;
+  const className = `absolute ${insetClass} border border-[color-mix(in_oklch,var(--accent-agenda),var(--ink)_35%)] bg-agenda ${sizingClass} text-left font-semibold leading-tight text-on-agenda`;
   const zoneTap = "after:absolute after:inset-x-0 after:-inset-y-2";
   const blockStyle = { top: style.top, height: style.height, ...horizontalStyle(position) };
   const heure = evenement.heure.slice(0, 5);
@@ -47,7 +48,7 @@ export function EvenementBlock({
     return (
       <div className={className} style={blockStyle}>
         <span className="block truncate">
-          {heure} {evenement.titre}
+          {heure} {evenement.titre}
         </span>
       </div>
     );
@@ -66,7 +67,7 @@ export function EvenementBlock({
     >
       {!sansTexte && (
         <span className="block truncate" aria-hidden>
-          {heure} {evenement.titre}
+          {heure} {evenement.titre}
         </span>
       )}
     </button>

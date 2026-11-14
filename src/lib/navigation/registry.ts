@@ -261,7 +261,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/revue",
     label: "Revue",
-    description: "Le point de la semaine : bilan, retards, 7 prochains jours",
+    description: "Bilan, retards et 7 prochains jours",
     accentVar: "var(--accent-agenda)",
     icon: REVUE_ICON,
   },

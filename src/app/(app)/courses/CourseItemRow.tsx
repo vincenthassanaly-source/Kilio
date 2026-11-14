@@ -8,8 +8,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Tables } from "@/lib/supabase/types";
-import { ghostButton, listCard, nameTextComplet } from "@/lib/ui";
-import { CheckToggle } from "@/components/CheckToggle";
+import { listCard, nameTextComplet } from "@/lib/ui";import { CheckToggle } from "@/components/CheckToggle";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 import { estIdTemporaire } from "@/lib/courses/compute";
@@ -18,7 +17,17 @@ import { restaurerArticlesCourses } from "./undo";
 // Extrait de CoursesList pour être réutilisé tel quel par
 // ArchivedCoursesSection (mêmes mutations optimistes toggle/suppression pour
 // les articles archivés), sans import circulaire entre les deux fichiers.
-function CourseItemRowBase({ item, plat = false }: { item: Tables<"courses_items">; plat?: boolean }) {
+function CourseItemRowBase({
+  item,
+  plat = false,
+  groupe = false,
+}: {
+  item: Tables<"courses_items">;
+  plat?: boolean;
+  /** Ligne d'un rayon : pas de carte propre, la carte du rayon la porte et
+   * un filet `line` sépare les lignes (voir CoursesList). */
+  groupe?: boolean;
+}) {
   const queryClient = useQueryClient();
   // Article créé hors ligne, encore affiché avec son id optimiste
   // `temp-<uuid>` tant que la création n'a pas été confirmée par le serveur
@@ -222,7 +231,13 @@ function CourseItemRowBase({ item, plat = false }: { item: Tables<"courses_items
       transition={{ duration: 0.18 }}
       // `plat` : ligne imbriquée dans une carte (archive) — pas de seconde
       // ombre, rayon concentrique (22 - 16 = 6 px), fond de surface alternée.
-      className={plat ? "flex flex-col gap-1.5 rounded-md bg-surface-alt p-3.5" : listCard}
+      className={
+        groupe
+          ? "flex flex-col gap-1.5 px-3.5 py-1.5"
+          : plat
+            ? "flex flex-col gap-1.5 rounded-md bg-surface-alt px-3.5 py-1.5"
+            : listCard
+      }
       aria-busy={enAttenteDeCreation || undefined}
     >
       <div className="flex items-center gap-3">
@@ -280,13 +295,13 @@ function CourseItemRowBase({ item, plat = false }: { item: Tables<"courses_items
           type="button"
           disabled={deleteMutation.isPending || enAttenteDeCreation}
           onClick={() => deleteMutation.mutate()}
-          // Ton neutre (`ghostButton`) : ce bouton est répété sur chaque
-          // ligne et la suppression est annulable par le toast, le rouge
-          // plein d'alerte n'a pas lieu d'être ici. `min-h-11` (44px) porte
-          // la cible de tap au minimum recommandé sans toucher au style
-          // partagé de `ghostButton` (voir `navArrowButton` dans ui.ts).
+          // Ton neutre : ce bouton est répété sur chaque ligne et la
+          // suppression est annulable par le toast, donc sans cadre ni
+          // rouge d'alerte (texte `ink-2`, rouge au survol). Le libellé
+          // « Supprimer » reste visible (pas d'icône muette). Cible de tap
+          // de 44 px de haut.
           aria-label={`Supprimer « ${item.libelle} »`}
-          className={`${ghostButton} flex min-h-11 items-center justify-center`}
+          className="flex min-h-11 shrink-0 items-center justify-center rounded-xl px-2.5 text-label font-medium text-ink-2 transition-[color,background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt hover:text-alert active:scale-[0.97] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           Supprimer
         </button>

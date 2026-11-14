@@ -6,6 +6,8 @@ export default function PlusLoading() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className={screenTitle}>Plus</h1>
+      {/* Réserve la place de l'indice « Appui long » : pas de saut à l'arrivée. */}
+      <Skeleton className="h-[62px] w-full rounded-2xl" />
       <div className="grid grid-cols-2 gap-3">
         {Array.from({ length: NAV_ITEMS.length }).map((_, i) => (
           <div key={i} className={`${card} flex flex-col gap-2.5`}>

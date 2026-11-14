@@ -68,9 +68,10 @@ export function RevueView({ today }: { today: string }) {
 
   if (tachesChargent) {
     return (
-      <div className="flex flex-col gap-4">
-        <Skeleton className="h-40 w-full rounded-card" />
-        <Skeleton className="h-56 w-full rounded-card" />
+      <div className="flex flex-col gap-4" aria-busy="true">
+        <Skeleton className="h-[76px] w-full rounded-card" />
+        <Skeleton className="h-60 w-full rounded-card" />
+        <Skeleton className="h-48 w-full rounded-card" />
       </div>
     );
   }
@@ -108,17 +109,19 @@ export function RevueView({ today }: { today: string }) {
         )}
       </section>
 
-      <div className="flex flex-col gap-2">
+      <section aria-labelledby="revue-retards" className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          <h2 className={sectionTitle}>2. Retards à replanifier</h2>
+          <h2 id="revue-retards" className={sectionTitle}>
+            2. Retards à replanifier
+          </h2>
           {enRetard.length > 0 && <BoutonAssistantRevue mode="replanifier" libelle="Replanifier" />}
         </div>
         {enRetard.length > 0 ? (
-          <EnRetardSection taches={enRetard} today={today} />
+          <EnRetardSection taches={enRetard} today={today} masquerTitre />
         ) : (
           <p className={`${card} text-label text-ink-2`}>Rien en retard. Bien joué.</p>
         )}
-      </div>
+      </section>
 
       <section aria-labelledby="revue-semaine" className={`${card} flex flex-col gap-3`}>
         <div className="flex items-center justify-between gap-2">
@@ -136,38 +139,44 @@ export function RevueView({ today }: { today: string }) {
                 <TransitionLink
                   href={`/agenda?date=${jour.date}&from=revue`}
                   aria-label={`Ouvrir ${format(parseISODate(jour.date), "EEEE d MMMM", { locale: fr })} dans l'agenda`}
-                  className="flex min-h-11 flex-col gap-1 rounded-xl bg-surface-alt px-3 py-2.5 transition active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+                  className={`flex min-h-11 flex-col gap-1 rounded-xl px-3 py-2.5 transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+                    vide ? "border border-line" : "bg-surface-alt"
+                  }`}
                 >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-label font-semibold capitalize text-ink">
-                    {format(parseISODate(jour.date), "EEEE d MMM", { locale: fr })}
-                  </span>
-                  {jour.charge && (
-                    <span className="rounded-full border border-line bg-surface px-2 py-0.5 text-micro font-semibold text-ink-2">
-                      Journée chargée
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-label font-semibold capitalize text-ink">
+                      {format(parseISODate(jour.date), "EEEE d MMM", { locale: fr })}
                     </span>
+                    {jour.charge && (
+                      <span className="shrink-0 rounded-full border border-line bg-surface px-2 py-0.5 text-micro font-semibold text-ink-2">
+                        Journée chargée
+                      </span>
+                    )}
+                    {!jour.charge && total > 0 && (
+                      <span className="shrink-0 text-caption tabular-nums text-ink-3">{libelleDuree(total)}</span>
+                    )}
+                    {vide && <span className="shrink-0 text-small text-ink-3">Libre</span>}
+                  </div>
+                  {!vide && (
+                    <ul className="flex flex-col gap-0.5 text-small text-ink-2">
+                      {jour.evenements.map((e, i) => (
+                        <li key={`${e.id}-${i}`} className="flex gap-2">
+                          <span className="w-[3.25rem] shrink-0 font-medium tabular-nums text-ink">
+                            {e.toute_la_journee ? "Journée" : e.heure.slice(0, 5)}
+                          </span>
+                          <span className="truncate">{e.titre}</span>
+                        </li>
+                      ))}
+                      {jour.taches.map((t) => (
+                        <li key={t.id} className="flex items-center gap-2">
+                          <span className="flex w-[3.25rem] shrink-0 items-center">
+                            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-ink-3" />
+                          </span>
+                          <span className="truncate">{t.titre}</span>
+                        </li>
+                      ))}
+                    </ul>
                   )}
-                  {!jour.charge && total > 0 && (
-                    <span className="text-caption tabular-nums text-ink-3">{libelleDuree(total)}</span>
-                  )}
-                </div>
-                {vide ? (
-                  <span className="text-small text-ink-2">Libre</span>
-                ) : (
-                  <ul className="flex flex-col gap-0.5 text-small text-ink-2">
-                    {jour.evenements.map((e, i) => (
-                      <li key={`${e.id}-${i}`} className="truncate">
-                        <span className="tabular-nums">{e.toute_la_journee ? "Journée" : e.heure.slice(0, 5)}</span> {e.titre}
-                      </li>
-                    ))}
-                    {jour.taches.map((t) => (
-                      <li key={t.id} className="flex items-center gap-2">
-                        <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-ink-3" />
-                        <span className="truncate">{t.titre}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
                 </TransitionLink>
               </li>
             );

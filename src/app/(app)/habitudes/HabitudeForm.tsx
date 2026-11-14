@@ -116,7 +116,7 @@ export function HabitudeForm({
             id={`${uid}-frequence_hebdo`}
             name="frequence_hebdo"
             type="number"
-            inputMode="decimal"
+            inputMode="numeric"
             min="1"
             max="6"
             step="1"

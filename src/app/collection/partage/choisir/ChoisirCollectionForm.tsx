@@ -5,8 +5,9 @@ import { rattacherPhotoACollection, type RattacherPhotoFormState } from "@/app/a
 import { suggererCollection } from "@/app/actions/collection-rangement";
 import { runAction } from "@/lib/actions/runAction";
 import type { TypeVideo } from "@/lib/collection/video";
+import { LigneChoix } from "@/components/ListeChoix";
 import type { Tables } from "@/lib/supabase/types";
-import { card, checkCircle, errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
+import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
 
 const initialState: RattacherPhotoFormState = { error: null };
 
@@ -84,7 +85,8 @@ export function ChoisirCollectionForm({
       {collections.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <span className={labelClass}>Collection existante</span>
-          <p className="min-h-5 text-small text-ink-3" aria-live="polite">
+          {/* Zone vocale toujours montée (annonce), visible seulement pendant la recherche : pas de trou sous le titre. */}
+          <p className={!rienASuggerer && suggestion.etat === "attente" ? "text-small text-ink-3" : "sr-only"} aria-live="polite">
             {!rienASuggerer && suggestion.etat === "attente" ? "Gemini cherche la meilleure collection…" : ""}
           </p>
           <div className="flex flex-col gap-1.5">
@@ -92,44 +94,22 @@ export function ChoisirCollectionForm({
               const selected = collectionId === collection.id;
               const suggeree = suggestion.etat === "fini" && suggestion.collectionId === collection.id;
               return (
-                <button
+                <LigneChoix
                   key={collection.id}
-                  type="button"
-                  onClick={() => {
+                  selected={selected}
+                  onSelect={() => {
                     choixManuel.current = true;
                     setCollectionId(collection.id);
                     setNouvelleCollection("");
                   }}
-                  className={`${card} flex w-full items-center justify-between gap-3 text-left transition-colors ${
-                    selected ? "border-kcal bg-kcal-soft" : "bg-background text-ink-2"
-                  }`}
                 >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span className={`truncate ${selected ? "font-semibold text-ink" : ""}`}>{collection.nom}</span>
-                    {suggeree && (
-                      <span className="shrink-0 rounded-full bg-kcal-soft px-2 py-0.5 text-micro font-semibold text-kcal">
-                        Suggérée
-                      </span>
-                    )}
-                  </span>
-                  <span
-                    className={`${checkCircle} ${
-                      selected ? "border-kcal bg-kcal" : "border-line bg-transparent"
-                    }`}
-                  >
-                    {selected && (
-                      <svg width={11} height={11} viewBox="0 0 12 12" fill="none">
-                        <path
-                          d="M1 6l3.2 3.2L11 2"
-                          stroke="white"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </span>
-                </button>
+                  <span className={`min-w-0 break-words text-ink ${selected ? "font-semibold" : ""}`}>{collection.nom}</span>
+                  {suggeree && (
+                    <span className="shrink-0 rounded-full bg-kcal-soft px-2 py-0.5 text-micro font-semibold text-kcal">
+                      Suggérée
+                    </span>
+                  )}
+                </LigneChoix>
               );
             })}
           </div>

@@ -133,14 +133,16 @@ function Seance({ snapshot }: { snapshot: PharmaSnapshot }) {
           contenu={carteCourante.question}
           className="whitespace-pre-line text-heading-sm font-semibold leading-snug text-ink text-balance"
         />
-        {revele && (
-          <div className="border-t border-line pt-4">
-            <ContenuColore
-              contenu={carteCourante.reponse}
-              className="whitespace-pre-line text-body leading-[1.55] text-ink"
-            />
-          </div>
-        )}
+        <div aria-live="polite">
+          {revele && (
+            <div className="border-t border-line pt-4">
+              <ContenuColore
+                contenu={carteCourante.reponse}
+                className="whitespace-pre-line text-body leading-[1.55] text-ink"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {revele ? (

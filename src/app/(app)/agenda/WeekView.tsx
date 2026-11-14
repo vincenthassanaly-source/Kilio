@@ -182,11 +182,31 @@ export function WeekView({
   // l'écran. Un dégradé en bord droit signale qu'il y en a d'autres, tant que
   // la grille n'est pas défilée jusqu'au bout.
   const [encoreADroite, setEncoreADroite] = useState(false);
+  const [encoreAGauche, setEncoreAGauche] = useState(false);
   function majIndiceDefilement() {
     const el = scrollRef.current;
-    if (el) setEncoreADroite(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+    if (!el) return;
+    setEncoreADroite(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+    setEncoreAGauche(el.scrollLeft > 2);
   }
   useIsomorphicLayoutEffect(majIndiceDefilement, [zoom, containerWidth]);
+
+  // À l'ouverture, sur mobile (où ~3,5 colonnes sur 7 tiennent), la colonne du
+  // jour est amenée juste après la gouttière : jeudi à dimanche seraient sinon
+  // hors écran. Une seule fois, dès que la largeur est mesurée : ni à chaque
+  // rendu, ni quand on change de semaine. Le défilement est instantané (pas
+  // d'animation, donc rien à désactiver pour prefers-reduced-motion).
+  const defilementJourFait = useRef(false);
+  useIsomorphicLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el || containerWidth === null || defilementJourFait.current) return;
+    defilementJourFait.current = true;
+    const indexAujourdhui = days.findIndex((d) => isSameDay(d, new Date()));
+    if (indexAujourdhui <= 0) return;
+    const largeurColonne = (el.scrollWidth - GUTTER_WIDTH) / days.length;
+    el.scrollLeft = indexAujourdhui * largeurColonne;
+  }, [containerWidth]);
+
 
   const semaineVide = [...parJour.values()].every(
     (j) => j.dayTachesAvecHeure.length + j.bandeTaches.length + j.dayEvenements.length + j.bandeEvenements.length === 0
@@ -209,6 +229,13 @@ export function WeekView({
       )}
 
       <div className="relative overflow-hidden rounded-2xl border border-line bg-surface">
+        {encoreAGauche && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 z-30 w-6 bg-gradient-to-r from-ink/10 to-transparent"
+            style={{ left: GUTTER_WIDTH }}
+          />
+        )}
         {encoreADroite && (
           <div
             aria-hidden
