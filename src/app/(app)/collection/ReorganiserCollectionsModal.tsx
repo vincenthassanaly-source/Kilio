@@ -167,13 +167,13 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
     <Modal title="Réorganiser" onClose={onClose}>
       {etape === "instruction" && (
         <div className="flex flex-col gap-4 pb-1">
-          <p className="text-sm text-ink-2">
+          <p className="text-label text-ink-2">
             Gemini regarde le contenu de toutes tes collections et propose de déplacer des éléments, de créer, fusionner
             ou renommer des collections. Tu valides chaque changement : rien n&apos;est modifié avant « Appliquer », et tu
             pourras annuler ensuite.
           </p>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={idInstruction} className="text-sm font-medium text-ink">
+            <label htmlFor={idInstruction} className="text-label font-medium text-ink">
               Une préférence ? <span className="font-normal text-ink-3">(facultatif)</span>
             </label>
             <input
@@ -204,7 +204,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
 
       {etape === "analyse" && (
         <div className="flex flex-col gap-4 pb-1" aria-busy="true">
-          <p className="flex items-center gap-3 text-sm text-ink" aria-live="polite">
+          <p className="flex items-center gap-3 text-label text-ink" aria-live="polite">
             <span
               aria-hidden="true"
               className="h-5 w-5 shrink-0 rounded-full border-2 border-line border-t-[var(--accent-kcal)] motion-safe:animate-spin"
@@ -221,7 +221,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
         <div className="flex flex-col gap-4">
           {nbChangements(proposition.suggestion) === 0 ? (
             <>
-              <p className="text-sm text-ink" role="status">
+              <p className="text-label text-ink" role="status">
                 Ton rangement est déjà cohérent : Gemini n&apos;a rien à proposer.
               </p>
               {proposition.nonLus > 0 && (
@@ -236,7 +236,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
             </>
           ) : (
             <>
-              <p className="text-sm text-ink-2">
+              <p className="text-label text-ink-2">
                 {pluriel(nbChangements(proposition.suggestion), "changement")} proposé
                 {nbChangements(proposition.suggestion) > 1 ? "s" : ""} sur {proposition.analyses} éléments examinés.
                 Décoche ce que tu ne veux pas.
@@ -268,7 +268,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                             <FlecheIcon />
                             <span className="break-words">{f.versNom}</span>
                           </p>
-                          <span className="shrink-0 text-xs tabular-nums text-ink-3">{pluriel(f.nbElements, "élém.")}</span>
+                          <span className="shrink-0 text-caption tabular-nums text-ink-3">{pluriel(f.nbElements, "élém.")}</span>
                         </div>
                         <p className="pl-8 text-small text-ink-3">« {f.deNom} » disparaît, ses éléments passent dans « {f.versNom} ».</p>
                       </li>
@@ -325,7 +325,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                               <span className="rounded-full bg-kcal-soft px-2 py-0.5 text-micro font-semibold text-kcal">nouvelle</span>
                             )}
                           </p>
-                          <span className="shrink-0 text-xs tabular-nums text-ink-3">{pluriel(ids.length, "élém.")}</span>
+                          <span className="shrink-0 text-caption tabular-nums text-ink-3">{pluriel(ids.length, "élém.")}</span>
                         </div>
                         <details>
                           <summary className="flex min-h-11 cursor-pointer list-none items-center text-small font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
@@ -340,7 +340,7 @@ export function ReorganiserCollectionsModal({ onClose }: { onClose: () => void }
                                   onChange={(coche) => basculer([d.id], coche)}
                                   label={`Déplacer ${d.titre}`}
                                 />
-                                <span className="min-w-0 flex-1 truncate text-sm text-ink">{d.titre}</span>
+                                <span className="min-w-0 flex-1 truncate text-label text-ink">{d.titre}</span>
                               </li>
                             ))}
                           </ul>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AddTaskForm } from "@/app/(app)/taches/AddTaskForm";
 import type { Tables } from "@/lib/supabase/types";
 import type { TexteTache } from "@/lib/partage/tache";
-import { card, errorText, secondaryButton } from "@/lib/ui";
+import { card, errorText, secondaryButton, textButton } from "@/lib/ui";
 
 type Destination = "collection" | "tache" | "documents";
 
@@ -58,7 +58,7 @@ export function DestinationPartage({
   const documents = documentsContenu ? (
     <button type="button" onClick={() => setDestination("documents")} className={`${card} text-left`}>
       <span className="font-semibold text-ink">Ajouter aux documents (vrac)</span>
-      <span className="block text-sm text-ink-2">Photo ou PDF, à trier plus tard avec Gemini</span>
+      <span className="block text-label text-ink-2">Photo ou PDF, à trier plus tard avec Gemini</span>
     </button>
   ) : null;
   const indisponible = "pointer-events-none opacity-50";
@@ -73,7 +73,7 @@ export function DestinationPartage({
         className={`${card} text-left ${seulementDocuments ? indisponible : ""}`}
       >
         <span className="font-semibold text-ink">Ajouter à une collection</span>
-        <span className="block text-sm text-ink-2">Des photos ou des liens vidéo, rangés par collection</span>
+        <span className="block text-label text-ink-2">Des photos ou des liens vidéo, rangés par collection</span>
       </button>
       <button
         type="button"
@@ -82,10 +82,10 @@ export function DestinationPartage({
         className={`${card} text-left ${seulementDocuments ? indisponible : ""}`}
       >
         <span className="font-semibold text-ink">Ajouter une tâche</span>
-        <span className="block text-sm text-ink-2">L&apos;image est jointe à la tâche</span>
+        <span className="block text-label text-ink-2">L&apos;image est jointe à la tâche</span>
       </button>
       {seulementDocuments && (
-        <p className="text-sm text-ink-2">Un PDF ne peut aller que dans les documents.</p>
+        <p className="text-label text-ink-2">Un PDF ne peut aller que dans les documents.</p>
       )}
     </div>
   );
@@ -145,7 +145,7 @@ function CreerTacheDepuisPartage({
       </div>
     );
   }
-  if (!fichiers) return <p className="text-sm text-ink-2" aria-busy="true">Préparation de l&apos;image…</p>;
+  if (!fichiers) return <p className="text-label text-ink-2" aria-busy="true">Préparation de l&apos;image…</p>;
 
   return (
     <div className="flex flex-col gap-2">
@@ -161,7 +161,7 @@ function CreerTacheDepuisPartage({
           }}
         />
       </div>
-      <button type="button" onClick={retour} className="text-sm text-ink-2 underline self-start">
+      <button type="button" onClick={retour} className={`${textButton} self-start`}>
         Annuler
       </button>
     </div>

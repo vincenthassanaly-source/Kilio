@@ -19,7 +19,12 @@ import { showErrorToast } from "@/components/toast/toast-store";
 
 function CollectionsMosaic({ collections }: { collections: CollectionAvecApercu[] }) {
   if (collections.length === 0) {
-    return <p className="text-ink-2">Aucune collection pour l&apos;instant.</p>;
+    return (
+      <div className="flex flex-col items-center gap-1 rounded-card border border-dashed border-control-border px-6 py-10 text-center">
+        <p className="text-body font-semibold text-ink">Aucune collection pour l&apos;instant</p>
+        <p className="text-small text-ink-2 text-balance">Crée-en une avec « Ajouter une collection », puis range-y tes photos et tes liens vidéo.</p>
+      </div>
+    );
   }
 
   return (
@@ -41,7 +46,7 @@ function CollectionsMosaic({ collections }: { collections: CollectionAvecApercu[
             <p className={`${nameText} line-clamp-2 whitespace-normal text-balance`} style={{ viewTransitionName: `collection-title-${collection.id}` }}>
               {collection.nom}
             </p>
-            <p className="text-xs text-ink-3">
+            <p className="text-caption tabular-nums text-ink-3">
               {collection.nb_photos} élément{collection.nb_photos > 1 ? "s" : ""}
             </p>
           </TransitionLink>
