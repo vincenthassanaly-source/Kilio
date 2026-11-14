@@ -44,7 +44,7 @@ test.describe("coquille rendue par le serveur (sans JavaScript)", () => {
       }
       await page.goto(route.path);
       await expect(shellMarker(page, route)).toBeVisible();
-      await expect(bottomNavPlus(page)).toBeVisible();
+      if (!route.immersif) await expect(bottomNavPlus(page)).toBeVisible();
     });
   }
 });
