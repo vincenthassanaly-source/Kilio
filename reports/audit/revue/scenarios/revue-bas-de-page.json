@@ -1,0 +1,5 @@
+{ "nom": "revue-bas-de-page", "theme": "clair", "etapes": [
+ {"action":"goto","url":"/revue"},
+ {"action":"scroll","pixels":700,"note":"milieu"},
+ {"action":"scroll","pixels":2000,"note":"bas"}
+]}

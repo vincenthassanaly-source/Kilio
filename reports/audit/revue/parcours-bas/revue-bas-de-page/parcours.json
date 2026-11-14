@@ -1,0 +1,49 @@
+{
+  "nom": "revue-bas-de-page",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/revue",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=s_kCW8MHIhGNRoNi (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1483,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "scroll",
+      "pixels": 700,
+      "note": "milieu",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/revue",
+      "ms": 341,
+      "fichier": "02-scroll.png"
+    },
+    {
+      "n": 3,
+      "action": "scroll",
+      "pixels": 2000,
+      "note": "bas",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/revue",
+      "ms": 350,
+      "fichier": "03-scroll.png"
+    }
+  ]
+}

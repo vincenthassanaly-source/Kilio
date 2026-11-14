@@ -1,0 +1,15 @@
+{"nom":"consultation-sommaire","theme":"clair","etapes":[
+{"action":"goto","url":"/pharmacie","note":"accueil"},
+{"action":"click","cible":"role=link[name=/Pharmacologie/i]"},
+{"action":"expect_text","texte":"Antihypertenseurs"},
+{"action":"click","cible":"role=link[name=/Antihypertenseurs/i]"},
+{"action":"expect_text","texte":"IEC : mécanisme"},
+{"action":"click","cible":"role=button[name=/sommaire/i]"},
+{"action":"click","cible":"role=button[name=/IEC : toux sèche/i]"},
+{"action":"screenshot","note":"après saut"},
+{"action":"click","cible":"role=button[name=/Modifier la notion IEC : toux/i]"},
+{"action":"screenshot","note":"éditeur ouvert"},
+{"action":"press","touche":"Escape"},
+{"action":"goto","url":"/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1#notion-00000000-0000-4000-8000-0000000000c2","note":"lien profond"},
+{"action":"screenshot"}
+]}

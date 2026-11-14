@@ -1,0 +1,126 @@
+{
+  "nom": "recherche-retour",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/pharmacie",
+      "note": "accueil Cours",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=yZDoiukyZDUYNBiD (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=XeXZDiNhMoTuWHLr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=zAIACHw_oXEsRa1p (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b2?_rsc=uHKxVsuW5jVO6yom (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1691,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "fill",
+      "cible": "role=searchbox[name=/rechercher dans la pharmacie/i]",
+      "valeur": "toux",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie",
+      "ms": 375,
+      "fichier": "02-fill.png"
+    },
+    {
+      "n": 3,
+      "action": "expect_text",
+      "texte": "IEC : toux sèche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie",
+      "ms": 351,
+      "fichier": "03-expect_text.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=link[name=/IEC : toux sèche/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1#notion-00000000-0000-4000-8000-0000000000c2",
+      "ms": 394,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "expect_text",
+      "texte": "Antihypertenseurs",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1#notion-00000000-0000-4000-8000-0000000000c2",
+      "ms": 346,
+      "fichier": "05-expect_text.png"
+    },
+    {
+      "n": 6,
+      "action": "back",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=slRDOJzKBNHzJbNj (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1",
+      "ms": 344,
+      "fichier": "06-back.png"
+    },
+    {
+      "n": 7,
+      "action": "screenshot",
+      "note": "retour : la requête est-elle conservée ?",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1",
+      "ms": 335,
+      "fichier": "07-screenshot.png"
+    },
+    {
+      "n": 8,
+      "action": "fill",
+      "cible": "role=searchbox[name=/rechercher dans la pharmacie/i]",
+      "valeur": "zzzz",
+      "statut": "échec",
+      "erreur": "locator.fill: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1",
+      "ms": 5034,
+      "fichier": "08-fill.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "Aucune notion",
+      "statut": "échec",
+      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1",
+      "ms": 5029,
+      "fichier": "09-expect_text.png"
+    }
+  ]
+}

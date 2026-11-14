@@ -1,0 +1,8 @@
+{"nom":"revision-sans-notation","theme":"clair","etapes":[
+{"action":"goto","url":"/pharmacie","note":"accueil"},
+{"action":"click","cible":"role=link[name=/Commencer/i]"},
+{"action":"click","cible":"role=button[name=/voir la réponse/i]"},
+{"action":"screenshot","note":"quatre notes visibles, aucune notation envoyée (banc partagé)"},
+{"action":"click","cible":"role=link[name=/Pharmacie/i]"},
+{"action":"expect_text","texte":"Matières"}
+]}

@@ -1,0 +1,8 @@
+{"nom":"referentiel-huiles-vides","theme":"clair","etapes":[
+{"action":"goto","url":"/pharmacie","note":"accueil"},
+{"action":"click","cible":"role=link[name=/Référentiel/i]"},
+{"action":"screenshot","note":"référentiel vide (mock)"},
+{"action":"click","cible":"role=link[name=/Huiles/i]"},
+{"action":"click","cible":"role=button[name=/Ajouter une huile/i]"},
+{"action":"screenshot","note":"formulaire d'ajout d'huile dans l'app"}
+]}

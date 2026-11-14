@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/plus",
+    "dynamique": false,
+    "url": "/plus",
+    "theme": "clair",
+    "fichier": "plus.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/plus",
+    "dynamique": false,
+    "url": "/plus",
+    "theme": "sombre",
+    "fichier": "plus.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

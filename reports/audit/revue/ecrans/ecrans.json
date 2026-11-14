@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/revue",
+    "dynamique": false,
+    "url": "/revue",
+    "theme": "clair",
+    "fichier": "revue.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/revue",
+    "dynamique": false,
+    "url": "/revue",
+    "theme": "sombre",
+    "fichier": "revue.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

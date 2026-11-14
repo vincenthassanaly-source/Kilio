@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/scanner",
+    "dynamique": false,
+    "url": "/scanner",
+    "theme": "clair",
+    "fichier": "scanner.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/scanner",
+    "dynamique": false,
+    "url": "/scanner",
+    "theme": "sombre",
+    "fichier": "scanner.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]
