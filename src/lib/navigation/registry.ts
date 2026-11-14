@@ -275,7 +275,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/documents",
     label: "Documents",
-    description: "Papiers importants et échéances",
+    description: "Papiers, photos et PDF classés par catégorie",
     accentVar: "var(--accent-documents)",
     icon: DOCUMENTS_ICON,
   },

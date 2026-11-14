@@ -340,7 +340,7 @@ export function DocumentForm({
           Catégorie (optionnel)
         </label>
         <select id={`${uid}-categorie`} name="categorie" defaultValue={document?.categorie ?? ""} className={input}>
-          <option value="">—</option>
+          <option value="">Sans catégorie</option>
           {/* Catégorie actuelle d'abord si elle a disparu de la liste (fusion
               dans un autre onglet) : l'enregistrer ne la perd pas en silence. */}
           {(document?.categorie && !categories.includes(document.categorie)
@@ -468,7 +468,7 @@ export function DocumentForm({
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Enregistrement..." : document ? "Enregistrer" : "Ajouter le document"}
+        {pending ? "Enregistrement…" : document ? "Enregistrer" : "Ajouter le document"}
       </button>
     </form>
   );

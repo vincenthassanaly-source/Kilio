@@ -99,7 +99,7 @@ describe("DocumentsBrowser : catégories", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
 
     expect(screen.queryByText(/étiquette/i)).toBeNull();
-    const tri = screen.getByRole("combobox", { name: "Trier les documents" });
+    const tri = screen.getByRole("combobox", { name: "Ordre des documents" });
     expect(within(tri).getAllByRole("option").map((o) => o.textContent)).toEqual([
       "Récent",
       "Nom A→Z",
@@ -166,7 +166,7 @@ describe("DocumentsBrowser : catégories", () => {
   it("trie par catégorie A→Z, les documents sans catégorie en dernier", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Trier les documents" }), { target: { value: "categorie" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Ordre des documents" }), { target: { value: "categorie" } });
 
     expect(noms()).toEqual(["Carte d'identité", "Bail", "Facture EDF", "Sans catégorie"]);
   });
@@ -305,7 +305,7 @@ describe("DocumentsBrowser : l'adresse fait foi", () => {
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "bail" } });
     expect(liste.montages).toBe(2);
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Trier les documents" }), { target: { value: "nom" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Ordre des documents" }), { target: { value: "nom" } });
     expect(liste.montages).toBe(2);
   });
 

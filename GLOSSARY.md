@@ -60,6 +60,21 @@ _Avoid_: Relevé (sauf dans « pas de relevé »)
 Les deux états d'un article de Courses : « à prendre » (pas encore dans le chariot) et « pris » (coché, rangé dans « Articles pris »). « Supprimer les articles pris » vide cette section.
 _Avoid_: coché, archivé, actif (dans les textes visibles)
 
+**Vrac**:
+L'état des documents pas encore rangés (`en_vrac`), avec son onglet « Vrac » dans Documents. Les documents partagés depuis Android ou envoyés par « Enregistrer dans Documents » du Scanner y arrivent. Ce n'est pas un dossier : on en sort en choisissant une catégorie, et « Remettre en vrac » les y replace.
+_Avoid_: dossier, boîte de réception
+
+**Catégorie (de document)**:
+Le rangement d'un document, gérable depuis l'icône « Gérer les catégories » de Documents. Dans le formulaire d'un document, « Sans catégorie » est le choix vide.
+_Avoid_: dossier, étiquette (les deux ont été retirés)
+
+**Trier / Ordre**:
+« Trier » classe le vrac avec l'IA : le résultat est une Suggestion, appliquée ou rejetée par Vincent. « Ordre » est le sélecteur d'ordre d'affichage de la liste des documents (récent, nom A→Z, catégorie A→Z).
+_Avoid_: « Trier » pour le sélecteur d'ordre
+
+**Réorganiser**:
+La refonte proposée par l'IA des catégories de Documents ou des collections de Collection : un aperçu, puis « Appliquer ». Rien n'est écrit avant.
+
 **Collection / élément**:
 Une collection regroupe des éléments ; un élément est une photo ou un lien vidéo. Le nombre affiché sur une tuile est un nombre d'éléments.
 _Avoid_: classeur, album ; « photos » pour désigner tout le contenu d'une collection
