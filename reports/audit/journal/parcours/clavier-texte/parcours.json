@@ -17,7 +17,7 @@
         "requête échouée : GET http://localhost:3100/nutrition?_rsc=mL3wFUWE0yD09nkH (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "ms": 1730,
+      "ms": 2017,
       "fichier": "01-goto.png"
     },
     {
@@ -30,7 +30,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/journal",
-      "ms": 414,
+      "ms": 496,
       "fichier": "02-click.png"
     },
     {
@@ -42,27 +42,25 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/journal",
-      "ms": 349,
+      "ms": 427,
       "fichier": "03-screenshot.png"
     },
     {
       "n": 4,
-      "action": "fill",
-      "cible": "role=textbox",
-      "valeur": "Journée calme, un bon appel avec Léa.",
+      "action": "wait",
+      "ms": 1149,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/journal",
-      "ms": 347,
-      "fichier": "04-fill.png"
+      "fichier": "04-wait.png"
     },
     {
       "n": 5,
       "action": "click",
-      "cible": "role=button[name=/^Ajouter$/]",
-      "note": "Ajouter la note",
+      "cible": "role=button[name=/plus d.actions/i]",
+      "note": "menu ...",
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -73,44 +71,6 @@
     },
     {
       "n": 6,
-      "action": "wait",
-      "ms": 1135,
-      "statut": "ok",
-      "erreur": null,
-      "anomalies": [],
-      "ecritures": [
-        {
-          "method": "POST",
-          "table": "feuilles_vidage",
-          "query": "",
-          "body": {
-            "jour": "2026-11-14",
-            "transcription": "19:11\nJournée calme, un bon appel avec Léa.",
-            "traits": [],
-            "hauteur": 2000,
-            "apercu_path": null,
-            "updated_at": "2026-11-14T18:11:56.070Z"
-          }
-        }
-      ],
-      "url": "http://localhost:3100/journal",
-      "fichier": "06-wait.png"
-    },
-    {
-      "n": 7,
-      "action": "click",
-      "cible": "role=button[name=/plus d'actions/i]",
-      "note": "menu ...",
-      "statut": "échec",
-      "erreur": "locator.click: InvalidSelectorError: Error while parsing selector `button[name=/plus d'actions/i] >> nth=0` - unexpected symbol \">\" at position 31",
-      "anomalies": [],
-      "ecritures": [],
-      "url": "http://localhost:3100/journal",
-      "ms": 53,
-      "fichier": "07-click.png"
-    },
-    {
-      "n": 8,
       "action": "screenshot",
       "note": "menu avec Voir le texte",
       "statut": "ok",
@@ -118,23 +78,23 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/journal",
-      "ms": 327,
-      "fichier": "08-screenshot.png"
+      "ms": 350,
+      "fichier": "06-screenshot.png"
     },
     {
-      "n": 9,
+      "n": 7,
       "action": "click",
       "cible": "role=menuitem[name=/voir le texte/i]",
-      "statut": "échec",
-      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "statut": "ok",
+      "erreur": null,
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/journal",
-      "ms": 5036,
-      "fichier": "09-click.png"
+      "ms": 434,
+      "fichier": "07-click.png"
     },
     {
-      "n": 10,
+      "n": 8,
       "action": "screenshot",
       "note": "fenêtre texte du jour",
       "statut": "ok",
@@ -142,11 +102,11 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/journal",
-      "ms": 341,
-      "fichier": "10-screenshot.png"
+      "ms": 359,
+      "fichier": "08-screenshot.png"
     },
     {
-      "n": 11,
+      "n": 9,
       "action": "press",
       "touche": "Escape",
       "statut": "ok",
@@ -154,11 +114,11 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/journal",
-      "ms": 343,
-      "fichier": "11-press.png"
+      "ms": 367,
+      "fichier": "09-press.png"
     },
     {
-      "n": 12,
+      "n": 10,
       "action": "reload",
       "statut": "anomalie",
       "erreur": null,
@@ -167,24 +127,61 @@
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3100/journal (net::ERR_ABORTED)"
+        "requête échouée : POST http://localhost:3100/journal (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=mL3wFUWE0yD09nkH (net::ERR_ABORTED)"
       ],
-      "ecritures": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "notes",
+          "query": "?select=id",
+          "body": {
+            "titre": "Courses week-end",
+            "contenu": "",
+            "type": "checklist",
+            "couleur": "rose"
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "notes_tags",
+          "query": "?note_id=eq.436d4346-62c1-4023-9482-acc5ce3af063",
+          "body": null
+        }
+      ],
       "url": "http://localhost:3100/journal",
-      "ms": 1640,
-      "fichier": "12-reload.png"
+      "ms": 1542,
+      "fichier": "10-reload.png"
     },
     {
-      "n": 13,
+      "n": 11,
       "action": "screenshot",
       "note": "après rechargement",
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
-      "ecritures": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "note_items",
+          "query": "?columns=%22note_id%22%2C%22libelle%22%2C%22position%22",
+          "body": [
+            {
+              "note_id": "436d4346-62c1-4023-9482-acc5ce3af063",
+              "libelle": "Pain",
+              "position": 0
+            },
+            {
+              "note_id": "436d4346-62c1-4023-9482-acc5ce3af063",
+              "libelle": "Lait",
+              "position": 1
+            }
+          ]
+        }
+      ],
       "url": "http://localhost:3100/journal",
-      "ms": 328,
-      "fichier": "13-screenshot.png"
+      "ms": 329,
+      "fichier": "11-screenshot.png"
     }
   ]
 }

@@ -1,0 +1,351 @@
+{
+  "nom": "edition-tache-assistant-suppression",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/notes",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1734,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/Modifier la note « Courses week-end »/]",
+      "note": "edition checklist depuis tuile",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 465,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "wait",
+      "ms": 873,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "fichier": "03-wait.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "feuille Modifier la note (checklist)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 373,
+      "fichier": "04-screenshot.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^#urgent$/]",
+      "note": "tag",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 5059,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=/^Enregistrer$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "notes",
+          "query": "?id=eq.ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+          "body": {
+            "titre": "Courses week-end",
+            "contenu": "",
+            "type": "checklist",
+            "couleur": "rose"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "ms": 397,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "wait",
+      "ms": 1265,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "notes_tags",
+          "query": "?note_id=eq.ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "fichier": "07-wait.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "apres enregistrement",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 335,
+      "fichier": "08-screenshot.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/Ouvrir la note Courses week-end/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 433,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/Ajouter une tâche : Lait/]",
+      "note": "item vers tache",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 424,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "wait",
+      "ms": 1074,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Lait",
+            "notes": null,
+            "note_id": "ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "ordre": 3
+          }
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "fichier": "11-wait.png"
+    },
+    {
+      "n": 12,
+      "action": "screenshot",
+      "note": "toast tache creee",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 361,
+      "fichier": "12-screenshot.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=/Ajouter une tâche : Lait/]",
+      "note": "second tap",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 412,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "wait",
+      "ms": 1070,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Lait",
+            "notes": null,
+            "note_id": "ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "ordre": 4
+          }
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "fichier": "14-wait.png"
+    },
+    {
+      "n": 15,
+      "action": "screenshot",
+      "note": "doublon possible",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 373,
+      "fichier": "15-screenshot.png"
+    },
+    {
+      "n": 16,
+      "action": "click",
+      "cible": "role=button[name=/Assistant IA/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 453,
+      "fichier": "16-click.png"
+    },
+    {
+      "n": 17,
+      "action": "wait",
+      "ms": 1000,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "fichier": "17-wait.png"
+    },
+    {
+      "n": 18,
+      "action": "screenshot",
+      "note": "assistant IA choix",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 402,
+      "fichier": "18-screenshot.png"
+    },
+    {
+      "n": 19,
+      "action": "press",
+      "touche": "Escape",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 386,
+      "fichier": "19-press.png"
+    },
+    {
+      "n": 20,
+      "action": "wait",
+      "ms": 747,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "fichier": "20-wait.png"
+    },
+    {
+      "n": 21,
+      "action": "screenshot",
+      "note": "apres Escape",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 353,
+      "fichier": "21-screenshot.png"
+    },
+    {
+      "n": 22,
+      "action": "goto",
+      "url": "http://localhost:3100/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1358,
+      "fichier": "22-goto.png"
+    },
+    {
+      "n": 23,
+      "action": "wait",
+      "ms": 1133,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "fichier": "23-wait.png"
+    },
+    {
+      "n": 24,
+      "action": "screenshot",
+      "note": "taches : ont-elles un lien vers la note ?",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 335,
+      "fichier": "24-screenshot.png"
+    }
+  ]
+}
