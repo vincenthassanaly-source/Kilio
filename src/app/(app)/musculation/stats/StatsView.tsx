@@ -11,7 +11,7 @@ import { formaterDateLongue, formaterDureeS } from "@/lib/musculation/historique
 import { formaterPoids } from "@/lib/musculation/seance";
 import { joursDePeriode, type TypePeriode } from "@/lib/musculation/stats";
 import { queryKeys } from "@/lib/query/keys";
-import { card, cardTight, metaText, nameText, navArrowButton, screenTitle, sectionTitle } from "@/lib/ui";
+import { card, cardTight, metaText, nameText, nameTextComplet, navArrowButton, screenTitle, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
 
@@ -32,6 +32,15 @@ function libellePeriode(type: TypePeriode, debut: string, fin: string): string {
   return type === "mois"
     ? formatMois.format(enDate(debut))
     : `${formatJourMois.format(enDate(debut))} – ${formatJourMois.format(enDate(fin))}`;
+}
+
+/** Chevron tracé des flèches de période (remplace les glyphes ‹ › du texte). */
+function ChevronPeriode({ d }: { d: string }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={d} />
+    </svg>
+  );
 }
 
 function Tuile({ libelle, valeur }: { libelle: string; valeur: string }) {
@@ -130,13 +139,13 @@ export function StatsView() {
 
       <div className="flex items-center justify-between gap-2">
         <button type="button" className={navArrowButton} onClick={() => setDecalage((d) => d - 1)} aria-label="Période précédente">
-          ‹
+          <ChevronPeriode d="m15 6-6 6 6 6" />
         </button>
         <span className={`${nameText} capitalize`} aria-live="polite">
           {donnees ? libellePeriode(type, donnees.debut, donnees.fin) : "…"}
         </span>
         <button type="button" className={navArrowButton} onClick={() => setDecalage((d) => Math.min(0, d + 1))} disabled={decalage === 0} aria-label="Période suivante">
-          ›
+          <ChevronPeriode d="m9 6 6 6-6 6" />
         </button>
       </div>
 
@@ -173,7 +182,7 @@ export function StatsView() {
             {exercices.data.map((e) => (
               <li key={e.id}>
                 <Link href={`/musculation/stats/${e.id}`} className={`${cardTight} flex flex-col gap-0.5`}>
-                  <span className={nameText}>{e.nom}</span>
+                  <span className={nameTextComplet}>{e.nom}</span>
                   <span className={metaText}>
                     {MUSCLE_LABELS[e.muscle]} · {e.nbSeances} séance{e.nbSeances > 1 ? "s" : ""} · dernière le {formaterDateLongue(e.derniereSeance)}
                   </span>

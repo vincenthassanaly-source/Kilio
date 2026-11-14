@@ -10,7 +10,7 @@ import { formaterPoids } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
 import { useMasques } from "@/lib/actions/elementsMasques";
 import { LIBELLES_TYPE } from "@/lib/seances/compute";
-import { card, cardTight, ghostButton, metaText, pillTag, nameText, screenTitle, secondaryButton } from "@/lib/ui";
+import { card, cardTight, ghostButton, metaText, pillTag, nameTextComplet, screenTitle, secondaryButton } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
 
@@ -20,9 +20,12 @@ export function LigneEntrainement({ entrainement: e }: { entrainement: Entrainem
   return (
     <li>
       <Link href={`/musculation/historique/${e.id}`} className={`${cardTight} flex flex-col gap-0.5`}>
-        <span className="flex min-w-0 items-center gap-2">
-          <span className={`${nameText} min-w-0`}>{e.titre}</span>
-          {e.typeSeance && <span className={pillTag}>{LIBELLES_TYPE[e.typeSeance]}</span>}
+        <span className="flex min-w-0 items-start justify-between gap-2">
+          <span className={`${nameTextComplet} min-w-0`}>{e.titre}</span>
+          {/* Le titre par défaut (« Push ») dit déjà le type : la pastille ne ferait que doublonner. */}
+          {e.typeSeance && e.titre.trim().toLowerCase() !== LIBELLES_TYPE[e.typeSeance].toLowerCase() && (
+            <span className={`${pillTag} mt-0.5`}>{LIBELLES_TYPE[e.typeSeance]}</span>
+          )}
         </span>
         <span className={metaText}>{formaterDateLongue(e.date)}</span>
         <span className={metaText}>
