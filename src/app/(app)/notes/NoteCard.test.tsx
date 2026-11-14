@@ -45,7 +45,7 @@ describe("NoteCard - rollback scopé des mutations optimistes (CLICK-PATH-603)",
 
     renderWithClient(client, noteA);
 
-    await user.click(screen.getByRole("button", { name: "Épingler" }));
+    await user.click(screen.getByRole("button", { name: /Épingler la note/ }));
 
     // Pendant que la mutation d'épingle de note-a est en vol, une mutation
     // indépendante sur note-b (coche d'un item) écrit dans le même cache.
@@ -96,7 +96,7 @@ describe("NoteCard - rollback scopé des mutations optimistes (CLICK-PATH-603)",
   it("épingle : libellé fixe et état annoncé par aria-pressed", () => {
     const client = new QueryClient();
     renderWithClient(client, makeNote({ id: "note-p", epingle: true }));
-    expect(screen.getByRole("button", { name: "Épingler" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /Épingler la note/ })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("checklist : barre de progression annoncée et actions de la tuile nommées", () => {
