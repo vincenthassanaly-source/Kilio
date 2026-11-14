@@ -1,0 +1,52 @@
+{
+ "nom": "clavier-texte",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/journal",
+   "note": "ouvrir le Journal"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Clavier$/]",
+   "note": "bascule Clavier"
+  },
+  {
+   "action": "screenshot",
+   "note": "mode clavier vide"
+  },
+  {
+   "action": "wait",
+   "ms": 800
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/plus d.actions/i]",
+   "note": "menu ..."
+  },
+  {
+   "action": "screenshot",
+   "note": "menu avec Voir le texte"
+  },
+  {
+   "action": "click",
+   "cible": "role=menuitem[name=/voir le texte/i]"
+  },
+  {
+   "action": "screenshot",
+   "note": "fenêtre texte du jour"
+  },
+  {
+   "action": "press",
+   "touche": "Escape"
+  },
+  {
+   "action": "reload"
+  },
+  {
+   "action": "screenshot",
+   "note": "après rechargement"
+  }
+ ]
+}

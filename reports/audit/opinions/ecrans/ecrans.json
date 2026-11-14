@@ -1,0 +1,32 @@
+[
+  {
+    "route": "/opinions",
+    "dynamique": false,
+    "url": "/opinions",
+    "theme": "clair",
+    "fichier": "opinions.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/opinions/[id]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/opinions",
+    "dynamique": false,
+    "url": "/opinions",
+    "theme": "sombre",
+    "fichier": "opinions.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/opinions/[id]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  }
+]

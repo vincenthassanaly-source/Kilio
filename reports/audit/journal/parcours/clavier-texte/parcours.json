@@ -1,0 +1,190 @@
+{
+  "nom": "clavier-texte",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/journal",
+      "note": "ouvrir le Journal",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=mL3wFUWE0yD09nkH (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1730,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/^Clavier$/]",
+      "note": "bascule Clavier",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 414,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "mode clavier vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 349,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "fill",
+      "cible": "role=textbox",
+      "valeur": "Journée calme, un bon appel avec Léa.",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 347,
+      "fichier": "04-fill.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^Ajouter$/]",
+      "note": "Ajouter la note",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 386,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "wait",
+      "ms": 1135,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "feuilles_vidage",
+          "query": "",
+          "body": {
+            "jour": "2026-11-14",
+            "transcription": "19:11\nJournée calme, un bon appel avec Léa.",
+            "traits": [],
+            "hauteur": 2000,
+            "apercu_path": null,
+            "updated_at": "2026-11-14T18:11:56.070Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/journal",
+      "fichier": "06-wait.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name=/plus d'actions/i]",
+      "note": "menu ...",
+      "statut": "échec",
+      "erreur": "locator.click: InvalidSelectorError: Error while parsing selector `button[name=/plus d'actions/i] >> nth=0` - unexpected symbol \">\" at position 31",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 53,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "menu avec Voir le texte",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 327,
+      "fichier": "08-screenshot.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=menuitem[name=/voir le texte/i]",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 5036,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "screenshot",
+      "note": "fenêtre texte du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 341,
+      "fichier": "10-screenshot.png"
+    },
+    {
+      "n": 11,
+      "action": "press",
+      "touche": "Escape",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 343,
+      "fichier": "11-press.png"
+    },
+    {
+      "n": 12,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/journal (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 1640,
+      "fichier": "12-reload.png"
+    },
+    {
+      "n": 13,
+      "action": "screenshot",
+      "note": "après rechargement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 328,
+      "fichier": "13-screenshot.png"
+    }
+  ]
+}

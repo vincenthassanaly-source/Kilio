@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/notes",
+    "dynamique": false,
+    "url": "/notes",
+    "theme": "clair",
+    "fichier": "notes.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/notes",
+    "dynamique": false,
+    "url": "/notes",
+    "theme": "sombre",
+    "fichier": "notes.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

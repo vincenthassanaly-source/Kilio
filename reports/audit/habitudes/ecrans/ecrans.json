@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/habitudes",
+    "dynamique": false,
+    "url": "/habitudes",
+    "theme": "clair",
+    "fichier": "habitudes.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/habitudes",
+    "dynamique": false,
+    "url": "/habitudes",
+    "theme": "sombre",
+    "fichier": "habitudes.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

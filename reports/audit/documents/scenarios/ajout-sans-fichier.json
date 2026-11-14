@@ -1,0 +1,9 @@
+{ "nom": "ajout-sans-fichier", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/documents", "note": "ouvrir" },
+ { "action": "click", "cible": "text=Ajouter un document", "note": "déplier la carte" },
+ { "action": "wait", "ms": 800 },
+ { "action": "screenshot", "note": "formulaire" },
+ { "action": "fill", "cible": "role=textbox[name=/nom/i]", "valeur": "Passeport" },
+ { "action": "click", "cible": "role=button[name=/ajouter le document/i]", "note": "envoi sans fichier" },
+ { "action": "wait", "ms": 800 },
+ { "action": "screenshot", "note": "après envoi sans fichier" } ] }

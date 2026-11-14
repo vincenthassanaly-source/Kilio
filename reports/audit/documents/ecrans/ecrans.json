@@ -1,0 +1,50 @@
+[
+  {
+    "route": "/documents",
+    "dynamique": false,
+    "url": "/documents",
+    "theme": "clair",
+    "fichier": "documents.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/documents/[id]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/documents/categories",
+    "dynamique": false,
+    "url": "/documents/categories",
+    "theme": "clair",
+    "fichier": "documents_categories.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/documents",
+    "dynamique": false,
+    "url": "/documents",
+    "theme": "sombre",
+    "fichier": "documents.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/documents/[id]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/documents/categories",
+    "dynamique": false,
+    "url": "/documents/categories",
+    "theme": "sombre",
+    "fichier": "documents_categories.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

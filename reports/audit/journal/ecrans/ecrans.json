@@ -1,0 +1,50 @@
+[
+  {
+    "route": "/journal",
+    "dynamique": false,
+    "url": "/journal",
+    "theme": "clair",
+    "fichier": "journal.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/journal/[jour]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/journal/calendrier",
+    "dynamique": false,
+    "url": "/journal/calendrier",
+    "theme": "clair",
+    "fichier": "journal_calendrier.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/journal",
+    "dynamique": false,
+    "url": "/journal",
+    "theme": "sombre",
+    "fichier": "journal.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/journal/[jour]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/journal/calendrier",
+    "dynamique": false,
+    "url": "/journal/calendrier",
+    "theme": "sombre",
+    "fichier": "journal_calendrier.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]
