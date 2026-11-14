@@ -1,0 +1,8 @@
+{ "nom": "objectifs-recette", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/nutrition/journal" },
+ { "action": "click", "cible": "role=button[name=/modifier les objectifs/i]", "note": "ouvrir objectifs" },
+ { "action": "screenshot", "note": "formulaire objectifs (Fermer vs Annuler)" },
+ { "action": "goto", "url": "/nutrition/recettes" },
+ { "action": "click", "cible": "role=button[name=/ajouter une recette/i]" },
+ { "action": "screenshot", "note": "formulaire recette" }
+]}

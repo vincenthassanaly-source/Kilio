@@ -1,0 +1,10 @@
+{ "nom": "menus-parcours", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/nutrition/menus", "note": "Menus" },
+ { "action": "screenshot", "note": "haut de page" },
+ { "action": "click", "cible": "role=button[name=/Ajouter un repas · .*Déjeuner/i] >> nth=0", "note": "+ créneau" },
+ { "action": "screenshot", "note": "feuille créneau" },
+ { "action": "press", "touche": "Escape" },
+ { "action": "goto", "url": "/nutrition/journal?date=2026-11-10", "note": "Carnet un autre jour" },
+ { "action": "click", "cible": "role=button[name=/ajouter un repas/i]" },
+ { "action": "screenshot", "note": "titre de feuille avec jour" }
+]}

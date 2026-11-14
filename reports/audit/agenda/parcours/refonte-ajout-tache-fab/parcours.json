@@ -1,0 +1,179 @@
+{
+  "nom": "refonte-ajout-tache-fab",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "note": "ouvrir",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=15e7mRwwwrE2r08K (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2826,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/Ajouter une tâche ou un événement/]",
+      "note": "tap 1 : FAB",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 468,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=\"Tâche\"]",
+      "note": "tap 2 : Tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 487,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "fill",
+      "cible": "role=textbox[name=/titre|tâche/i]",
+      "valeur": "Appeler la mutuelle",
+      "note": "titre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 399,
+      "fichier": "04-fill.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "formulaire tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 380,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter\"]",
+      "note": "valider",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "rappels_repos",
+          "query": "?id=eq.courant",
+          "body": null
+        },
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000002",
+          "body": {
+            "fait": true,
+            "echeance": "2026-11-14"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "ms": 461,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "expect_text",
+      "texte": "Appeler la mutuelle",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Appeler la mutuelle",
+            "echeance": "2026-11-14",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 1
+          }
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "ms": 397,
+      "fichier": "07-expect_text.png"
+    },
+    {
+      "n": 8,
+      "action": "reload",
+      "note": "persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=15e7mRwwwrE2r08K (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=ox0TYUrXIbTFEvIf (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.498bbde4-6e2e-43aa-ba4f-2f6a9d2d4a36",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "ms": 2827,
+      "fichier": "08-reload.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "Appeler la mutuelle",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 351,
+      "fichier": "09-expect_text.png"
+    }
+  ]
+}

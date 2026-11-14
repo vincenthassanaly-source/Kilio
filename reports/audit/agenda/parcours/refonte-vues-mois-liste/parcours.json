@@ -1,0 +1,212 @@
+{
+  "nom": "refonte-vues-mois-liste",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "note": "jour",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=15e7mRwwwrE2r08K (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=ox0TYUrXIbTFEvIf (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2732,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=\"Mois\"]",
+      "note": "mois",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 415,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "mois",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 335,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/14/]",
+      "note": "tap sur un jour du mois",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 407,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "retour vue jour ?",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 461,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=\"Liste\"]",
+      "note": "liste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 433,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "screenshot",
+      "note": "liste",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 388,
+      "fichier": "07-screenshot.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/Jours passés/]",
+      "note": "déplier passés",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Appeler le dentiste",
+            "echeance": "2026-11-14",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 2
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.e5eb6e03-b23a-40ae-9ee4-20a8c3245018",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "ms": 5077,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "screenshot",
+      "note": "passés",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 329,
+      "fichier": "09-screenshot.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=\"Semaine\"]",
+      "note": "semaine",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 420,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "screenshot",
+      "note": "semaine",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 334,
+      "fichier": "11-screenshot.png"
+    },
+    {
+      "n": 12,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "note": "retour à /agenda : quelle vue ?",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2572,
+      "fichier": "12-goto.png"
+    },
+    {
+      "n": 13,
+      "action": "screenshot",
+      "note": "vue par défaut après navigation",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 403,
+      "fichier": "13-screenshot.png"
+    }
+  ]
+}

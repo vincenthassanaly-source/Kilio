@@ -1,0 +1,52 @@
+{
+ "nom": "routine-vide",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/musculation",
+   "note": "accueil"
+  },
+  {
+   "action": "goto",
+   "url": "/musculation/routines/nouvelle",
+   "note": "ouvrir editeur (acces direct : bouton masque, catalogue vide)"
+  },
+  {
+   "action": "screenshot",
+   "note": "editeur vide"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^enregistrer$/i]",
+   "note": "enregistrer sans nom"
+  },
+  {
+   "action": "screenshot",
+   "note": "erreur nom"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/nom/i]",
+   "valeur": "Push A"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^enregistrer$/i]",
+   "note": "enregistrer sans exercice"
+  },
+  {
+   "action": "screenshot",
+   "note": "erreur exercice"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/ajouter un exercice/i]",
+   "note": "selecteur"
+  },
+  {
+   "action": "screenshot",
+   "note": "selecteur catalogue vide"
+  }
+ ]
+}

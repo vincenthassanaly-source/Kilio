@@ -1,0 +1,137 @@
+{
+  "nom": "routine-vide",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/musculation",
+      "note": "accueil",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=_h9_lwc6WpwMkwQb (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2164,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=link[name=/ajouter une routine/i]",
+      "note": "ouvrir editeur",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 5047,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "editeur vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 332,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/^enregistrer$/i]",
+      "note": "enregistrer sans nom",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 5035,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "erreur nom",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 332,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=textbox[name=/nom/i]",
+      "valeur": "Push A",
+      "statut": "échec",
+      "erreur": "locator.fill: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 5035,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name=/^enregistrer$/i]",
+      "note": "enregistrer sans exercice",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 5031,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "erreur exercice",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 336,
+      "fichier": "08-screenshot.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/ajouter un exercice/i]",
+      "note": "selecteur",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 5033,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "screenshot",
+      "note": "selecteur catalogue vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 329,
+      "fichier": "10-screenshot.png"
+    }
+  ]
+}

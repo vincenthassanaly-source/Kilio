@@ -14,126 +14,24 @@
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)",
         "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)"
       ],
-      "ecritures": [
-        {
-          "method": "POST",
-          "table": "jours_feries",
-          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
-          "body": [
-            {
-              "date": "2026-01-01",
-              "nom": "1er janvier"
-            },
-            {
-              "date": "2026-04-06",
-              "nom": "Lundi de Pâques"
-            },
-            {
-              "date": "2026-05-01",
-              "nom": "1er mai"
-            },
-            {
-              "date": "2026-05-08",
-              "nom": "8 mai"
-            },
-            {
-              "date": "2026-05-14",
-              "nom": "Ascension"
-            },
-            {
-              "date": "2026-05-25",
-              "nom": "Lundi de Pentecôte"
-            },
-            {
-              "date": "2026-07-14",
-              "nom": "14 juillet"
-            },
-            {
-              "date": "2026-08-15",
-              "nom": "Assomption"
-            },
-            {
-              "date": "2026-11-01",
-              "nom": "Toussaint"
-            },
-            {
-              "date": "2026-11-11",
-              "nom": "11 novembre"
-            },
-            {
-              "date": "2026-12-25",
-              "nom": "Jour de Noël"
-            }
-          ]
-        },
-        {
-          "method": "POST",
-          "table": "jours_feries",
-          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
-          "body": [
-            {
-              "date": "2026-01-01",
-              "nom": "1er janvier"
-            },
-            {
-              "date": "2026-04-06",
-              "nom": "Lundi de Pâques"
-            },
-            {
-              "date": "2026-05-01",
-              "nom": "1er mai"
-            },
-            {
-              "date": "2026-05-08",
-              "nom": "8 mai"
-            },
-            {
-              "date": "2026-05-14",
-              "nom": "Ascension"
-            },
-            {
-              "date": "2026-05-25",
-              "nom": "Lundi de Pentecôte"
-            },
-            {
-              "date": "2026-07-14",
-              "nom": "14 juillet"
-            },
-            {
-              "date": "2026-08-15",
-              "nom": "Assomption"
-            },
-            {
-              "date": "2026-11-01",
-              "nom": "Toussaint"
-            },
-            {
-              "date": "2026-11-11",
-              "nom": "11 novembre"
-            },
-            {
-              "date": "2026-12-25",
-              "nom": "Jour de Noël"
-            }
-          ]
-        }
-      ],
-      "ms": 4236,
+      "ecritures": [],
+      "ms": 3427,
       "fichier": "01-goto.png"
     },
     {
       "n": 2,
       "action": "expect_text",
       "texte": "Rendez-vous e2e",
-      "statut": "ok",
-      "erreur": null,
+      "statut": "échec",
+      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 367,
+      "ms": 5046,
       "fichier": "02-expect_text.png"
     },
     {
@@ -141,12 +39,12 @@
       "action": "click",
       "cible": "role=button[name=/^événement$/i]",
       "note": "ouvrir le formulaire d'événement",
-      "statut": "ok",
-      "erreur": null,
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 450,
+      "ms": 5054,
       "fichier": "03-click.png"
     },
     {
@@ -158,7 +56,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 368,
+      "ms": 351,
       "fichier": "04-screenshot.png"
     },
     {
@@ -166,56 +64,33 @@
       "action": "fill",
       "cible": "role=textbox[name=/titre/i]",
       "valeur": "Dentiste",
-      "statut": "ok",
-      "erreur": null,
+      "statut": "échec",
+      "erreur": "locator.fill: Timeout 5000ms exceeded.",
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 384,
+      "ms": 5051,
       "fichier": "05-fill.png"
     },
     {
       "n": 6,
       "action": "click",
       "cible": "role=dialog >> role=button[name=/^ajouter$/i]",
-      "statut": "ok",
-      "erreur": null,
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
       "anomalies": [],
-      "ecritures": [
-        {
-          "method": "POST",
-          "table": "evenements",
-          "query": "?select=id",
-          "body": {
-            "titre": "Dentiste",
-            "date": "2026-11-10",
-            "heure": "22:00",
-            "heure_fin": "23:00",
-            "notes": null,
-            "toute_la_journee": false,
-            "rappel_minutes": null,
-            "rappel_occurrence_envoyee": null,
-            "recurrence_frequence": null,
-            "recurrence_fin": null
-          }
-        }
-      ],
+      "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 403,
+      "ms": 5045,
       "fichier": "06-click.png"
     },
     {
       "n": 7,
       "action": "wait",
-      "ms": 1145,
-      "statut": "anomalie",
+      "ms": 1151,
+      "statut": "ok",
       "erreur": null,
-      "anomalies": [
-        "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3100/?_rsc=BtbPFF9wRKKmQ2U_ (net::ERR_ABORTED)"
-      ],
+      "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
       "fichier": "07-wait.png"
@@ -224,12 +99,12 @@
       "n": 8,
       "action": "expect_text",
       "texte": "Dentiste",
-      "statut": "ok",
-      "erreur": null,
+      "statut": "échec",
+      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 347,
+      "ms": 5047,
       "fichier": "08-expect_text.png"
     },
     {
@@ -242,24 +117,24 @@
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)",
         "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)"
       ],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 3349,
+      "ms": 3421,
       "fichier": "09-reload.png"
     },
     {
       "n": 10,
       "action": "expect_text",
       "texte": "Dentiste",
-      "statut": "ok",
-      "erreur": null,
+      "statut": "échec",
+      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 349,
+      "ms": 5046,
       "fichier": "10-expect_text.png"
     },
     {
@@ -271,7 +146,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 337,
+      "ms": 352,
       "fichier": "11-back.png"
     }
   ]

@@ -1,0 +1,110 @@
+[
+  {
+    "route": "/nutrition",
+    "dynamique": false,
+    "url": "/nutrition",
+    "theme": "clair",
+    "fichier": "nutrition.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/bilan",
+    "dynamique": false,
+    "url": "/nutrition/bilan",
+    "theme": "clair",
+    "fichier": "nutrition_bilan.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/journal",
+    "dynamique": false,
+    "url": "/nutrition/journal",
+    "theme": "clair",
+    "fichier": "nutrition_journal.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/menus",
+    "dynamique": false,
+    "url": "/nutrition/menus",
+    "theme": "clair",
+    "fichier": "nutrition_menus.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/recettes",
+    "dynamique": false,
+    "url": "/nutrition/recettes",
+    "theme": "clair",
+    "fichier": "nutrition_recettes.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/recettes/[id]",
+    "dynamique": true,
+    "url": "/nutrition/recettes/00000000-0000-4000-8000-000000000202",
+    "theme": "clair",
+    "fichier": "nutrition_recettes__id_.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition",
+    "dynamique": false,
+    "url": "/nutrition",
+    "theme": "sombre",
+    "fichier": "nutrition.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/bilan",
+    "dynamique": false,
+    "url": "/nutrition/bilan",
+    "theme": "sombre",
+    "fichier": "nutrition_bilan.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/journal",
+    "dynamique": false,
+    "url": "/nutrition/journal",
+    "theme": "sombre",
+    "fichier": "nutrition_journal.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/menus",
+    "dynamique": false,
+    "url": "/nutrition/menus",
+    "theme": "sombre",
+    "fichier": "nutrition_menus.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/recettes",
+    "dynamique": false,
+    "url": "/nutrition/recettes",
+    "theme": "sombre",
+    "fichier": "nutrition_recettes.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/nutrition/recettes/[id]",
+    "dynamique": true,
+    "url": "/nutrition/recettes/00000000-0000-4000-8000-000000000202",
+    "theme": "sombre",
+    "fichier": "nutrition_recettes__id_.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

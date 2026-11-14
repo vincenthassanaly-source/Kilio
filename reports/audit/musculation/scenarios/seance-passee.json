@@ -1,0 +1,11 @@
+{ "nom": "seance-passee", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/musculation/historique", "note": "historique" },
+ { "action": "click", "cible": "role=link[name=/séance passée/i]", "note": "ouvrir formulaire" },
+ { "action": "click", "cible": "role=button[name=/^enregistrer$/i]", "note": "enregistrer vide" },
+ { "action": "screenshot", "note": "erreur" },
+ { "action": "back", "note": "retour arriere" },
+ { "action": "screenshot", "note": "historique" },
+ { "action": "goto", "url": "/musculation/seance", "note": "acces direct seance sans brouillon" },
+ { "action": "wait", "ms": 1500 },
+ { "action": "screenshot", "note": "redirection" }
+]}

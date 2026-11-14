@@ -1,0 +1,115 @@
+{
+  "nom": "ajout-repas-carnet",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/nutrition",
+      "note": "ouvrir Nutrition (onglet barre du bas)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition/journal?date=2026-11-13&_rsc=RJfCJDPo2_81Gl6r (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=Sn1z23icjpob6HFI (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?on_conflict=id&columns=%22id%22%2C%22libelle%22%2C%22coche%22%2C%22created_at%22%2C%22termine_le%22",
+          "body": [
+            {
+              "id": "ac5c4199-d121-4866-89c7-d8db388f8cbf",
+              "libelle": "oeufs",
+              "created_at": "2026-11-14T18:03:42.603Z"
+            }
+          ]
+        }
+      ],
+      "ms": 1831,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/ajouter un repas/i]",
+      "note": "FAB",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/nutrition",
+      "ms": 525,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "feuille: choix",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/nutrition (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/nutrition",
+      "ms": 374,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/skyr/i] >> nth=0",
+      "note": "choisir un récent / résultat",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/nutrition",
+      "ms": 5090,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "étape quantité",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/nutrition",
+      "ms": 371,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=/^Ajouter .* (au|le|au|à)/i] >> nth=-1",
+      "note": "valider",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/nutrition",
+      "ms": 5097,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "screenshot",
+      "note": "après ajout (toast sans Annuler ?)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/nutrition",
+      "ms": 371,
+      "fichier": "07-screenshot.png"
+    }
+  ]
+}

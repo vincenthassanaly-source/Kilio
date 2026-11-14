@@ -1,0 +1,15 @@
+{"nom":"refonte-vues-mois-liste","theme":"clair","etapes":[
+{"action":"goto","url":"/agenda","note":"jour"},
+{"action":"click","cible":"role=button[name=\"Mois\"]","note":"mois"},
+{"action":"screenshot","note":"mois"},
+{"action":"click","cible":"role=button[name=/14/]","note":"tap sur un jour du mois"},
+{"action":"screenshot","note":"retour vue jour ?"},
+{"action":"click","cible":"role=button[name=\"Liste\"]","note":"liste"},
+{"action":"screenshot","note":"liste"},
+{"action":"click","cible":"role=button[name=/Jours passés/]","note":"déplier passés"},
+{"action":"screenshot","note":"passés"},
+{"action":"click","cible":"role=button[name=\"Semaine\"]","note":"semaine"},
+{"action":"screenshot","note":"semaine"},
+{"action":"goto","url":"/agenda","note":"retour à /agenda : quelle vue ?"},
+{"action":"screenshot","note":"vue par défaut après navigation"}
+]}

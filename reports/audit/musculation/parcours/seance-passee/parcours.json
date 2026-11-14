@@ -1,0 +1,136 @@
+{
+  "nom": "seance-passee",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/musculation/historique",
+      "note": "historique",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=O8LwQQmab9Vtgylu (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=6ONHXT-vkZeVtATU (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1518,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=link[name=/séance passée/i]",
+      "note": "ouvrir formulaire",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/historique/nouvelle",
+      "ms": 418,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/^enregistrer$/i]",
+      "note": "enregistrer vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/historique/nouvelle",
+      "ms": 390,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "erreur",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/historique/nouvelle",
+      "ms": 347,
+      "fichier": "04-screenshot.png"
+    },
+    {
+      "n": 5,
+      "action": "back",
+      "note": "retour arriere",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/historique",
+      "ms": 352,
+      "fichier": "05-back.png"
+    },
+    {
+      "n": 6,
+      "action": "screenshot",
+      "note": "historique",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/historique",
+      "ms": 328,
+      "fichier": "06-screenshot.png"
+    },
+    {
+      "n": 7,
+      "action": "goto",
+      "url": "http://localhost:3100/musculation",
+      "note": "acces direct seance sans brouillon",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=MNHaOUXqbnY3Q_iz (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/musculation?_rsc=tCs3rXShPvOFLwSy (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "rappels_repos",
+          "query": "?id=eq.courant",
+          "body": null
+        }
+      ],
+      "ms": 2291,
+      "fichier": "07-goto.png"
+    },
+    {
+      "n": 8,
+      "action": "wait",
+      "ms": 1854,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "fichier": "08-wait.png"
+    },
+    {
+      "n": 9,
+      "action": "screenshot",
+      "note": "redirection",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation",
+      "ms": 350,
+      "fichier": "09-screenshot.png"
+    }
+  ]
+}
