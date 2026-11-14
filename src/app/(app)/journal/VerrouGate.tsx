@@ -11,8 +11,9 @@ import {
   verifierInscription,
   type EtatVerrou,
 } from "@/app/actions/verrou";
+import { BackLink } from "@/components/BackLink";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { eyebrow, errorText, input, primaryButton, screenTitle } from "@/lib/ui";
+import { errorText, input, primaryButton, screenTitle } from "@/lib/ui";
 
 // Le module n'affiche rien (pas même un titre) tant que le serveur n'a pas ouvert la session de
 // 15 minutes : l'écran ci-dessous la demande avec l'empreinte du téléphone. Le vrai verrou est
@@ -144,11 +145,12 @@ export function VerrouGate({ children }: { children: ReactNode }) {
 
   if (phase.nom === "erreur") {
     return (
-      <div className="flex flex-col items-start gap-3">
+      <div className="flex flex-col items-start gap-4">
+        <BackLink href="/plus">Plus</BackLink>
         <p className={errorText} role="alert">
           {phase.message}
         </p>
-        <button type="button" className={primaryButton} onClick={() => void verifier()}>
+        <button type="button" className={`${primaryButton} min-h-11`} onClick={() => void verifier()}>
           Réessayer
         </button>
       </div>
@@ -158,12 +160,15 @@ export function VerrouGate({ children }: { children: ReactNode }) {
   const { configure, inscrit, inscriptionOuverte } = phase.etat;
   const codeRequis = configure && !inscrit;
   return (
-    <div className="flex flex-col items-center gap-4 px-2 py-10 text-center">
-      <span className="text-ink-2">
+    <div className="flex flex-col items-center gap-4 px-2 pb-10 text-center">
+      <div className="-mx-2 self-start">
+        <BackLink href="/plus">Plus</BackLink>
+      </div>
+      <span className="mt-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-alt text-ink-2">
         <Cadenas />
       </span>
       <h1 className={screenTitle}>{inscrit ? "Le Journal est verrouillé" : "Protège ton Journal"}</h1>
-      <p className={`${eyebrow} max-w-sm normal-case tracking-normal`}>
+      <p className="max-w-sm text-label leading-snug text-ink-2 text-pretty">
         {!configure
           ? "Le verrou n'est pas encore configuré côté serveur (variable VIDAGE_SESSION_SECRET)."
           : inscrit

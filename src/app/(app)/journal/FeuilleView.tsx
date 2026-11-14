@@ -405,16 +405,10 @@ export function FeuilleView({ jour, retour }: Props) {
         <div className="flex min-w-0 flex-col gap-1">
           <h1 className={screenTitle}>Journal</h1>
           <p className={eyebrow}>{libelleJour(jour)}</p>
-          {mode === "stylo" && (
-            <p
-              className={`${eyebrow} min-h-5`}
-              role="status"
-              aria-live={statutTransitoire ? "off" : "polite"}
-              data-testid="vidage-statut"
-            >
-              {statut}
-            </p>
-          )}
+          {/* Ligne toujours présente : le sélecteur Stylo / Clavier ne bouge pas quand on change de mode. */}
+          <p className={`${eyebrow} min-h-5`} role="status" aria-live={statutTransitoire ? "off" : "polite"} data-testid="vidage-statut">
+            {mode === "stylo" ? statut : ""}
+          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <TransitionLink href="/journal/calendrier" className={`${ghostButton} inline-flex min-h-11 items-center`}>

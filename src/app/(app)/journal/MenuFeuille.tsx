@@ -14,7 +14,7 @@ type Props = {
 
 // Cible tactile de 44 px (guide UX : zone minimale, 8 px d'écart entre cibles voisines).
 const item =
-  "flex min-h-11 w-full items-center gap-3 px-3.5 text-left text-body font-medium transition hover:bg-surface-alt active:bg-surface-alt disabled:opacity-40 focus-visible:bg-surface-alt focus-visible:outline-none";
+  "flex min-h-11 w-full items-center gap-3 px-3.5 text-left text-body font-medium transition-colors hover:bg-surface-alt active:bg-surface-alt disabled:opacity-40 focus-visible:bg-surface-alt focus-visible:outline-none";
 
 function Icone({ children }: { children: ReactNode }) {
   return (
@@ -96,7 +96,7 @@ export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte,
         aria-busy={enTranscription}
         disabled={!enTranscription && !aTexte && !peutEffacer}
         onClick={() => setOuvert((o) => !o)}
-        className="flex h-11 w-11 items-center justify-center rounded-xl border border-line text-ink transition hover:bg-surface-alt active:scale-[0.97] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        className="flex h-11 w-11 items-center justify-center rounded-xl border border-control-border text-ink transition-[color,background-color,opacity,transform] hover:bg-surface-alt active:scale-[0.97] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
       >
         {enTranscription ? (
           <Rotation />
