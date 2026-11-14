@@ -1,6 +1,6 @@
 { "nom": "partis-nominal", "theme": "clair", "etapes": [
  { "action": "goto", "url": "/opinions", "note": "ouvrir Opinions" },
- { "action": "click", "cible": "role=radio[name=/partis/i]", "note": "onglet Partis" },
+ { "action": "click", "cible": "role=button[name=/^partis$/i]", "note": "onglet Partis" },
  { "action": "screenshot", "note": "partis vide" },
  { "action": "click", "cible": "text=Ajouter un parti", "note": "ajouter un parti" },
  { "action": "fill", "cible": "role=textbox[name=/^nom/i]", "valeur": "Parti Test" },
@@ -20,7 +20,7 @@
  { "action": "check", "cible": "role=checkbox[name=/lu/i]", "note": "marquer lu" },
  { "action": "click", "cible": "role=button[name=/mettre en favori/i]" },
  { "action": "reload" },
- { "action": "click", "cible": "role=radio[name=/partis/i]" },
+ { "action": "click", "cible": "role=button[name=/^partis$/i]" },
  { "action": "click", "cible": "role=button[name=/Parti Test|PT/]" },
  { "action": "screenshot", "note": "persistance lu+favori" },
  { "action": "click", "cible": "role=button[name=/reprendre dans mes idées/i]" },

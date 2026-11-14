@@ -17,8 +17,60 @@
         "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ap_U6Chp7ZClI43I (net::ERR_ABORTED)"
       ],
-      "ecritures": [],
-      "ms": 2048,
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 6582,
       "fichier": "01-goto.png"
     },
     {
@@ -30,7 +82,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 463,
+      "ms": 477,
       "fichier": "02-click.png"
     },
     {
@@ -43,7 +95,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 599,
+      "ms": 569,
       "fichier": "03-click.png"
     },
     {
@@ -56,7 +108,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 348,
+      "ms": 361,
       "fichier": "04-fill.png"
     },
     {
@@ -69,7 +121,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 373,
+      "ms": 350,
       "fichier": "05-fill.png"
     },
     {
@@ -79,9 +131,24 @@
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
-      "ecritures": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "habitudes",
+          "query": "",
+          "body": {
+            "nom": "Méditer",
+            "type": "boolean",
+            "frequence_hebdo": null,
+            "unite": null,
+            "valeur_cible": null,
+            "icone": null,
+            "ordre": 0
+          }
+        }
+      ],
       "url": "http://localhost:3100/notes",
-      "ms": 351,
+      "ms": 353,
       "fichier": "06-press.png"
     },
     {
@@ -94,7 +161,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 382,
+      "ms": 385,
       "fichier": "07-fill.png"
     },
     {
@@ -107,7 +174,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 433,
+      "ms": 392,
       "fichier": "08-click.png"
     },
     {
@@ -119,7 +186,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 352,
+      "ms": 354,
       "fichier": "09-screenshot.png"
     },
     {
@@ -143,13 +210,13 @@
         }
       ],
       "url": "http://localhost:3100/notes",
-      "ms": 384,
+      "ms": 427,
       "fichier": "10-click.png"
     },
     {
       "n": 11,
       "action": "wait",
-      "ms": 1246,
+      "ms": 1265,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -157,7 +224,7 @@
         {
           "method": "DELETE",
           "table": "notes_tags",
-          "query": "?note_id=eq.436d4346-62c1-4023-9482-acc5ce3af063",
+          "query": "?note_id=eq.7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
           "body": null
         },
         {
@@ -166,12 +233,12 @@
           "query": "?columns=%22note_id%22%2C%22libelle%22%2C%22position%22",
           "body": [
             {
-              "note_id": "436d4346-62c1-4023-9482-acc5ce3af063",
+              "note_id": "7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
               "libelle": "Pain",
               "position": 0
             },
             {
-              "note_id": "436d4346-62c1-4023-9482-acc5ce3af063",
+              "note_id": "7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
               "libelle": "Lait",
               "position": 1
             }
@@ -192,7 +259,7 @@
       ],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 352,
+      "ms": 368,
       "fichier": "12-screenshot.png"
     },
     {
@@ -200,29 +267,27 @@
       "action": "click",
       "cible": "role=button[name=/Cocher « Pain »/]",
       "note": "cocher depuis tuile",
-      "statut": "anomalie",
+      "statut": "ok",
       "erreur": null,
-      "anomalies": [
-        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
-      ],
+      "anomalies": [],
       "ecritures": [
         {
           "method": "PATCH",
           "table": "note_items",
-          "query": "?id=eq.b95ccb5a-b3b8-46ee-a670-a29c948fcd1d",
+          "query": "?id=eq.57c2d7e2-ad87-4a31-8d1d-b9e5f4b7ff82",
           "body": {
             "coche": true
           }
         }
       ],
       "url": "http://localhost:3100/notes",
-      "ms": 430,
+      "ms": 485,
       "fichier": "13-click.png"
     },
     {
       "n": 14,
       "action": "wait",
-      "ms": 966,
+      "ms": 940,
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
@@ -242,7 +307,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 339,
+      "ms": 349,
       "fichier": "15-screenshot.png"
     },
     {
@@ -256,20 +321,20 @@
         {
           "method": "PATCH",
           "table": "notes",
-          "query": "?id=eq.ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+          "query": "?id=eq.7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
           "body": {
-            "epingle": false
+            "epingle": true
           }
         }
       ],
       "url": "http://localhost:3100/notes",
-      "ms": 394,
+      "ms": 418,
       "fichier": "16-click.png"
     },
     {
       "n": 17,
       "action": "wait",
-      "ms": 956,
+      "ms": 953,
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
@@ -289,7 +354,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 345,
+      "ms": 359,
       "fichier": "18-screenshot.png"
     },
     {
@@ -298,15 +363,16 @@
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
-        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ap_U6Chp7ZClI43I (net::ERR_ABORTED)",
         "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
-        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ap_U6Chp7ZClI43I (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
       ],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 1749,
+      "ms": 1534,
       "fichier": "19-reload.png"
     },
     {
@@ -318,7 +384,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 350,
+      "ms": 355,
       "fichier": "20-expect_text.png"
     },
     {
@@ -330,7 +396,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 334,
+      "ms": 353,
       "fichier": "21-screenshot.png"
     },
     {
@@ -342,13 +408,13 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 438,
+      "ms": 463,
       "fichier": "22-click.png"
     },
     {
       "n": 23,
       "action": "wait",
-      "ms": 872,
+      "ms": 873,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -365,7 +431,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 367,
+      "ms": 375,
       "fichier": "24-screenshot.png"
     }
   ]

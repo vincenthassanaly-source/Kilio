@@ -1,0 +1,19 @@
+{ "nom": "fiche-idee", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/opinions" },
+ { "action": "click", "cible": "text=taxer davantage", "note": "ouvrir la fiche" },
+ { "action": "expect_text", "texte": "Ma position" },
+ { "action": "screenshot", "note": "fiche brouillon" },
+ { "action": "click", "cible": "role=button[name=/^valider$/i]", "note": "valider sans thème" },
+ { "action": "screenshot", "note": "erreur thème" },
+ { "action": "select", "cible": "role=combobox[name=/thème/i]", "valeur": "economie" },
+ { "action": "click", "cible": "role=button[name=/^2$|^\\+1$/]" , "note": "score" },
+ { "action": "click", "cible": "role=button[name=/^valider$/i]" },
+ { "action": "screenshot", "note": "validée" },
+ { "action": "click", "cible": "role=link[name=/retour vers opinions/i]" },
+ { "action": "click", "cible": "role=button[name=/^profil$/i]" },
+ { "action": "screenshot", "note": "profil" },
+ { "action": "goto", "url": "/opinions" },
+ { "action": "click", "cible": "text=loyers" },
+ { "action": "click", "cible": "role=button[name=/supprimer l'idée/i]" },
+ { "action": "screenshot", "note": "supprimée + annuler" }
+]}

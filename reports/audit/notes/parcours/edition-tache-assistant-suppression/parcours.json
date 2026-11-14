@@ -13,10 +13,11 @@
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ap_U6Chp7ZClI43I (net::ERR_ABORTED)",
         "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "ms": 1734,
+      "ms": 1698,
       "fichier": "01-goto.png"
     },
     {
@@ -29,13 +30,13 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 465,
+      "ms": 538,
       "fichier": "02-click.png"
     },
     {
       "n": 3,
       "action": "wait",
-      "ms": 873,
+      "ms": 875,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -50,9 +51,18 @@
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
-      "ecritures": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "opinions_idees",
+          "query": "?select=id",
+          "body": {
+            "position": "Il faut taxer davantage les très hauts patrimoines"
+          }
+        }
+      ],
       "url": "http://localhost:3100/notes",
-      "ms": 373,
+      "ms": 361,
       "fichier": "04-screenshot.png"
     },
     {
@@ -63,9 +73,18 @@
       "statut": "échec",
       "erreur": "locator.click: Timeout 5000ms exceeded.",
       "anomalies": [],
-      "ecritures": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "opinions_idees",
+          "query": "?select=id",
+          "body": {
+            "position": "Les loyers devraient être encadrés dans les zones tendues"
+          }
+        }
+      ],
       "url": "http://localhost:3100/notes",
-      "ms": 5059,
+      "ms": 5072,
       "fichier": "05-click.png"
     },
     {
@@ -79,7 +98,7 @@
         {
           "method": "PATCH",
           "table": "notes",
-          "query": "?id=eq.ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+          "query": "?id=eq.7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
           "body": {
             "titre": "Courses week-end",
             "contenu": "",
@@ -89,13 +108,13 @@
         }
       ],
       "url": "http://localhost:3100/notes",
-      "ms": 397,
+      "ms": 412,
       "fichier": "06-click.png"
     },
     {
       "n": 7,
       "action": "wait",
-      "ms": 1265,
+      "ms": 1256,
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
@@ -105,7 +124,7 @@
         {
           "method": "DELETE",
           "table": "notes_tags",
-          "query": "?note_id=eq.ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+          "query": "?note_id=eq.7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
           "body": null
         }
       ],
@@ -123,7 +142,7 @@
       ],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 335,
+      "ms": 341,
       "fichier": "08-screenshot.png"
     },
     {
@@ -135,7 +154,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 433,
+      "ms": 431,
       "fichier": "09-click.png"
     },
     {
@@ -148,13 +167,13 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 424,
+      "ms": 429,
       "fichier": "10-click.png"
     },
     {
       "n": 11,
       "action": "wait",
-      "ms": 1074,
+      "ms": 1081,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -166,9 +185,9 @@
           "body": {
             "titre": "Lait",
             "notes": null,
-            "note_id": "ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+            "note_id": "7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
             "liste_id": "00000000-0000-4000-8000-000000000001",
-            "ordre": 3
+            "ordre": 1
           }
         }
       ],
@@ -184,7 +203,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 361,
+      "ms": 377,
       "fichier": "12-screenshot.png"
     },
     {
@@ -197,13 +216,13 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 412,
+      "ms": 414,
       "fichier": "13-click.png"
     },
     {
       "n": 14,
       "action": "wait",
-      "ms": 1070,
+      "ms": 1076,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -215,9 +234,9 @@
           "body": {
             "titre": "Lait",
             "notes": null,
-            "note_id": "ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+            "note_id": "7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
             "liste_id": "00000000-0000-4000-8000-000000000001",
-            "ordre": 4
+            "ordre": 2
           }
         }
       ],
@@ -228,14 +247,12 @@
       "n": 15,
       "action": "screenshot",
       "note": "doublon possible",
-      "statut": "anomalie",
+      "statut": "ok",
       "erreur": null,
-      "anomalies": [
-        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
-      ],
+      "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 373,
+      "ms": 382,
       "fichier": "15-screenshot.png"
     },
     {
@@ -247,13 +264,13 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 453,
+      "ms": 433,
       "fichier": "16-click.png"
     },
     {
       "n": 17,
       "action": "wait",
-      "ms": 1000,
+      "ms": 998,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
@@ -270,7 +287,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 402,
+      "ms": 393,
       "fichier": "18-screenshot.png"
     },
     {
@@ -282,7 +299,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 386,
+      "ms": 375,
       "fichier": "19-press.png"
     },
     {
@@ -305,7 +322,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/notes",
-      "ms": 353,
+      "ms": 349,
       "fichier": "21-screenshot.png"
     },
     {
@@ -318,20 +335,49 @@
         "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
-        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=5jh4nsoZuEnfqvkU (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "ms": 1358,
+      "ms": 1418,
       "fichier": "22-goto.png"
     },
     {
       "n": 23,
       "action": "wait",
-      "ms": 1133,
+      "ms": 1148,
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
-      "ecritures": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "opinions_idees",
+          "query": "?id=eq.ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+          "body": {
+            "statut": "brouillon",
+            "conviction": "plutot",
+            "arguments_pour": "",
+            "arguments_contre": "",
+            "source": "",
+            "theme": null
+          }
+        },
+        {
+          "method": "PATCH",
+          "table": "opinions_idees",
+          "query": "?id=eq.1a31be44-4d84-4aaf-be43-27e623cce8d5",
+          "body": {
+            "statut": "brouillon",
+            "conviction": "plutot",
+            "arguments_pour": "",
+            "arguments_contre": "",
+            "source": "",
+            "theme": null
+          }
+        }
+      ],
       "url": "http://localhost:3100/taches",
       "fichier": "23-wait.png"
     },
@@ -344,7 +390,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/taches",
-      "ms": 335,
+      "ms": 358,
       "fichier": "24-screenshot.png"
     }
   ]

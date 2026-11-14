@@ -1,15 +1,43 @@
-{ "nom": "idee-nominal", "theme": "clair", "etapes": [
- { "action": "goto", "url": "/opinions", "note": "ouvrir Opinions" },
- { "action": "fill", "cible": "role=textbox[name=/nouvelle idée/i]", "valeur": "Il faut taxer davantage les très hauts patrimoines" },
- { "action": "click", "cible": "role=button[name=/^ajouter$/i]", "note": "ajouter l'idée" },
- { "action": "expect_text", "texte": "taxer davantage" },
- { "action": "fill", "cible": "role=textbox[name=/nouvelle idée/i]", "valeur": "Les loyers devraient être encadrés dans les zones tendues", "note": "2e idée" },
- { "action": "click", "cible": "role=button[name=/^ajouter$/i]" },
- { "action": "reload", "note": "persistance" },
- { "action": "expect_text", "texte": "taxer davantage" },
- { "action": "click", "cible": "text=taxer davantage", "note": "ouvrir la fiche" },
- { "action": "expect_text", "texte": "Ma position" },
- { "action": "click", "cible": "role=button[name=/^valider$/i]", "note": "valider sans thème" },
- { "action": "select", "cible": "role=combobox[name=/thème/i]", "valeur": "economie" , "note": "choisir un thème"},
- { "action": "screenshot", "note": "fiche" }
-]}
+{
+ "nom": "idee-nominal",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/opinions",
+   "note": "ouvrir Opinions"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/nouvelle idée/i]",
+   "valeur": "Il faut taxer davantage les très hauts patrimoines"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^ajouter$/i]",
+   "note": "ajouter l'idée"
+  },
+  {
+   "action": "expect_text",
+   "texte": "taxer davantage"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/nouvelle idée/i]",
+   "valeur": "Les loyers devraient être encadrés dans les zones tendues",
+   "note": "2e idée"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^ajouter$/i]"
+  },
+  {
+   "action": "reload",
+   "note": "persistance"
+  },
+  {
+   "action": "expect_text",
+   "texte": "taxer davantage"
+  }
+ ]
+}

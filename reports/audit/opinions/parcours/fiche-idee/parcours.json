@@ -1,0 +1,274 @@
+{
+  "nom": "fiche-idee",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/opinions",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5?_rsc=lVrswEfOS8BwOM5C (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2144,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "text=taxer davantage",
+      "note": "ouvrir la fiche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 428,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "expect_text",
+      "texte": "Ma position",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f?_rsc=QpD8K469s62sby8Z (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 1156,
+      "fichier": "03-expect_text.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "fiche brouillon",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 352,
+      "fichier": "04-screenshot.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^valider$/i]",
+      "note": "valider sans thème",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 407,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "screenshot",
+      "note": "erreur thème",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 361,
+      "fichier": "06-screenshot.png"
+    },
+    {
+      "n": 7,
+      "action": "select",
+      "cible": "role=combobox[name=/thème/i]",
+      "valeur": "economie",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 368,
+      "fichier": "07-select.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/^2$|^\\+1$/]",
+      "note": "score",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 5049,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/^valider$/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 416,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "screenshot",
+      "note": "validée",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "opinions_versions",
+          "query": "?select=id",
+          "body": {
+            "idee_id": "ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+            "position": "Il faut taxer davantage les très hauts patrimoines",
+            "theme": null,
+            "conviction": "plutot",
+            "arguments_pour": "",
+            "arguments_contre": "",
+            "source": "",
+            "score_economique": null,
+            "score_societal": null,
+            "score_autorite": null,
+            "score_ecologie": null,
+            "score_identite": null
+          }
+        }
+      ],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 348,
+      "fichier": "10-screenshot.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=link[name=/retour vers opinions/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "opinions_idees",
+          "query": "?id=eq.ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+          "body": {
+            "position": "Il faut taxer davantage les très hauts patrimoines",
+            "theme": "economie",
+            "conviction": "plutot",
+            "arguments_pour": "",
+            "arguments_contre": "",
+            "source": "",
+            "score_economique": null,
+            "score_societal": null,
+            "score_autorite": null,
+            "score_ecologie": null,
+            "score_identite": null,
+            "updated_at": "2026-11-14T19:19:02.105Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+      "ms": 426,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "click",
+      "cible": "role=button[name=/^profil$/i]",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=nfXfEqHTDEtSUN0d (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5?_rsc=lVrswEfOS8BwOM5C (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/opinions/ce17a56c-9c79-4270-a5ad-7b3c5512cd0f (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions",
+      "ms": 1221,
+      "fichier": "12-click.png"
+    },
+    {
+      "n": 13,
+      "action": "screenshot",
+      "note": "profil",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions",
+      "ms": 334,
+      "fichier": "13-screenshot.png"
+    },
+    {
+      "n": 14,
+      "action": "goto",
+      "url": "http://localhost:3100/opinions",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=nfXfEqHTDEtSUN0d (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1571,
+      "fichier": "14-goto.png"
+    },
+    {
+      "n": 15,
+      "action": "click",
+      "cible": "text=loyers",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5",
+      "ms": 397,
+      "fichier": "15-click.png"
+    },
+    {
+      "n": 16,
+      "action": "click",
+      "cible": "role=button[name=/supprimer l'idée/i]",
+      "statut": "échec",
+      "erreur": "locator.click: InvalidSelectorError: Error while parsing selector `button[name=/supprimer l'idée/i] >> nth=0` - unexpected symbol \">\" at position 33",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5",
+      "ms": 43,
+      "fichier": "16-click.png"
+    },
+    {
+      "n": 17,
+      "action": "screenshot",
+      "note": "supprimée + annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5",
+      "ms": 331,
+      "fichier": "17-screenshot.png"
+    }
+  ]
+}

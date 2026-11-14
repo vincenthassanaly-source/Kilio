@@ -15,11 +15,10 @@
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3100/notes?_rsc=nfXfEqHTDEtSUN0d (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Fnwo5cgglE8A_ZN2 (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Fnwo5cgglE8A_ZN2 (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "ms": 1798,
+      "ms": 1683,
       "fichier": "01-goto.png"
     },
     {
@@ -32,7 +31,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/opinions",
-      "ms": 387,
+      "ms": 398,
       "fichier": "02-fill.png"
     },
     {
@@ -54,7 +53,7 @@
         }
       ],
       "url": "http://localhost:3100/opinions",
-      "ms": 413,
+      "ms": 415,
       "fichier": "03-click.png"
     },
     {
@@ -65,11 +64,11 @@
       "erreur": null,
       "anomalies": [
         "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3100/opinions/c5319850-226d-4715-9c50-46e05835fa92?_rsc=naZpI3wuorGiEdT- (net::ERR_ABORTED)"
+        "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)"
       ],
       "ecritures": [],
       "url": "http://localhost:3100/opinions",
-      "ms": 1149,
+      "ms": 1150,
       "fichier": "04-expect_text.png"
     },
     {
@@ -83,7 +82,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/opinions",
-      "ms": 351,
+      "ms": 353,
       "fichier": "05-fill.png"
     },
     {
@@ -106,7 +105,7 @@
         }
       ],
       "url": "http://localhost:3100/opinions",
-      "ms": 390,
+      "ms": 451,
       "fichier": "06-click.png"
     },
     {
@@ -117,16 +116,17 @@
       "erreur": null,
       "anomalies": [
         "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/opinions (net::ERR_ABORTED)",
         "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3100/nutrition?_rsc=Fnwo5cgglE8A_ZN2 (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3100/opinions/899fefb3-b0fc-4472-ba32-627f8fd735e8?_rsc=gqd_-vIlkbXO3JyX (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/opinions/1a31be44-4d84-4aaf-be43-27e623cce8d5?_rsc=lVrswEfOS8BwOM5C (net::ERR_ABORTED)"
       ],
       "ecritures": [],
       "url": "http://localhost:3100/opinions",
-      "ms": 1532,
+      "ms": 1568,
       "fichier": "07-reload.png"
     },
     {
@@ -138,100 +138,8 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/opinions",
-      "ms": 386,
+      "ms": 365,
       "fichier": "08-expect_text.png"
-    },
-    {
-      "n": 9,
-      "action": "click",
-      "cible": "text=taxer davantage",
-      "note": "ouvrir la fiche",
-      "statut": "ok",
-      "erreur": null,
-      "anomalies": [],
-      "ecritures": [],
-      "url": "http://localhost:3100/opinions/c5319850-226d-4715-9c50-46e05835fa92",
-      "ms": 399,
-      "fichier": "09-click.png"
-    },
-    {
-      "n": 10,
-      "action": "expect_text",
-      "texte": "Ma position",
-      "statut": "échec",
-      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
-      "anomalies": [
-        "requête échouée : GET http://localhost:3100/opinions/c5319850-226d-4715-9c50-46e05835fa92?_rsc=7tiQ9Lv1Ud5FCwOZ (net::ERR_ABORTED)",
-        "console.error : TypeError: Cannot read properties of undefined (reading 'length')\n    at N (http://localhost:3100/_next/static/chunks/1v12qrfdgxkgf.js:1:12747)\n    at aS (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:62449)\n    at o1 (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:82742)\n    at id (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:94431)\n    at sh (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:137815)\n    at http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:137660\n    at sm (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:137668)\n    at sr (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:133582)\n    at sq (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:159376)\n    at MessagePort.O (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:1:3441)",
-        "console.error : TypeError: Cannot read properties of undefined (reading 'length')\n    at N (http://localhost:3100/_next/static/chunks/1v12qrfdgxkgf.js:1:12747)\n    at aS (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:62449)\n    at o1 (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:82742)\n    at id (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:94431)\n    at sh (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:137815)\n    at http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:137660\n    at sm (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:137668)\n    at sr (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:133582)\n    at sq (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:159376)\n    at MessagePort.O (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:1:3441)"
-      ],
-      "ecritures": [
-        {
-          "method": "POST",
-          "table": "documents_categories",
-          "query": "",
-          "body": {
-            "nom": "Banque"
-          }
-        }
-      ],
-      "url": "http://localhost:3100/opinions/c5319850-226d-4715-9c50-46e05835fa92",
-      "ms": 5044,
-      "fichier": "10-expect_text.png"
-    },
-    {
-      "n": 11,
-      "action": "click",
-      "cible": "role=button[name=/^valider$/i]",
-      "note": "valider sans thème",
-      "statut": "échec",
-      "erreur": "locator.click: Timeout 5000ms exceeded.",
-      "anomalies": [],
-      "ecritures": [],
-      "url": "http://localhost:3100/opinions/c5319850-226d-4715-9c50-46e05835fa92",
-      "ms": 5064,
-      "fichier": "11-click.png"
-    },
-    {
-      "n": 12,
-      "action": "select",
-      "cible": "role=combobox[name=/thème/i]",
-      "valeur": "economie",
-      "note": "choisir un thème",
-      "statut": "échec",
-      "erreur": "locator.selectOption: Timeout 5000ms exceeded.",
-      "anomalies": [],
-      "ecritures": [
-        {
-          "method": "POST",
-          "table": "habitudes",
-          "query": "",
-          "body": {
-            "nom": "Boire de l'eau",
-            "type": "boolean",
-            "frequence_hebdo": null,
-            "unite": null,
-            "valeur_cible": null,
-            "icone": null,
-            "ordre": 1
-          }
-        }
-      ],
-      "url": "http://localhost:3100/opinions/c5319850-226d-4715-9c50-46e05835fa92",
-      "ms": 5033,
-      "fichier": "12-select.png"
-    },
-    {
-      "n": 13,
-      "action": "screenshot",
-      "note": "fiche",
-      "statut": "ok",
-      "erreur": null,
-      "anomalies": [],
-      "ecritures": [],
-      "url": "http://localhost:3100/opinions/c5319850-226d-4715-9c50-46e05835fa92",
-      "ms": 353,
-      "fichier": "13-screenshot.png"
     }
   ]
 }
