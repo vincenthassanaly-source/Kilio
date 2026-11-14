@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useRef, type ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { m as motion, useReducedMotion } from "framer-motion";
 import { Portal } from "@/components/Portal";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 

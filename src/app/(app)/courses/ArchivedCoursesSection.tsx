@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m as motion, useReducedMotion } from "framer-motion";
 import type { Tables } from "@/lib/supabase/types";
 import { deleteCourseItems, type CourseItemARestaurer } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState, useTransition } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { m as motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { enregistrerEntreeHabitude, supprimerHabitude, type HabitudeDuJour } from "@/app/actions/habitudes";

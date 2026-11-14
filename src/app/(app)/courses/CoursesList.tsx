@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m as motion } from "framer-motion";
 import { getCoursesItems } from "@/app/actions/courses";
 import { creerAttributeurDeCles } from "@/lib/courses/cles-affichage";
 import { queryKeys } from "@/lib/query/keys";

@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m as motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 // Anime la bascule entre le bouton "+ Ajouter" fermé (`trigger`) et le

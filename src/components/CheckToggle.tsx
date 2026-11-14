@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 
 /** Bouton rond à coche, remplace les `<input type="checkbox">` natifs pour
  * matcher le style de la maquette (cercle plein coché, contour sinon).

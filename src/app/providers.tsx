@@ -3,7 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MotionConfig } from "framer-motion";
+import { LazyMotion, MotionConfig } from "framer-motion";
 import { IndicateurConnexion } from "@/components/IndicateurConnexion";
 import { MasquageSaisie } from "@/components/MasquageSaisie";
 import { ToastHost } from "@/components/toast/ToastHost";
@@ -21,6 +21,8 @@ const ReactQueryDevtools =
   process.env.NODE_ENV === "development"
     ? dynamic(() => import("@tanstack/react-query-devtools").then((m) => m.ReactQueryDevtools), { ssr: false })
     : null;
+
+const chargerFonctionnalitesMotion = () => import("@/lib/motion-features").then((m) => m.default);
 
 // App mono-utilisateur, données modifiées uniquement via ce client : pas
 // besoin de refetch agressif au focus/reconnect. `staleTime` évite un
@@ -66,6 +68,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // composant appelant `useReducedMotion`.
   return (
     <MotionConfig reducedMotion="user">
+    <LazyMotion features={chargerFonctionnalitesMotion}>
     <QueryClientProvider client={queryClient}>
       {children}
       <MusculationSync />
@@ -75,6 +78,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <MasquageSaisie />
       {ReactQueryDevtools && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
+    </LazyMotion>
     </MotionConfig>
   );
 }

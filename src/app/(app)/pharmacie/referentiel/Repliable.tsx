@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m as motion } from "framer-motion";
 import { card, sectionTitle } from "@/lib/ui";
 
 // Mémoire « pour la session » : l'écran se démonte quand on ouvre une fiche, le

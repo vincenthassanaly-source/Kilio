@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m as motion, useReducedMotion } from "framer-motion";
 import { dismissToast, getToasts, subscribeToasts } from "./toast-store";
 
 // Référence stable : useSyncExternalStore compare par === entre deux

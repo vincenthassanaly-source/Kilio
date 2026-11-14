@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { m as motion, useReducedMotion } from "framer-motion";
 import { SEGMENT_CADRE, segmentClasse, segmentClasseGlissant } from "@/lib/segmented";
 
 /**

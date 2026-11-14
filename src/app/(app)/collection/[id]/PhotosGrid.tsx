@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteCollectionItem, rafraichirMiniatureVideo } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
