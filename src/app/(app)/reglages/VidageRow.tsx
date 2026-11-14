@@ -7,6 +7,7 @@ import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
 import { DependsOnNotifications } from "./NotificationsContext";
+import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 function VidageIcon() {
   return (
@@ -55,48 +56,49 @@ export function VidageRow({ reglages }: { reglages: Pick<Tables<"reglages_briefi
 
   return (
     <DependsOnNotifications>
-      <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
-        <div className="flex items-center justify-between gap-3">
-          <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-            <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
-              style={{ background: "color-mix(in oklch, var(--accent-vidage) 12%, transparent)" }}
-            >
+      <div className="flex flex-col gap-2 border-t border-line py-3.5">
+        <ReglageEntete
+          icone={
+            <Pastille teinte="var(--accent-vidage)">
               <VidageIcon />
-            </span>
-            Rappel du soir pour le Journal
-          </span>
-          <Switch
-            checked={etat.actif}
-            onToggle={() => persister({ ...etat, actif: !etat.actif })}
-            label="Rappel du soir pour le Journal"
-          />
-        </div>
-        <p className="text-small leading-snug text-ink-2">
-          {etat.actif
-            ? "Chaque soir à l'heure choisie, une notification te propose d'écrire dans le Journal, sauf si la page du jour est déjà écrite."
-            : "Désactivé : aucun rappel (le Journal reste accessible dans Plus › Journal)."}
-        </p>
-        {etat.actif && (
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="heure-vidage" className="text-small text-ink-2">
-              Heure du rappel
-            </label>
-            <input
-              id="heure-vidage"
-              type="time"
-              value={etat.heure}
-              onChange={(e) => setEtat({ ...etat, heure: e.target.value })}
-              onBlur={(e) => persister({ ...etat, heure: e.target.value })}
-              className={`${input} min-h-11 w-28 text-center tabular-nums`}
+            </Pastille>
+          }
+          titre="Rappel du soir pour le Journal"
+          action={
+            <Switch
+              checked={etat.actif}
+              onToggle={() => persister({ ...etat, actif: !etat.actif })}
+              label="Rappel du soir pour le Journal"
             />
-          </div>
-        )}
-        {error && (
-          <p role="alert" className={errorText}>
-            {error}
+          }
+        />
+        <ReglageDetail>
+          <p className="text-small leading-snug text-ink-2">
+            {etat.actif
+              ? "Chaque soir à l'heure choisie, une notification te propose d'écrire dans le Journal, sauf si la page du jour est déjà écrite."
+              : "Désactivé : aucun rappel (le Journal reste accessible dans Plus › Journal)."}
           </p>
-        )}
+          {etat.actif && (
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="heure-vidage" className="text-small text-ink-2">
+                Heure du rappel
+              </label>
+              <input
+                id="heure-vidage"
+                type="time"
+                value={etat.heure}
+                onChange={(e) => setEtat({ ...etat, heure: e.target.value })}
+                onBlur={(e) => persister({ ...etat, heure: e.target.value })}
+                className={`${input} min-h-11 w-28 shrink-0 text-center tabular-nums`}
+              />
+            </div>
+          )}
+          {error && (
+            <p role="alert" className={errorText}>
+              {error}
+            </p>
+          )}
+        </ReglageDetail>
       </div>
     </DependsOnNotifications>
   );

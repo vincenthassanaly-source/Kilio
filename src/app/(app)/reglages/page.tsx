@@ -10,6 +10,7 @@ import { NettoyageAutoRow } from "./NettoyageAutoRow";
 import { RevueHebdoRow } from "./RevueHebdoRow";
 import { BandeauNotificationsEteintes, NotificationsProvider } from "./NotificationsContext";
 import { NotificationsRow } from "./NotificationsRow";
+import { Pastille, ReglageEntete } from "./ReglageUi";
 import { VidageRow } from "./VidageRow";
 import { BackLink } from "@/components/BackLink";
 
@@ -61,29 +62,36 @@ export default async function ReglagesPage() {
       <BackLink href="/plus">Plus</BackLink>
       <h1 className={screenTitle}>Réglages</h1>
 
-      <div className="flex flex-col gap-2.5">
-        <h2 className={sectionTitle}>Préférences</h2>
+      <section aria-labelledby="reglages-preferences" className="flex flex-col gap-2.5">
+        <h2 id="reglages-preferences" className={sectionTitle}>Préférences</h2>
         <div className="rounded-card border border-line bg-surface px-4 shadow-card">
           <TransitionLink
             href="/plus"
-            className="flex items-center justify-between gap-3 py-3.5"
+            className="-mx-2 block rounded-xl px-2 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
           >
-            <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-              <span
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
-                style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
-              >
-                <NavigationIcon />
-              </span>
-              Personnaliser la navigation
-            </span>
-            <span className="text-ink-3">
-              <ChevronIcon />
-            </span>
+            <ReglageEntete
+              icone={
+                <Pastille>
+                  <NavigationIcon />
+                </Pastille>
+              }
+              titre="Personnaliser la navigation"
+              action={
+                <span className="shrink-0 text-ink-3" aria-hidden="true">
+                  <ChevronIcon />
+                </span>
+              }
+            />
           </TransitionLink>
           <div className="border-t border-line">
             <AppearanceRow />
           </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="reglages-rappels" className="flex flex-col gap-2.5">
+        <h2 id="reglages-rappels" className={sectionTitle}>Rappels</h2>
+        <div className="rounded-card border border-line bg-surface px-4 shadow-card">
           <NotificationsProvider>
             <NotificationsRow />
             <BandeauNotificationsEteintes />
@@ -92,11 +100,17 @@ export default async function ReglagesPage() {
             <AlertesNutritionRow reglages={reglagesBriefing} />
             <VidageRow reglages={reglagesBriefing} />
           </NotificationsProvider>
+        </div>
+      </section>
+
+      <section aria-labelledby="reglages-donnees" className="flex flex-col gap-2.5">
+        <h2 id="reglages-donnees" className={sectionTitle}>Données</h2>
+        <div className="rounded-card border border-line bg-surface px-4 shadow-card">
           <NettoyageAutoRow reglages={reglagesNettoyage} />
         </div>
-      </div>
+      </section>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2.5">
         <h2 className={sectionTitle}>Astuces</h2>
         <ul className="flex flex-col gap-2.5 rounded-card border border-line bg-surface px-4 py-3.5 text-label leading-snug text-ink-2 shadow-card">
           <li>
@@ -117,14 +131,18 @@ export default async function ReglagesPage() {
       <div className="flex flex-col gap-2.5">
         <h2 className={sectionTitle}>À propos</h2>
         <div className="rounded-card border border-line bg-surface px-4 shadow-card">
-          <div className="flex items-center justify-between gap-3 py-3.5">
-            <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-              <span className="text-ink-3">
-                <ProfilIcon />
-              </span>
-              Profil
-            </span>
-            <span className="text-small font-medium text-ink-2">Vincent</span>
+          <div className="py-3.5">
+            <ReglageEntete
+              icone={
+                <Pastille teinte="var(--ink-3)">
+                  <span className="text-ink-2">
+                    <ProfilIcon />
+                  </span>
+                </Pastille>
+              }
+              titre="Profil"
+              action={<span className="shrink-0 text-small font-medium text-ink-2">Vincent</span>}
+            />
           </div>
         </div>
       </div>

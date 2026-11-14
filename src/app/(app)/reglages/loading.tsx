@@ -25,10 +25,11 @@ function SkeletonGroup({ rows }: { rows: number }) {
 
 export default function ReglagesLoading() {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5" aria-busy="true">
       <h1 className={screenTitle}>Réglages</h1>
-      <SkeletonGroup rows={3} />
       <SkeletonGroup rows={2} />
+      <SkeletonGroup rows={4} />
+      <SkeletonGroup rows={1} />
     </div>
   );
 }

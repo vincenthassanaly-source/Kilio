@@ -7,6 +7,7 @@ import { Switch } from "@/components/Switch";
 import { useBackClose } from "@/hooks/useBackClose";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
+import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 // Ce que la fonction planifiée supprime (supabase/functions/nettoyage-auto,
 // constante TABLES) : à tenir aligné avec elle.
@@ -94,52 +95,51 @@ export function NettoyageAutoRow({ reglages }: { reglages: Tables<"reglages_nett
   }
 
   return (
-    <div className="flex flex-col gap-2.5 border-t border-line py-3.5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2.5 text-label font-medium text-ink">
-          <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "color-mix(in oklch, var(--accent-kcal) 12%, transparent)" }}
-          >
+    <div className="flex flex-col gap-2 py-3.5">
+      <ReglageEntete
+        icone={
+          <Pastille>
             <NettoyageIcon />
-          </span>
-          Nettoyage automatique
-        </span>
-        <Switch checked={actif} onToggle={toggle} label="Nettoyage automatique des éléments terminés" />
-      </div>
-      <p className="text-small leading-snug text-ink-2">
-        {actif
-          ? `Chaque jour, supprime définitivement ce qui est terminé depuis plus de ${delaiAffiche} jour${delaiAffiche > 1 ? "s" : ""} : tâches, sous-tâches, courses et items de notes.`
-          : "Désactivé : rien n'est supprimé automatiquement."}
-      </p>
-      {actif && (
-        <div className="flex items-center justify-between gap-2">
-          <label htmlFor="delai-nettoyage" className="text-small text-ink-2">
-            Supprimer les items faits après (jours)
-          </label>
-          <input
-            id="delai-nettoyage"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            step={1}
-            value={delaiJours}
-            onChange={(e) => setDelaiJours(e.target.value)}
-            onBlur={validerDelai}
-            className={`${input} min-h-11 w-16 shrink-0 text-center tabular-nums`}
-          />
-        </div>
-      )}
-      {reglages.derniere_execution && (
-        <p className="text-xs text-ink-3">
-          Dernier nettoyage : {formatDerniereExecution(reglages.derniere_execution)}
+          </Pastille>
+        }
+        titre="Nettoyage automatique"
+        action={<Switch checked={actif} onToggle={toggle} label="Nettoyage automatique des éléments terminés" />}
+      />
+      <ReglageDetail>
+        <p className="text-small leading-snug text-ink-2">
+          {actif
+            ? `Chaque jour, supprime définitivement ce qui est terminé depuis plus de ${delaiAffiche} jour${delaiAffiche > 1 ? "s" : ""} : tâches, sous-tâches, courses et items de notes.`
+            : "Désactivé : rien n'est supprimé automatiquement."}
         </p>
-      )}
-      {error && (
-        <p role="alert" className={errorText}>
-          {error}
-        </p>
-      )}
+        {actif && (
+          <div className="flex items-center justify-between gap-3">
+            <label htmlFor="delai-nettoyage" className="text-small text-ink-2">
+              Supprimer les items faits après (jours)
+            </label>
+            <input
+              id="delai-nettoyage"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              step={1}
+              value={delaiJours}
+              onChange={(e) => setDelaiJours(e.target.value)}
+              onBlur={validerDelai}
+              className={`${input} min-h-11 w-16 shrink-0 text-center tabular-nums`}
+            />
+          </div>
+        )}
+        {reglages.derniere_execution && (
+          <p className="text-caption text-ink-3">
+            Dernier nettoyage : {formatDerniereExecution(reglages.derniere_execution)}
+          </p>
+        )}
+        {error && (
+          <p role="alert" className={errorText}>
+            {error}
+          </p>
+        )}
+      </ReglageDetail>
 
       <ConfirmDialog
         open={confirmationOuverte}
