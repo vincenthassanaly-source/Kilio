@@ -33,7 +33,7 @@ export function BoutonAssistantRevue({ mode, libelle }: { mode: ModeAssistantRev
           </span>
           <span className="flex min-w-0 flex-col">
             <span className="text-body font-semibold text-ink">{libelle}</span>
-            <span className="text-sm text-ink-2">Bilan global et pistes, avec l&apos;IA</span>
+            <span className="text-label text-ink-2">Bilan global et pistes, avec l&apos;IA</span>
           </span>
         </button>
       ) : (
