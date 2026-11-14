@@ -23,7 +23,7 @@ import { LIBELLES_TYPE } from "@/lib/seances/compute";
 import type { DossierRoutines, RoutineResume } from "@/lib/musculation/routines";
 import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { queryKeys } from "@/lib/query/keys";
-import { card, dangerButton, errorText, eyebrow, ghostButton, input, metaText, nameText, primaryButton, secondaryButton, sectionTitle } from "@/lib/ui";
+import { card, dangerButton, errorText, eyebrow, ghostButton, input, metaText, nameTextComplet, primaryButton, secondaryButton, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 
 function LigneRoutine({
@@ -45,7 +45,7 @@ function LigneRoutine({
         aria-label={`Modifier la routine ${routine.nom}`}
       >
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className={nameText}>{routine.nom}</span>
+          <span className={nameTextComplet}>{routine.nom}</span>
           <span className={metaText}>
             {routine.typeSeance ? `${LIBELLES_TYPE[routine.typeSeance]} · ` : ""}
             {routine.nbExercices === 0 ? "Aucun exercice" : `${routine.nbExercices} exercice${routine.nbExercices > 1 ? "s" : ""}`}
@@ -195,13 +195,14 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-2">
+      {/* Les deux actions passent sous le titre quand la ligne est trop étroite, au lieu d'écraser leurs libellés sur deux lignes. */}
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-3">
         <h2 className={sectionTitle}>Routines</h2>
         <div className="flex gap-2">
-          <button type="button" className={ghostButton} onClick={() => setDossierOuvert(null)}>
+          <button type="button" className={`${ghostButton} whitespace-nowrap`} onClick={() => setDossierOuvert(null)}>
             Ajouter un dossier
           </button>
-          <Link href="/musculation/routines/nouvelle" className={ghostButton}>
+          <Link href="/musculation/routines/nouvelle" className={`${ghostButton} whitespace-nowrap`}>
             Ajouter une routine
           </Link>
         </div>

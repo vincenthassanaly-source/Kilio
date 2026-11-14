@@ -341,7 +341,7 @@ export function ExerciceBloc({
                           exercice.records,
                         );
                         if (apresValidation[index]?.includes("poids")) {
-                          showToast(`Record de charge sur ${exercice.nom} 💪`, 3600);
+                          showToast(`Record de charge sur ${exercice.nom}`, 3600);
                         }
                       }
                       onBasculer(cle, serie.id);
