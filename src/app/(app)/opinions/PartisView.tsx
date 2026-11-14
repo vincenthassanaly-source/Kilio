@@ -18,6 +18,8 @@ import { PartiCard } from "./PartiCard";
 import { PartiFormModal } from "./PartisForms";
 import { ErrorInline } from "@/components/ErrorInline";
 
+const VIDE = "rounded-card border border-dashed border-control-border px-4 py-6 text-center text-small text-ink-2 text-pretty";
+
 export function PartisView({ idees }: { idees: readonly Idee[] }) {
   const queryClient = useQueryClient();
   const [ajout, setAjout] = useState(false);
@@ -118,7 +120,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
         </button>
 
         {donnees.length === 0 ? (
-          <p className="text-ink-2">Aucun parti pour l&apos;instant.</p>
+          <p className={VIDE}>Aucun parti pour l&apos;instant. Ajoute le premier ci-dessus.</p>
         ) : (
           <ul className="flex flex-col gap-2.5">
             {classement.map(({ parti, proximite }) => (

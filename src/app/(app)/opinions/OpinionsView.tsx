@@ -23,7 +23,7 @@ import {
 } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
 import { useMasques } from "@/lib/actions/elementsMasques";
-import { cardTight, errorText, input, label, metaText, pillTag, primaryButton } from "@/lib/ui";
+import { cardTight, errorText, input, label, metaText, pillTag, primaryButton, textButton } from "@/lib/ui";
 import { PartisView } from "./PartisView";
 import { PrioritesEditor } from "./PrioritesEditor";
 import { ProfilView } from "./ProfilView";
@@ -39,6 +39,8 @@ const ONGLETS: { value: Onglet; label: string }[] = [
   { value: "partis", label: "Partis" },
   { value: "profil", label: "Profil" },
 ];
+
+const VIDE = "rounded-card border border-dashed border-control-border px-4 py-6 text-center text-small text-ink-2 text-pretty";
 
 const FILTRES: { value: Filtre; label: string }[] = [
   { value: "tous", label: "Toutes" },
@@ -61,7 +63,7 @@ function LigneIdee({ idee, index }: { idee: Idee; index: number }) {
     >
       <TransitionLink href={`/opinions/${idee.id}`} className={`${cardTight} flex flex-col gap-2`}>
         <div className="flex items-start justify-between gap-3">
-          <p className="line-clamp-3 text-pretty text-body font-medium text-ink">{idee.position}</p>
+          <p className="line-clamp-3 min-w-0 text-pretty break-words text-body font-medium text-ink">{idee.position}</p>
           <StatutPill statut={idee.statut} />
         </div>
         <p className={metaText}>
@@ -159,7 +161,7 @@ export function OpinionsView() {
                   autoComplete="off"
                 />
                 <button type="submit" className={primaryButton} disabled={ajoutEnCours || !saisie.trim()}>
-                  {ajoutEnCours ? "…" : "Ajouter"}
+                  {ajoutEnCours ? "Ajout…" : "Ajouter"}
                 </button>
               </div>
               {erreur && (
@@ -187,9 +189,25 @@ export function OpinionsView() {
             </select>
 
             {visibles.length === 0 ? (
-              <p className="text-ink-2">
-                {idees.length === 0 ? "Aucune idée pour l'instant. Note la première ci-dessus." : "Aucune idée ne correspond à ce filtre."}
-              </p>
+              <div className={`${VIDE} flex flex-col items-center gap-1`}>
+                {idees.length === 0 ? (
+                  <p>Aucune idée pour l&apos;instant. Note la première ci-dessus.</p>
+                ) : (
+                  <>
+                    <p>Aucune idée ne correspond à ce filtre.</p>
+                    <button
+                      type="button"
+                      className={textButton}
+                      onClick={() => {
+                        setFiltre("tous");
+                        setTheme("tous");
+                      }}
+                    >
+                      Tout afficher
+                    </button>
+                  </>
+                )}
+              </div>
             ) : (
               <ul className="flex flex-col gap-2.5">
                 {visibles.map((idee, index) => (

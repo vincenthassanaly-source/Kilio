@@ -10,7 +10,7 @@ const COUVERTURE_PARTIELLE = 0.5;
 export function ClassementProximite({ classement, aDesIdees }: { classement: readonly PartiClasse[]; aDesIdees: boolean }) {
   if (!aDesIdees) {
     return (
-      <p className="text-sm text-ink-2">
+      <p className="rounded-card border border-dashed border-control-border px-4 py-5 text-center text-small text-ink-2 text-pretty">
         Valide quelques idées, avec un thème et des scores, pour voir quels partis te ressemblent.
       </p>
     );
