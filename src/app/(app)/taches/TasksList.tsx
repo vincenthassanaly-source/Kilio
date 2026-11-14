@@ -1,5 +1,6 @@
 "use client";
 
+import { IconeDescendre, IconeMonter, IconeSupprimer } from "./iconesOrdre";
 import { memo, useCallback, useEffect, useRef, useState, useTransition, type CSSProperties } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -139,7 +140,7 @@ const GRIP_ICON = (
 // Boutons de ligne des sous-tâches : zone de tap de 44 px de haut (au lieu
 // des glyphes nus d'environ 10×24 px relevés par l'audit), anneau de focus.
 const sousTacheBouton =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-body disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
   const [isPending, startTransition] = useTransition();
@@ -224,7 +225,7 @@ function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
                 className={`${sousTacheBouton} text-ink-2`}
                 aria-label={`Monter « ${sousTache.titre} »`}
               >
-                ↑
+                <IconeMonter />
               </button>
               <button
                 type="button"
@@ -233,7 +234,7 @@ function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
                 className={`${sousTacheBouton} text-ink-2`}
                 aria-label={`Descendre « ${sousTache.titre} »`}
               >
-                ↓
+                <IconeDescendre />
               </button>
               <button
                 type="button"
@@ -242,7 +243,7 @@ function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
                 className={`${sousTacheBouton} text-alert`}
                 aria-label={`Supprimer « ${sousTache.titre} »`}
               >
-                ×
+                <IconeSupprimer />
               </button>
             </li>
           ))}
