@@ -207,7 +207,14 @@ export function ScannerApp() {
       {erreur && <p role="alert" className={errorText}>{erreur}</p>}
 
       {charge && pages.length === 0 && (
-        <div className={`${card} text-center text-sm text-ink-3`}>Aucune page pour l&apos;instant. Appuie sur « Scanner » pour commencer.</div>
+        <div className={`${card} flex flex-col items-center gap-2 py-8 text-center`}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" />
+            <path d="M8 9h8M8 12h8M8 15h5" />
+          </svg>
+          <p className="text-body font-bold text-ink">Aucune page pour l&apos;instant.</p>
+          <p className="text-sm text-ink-2 text-pretty">Appuie sur «&nbsp;Scanner&nbsp;» pour commencer.</p>
+        </div>
       )}
 
       {pages.length > 0 && (
