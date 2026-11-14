@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { m as motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { creerIdee, getIdees, type Idee } from "@/app/actions/opinions";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { SegmentedControl } from "@/components/SegmentedControl";

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { m as motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import { deleteDocument, enregistrerApercuPdf, type DocumentAvecFichiers } from "@/app/actions/documents";
 import { genererApercuPdf } from "@/lib/pdf/apercuPdf";

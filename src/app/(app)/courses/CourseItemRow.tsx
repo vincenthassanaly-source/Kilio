@@ -2,7 +2,7 @@
 
 import { memo, useEffect, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { m as motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { deleteCourseItem, toggleCourseItem, updateCourseItem } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";

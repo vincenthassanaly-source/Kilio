@@ -1,6 +1,6 @@
 "use client";
 
-import { m as motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Nutrition } from "@/lib/nutrition/compute";
 import type { Enums } from "@/lib/supabase/types";
 import { cardTight, dangerButton, nameTextComplet } from "@/lib/ui";

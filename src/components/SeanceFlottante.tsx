@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { m as motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { showErrorToast } from "@/components/toast/toast-store";
 import { vibrate } from "@/lib/haptics";
 import { EVENEMENT_BROUILLON, EVENEMENT_BROUILLON_MAJ, ecrireBrouillon, lireBrouillon } from "@/lib/musculation/brouillon";

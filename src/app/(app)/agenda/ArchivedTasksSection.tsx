@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, m as motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { TacheAvecRelations } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
 import { TaskCard } from "../taches/TasksList";

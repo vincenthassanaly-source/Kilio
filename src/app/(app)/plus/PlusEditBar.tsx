@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, m as motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigationEdit } from "@/lib/navigation/NavigationEditContext";
 
 // Indicateur de sortie du mode édition (voir Phase 2.3 du rapport) : un

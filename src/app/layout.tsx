@@ -8,7 +8,7 @@ import "./globals.css";
 
 const sora = Sora({
   variable: "--font-sora",
-  weight: ["600", "700"],
+  weight: ["600", "700", "800"],
   subsets: ["latin"],
 });
 

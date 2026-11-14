@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent } from "react";
-import { m as motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useDroppable } from "@dnd-kit/core";
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate";
 import { barreBasseMasquee } from "@/lib/navigation/immersif";

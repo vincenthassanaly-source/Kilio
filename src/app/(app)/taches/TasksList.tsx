@@ -5,7 +5,7 @@ import { memo, useCallback, useEffect, useRef, useState, useTransition, type CSS
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { m as motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   DndContext,
   KeyboardSensor,
