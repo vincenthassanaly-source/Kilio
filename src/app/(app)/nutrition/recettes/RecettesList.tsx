@@ -5,7 +5,7 @@ import type { Tables } from "@/lib/supabase/types";
 import { TransitionLink } from "@/components/TransitionLink";
 import { normalizeSearch } from "@/lib/normalize";
 import { useMasques } from "@/lib/actions/elementsMasques";
-import { input, kcalPillTag, listCard, metaText, nameText, pillTag, zoneTapPill } from "@/lib/ui";
+import { card, input, kcalPillTag, listCard, metaText, nameTextComplet, pillTag, zoneTapPill } from "@/lib/ui";
 
 // Classes d'état exclusives : `pillTag` porte déjà bg-surface-alt/text-ink-2,
 // on retire donc ces trois classes de la base plutôt que d'en empiler d'autres.
@@ -77,7 +77,16 @@ export function RecettesList({
   }, [recettes, search, tempsFilter, kcalFilter]);
 
   if (recettes.length === 0) {
-    return <p className="text-ink-2">Aucune recette pour l&apos;instant.</p>;
+    return (
+      <div className={`${card} flex flex-col items-center gap-2 py-8 text-center`}>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M5 4.5h11a2 2 0 0 1 2 2V20H7a2 2 0 0 1-2-2z" />
+          <path d="M18 8h1.5v12H18M9 9h6M9 12.5h6" />
+        </svg>
+        <p className="text-body font-bold text-ink">Aucune recette pour l&apos;instant.</p>
+        <p className="text-sm text-ink-2 text-pretty">Ajoute-en une avec ses ingrédients et ses étapes.</p>
+      </div>
+    );
   }
 
   return (
@@ -85,6 +94,8 @@ export function RecettesList({
       <input
         type="search"
         placeholder="Rechercher une recette…"
+        aria-label="Rechercher une recette"
+        enterKeyHint="search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className={input}
@@ -124,8 +135,8 @@ export function RecettesList({
           {filtered.map((recette) => (
             <li key={recette.id}>
               <TransitionLink href={`/nutrition/recettes/${recette.id}`} className={listCard}>
-                <div className="flex items-center justify-between gap-2">
-                  <p className={nameText} style={{ viewTransitionName: `recette-title-${recette.id}` }}>
+                <div className="flex items-start justify-between gap-2">
+                  <p className={`${nameTextComplet} min-w-0 flex-1 text-pretty`} style={{ viewTransitionName: `recette-title-${recette.id}` }}>
                     {recette.nom}
                   </p>
                   <span className={kcalPillTag}>{recette.kcalParPortion} kcal/portion</span>

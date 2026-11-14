@@ -73,10 +73,9 @@ export function JournalRepas({
         <h2 className={sectionTitle}>Repas du jour</h2>
         {visibles.length === 0 ? (
           <div className={`${card} flex flex-col items-center gap-2.5 py-8 text-center`}>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" aria-hidden="true">
-              <line x1="5" y1="19" x2="5" y2="11" />
-              <line x1="12" y1="19" x2="12" y2="5" />
-              <line x1="19" y1="19" x2="19" y2="14" />
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="5" />
+              <path d="M3.5 4v5a1.5 1.5 0 0 0 3 0V4M5 4v16M20.5 4c-1.5 1-2 3-2 5.5h2V20" />
             </svg>
             <p className="text-body font-bold text-ink">Aucun repas enregistré pour ce jour.</p>
             <AjoutRepasBouton date={date} variante="carte" estAujourdhui={estAujourdhui} />

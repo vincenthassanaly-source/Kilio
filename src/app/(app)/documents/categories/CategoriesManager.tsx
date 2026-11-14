@@ -268,7 +268,13 @@ export function CategoriesManager({ categories: toutes }: { categories: Categori
     <div className="flex flex-col gap-4">
       <AjoutCategorie />
       {categories.length === 0 ? (
-        <p className="text-ink-2">Aucune catégorie pour l&apos;instant.</p>
+        <div className={`${card} flex flex-col items-center gap-2 py-8 text-center`}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+          </svg>
+          <p className="text-body font-bold text-ink text-balance">Aucune catégorie pour l&apos;instant.</p>
+          <p className="text-sm text-ink-2 text-pretty">Crée-en une ci-dessus pour classer tes documents.</p>
+        </div>
       ) : (
         <ul className="flex flex-col gap-2">
           {categories.map((categorie) => (
