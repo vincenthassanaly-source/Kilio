@@ -44,6 +44,35 @@ describe("AddPhotoButton - erreurs d'ajout", () => {
     expect(screen.queryByText(/Pas de connexion/)).not.toBeInTheDocument();
   });
 
+  it("un texte qui n'est pas une URL part au serveur au lieu de la bulle native en anglais", async () => {
+    ajouterLienVideo.mockRejectedValueOnce(new Error("Lien TikTok ou YouTube invalide"));
+    const user = userEvent.setup({ applyAccept: false });
+    rendre();
+
+    await user.click(screen.getByRole("button", { name: "Lien vidéo" }));
+    await user.type(screen.getByLabelText("Lien TikTok ou YouTube"), "pas un lien");
+    await user.click(screen.getByRole("button", { name: "Ajouter" }));
+
+    expect(ajouterLienVideo).toHaveBeenCalledWith("col-1", "pas un lien");
+    expect(await screen.findByText("Lien TikTok ou YouTube invalide")).toBeInTheDocument();
+  });
+
+  it("« Annuler » referme le champ du lien vidéo sans rien envoyer et le vide", async () => {
+    ajouterLienVideo.mockClear();
+    const user = userEvent.setup({ applyAccept: false });
+    rendre();
+
+    await user.click(screen.getByRole("button", { name: "Lien vidéo" }));
+    await user.type(screen.getByLabelText("Lien TikTok ou YouTube"), "https://exemple.test/x");
+    await user.click(screen.getByRole("button", { name: "Annuler" }));
+
+    expect(screen.queryByLabelText("Lien TikTok ou YouTube")).not.toBeInTheDocument();
+    expect(ajouterLienVideo).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Lien vidéo" }));
+    expect(screen.getByLabelText("Lien TikTok ou YouTube")).toHaveValue("");
+  });
+
   it("les champs fichier restent atteignables au clavier", () => {
     rendre();
     expect(screen.getByLabelText("Galerie")).not.toHaveClass("hidden");
