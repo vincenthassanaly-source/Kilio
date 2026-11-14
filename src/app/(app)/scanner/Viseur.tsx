@@ -27,12 +27,15 @@ function cheminQuad(quad: Quad): string {
  */
 export function Viseur({
   nombrePages,
+  remplacePage,
   enPause,
   onCapture,
   onImporter,
   onClose,
 }: {
   nombrePages: number;
+  /** Numéro (à partir de 1) de la page que la prochaine photo remplace (« Reprendre »). */
+  remplacePage?: number;
   /** Vrai quand l'écran de recadrage est ouvert par-dessus : plus de détection. */
   enPause: boolean;
   onCapture: (image: ImageData) => void;
@@ -206,6 +209,15 @@ export function Viseur({
             className={`pointer-events-none absolute inset-0 bg-white ${flash ? "opacity-60" : "opacity-0 transition-opacity duration-300"}`}
           />
 
+          {remplacePage !== undefined && (
+            <p
+              role="status"
+              className="absolute inset-x-4 bottom-4 rounded-2xl bg-black/60 px-4 py-2 text-center text-sm font-semibold"
+            >
+              La prochaine photo remplace la page {remplacePage}
+            </p>
+          )}
+
           {!pret && !erreur && (
             <p role="status" className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-8 text-center text-sm text-white/70">
               Ouverture de la caméra…
@@ -289,7 +301,7 @@ export function Viseur({
             onClick={onClose}
             className="min-h-11 rounded-2xl bg-white/15 px-4 text-sm font-semibold tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            {nombrePages > 0 ? `Terminer (${nombrePages})` : "Terminer"}
+            {remplacePage !== undefined ? "Annuler" : nombrePages > 0 ? `Terminer (${nombrePages})` : "Terminer"}
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EditeurCoins } from "./EditeurCoins";
 
@@ -16,6 +16,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.restoreAllMocks();
 });
 
@@ -44,5 +45,17 @@ describe("EditeurCoins : file d'import", () => {
     // Laisse partir un éventuel popstate différé.
     await new Promise((r) => setTimeout(r, 50));
     expect(onFermer).not.toHaveBeenCalled();
+  });
+
+  it("le bouton dit « Ajouter la page », ou « Remplacer la page » en reprise", async () => {
+    const { rerender } = render(
+      <EditeurCoins {...base} cle={1} source={image(100, 80)} restantes={0} onFermer={vi.fn()} />
+    );
+    await screen.findByText(/Feuille non détectée/);
+    expect(screen.getByRole("button", { name: "Ajouter la page" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Valider" })).toBeNull();
+
+    rerender(<EditeurCoins {...base} remplace cle={1} source={image(100, 80)} restantes={0} onFermer={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "Remplacer la page" })).toBeTruthy();
   });
 });
