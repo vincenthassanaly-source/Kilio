@@ -90,6 +90,21 @@ Ces points touchent un choix documenté ou demandent un arbitrage produit. Aucun
 9. **Couleurs de coche** : vert Kcal partout ou accents par module ?
 10. **Navigation globale** : barre du bas réglable dans Réglages et Plus à la fois ? Groupes dans la grille ? Recherche étendue aux 16 domaines ?
 
+## Décisions de Vincent (2026-11-14)
+
+1. **Habitudes** : renommer « Supprimer » en « Archiver » et ajouter un écran des archives.
+2. **Pharmacie** : garder l'ajout d'huile dans l'app, corriger PRODUCT.md et l'état vide des Huiles.
+3. **Collection** : « Décrire » ne s'ouvre plus seul après un ajout (un bouton reste disponible).
+4. **Coches** : accent propre à chaque module, la règle est précisée dans DESIGN.md. Courses reste violet, Habitudes orange.
+5. **Tâches** : renommer « Tâche du jour » pour lever l'ambiguïté.
+6. **Aujourd'hui** : « Valider » de l'aperçu de saisie devient « Ajouter » (PRODUCT.md mis à jour).
+7. **Notes** : items de checklist différés avec « Annuler » réel.
+8. **Revue** : les boutons IA sont regroupés dans un seul menu IA.
+9. **Agenda** : la vue Liste est gardée et améliorée (en-tête de période, ancrage sur aujourd'hui).
+10. **Navigation** : écran dédié dans Réglages pour la barre du bas (épinglage sans geste, réinitialisation). Recherche étendue aux modules de contenu, après les petits modules.
+
+Démarrage : les petits modules d'abord (courses, collection, scanner, documents), une PR par module.
+
 ## Ordre de refonte suggéré (une PR par module)
 
 1. **Petits modules sans risque** : courses, collection, scanner, documents. Libellés, textes, glossaire.
