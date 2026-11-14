@@ -20,7 +20,7 @@ export function PlusEditBar() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="rounded-full bg-kcal px-3.5 py-1.5 text-small font-semibold text-on-kcal"
+          className="relative rounded-full bg-kcal px-3.5 py-1.5 text-small font-semibold text-on-kcal after:absolute after:-inset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           Terminé
         </motion.button>

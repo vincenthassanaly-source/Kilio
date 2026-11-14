@@ -75,7 +75,7 @@ function ListeReplanification({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-ink-2">Décoche les tâches que tu préfères laisser telles quelles.</p>
+      <p className="text-label text-ink-2">Décoche les tâches que tu préfères laisser telles quelles.</p>
       <ul className="flex flex-col gap-1">
         {propositions.map((p) => {
           const coche = ids.includes(p.id);
@@ -84,7 +84,7 @@ function ListeReplanification({
             <li key={p.id}>
               <label
                 htmlFor={id}
-                className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-line bg-surface p-3"
+                className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-line bg-surface p-3 transition-colors has-[:checked]:border-kcal/40 has-[:checked]:bg-kcal-soft has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-kcal"
               >
                 <input
                   id={id}
@@ -98,7 +98,7 @@ function ListeReplanification({
                 />
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="text-body font-medium text-ink">{p.titre}</span>
-                  <span className="text-sm tabular-nums text-ink-2">
+                  <span className="text-label tabular-nums text-ink-2">
                     <span className="line-through">{jourCourt(p.echeanceActuelle)}</span>
                     {" → "}
                     <span className="font-semibold capitalize text-ink">{jourCourt(p.nouvelle)}</span>
@@ -206,7 +206,7 @@ export function AssistantRevueModal({
         <div aria-live="polite" aria-busy={enCours} className="flex flex-col gap-4">
           {etat.phase === "chargement" && (
             <div className="flex flex-col gap-3">
-              <p className="text-sm text-ink">{MESSAGES_CHARGEMENT[mode]}</p>
+              <p className="text-label text-ink">{MESSAGES_CHARGEMENT[mode]}</p>
               <Squelette />
             </div>
           )}
@@ -217,13 +217,13 @@ export function AssistantRevueModal({
                 <p className="text-body leading-relaxed text-ink">{etat.synthese.resume}</p>
               )}
               {etat.synthese.points.length > 0 && (
-                <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm leading-relaxed text-ink marker:text-ink-3">
+                <ul className="flex list-disc flex-col gap-1.5 pl-5 text-label leading-relaxed text-ink marker:text-ink-3">
                   {etat.synthese.points.map((point, index) => (
                     <li key={index}>{point}</li>
                   ))}
                 </ul>
               )}
-              <p className="text-xs text-ink-3">Généré par IA à partir de ton agenda et de tes tâches.</p>
+              <p className="text-caption text-ink-3">Généré par IA à partir de ton agenda et de tes tâches.</p>
             </div>
           )}
 
@@ -234,8 +234,8 @@ export function AssistantRevueModal({
               )}
               {etat.analyse.constats.length > 0 && (
                 <section aria-label="Ce qui ressort" className="flex flex-col gap-1.5">
-                  <h3 className="text-sm font-medium text-ink-2">Ce qui ressort</h3>
-                  <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm leading-relaxed text-ink marker:text-ink-3">
+                  <h3 className="text-label font-medium text-ink-2">Ce qui ressort</h3>
+                  <ul className="flex list-disc flex-col gap-1.5 pl-5 text-label leading-relaxed text-ink marker:text-ink-3">
                     {etat.analyse.constats.map((constat, index) => (
                       <li key={index}>{constat}</li>
                     ))}
@@ -244,15 +244,15 @@ export function AssistantRevueModal({
               )}
               {etat.analyse.pistes.length > 0 && (
                 <section aria-label="Pistes pour la semaine" className="flex flex-col gap-1.5">
-                  <h3 className="text-sm font-medium text-ink-2">Pistes pour la semaine</h3>
-                  <ol className="flex list-decimal flex-col gap-1.5 pl-5 text-sm leading-relaxed text-ink marker:font-semibold marker:text-kcal">
+                  <h3 className="text-label font-medium text-ink-2">Pistes pour la semaine</h3>
+                  <ol className="flex list-decimal flex-col gap-1.5 pl-5 text-label leading-relaxed text-ink marker:font-semibold marker:text-kcal">
                     {etat.analyse.pistes.map((piste, index) => (
                       <li key={index}>{piste}</li>
                     ))}
                   </ol>
                 </section>
               )}
-              <p className="text-xs text-ink-3">
+              <p className="text-caption text-ink-3">
                 Généré par IA à partir de tes tâches, de ton agenda, de tes habitudes, de ta santé et de tes notes de la
                 semaine. Ce sont des constats, pas des conseils médicaux.
               </p>
@@ -292,7 +292,7 @@ export function AssistantRevueModal({
         )}
 
         {(etat.phase === "replanification" || etat.phase === "application") && (
-          <p className="text-xs text-ink-3">Proposé par l&apos;IA : rien n&apos;est modifié avant que tu appliques.</p>
+          <p className="text-caption text-ink-3">Proposé par l&apos;IA : rien n&apos;est modifié avant que tu appliques.</p>
         )}
       </div>
     </Modal>
