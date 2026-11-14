@@ -32,7 +32,7 @@ export function ArchivedTasksSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2"
+        className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         aria-expanded={open}
       >
         <span className={sectionTitle}>Tâches archivées ({taches.length})</span>
