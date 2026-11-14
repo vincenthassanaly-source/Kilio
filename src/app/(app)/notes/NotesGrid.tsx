@@ -10,7 +10,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { NoteCard } from "./NoteCard";
 import { AddNoteToggle } from "./AddNoteToggle";
 import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
-import { input, pillTag, sectionTitle, zoneTapPill } from "@/lib/ui";
+import { input, linkButton, pillTag, sectionTitle, zoneTapPill } from "@/lib/ui";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ErrorInline } from "@/components/ErrorInline";
 
@@ -94,7 +94,12 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
       ) : isError ? (
         <ErrorInline message="Impossible de charger les notes." retry={() => refetch()} />
       ) : !notes || notes.length === 0 ? (
-        <p className="text-ink-2">Aucune note pour l&apos;instant.</p>
+        <div className="flex flex-col items-center gap-1 px-4 py-10 text-center">
+          <p className="font-display text-heading-sm font-semibold text-ink">Aucune note pour l&apos;instant</p>
+          <p className="text-label text-ink-2">
+            Ajoute une première note ou une liste avec le bouton ci-dessus.
+          </p>
+        </div>
       ) : (
         <>
           <input
@@ -103,6 +108,8 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Rechercher une note"
+            autoComplete="off"
+            enterKeyHint="search"
             className={input}
           />
 
@@ -114,7 +121,7 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
                   type="button"
                   onClick={() => toggleTagFilter(tag.id)}
                   aria-pressed={tagFilter.includes(tag.id)}
-                  className={`${zoneTapPill} ${
+                  className={`${zoneTapPill} max-w-full truncate transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                     tagFilter.includes(tag.id) ? `${pillTag} bg-kcal-soft text-kcal` : pillTag
                   }`}
                 >
@@ -125,7 +132,19 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
           )}
 
           {filtered.length === 0 ? (
-            <p className="py-5 text-center text-sm text-ink-3">Aucune note ne correspond à ta recherche.</p>
+            <div className="flex flex-col items-center gap-1 py-6 text-center">
+              <p className="text-label text-ink-2">Aucune note ne correspond à ta recherche.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setChoixTags([]);
+                }}
+                className={`${linkButton} inline-flex min-h-11 items-center`}
+              >
+                Effacer la recherche et les filtres
+              </button>
+            </div>
           ) : (
             <>
               {epinglees.length > 0 && (
