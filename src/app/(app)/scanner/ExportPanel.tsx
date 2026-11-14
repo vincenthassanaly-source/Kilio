@@ -150,7 +150,7 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
           </p>
           {partageDispo && (
             <button type="button" className={primaryButton} onClick={envoyer}>
-              Partager / enregistrer
+              Partager
             </button>
           )}
           <button type="button" className={partageDispo ? secondaryButton : primaryButton} onClick={telechargerFichiers}>
@@ -159,11 +159,14 @@ export function ExportPanel({ pages, onVider }: { pages: PageBrouillon[]; onVide
           {fichiers.length === 1 && fichiers[0].type === "application/pdf" && (
             <EnregistrerDansDocuments fichier={fichiers[0]} />
           )}
-          <button type="button" className={dangerButton} onClick={() => setConfirmerVidage(true)}>
-            Vider le brouillon
-          </button>
         </div>
       )}
+
+      {/* Toujours accessible, fichier généré ou non : repartir de zéro ne doit
+          pas exiger de créer un export d'abord. */}
+      <button type="button" className={dangerButton} onClick={() => setConfirmerVidage(true)} disabled={enCours}>
+        Vider le brouillon
+      </button>
 
       {erreur && <p role="alert" className={errorText}>{erreur}</p>}
 

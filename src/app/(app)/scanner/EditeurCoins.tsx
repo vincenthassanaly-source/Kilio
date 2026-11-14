@@ -15,6 +15,8 @@ type Props = {
   restantes: number;
   enCours: boolean;
   erreur: string | null;
+  /** Vrai en « Reprendre » : la photo remplace une page au lieu d'en ajouter une. */
+  remplace?: boolean;
   onValider: (quad: Quad) => void;
   /** Abandonne cette photo ; les suivantes de la file restent à traiter. */
   onAnnuler: () => void;
@@ -61,7 +63,7 @@ function Loupe({ url, largeur, hauteur, coin, echelle, doigt }: { url: string; l
  * Contenu du recadrage pour UNE photo : état (cadre, aperçu, détection)
  * propre à la photo, remis à zéro par le `key` de l'appelant.
  */
-function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }: Props) {
+function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, onAnnuler }: Props) {
   const { width: w, height: h } = source;
   const svgRef = useRef<SVGSVGElement>(null);
   const [url, setUrl] = useState<string | null>(null);
@@ -197,7 +199,7 @@ function Recadrage({ source, restantes, enCours, erreur, onValider, onAnnuler }:
           disabled={enCours || !valide || detecte === null}
           className="min-h-11 rounded-2xl bg-white px-5 text-sm font-semibold text-black disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         >
-          {enCours ? "Traitement…" : "Valider"}
+          {enCours ? "Traitement…" : remplace ? "Remplacer la page" : "Ajouter la page"}
         </button>
       </div>
     </>

@@ -55,6 +55,14 @@ describe("ExportPanel : fichier prêt", () => {
     expect(screen.getByRole("button", { name: "Vider le brouillon" })).toBeTruthy();
   });
 
+  it("« Vider le brouillon » reste accessible avant toute génération de fichier", () => {
+    const onVider = vi.fn();
+    render(<ExportPanel pages={[page(1), page(2)]} onVider={onVider} />);
+    expect(screen.queryByRole("button", { name: "Télécharger" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Vider le brouillon" }));
+    expect(screen.getByText("Vider le brouillon ?")).toBeTruthy();
+  });
+
   it("ne propose pas « Enregistrer dans Documents » pour des images JPEG", async () => {
     render(<ExportPanel pages={[page(1)]} onVider={vi.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: "Images JPEG" }));

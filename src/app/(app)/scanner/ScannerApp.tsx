@@ -187,7 +187,7 @@ export function ScannerApp() {
         aria-label="Importer des photos"
       />
 
-      <p className="text-sm text-ink-2">Les pages restent sur cet appareil tant que tu n&apos;appuies pas sur « Enregistrer dans Documents ».</p>
+      <p className="text-sm text-ink-2">Tes pages restent sur cet appareil jusqu&apos;à ce que tu les envoies dans Documents ou que tu les partages.</p>
 
       <div className="grid grid-cols-2 gap-2">
         <button type="button" className={primaryButton} onClick={() => ouvrirViseur()} disabled={importEnCours}>
@@ -258,6 +258,7 @@ export function ScannerApp() {
       {viseurOuvert && (
         <Viseur
           nombrePages={pages.length}
+          remplacePage={remplacerId ? pages.findIndex((p) => p.id === remplacerId) + 1 || undefined : undefined}
           enPause={file.length > 0}
           onCapture={(image) => mettreEnFile([image])}
           onImporter={ouvrirSelecteur}
@@ -272,6 +273,7 @@ export function ScannerApp() {
           restantes={file.length - 1}
           enCours={enCours}
           erreur={erreurRecadrage}
+          remplace={remplacerId !== null}
           onValider={valider}
           onAnnuler={annulerRecadrage}
           onFermer={() => {
