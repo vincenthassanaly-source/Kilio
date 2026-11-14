@@ -1,0 +1,101 @@
+{
+  "nom": "planifier-et-pesee",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 3560,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/planifier «/i] >> nth=0",
+      "note": "Planifier",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 5053,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 358,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "press",
+      "touche": "Escape",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 358,
+      "fichier": "04-press.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=spinbutton[name=/poids/i]",
+      "valeur": "81.5",
+      "statut": "échec",
+      "erreur": "locator.fill: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 5066,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=spinbutton[name=/taille/i]",
+      "valeur": "90",
+      "statut": "échec",
+      "erreur": "locator.fill: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 5052,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "screenshot",
+      "note": "pesée remplie",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "ms": 346,
+      "fichier": "07-screenshot.png"
+    }
+  ]
+}

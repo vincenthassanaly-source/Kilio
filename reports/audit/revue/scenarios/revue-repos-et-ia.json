@@ -1,0 +1,18 @@
+{ "nom": "revue-repos-et-ia", "theme": "clair", "etapes": [
+ {"action":"goto","url":"/revue","note":"ouvrir la revue"},
+ {"action":"screenshot","note":"page complete"},
+ {"action":"click","cible":"role=button[name=/Bilan en mots/i]","note":"IA bilan"},
+ {"action":"wait","ms":2500},
+ {"action":"screenshot","note":"etat IA"},
+ {"action":"press","touche":"Escape"},
+ {"action":"click","cible":"role=button[name=/Analyser ma semaine/i]","note":"IA semaine"},
+ {"action":"wait","ms":2500},
+ {"action":"screenshot","note":"etat IA semaine"},
+ {"action":"press","touche":"Escape"},
+ {"action":"click","cible":"role=link[name=/Ouvrir lundi/i]","note":"jour -> agenda"},
+ {"action":"wait","ms":1500},
+ {"action":"screenshot","note":"agenda ?from=revue"},
+ {"action":"back"},
+ {"action":"wait","ms":1000},
+ {"action":"screenshot","note":"retour revue"}
+]}

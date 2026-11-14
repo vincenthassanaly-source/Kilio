@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/courses",
+    "dynamique": false,
+    "url": "/courses",
+    "theme": "clair",
+    "fichier": "courses.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/courses",
+    "dynamique": false,
+    "url": "/courses",
+    "theme": "sombre",
+    "fichier": "courses.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

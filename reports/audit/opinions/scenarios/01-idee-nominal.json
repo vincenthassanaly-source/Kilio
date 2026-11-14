@@ -1,0 +1,43 @@
+{
+ "nom": "idee-nominal",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/opinions",
+   "note": "ouvrir Opinions"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/nouvelle idée/i]",
+   "valeur": "Il faut taxer davantage les très hauts patrimoines"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^ajouter$/i]",
+   "note": "ajouter l'idée"
+  },
+  {
+   "action": "expect_text",
+   "texte": "taxer davantage"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=/nouvelle idée/i]",
+   "valeur": "Les loyers devraient être encadrés dans les zones tendues",
+   "note": "2e idée"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^ajouter$/i]"
+  },
+  {
+   "action": "reload",
+   "note": "persistance"
+  },
+  {
+   "action": "expect_text",
+   "texte": "taxer davantage"
+  }
+ ]
+}

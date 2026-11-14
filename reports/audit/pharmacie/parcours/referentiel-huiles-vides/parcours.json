@@ -1,0 +1,89 @@
+{
+  "nom": "referentiel-huiles-vides",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/pharmacie",
+      "note": "accueil",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=yZDoiukyZDUYNBiD (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=XeXZDiNhMoTuWHLr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b2?_rsc=uHKxVsuW5jVO6yom (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=zAIACHw_oXEsRa1p (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1701,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=link[name=/Référentiel/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/referentiel",
+      "ms": 409,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "référentiel vide (mock)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/referentiel",
+      "ms": 329,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=link[name=/Huiles/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/huiles-essentielles",
+      "ms": 383,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/Ajouter une huile/i]",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/pharmacie/huiles-essentielles (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/huiles-essentielles",
+      "ms": 625,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "screenshot",
+      "note": "formulaire d'ajout d'huile dans l'app",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/pharmacie/huiles-essentielles",
+      "ms": 361,
+      "fichier": "06-screenshot.png"
+    }
+  ]
+}

@@ -1,0 +1,273 @@
+{
+  "nom": "recherche-filtre-suppression",
+  "theme": "sombre",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/notes",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ap_U6Chp7ZClI43I (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1845,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "fill",
+      "cible": "role=searchbox[name=/Rechercher une note/]",
+      "valeur": "zzz",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 362,
+      "fichier": "02-fill.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "recherche sans resultat",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 339,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "fill",
+      "cible": "role=searchbox[name=/Rechercher une note/]",
+      "valeur": "pain",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 344,
+      "fichier": "04-fill.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "recherche dans items",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 334,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=/Effacer la recherche/]",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 5036,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "fill",
+      "cible": "role=searchbox[name=/Rechercher une note/]",
+      "valeur": "",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 350,
+      "fichier": "07-fill.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/^#urgent$/]",
+      "note": "filtre tag",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "opinions_versions",
+          "query": "?select=id",
+          "body": {
+            "idee_id": "ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+            "position": "Il faut taxer davantage les très hauts patrimoines",
+            "theme": null,
+            "conviction": "plutot",
+            "arguments_pour": "",
+            "arguments_contre": "",
+            "source": "",
+            "score_economique": null,
+            "score_societal": null,
+            "score_autorite": null,
+            "score_ecologie": null,
+            "score_identite": null
+          }
+        },
+        {
+          "method": "PATCH",
+          "table": "opinions_idees",
+          "query": "?id=eq.ce17a56c-9c79-4270-a5ad-7b3c5512cd0f",
+          "body": {
+            "position": "Il faut taxer davantage les très hauts patrimoines",
+            "theme": "economie",
+            "conviction": "plutot",
+            "arguments_pour": "",
+            "arguments_contre": "",
+            "source": "",
+            "score_economique": null,
+            "score_societal": null,
+            "score_autorite": null,
+            "score_ecologie": null,
+            "score_identite": null,
+            "updated_at": "2026-11-14T19:19:02.105Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "ms": 5051,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "screenshot",
+      "note": "filtre tag actif",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 329,
+      "fichier": "09-screenshot.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/Supprimer la note « Courses week-end »/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 417,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "wait",
+      "ms": 865,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "fichier": "11-wait.png"
+    },
+    {
+      "n": 12,
+      "action": "screenshot",
+      "note": "suppression + toast Annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 338,
+      "fichier": "12-screenshot.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=/Annuler la suppression/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 383,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "wait",
+      "ms": 853,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "fichier": "14-wait.png"
+    },
+    {
+      "n": 15,
+      "action": "screenshot",
+      "note": "annulee",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 355,
+      "fichier": "15-screenshot.png"
+    },
+    {
+      "n": 16,
+      "action": "goto",
+      "url": "http://localhost:3100/notes?action=new",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/notes?action=new (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1694,
+      "fichier": "16-goto.png"
+    },
+    {
+      "n": 17,
+      "action": "wait",
+      "ms": 1154,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes?action=new",
+      "fichier": "17-wait.png"
+    },
+    {
+      "n": 18,
+      "action": "screenshot",
+      "note": "raccourci ?action=new",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes?action=new",
+      "ms": 363,
+      "fichier": "18-screenshot.png"
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "nom": "routine-vide",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/musculation",
+      "note": "accueil",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=_h9_lwc6WpwMkwQb (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2161,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "goto",
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "note": "ouvrir editeur (acces direct : bouton masque, catalogue vide)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=hVAt5tUOWQm8hx7F (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1428,
+      "fichier": "02-goto.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "editeur vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "ms": 349,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/^enregistrer$/i]",
+      "note": "enregistrer sans nom",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "ms": 447,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "erreur nom",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "ms": 356,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=textbox[name=/nom/i]",
+      "valeur": "Push A",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "ms": 358,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name=/^enregistrer$/i]",
+      "note": "enregistrer sans exercice",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "ms": 412,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "erreur exercice",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "ms": 341,
+      "fichier": "08-screenshot.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/ajouter un exercice/i]",
+      "note": "selecteur",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "ms": 451,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "screenshot",
+      "note": "selecteur catalogue vide",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/musculation/routines/nouvelle (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/musculation/routines/nouvelle",
+      "ms": 385,
+      "fichier": "10-screenshot.png"
+    }
+  ]
+}

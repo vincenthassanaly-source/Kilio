@@ -1,0 +1,16 @@
+{"nom":"limites","theme":"sombre","etapes":[
+{"action":"goto","url":"/courses"},
+{"action":"click","cible":"role=button[name=/ajouter un article/i]"},
+{"action":"click","cible":"role=button[name=/^Ajouter$/i]","note":"vide"},
+{"action":"screenshot","note":"champ vide"},
+{"action":"fill","cible":"role=combobox","valeur":"Un article au libelle extremement long pour verifier le retour a la ligne dans la liste de courses sans debordement horizontal de la carte"},
+{"action":"press","touche":"Enter"},
+{"action":"wait","ms":600},
+{"action":"fill","cible":"role=combobox","valeur":"pain complet"},
+{"action":"screenshot","note":"doublon ?"},
+{"action":"press","touche":"Enter"},
+{"action":"wait","ms":600},
+{"action":"screenshot","note":"apres doublon"},
+{"action":"back"},
+{"action":"screenshot","note":"retour arriere"}
+]}

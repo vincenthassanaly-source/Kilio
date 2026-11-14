@@ -1,0 +1,158 @@
+[
+  {
+    "route": "/pharmacie",
+    "dynamique": false,
+    "url": "/pharmacie",
+    "theme": "clair",
+    "fichier": "pharmacie.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/[matiereId]",
+    "dynamique": true,
+    "url": "/pharmacie/00000000-0000-4000-8000-0000000000a1",
+    "theme": "clair",
+    "fichier": "pharmacie__matiereId_.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/[matiereId]/[chapitreId]",
+    "dynamique": true,
+    "url": "/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1",
+    "theme": "clair",
+    "fichier": "pharmacie__matiereId___chapitreId_.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/huiles-essentielles",
+    "dynamique": false,
+    "url": "/pharmacie/huiles-essentielles",
+    "theme": "clair",
+    "fichier": "pharmacie_huiles-essentielles.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/huiles-essentielles/[huileId]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/pharmacie/referentiel",
+    "dynamique": false,
+    "url": "/pharmacie/referentiel",
+    "theme": "clair",
+    "fichier": "pharmacie_referentiel.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/referentiel/classe/[classeId]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/pharmacie/referentiel/medicament/[moleculeId]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/pharmacie/referentiel/pathologie/[pathologieId]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/pharmacie/revision",
+    "dynamique": false,
+    "url": "/pharmacie/revision",
+    "theme": "clair",
+    "fichier": "pharmacie_revision.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie",
+    "dynamique": false,
+    "url": "/pharmacie",
+    "theme": "sombre",
+    "fichier": "pharmacie.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/[matiereId]",
+    "dynamique": true,
+    "url": "/pharmacie/00000000-0000-4000-8000-0000000000a1",
+    "theme": "sombre",
+    "fichier": "pharmacie__matiereId_.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/[matiereId]/[chapitreId]",
+    "dynamique": true,
+    "url": "/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1",
+    "theme": "sombre",
+    "fichier": "pharmacie__matiereId___chapitreId_.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/huiles-essentielles",
+    "dynamique": false,
+    "url": "/pharmacie/huiles-essentielles",
+    "theme": "sombre",
+    "fichier": "pharmacie_huiles-essentielles.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/huiles-essentielles/[huileId]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/pharmacie/referentiel",
+    "dynamique": false,
+    "url": "/pharmacie/referentiel",
+    "theme": "sombre",
+    "fichier": "pharmacie_referentiel.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/pharmacie/referentiel/classe/[classeId]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/pharmacie/referentiel/medicament/[moleculeId]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/pharmacie/referentiel/pathologie/[pathologieId]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/pharmacie/revision",
+    "dynamique": false,
+    "url": "/pharmacie/revision",
+    "theme": "sombre",
+    "fichier": "pharmacie_revision.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

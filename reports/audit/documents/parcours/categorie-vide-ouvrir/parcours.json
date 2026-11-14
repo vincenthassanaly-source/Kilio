@@ -1,0 +1,63 @@
+{
+  "nom": "categorie-vide-ouvrir",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/documents/categories",
+      "note": "ouvrir Catégories",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=Y6dKgdKXsMIWQwKi (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=iipVEAYlCkxH8LUx (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1349,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=link[name=/banque/i]",
+      "note": "toucher Banque (0 document)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/documents?categorie=Banque",
+      "ms": 433,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "wait",
+      "ms": 1326,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/documents?categorie=Banque&_rsc=bjRBlq9jyltCYPbh (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/documents?categorie=Banque",
+      "fichier": "03-wait.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "résultat",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/documents?categorie=Banque",
+      "ms": 325,
+      "fichier": "04-screenshot.png"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{ "nom": "bascules", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/reglages", "note": "ouvrir Réglages" },
+  { "action": "expect_text", "texte": "Rappels" },
+  { "action": "click", "cible": "role=button[name=/Clair|Sombre/]", "note": "bascule Apparence" },
+  { "action": "reload", "note": "persistance du thème" },
+  { "action": "click", "cible": "role=switch[name=/Activer les notifications/]", "note": "notifications (push indisponible en headless)" },
+  { "action": "wait", "ms": 800 },
+  { "action": "click", "cible": "role=button[name=/Clair|Sombre/]", "note": "retour thème" },
+  { "action": "click", "cible": "role=link[name=/Personnaliser la navigation/]", "note": "lien vers Plus" },
+  { "action": "expect_text", "texte": "Appui long" }
+] }

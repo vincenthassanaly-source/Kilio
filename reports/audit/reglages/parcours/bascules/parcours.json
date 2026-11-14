@@ -1,0 +1,131 @@
+{
+  "nom": "bascules",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/reglages",
+      "note": "ouvrir Réglages",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=hqm1dxMlCBeFTi2Z (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1410,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "expect_text",
+      "texte": "Rappels",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/reglages",
+      "ms": 374,
+      "fichier": "02-expect_text.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/Clair|Sombre/]",
+      "note": "bascule Apparence",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/reglages",
+      "ms": 420,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "reload",
+      "note": "persistance du thème",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=hqm1dxMlCBeFTi2Z (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/reglages",
+      "ms": 1313,
+      "fichier": "04-reload.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=switch[name=/Activer les notifications/]",
+      "note": "notifications (push indisponible en headless)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "console.error : Notifications push : échec de l'activation ou de la désactivation Error: Clé VAPID publique manquante (NEXT_PUBLIC_VAPID_PUBLIC_KEY).\n    at c (http://localhost:3100/_next/static/chunks/3bd3q7ok4dbk1.js:1:12089)\n    at b (http://localhost:3100/_next/static/chunks/3bd3q7ok4dbk1.js:1:13640)\n    at s1 (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:161630)\n    at http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:167436\n    at tA (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:29060)\n    at s8 (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:162863)\n    at fD (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:200111)\n    at fI (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:199933)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/reglages",
+      "ms": 401,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "wait",
+      "ms": 1148,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/reglages",
+      "fichier": "06-wait.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name=/Clair|Sombre/]",
+      "note": "retour thème",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/reglages",
+      "ms": 411,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=link[name=/Personnaliser la navigation/]",
+      "note": "lien vers Plus",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 427,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "Appui long",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 364,
+      "fichier": "09-expect_text.png"
+    }
+  ]
+}

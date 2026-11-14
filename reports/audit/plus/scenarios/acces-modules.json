@@ -1,0 +1,14 @@
+{ "nom": "acces-modules", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/", "note": "Aujourd'hui, barre du bas du banc" },
+  { "action": "click", "cible": "role=link[name=/^Plus$/]", "note": "tap 1 : onglet Plus" },
+  { "action": "expect_text", "texte": "Appui long" },
+  { "action": "click", "cible": "role=button[name=/Collection/]", "note": "tap 2 : tuile Collection" },
+  { "action": "expect_text", "texte": "Collection" },
+  { "action": "click", "cible": "role=link[name=/^Plus$/]", "note": "retour vers Plus par la barre" },
+  { "action": "scroll", "cible": "role=button[name=/Réglages/]", "note": "défiler vers le bas de la grille" },
+  { "action": "screenshot", "note": "bas de grille Plus" },
+  { "action": "click", "cible": "role=button[name=/Réglages/]", "note": "tuile Réglages" },
+  { "action": "expect_text", "texte": "Rappels" },
+  { "action": "click", "cible": "role=link[name=/Retour vers Plus/]", "note": "BackLink vers Plus" },
+  { "action": "expect_text", "texte": "Appui long" }
+] }

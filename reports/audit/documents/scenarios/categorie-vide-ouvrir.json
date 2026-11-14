@@ -1,0 +1,5 @@
+{ "nom": "categorie-vide-ouvrir", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/documents/categories", "note": "ouvrir Catégories" },
+ { "action": "click", "cible": "role=link[name=/banque/i]", "note": "toucher Banque (0 document)" },
+ { "action": "wait", "ms": 1000 },
+ { "action": "screenshot", "note": "résultat" } ] }

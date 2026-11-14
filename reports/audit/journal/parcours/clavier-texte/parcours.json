@@ -1,0 +1,187 @@
+{
+  "nom": "clavier-texte",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/journal",
+      "note": "ouvrir le Journal",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=mL3wFUWE0yD09nkH (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2017,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/^Clavier$/]",
+      "note": "bascule Clavier",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 496,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "mode clavier vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 427,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "wait",
+      "ms": 1149,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "fichier": "04-wait.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/plus d.actions/i]",
+      "note": "menu ...",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 386,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "screenshot",
+      "note": "menu avec Voir le texte",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 350,
+      "fichier": "06-screenshot.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=menuitem[name=/voir le texte/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 434,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "fenêtre texte du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 359,
+      "fichier": "08-screenshot.png"
+    },
+    {
+      "n": 9,
+      "action": "press",
+      "touche": "Escape",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/journal",
+      "ms": 367,
+      "fichier": "09-press.png"
+    },
+    {
+      "n": 10,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/journal (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=mL3wFUWE0yD09nkH (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "notes",
+          "query": "?select=id",
+          "body": {
+            "titre": "Courses week-end",
+            "contenu": "",
+            "type": "checklist",
+            "couleur": "rose"
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "notes_tags",
+          "query": "?note_id=eq.436d4346-62c1-4023-9482-acc5ce3af063",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/journal",
+      "ms": 1542,
+      "fichier": "10-reload.png"
+    },
+    {
+      "n": 11,
+      "action": "screenshot",
+      "note": "après rechargement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "note_items",
+          "query": "?columns=%22note_id%22%2C%22libelle%22%2C%22position%22",
+          "body": [
+            {
+              "note_id": "436d4346-62c1-4023-9482-acc5ce3af063",
+              "libelle": "Pain",
+              "position": 0
+            },
+            {
+              "note_id": "436d4346-62c1-4023-9482-acc5ce3af063",
+              "libelle": "Lait",
+              "position": 1
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3100/journal",
+      "ms": 329,
+      "fichier": "11-screenshot.png"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+<!doctype html><meta charset="utf-8"><title>Parcours utilisateur</title>
+<style>body{font:14px system-ui;margin:16px;background:#f4f4f4}.film{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
+figure{margin:0;flex:0 0 220px;background:#fff;padding:8px;border-radius:8px;border:2px solid #ccc}img{width:100%;border:1px solid #ddd}
+.ok{border-color:#3a3}.anomalie{border-color:#e90}.échec{border-color:#c33}.tag{font-weight:600}small{color:#666}</style>
+<h1>Parcours utilisateur</h1><h2>bascules <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir Réglages<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=hqm1dxMlCBeFTi2Z (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-expect_text.png">
+<figcaption><b>2. expect_text</b> http://localhost:3100/reglages<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-click.png">
+<figcaption><b>3. click</b> bascule Apparence<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="04-reload.png">
+<figcaption><b>4. reload</b> persistance du thème<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=hqm1dxMlCBeFTi2Z (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="05-click.png">
+<figcaption><b>5. click</b> notifications (push indisponible en headless)<br>
+<span class="tag">anomalie</span> 
+<br>⚠ console.error : Notifications push : échec de l'activation ou de la désactivation Error: Clé VAPID publique manquante (NEXT_PUBLIC_VAPID_PUBLIC_KEY).
+    at c (http://localhost:3100/_next/static/chunks/3bd3q7ok4dbk1.js:1:12089)
+    at b (http://localhost:3100/_next/static/chunks/3bd3q7ok4dbk1.js:1:13640)
+    at s1 (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:161630)
+    at http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:167436
+    at tA (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:29060)
+    at s8 (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:162863)
+    at fD (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:200111)
+    at fI (http://localhost:3100/_next/static/chunks/0mx549kchncqb.js:31:199933)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-wait.png">
+<figcaption><b>6. wait</b> http://localhost:3100/reglages<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-click.png">
+<figcaption><b>7. click</b> retour thème<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-click.png">
+<figcaption><b>8. click</b> lien vers Plus<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-expect_text.png">
+<figcaption><b>9. expect_text</b> http://localhost:3100/plus<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>

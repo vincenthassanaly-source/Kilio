@@ -1,0 +1,23 @@
+{"nom":"ajout-coche-vider","theme":"clair","etapes":[
+{"action":"goto","url":"/courses","note":"ouvrir"},
+{"action":"click","cible":"role=button[name=/ajouter un article/i]","note":"ouvrir carte"},
+{"action":"fill","cible":"role=combobox","valeur":"lait, oeufs, pain complet, savon"},
+{"action":"screenshot","note":"saisie multiple"},
+{"action":"click","cible":"role=button[name=/^Ajouter 4/i]"},
+{"action":"wait","ms":800},
+{"action":"screenshot","note":"apres ajout, carte ouverte"},
+{"action":"click","cible":"role=button[name=/^Fermer$/i]"},
+{"action":"wait","ms":500},
+{"action":"screenshot","note":"liste groupee par rayon"},
+{"action":"click","cible":"role=button[name=/Renommer « lait »/i]","note":"renommer"},
+{"action":"press","touche":"Escape"},
+{"action":"click","cible":"role=button[name=/lait/i][pressed]"},
+{"action":"screenshot","note":"coche lait"},
+{"action":"reload"},
+{"action":"expect_text","texte":"Articles pris"},
+{"action":"click","cible":"role=button[name=/Articles pris/i]"},
+{"action":"screenshot","note":"section depliee"},
+{"action":"click","cible":"role=button[name=/Supprimer les articles pris/i]"},
+{"action":"wait","ms":600},
+{"action":"screenshot","note":"toast annuler"}
+]}

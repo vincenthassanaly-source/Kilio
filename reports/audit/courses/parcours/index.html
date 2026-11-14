@@ -1,0 +1,99 @@
+<!doctype html><meta charset="utf-8"><title>Parcours utilisateur</title>
+<style>body{font:14px system-ui;margin:16px;background:#f4f4f4}.film{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
+figure{margin:0;flex:0 0 220px;background:#fff;padding:8px;border-radius:8px;border:2px solid #ccc}img{width:100%;border:1px solid #ddd}
+.ok{border-color:#3a3}.anomalie{border-color:#e90}.échec{border-color:#c33}.tag{font-weight:600}small{color:#666}</style>
+<h1>Parcours utilisateur</h1><h2>coche-pris-suppression <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> http://localhost:3100/courses<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> cocher lait<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-click.png">
+<figcaption><b>3. click</b> cocher savon<br>
+<span class="tag">ok</span> 
+
+<br>✎ 2 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="04-wait.png">
+<figcaption><b>4. wait</b> http://localhost:3100/courses<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/courses (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/courses (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/courses (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-screenshot.png">
+<figcaption><b>5. screenshot</b> apres cochage<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="06-reload.png">
+<figcaption><b>6. reload</b> http://localhost:3100/courses<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-screenshot.png">
+<figcaption><b>7. screenshot</b> apres rechargement<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-click.png">
+<figcaption><b>8. click</b> role=button[name=/Articles pris/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-wait.png">
+<figcaption><b>9. wait</b> http://localhost:3100/courses<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="10-screenshot.png">
+<figcaption><b>10. screenshot</b> section depliee<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-click.png">
+<figcaption><b>11. click</b> role=button[name=/Supprimer « oeufs »/i]<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="12-wait.png">
+<figcaption><b>12. wait</b> http://localhost:3100/courses<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/courses (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/courses (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-screenshot.png">
+<figcaption><b>13. screenshot</b> suppression unitaire + toast<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="14-click.png">
+<figcaption><b>14. click</b> role=button[name=/Supprimer les articles pris/i]<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="15-wait.png">
+<figcaption><b>15. wait</b> http://localhost:3100/courses<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/courses (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="16-screenshot.png">
+<figcaption><b>16. screenshot</b> vider les pris<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="17-click.png">
+<figcaption><b>17. click</b> role=button[name=/Annuler/i]<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="18-wait.png">
+<figcaption><b>18. wait</b> http://localhost:3100/courses<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="19-screenshot.png">
+<figcaption><b>19. screenshot</b> annuler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>

@@ -1,0 +1,164 @@
+{
+  "nom": "r-selection-suppr",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=5jh4nsoZuEnfqvkU (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2558,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/^Tout$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.2d00f23f-b413-4df0-b93e-16bff3aa66a2",
+          "body": {
+            "coche": true
+          }
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 421,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/Appeler le dentiste/] >> nth=0",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.2cd8dad2-0483-4a81-bc25-86998cc02edd",
+          "body": {
+            "coche": true
+          }
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 399,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "édition",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.e5eb6e03-b23a-40ae-9ee4-20a8c3245018",
+          "body": {
+            "fait": true,
+            "echeance": "2026-11-14"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 348,
+      "fichier": "04-screenshot.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^Supprimer$/]",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "courses_items",
+          "query": "?id=eq.ac5c4199-d121-4866-89c7-d8db388f8cbf",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 5048,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "screenshot",
+      "note": "toast Supprimé + Annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 335,
+      "fichier": "06-screenshot.png"
+    },
+    {
+      "n": 7,
+      "action": "wait",
+      "ms": 7853,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "courses_items",
+          "query": "?id=in.%282cd8dad2-0483-4a81-bc25-86998cc02edd%2C2d00f23f-b413-4df0-b93e-16bff3aa66a2%29",
+          "body": null
+        },
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?on_conflict=id&columns=%22id%22%2C%22libelle%22%2C%22coche%22%2C%22created_at%22%2C%22termine_le%22",
+          "body": [
+            {
+              "id": "ac5c4199-d121-4866-89c7-d8db388f8cbf",
+              "libelle": "oeufs",
+              "created_at": "2026-11-14T18:03:42.603Z"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "fichier": "07-wait.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "après délai",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 351,
+      "fichier": "08-screenshot.png"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{"nom":"recherche-retour","theme":"clair","etapes":[
+{"action":"goto","url":"/pharmacie","note":"accueil Cours"},
+{"action":"fill","cible":"role=searchbox[name=/rechercher dans la pharmacie/i]","valeur":"toux"},
+{"action":"expect_text","texte":"IEC : toux sèche"},
+{"action":"click","cible":"role=link[name=/IEC : toux sèche/i]"},
+{"action":"expect_text","texte":"Antihypertenseurs"},
+{"action":"back"},
+{"action":"screenshot","note":"retour : la requête est-elle conservée ?"},
+{"action":"fill","cible":"role=searchbox[name=/rechercher dans la pharmacie/i]","valeur":"zzzz"},
+{"action":"expect_text","texte":"Aucune notion"}
+]}

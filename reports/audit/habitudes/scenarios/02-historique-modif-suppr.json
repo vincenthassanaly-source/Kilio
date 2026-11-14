@@ -1,0 +1,16 @@
+{ "nom": "historique-modif-suppr", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/habitudes", "note": "ouvrir" },
+ { "action": "click", "cible": "role=radio[name=/historique/i]", "note": "historique" },
+ { "action": "wait", "ms": 800 },
+ { "action": "click", "cible": "role=button[name=/mois précédent/i]" },
+ { "action": "wait", "ms": 600 },
+ { "action": "click", "cible": "role=radio[name=/aujourd/i]", "note": "retour" },
+ { "action": "click", "cible": "role=button[name=/modifier/i] >> nth=0", "note": "modifier" },
+ { "action": "click", "cible": "role=button[name=/annuler/i]" },
+ { "action": "click", "cible": "role=button[name=/supprimer/i] >> nth=0", "note": "supprimer" },
+ { "action": "wait", "ms": 500 },
+ { "action": "click", "cible": "role=button[name=/annuler/i]", "note": "annuler suppression" },
+ { "action": "wait", "ms": 500 },
+ { "action": "goto", "url": "/", "note": "écran du jour" },
+ { "action": "wait", "ms": 800 }
+]}

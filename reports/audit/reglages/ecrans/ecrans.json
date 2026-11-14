@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/reglages",
+    "dynamique": false,
+    "url": "/reglages",
+    "theme": "clair",
+    "fichier": "reglages.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/reglages",
+    "dynamique": false,
+    "url": "/reglages",
+    "theme": "sombre",
+    "fichier": "reglages.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  }
+]

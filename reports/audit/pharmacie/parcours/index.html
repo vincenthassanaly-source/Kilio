@@ -1,0 +1,174 @@
+<!doctype html><meta charset="utf-8"><title>Parcours utilisateur</title>
+<style>body{font:14px system-ui;margin:16px;background:#f4f4f4}.film{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
+figure{margin:0;flex:0 0 220px;background:#fff;padding:8px;border-radius:8px;border:2px solid #ccc}img{width:100%;border:1px solid #ddd}
+.ok{border-color:#3a3}.anomalie{border-color:#e90}.échec{border-color:#c33}.tag{font-weight:600}small{color:#666}</style>
+<h1>Parcours utilisateur</h1><h2>consultation-sommaire <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> accueil<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=yZDoiukyZDUYNBiD (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=XeXZDiNhMoTuWHLr (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/pharmacie (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=zAIACHw_oXEsRa1p (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> role=link[name=/Pharmacologie/i]<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=ReNIimeEH0Z_fDyE (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-expect_text.png">
+<figcaption><b>3. expect_text</b> http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> role=link[name=/Antihypertenseurs/i]<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1?_rsc=Tk80CbRd_COqdvGF (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-expect_text.png">
+<figcaption><b>5. expect_text</b> http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-click.png">
+<figcaption><b>6. click</b> role=button[name=/sommaire/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="07-click.png">
+<figcaption><b>7. click</b> role=button[name=/IEC : toux sèche/i]<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-screenshot.png">
+<figcaption><b>8. screenshot</b> après saut<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="09-click.png">
+<figcaption><b>9. click</b> role=button[name=/Modifier la notion IEC : toux/i]<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="10-screenshot.png">
+<figcaption><b>10. screenshot</b> éditeur ouvert<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-press.png">
+<figcaption><b>11. press</b> http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-goto.png">
+<figcaption><b>12. goto</b> lien profond<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-screenshot.png">
+<figcaption><b>13. screenshot</b> http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1#notion-00000000-0000-4000-8000-0000000000c2<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>
+<h2>recherche-retour <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> accueil Cours<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=yZDoiukyZDUYNBiD (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=XeXZDiNhMoTuWHLr (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=zAIACHw_oXEsRa1p (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b2?_rsc=uHKxVsuW5jVO6yom (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-fill.png">
+<figcaption><b>2. fill</b> role=searchbox[name=/rechercher dans la pharmacie/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-expect_text.png">
+<figcaption><b>3. expect_text</b> http://localhost:3100/pharmacie<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> role=link[name=/IEC : toux sèche/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-expect_text.png">
+<figcaption><b>5. expect_text</b> http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b1#notion-00000000-0000-4000-8000-0000000000c2<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="06-back.png">
+<figcaption><b>6. back</b> http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=slRDOJzKBNHzJbNj (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-screenshot.png">
+<figcaption><b>7. screenshot</b> retour : la requête est-elle conservée ?<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="08-fill.png">
+<figcaption><b>8. fill</b> role=searchbox[name=/rechercher dans la pharmacie/i]<br>
+<span class="tag">échec</span> <br>locator.fill: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="09-expect_text.png">
+<figcaption><b>9. expect_text</b> http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1<br>
+<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
+
+</figcaption></figure></div>
+<h2>referentiel-huiles-vides <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> accueil<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=yZDoiukyZDUYNBiD (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=XeXZDiNhMoTuWHLr (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b2?_rsc=uHKxVsuW5jVO6yom (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=zAIACHw_oXEsRa1p (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> role=link[name=/Référentiel/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-screenshot.png">
+<figcaption><b>3. screenshot</b> référentiel vide (mock)<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> role=link[name=/Huiles/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="05-click.png">
+<figcaption><b>5. click</b> role=button[name=/Ajouter une huile/i]<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : POST http://localhost:3100/pharmacie/huiles-essentielles (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-screenshot.png">
+<figcaption><b>6. screenshot</b> formulaire d'ajout d'huile dans l'app<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>
+<h2>revision-sans-notation <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> accueil<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=yZDoiukyZDUYNBiD (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=XeXZDiNhMoTuWHLr (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/pharmacie (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1?_rsc=zAIACHw_oXEsRa1p (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/pharmacie/00000000-0000-4000-8000-0000000000a1/00000000-0000-4000-8000-0000000000b2?_rsc=uHKxVsuW5jVO6yom (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> role=link[name=/Commencer/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-click.png">
+<figcaption><b>3. click</b> role=button[name=/voir la réponse/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-screenshot.png">
+<figcaption><b>4. screenshot</b> quatre notes visibles, aucune notation envoyée (banc partagé)<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-click.png">
+<figcaption><b>5. click</b> role=link[name=/Pharmacie/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-expect_text.png">
+<figcaption><b>6. expect_text</b> http://localhost:3100/pharmacie<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>

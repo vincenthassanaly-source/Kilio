@@ -1,0 +1,169 @@
+{
+  "nom": "acces-modules",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/",
+      "note": "Aujourd'hui, barre du bas du banc",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 3427,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=link[name=/^Plus$/]",
+      "note": "tap 1 : onglet Plus",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 447,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "expect_text",
+      "texte": "Appui long",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 370,
+      "fichier": "03-expect_text.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/Collection/]",
+      "note": "tap 2 : tuile Collection",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/collection",
+      "ms": 407,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "expect_text",
+      "texte": "Collection",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/collection/00000000-0000-4000-8000-000000001001?_rsc=K25WYMkQWRxWhXeL (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/collection",
+      "ms": 358,
+      "fichier": "05-expect_text.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=link[name=/^Plus$/]",
+      "note": "retour vers Plus par la barre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 403,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "scroll",
+      "cible": "role=button[name=/Réglages/]",
+      "note": "défiler vers le bas de la grille",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 380,
+      "fichier": "07-scroll.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "bas de grille Plus",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 342,
+      "fichier": "08-screenshot.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/Réglages/]",
+      "note": "tuile Réglages",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/reglages",
+      "ms": 438,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_text",
+      "texte": "Rappels",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/reglages?_rsc=ib6SN54HLbPXXVdS (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/reglages",
+      "ms": 546,
+      "fichier": "10-expect_text.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=link[name=/Retour vers Plus/]",
+      "note": "BackLink vers Plus",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 409,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "Appui long",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/plus",
+      "ms": 363,
+      "fichier": "12-expect_text.png"
+    }
+  ]
+}

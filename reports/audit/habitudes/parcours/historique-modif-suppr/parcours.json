@@ -1,0 +1,261 @@
+{
+  "nom": "historique-modif-suppr",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/habitudes",
+      "note": "ouvrir",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=QzidO59ZJ9tvDTLW (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=9owyT7Br6ffr34S2 (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "notes",
+          "query": "?id=eq.ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+          "body": {
+            "epingle": true
+          }
+        }
+      ],
+      "ms": 1609,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=radio[name=/historique/i]",
+      "note": "historique",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "feuilles_vidage",
+          "query": "",
+          "body": {
+            "jour": "2026-11-14",
+            "transcription": "19:11\nJournée calme, un bon appel avec Léa.",
+            "traits": [],
+            "hauteur": 2000,
+            "apercu_path": null,
+            "updated_at": "2026-11-14T18:11:56.070Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/habitudes",
+      "ms": 5053,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "wait",
+      "ms": 1131,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "fichier": "03-wait.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/mois précédent/i]",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "ms": 5032,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "wait",
+      "ms": 932,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "fichier": "05-wait.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=radio[name=/aujourd/i]",
+      "note": "retour",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "ms": 5029,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name=/modifier/i] >> nth=0",
+      "note": "modifier",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "ms": 5048,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/annuler/i]",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "ms": 5054,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/supprimer/i] >> nth=0",
+      "note": "supprimer",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "notes",
+          "query": "?select=id",
+          "body": {
+            "titre": "Courses week-end",
+            "contenu": "",
+            "type": "checklist",
+            "couleur": "rose"
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "notes_tags",
+          "query": "?note_id=eq.436d4346-62c1-4023-9482-acc5ce3af063",
+          "body": null
+        },
+        {
+          "method": "POST",
+          "table": "note_items",
+          "query": "?columns=%22note_id%22%2C%22libelle%22%2C%22position%22",
+          "body": [
+            {
+              "note_id": "436d4346-62c1-4023-9482-acc5ce3af063",
+              "libelle": "Pain",
+              "position": 0
+            },
+            {
+              "note_id": "436d4346-62c1-4023-9482-acc5ce3af063",
+              "libelle": "Lait",
+              "position": 1
+            }
+          ]
+        },
+        {
+          "method": "PATCH",
+          "table": "note_items",
+          "query": "?id=eq.b95ccb5a-b3b8-46ee-a670-a29c948fcd1d",
+          "body": {
+            "coche": true
+          }
+        },
+        {
+          "method": "PATCH",
+          "table": "notes",
+          "query": "?id=eq.ea0951cf-3980-479a-b7cf-57c2b8b05a23",
+          "body": {
+            "epingle": false
+          }
+        }
+      ],
+      "url": "http://localhost:3100/habitudes",
+      "ms": 5035,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "wait",
+      "ms": 837,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "fichier": "10-wait.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name=/annuler/i]",
+      "note": "annuler suppression",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "ms": 5049,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "wait",
+      "ms": 853,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/habitudes",
+      "fichier": "12-wait.png"
+    },
+    {
+      "n": 13,
+      "action": "goto",
+      "url": "http://localhost:3100/",
+      "note": "écran du jour",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 3414,
+      "fichier": "13-goto.png"
+    },
+    {
+      "n": 14,
+      "action": "wait",
+      "ms": 1148,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/",
+      "fichier": "14-wait.png"
+    }
+  ]
+}

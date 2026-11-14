@@ -1,0 +1,204 @@
+<!doctype html><meta charset="utf-8"><title>Parcours utilisateur</title>
+<style>body{font:14px system-ui;margin:16px;background:#f4f4f4}.film{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
+figure{margin:0;flex:0 0 220px;background:#fff;padding:8px;border-radius:8px;border:2px solid #ccc}img{width:100%;border:1px solid #ddd}
+.ok{border-color:#3a3}.anomalie{border-color:#e90}.échec{border-color:#c33}.tag{font-weight:600}small{color:#666}</style>
+<h1>Parcours utilisateur</h1><h2>creer-cocher <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=QzidO59ZJ9tvDTLW (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=9owyT7Br6ffr34S2 (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> ouvrir formulaire<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-fill.png">
+<figcaption><b>3. fill</b> role=textbox[name=/^nom/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> créer booléenne<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="05-expect_text.png">
+<figcaption><b>5. expect_text</b> http://localhost:3100/habitudes<br>
+<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
+<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/habitudes (net::ERR_ABORTED)
+<br>✎ 3 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-click.png">
+<figcaption><b>6. click</b> role=button[name=/ajouter une habitude/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-fill.png">
+<figcaption><b>7. fill</b> role=textbox[name=/^nom/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="08-click.png">
+<figcaption><b>8. click</b> type quantité<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+<br>✎ 2 écriture(s) base</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="09-fill.png">
+<figcaption><b>9. fill</b> role=textbox[name=/unité/i]<br>
+<span class="tag">échec</span> <br>locator.fill: Timeout 5000ms exceeded.
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="10-fill.png">
+<figcaption><b>10. fill</b> role=spinbutton[name=/objectif/i]<br>
+<span class="tag">échec</span> <br>locator.fill: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-click.png">
+<figcaption><b>11. click</b> role=button[name=/^ajouter$/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="12-expect_text.png">
+<figcaption><b>12. expect_text</b> http://localhost:3100/habitudes<br>
+<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
+<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/habitudes (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-click.png">
+<figcaption><b>13. click</b> role=button[name=/ajouter une habitude/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="14-fill.png">
+<figcaption><b>14. fill</b> role=textbox[name=/^nom/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="15-click.png">
+<figcaption><b>15. click</b> hebdo<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="16-click.png">
+<figcaption><b>16. click</b> role=button[name=/^ajouter$/i]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="17-expect_text.png">
+<figcaption><b>17. expect_text</b> http://localhost:3100/habitudes<br>
+<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
+<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/habitudes (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="18-click.png">
+<figcaption><b>18. click</b> cocher<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="19-wait.png">
+<figcaption><b>19. wait</b> http://localhost:3100/habitudes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="20-click.png">
+<figcaption><b>20. click</b> cocher hebdo<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="21-wait.png">
+<figcaption><b>21. wait</b> http://localhost:3100/habitudes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="22-fill.png">
+<figcaption><b>22. fill</b> role=spinbutton[name=/valeur de boire/i]<br>
+<span class="tag">échec</span> <br>locator.fill: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="23-press.png">
+<figcaption><b>23. press</b> http://localhost:3100/habitudes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="24-wait.png">
+<figcaption><b>24. wait</b> http://localhost:3100/habitudes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="25-reload.png">
+<figcaption><b>25. reload</b> http://localhost:3100/habitudes<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="26-expect_text.png">
+<figcaption><b>26. expect_text</b> http://localhost:3100/habitudes<br>
+<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
+
+<br>✎ 4 écriture(s) base</figcaption></figure></div>
+<h2>historique-modif-suppr <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=QzidO59ZJ9tvDTLW (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=9owyT7Br6ffr34S2 (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> historique<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-wait.png">
+<figcaption><b>3. wait</b> http://localhost:3100/habitudes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> role=button[name=/mois précédent/i]<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-wait.png">
+<figcaption><b>5. wait</b> http://localhost:3100/habitudes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="06-click.png">
+<figcaption><b>6. click</b> retour<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="07-click.png">
+<figcaption><b>7. click</b> modifier<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="08-click.png">
+<figcaption><b>8. click</b> role=button[name=/annuler/i]<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="09-click.png">
+<figcaption><b>9. click</b> supprimer<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+<br>✎ 5 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="10-wait.png">
+<figcaption><b>10. wait</b> http://localhost:3100/habitudes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="11-click.png">
+<figcaption><b>11. click</b> annuler suppression<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-wait.png">
+<figcaption><b>12. wait</b> http://localhost:3100/habitudes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="13-goto.png">
+<figcaption><b>13. goto</b> écran du jour<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="14-wait.png">
+<figcaption><b>14. wait</b> http://localhost:3100/<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>

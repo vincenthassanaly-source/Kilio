@@ -1,0 +1,324 @@
+{
+  "nom": "r-carte",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=5jh4nsoZuEnfqvkU (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1923,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/^Tout$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 423,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "vue Tout",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 344,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/Tâche e2e du jour/] >> nth=0",
+      "note": "tap titre = éditer",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 427,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "édition inline",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "rappels_repos",
+          "query": "?id=eq.courant",
+          "body": null
+        },
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000002",
+          "body": {
+            "fait": true,
+            "echeance": "2026-11-14"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 337,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=/^Annuler$/]",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Appeler la mutuelle",
+            "echeance": "2026-11-14",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 1
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.498bbde4-6e2e-43aa-ba4f-2f6a9d2d4a36",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 5033,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name=/sous-tâches/] >> nth=0",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 401,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "fill",
+      "cible": "role=textbox[name=/Nouvelle sous-tâche/]",
+      "valeur": "Étape 1",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 371,
+      "fichier": "08-fill.png"
+    },
+    {
+      "n": 9,
+      "action": "press",
+      "touche": "Enter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 363,
+      "fichier": "09-press.png"
+    },
+    {
+      "n": 10,
+      "action": "wait",
+      "ms": 2849,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "sous_taches",
+          "query": "",
+          "body": {
+            "tache_id": "498bbde4-6e2e-43aa-ba4f-2f6a9d2d4a36",
+            "titre": "Étape 1",
+            "ordre": 0
+          }
+        },
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2027-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2027-03-29",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2027-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2027-05-06",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2027-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2027-05-17",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2027-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2027-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2027-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2027-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2027-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "fichier": "10-wait.png"
+    },
+    {
+      "n": 11,
+      "action": "screenshot",
+      "note": "sous-tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 355,
+      "fichier": "11-screenshot.png"
+    },
+    {
+      "n": 12,
+      "action": "click",
+      "cible": "role=button[name=/Marquer « Tâche e2e du jour/]",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "rappels_repos",
+          "query": "?id=eq.courant",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "ms": 5084,
+      "fichier": "12-click.png"
+    },
+    {
+      "n": 13,
+      "action": "wait",
+      "ms": 2844,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "fichier": "13-wait.png"
+    },
+    {
+      "n": 14,
+      "action": "screenshot",
+      "note": "cochée -> archivée",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 353,
+      "fichier": "14-screenshot.png"
+    },
+    {
+      "n": 15,
+      "action": "click",
+      "cible": "role=button[name=/Filtres et tri/]",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 656,
+      "fichier": "15-click.png"
+    },
+    {
+      "n": 16,
+      "action": "screenshot",
+      "note": "filtres et tri",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 375,
+      "fichier": "16-screenshot.png"
+    }
+  ]
+}

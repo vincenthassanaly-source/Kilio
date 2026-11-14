@@ -1,0 +1,20 @@
+{"nom":"recherche-filtre-suppression","theme":"sombre","etapes":[
+{"action":"goto","url":"/notes"},
+{"action":"fill","cible":"role=searchbox[name=/Rechercher une note/]","valeur":"zzz"},
+{"action":"screenshot","note":"recherche sans resultat"},
+{"action":"fill","cible":"role=searchbox[name=/Rechercher une note/]","valeur":"pain"},
+{"action":"screenshot","note":"recherche dans items"},
+{"action":"click","cible":"role=button[name=/Effacer la recherche/]"},
+{"action":"fill","cible":"role=searchbox[name=/Rechercher une note/]","valeur":""},
+{"action":"click","cible":"role=button[name=/^#urgent$/]","note":"filtre tag"},
+{"action":"screenshot","note":"filtre tag actif"},
+{"action":"click","cible":"role=button[name=/Supprimer la note « Courses week-end »/]"},
+{"action":"wait","ms":500},
+{"action":"screenshot","note":"suppression + toast Annuler"},
+{"action":"click","cible":"role=button[name=/Annuler la suppression/]"},
+{"action":"wait","ms":500},
+{"action":"screenshot","note":"annulee"},
+{"action":"goto","url":"/notes?action=new"},
+{"action":"wait","ms":800},
+{"action":"screenshot","note":"raccourci ?action=new"}
+]}

@@ -1,0 +1,8 @@
+{ "nom": "categorie-ajout", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/documents/categories", "note": "ouvrir Catégories" },
+ { "action": "fill", "cible": "role=textbox[name=/nouvelle catégorie/i]", "valeur": "Banque" },
+ { "action": "click", "cible": "role=button[name=/^ajouter$/i]", "note": "ajouter" },
+ { "action": "wait", "ms": 800 },
+ { "action": "screenshot", "note": "après ajout" },
+ { "action": "reload" },
+ { "action": "expect_text", "texte": "Banque" } ] }

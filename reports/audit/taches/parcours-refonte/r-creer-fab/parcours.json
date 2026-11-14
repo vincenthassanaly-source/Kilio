@@ -1,0 +1,164 @@
+{
+  "nom": "r-creer-fab",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/taches",
+      "note": "ouvrir",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/notes?_rsc=T_ekS75814BLP_hn (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1511,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter une tâche\"]",
+      "note": "FAB",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 462,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "screenshot",
+      "note": "feuille Nouvelle tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 357,
+      "fichier": "03-screenshot.png"
+    },
+    {
+      "n": 4,
+      "action": "fill",
+      "cible": "role=textbox[name=/Titre/i]",
+      "valeur": "Appeler le dentiste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 410,
+      "fichier": "04-fill.png"
+    },
+    {
+      "n": 5,
+      "action": "screenshot",
+      "note": "formulaire rempli",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 376,
+      "fichier": "05-screenshot.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=/^Ajouter$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 466,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "wait",
+      "ms": 3389,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3100/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/taches (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Appeler le dentiste",
+            "echeance": "2026-11-14",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 2
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.e5eb6e03-b23a-40ae-9ee4-20a8c3245018",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/taches",
+      "fichier": "07-wait.png"
+    },
+    {
+      "n": 8,
+      "action": "screenshot",
+      "note": "après ajout (vue À faire, sans échéance)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 343,
+      "fichier": "08-screenshot.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/^Tout$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 419,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_text",
+      "texte": "Appeler le dentiste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/taches",
+      "ms": 343,
+      "fichier": "10-expect_text.png"
+    }
+  ]
+}

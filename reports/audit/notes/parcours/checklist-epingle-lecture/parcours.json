@@ -1,0 +1,438 @@
+{
+  "nom": "checklist-epingle-lecture",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/notes",
+      "note": "ouvrir",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ap_U6Chp7ZClI43I (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 6582,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/ajouter une note/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 477,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/^Checklist$/]",
+      "note": "type checklist",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 569,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "fill",
+      "cible": "role=textbox[name=/^Titre/i]",
+      "valeur": "Courses week-end",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 361,
+      "fichier": "04-fill.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=textbox[name=/^Ajouter un item$/i]",
+      "valeur": "Pain",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 350,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "press",
+      "touche": "Enter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "habitudes",
+          "query": "",
+          "body": {
+            "nom": "Méditer",
+            "type": "boolean",
+            "frequence_hebdo": null,
+            "unite": null,
+            "valeur_cible": null,
+            "icone": null,
+            "ordre": 0
+          }
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "ms": 353,
+      "fichier": "06-press.png"
+    },
+    {
+      "n": 7,
+      "action": "fill",
+      "cible": "role=textbox[name=/^Ajouter un item$/i]",
+      "valeur": "Lait",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 385,
+      "fichier": "07-fill.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/^Rose$/i]",
+      "note": "couleur",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 392,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "screenshot",
+      "note": "checklist brouillon, item Lait en attente non ajoute",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 354,
+      "fichier": "09-screenshot.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/^Ajouter$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "notes",
+          "query": "?select=id",
+          "body": {
+            "titre": "Courses week-end",
+            "contenu": "",
+            "type": "checklist",
+            "couleur": "rose"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "ms": 427,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "wait",
+      "ms": 1265,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "notes_tags",
+          "query": "?note_id=eq.7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
+          "body": null
+        },
+        {
+          "method": "POST",
+          "table": "note_items",
+          "query": "?columns=%22note_id%22%2C%22libelle%22%2C%22position%22",
+          "body": [
+            {
+              "note_id": "7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
+              "libelle": "Pain",
+              "position": 0
+            },
+            {
+              "note_id": "7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
+              "libelle": "Lait",
+              "position": 1
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "fichier": "11-wait.png"
+    },
+    {
+      "n": 12,
+      "action": "screenshot",
+      "note": "grille avec 2 notes",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 368,
+      "fichier": "12-screenshot.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=/Cocher « Pain »/]",
+      "note": "cocher depuis tuile",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "note_items",
+          "query": "?id=eq.57c2d7e2-ad87-4a31-8d1d-b9e5f4b7ff82",
+          "body": {
+            "coche": true
+          }
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "ms": 485,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "wait",
+      "ms": 940,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "fichier": "14-wait.png"
+    },
+    {
+      "n": 15,
+      "action": "screenshot",
+      "note": "coche en tuile",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 349,
+      "fichier": "15-screenshot.png"
+    },
+    {
+      "n": 16,
+      "action": "click",
+      "cible": "role=button[name=/Épingler la note « Courses week-end »/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "notes",
+          "query": "?id=eq.7fb306ec-6aa1-4efa-a77d-e908f7ff416b",
+          "body": {
+            "epingle": true
+          }
+        }
+      ],
+      "url": "http://localhost:3100/notes",
+      "ms": 418,
+      "fichier": "16-click.png"
+    },
+    {
+      "n": 17,
+      "action": "wait",
+      "ms": 953,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "fichier": "17-wait.png"
+    },
+    {
+      "n": 18,
+      "action": "screenshot",
+      "note": "epinglee",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 359,
+      "fichier": "18-screenshot.png"
+    },
+    {
+      "n": 19,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ap_U6Chp7ZClI43I (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3100/notes (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 1534,
+      "fichier": "19-reload.png"
+    },
+    {
+      "n": 20,
+      "action": "expect_text",
+      "texte": "Courses week-end",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 355,
+      "fichier": "20-expect_text.png"
+    },
+    {
+      "n": 21,
+      "action": "screenshot",
+      "note": "apres rechargement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 353,
+      "fichier": "21-screenshot.png"
+    },
+    {
+      "n": 22,
+      "action": "click",
+      "cible": "role=button[name=/Ouvrir la note Courses week-end/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 463,
+      "fichier": "22-click.png"
+    },
+    {
+      "n": 23,
+      "action": "wait",
+      "ms": 873,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "fichier": "23-wait.png"
+    },
+    {
+      "n": 24,
+      "action": "screenshot",
+      "note": "feuille de lecture checklist",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/notes",
+      "ms": 375,
+      "fichier": "24-screenshot.png"
+    }
+  ]
+}

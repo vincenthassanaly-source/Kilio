@@ -1,0 +1,64 @@
+<!doctype html><meta charset="utf-8"><title>Parcours utilisateur</title>
+<style>body{font:14px system-ui;margin:16px;background:#f4f4f4}.film{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
+figure{margin:0;flex:0 0 220px;background:#fff;padding:8px;border-radius:8px;border:2px solid #ccc}img{width:100%;border:1px solid #ddd}
+.ok{border-color:#3a3}.anomalie{border-color:#e90}.échec{border-color:#c33}.tag{font-weight:600}small{color:#666}</style>
+<h1>Parcours utilisateur</h1><h2>acces-modules <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> Aujourd'hui, barre du bas du banc<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> tap 1 : onglet Plus<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-expect_text.png">
+<figcaption><b>3. expect_text</b> http://localhost:3100/plus<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> tap 2 : tuile Collection<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="05-expect_text.png">
+<figcaption><b>5. expect_text</b> http://localhost:3100/collection<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/collection/00000000-0000-4000-8000-000000001001?_rsc=K25WYMkQWRxWhXeL (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-click.png">
+<figcaption><b>6. click</b> retour vers Plus par la barre<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-scroll.png">
+<figcaption><b>7. scroll</b> défiler vers le bas de la grille<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-screenshot.png">
+<figcaption><b>8. screenshot</b> bas de grille Plus<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-click.png">
+<figcaption><b>9. click</b> tuile Réglages<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="10-expect_text.png">
+<figcaption><b>10. expect_text</b> http://localhost:3100/reglages<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3100/reglages?_rsc=ib6SN54HLbPXXVdS (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-click.png">
+<figcaption><b>11. click</b> BackLink vers Plus<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-expect_text.png">
+<figcaption><b>12. expect_text</b> http://localhost:3100/plus<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>

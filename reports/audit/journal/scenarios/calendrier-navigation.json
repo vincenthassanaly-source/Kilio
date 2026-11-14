@@ -1,0 +1,9 @@
+{ "nom": "calendrier-navigation", "theme": "sombre", "etapes": [
+ { "action": "goto", "url": "/journal/calendrier", "note": "calendrier" },
+ { "action": "click", "cible": "role=button[name=/mois précédent/i]" },
+ { "action": "screenshot", "note": "mois précédent" },
+ { "action": "click", "cible": "role=link[name=/écrire le 10/i]", "note": "jour passé" },
+ { "action": "screenshot", "note": "feuille d'un jour passé" },
+ { "action": "back" },
+ { "action": "screenshot", "note": "retour" }
+]}

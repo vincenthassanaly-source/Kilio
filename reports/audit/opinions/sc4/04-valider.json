@@ -1,0 +1,11 @@
+{ "nom": "valider-idee", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/opinions" },
+ { "action": "click", "cible": "text=taxer davantage" },
+ { "action": "select", "cible": "role=combobox[name=/^thème/i]", "valeur": "economie" },
+ { "action": "click", "cible": "role=button[name=\"+1\"]" },
+ { "action": "click", "cible": "role=button[name=/^valider$/i]" },
+ { "action": "screenshot", "note": "validée" },
+ { "action": "click", "cible": "role=link[name=/retour vers opinions/i]" },
+ { "action": "click", "cible": "role=button[name=/^profil$/i]" },
+ { "action": "screenshot", "note": "profil" }
+]}

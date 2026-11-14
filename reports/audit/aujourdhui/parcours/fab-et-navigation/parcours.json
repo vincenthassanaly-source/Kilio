@@ -14,113 +14,10 @@
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)"
       ],
-      "ecritures": [
-        {
-          "method": "POST",
-          "table": "jours_feries",
-          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
-          "body": [
-            {
-              "date": "2026-01-01",
-              "nom": "1er janvier"
-            },
-            {
-              "date": "2026-04-06",
-              "nom": "Lundi de Pâques"
-            },
-            {
-              "date": "2026-05-01",
-              "nom": "1er mai"
-            },
-            {
-              "date": "2026-05-08",
-              "nom": "8 mai"
-            },
-            {
-              "date": "2026-05-14",
-              "nom": "Ascension"
-            },
-            {
-              "date": "2026-05-25",
-              "nom": "Lundi de Pentecôte"
-            },
-            {
-              "date": "2026-07-14",
-              "nom": "14 juillet"
-            },
-            {
-              "date": "2026-08-15",
-              "nom": "Assomption"
-            },
-            {
-              "date": "2026-11-01",
-              "nom": "Toussaint"
-            },
-            {
-              "date": "2026-11-11",
-              "nom": "11 novembre"
-            },
-            {
-              "date": "2026-12-25",
-              "nom": "Jour de Noël"
-            }
-          ]
-        },
-        {
-          "method": "POST",
-          "table": "jours_feries",
-          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
-          "body": [
-            {
-              "date": "2026-01-01",
-              "nom": "1er janvier"
-            },
-            {
-              "date": "2026-04-06",
-              "nom": "Lundi de Pâques"
-            },
-            {
-              "date": "2026-05-01",
-              "nom": "1er mai"
-            },
-            {
-              "date": "2026-05-08",
-              "nom": "8 mai"
-            },
-            {
-              "date": "2026-05-14",
-              "nom": "Ascension"
-            },
-            {
-              "date": "2026-05-25",
-              "nom": "Lundi de Pentecôte"
-            },
-            {
-              "date": "2026-07-14",
-              "nom": "14 juillet"
-            },
-            {
-              "date": "2026-08-15",
-              "nom": "Assomption"
-            },
-            {
-              "date": "2026-11-01",
-              "nom": "Toussaint"
-            },
-            {
-              "date": "2026-11-11",
-              "nom": "11 novembre"
-            },
-            {
-              "date": "2026-12-25",
-              "nom": "Jour de Noël"
-            }
-          ]
-        }
-      ],
-      "ms": 4233,
+      "ecritures": [],
+      "ms": 3458,
       "fichier": "01-goto.png"
     },
     {
@@ -128,14 +25,12 @@
       "action": "scroll",
       "pixels": 900,
       "note": "défiler : sections du bas",
-      "statut": "anomalie",
+      "statut": "ok",
       "erreur": null,
-      "anomalies": [
-        "requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)"
-      ],
+      "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 354,
+      "ms": 361,
       "fichier": "02-scroll.png"
     },
     {
@@ -158,7 +53,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 345,
+      "ms": 364,
       "fichier": "04-scroll.png"
     },
     {
@@ -170,7 +65,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 332,
+      "ms": 348,
       "fichier": "05-screenshot.png"
     },
     {
@@ -183,7 +78,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 421,
+      "ms": 427,
       "fichier": "06-click.png"
     },
     {
@@ -194,7 +89,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 354,
+      "ms": 348,
       "fichier": "07-screenshot.png"
     },
     {
@@ -207,12 +102,17 @@
         "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
-        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3100/notes?_rsc=15e7mRwwwrE2r08K (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
       ],
-      "ecritures": [],
-      "ms": 2559,
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "rappels_repos",
+          "query": "?id=eq.courant",
+          "body": null
+        }
+      ],
+      "ms": 2577,
       "fichier": "08-goto.png"
     },
     {
@@ -222,15 +122,16 @@
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
-        "requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
         "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
-        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)"
       ],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 3367,
+      "ms": 3384,
       "fichier": "09-back.png"
     },
     {
@@ -241,7 +142,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3100/",
-      "ms": 341,
+      "ms": 358,
       "fichier": "10-screenshot.png"
     }
   ]

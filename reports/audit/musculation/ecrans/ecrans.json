@@ -1,0 +1,140 @@
+[
+  {
+    "route": "/musculation",
+    "dynamique": false,
+    "url": "/musculation",
+    "theme": "clair",
+    "fichier": "musculation.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/historique",
+    "dynamique": false,
+    "url": "/musculation/historique",
+    "theme": "clair",
+    "fichier": "musculation_historique.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/historique/[id]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/musculation/historique/[id]/modifier",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/musculation/historique/nouvelle",
+    "dynamique": false,
+    "url": "/musculation/historique/nouvelle",
+    "theme": "clair",
+    "fichier": "musculation_historique_nouvelle.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/routines/[id]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/musculation/seance",
+    "dynamique": false,
+    "url": "/musculation/seance",
+    "theme": "clair",
+    "fichier": "musculation_seance.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/stats",
+    "dynamique": false,
+    "url": "/musculation/stats",
+    "theme": "clair",
+    "fichier": "musculation_stats.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/stats/[exerciceId]",
+    "dynamique": true,
+    "theme": "clair",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/musculation",
+    "dynamique": false,
+    "url": "/musculation",
+    "theme": "sombre",
+    "fichier": "musculation.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/historique",
+    "dynamique": false,
+    "url": "/musculation/historique",
+    "theme": "sombre",
+    "fichier": "musculation_historique.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/historique/[id]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/musculation/historique/[id]/modifier",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/musculation/historique/nouvelle",
+    "dynamique": false,
+    "url": "/musculation/historique/nouvelle",
+    "theme": "sombre",
+    "fichier": "musculation_historique_nouvelle.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/routines/[id]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  },
+  {
+    "route": "/musculation/seance",
+    "dynamique": false,
+    "url": "/musculation/seance",
+    "theme": "sombre",
+    "fichier": "musculation_seance.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/stats",
+    "dynamique": false,
+    "url": "/musculation/stats",
+    "theme": "sombre",
+    "fichier": "musculation_stats.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/musculation/stats/[exerciceId]",
+    "dynamique": true,
+    "theme": "sombre",
+    "statut": "non résolue"
+  }
+]
