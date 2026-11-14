@@ -133,7 +133,7 @@ export function MonthView({
             >
               <span className={ferie ? "underline decoration-2 underline-offset-4" : undefined}>{format(day, "d")}</span>
               {(count > 0 || nbEvenements > 0) && (
-                <span className="flex items-center gap-1">
+                <span className="flex max-w-full items-center gap-0.5">
                   {count > 0 && (
                     <span className="flex items-center gap-0.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-agenda" />
@@ -142,7 +142,7 @@ export function MonthView({
                   )}
                   {nbEvenements > 0 && (
                     <span className="flex items-center gap-0.5">
-                      <span className="h-1.5 w-3.5 rounded-full bg-agenda" />
+                      <span className={`h-1.5 rounded-full bg-agenda ${count > 1 && nbEvenements > 1 ? "w-2" : "w-3.5"}`} />
                       {nbEvenements > 1 && <span className="text-micro tabular-nums text-ink-2">{nbEvenements}</span>}
                     </span>
                   )}

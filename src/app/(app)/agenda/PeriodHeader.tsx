@@ -50,7 +50,7 @@ export function PeriodHeader({
           <button
             type="button"
             onClick={onToday}
-            className="relative text-caption font-semibold text-kcal underline after:absolute after:-inset-x-3 after:-inset-y-2.5"
+            className="relative text-caption font-semibold text-kcal underline after:absolute after:-inset-x-3 after:-inset-y-3.5"
           >
             Aujourd&apos;hui
           </button>

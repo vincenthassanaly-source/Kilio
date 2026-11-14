@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, useReducedMotion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -33,6 +33,7 @@ import { ListView } from "./ListView";
 import { parseISODate, toISODate } from "@/lib/date/iso";
 import { errorText, secondaryButton } from "@/lib/ui";
 import { Skeleton } from "@/components/skeletons/Skeleton";
+import { SegmentedControl } from "@/components/SegmentedControl";
 
 const AddTaskForm = dynamic(() => import("../taches/AddTaskForm").then((m) => m.AddTaskForm), {
   ssr: false,
@@ -46,15 +47,6 @@ const VIEWS: { key: ViewKey; label: string }[] = [
   { key: "mois", label: "Mois" },
   { key: "liste", label: "Liste" },
 ];
-
-// Fond glissant du sélecteur de vue Jour/Semaine/Mois/Liste, sur le modèle
-// de `ACTIVE_PILL_LAYOUT_ID`/`pillTransition` de BottomNav.tsx (id distinct
-// : ce sélecteur et la bottom nav sont montés en même temps sur cet écran,
-// un même layoutId ferait glisser le fond de l'un vers l'autre).
-const AGENDA_VUE_ACTIVE_PILL = "agenda-vue-active-pill";
-function vuePillTransition(reduceMotion: boolean) {
-  return reduceMotion ? { duration: 0 } : { type: "spring" as const, stiffness: 500, damping: 40 };
-}
 
 // Distance horizontale minimum pour qu'un geste soit considéré comme un
 // swipe intentionnel (plutôt qu'un tap ou un léger tremblement du doigt).
@@ -506,28 +498,15 @@ export function AgendaView() {
         )}
       </AnimatePresence>
 
-      <div role="group" aria-label="Vue de l'agenda" className="flex flex-1 rounded-2xl border border-line bg-surface p-1">
-        {VIEWS.map((v) => (
-          <button
-            key={v.key}
-            type="button"
-            onClick={() => setView(v.key)}
-            aria-pressed={view === v.key}
-            className="relative flex-1 rounded-xl py-2 text-small font-semibold after:absolute after:inset-x-0 after:-inset-y-1.5"
-          >
-            {view === v.key && (
-              <motion.div
-                layoutId={AGENDA_VUE_ACTIVE_PILL}
-                className="absolute inset-0 rounded-xl bg-kcal"
-                transition={vuePillTransition(reduceMotion)}
-              />
-            )}
-            <span className={`relative transition-colors ${view === v.key ? "text-on-kcal" : "text-ink-2"}`}>
-              {v.label}
-            </span>
-          </button>
-        ))}
-      </div>
+      {/* Contrôle segmenté commun du système (segments de 44 px, pastille
+          glissante, anneau de focus) : plus de variante locale. */}
+      <SegmentedControl
+        options={VIEWS.map((v) => ({ value: v.key, label: v.label }))}
+        value={view}
+        onChange={setView}
+        ariaLabel="Vue de l'agenda"
+        glissant
+      />
 
       {evenementsError && (
         <p role="status" className={errorText}>
@@ -541,7 +520,7 @@ export function AgendaView() {
       )}
       {etatListe === "chargement" ? (
         <div className="flex flex-col gap-4">
-          <Skeleton className="h-10 w-full rounded-2xl" />
+          <Skeleton className="h-11 w-full rounded-2xl" />
           <Skeleton className="h-[55vh] w-full rounded-2xl" />
         </div>
       ) : etatListe === "erreur" || !taches ? (

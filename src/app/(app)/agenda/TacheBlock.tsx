@@ -11,17 +11,18 @@ import { getTacheBlockStyle } from "./TimeGrid";
 // Le texte est toujours en couleur d'encre (`text-ink`, contraste ≥11:1 dans
 // les deux thèmes sur ces fonds teintés à 15% — voir le script de ratios du
 // rapport) : la priorité n'est plus portée par une couleur de texte à
-// 3,8:1. Elle passe par une barre latérale de 3px (`border`) plus, pour
+// 3,8:1. Elle passe par un contour fin teinté (`border`, 1px : pas de barre
+// latérale épaisse) en plus du fond teinté et, pour
 // moyenne/haute, un marqueur non chromatique (glyphe) qui reste lisible en
 // cas de daltonisme ou de rendu en niveaux de gris.
 const PRIORITE_STYLE: Record<
   Tables<"taches">["priorite"],
   { bg: string; border: string; marker: string | null; label: string }
 > = {
-  aucune: { bg: "bg-surface-alt", border: "border-l-line", marker: null, label: "priorité aucune" },
-  basse: { bg: "bg-agenda/15", border: "border-l-agenda", marker: null, label: "priorité basse" },
-  moyenne: { bg: "bg-carbs/15", border: "border-l-carbs", marker: "●", label: "priorité moyenne" },
-  haute: { bg: "bg-alert/15", border: "border-l-alert", marker: "▲", label: "priorité haute" },
+  aucune: { bg: "bg-surface-alt", border: "border-line", marker: null, label: "priorité aucune" },
+  basse: { bg: "bg-agenda/15", border: "border-agenda/50", marker: null, label: "priorité basse" },
+  moyenne: { bg: "bg-carbs/15", border: "border-carbs/50", marker: "●", label: "priorité moyenne" },
+  haute: { bg: "bg-alert/15", border: "border-alert/50", marker: "▲", label: "priorité haute" },
 };
 
 // Écart visuel entre deux blocs voisins lorsqu'ils se partagent la largeur
@@ -80,7 +81,7 @@ export function TacheBlock({
   const sizingClass = compact
     ? "rounded-md py-0.5 pl-1.5 pr-1 text-micro"
     : "rounded-lg py-1 pl-2.5 pr-2 text-caption shadow-sm";
-  const className = `absolute overflow-hidden border-l-[3px] ${insetClass} ${sizingClass} leading-tight font-semibold text-ink ${prioriteStyle.bg} ${prioriteStyle.border}`;
+  const className = `absolute overflow-hidden border ${insetClass} ${sizingClass} leading-tight font-semibold text-ink ${prioriteStyle.bg} ${prioriteStyle.border}`;
   const blockStyle: React.CSSProperties = {
     top: style.top,
     height: style.height,
