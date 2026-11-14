@@ -82,7 +82,7 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
       disabled={toggleMutation.isPending || habitude.type === "quantifiee"}
       onClick={toggle}
       aria-pressed={habitude.type === "quantifiee" ? undefined : fait}
-      className="flex w-[60px] shrink-0 flex-col items-center gap-1.5"
+      className="flex w-[60px] shrink-0 flex-col items-center gap-1.5 rounded-2xl pb-1 transition-transform active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
     >
       <ProgressRing size={50} strokeWidth={5} pct={pct} color="var(--accent-habitudes)" trackColor="var(--control-border)">
         <span className="text-base leading-none">{habitude.icone || <CheckIcon size={16} />}</span>
