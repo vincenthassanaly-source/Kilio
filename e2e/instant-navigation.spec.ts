@@ -31,7 +31,7 @@ test.describe("chargement initial : la coquille statique est servie", () => {
         async () => {
           await page.goto(route.path);
           await expect(shellMarker(page, route)).toBeVisible();
-          await expect(bottomNavPlus(page)).toBeVisible();
+          if (!route.immersif) await expect(bottomNavPlus(page)).toBeVisible();
         },
         { baseURL }
       );
@@ -61,6 +61,9 @@ const SOFT_NAVS: SoftNav[] = [
   { from: "/nutrition/recettes", to: "/nutrition/journal", trigger: byHref("/nutrition/journal") },
   { from: "/nutrition/journal", to: "/nutrition/recettes", trigger: byHref("/nutrition/recettes") },
   { from: "/taches", to: "/taches/listes", trigger: byHref("/taches/listes") },
+  { from: "/pharmacie", to: "/pharmacie/referentiel", trigger: byHref("/pharmacie/referentiel") },
+  { from: "/pharmacie", to: "/pharmacie/huiles-essentielles", trigger: byHref("/pharmacie/huiles-essentielles") },
+  { from: "/journal", to: "/journal/calendrier", trigger: byHref("/journal/calendrier") },
 ];
 
 test.describe("navigation client : la coquille préchargée s'affiche au clic", () => {

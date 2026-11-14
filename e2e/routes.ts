@@ -7,6 +7,8 @@ export type RouteContract = {
   path: string;
   title?: string;
   shellTestId?: string;
+  /** Écran plein focus : la barre du bas est masquée par conception. */
+  immersif?: boolean;
 };
 
 export const ROUTES: RouteContract[] = [
@@ -38,4 +40,10 @@ export const ROUTES: RouteContract[] = [
   { path: "/musculation/stats", title: "Statistiques" },
   { path: "/documents/categories", title: "Catégories" },
   { path: "/pharmacie/revision", title: "Révision" },
+  // Ajoutées par la passe « navigation instantanée » du chantier perf
+  // (2026-11-14) : sous-pages déjà instantanées mais sans garde.
+  { path: "/journal", title: "Journal", immersif: true },
+  { path: "/journal/calendrier", title: "Calendrier" },
+  { path: "/pharmacie/referentiel", title: "Pharmacie" },
+  { path: "/pharmacie/huiles-essentielles", title: "Pharmacie" },
 ];
