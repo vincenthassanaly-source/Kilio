@@ -43,9 +43,9 @@ export function AxeBarre({
         />
         <span aria-hidden="true" className="absolute -top-1 left-1/2 h-5 w-px bg-control-border" />
       </div>
-      <div className="flex justify-between text-xs text-ink-3" aria-hidden="true">
+      <div className="flex justify-between gap-3 text-xs text-ink-3" aria-hidden="true">
         <span>‹ {axe.gauche}</span>
-        <span>{axe.droite} ›</span>
+        <span className="text-right">{axe.droite} ›</span>
       </div>
     </li>
   );
@@ -59,7 +59,7 @@ export function ProfilView({ idees }: { idees: readonly IdeePourProfil[] }) {
 
   if (nombreValidees === 0) {
     return (
-      <p className="text-ink-2">
+      <p className="rounded-card border border-dashed border-control-border px-4 py-6 text-center text-small text-ink-2 text-pretty">
         Ton profil se dessine à partir des idées <strong className="font-semibold text-ink">validées</strong>. Note une
         idée, choisis son thème, place-la sur les axes puis valide-la.
       </p>
@@ -106,7 +106,7 @@ export function ProfilView({ idees }: { idees: readonly IdeePourProfil[] }) {
                   <TransitionLink
                     key={idee.id}
                     href={`/opinions/${idee.id}`}
-                    className="min-h-11 text-body leading-snug text-ink underline-offset-2 hover:underline"
+                    className="min-h-11 break-words text-body leading-snug text-ink underline-offset-2 hover:underline"
                   >
                     « {idee.position} »
                   </TransitionLink>
