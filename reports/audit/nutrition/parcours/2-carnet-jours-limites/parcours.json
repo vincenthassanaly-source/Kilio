@@ -1,0 +1,356 @@
+{
+  "nom": "2-carnet-jours-limites",
+  "theme": "sombre",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition/journal",
+      "note": "Carnet, thème sombre",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=mOWeNoMD-30R7sze (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1604,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "[aria-label='Jour précédent']",
+      "note": "veille (jour d'entraînement)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal",
+      "ms": 407,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "[aria-label='Jour précédent']",
+      "note": "J-2",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/journal?date=2026-11-14&_rsc=pq64VSNVEqXei6Lb (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal",
+      "ms": 373,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "[aria-label='Jour précédent']",
+      "note": "J-3 (entraînement, dense)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/journal?date=2026-11-14&_rsc=pq64VSNVEqXei6Lb (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal",
+      "ms": 365,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "[aria-label='Jour précédent']",
+      "note": "J-4 (jour libre)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/journal?date=2026-11-14&_rsc=pq64VSNVEqXei6Lb (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal",
+      "ms": 367,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "scroll",
+      "pixels": 700,
+      "note": "bas de la liste",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/journal?date=2026-11-14&_rsc=pq64VSNVEqXei6Lb (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 369,
+      "fichier": "06-scroll.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name=/ajouter un repas/i] >> nth=-1",
+      "note": "ajout sur un jour passé",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 498,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "fill",
+      "cible": "role=searchbox",
+      "valeur": "zzzqq",
+      "note": "recherche sans résultat",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 395,
+      "fichier": "08-fill.png"
+    },
+    {
+      "n": 9,
+      "action": "fill",
+      "cible": "role=searchbox",
+      "valeur": "banane",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 396,
+      "fichier": "09-fill.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/^Banane/i]",
+      "note": "aliment à la pièce",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 431,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "fill",
+      "cible": "input[name=quantite-saisie]",
+      "valeur": "",
+      "note": "quantité vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 392,
+      "fichier": "11-fill.png"
+    },
+    {
+      "n": 12,
+      "action": "fill",
+      "cible": "input[name=quantite-saisie]",
+      "valeur": "0",
+      "note": "quantité nulle",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 375,
+      "fichier": "12-fill.png"
+    },
+    {
+      "n": 13,
+      "action": "fill",
+      "cible": "input[name=quantite-saisie]",
+      "valeur": "99999",
+      "note": "quantité énorme",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 380,
+      "fichier": "13-fill.png"
+    },
+    {
+      "n": 14,
+      "action": "fill",
+      "cible": "input[name=quantite-saisie]",
+      "valeur": "2",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 379,
+      "fichier": "14-fill.png"
+    },
+    {
+      "n": 15,
+      "action": "dblclick",
+      "cible": "role=button[name=/^Ajouter (au|en) /]",
+      "note": "double tap sur valider",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 422,
+      "fichier": "15-dblclick.png"
+    },
+    {
+      "n": 16,
+      "action": "wait",
+      "ms": 1836,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=ReFE4Y_505v8bis0 (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=NCnCARwDGRMA6JXs (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=mOWeNoMD-30R7sze (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3103/nutrition/journal?date=2026-11-14 (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "journal_repas",
+          "query": "",
+          "body": {
+            "aliment_id": "00000000-0000-4000-8000-000000000113",
+            "recette_id": null,
+            "quantite": 240,
+            "date": "2026-11-14",
+            "moment": "diner"
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "fichier": "16-wait.png"
+    },
+    {
+      "n": 17,
+      "action": "reload",
+      "note": "une seule banane attendue",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=mOWeNoMD-30R7sze (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/journal?date=2026-11-14",
+      "ms": 1346,
+      "fichier": "17-reload.png"
+    },
+    {
+      "n": 18,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition/journal?date=2026-01-05",
+      "note": "jour sans aucun repas (liste vide)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=mOWeNoMD-30R7sze (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=ReFE4Y_505v8bis0 (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1277,
+      "fichier": "18-goto.png"
+    },
+    {
+      "n": 19,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition/journal?date=pas-une-date",
+      "note": "date invalide dans l'URL",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=mOWeNoMD-30R7sze (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=ReFE4Y_505v8bis0 (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=lV44R-dSovzs4I3R (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1283,
+      "fichier": "19-goto.png"
+    }
+  ]
+}

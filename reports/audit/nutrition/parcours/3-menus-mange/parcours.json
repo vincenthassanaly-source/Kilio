@@ -1,0 +1,474 @@
+{
+  "nom": "3-menus-mange",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition/menus",
+      "note": "Menus, semaine en cours",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=j6EllVFPEmHf4CFf (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=3bRCAcPmtUP2qLBm (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1479,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "[aria-label='Marquer « Dahl de lentilles corail HelloFresh » comme mangé'] >> nth=-1",
+      "note": "cocher mangé (dîner du jour)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "menus_repas",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000608&mange=eq.false&select=date%2Cmoment%2Caliment_id%2Crecette_id%2Cquantite",
+          "body": {
+            "mange": true
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 394,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "wait",
+      "ms": 1530,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3103/nutrition/menus (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "journal_repas",
+          "query": "?select=id",
+          "body": {
+            "id": "00000000-0000-4000-8000-000000000608",
+            "date": "2026-11-15",
+            "moment": "diner",
+            "quantite": 1,
+            "mange": true,
+            "journal_repas_id": null,
+            "aliment_id": null,
+            "recette_id": "00000000-0000-4000-8000-000000000214",
+            "created_at": "2026-10-01T08:00:00+00:00"
+          }
+        },
+        {
+          "method": "PATCH",
+          "table": "menus_repas",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000608",
+          "body": {
+            "journal_repas_id": "00000000-0000-4000-8000-000000000608"
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/menus",
+      "fichier": "03-wait.png"
+    },
+    {
+      "n": 4,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition",
+      "note": "le Carnet doit contenir le Dahl",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=RJfCJDPo2_81Gl6r (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=IaIzwq4BH3-xGixr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=Sn1z23icjpob6HFI (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1373,
+      "fichier": "04-goto.png"
+    },
+    {
+      "n": 5,
+      "action": "expect_text",
+      "texte": "Dahl de lentilles corail HelloFresh",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition",
+      "ms": 363,
+      "fichier": "05-expect_text.png"
+    },
+    {
+      "n": 6,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition/menus",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=j6EllVFPEmHf4CFf (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=3bRCAcPmtUP2qLBm (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1270,
+      "fichier": "06-goto.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "[aria-label='Marquer « Dahl de lentilles corail HelloFresh » comme mangé'] >> nth=-1",
+      "note": "décocher",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 387,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "wait",
+      "ms": 1528,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3103/nutrition/menus (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "journal_repas",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000608",
+          "body": null
+        },
+        {
+          "method": "PATCH",
+          "table": "menus_repas",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000608",
+          "body": {
+            "mange": false,
+            "journal_repas_id": null
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/menus",
+      "fichier": "08-wait.png"
+    },
+    {
+      "n": 9,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition",
+      "note": "le Carnet ne doit plus contenir le Dahl",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=Sn1z23icjpob6HFI (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=IaIzwq4BH3-xGixr (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1276,
+      "fichier": "09-goto.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_absent",
+      "texte": "Dahl de lentilles corail HelloFresh",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition",
+      "ms": 348,
+      "fichier": "10-expect_absent.png"
+    },
+    {
+      "n": 11,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition/menus",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=j6EllVFPEmHf4CFf (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=3bRCAcPmtUP2qLBm (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1272,
+      "fichier": "11-goto.png"
+    },
+    {
+      "n": 12,
+      "action": "dblclick",
+      "cible": "[aria-label='Marquer « Bowl skyr, avoine et banane » comme mangé']",
+      "note": "double tap sur la coche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "menus_repas",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000605&mange=eq.false&select=date%2Cmoment%2Caliment_id%2Crecette_id%2Cquantite",
+          "body": {
+            "mange": true
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 385,
+      "fichier": "12-dblclick.png"
+    },
+    {
+      "n": 13,
+      "action": "wait",
+      "ms": 1840,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3103/nutrition/menus (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "journal_repas",
+          "query": "?select=id",
+          "body": {
+            "id": "00000000-0000-4000-8000-000000000605",
+            "date": "2026-11-15",
+            "moment": "petit_dej",
+            "quantite": 1,
+            "mange": true,
+            "journal_repas_id": null,
+            "aliment_id": null,
+            "recette_id": "00000000-0000-4000-8000-000000000216",
+            "created_at": "2026-10-06T08:00:00+00:00"
+          }
+        },
+        {
+          "method": "PATCH",
+          "table": "menus_repas",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000605",
+          "body": {
+            "journal_repas_id": "00000000-0000-4000-8000-000000000605"
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "journal_repas",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000605",
+          "body": null
+        },
+        {
+          "method": "PATCH",
+          "table": "menus_repas",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000605",
+          "body": {
+            "mange": false,
+            "journal_repas_id": null
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/menus",
+      "fichier": "13-wait.png"
+    },
+    {
+      "n": 14,
+      "action": "reload",
+      "note": "état final après double tap",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3103/nutrition/menus (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=j6EllVFPEmHf4CFf (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 1579,
+      "fichier": "14-reload.png"
+    },
+    {
+      "n": 15,
+      "action": "click",
+      "cible": "[aria-label='Retirer « Amandes entières non salées » du menu']",
+      "note": "retirer un repas",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 393,
+      "fichier": "15-click.png"
+    },
+    {
+      "n": 16,
+      "action": "click",
+      "cible": "role=button[name=/annuler/i]",
+      "note": "Annuler le retrait",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 373,
+      "fichier": "16-click.png"
+    },
+    {
+      "n": 17,
+      "action": "expect_text",
+      "texte": "Amandes entières non salées",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 329,
+      "fichier": "17-expect_text.png"
+    },
+    {
+      "n": 18,
+      "action": "click",
+      "cible": "[aria-label^=\"Jour d'entraînement\"] >> nth=-1",
+      "note": "bascule repos / entraînement du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_entrainement",
+          "query": "?on_conflict=date",
+          "body": {
+            "date": "2026-11-15",
+            "entraine": true,
+            "updated_at": "2026-11-15T17:05:27.052Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 372,
+      "fichier": "18-click.png"
+    },
+    {
+      "n": 19,
+      "action": "wait",
+      "ms": 1539,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3103/nutrition/menus (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "fichier": "19-wait.png"
+    },
+    {
+      "n": 20,
+      "action": "reload",
+      "note": "bascule persistée ?",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=3bRCAcPmtUP2qLBm (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 1317,
+      "fichier": "20-reload.png"
+    }
+  ]
+}

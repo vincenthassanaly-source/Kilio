@@ -1,0 +1,18 @@
+{ "nom": "6-bilan-objectifs", "theme": "sombre", "etapes": [
+ { "action": "goto", "url": "/nutrition/bilan", "note": "Bilan, thème sombre" },
+ { "action": "scroll", "pixels": 700 },
+ { "action": "scroll", "pixels": 900 },
+ { "action": "scroll", "pixels": 1200 },
+ { "action": "goto", "url": "/nutrition/journal" },
+ { "action": "click", "cible": "role=button[name=/modifier les objectifs/i]" },
+ { "action": "fill", "cible": "form input[type=number] >> nth=0", "valeur": "", "note": "cible kcal vide" },
+ { "action": "click", "cible": "role=button[name=/^Enregistrer/]", "note": "enregistrer avec un champ vide" },
+ { "action": "fill", "cible": "form input[type=number] >> nth=0", "valeur": "2050" },
+ { "action": "click", "cible": "role=button[name=/^Enregistrer/]" },
+ { "action": "wait", "ms": 1500 },
+ { "action": "reload", "note": "cible persistée ?" },
+ { "action": "expect_text", "texte": "2050" },
+ { "action": "goto", "url": "/nutrition/recettes" },
+ { "action": "click", "cible": "role=link[name=/Pâtes complètes à la bolognaise/i]", "note": "fiche d'une recette au nom long, sombre" },
+ { "action": "scroll", "pixels": 900 }
+]}

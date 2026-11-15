@@ -1,0 +1,22 @@
+{ "nom": "3-menus-mange", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/nutrition/menus", "note": "Menus, semaine en cours" },
+ { "action": "click", "cible": "[aria-label='Marquer « Dahl de lentilles corail HelloFresh » comme mangé'] >> nth=-1", "note": "cocher mangé (dîner du jour)" },
+ { "action": "wait", "ms": 1200 },
+ { "action": "goto", "url": "/nutrition", "note": "le Carnet doit contenir le Dahl" },
+ { "action": "expect_text", "texte": "Dahl de lentilles corail HelloFresh" },
+ { "action": "goto", "url": "/nutrition/menus" },
+ { "action": "click", "cible": "[aria-label='Marquer « Dahl de lentilles corail HelloFresh » comme mangé'] >> nth=-1", "note": "décocher" },
+ { "action": "wait", "ms": 1200 },
+ { "action": "goto", "url": "/nutrition", "note": "le Carnet ne doit plus contenir le Dahl" },
+ { "action": "expect_absent", "texte": "Dahl de lentilles corail HelloFresh" },
+ { "action": "goto", "url": "/nutrition/menus" },
+ { "action": "dblclick", "cible": "[aria-label='Marquer « Bowl skyr, avoine et banane » comme mangé']", "note": "double tap sur la coche" },
+ { "action": "wait", "ms": 1500 },
+ { "action": "reload", "note": "état final après double tap" },
+ { "action": "click", "cible": "[aria-label='Retirer « Amandes entières non salées » du menu']", "note": "retirer un repas" },
+ { "action": "click", "cible": "role=button[name=/annuler/i]", "note": "Annuler le retrait" },
+ { "action": "expect_text", "texte": "Amandes entières non salées" },
+ { "action": "click", "cible": "[aria-label^=\"Jour d'entraînement\"] >> nth=-1", "note": "bascule repos / entraînement du jour" },
+ { "action": "wait", "ms": 1200 },
+ { "action": "reload", "note": "bascule persistée ?" }
+]}

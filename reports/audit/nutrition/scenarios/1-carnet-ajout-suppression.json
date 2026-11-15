@@ -1,0 +1,23 @@
+{ "nom": "1-carnet-ajout-suppression", "theme": "clair", "etapes": [
+ { "action": "goto", "url": "/nutrition", "note": "ouvrir le Carnet (aujourd'hui)" },
+ { "action": "click", "cible": "role=button[name=/ajouter un repas/i] >> nth=-1", "note": "bouton flottant" },
+ { "action": "fill", "cible": "role=searchbox", "valeur": "saumon", "note": "chercher un aliment" },
+ { "action": "click", "cible": "role=button[name=/Pavé de saumon/i]", "note": "choisir l'aliment (nom long)" },
+ { "action": "fill", "cible": "input[name=quantite-saisie]", "valeur": "180", "note": "modifier la quantité" },
+ { "action": "click", "cible": "role=button[name=/^Ajouter (au|en) /]", "note": "valider l'aliment" },
+ { "action": "expect_text", "texte": "Pavé de saumon atlantique", "note": "aliment présent au Carnet" },
+ { "action": "click", "cible": "role=button[name=/ajouter un repas/i] >> nth=-1", "note": "second ajout : une recette" },
+ { "action": "fill", "cible": "role=searchbox", "valeur": "dahl" },
+ { "action": "click", "cible": "role=button[name=/Dahl de lentilles/i]", "note": "choisir la recette" },
+ { "action": "click", "cible": "role=button[name=/^Ajouter 0,5/]", "note": "pas de quantité +0,5 portion" },
+ { "action": "click", "cible": "role=button[name=/^Ajouter (au|en) /]", "note": "valider la recette" },
+ { "action": "expect_text", "texte": "Dahl de lentilles corail HelloFresh" },
+ { "action": "click", "cible": "[aria-label='Supprimer « Skyr nature »']", "note": "supprimer un repas" },
+ { "action": "click", "cible": "role=button[name=/annuler/i]", "note": "Annuler dans le toast" },
+ { "action": "expect_text", "texte": "Skyr nature", "note": "repas revenu" },
+ { "action": "click", "cible": "[aria-label='Supprimer « Skyr nature »']", "note": "supprimer pour de bon" },
+ { "action": "wait", "ms": 7500, "note": "laisser expirer le toast" },
+ { "action": "reload", "note": "persistance" },
+ { "action": "expect_absent", "texte": "Skyr nature" },
+ { "action": "expect_text", "texte": "Pavé de saumon atlantique" }
+]}

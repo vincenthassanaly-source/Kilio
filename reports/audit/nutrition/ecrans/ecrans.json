@@ -47,7 +47,7 @@
   {
     "route": "/nutrition/recettes/[id]",
     "dynamique": true,
-    "url": "/nutrition/recettes/00000000-0000-4000-8000-000000000202",
+    "url": "/nutrition/recettes/00000000-0000-4000-8000-000000000216",
     "theme": "clair",
     "fichier": "nutrition_recettes__id_.clair.png",
     "statut": 200,
@@ -101,7 +101,7 @@
   {
     "route": "/nutrition/recettes/[id]",
     "dynamique": true,
-    "url": "/nutrition/recettes/00000000-0000-4000-8000-000000000202",
+    "url": "/nutrition/recettes/00000000-0000-4000-8000-000000000216",
     "theme": "sombre",
     "fichier": "nutrition_recettes__id_.sombre.png",
     "statut": 200,

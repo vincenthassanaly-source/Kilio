@@ -1,0 +1,21 @@
+{ "nom": "2-carnet-jours-limites", "theme": "sombre", "etapes": [
+ { "action": "goto", "url": "/nutrition/journal", "note": "Carnet, thème sombre" },
+ { "action": "click", "cible": "[aria-label='Jour précédent']", "note": "veille (jour d'entraînement)" },
+ { "action": "click", "cible": "[aria-label='Jour précédent']", "note": "J-2" },
+ { "action": "click", "cible": "[aria-label='Jour précédent']", "note": "J-3 (entraînement, dense)" },
+ { "action": "click", "cible": "[aria-label='Jour précédent']", "note": "J-4 (jour libre)" },
+ { "action": "scroll", "pixels": 700, "note": "bas de la liste" },
+ { "action": "click", "cible": "role=button[name=/ajouter un repas/i] >> nth=-1", "note": "ajout sur un jour passé" },
+ { "action": "fill", "cible": "role=searchbox", "valeur": "zzzqq", "note": "recherche sans résultat" },
+ { "action": "fill", "cible": "role=searchbox", "valeur": "banane" },
+ { "action": "click", "cible": "role=button[name=/^Banane/i]", "note": "aliment à la pièce" },
+ { "action": "fill", "cible": "input[name=quantite-saisie]", "valeur": "", "note": "quantité vide" },
+ { "action": "fill", "cible": "input[name=quantite-saisie]", "valeur": "0", "note": "quantité nulle" },
+ { "action": "fill", "cible": "input[name=quantite-saisie]", "valeur": "99999", "note": "quantité énorme" },
+ { "action": "fill", "cible": "input[name=quantite-saisie]", "valeur": "2" },
+ { "action": "dblclick", "cible": "role=button[name=/^Ajouter (au|en) /]", "note": "double tap sur valider" },
+ { "action": "wait", "ms": 1500 },
+ { "action": "reload", "note": "une seule banane attendue" },
+ { "action": "goto", "url": "/nutrition/journal?date=2026-01-05", "note": "jour sans aucun repas (liste vide)" },
+ { "action": "goto", "url": "/nutrition/journal?date=pas-une-date", "note": "date invalide dans l'URL" }
+]}

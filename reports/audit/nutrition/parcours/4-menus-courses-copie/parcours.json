@@ -1,0 +1,481 @@
+{
+  "nom": "4-menus-courses-copie",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition/menus",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=j6EllVFPEmHf4CFf (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1348,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/Ajouter un repas · .*Collation/i] >> nth=0",
+      "note": "ajouter au créneau collation du lundi",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 496,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "fill",
+      "cible": "role=searchbox",
+      "valeur": "omelette",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 386,
+      "fichier": "03-fill.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/Omelette aux trois/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 441,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^(Ajouter|Planifier) (au|en) /]",
+      "note": "valider",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "menus_repas",
+          "query": "",
+          "body": {
+            "aliment_id": null,
+            "recette_id": "00000000-0000-4000-8000-000000000215",
+            "quantite": 1,
+            "date": "2026-11-09",
+            "moment": "collation"
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 413,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "expect_text",
+      "texte": "Omelette aux trois œufs",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 395,
+      "fichier": "06-expect_text.png"
+    },
+    {
+      "n": 7,
+      "action": "scroll",
+      "pixels": -3000,
+      "note": "haut de page : carte de la semaine",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3103/nutrition/menus (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 378,
+      "fichier": "07-scroll.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/Envoyer aux Courses/i]",
+      "note": "premier envoi",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 373,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "wait",
+      "ms": 2845,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3103/nutrition/menus (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?columns=%22libelle%22%2C%22created_at%22",
+          "body": [
+            {
+              "libelle": "Pâtes complètes cuites, 200 g",
+              "created_at": "2026-11-15T17:05:34.981Z"
+            },
+            {
+              "libelle": "Steak haché de bœuf 5 % MG, 1 pièce",
+              "created_at": "2026-11-15T17:05:34.982Z"
+            },
+            {
+              "libelle": "Coulis de tomate nature, 125 g",
+              "created_at": "2026-11-15T17:05:34.983Z"
+            },
+            {
+              "libelle": "Huile d'olive vierge extra, 9 ml",
+              "created_at": "2026-11-15T17:05:34.984Z"
+            },
+            {
+              "libelle": "Skyr nature, 200 g",
+              "created_at": "2026-11-15T17:05:34.985Z"
+            },
+            {
+              "libelle": "Flocons d'avoine complets, 40 g",
+              "created_at": "2026-11-15T17:05:34.986Z"
+            },
+            {
+              "libelle": "Banane, 1 pièce",
+              "created_at": "2026-11-15T17:05:34.987Z"
+            },
+            {
+              "libelle": "Pavé de saumon atlantique sans peau, surgelé, 150 g",
+              "created_at": "2026-11-15T17:05:34.988Z"
+            },
+            {
+              "libelle": "Brocoli cuit vapeur, 200 g",
+              "created_at": "2026-11-15T17:05:34.989Z"
+            },
+            {
+              "libelle": "Riz basmati cuit, 150 g",
+              "created_at": "2026-11-15T17:05:34.990Z"
+            },
+            {
+              "libelle": "Amandes entières non salées, 30 g",
+              "created_at": "2026-11-15T17:05:34.991Z"
+            },
+            {
+              "libelle": "Oignon jaune, 1",
+              "created_at": "2026-11-15T17:05:34.992Z"
+            },
+            {
+              "libelle": "Herbes de Provence, 1 c. à café",
+              "created_at": "2026-11-15T17:05:34.993Z"
+            },
+            {
+              "libelle": "Lentilles corail, 150 g",
+              "created_at": "2026-11-15T17:05:34.994Z"
+            },
+            {
+              "libelle": "Lait de coco, 200 ml",
+              "created_at": "2026-11-15T17:05:34.995Z"
+            },
+            {
+              "libelle": "Pâte de curry jaune, 1 sachet",
+              "created_at": "2026-11-15T17:05:34.996Z"
+            },
+            {
+              "libelle": "Épinards frais, 100 g",
+              "created_at": "2026-11-15T17:05:34.997Z"
+            },
+            {
+              "libelle": "Citron, 1",
+              "created_at": "2026-11-15T17:05:34.998Z"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/menus",
+      "fichier": "09-wait.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/Envoyer aux Courses/i]",
+      "note": "second envoi : aucun doublon attendu",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 365,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "wait",
+      "ms": 2834,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3103/nutrition/menus (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "fichier": "11-wait.png"
+    },
+    {
+      "n": 12,
+      "action": "goto",
+      "url": "http://localhost:3103/courses",
+      "note": "liste de courses obtenue",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1723,
+      "fichier": "12-goto.png"
+    },
+    {
+      "n": 13,
+      "action": "scroll",
+      "pixels": 800,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/courses",
+      "ms": 335,
+      "fichier": "13-scroll.png"
+    },
+    {
+      "n": 14,
+      "action": "goto",
+      "url": "http://localhost:3103/nutrition/menus",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=j6EllVFPEmHf4CFf (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=3bRCAcPmtUP2qLBm (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1310,
+      "fichier": "14-goto.png"
+    },
+    {
+      "n": 15,
+      "action": "scroll",
+      "pixels": -3000,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 335,
+      "fichier": "15-scroll.png"
+    },
+    {
+      "n": 16,
+      "action": "click",
+      "cible": "[aria-label='Semaine suivante']",
+      "note": "semaine suivante (vide)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus",
+      "ms": 383,
+      "fichier": "16-click.png"
+    },
+    {
+      "n": 17,
+      "action": "click",
+      "cible": "role=button[name=/Copier la semaine précédente/i]",
+      "note": "copie",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/menus?semaine=2026-11-16&_rsc=rMnu_bfo-ZaWN6Hh (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus?semaine=2026-11-16",
+      "ms": 5046,
+      "fichier": "17-click.png"
+    },
+    {
+      "n": 18,
+      "action": "wait",
+      "ms": 2332,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus?semaine=2026-11-16",
+      "fichier": "18-wait.png"
+    },
+    {
+      "n": 19,
+      "action": "reload",
+      "note": "persistance de la copie",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=j6EllVFPEmHf4CFf (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=tc2lWmmGE2MZ9vTY (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=3bRCAcPmtUP2qLBm (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus?semaine=2026-11-16",
+      "ms": 1299,
+      "fichier": "19-reload.png"
+    },
+    {
+      "n": 20,
+      "action": "scroll",
+      "pixels": 900,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus?semaine=2026-11-16",
+      "ms": 345,
+      "fichier": "20-scroll.png"
+    },
+    {
+      "n": 21,
+      "action": "click",
+      "cible": "[aria-label='Semaine suivante']",
+      "note": "encore une semaine",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus?semaine=2026-11-16",
+      "ms": 427,
+      "fichier": "21-click.png"
+    },
+    {
+      "n": 22,
+      "action": "click",
+      "cible": "[aria-label='Semaine précédente']",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/menus?semaine=2026-11-23&_rsc=rMnu_bfo-ZaWN6Hh (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/menus?semaine=2026-11-16",
+      "ms": 380,
+      "fichier": "22-click.png"
+    },
+    {
+      "n": 23,
+      "action": "back",
+      "note": "retour arrière du navigateur",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/nutrition/menus?semaine=2026-11-09&_rsc=rMnu_bfo-ZaWN6Hh (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/courses",
+      "ms": 1203,
+      "fichier": "23-back.png"
+    }
+  ]
+}

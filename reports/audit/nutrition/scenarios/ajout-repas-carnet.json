@@ -1,9 +1,0 @@
-{ "nom": "ajout-repas-carnet", "theme": "clair", "etapes": [
- { "action": "goto", "url": "/nutrition", "note": "ouvrir Nutrition (onglet barre du bas)" },
- { "action": "click", "cible": "role=button[name=/ajouter un repas/i]", "note": "FAB" },
- { "action": "screenshot", "note": "feuille: choix" },
- { "action": "click", "cible": "role=button[name=/skyr/i] >> nth=0", "note": "choisir un récent / résultat" },
- { "action": "screenshot", "note": "étape quantité" },
- { "action": "click", "cible": "role=button[name=/^Ajouter .* (au|le|au|à)/i] >> nth=-1", "note": "valider" },
- { "action": "screenshot", "note": "après ajout (toast sans Annuler ?)" }
-]}
