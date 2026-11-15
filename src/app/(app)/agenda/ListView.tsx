@@ -110,7 +110,7 @@ export function ListView({
   if (sortedDates.length === 0 && withoutDate.length === 0 && archivees.length === 0) {
     return (
       <p className="py-8 text-center text-ink-2 text-balance">
-        Rien d&apos;agendé pour l&apos;instant. Ajoute une tâche ou un événement avec le bouton +.
+        Rien de prévu pour l&apos;instant. Ajoute une tâche ou un événement avec le bouton +.
       </p>
     );
   }
@@ -142,6 +142,17 @@ export function ListView({
             </svg>
           </button>
           {passesOuverts && passes.map((iso) => rendreJour(iso))}
+        </div>
+      )}
+      {/* Ancrage : « Aujourd'hui » reste le point de départ de la liste même quand
+          rien n'y est prévu, au lieu de commencer directement par un autre jour. */}
+      {!avenir.includes(aujourdhuiIso) && (
+        <div className="flex flex-col gap-2">
+          <h2 className={sectionTitle}>
+            Aujourd&apos;hui · {majusculePremiere(format(parseISODate(aujourdhuiIso), "EEEE d MMMM yyyy", { locale: fr }))}
+          </h2>
+          {feries?.has(aujourdhuiIso) && <FerieBadge nom={feries.get(aujourdhuiIso)!} className="self-start" />}
+          <p className="text-label text-ink-2">Rien de prévu.</p>
         </div>
       )}
       {avenir.map((iso) => rendreJour(iso))}
