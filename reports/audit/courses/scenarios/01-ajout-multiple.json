@@ -1,0 +1,18 @@
+{"nom":"01-ajout-multiple","theme":"clair","etapes":[
+{"action":"goto","url":"/courses","note":"ouvrir Courses"},
+{"action":"click","cible":"role=button[name=/ajouter un article/i]","note":"ouvrir la carte d'ajout"},
+{"action":"fill","cible":"role=combobox","valeur":"Farine, sucre roux, 1,5 L de lait","note":"saisie multiple avec virgule décimale"},
+{"action":"click","cible":"role=button[name=/^Ajouter 3 articles$/]","note":"ajouter 3 articles"},
+{"action":"wait","ms":1500},
+{"action":"expect_text","texte":"19 articles à prendre"},
+{"action":"fill","cible":"role=combobox","valeur":"Citrons","note":"enchaîner un ajout simple"},
+{"action":"press","touche":"Enter"},
+{"action":"wait","ms":1500},
+{"action":"click","cible":"role=button[name=/^Fermer$/]","note":"refermer la carte"},
+{"action":"wait","ms":500},
+{"action":"expect_text","texte":"20 articles à prendre"},
+{"action":"reload","note":"persistance"},
+{"action":"expect_text","texte":"1,5 L de lait"},
+{"action":"expect_text","texte":"Citrons"},
+{"action":"expect_text","texte":"20 articles à prendre"}
+]}

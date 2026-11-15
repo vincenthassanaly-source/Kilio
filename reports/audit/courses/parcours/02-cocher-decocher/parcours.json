@@ -1,0 +1,349 @@
+{
+  "nom": "02-cocher-decocher",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3102/courses",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1355,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/^Bananes$/]",
+      "note": "cocher Bananes (pris)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.c0a5e000-0000-4000-8000-000000000002",
+          "body": {
+            "coche": true
+          }
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 441,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "wait",
+      "ms": 1533,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "03-wait.png"
+    },
+    {
+      "n": 4,
+      "action": "expect_text",
+      "texte": "15 articles à prendre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 335,
+      "fichier": "04-expect_text.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^Articles pris/]",
+      "note": "déplier Articles pris",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 382,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "wait",
+      "ms": 836,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "06-wait.png"
+    },
+    {
+      "n": 7,
+      "action": "screenshot",
+      "note": "section dépliée",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 327,
+      "fichier": "07-screenshot.png"
+    },
+    {
+      "n": 8,
+      "action": "reload",
+      "note": "persistance de la coche",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1149,
+      "fichier": "08-reload.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "Articles pris (9)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 349,
+      "fichier": "09-expect_text.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/^Articles pris/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 389,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "wait",
+      "ms": 733,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "11-wait.png"
+    },
+    {
+      "n": 12,
+      "action": "click",
+      "cible": "role=button[name=/^Bananes$/]",
+      "note": "décocher Bananes",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.c0a5e000-0000-4000-8000-000000000002",
+          "body": {
+            "coche": false
+          }
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 384,
+      "fichier": "12-click.png"
+    },
+    {
+      "n": 13,
+      "action": "wait",
+      "ms": 1533,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "13-wait.png"
+    },
+    {
+      "n": 14,
+      "action": "expect_text",
+      "texte": "16 articles à prendre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 341,
+      "fichier": "14-expect_text.png"
+    },
+    {
+      "n": 15,
+      "action": "dblclick",
+      "cible": "role=button[name=/^Courgettes$/]",
+      "note": "double clic sur la coche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.c0a5e000-0000-4000-8000-000000000003",
+          "body": {
+            "coche": true
+          }
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 377,
+      "fichier": "15-dblclick.png"
+    },
+    {
+      "n": 16,
+      "action": "wait",
+      "ms": 1834,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.c0a5e000-0000-4000-8000-000000000003",
+          "body": {
+            "coche": true
+          }
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "fichier": "16-wait.png"
+    },
+    {
+      "n": 17,
+      "action": "screenshot",
+      "note": "état après double clic",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 329,
+      "fichier": "17-screenshot.png"
+    },
+    {
+      "n": 18,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1135,
+      "fichier": "18-reload.png"
+    },
+    {
+      "n": 19,
+      "action": "screenshot",
+      "note": "état serveur après double clic",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 330,
+      "fichier": "19-screenshot.png"
+    }
+  ]
+}

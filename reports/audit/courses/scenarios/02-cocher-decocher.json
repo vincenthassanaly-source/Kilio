@@ -1,0 +1,21 @@
+{"nom":"02-cocher-decocher","theme":"clair","etapes":[
+{"action":"goto","url":"/courses"},
+{"action":"click","cible":"role=button[name=/^Bananes$/]","note":"cocher Bananes (pris)"},
+{"action":"wait","ms":1200},
+{"action":"expect_text","texte":"15 articles à prendre"},
+{"action":"click","cible":"role=button[name=/^Articles pris/]","note":"déplier Articles pris"},
+{"action":"wait","ms":500},
+{"action":"screenshot","note":"section dépliée"},
+{"action":"reload","note":"persistance de la coche"},
+{"action":"expect_text","texte":"Articles pris (9)"},
+{"action":"click","cible":"role=button[name=/^Articles pris/]"},
+{"action":"wait","ms":400},
+{"action":"click","cible":"role=button[name=/^Bananes$/]","note":"décocher Bananes"},
+{"action":"wait","ms":1200},
+{"action":"expect_text","texte":"16 articles à prendre"},
+{"action":"dblclick","cible":"role=button[name=/^Courgettes$/]","note":"double clic sur la coche"},
+{"action":"wait","ms":1500},
+{"action":"screenshot","note":"état après double clic"},
+{"action":"reload"},
+{"action":"screenshot","note":"état serveur après double clic"}
+]}

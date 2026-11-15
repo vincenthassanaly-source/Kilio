@@ -1,0 +1,429 @@
+{
+  "nom": "07-liste-vide",
+  "theme": "clair",
+  "note": "À lancer seul, SANS --reset, après avoir vidé courses_items dans le faux Supabase (DELETE /rest/v1/courses_items?id=not.is.null).",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3102/courses",
+      "note": "liste vide",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1446,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "wait",
+      "ms": 1136,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "02-wait.png"
+    },
+    {
+      "n": 3,
+      "action": "reload",
+      "note": "second chargement (cache serveur)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1158,
+      "fichier": "03-reload.png"
+    },
+    {
+      "n": 4,
+      "action": "expect_text",
+      "texte": "Aucun article pour l'instant.",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 357,
+      "fichier": "04-expect_text.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/ajouter un article/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 380,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": "Mouchoirs en papier; Anticonstitutionnellementanticonstitutionnellementanticonstitutionnellementanticonstitutionnellement",
+      "note": "deux articles dont un mot de 100 caractères",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 348,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "press",
+      "touche": "Enter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 337,
+      "fichier": "07-press.png"
+    },
+    {
+      "n": 8,
+      "action": "wait",
+      "ms": 1834,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?columns=%22libelle%22%2C%22created_at%22",
+          "body": [
+            {
+              "libelle": "Mouchoirs en papier",
+              "created_at": "2026-11-15T17:06:00.004Z"
+            },
+            {
+              "libelle": "Anticonstitutionnellementanticonstitutionnellementanticonstitutionnellementanticonstitutionnellement",
+              "created_at": "2026-11-15T17:06:00.005Z"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "fichier": "08-wait.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/^Fermer$/]",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 389,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "wait",
+      "ms": 835,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "10-wait.png"
+    },
+    {
+      "n": 11,
+      "action": "screenshot",
+      "note": "mot de 100 caractères sans espace",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 338,
+      "fichier": "11-screenshot.png"
+    },
+    {
+      "n": 12,
+      "action": "click",
+      "cible": "role=button[name=/^Mouchoirs en papier$/]",
+      "note": "cocher",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.f724a14e-fa5e-401e-83de-1ed4dfdebed7",
+          "body": {
+            "coche": true
+          }
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 375,
+      "fichier": "12-click.png"
+    },
+    {
+      "n": 13,
+      "action": "wait",
+      "ms": 1536,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "13-wait.png"
+    },
+    {
+      "n": 14,
+      "action": "click",
+      "cible": "role=button[name=/^Anticonstitutionnellement/]",
+      "note": "cocher le dernier article",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.5225c0f9-44b8-4b54-94d8-e3ea165d6852",
+          "body": {
+            "coche": true
+          }
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 377,
+      "fichier": "14-click.png"
+    },
+    {
+      "n": 15,
+      "action": "wait",
+      "ms": 1534,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "15-wait.png"
+    },
+    {
+      "n": 16,
+      "action": "expect_text",
+      "texte": "Tout est dans le chariot !",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 328,
+      "fichier": "16-expect_text.png"
+    },
+    {
+      "n": 17,
+      "action": "click",
+      "cible": "role=button[name=/^Articles pris/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 358,
+      "fichier": "17-click.png"
+    },
+    {
+      "n": 18,
+      "action": "wait",
+      "ms": 837,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "18-wait.png"
+    },
+    {
+      "n": 19,
+      "action": "screenshot",
+      "note": "articles pris dépliés, mot long barré",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 343,
+      "fichier": "19-screenshot.png"
+    },
+    {
+      "n": 20,
+      "action": "click",
+      "cible": "role=button[name=/^Supprimer les articles pris$/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "courses_items",
+          "query": "?id=in.%285225c0f9-44b8-4b54-94d8-e3ea165d6852%2Cf724a14e-fa5e-401e-83de-1ed4dfdebed7%29",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 366,
+      "fichier": "20-click.png"
+    },
+    {
+      "n": 21,
+      "action": "wait",
+      "ms": 1335,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "21-wait.png"
+    },
+    {
+      "n": 22,
+      "action": "screenshot",
+      "note": "retour à l'état vide + toast",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 336,
+      "fichier": "22-screenshot.png"
+    },
+    {
+      "n": 23,
+      "action": "wait",
+      "ms": 6834,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "23-wait.png"
+    },
+    {
+      "n": 24,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1130,
+      "fichier": "24-reload.png"
+    },
+    {
+      "n": 25,
+      "action": "expect_text",
+      "texte": "Aucun article pour l'instant.",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 351,
+      "fichier": "25-expect_text.png"
+    }
+  ]
+}

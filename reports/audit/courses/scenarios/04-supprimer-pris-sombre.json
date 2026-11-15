@@ -1,0 +1,18 @@
+{"nom":"04-supprimer-pris-sombre","theme":"sombre","etapes":[
+{"action":"goto","url":"/courses"},
+{"action":"click","cible":"role=button[name=/^Articles pris/]","note":"déplier"},
+{"action":"wait","ms":500},
+{"action":"screenshot","note":"articles pris dépliés"},
+{"action":"click","cible":"role=button[name=/^Supprimer les articles pris$/]","note":"vider les pris"},
+{"action":"wait","ms":1000},
+{"action":"screenshot","note":"toast 8 articles supprimés"},
+{"action":"click","cible":"role=button[name=/Annuler la suppression/]","note":"Annuler"},
+{"action":"wait","ms":1500},
+{"action":"expect_text","texte":"Articles pris (8)"},
+{"action":"reload"},
+{"action":"expect_text","texte":"Articles pris (8)"},
+{"action":"click","cible":"role=button[name=/^Supprimer les articles pris$/]","note":"vider pour de bon"},
+{"action":"wait","ms":7000},
+{"action":"reload"},
+{"action":"expect_absent","texte":"Articles pris"}
+]}

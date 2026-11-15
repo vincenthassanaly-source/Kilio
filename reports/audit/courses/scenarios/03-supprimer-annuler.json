@@ -1,0 +1,17 @@
+{"nom":"03-supprimer-annuler","theme":"clair","etapes":[
+{"action":"goto","url":"/courses"},
+{"action":"click","cible":"role=button[name=/^Supprimer « Riz basmati »$/]","note":"supprimer un article"},
+{"action":"wait","ms":900},
+{"action":"screenshot","note":"toast Annuler"},
+{"action":"click","cible":"role=button[name=/Annuler la suppression/]","note":"Annuler"},
+{"action":"wait","ms":1500},
+{"action":"expect_text","texte":"Riz basmati"},
+{"action":"expect_text","texte":"16 articles à prendre"},
+{"action":"reload","note":"l'article restauré persiste"},
+{"action":"expect_text","texte":"Riz basmati"},
+{"action":"click","cible":"role=button[name=/^Supprimer « Piles AAA »$/]","note":"supprimer sans annuler"},
+{"action":"wait","ms":7000,"note":"laisser le toast expirer"},
+{"action":"reload"},
+{"action":"expect_absent","texte":"Piles AAA"},
+{"action":"expect_text","texte":"15 articles à prendre"}
+]}

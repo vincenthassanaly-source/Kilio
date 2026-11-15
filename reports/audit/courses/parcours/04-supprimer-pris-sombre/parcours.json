@@ -1,0 +1,355 @@
+{
+  "nom": "04-supprimer-pris-sombre",
+  "theme": "sombre",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3102/courses",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1260,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/^Articles pris/]",
+      "note": "déplier",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 414,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "wait",
+      "ms": 832,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "03-wait.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "articles pris dépliés",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 335,
+      "fichier": "04-screenshot.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^Supprimer les articles pris$/]",
+      "note": "vider les pris",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "courses_items",
+          "query": "?id=in.%28c0a5e000-0000-4000-8000-000000000102%2Cc0a5e000-0000-4000-8000-000000000101%2Cc0a5e000-0000-4000-8000-000000000100%2Cc0a5e000-0000-4000-8000-000000000105%2Cc0a5e000-0000-4000-8000-000000000104%2Cc0a5e000-0000-4000-8000-000000000103%2Cc0a5e000-0000-4000-8000-000000000107%2Cc0a5e000-0000-4000-8000-000000000106%29",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 405,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "wait",
+      "ms": 1333,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "06-wait.png"
+    },
+    {
+      "n": 7,
+      "action": "screenshot",
+      "note": "toast 8 articles supprimés",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 337,
+      "fichier": "07-screenshot.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/Annuler la suppression/]",
+      "note": "Annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?on_conflict=id&columns=%22id%22%2C%22libelle%22%2C%22coche%22%2C%22created_at%22%2C%22termine_le%22",
+          "body": [
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000102",
+              "libelle": "Café moulu",
+              "coche": true,
+              "created_at": "2026-11-11T08:12:00+00:00",
+              "termine_le": "2026-11-13T17:22:00+00:00"
+            },
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000101",
+              "libelle": "Pain de mie",
+              "coche": true,
+              "created_at": "2026-11-11T08:11:00+00:00",
+              "termine_le": "2026-11-13T17:21:00+00:00"
+            },
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000100",
+              "libelle": "Lait demi-écrémé",
+              "coche": true,
+              "created_at": "2026-11-11T08:10:00+00:00",
+              "termine_le": "2026-11-13T17:20:00+00:00"
+            },
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000105",
+              "libelle": "Lessive liquide",
+              "coche": true,
+              "created_at": "2026-11-04T08:15:00+00:00",
+              "termine_le": "2026-11-06T17:25:00+00:00"
+            },
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000104",
+              "libelle": "Pommes golden",
+              "coche": true,
+              "created_at": "2026-11-04T08:14:00+00:00",
+              "termine_le": "2026-11-06T17:24:00+00:00"
+            },
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000103",
+              "libelle": "Lait demi-écrémé",
+              "coche": true,
+              "created_at": "2026-11-04T08:13:00+00:00",
+              "termine_le": "2026-11-06T17:23:00+00:00"
+            },
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000107",
+              "libelle": "Lait d'avoine",
+              "coche": true,
+              "created_at": "2026-10-28T08:17:00+00:00",
+              "termine_le": "2026-10-30T17:27:00+00:00"
+            },
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000106",
+              "libelle": "Pâtes complètes",
+              "coche": true,
+              "created_at": "2026-10-28T08:16:00+00:00",
+              "termine_le": "2026-10-30T17:26:00+00:00"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 363,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "wait",
+      "ms": 1832,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "09-wait.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_text",
+      "texte": "Articles pris (8)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 337,
+      "fichier": "10-expect_text.png"
+    },
+    {
+      "n": 11,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1244,
+      "fichier": "11-reload.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "Articles pris (8)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 347,
+      "fichier": "12-expect_text.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=/^Supprimer les articles pris$/]",
+      "note": "vider pour de bon",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "courses_items",
+          "query": "?id=in.%28c0a5e000-0000-4000-8000-000000000102%2Cc0a5e000-0000-4000-8000-000000000101%2Cc0a5e000-0000-4000-8000-000000000100%2Cc0a5e000-0000-4000-8000-000000000105%2Cc0a5e000-0000-4000-8000-000000000104%2Cc0a5e000-0000-4000-8000-000000000103%2Cc0a5e000-0000-4000-8000-000000000107%2Cc0a5e000-0000-4000-8000-000000000106%29",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 356,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "wait",
+      "ms": 7337,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "14-wait.png"
+    },
+    {
+      "n": 15,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1248,
+      "fichier": "15-reload.png"
+    },
+    {
+      "n": 16,
+      "action": "expect_absent",
+      "texte": "Articles pris",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 348,
+      "fichier": "16-expect_absent.png"
+    }
+  ]
+}

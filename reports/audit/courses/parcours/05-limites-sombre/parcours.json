@@ -1,0 +1,462 @@
+{
+  "nom": "05-limites-sombre",
+  "theme": "sombre",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3102/courses",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1241,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/ajouter un article/i]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 394,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/^Ajouter$/]",
+      "note": "champ vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 431,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "expect_text",
+      "texte": "Le libellé est requis.",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 351,
+      "fichier": "04-expect_text.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": " , ; ,",
+      "note": "séparateurs seuls",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 345,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "press",
+      "touche": "Enter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 331,
+      "fichier": "06-press.png"
+    },
+    {
+      "n": 7,
+      "action": "screenshot",
+      "note": "séparateurs seuls",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 334,
+      "fichier": "07-screenshot.png"
+    },
+    {
+      "n": 8,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": "Grand plat à gratin en céramique émaillée pour le four en taille familiale avec couvercle en verre trempé et poignées en silicone amovibles",
+      "note": "segment de plus de 100 caractères",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 352,
+      "fichier": "08-fill.png"
+    },
+    {
+      "n": 9,
+      "action": "screenshot",
+      "note": "erreur longueur",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 330,
+      "fichier": "09-screenshot.png"
+    },
+    {
+      "n": 10,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": "Anticonstitutionnellementanticonstitutionnellementanticonstitutionnellementanticonstitutionnellement",
+      "note": "100 caractères sans espace",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 333,
+      "fichier": "10-fill.png"
+    },
+    {
+      "n": 11,
+      "action": "press",
+      "touche": "Enter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 352,
+      "fichier": "11-press.png"
+    },
+    {
+      "n": 12,
+      "action": "wait",
+      "ms": 1832,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?columns=%22libelle%22%2C%22created_at%22",
+          "body": [
+            {
+              "libelle": "Anticonstitutionnellementanticonstitutionnellementanticonstitutionnellementanticonstitutionnellement",
+              "created_at": "2026-11-15T17:03:48.061Z"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "fichier": "12-wait.png"
+    },
+    {
+      "n": 13,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": "tomates CERISES",
+      "note": "doublon d'un article à prendre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 332,
+      "fichier": "13-fill.png"
+    },
+    {
+      "n": 14,
+      "action": "press",
+      "touche": "Enter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 334,
+      "fichier": "14-press.png"
+    },
+    {
+      "n": 15,
+      "action": "wait",
+      "ms": 1137,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "15-wait.png"
+    },
+    {
+      "n": 16,
+      "action": "expect_text",
+      "texte": "déjà dans la liste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 349,
+      "fichier": "16-expect_text.png"
+    },
+    {
+      "n": 17,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": "la",
+      "note": "suggestions d'habituels",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 347,
+      "fichier": "17-fill.png"
+    },
+    {
+      "n": 18,
+      "action": "screenshot",
+      "note": "suggestions",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 334,
+      "fichier": "18-screenshot.png"
+    },
+    {
+      "n": 19,
+      "action": "click",
+      "cible": "role=option[name=/Lait demi-écrémé/]",
+      "note": "remettre un article pris",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 404,
+      "fichier": "19-click.png"
+    },
+    {
+      "n": 20,
+      "action": "wait",
+      "ms": 1830,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "courses_items",
+          "query": "?id=eq.c0a5e000-0000-4000-8000-000000000100",
+          "body": {
+            "coche": false,
+            "created_at": "2026-11-15T17:03:53.118Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "fichier": "20-wait.png"
+    },
+    {
+      "n": 21,
+      "action": "expect_text",
+      "texte": "remis dans la liste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 332,
+      "fichier": "21-expect_text.png"
+    },
+    {
+      "n": 22,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": "Sel fin",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 356,
+      "fichier": "22-fill.png"
+    },
+    {
+      "n": 23,
+      "action": "dblclick",
+      "cible": "role=button[name=/^Ajouter$/]",
+      "note": "double clic sur Ajouter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 379,
+      "fichier": "23-dblclick.png"
+    },
+    {
+      "n": 24,
+      "action": "wait",
+      "ms": 1833,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?columns=%22libelle%22%2C%22created_at%22",
+          "body": [
+            {
+              "libelle": "Sel fin",
+              "created_at": "2026-11-15T17:03:56.031Z"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "fichier": "24-wait.png"
+    },
+    {
+      "n": 25,
+      "action": "screenshot",
+      "note": "après double clic",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 334,
+      "fichier": "25-screenshot.png"
+    },
+    {
+      "n": 26,
+      "action": "back",
+      "note": "retour arrière : ferme la carte",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 337,
+      "fichier": "26-back.png"
+    },
+    {
+      "n": 27,
+      "action": "wait",
+      "ms": 937,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "27-wait.png"
+    },
+    {
+      "n": 28,
+      "action": "screenshot",
+      "note": "après retour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 340,
+      "fichier": "28-screenshot.png"
+    },
+    {
+      "n": 29,
+      "action": "expect_text",
+      "texte": "Anticonstitutionnellement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 338,
+      "fichier": "29-expect_text.png"
+    }
+  ]
+}

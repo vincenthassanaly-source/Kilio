@@ -1,0 +1,306 @@
+{
+  "nom": "01-ajout-multiple",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3102/courses",
+      "note": "ouvrir Courses",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1673,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/ajouter un article/i]",
+      "note": "ouvrir la carte d'ajout",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 419,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": "Farine, sucre roux, 1,5 L de lait",
+      "note": "saisie multiple avec virgule décimale",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 360,
+      "fichier": "03-fill.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/^Ajouter 3 articles$/]",
+      "note": "ajouter 3 articles",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 403,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "wait",
+      "ms": 1832,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?columns=%22libelle%22%2C%22created_at%22",
+          "body": [
+            {
+              "libelle": "Farine",
+              "created_at": "2026-11-15T17:02:44.665Z"
+            },
+            {
+              "libelle": "sucre roux",
+              "created_at": "2026-11-15T17:02:44.666Z"
+            },
+            {
+              "libelle": "1,5 L de lait",
+              "created_at": "2026-11-15T17:02:44.667Z"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "fichier": "05-wait.png"
+    },
+    {
+      "n": 6,
+      "action": "expect_text",
+      "texte": "19 articles à prendre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 347,
+      "fichier": "06-expect_text.png"
+    },
+    {
+      "n": 7,
+      "action": "fill",
+      "cible": "role=combobox",
+      "valeur": "Citrons",
+      "note": "enchaîner un ajout simple",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 353,
+      "fichier": "07-fill.png"
+    },
+    {
+      "n": 8,
+      "action": "press",
+      "touche": "Enter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 347,
+      "fichier": "08-press.png"
+    },
+    {
+      "n": 9,
+      "action": "wait",
+      "ms": 1838,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?columns=%22libelle%22%2C%22created_at%22",
+          "body": [
+            {
+              "libelle": "Citrons",
+              "created_at": "2026-11-15T17:02:47.548Z"
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "fichier": "09-wait.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/^Fermer$/]",
+      "note": "refermer la carte",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 387,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "wait",
+      "ms": 846,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "11-wait.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "20 articles à prendre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 335,
+      "fichier": "12-expect_text.png"
+    },
+    {
+      "n": 13,
+      "action": "reload",
+      "note": "persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1226,
+      "fichier": "13-reload.png"
+    },
+    {
+      "n": 14,
+      "action": "expect_text",
+      "texte": "1,5 L de lait",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 347,
+      "fichier": "14-expect_text.png"
+    },
+    {
+      "n": 15,
+      "action": "expect_text",
+      "texte": "Citrons",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 337,
+      "fichier": "15-expect_text.png"
+    },
+    {
+      "n": 16,
+      "action": "expect_text",
+      "texte": "20 articles à prendre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 335,
+      "fichier": "16-expect_text.png"
+    }
+  ]
+}

@@ -1,0 +1,296 @@
+{
+  "nom": "03-supprimer-annuler",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3102/courses",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_feries",
+          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
+          "body": [
+            {
+              "date": "2026-01-01",
+              "nom": "1er janvier"
+            },
+            {
+              "date": "2026-04-06",
+              "nom": "Lundi de Pâques"
+            },
+            {
+              "date": "2026-05-01",
+              "nom": "1er mai"
+            },
+            {
+              "date": "2026-05-08",
+              "nom": "8 mai"
+            },
+            {
+              "date": "2026-05-14",
+              "nom": "Ascension"
+            },
+            {
+              "date": "2026-05-25",
+              "nom": "Lundi de Pentecôte"
+            },
+            {
+              "date": "2026-07-14",
+              "nom": "14 juillet"
+            },
+            {
+              "date": "2026-08-15",
+              "nom": "Assomption"
+            },
+            {
+              "date": "2026-11-01",
+              "nom": "Toussaint"
+            },
+            {
+              "date": "2026-11-11",
+              "nom": "11 novembre"
+            },
+            {
+              "date": "2026-12-25",
+              "nom": "Jour de Noël"
+            }
+          ]
+        }
+      ],
+      "ms": 1331,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/^Supprimer « Riz basmati »$/]",
+      "note": "supprimer un article",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "courses_items",
+          "query": "?id=eq.c0a5e000-0000-4000-8000-000000000009",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 472,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "wait",
+      "ms": 1242,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "03-wait.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "toast Annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 332,
+      "fichier": "04-screenshot.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/Annuler la suppression/]",
+      "note": "Annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "courses_items",
+          "query": "?on_conflict=id&columns=%22id%22%2C%22libelle%22%2C%22coche%22%2C%22created_at%22%2C%22termine_le%22",
+          "body": [
+            {
+              "id": "c0a5e000-0000-4000-8000-000000000009",
+              "libelle": "Riz basmati",
+              "coche": false,
+              "created_at": "2026-11-14T10:18:00+00:00",
+              "termine_le": null
+            }
+          ]
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 398,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "wait",
+      "ms": 1834,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "06-wait.png"
+    },
+    {
+      "n": 7,
+      "action": "expect_text",
+      "texte": "Riz basmati",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 345,
+      "fichier": "07-expect_text.png"
+    },
+    {
+      "n": 8,
+      "action": "expect_text",
+      "texte": "16 articles à prendre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 337,
+      "fichier": "08-expect_text.png"
+    },
+    {
+      "n": 9,
+      "action": "reload",
+      "note": "l'article restauré persiste",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1157,
+      "fichier": "09-reload.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_text",
+      "texte": "Riz basmati",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 354,
+      "fichier": "10-expect_text.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name=/^Supprimer « Piles AAA »$/]",
+      "note": "supprimer sans annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "courses_items",
+          "query": "?id=eq.c0a5e000-0000-4000-8000-000000000015",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3102/courses",
+      "ms": 398,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "wait",
+      "ms": 7340,
+      "note": "laisser le toast expirer",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3102/courses (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "fichier": "12-wait.png"
+    },
+    {
+      "n": 13,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3102/notes?_rsc=6kCI21yaTlYMipMB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3102/nutrition?_rsc=oyVt-Ax8zMpCuAam (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3102/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3102/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3102/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 1242,
+      "fichier": "13-reload.png"
+    },
+    {
+      "n": 14,
+      "action": "expect_absent",
+      "texte": "Piles AAA",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 353,
+      "fichier": "14-expect_absent.png"
+    },
+    {
+      "n": 15,
+      "action": "expect_text",
+      "texte": "15 articles à prendre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3102/courses",
+      "ms": 333,
+      "fichier": "15-expect_text.png"
+    }
+  ]
+}
