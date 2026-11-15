@@ -411,9 +411,12 @@ export function FeuilleView({ jour, retour }: Props) {
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <TransitionLink href="/journal/calendrier" className={`${ghostButton} inline-flex min-h-11 items-center`}>
-            Calendrier
-          </TransitionLink>
+          {/* Sur un jour ouvert depuis le Calendrier, le lien de retour y mène déjà : pas de second bouton. */}
+          {retour.href !== "/journal/calendrier" && (
+            <TransitionLink href="/journal/calendrier" className={`${ghostButton} inline-flex min-h-11 items-center`}>
+              Calendrier
+            </TransitionLink>
+          )}
           <MenuFeuille
             aTexte={transcription !== null}
             enTranscription={enTranscription}

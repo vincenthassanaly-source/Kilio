@@ -63,7 +63,7 @@ function Corps({ mode, texte, onFermer, onValider, onSupprimer }: Omit<Props, "o
         />
         <p className="text-small leading-snug text-ink-2">
           {proposition
-            ? "Lu par Gemini : relis-le, des mots peuvent être faux. En validant, il rejoint le texte du jour et la feuille est vidée, sans retour possible. En fermant sans valider, rien ne change."
+            ? "Lu par Gemini : relis-le, des mots peuvent être faux. En l'ajoutant, il rejoint le texte du jour et la feuille est vidée, sans retour possible. En fermant sans l'ajouter, rien ne change."
             : "Tes corrections sont enregistrées en fermant."}
         </p>
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
@@ -73,7 +73,7 @@ function Corps({ mode, texte, onFermer, onValider, onSupprimer }: Omit<Props, "o
                 Copier
               </button>
               <button type="button" onClick={() => void valider()} disabled={enCours || valeur.trim() === ""} className={primaryButton}>
-                Valider
+                Ajouter au texte du jour
               </button>
             </>
           ) : (

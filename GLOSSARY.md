@@ -44,6 +44,10 @@ _Avoid_: Fermer (réservé aux feuilles qui n'annulent rien, ex. la carte d'ajou
 Le module d'écriture manuscrite (`/journal`, entrée du menu Plus) : une page par jour, écrite au stylet. « Feuille du soir » n'existe plus comme nom d'écran : c'est la page du jour du Journal. Le calendrier du Journal se nomme « Calendrier » ; le rappel du soir se nomme « Rappel du soir pour le Journal ».
 _Avoid_: Feuille du soir, Relire, Vider ma tête, « journal » pour le suivi alimentaire
 
+**Texte du jour**:
+Le texte de la page du Journal d'un jour, séparé de la feuille manuscrite : on l'alimente en ajoutant une transcription (« Ajouter au texte du jour ») ou une note tapée au clavier. Il se relit et se corrige dans « Voir le texte » (les corrections sont enregistrées à la fermeture) et survit à « Effacer la feuille ». Dans le code, le Journal s'appelle encore « vidage » (noms de tables, de fichiers et d'actions).
+_Avoid_: transcription (pour le texte déjà enregistré ; une transcription est la proposition de Gemini avant d'être ajoutée), « Valider » (pour l'ajouter)
+
 **Carnet**:
 Le suivi alimentaire de Nutrition (`/nutrition/journal`) : repas du jour, kcal et macros. Nom complet « Carnet alimentaire » (titre d'écran), forme courte « Carnet » (onglet de Nutrition, messages, réglages). Le rappel s'appelle « Rappel de saisie des repas ».
 _Avoid_: Journal (réservé au module d'écriture), journal alimentaire
