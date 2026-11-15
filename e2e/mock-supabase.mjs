@@ -12,6 +12,7 @@
 //
 // Usage : node e2e/mock-supabase.mjs  (port MOCK_SUPABASE_PORT, défaut 54321)
 
+import fs from "node:fs";
 import http from "node:http";
 import { randomUUID } from "node:crypto";
 
@@ -276,6 +277,28 @@ function withRelations(table, rows, select) {
     for (const key of wanted) out[key] = relations[key](row);
     return out;
   });
+}
+
+// Seed d'audit (données FICTIVES, jamais de données réelles) : avec
+// MOCK_SUPABASE_SEED=audit, chaque fichier de e2e/seed-audit/*.mjs ajoute ses
+// lignes aux fixtures. Sans cette variable, rien ne change : les tests e2e
+// existants gardent leurs données. Voir e2e/seed-audit/README.md.
+if (process.env.MOCK_SUPABASE_SEED === "audit") {
+  const dossier = new URL("./seed-audit/", import.meta.url);
+  const fichiers = fs.existsSync(dossier) ? fs.readdirSync(dossier).filter((f) => f.endsWith(".mjs")).sort() : [];
+  for (const fichier of fichiers) {
+    const seed = await import(new URL(fichier, dossier).href);
+    for (const [table, lignes] of Object.entries(seed.default ?? {})) {
+      const existantes = new Set((fixtures[table] ?? []).map((l) => l.id).filter((id) => id !== undefined));
+      (fixtures[table] ??= []).push(...lignes.filter((l) => l.id === undefined || !existantes.has(l.id)));
+    }
+    // `relations` : { table: { embed: (ligne, fixtures) => valeur } }
+    for (const [table, embeds] of Object.entries(seed.relations ?? {})) {
+      RELATIONS[table] ??= {};
+      for (const [cle, fn] of Object.entries(embeds)) RELATIONS[table][cle] = (ligne) => fn(ligne, fixtures);
+    }
+  }
+  console.log(`seed d'audit : ${fichiers.join(", ") || "aucun fichier"}`);
 }
 
 const initialFixtures = JSON.parse(JSON.stringify(fixtures));
