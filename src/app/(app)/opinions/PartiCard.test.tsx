@@ -92,7 +92,7 @@ describe("PartiCard : suppressions avec annulation différée", () => {
 
   it("supprimer le programme : toast avec le nombre de propositions, appel après le délai seulement", async () => {
     ouvrir();
-    fireEvent.click(screen.getByRole("button", { name: "Supprimer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Supprimer le programme" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(supprimerProgramme).not.toHaveBeenCalled();
     expect(getToasts().find((t) => t.action)?.text).toBe("Programme « Présidentielle 2027 » supprimé avec ses 2 propositions");

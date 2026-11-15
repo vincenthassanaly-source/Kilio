@@ -37,7 +37,7 @@ import { EtiquetteTheme, PastilleParti, TexteProposition } from "./CouleursOpini
 import { SuiviProposition } from "./SuiviProposition";
 import { ExplicationProposition } from "./ExplicationProposition";
 import { PartiFormModal, ProgrammeFormModal, PropositionFormModal } from "./PartisForms";
-import { AxeBarre } from "./ProfilView";
+import { AxeBarre } from "./AxeBarre";
 
 type Formulaire = "parti" | "programme-nouveau" | "programme-modifier" | null;
 
@@ -295,10 +295,10 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
             {programme && (
               <>
                 <button type="button" className={ghostButton} onClick={() => setFormulaire("programme-modifier")}>
-                  Modifier
+                  Modifier le programme
                 </button>
                 <button type="button" className={dangerButton} onClick={supprimerLeProgramme}>
-                  Supprimer
+                  Supprimer le programme
                 </button>
               </>
             )}
@@ -380,7 +380,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
                             Reprendre dans mes idées
                           </button>
                           <button type="button" className={ghostButton} onClick={() => setPropositionEditee(proposition)}>
-                            Modifier
+                            Modifier la proposition
                           </button>
                         </div>
                       </li>
@@ -398,7 +398,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
               </button>
             )}
             <button type="button" className={secondaryButton} onClick={() => setFormulaire("parti")}>
-              Renommer le parti
+              Modifier le parti
             </button>
             <button type="button" className={dangerButton} onClick={supprimerLeParti}>
               Supprimer le parti

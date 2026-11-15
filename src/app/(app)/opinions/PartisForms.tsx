@@ -55,7 +55,8 @@ function useEnregistrement(onSaved: () => void, message: string) {
   return { erreur, enCours, enregistrer };
 }
 
-function Pied({ erreur, enCours }: { erreur: string | null; enCours: boolean }) {
+// Charte du GLOSSARY : « Ajouter » en création, « Enregistrer » en modification.
+function Pied({ erreur, enCours, creation }: { erreur: string | null; enCours: boolean; creation: boolean }) {
   return (
     <>
       {erreur && (
@@ -64,7 +65,7 @@ function Pied({ erreur, enCours }: { erreur: string | null; enCours: boolean }) 
         </p>
       )}
       <button type="submit" className={primaryButton} disabled={enCours}>
-        {enCours ? "Enregistrement…" : "Enregistrer"}
+        {enCours ? "Enregistrement…" : creation ? "Ajouter" : "Enregistrer"}
       </button>
     </>
   );
@@ -93,7 +94,7 @@ export function PartiFormModal({
   }
 
   return (
-    <Modal title={parti ? "Modifier le parti" : "Ajouter un parti"} onClose={onClose}>
+    <Modal title={parti ? "Modifier le parti" : "Nouveau parti"} onClose={onClose}>
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Champ libelle="Nom">
           {(id) => (
@@ -110,7 +111,7 @@ export function PartiFormModal({
           onChange={setCouleur}
           utilisees={(couleursUtilisees ?? []).filter((c) => c !== parti?.couleur)}
         />
-        <Pied erreur={erreur} enCours={enCours} />
+        <Pied erreur={erreur} enCours={enCours} creation={!parti} />
       </form>
     </Modal>
   );
@@ -166,7 +167,7 @@ export function ProgrammeFormModal({
         <Champ libelle="Date de publication (facultatif)" aide="Sert à choisir le programme le plus récent d'un parti.">
           {(id) => <input id={id} type="date" className={input} value={date} onChange={(e) => setDate(e.target.value)} />}
         </Champ>
-        <Pied erreur={erreur} enCours={enCours} />
+        <Pied erreur={erreur} enCours={enCours} creation={!programme} />
       </form>
     </Modal>
   );
@@ -214,7 +215,7 @@ export function PropositionFormModal({
   }
 
   return (
-    <Modal title={proposition ? "Modifier la proposition" : "Ajouter une proposition"} onClose={onClose}>
+    <Modal title={proposition ? "Modifier la proposition" : "Nouvelle proposition"} onClose={onClose}>
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Champ libelle="Proposition" aide={`${position.length}/${POSITION_MAX}. Reformule ce que dit le programme, sans ton avis.`}>
           {(id) => (
@@ -294,7 +295,7 @@ export function PropositionFormModal({
         {AXES.map((axe) => (
           <LigneScore key={axe.id} axe={axe} score={scores[axe.id]} onChange={(s) => majScore(axe, s)} />
         ))}
-        <Pied erreur={erreur} enCours={enCours} />
+        <Pied erreur={erreur} enCours={enCours} creation={!proposition} />
         {onSupprimer && (
           <button type="button" className={`${dangerButton} self-start`} onClick={onSupprimer} disabled={enCours}>
             Supprimer la proposition
