@@ -55,7 +55,7 @@ export function RecetteHeader({
         </div>
         <div className="flex shrink-0 gap-2">
           <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-            Éditer
+            Modifier
           </button>
           <button
             type="button"

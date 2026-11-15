@@ -100,7 +100,7 @@ function IngredientLine({
         ) : (
           <>
             <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-              Éditer
+              Modifier
             </button>
             <button
               type="button"
@@ -153,7 +153,7 @@ function AddIngredientForm({
   if (aliments.length === 0) {
     return (
       <p className="text-sm text-ink-2">
-        Aucun aliment en base pour l&apos;instant : impossible de composer cette recette.
+        Aucun aliment en base pour l&apos;instant : impossible de composer cette recette. Demande à Claude d&apos;en ajouter dans le chat, puis reviens ici.
       </p>
     );
   }
@@ -204,7 +204,7 @@ function AddIngredientForm({
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Ajout..." : "+ Ajouter l'ingrédient"}
+        {pending ? "Ajout…" : "Ajouter l'ingrédient"}
       </button>
     </form>
   );

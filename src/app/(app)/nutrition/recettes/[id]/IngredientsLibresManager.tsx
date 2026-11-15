@@ -99,7 +99,7 @@ function IngredientLibreLine({
         ) : (
           <>
             <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-              Éditer
+              Modifier
             </button>
             <button
               type="button"
@@ -156,7 +156,7 @@ function AddIngredientLibreForm({ recetteId }: { recetteId: string }) {
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Ajout..." : "+ Ajouter l'ingrédient"}
+        {pending ? "Ajout…" : "Ajouter l'ingrédient"}
       </button>
     </form>
   );

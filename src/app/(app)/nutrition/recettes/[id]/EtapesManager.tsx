@@ -108,7 +108,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
           ) : (
             <>
               <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-                Éditer
+                Modifier
               </button>
               <button
                 type="button"
@@ -168,7 +168,7 @@ function AddEtapeForm({ recetteId }: { recetteId: string }) {
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Ajout..." : "+ Ajouter l'étape"}
+        {pending ? "Ajout…" : "Ajouter l'étape"}
       </button>
     </form>
   );
