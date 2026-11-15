@@ -20,7 +20,16 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
         className="px-0.5 text-body font-semibold tracking-[-0.01em] text-ink"
         style={{ viewTransitionName: "habitudes-titre-dashboard" }}
       >
-        Habitudes
+        {/* Le titre mène au module : jusqu'ici, le seul lien vers /habitudes était dans l'état vide. */}
+        <Link
+          href="/habitudes"
+          className="relative inline-flex min-h-11 items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        >
+          Habitudes
+          <span aria-hidden="true" className="text-ink-3">
+            ›
+          </span>
+        </Link>
       </h2>
       {isLoading ? (
         <div className="flex gap-3 overflow-x-hidden pb-0.5">

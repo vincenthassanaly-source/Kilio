@@ -7,6 +7,7 @@ import { getHabitudesDuJour } from "@/app/actions/habitudes";
 import { queryKeys } from "@/lib/query/keys";
 import { AddHabitudeToggle } from "./AddHabitudeToggle";
 import { HabitudeCard } from "./HabitudeCard";
+import { ArchivesView } from "./ArchivesView";
 import { HistoriqueView } from "./HistoriqueView";
 import { HabitudesVides } from "./HabitudesVides";
 import { HabitudesListeSkeleton } from "./HabitudesSkeleton";
@@ -14,11 +15,12 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { ErrorInline } from "@/components/ErrorInline";
 
-type ViewKey = "aujourdhui" | "historique";
+type ViewKey = "aujourdhui" | "historique" | "archives";
 
 const VIEWS: { key: ViewKey; label: string }[] = [
   { key: "aujourdhui", label: "Aujourd'hui" },
   { key: "historique", label: "Historique" },
+  { key: "archives", label: "Archives" },
 ];
 
 export function HabitudesView({ today }: { today: string }) {
@@ -70,6 +72,8 @@ export function HabitudesView({ today }: { today: string }) {
       )}
 
       {view === "historique" && <HistoriqueView habitudes={habitudes} isError={isError} />}
+
+      {view === "archives" && <ArchivesView />}
     </div>
     </PullToRefresh>
   );

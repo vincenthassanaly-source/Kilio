@@ -10,7 +10,7 @@ import { restaurerElement } from "@/lib/query/rollback";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { HabitudeForm } from "./HabitudeForm";
 import { ProgressRing } from "@/components/ProgressRing";
-import { card, dangerButton, ghostButton, input, listCard, metaText, nameTextComplet, pillTag, textButton } from "@/lib/ui";
+import { card, ghostButton, input, listCard, metaText, nameTextComplet, pillTag, textButton } from "@/lib/ui";
 import { vibrate } from "@/lib/haptics";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -144,8 +144,8 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
   // ramène pendant le délai du toast, la Server Action ne part qu'ensuite.
   function supprimer() {
     supprimerAvecAnnulation({
-      texte: `Habitude « ${habitude.nom} » supprimée`,
-      ariaLabel: `Annuler la suppression de l'habitude « ${habitude.nom} »`,
+      texte: `Habitude « ${habitude.nom} » archivée`,
+      ariaLabel: `Annuler l'archivage de l'habitude « ${habitude.nom} »`,
       masquer: () => setMasquee(true),
       restaurer: () => setMasquee(false),
       supprimer: async () => {
@@ -157,7 +157,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
           showToast("Enregistré, sera synchronisé à la reconnexion");
         }
       },
-      erreur: `Impossible de supprimer « ${habitude.nom} ». Réessaie.`,
+      erreur: `Impossible d'archiver « ${habitude.nom} ». Réessaie.`,
       onSupprime: invalidate,
     });
   }
@@ -264,8 +264,8 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
         <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
           Modifier
         </button>
-        <button type="button" disabled={isPending} onClick={supprimer} className={dangerButton}>
-          Supprimer
+        <button type="button" disabled={isPending} onClick={supprimer} className={ghostButton}>
+          Archiver
         </button>
       </div>
     </motion.li>

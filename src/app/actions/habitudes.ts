@@ -238,6 +238,22 @@ export async function getHabitudesDuJour(date: string): Promise<HabitudeDuJour[]
   });
 }
 
+// Habitudes archivées (`actif = false`), la plus récemment archivée d'abord :
+// lecture seule, pour l'écran « Archives » (leur historique reste en base).
+export async function getHabitudesArchivees(): Promise<Tables<"habitudes">[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("habitudes")
+    .select("*")
+    .eq("actif", false)
+    .order("archivee_le", { ascending: false, nullsFirst: false })
+    .order("ordre", { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  return data ?? [];
+}
+
 // `debutMois`/`finMois` au format ISO (yyyy-MM-dd), bornes incluses.
 export async function getHistoriqueHabitude(
   habitudeId: string,
