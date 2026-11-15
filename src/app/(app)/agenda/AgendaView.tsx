@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, useReducedMotion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,6 +30,7 @@ import { DayView } from "./DayView";
 import { WeekView } from "./WeekView";
 import { MonthView } from "./MonthView";
 import { ListView } from "./ListView";
+import { abonnerVueMemorisee, lireVueMemorisee, memoriserVue } from "./vueMemorisee";
 import { parseISODate, toISODate } from "@/lib/date/iso";
 import { errorText, secondaryButton } from "@/lib/ui";
 import { Skeleton } from "@/components/skeletons/Skeleton";
@@ -47,6 +48,7 @@ const VIEWS: { key: ViewKey; label: string }[] = [
   { key: "mois", label: "Mois" },
   { key: "liste", label: "Liste" },
 ];
+const CLES_VUES = VIEWS.map((v) => v.key);
 
 // Distance horizontale minimum pour qu'un geste soit considéré comme un
 // swipe intentionnel (plutôt qu'un tap ou un léger tremblement du doigt).
@@ -108,7 +110,26 @@ export function AgendaView() {
   const actualisationKo = actualisationEchouee({ isError: tachesError, aDesDonnees: taches !== undefined });
 
   const reduceMotion = useReducedMotion() ?? false;
-  const [view, setView] = useState<ViewKey>("jour");
+  // Vue affichée : le choix fait sur cet écran, sinon la dernière vue mémorisée
+  // sur l'appareil, sinon Jour. `?date=` (lien depuis la recherche) ouvre
+  // toujours en Jour. Côté serveur, rien n'est mémorisé : pas de décalage à
+  // l'hydratation.
+  const [vueChoisie, setVueChoisie] = useState<ViewKey | null>(() => (searchParams.get("date") ? "jour" : null));
+  const vueMemorisee = useSyncExternalStore(
+    abonnerVueMemorisee,
+    () => lireVueMemorisee(CLES_VUES),
+    () => null
+  );
+  const view: ViewKey = vueChoisie ?? vueMemorisee ?? "jour";
+  // Changement ponctuel (tap sur un jour du Mois) : ne devient pas la vue habituelle.
+  function setView(vue: ViewKey) {
+    setVueChoisie(vue);
+  }
+  // Choix explicite de l'utilisateur (sélecteur, raccourcis) : mémorisé.
+  function changerVue(vue: ViewKey) {
+    setVueChoisie(vue);
+    memoriserVue(vue);
+  }
   // ?date=AAAA-MM-JJ : deep-link depuis la recherche globale (événements).
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     const dateParam = searchParams.get("date");
@@ -312,10 +333,10 @@ export function AgendaView() {
       if (e.key === "ArrowLeft") changerPeriode(-1);
       else if (e.key === "ArrowRight") changerPeriode(1);
       else if (e.key === "t") handleChangeDate(startOfToday());
-      else if (e.key === "j") setView("jour");
-      else if (e.key === "s") setView("semaine");
-      else if (e.key === "m") setView("mois");
-      else if (e.key === "l") setView("liste");
+      else if (e.key === "j") changerVue("jour");
+      else if (e.key === "s") changerVue("semaine");
+      else if (e.key === "m") changerVue("mois");
+      else if (e.key === "l") changerVue("liste");
       else if (e.key === "n") {
         setMenuAjoutOpen(false);
         setFabOpen(true);
@@ -503,7 +524,7 @@ export function AgendaView() {
       <SegmentedControl
         options={VIEWS.map((v) => ({ value: v.key, label: v.label }))}
         value={view}
-        onChange={setView}
+        onChange={changerVue}
         ariaLabel="Vue de l'agenda"
         glissant
       />

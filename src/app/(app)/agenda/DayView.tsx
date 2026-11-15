@@ -288,6 +288,12 @@ export function DayView({
         </div>
       </div>
 
+      {onCreerEvenement && (
+        <p className="text-center text-caption text-ink-2">
+          Appui long sur la grille pour ajouter un événement à cette heure.
+        </p>
+      )}
+
       {dayTaches.length === 0 && dayTachesArchivees.length === 0 ? (
         <p className="text-ink-2">
           {dayEvenements.length + dayJourneeEntiere.length > 0
