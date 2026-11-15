@@ -1,0 +1,391 @@
+{
+  "nom": "06-fab-ajout-rapide",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3101/",
+      "note": "ouvrir l'écran du jour",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 3544,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name='Ajouter'] >> nth=-1",
+      "note": "ouvrir l'éventail du FAB",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 414,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name='Ajouter une tâche']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 445,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Ajouter']",
+      "note": "titre vide + Ajouter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 448,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox >> nth=0",
+      "valeur": "Rappeler le plombier pour le devis de la salle de bain et lui demander s'il peut aussi regarder le robinet de la cuisine qui goutte depuis trois semaines, avant vendredi si possible, sinon la semaine prochaine",
+      "note": "titre très long",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 386,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Ajouter']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 402,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "wait",
+      "ms": 1928,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Rappeler le plombier pour le devis de la salle de bain et lui demander s'il peut aussi regarder le robinet de la cuisine qui goutte depuis trois semaines, avant vendredi si possible, sinon la semaine prochaine",
+            "echeance": null,
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 19
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.c654e594-656d-433f-8cec-df0be44027d0",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "07-wait.png"
+    },
+    {
+      "n": 8,
+      "action": "scroll",
+      "pixels": 450,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 360,
+      "fichier": "08-scroll.png"
+    },
+    {
+      "n": 9,
+      "action": "scroll",
+      "pixels": -450,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 346,
+      "fichier": "09-scroll.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name='Ajouter'] >> nth=-1",
+      "note": "rouvrir le FAB",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 392,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "back",
+      "note": "retour arrière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 342,
+      "fichier": "11-back.png"
+    },
+    {
+      "n": 12,
+      "action": "click",
+      "cible": "role=button[name='Ajouter'] >> nth=-1",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 392,
+      "fichier": "12-click.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name='Ajouter un événement']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 428,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox >> nth=0",
+      "valeur": "Coiffeur",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 382,
+      "fichier": "14-fill.png"
+    },
+    {
+      "n": 15,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Ajouter']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "evenements",
+          "query": "?select=id",
+          "body": {
+            "titre": "Coiffeur",
+            "date": "2026-11-15",
+            "heure": "18:30",
+            "heure_fin": "19:30",
+            "notes": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "rappel_occurrence_envoyee": null,
+            "recurrence_frequence": null,
+            "recurrence_fin": null
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 420,
+      "fichier": "15-click.png"
+    },
+    {
+      "n": 16,
+      "action": "wait",
+      "ms": 1869,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/?_rsc=BtbPFF9wRKKmQ2U_ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "fichier": "16-wait.png"
+    },
+    {
+      "n": 17,
+      "action": "click",
+      "cible": "role=button[name='Ajouter'] >> nth=-1",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 395,
+      "fichier": "17-click.png"
+    },
+    {
+      "n": 18,
+      "action": "click",
+      "cible": "role=button[name='Ajouter une note']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 443,
+      "fichier": "18-click.png"
+    },
+    {
+      "n": 19,
+      "action": "back",
+      "note": "retour arrière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 382,
+      "fichier": "19-back.png"
+    },
+    {
+      "n": 20,
+      "action": "click",
+      "cible": "role=button[name='Ajouter'] >> nth=-1",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 5059,
+      "fichier": "20-click.png"
+    },
+    {
+      "n": 21,
+      "action": "click",
+      "cible": "role=button[name='Courses']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 449,
+      "fichier": "21-click.png"
+    },
+    {
+      "n": 22,
+      "action": "back",
+      "note": "retour arrière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 348,
+      "fichier": "22-back.png"
+    },
+    {
+      "n": 23,
+      "action": "click",
+      "cible": "role=button[name='Ajouter'] >> nth=-1",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 5051,
+      "fichier": "23-click.png"
+    },
+    {
+      "n": 24,
+      "action": "click",
+      "cible": "role=button[name='Ajouter un repas']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 449,
+      "fichier": "24-click.png"
+    },
+    {
+      "n": 25,
+      "action": "back",
+      "note": "retour arrière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 371,
+      "fichier": "25-back.png"
+    },
+    {
+      "n": 26,
+      "action": "reload",
+      "note": "recharger : persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 3445,
+      "fichier": "26-reload.png"
+    }
+  ]
+}

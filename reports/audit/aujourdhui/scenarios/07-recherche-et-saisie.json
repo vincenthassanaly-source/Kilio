@@ -1,0 +1,102 @@
+{
+ "nom": "07-recherche-et-saisie",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/",
+   "note": "ouvrir l'écran du jour"
+  },
+  {
+   "action": "fill",
+   "cible": "role=combobox[name='Rechercher dans Kilio']",
+   "valeur": "lessive",
+   "note": "recherche : un mot"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "fill",
+   "cible": "role=combobox[name='Rechercher dans Kilio']",
+   "valeur": "electricite",
+   "note": "recherche sans accent"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "fill",
+   "cible": "role=combobox[name='Rechercher dans Kilio']",
+   "valeur": "zzzzqq",
+   "note": "recherche sans résultat"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "fill",
+   "cible": "role=combobox[name='Rechercher dans Kilio']",
+   "valeur": "a",
+   "note": "recherche d'une seule lettre"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "fill",
+   "cible": "role=combobox[name='Rechercher dans Kilio']",
+   "valeur": "syndic, (travaux) 100%",
+   "note": "caractères spéciaux"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "fill",
+   "cible": "role=combobox[name='Rechercher dans Kilio']",
+   "valeur": "camille"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "click",
+   "cible": "role=option >> nth=0",
+   "note": "ouvrir le premier résultat"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name='Ajouter une tâche ou un événement en une phrase']",
+   "valeur": "dentiste jeudi 14 h, rappelle-moi",
+   "note": "saisie naturelle : texte tapé, NON validé (pas d'appel Gemini)"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name='Ajouter une tâche ou un événement en une phrase']",
+   "valeur": "   ",
+   "note": "saisie naturelle : espaces seuls"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name='Ajouter une tâche ou un événement en une phrase']",
+   "valeur": "Rappeler le plombier pour le devis de la salle de bain et lui demander s'il peut aussi regarder le robinet de la cuisine qui goutte depuis trois semaines, avant vendredi si possible, sinon la semaine prochaineRappeler le plombier pour le devis de la salle de bain et lui demander s'il peut aussi regarder le robinet de la cuisine qui goutte depuis trois semaines, avant vendredi si possible, sinon la semaine prochaineRappeler le plombier pour le devis de la salle de bain et lui demander s'il peut aussi regarder le robinet de la cuisine qui goutte depuis trois semaines, avant vendredi si possible, sinon la semaine prochaine",
+   "note": "saisie naturelle : texte très long, non validé"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name='Ajouter une tâche ou un événement en une phrase']",
+   "valeur": ""
+  }
+ ]
+}

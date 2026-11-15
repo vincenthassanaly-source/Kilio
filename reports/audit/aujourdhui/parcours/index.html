@@ -2,283 +2,803 @@
 <style>body{font:14px system-ui;margin:16px;background:#f4f4f4}.film{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
 figure{margin:0;flex:0 0 220px;background:#fff;padding:8px;border-radius:8px;border:2px solid #ccc}img{width:100%;border:1px solid #ddd}
 .ok{border-color:#3a3}.anomalie{border-color:#e90}.échec{border-color:#c33}.tag{font-weight:600}small{color:#666}</style>
-<h1>Parcours utilisateur</h1><h2>ajout-rapide-tache <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
-<figcaption><b>1. goto</b> ouvrir Aujourd'hui<br>
+<h1>Parcours utilisateur</h1><h2>01-tour-clair <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir l'écran du jour<br>
 <span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-scroll.png">
+<figcaption><b>2. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="03-scroll.png">
+<figcaption><b>3. scroll</b> défiler<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-scroll.png">
+<figcaption><b>4. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-scroll.png">
+<figcaption><b>5. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-scroll.png">
+<figcaption><b>6. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-scroll.png">
+<figcaption><b>7. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-click.png">
+<figcaption><b>8. click</b> ouvrir « Plan, jour libre et revue »<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-scroll.png">
+<figcaption><b>9. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="10-click.png">
+<figcaption><b>10. click</b> déplier le plan du jour<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-scroll.png">
+<figcaption><b>11. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-click.png">
+<figcaption><b>12. click</b> déplier les jours libres<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-scroll.png">
+<figcaption><b>13. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>
+<h2>02-tour-sombre <small>(mobile, sombre)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir l'écran du jour<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-scroll.png">
+<figcaption><b>2. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="03-scroll.png">
+<figcaption><b>3. scroll</b> défiler<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-scroll.png">
+<figcaption><b>4. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-scroll.png">
+<figcaption><b>5. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-scroll.png">
+<figcaption><b>6. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-scroll.png">
+<figcaption><b>7. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-click.png">
+<figcaption><b>8. click</b> ouvrir « Plan, jour libre et revue »<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-scroll.png">
+<figcaption><b>9. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="10-click.png">
+<figcaption><b>10. click</b> déplier le plan du jour<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-scroll.png">
+<figcaption><b>11. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-click.png">
+<figcaption><b>12. click</b> déplier les jours libres<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-scroll.png">
+<figcaption><b>13. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>
+<h2>03-taches-cocher-score <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir l'écran du jour<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
 </figcaption></figure>
 <figure class="ok"><img loading="lazy" src="02-expect_text.png">
-<figcaption><b>2. expect_text</b> http://localhost:3100/<br>
+<figcaption><b>2. expect_text</b> http://localhost:3101/<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="échec"><img loading="lazy" src="03-fill.png">
-<figcaption><b>3. fill</b> role=textbox[name=/nouvelle tâche pour aujourd/i]<br>
-<span class="tag">échec</span> <br>locator.fill: Timeout 5000ms exceeded.
-
-<br>✎ 4 écriture(s) base</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="04-click.png">
-<figcaption><b>4. click</b> ajouter la tâche<br>
-<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
-
-<br>✎ 2 écriture(s) base</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="05-expect_text.png">
-<figcaption><b>5. expect_text</b> http://localhost:3100/<br>
-<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
+<figure class="ok"><img loading="lazy" src="03-click.png">
+<figcaption><b>3. click</b> cocher une tâche du jour<br>
+<span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="06-reload.png">
-<figcaption><b>6. reload</b> persistance<br>
-<span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
-<br>✎ 1 écriture(s) base</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="07-expect_text.png">
-<figcaption><b>7. expect_text</b> http://localhost:3100/<br>
-<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
-
-</figcaption></figure></div>
-<h2>cocher-tache <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
-<figcaption><b>1. goto</b> http://localhost:3100/<br>
-<span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
-<br>✎ 2 écriture(s) base</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="02-click.png">
-<figcaption><b>2. click</b> cocher la tâche du jour<br>
-<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="03-wait.png">
-<figcaption><b>3. wait</b> http://localhost:3100/<br>
+<figure class="ok"><img loading="lazy" src="04-expect_text.png">
+<figcaption><b>4. expect_text</b> http://localhost:3101/<br>
 <span class="tag">ok</span> 
 
 <br>✎ 1 écriture(s) base</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="04-screenshot.png">
-<figcaption><b>4. screenshot</b> état après coche (score)<br>
+<figure class="anomalie"><img loading="lazy" src="05-click.png">
+<figcaption><b>5. click</b> toast : annuler le cochage<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="06-expect_text.png">
+<figcaption><b>6. expect_text</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-dblclick.png">
+<figcaption><b>7. dblclick</b> double clic sur la coche (tâche récurrente)<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="05-reload.png">
-<figcaption><b>5. reload</b> http://localhost:3100/<br>
+<figure class="anomalie"><img loading="lazy" src="08-wait.png">
+<figcaption><b>8. wait</b> http://localhost:3101/<br>
 <span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 2 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="09-click.png">
+<figcaption><b>9. click</b> cocher à nouveau<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
 </figcaption></figure>
-<figure class="échec"><img loading="lazy" src="06-expect_text.png">
-<figcaption><b>6. expect_text</b> persistance : la tâche faite est repliée sous « 1/1 faites »<br>
-<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
-
-<br>✎ 1 écriture(s) base</figcaption></figure></div>
-<h2>cas-limites-ajout <small>(mobile, sombre)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
-<figcaption><b>1. goto</b> http://localhost:3100/<br>
+<figure class="anomalie"><img loading="lazy" src="10-wait.png">
+<figcaption><b>10. wait</b> http://localhost:3101/<br>
 <span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
-<br>✎ 3 écriture(s) base</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="02-click.png">
-<figcaption><b>2. click</b> champ vide : bouton désactivé<br>
-<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="11-scroll.png">
+<figcaption><b>11. scroll</b> défiler<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=Up4R57oMmbCZ9LwJ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-click.png">
+<figcaption><b>12. click</b> déplier « Faites »<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-click.png">
+<figcaption><b>13. click</b> décocher une tâche faite<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="14-wait.png">
+<figcaption><b>14. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="15-reload.png">
+<figcaption><b>15. reload</b> recharger : persistance<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="16-scroll.png">
+<figcaption><b>16. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="17-click.png">
+<figcaption><b>17. click</b> ouvrir Planifier<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="18-click.png">
+<figcaption><b>18. click</b> choisir le premier créneau libre<br>
+<span class="tag">ok</span> 
 
 <br>✎ 1 écriture(s) base</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="03-fill.png">
-<figcaption><b>3. fill</b> role=textbox[name=/nouvelle tâche pour aujourd/i]<br>
-<span class="tag">échec</span> <br>locator.fill: Timeout 5000ms exceeded.
-
-<br>✎ 2 écriture(s) base</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="04-click.png">
-<figcaption><b>4. click</b> role=form[name=/ajouter une tâche à aujourd/i] &gt;&gt; role=button[name=/^ajouter$/i]<br>
-<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
-
+<figure class="anomalie"><img loading="lazy" src="19-wait.png">
+<figcaption><b>19. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="05-wait.png">
-<figcaption><b>5. wait</b> http://localhost:3100/<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="06-screenshot.png">
-<figcaption><b>6. screenshot</b> titre très long<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="07-fill.png">
-<figcaption><b>7. fill</b> role=textbox[name=/nouvelle tâche pour aujourd/i]<br>
-<span class="tag">échec</span> <br>locator.fill: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="08-dblclick.png">
-<figcaption><b>8. dblclick</b> double clic : un seul ajout attendu<br>
-<span class="tag">échec</span> <br>locator.dblclick: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="09-wait.png">
-<figcaption><b>9. wait</b> http://localhost:3100/<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="10-screenshot.png">
-<figcaption><b>10. screenshot</b> http://localhost:3100/<br>
+<figure class="ok"><img loading="lazy" src="20-scroll.png">
+<figcaption><b>20. scroll</b> remonter : frise et score<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure></div>
-<h2>evenement <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
-<figcaption><b>1. goto</b> http://localhost:3100/<br>
+<h2>04-en-retard-reporter <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir l'écran du jour<br>
 <span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
 </figcaption></figure>
-<figure class="échec"><img loading="lazy" src="02-expect_text.png">
-<figcaption><b>2. expect_text</b> http://localhost:3100/<br>
-<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="03-click.png">
-<figcaption><b>3. click</b> ouvrir le formulaire d'événement<br>
-<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="04-screenshot.png">
-<figcaption><b>4. screenshot</b> formulaire<br>
+<figure class="ok"><img loading="lazy" src="02-scroll.png">
+<figcaption><b>2. scroll</b> défiler<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="échec"><img loading="lazy" src="05-fill.png">
-<figcaption><b>5. fill</b> role=textbox[name=/titre/i]<br>
-<span class="tag">échec</span> <br>locator.fill: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="06-click.png">
-<figcaption><b>6. click</b> role=dialog &gt;&gt; role=button[name=/^ajouter$/i]<br>
-<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="07-wait.png">
-<figcaption><b>7. wait</b> http://localhost:3100/<br>
+<figure class="ok"><img loading="lazy" src="03-click.png">
+<figcaption><b>3. click</b> afficher la 4e tâche en retard<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="échec"><img loading="lazy" src="08-expect_text.png">
-<figcaption><b>8. expect_text</b> http://localhost:3100/<br>
-<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
+<figure class="ok"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> ouvrir Reporter<br>
+<span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="09-reload.png">
-<figcaption><b>9. reload</b> http://localhost:3100/<br>
+<figure class="ok"><img loading="lazy" src="05-click.png">
+<figcaption><b>5. click</b> reporter à demain<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="06-click.png">
+<figcaption><b>6. click</b> toast : annuler le report<br>
 <span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="07-wait.png">
+<figcaption><b>7. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
 </figcaption></figure>
-<figure class="échec"><img loading="lazy" src="10-expect_text.png">
-<figcaption><b>10. expect_text</b> http://localhost:3100/<br>
-<span class="tag">échec</span> <br>locator.waitFor: Timeout 5000ms exceeded.
+<figure class="ok"><img loading="lazy" src="08-click.png">
+<figcaption><b>8. click</b> ouvrir Reporter (autre tâche)<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-click.png">
+<figcaption><b>9. click</b> reporter à aujourd'hui<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="10-wait.png">
+<figcaption><b>10. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-click.png">
+<figcaption><b>11. click</b> cocher une tâche en retard<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="12-wait.png">
+<figcaption><b>12. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="13-reload.png">
+<figcaption><b>13. reload</b> recharger : persistance<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="14-scroll.png">
+<figcaption><b>14. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="15-scroll.png">
+<figcaption><b>15. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>
+<h2>05-habitudes-seances-pesee <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir l'écran du jour<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="02-scroll.png">
+<figcaption><b>2. scroll</b> aller aux habitudes<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-click.png">
+<figcaption><b>3. click</b> cocher une habitude quotidienne<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> décocher une habitude faite<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="05-click.png">
+<figcaption><b>5. click</b> cocher une habitude hebdomadaire<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="06-dblclick.png">
+<figcaption><b>6. dblclick</b> double clic sur une habitude<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="07-wait.png">
+<figcaption><b>7. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 2 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-scroll.png">
+<figcaption><b>8. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-click.png">
+<figcaption><b>9. click</b> bouton haltère : jour d'entraînement<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="10-wait.png">
+<figcaption><b>10. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-scroll.png">
+<figcaption><b>11. scroll</b> haut : score (Sport, cible kcal)<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="12-scroll.png">
+<figcaption><b>12. scroll</b> défiler<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="13-click.png">
+<figcaption><b>13. click</b> bouton haltère : retour jour de repos<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="14-wait.png">
+<figcaption><b>14. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="15-scroll.png">
+<figcaption><b>15. scroll</b> aller à la pesée<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="16-fill.png">
+<figcaption><b>16. fill</b> pesée : texte non numérique<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="17-click.png">
+<figcaption><b>17. click</b> role=button[name='Enregistrer']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="18-fill.png">
+<figcaption><b>18. fill</b> pesée : poids hors bornes<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="19-click.png">
+<figcaption><b>19. click</b> role=button[name='Enregistrer']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="20-fill.png">
+<figcaption><b>20. fill</b> pesée valide<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="21-fill.png">
+<figcaption><b>21. fill</b> role=textbox[name='Tour de taille (cm)']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="22-click.png">
+<figcaption><b>22. click</b> role=button[name='Enregistrer']<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="23-wait.png">
+<figcaption><b>23. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=Up4R57oMmbCZ9LwJ (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/?_rsc=BtbPFF9wRKKmQ2U_ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="24-reload.png">
+<figcaption><b>24. reload</b> recharger : persistance<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="25-scroll.png">
+<figcaption><b>25. scroll</b> haut : score<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="26-scroll.png">
+<figcaption><b>26. scroll</b> défiler<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="27-scroll.png">
+<figcaption><b>27. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>
+<h2>06-fab-ajout-rapide <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir l'écran du jour<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> ouvrir l'éventail du FAB<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-click.png">
+<figcaption><b>3. click</b> role=button[name='Ajouter une tâche']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-click.png">
+<figcaption><b>4. click</b> titre vide + Ajouter<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-fill.png">
+<figcaption><b>5. fill</b> titre très long<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-click.png">
+<figcaption><b>6. click</b> role=dialog &gt;&gt; role=button[name='Ajouter']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="07-wait.png">
+<figcaption><b>7. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 2 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-scroll.png">
+<figcaption><b>8. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-scroll.png">
+<figcaption><b>9. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="10-click.png">
+<figcaption><b>10. click</b> rouvrir le FAB<br>
+<span class="tag">ok</span> 
 
 </figcaption></figure>
 <figure class="ok"><img loading="lazy" src="11-back.png">
 <figcaption><b>11. back</b> retour arrière<br>
 <span class="tag">ok</span> 
 
-</figcaption></figure></div>
-<h2>saisie-naturelle <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
-<figcaption><b>1. goto</b> http://localhost:3100/<br>
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-click.png">
+<figcaption><b>12. click</b> role=button[name='Ajouter'] &gt;&gt; nth=-1<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-click.png">
+<figcaption><b>13. click</b> role=button[name='Ajouter un événement']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="14-fill.png">
+<figcaption><b>14. fill</b> role=dialog &gt;&gt; role=textbox &gt;&gt; nth=0<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="15-click.png">
+<figcaption><b>15. click</b> role=dialog &gt;&gt; role=button[name='Ajouter']<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="16-wait.png">
+<figcaption><b>16. wait</b> http://localhost:3101/<br>
 <span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/?_rsc=BtbPFF9wRKKmQ2U_ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="17-click.png">
+<figcaption><b>17. click</b> role=button[name='Ajouter'] &gt;&gt; nth=-1<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="18-click.png">
+<figcaption><b>18. click</b> role=button[name='Ajouter une note']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="19-back.png">
+<figcaption><b>19. back</b> retour arrière<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="20-click.png">
+<figcaption><b>20. click</b> role=button[name='Ajouter'] &gt;&gt; nth=-1<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="21-click.png">
+<figcaption><b>21. click</b> role=button[name='Courses']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="22-back.png">
+<figcaption><b>22. back</b> retour arrière<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="échec"><img loading="lazy" src="23-click.png">
+<figcaption><b>23. click</b> role=button[name='Ajouter'] &gt;&gt; nth=-1<br>
+<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="24-click.png">
+<figcaption><b>24. click</b> role=button[name='Ajouter un repas']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="25-back.png">
+<figcaption><b>25. back</b> retour arrière<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="26-reload.png">
+<figcaption><b>26. reload</b> recharger : persistance<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure></div>
+<h2>07-recherche-et-saisie <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir l'écran du jour<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
 </figcaption></figure>
 <figure class="ok"><img loading="lazy" src="02-fill.png">
-<figcaption><b>2. fill</b> role=textbox[name=/en une phrase/i]<br>
+<figcaption><b>2. fill</b> recherche : un mot<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
 <figure class="ok"><img loading="lazy" src="03-wait.png">
-<figcaption><b>3. wait</b> http://localhost:3100/<br>
+<figcaption><b>3. wait</b> http://localhost:3101/<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="04-screenshot.png">
-<figcaption><b>4. screenshot</b> aperçu de la saisie<br>
+<figure class="ok"><img loading="lazy" src="04-fill.png">
+<figcaption><b>4. fill</b> recherche sans accent<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="05-wait.png">
+<figcaption><b>5. wait</b> http://localhost:3101/<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="06-fill.png">
+<figcaption><b>6. fill</b> recherche sans résultat<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="07-wait.png">
+<figcaption><b>7. wait</b> http://localhost:3101/<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="08-fill.png">
+<figcaption><b>8. fill</b> recherche d'une seule lettre<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="09-wait.png">
+<figcaption><b>9. wait</b> http://localhost:3101/<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="10-fill.png">
+<figcaption><b>10. fill</b> caractères spéciaux<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="11-wait.png">
+<figcaption><b>11. wait</b> http://localhost:3101/<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-fill.png">
+<figcaption><b>12. fill</b> role=combobox[name='Rechercher dans Kilio']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-wait.png">
+<figcaption><b>13. wait</b> http://localhost:3101/<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="14-click.png">
+<figcaption><b>14. click</b> ouvrir le premier résultat<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="15-back.png">
+<figcaption><b>15. back</b> retour arrière<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="16-fill.png">
+<figcaption><b>16. fill</b> saisie naturelle : texte tapé, NON validé (pas d'appel Gemini)<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/agenda?tache=00000000-0000-4000-8000-000000a12012&amp;_rsc=9uN1Pn8dmRgkfLmY (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="17-fill.png">
+<figcaption><b>17. fill</b> saisie naturelle : espaces seuls<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="18-fill.png">
+<figcaption><b>18. fill</b> saisie naturelle : texte très long, non validé<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="19-fill.png">
+<figcaption><b>19. fill</b> role=textbox[name='Ajouter une tâche ou un événement en une phrase']<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure></div>
+<h2>08-evenement-et-jour-libre-sombre <small>(mobile, sombre)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
+<figcaption><b>1. goto</b> ouvrir l'écran du jour<br>
+<span class="tag">anomalie</span> 
+<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="02-click.png">
+<figcaption><b>2. click</b> ouvrir l'événement journée entière<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="03-back.png">
+<figcaption><b>3. back</b> retour arrière<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="04-scroll.png">
+<figcaption><b>4. scroll</b> défiler<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
 <figure class="ok"><img loading="lazy" src="05-click.png">
-<figcaption><b>5. click</b> role=form[name=/langage naturel/i] &gt;&gt; role=button[name=/^ajouter$/i]<br>
+<figcaption><b>5. click</b> ouvrir un événement de la frise<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="06-wait.png">
-<figcaption><b>6. wait</b> http://localhost:3100/<br>
-<span class="tag">anomalie</span> 
-<br>⚠ requête échouée : POST http://localhost:3100/ (net::ERR_ABORTED)
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="07-screenshot.png">
-<figcaption><b>7. screenshot</b> résultat<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure></div>
-<h2>fab-et-navigation <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
-<figcaption><b>1. goto</b> http://localhost:3100/<br>
-<span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="02-scroll.png">
-<figcaption><b>2. scroll</b> défiler : sections du bas<br>
+<figure class="ok"><img loading="lazy" src="06-fill.png">
+<figcaption><b>6. fill</b> titre vidé<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="03-screenshot.png">
-<figcaption><b>3. screenshot</b> http://localhost:3100/<br>
+<figure class="ok"><img loading="lazy" src="07-click.png">
+<figcaption><b>7. click</b> role=dialog &gt;&gt; role=button[name='Enregistrer']<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="04-scroll.png">
-<figcaption><b>4. scroll</b> http://localhost:3100/<br>
+<figure class="ok"><img loading="lazy" src="08-fill.png">
+<figcaption><b>8. fill</b> role=dialog &gt;&gt; role=textbox &gt;&gt; nth=0<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="05-screenshot.png">
-<figcaption><b>5. screenshot</b> bas de page (FAB + barre du bas)<br>
+<figure class="ok"><img loading="lazy" src="09-click.png">
+<figcaption><b>9. click</b> role=dialog &gt;&gt; role=button[name='Enregistrer']<br>
 <span class="tag">ok</span> 
 
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="06-click.png">
-<figcaption><b>6. click</b> FAB<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="07-screenshot.png">
-<figcaption><b>7. screenshot</b> http://localhost:3100/<br>
-<span class="tag">ok</span> 
-
-</figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="08-goto.png">
-<figcaption><b>8. goto</b> http://localhost:3100/agenda<br>
-<span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)
 <br>✎ 1 écriture(s) base</figcaption></figure>
-<figure class="anomalie"><img loading="lazy" src="09-back.png">
-<figcaption><b>9. back</b> retour vers Aujourd'hui<br>
+<figure class="anomalie"><img loading="lazy" src="10-wait.png">
+<figcaption><b>10. wait</b> http://localhost:3101/<br>
 <span class="tag">anomalie</span> 
-<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/?_rsc=BtbPFF9wRKKmQ2U_ (net::ERR_ABORTED)
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="10-screenshot.png">
-<figcaption><b>10. screenshot</b> http://localhost:3100/<br>
+<figure class="ok"><img loading="lazy" src="11-click.png">
+<figcaption><b>11. click</b> ouvrir un autre événement<br>
 <span class="tag">ok</span> 
 
-</figcaption></figure></div>
-<h2>liste-vide <small>(mobile, clair)</small></h2><div class="film"><figure class="anomalie"><img loading="lazy" src="01-goto.png">
-<figcaption><b>1. goto</b> http://localhost:3100/<br>
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="12-click.png">
+<figcaption><b>12. click</b> role=dialog &gt;&gt; role=button[name=/Supprimer/]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="13-click.png">
+<figcaption><b>13. click</b> toast : annuler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="14-click.png">
+<figcaption><b>14. click</b> role=button[name=/Appel visio/]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="15-click.png">
+<figcaption><b>15. click</b> supprimer pour de bon<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="16-wait.png">
+<figcaption><b>16. wait</b> http://localhost:3101/<br>
 <span class="tag">anomalie</span> 
-<br>⚠ HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3100/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)
-</figcaption></figure>
-<figure class="échec"><img loading="lazy" src="02-click.png">
-<figcaption><b>2. click</b> role=button[name=/marquer fait/i] &gt;&gt; nth=0<br>
-<span class="tag">échec</span> <br>locator.click: Timeout 5000ms exceeded.
-
-</figcaption></figure>
-<figure class="ok"><img loading="lazy" src="03-wait.png">
-<figcaption><b>3. wait</b> http://localhost:3100/<br>
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="17-click.png">
+<figcaption><b>17. click</b> toucher une tâche de la frise<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="04-scroll.png">
-<figcaption><b>4. scroll</b> http://localhost:3100/<br>
+<figure class="ok"><img loading="lazy" src="18-wait.png">
+<figcaption><b>18. wait</b> http://localhost:3101/<br>
 <span class="tag">ok</span> 
 
 </figcaption></figure>
-<figure class="ok"><img loading="lazy" src="05-screenshot.png">
-<figcaption><b>5. screenshot</b> plus aucune tâche à faire : état vide ?<br>
+<figure class="ok"><img loading="lazy" src="19-scroll.png">
+<figcaption><b>19. scroll</b> bas de page<br>
 <span class="tag">ok</span> 
 
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="20-click.png">
+<figcaption><b>20. click</b> summary:has-text('Plan, jour libre')<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="21-click.png">
+<figcaption><b>21. click</b> role=button[name=/Jours libres/]<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="22-scroll.png">
+<figcaption><b>22. scroll</b> défiler<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="23-click.png">
+<figcaption><b>23. click</b> poser un jour libre aujourd'hui<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="24-wait.png">
+<figcaption><b>24. wait</b> http://localhost:3101/<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="25-click.png">
+<figcaption><b>25. click</b> poser demain : 3e jeton, refus attendu<br>
+<span class="tag">ok</span> 
+
+</figcaption></figure>
+<figure class="ok"><img loading="lazy" src="26-scroll.png">
+<figcaption><b>26. scroll</b> haut : score sans Nutrition<br>
+<span class="tag">ok</span> 
+
+<br>✎ 1 écriture(s) base</figcaption></figure>
+<figure class="anomalie"><img loading="lazy" src="27-reload.png">
+<figcaption><b>27. reload</b> recharger : persistance<br>
+<span class="tag">anomalie</span> 
+<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)<br>⚠ HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js<br>⚠ console.error : Failed to load resource: the server responded with a status of 404 (Not Found)<br>⚠ console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.<br>⚠ requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)<br>⚠ requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)<br>⚠ requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)
 </figcaption></figure></div>

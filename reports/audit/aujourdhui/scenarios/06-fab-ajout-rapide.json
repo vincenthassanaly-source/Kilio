@@ -1,0 +1,119 @@
+{
+ "nom": "06-fab-ajout-rapide",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/",
+   "note": "ouvrir l'écran du jour"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter'] >> nth=-1",
+   "note": "ouvrir l'éventail du FAB"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter une tâche']"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name='Ajouter']",
+   "note": "titre vide + Ajouter"
+  },
+  {
+   "action": "fill",
+   "cible": "role=dialog >> role=textbox >> nth=0",
+   "valeur": "Rappeler le plombier pour le devis de la salle de bain et lui demander s'il peut aussi regarder le robinet de la cuisine qui goutte depuis trois semaines, avant vendredi si possible, sinon la semaine prochaine",
+   "note": "titre très long"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name='Ajouter']"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "scroll",
+   "pixels": 450,
+   "note": "défiler"
+  },
+  {
+   "action": "scroll",
+   "pixels": -450,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter'] >> nth=-1",
+   "note": "rouvrir le FAB"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter'] >> nth=-1"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter un événement']"
+  },
+  {
+   "action": "fill",
+   "cible": "role=dialog >> role=textbox >> nth=0",
+   "valeur": "Coiffeur"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name='Ajouter']"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter'] >> nth=-1"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter une note']"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter'] >> nth=-1"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Courses']"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter'] >> nth=-1"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Ajouter un repas']"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière"
+  },
+  {
+   "action": "reload",
+   "note": "recharger : persistance"
+  }
+ ]
+}

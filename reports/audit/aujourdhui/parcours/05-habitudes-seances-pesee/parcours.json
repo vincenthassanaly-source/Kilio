@@ -1,0 +1,485 @@
+{
+  "nom": "05-habitudes-seances-pesee",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3101/",
+      "note": "ouvrir l'écran du jour",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 3484,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "scroll",
+      "pixels": 1250,
+      "note": "aller aux habitudes",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 357,
+      "fichier": "02-scroll.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/Lire 20 minutes/]",
+      "note": "cocher une habitude quotidienne",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "habitude_entries",
+          "query": "?on_conflict=habitude_id%2Cdate",
+          "body": {
+            "habitude_id": "00000000-0000-4000-8000-000000a20002",
+            "date": "2026-11-15",
+            "valeur": 1
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 441,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/Étirements du matin/]",
+      "note": "décocher une habitude faite",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "habitude_entries",
+          "query": "?on_conflict=habitude_id%2Cdate",
+          "body": {
+            "habitude_id": "00000000-0000-4000-8000-000000a20003",
+            "date": "2026-11-15",
+            "valeur": 0
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 402,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/Courir/]",
+      "note": "cocher une habitude hebdomadaire",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 399,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "dblclick",
+      "cible": "role=button[name=/Méditer/]",
+      "note": "double clic sur une habitude",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 416,
+      "fichier": "06-dblclick.png"
+    },
+    {
+      "n": 7,
+      "action": "wait",
+      "ms": 1552,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "habitude_entries",
+          "query": "?on_conflict=habitude_id%2Cdate",
+          "body": {
+            "habitude_id": "00000000-0000-4000-8000-000000a20004",
+            "date": "2026-11-15",
+            "valeur": 1
+          }
+        },
+        {
+          "method": "POST",
+          "table": "habitude_entries",
+          "query": "?on_conflict=habitude_id%2Cdate",
+          "body": {
+            "habitude_id": "00000000-0000-4000-8000-000000a20005",
+            "date": "2026-11-15",
+            "valeur": 1
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "07-wait.png"
+    },
+    {
+      "n": 8,
+      "action": "scroll",
+      "pixels": 350,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "habitude_entries",
+          "query": "?on_conflict=habitude_id%2Cdate",
+          "body": {
+            "habitude_id": "00000000-0000-4000-8000-000000a20005",
+            "date": "2026-11-15",
+            "valeur": 1
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 350,
+      "fichier": "08-scroll.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=switch[name=\"Jour d'entraînement\"]",
+      "note": "bouton haltère : jour d'entraînement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 409,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "wait",
+      "ms": 1839,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_entrainement",
+          "query": "?on_conflict=date",
+          "body": {
+            "date": "2026-11-15",
+            "entraine": true,
+            "updated_at": "2026-11-15T17:05:10.258Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "10-wait.png"
+    },
+    {
+      "n": 11,
+      "action": "scroll",
+      "pixels": -1700,
+      "note": "haut : score (Sport, cible kcal)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 357,
+      "fichier": "11-scroll.png"
+    },
+    {
+      "n": 12,
+      "action": "scroll",
+      "pixels": 1600,
+      "note": "défiler",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 367,
+      "fichier": "12-scroll.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=switch[name=\"Jour d'entraînement\"]",
+      "note": "bouton haltère : retour jour de repos",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_entrainement",
+          "query": "?on_conflict=date",
+          "body": {
+            "date": "2026-11-15",
+            "entraine": false,
+            "updated_at": "2026-11-15T17:05:12.688Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 1759,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "wait",
+      "ms": 1849,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "fichier": "14-wait.png"
+    },
+    {
+      "n": 15,
+      "action": "scroll",
+      "pixels": 350,
+      "note": "aller à la pesée",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 356,
+      "fichier": "15-scroll.png"
+    },
+    {
+      "n": 16,
+      "action": "fill",
+      "cible": "role=textbox[name='Poids (kg)']",
+      "valeur": "abc",
+      "note": "pesée : texte non numérique",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 356,
+      "fichier": "16-fill.png"
+    },
+    {
+      "n": 17,
+      "action": "click",
+      "cible": "role=button[name='Enregistrer']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 388,
+      "fichier": "17-click.png"
+    },
+    {
+      "n": 18,
+      "action": "fill",
+      "cible": "role=textbox[name='Poids (kg)']",
+      "valeur": "500",
+      "note": "pesée : poids hors bornes",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 344,
+      "fichier": "18-fill.png"
+    },
+    {
+      "n": 19,
+      "action": "click",
+      "cible": "role=button[name='Enregistrer']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 399,
+      "fichier": "19-click.png"
+    },
+    {
+      "n": 20,
+      "action": "fill",
+      "cible": "role=textbox[name='Poids (kg)']",
+      "valeur": "78,1",
+      "note": "pesée valide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 358,
+      "fichier": "20-fill.png"
+    },
+    {
+      "n": 21,
+      "action": "fill",
+      "cible": "role=textbox[name='Tour de taille (cm)']",
+      "valeur": "88",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 347,
+      "fichier": "21-fill.png"
+    },
+    {
+      "n": 22,
+      "action": "click",
+      "cible": "role=button[name='Enregistrer']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "mesures_corps",
+          "query": "?on_conflict=date",
+          "body": {
+            "date": "2026-11-15",
+            "poids_kg": 78.1,
+            "tour_taille_cm": 88
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 400,
+      "fichier": "22-click.png"
+    },
+    {
+      "n": 23,
+      "action": "wait",
+      "ms": 1840,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=Up4R57oMmbCZ9LwJ (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/?_rsc=BtbPFF9wRKKmQ2U_ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "fichier": "23-wait.png"
+    },
+    {
+      "n": 24,
+      "action": "reload",
+      "note": "recharger : persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 3422,
+      "fichier": "24-reload.png"
+    },
+    {
+      "n": 25,
+      "action": "scroll",
+      "pixels": -3000,
+      "note": "haut : score",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 364,
+      "fichier": "25-scroll.png"
+    },
+    {
+      "n": 26,
+      "action": "scroll",
+      "pixels": 1250,
+      "note": "défiler",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=jgbicBYTXkMX15VX (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 349,
+      "fichier": "26-scroll.png"
+    },
+    {
+      "n": 27,
+      "action": "scroll",
+      "pixels": 700,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 346,
+      "fichier": "27-scroll.png"
+    }
+  ]
+}

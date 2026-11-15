@@ -1,0 +1,130 @@
+{
+ "nom": "08-evenement-et-jour-libre-sombre",
+ "theme": "sombre",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/",
+   "note": "ouvrir l'écran du jour"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Week-end prolongé/]",
+   "note": "ouvrir l'événement journée entière"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière"
+  },
+  {
+   "action": "scroll",
+   "pixels": 250,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Cinéma/]",
+   "note": "ouvrir un événement de la frise"
+  },
+  {
+   "action": "fill",
+   "cible": "role=dialog >> role=textbox >> nth=0",
+   "valeur": "",
+   "note": "titre vidé"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name='Enregistrer']"
+  },
+  {
+   "action": "fill",
+   "cible": "role=dialog >> role=textbox >> nth=0",
+   "valeur": "Cinéma avec Léa : séance de 20 h 45"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name='Enregistrer']"
+  },
+  {
+   "action": "wait",
+   "ms": 1200
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Appel visio/]",
+   "note": "ouvrir un autre événement"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name=/Supprimer/]"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Annuler la suppression/]",
+   "note": "toast : annuler"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Appel visio/]"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name=/Supprimer/]",
+   "note": "supprimer pour de bon"
+  },
+  {
+   "action": "wait",
+   "ms": 7500
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Relire le compte rendu/] >> nth=0",
+   "note": "toucher une tâche de la frise"
+  },
+  {
+   "action": "wait",
+   "ms": 600
+  },
+  {
+   "action": "scroll",
+   "pixels": 3000,
+   "note": "bas de page"
+  },
+  {
+   "action": "click",
+   "cible": "summary:has-text('Plan, jour libre')"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Jours libres/]"
+  },
+  {
+   "action": "scroll",
+   "pixels": 600,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Poser un jour libre : aujourd/]",
+   "note": "poser un jour libre aujourd'hui"
+  },
+  {
+   "action": "wait",
+   "ms": 1200
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Poser un jour libre : demain/]",
+   "note": "poser demain : 3e jeton, refus attendu"
+  },
+  {
+   "action": "scroll",
+   "pixels": -3000,
+   "note": "haut : score sans Nutrition"
+  },
+  {
+   "action": "reload",
+   "note": "recharger : persistance"
+  }
+ ]
+}

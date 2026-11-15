@@ -1,0 +1,374 @@
+{
+  "nom": "03-taches-cocher-score",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3101/",
+      "note": "ouvrir l'écran du jour",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 3475,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "expect_text",
+      "texte": "1/8",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 380,
+      "fichier": "02-expect_text.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name='Marquer « Lancer une lessive de draps » comme fait']",
+      "note": "cocher une tâche du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 402,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "expect_text",
+      "texte": "2/8",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a12003",
+          "body": {
+            "fait": true,
+            "echeance": "2026-11-15"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 350,
+      "fichier": "04-expect_text.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/Annuler/]",
+      "note": "toast : annuler le cochage",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a12003",
+          "body": {
+            "fait": false,
+            "echeance": "2026-11-15",
+            "rappel_envoye_le": null,
+            "rappel_reporte_jusqua": null
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 799,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "expect_text",
+      "texte": "1/8",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 1149,
+      "fichier": "06-expect_text.png"
+    },
+    {
+      "n": 7,
+      "action": "dblclick",
+      "cible": "role=button[name=/Marquer « Sortir les poubelles jaunes »/]",
+      "note": "double clic sur la coche (tâche récurrente)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 403,
+      "fichier": "07-dblclick.png"
+    },
+    {
+      "n": 8,
+      "action": "wait",
+      "ms": 1845,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a12007",
+          "body": {
+            "fait": false,
+            "echeance": "2026-11-22",
+            "rappel_envoye_le": null,
+            "rappel_reporte_jusqua": null
+          }
+        },
+        {
+          "method": "PATCH",
+          "table": "sous_taches",
+          "query": "?tache_id=eq.00000000-0000-4000-8000-000000a12007",
+          "body": {
+            "fait": false,
+            "termine_le": null
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "08-wait.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name='Marquer « Lancer une lessive de draps » comme fait']",
+      "note": "cocher à nouveau",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 385,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "wait",
+      "ms": 7352,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a12003",
+          "body": {
+            "fait": true,
+            "echeance": "2026-11-15"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "10-wait.png"
+    },
+    {
+      "n": 11,
+      "action": "scroll",
+      "pixels": 450,
+      "note": "défiler",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=Up4R57oMmbCZ9LwJ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 353,
+      "fichier": "11-scroll.png"
+    },
+    {
+      "n": 12,
+      "action": "click",
+      "cible": "text=/Faites \\(/",
+      "note": "déplier « Faites »",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 392,
+      "fichier": "12-click.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name='Marquer « Arroser les plantes du salon » comme non fait']",
+      "note": "décocher une tâche faite",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 403,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "wait",
+      "ms": 1353,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/nutrition/journal?_rsc=bB5CaNtLRAXRuMIr (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a12005",
+          "body": {
+            "fait": false,
+            "echeance": "2026-11-15"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "14-wait.png"
+    },
+    {
+      "n": 15,
+      "action": "reload",
+      "note": "recharger : persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 3396,
+      "fichier": "15-reload.png"
+    },
+    {
+      "n": 16,
+      "action": "scroll",
+      "pixels": 450,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 347,
+      "fichier": "16-scroll.png"
+    },
+    {
+      "n": 17,
+      "action": "click",
+      "cible": "role=button[name='Planifier « Tâche e2e du jour »']",
+      "note": "ouvrir Planifier",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 399,
+      "fichier": "17-click.png"
+    },
+    {
+      "n": 18,
+      "action": "click",
+      "cible": "role=button[name=/^Planifier de /] >> nth=0",
+      "note": "choisir le premier créneau libre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000002",
+          "body": {
+            "echeance": "2026-11-15",
+            "heure": "18:05",
+            "heure_fin": "18:35",
+            "toute_la_journee": false,
+            "rappel_envoye_le": null,
+            "rappel_reporte_jusqua": null,
+            "duree_minutes": 30
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 473,
+      "fichier": "18-click.png"
+    },
+    {
+      "n": 19,
+      "action": "wait",
+      "ms": 1352,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "fichier": "19-wait.png"
+    },
+    {
+      "n": 20,
+      "action": "scroll",
+      "pixels": -450,
+      "note": "remonter : frise et score",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 345,
+      "fichier": "20-scroll.png"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+ "nom": "01-tour-clair",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/",
+   "note": "ouvrir l'écran du jour"
+  },
+  {
+   "action": "scroll",
+   "pixels": 650,
+   "note": "défiler"
+  },
+  {
+   "action": "scroll",
+   "pixels": 650,
+   "note": "défiler"
+  },
+  {
+   "action": "scroll",
+   "pixels": 650,
+   "note": "défiler"
+  },
+  {
+   "action": "scroll",
+   "pixels": 650,
+   "note": "défiler"
+  },
+  {
+   "action": "scroll",
+   "pixels": 650,
+   "note": "défiler"
+  },
+  {
+   "action": "scroll",
+   "pixels": 650,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "summary:has-text('Plan, jour libre')",
+   "note": "ouvrir « Plan, jour libre et revue »"
+  },
+  {
+   "action": "scroll",
+   "pixels": 400,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Plan du jour/]",
+   "note": "déplier le plan du jour"
+  },
+  {
+   "action": "scroll",
+   "pixels": 400,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Jours libres/]",
+   "note": "déplier les jours libres"
+  },
+  {
+   "action": "scroll",
+   "pixels": 600,
+   "note": "défiler"
+  }
+ ]
+}

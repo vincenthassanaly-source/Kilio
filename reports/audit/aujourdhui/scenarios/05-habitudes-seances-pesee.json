@@ -1,0 +1,136 @@
+{
+ "nom": "05-habitudes-seances-pesee",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/",
+   "note": "ouvrir l'écran du jour"
+  },
+  {
+   "action": "scroll",
+   "pixels": 1250,
+   "note": "aller aux habitudes"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Lire 20 minutes/]",
+   "note": "cocher une habitude quotidienne"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Étirements du matin/]",
+   "note": "décocher une habitude faite"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Courir/]",
+   "note": "cocher une habitude hebdomadaire"
+  },
+  {
+   "action": "dblclick",
+   "cible": "role=button[name=/Méditer/]",
+   "note": "double clic sur une habitude"
+  },
+  {
+   "action": "wait",
+   "ms": 1200
+  },
+  {
+   "action": "scroll",
+   "pixels": 350,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=switch[name=\"Jour d'entraînement\"]",
+   "note": "bouton haltère : jour d'entraînement"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "scroll",
+   "pixels": -1700,
+   "note": "haut : score (Sport, cible kcal)"
+  },
+  {
+   "action": "scroll",
+   "pixels": 1600,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=switch[name=\"Jour d'entraînement\"]",
+   "note": "bouton haltère : retour jour de repos"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "scroll",
+   "pixels": 350,
+   "note": "aller à la pesée"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name='Poids (kg)']",
+   "valeur": "abc",
+   "note": "pesée : texte non numérique"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Enregistrer']"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name='Poids (kg)']",
+   "valeur": "500",
+   "note": "pesée : poids hors bornes"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Enregistrer']"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name='Poids (kg)']",
+   "valeur": "78,1",
+   "note": "pesée valide"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name='Tour de taille (cm)']",
+   "valeur": "88"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Enregistrer']"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "reload",
+   "note": "recharger : persistance"
+  },
+  {
+   "action": "scroll",
+   "pixels": -3000,
+   "note": "haut : score"
+  },
+  {
+   "action": "scroll",
+   "pixels": 1250,
+   "note": "défiler"
+  },
+  {
+   "action": "scroll",
+   "pixels": 700,
+   "note": "défiler"
+  }
+ ]
+}

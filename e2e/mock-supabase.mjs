@@ -383,12 +383,41 @@ function matchOne(row, column, expr) {
   }
   return negate ? !ok : ok;
 }
+// Découpe « a,b(c,d),e » sur les virgules de premier niveau seulement.
+function splitTopLevel(inner) {
+  const parts = [];
+  let depth = 0;
+  let current = "";
+  let quoted = false;
+  for (const ch of inner) {
+    if (ch === '"') quoted = !quoted;
+    if (!quoted && ch === "(") depth++;
+    if (!quoted && ch === ")") depth--;
+    if (ch === "," && depth === 0 && !quoted) {
+      parts.push(current);
+      current = "";
+    } else current += ch;
+  }
+  if (current) parts.push(current);
+  return parts;
+}
+// Une condition d'un `or=(…)` : `col.op.valeur`, ou un groupe `and(…)` / `or(…)`
+// (getEvenements : événements simples de la plage OU séries commencées avant).
+function matchCondition(row, part) {
+  const groupe = part.match(/^(and|or)\((.*)\)$/);
+  if (groupe) {
+    const conditions = splitTopLevel(groupe[2]);
+    return groupe[1] === "and" ? conditions.every((c) => matchCondition(row, c)) : conditions.some((c) => matchCondition(row, c));
+  }
+  // `in.(a,b)` garde ses parenthèses : le premier point sépare la colonne.
+  const dot = part.indexOf(".");
+  // Valeur entre guillemets (src/lib/supabase/like.ts) : `col.ilike."%a,b%"`.
+  const expr = part.slice(dot + 1).replace(/^((?:not\.)?[a-z]+\.)"(.*)"$/, (_, op, valeur) => op + valeur.replace(/\\(.)/g, "$1"));
+  return matchOne(row, part.slice(0, dot), expr);
+}
 function matchOr(row, raw) {
-  const inner = raw.replace(/^\(|\)$/g, "");
-  return inner.split(",").some((part) => {
-    const dot = part.indexOf(".");
-    return matchOne(row, part.slice(0, dot), part.slice(dot + 1));
-  });
+  const inner = raw.replace(/^\(/, "").replace(/\)$/, "");
+  return splitTopLevel(inner).some((part) => matchCondition(row, part));
 }
 const RESERVED = new Set(["select", "order", "limit", "offset", "on_conflict", "columns"]);
 function applyFilters(rows, params) {

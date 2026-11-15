@@ -1,0 +1,414 @@
+{
+  "nom": "08-evenement-et-jour-libre-sombre",
+  "theme": "sombre",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3101/",
+      "note": "ouvrir l'écran du jour",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 3467,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/Week-end prolongé/]",
+      "note": "ouvrir l'événement journée entière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 468,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "back",
+      "note": "retour arrière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 356,
+      "fichier": "03-back.png"
+    },
+    {
+      "n": 4,
+      "action": "scroll",
+      "pixels": 250,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 357,
+      "fichier": "04-scroll.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/Cinéma/]",
+      "note": "ouvrir un événement de la frise",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 484,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox >> nth=0",
+      "valeur": "",
+      "note": "titre vidé",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 375,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Enregistrer']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 416,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox >> nth=0",
+      "valeur": "Cinéma avec Léa : séance de 20 h 45",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 375,
+      "fichier": "08-fill.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Enregistrer']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "evenements",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a40004",
+          "body": {
+            "titre": "Cinéma avec Léa : séance de 20 h 45",
+            "date": "2026-11-15",
+            "heure": "20:45",
+            "heure_fin": "22:50",
+            "notes": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "rappel_occurrence_envoyee": null,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "updated_at": "2026-11-15T17:06:18.788Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 422,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "wait",
+      "ms": 1551,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/?_rsc=BtbPFF9wRKKmQ2U_ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "fichier": "10-wait.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name=/Appel visio/]",
+      "note": "ouvrir un autre événement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 451,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name=/Supprimer/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 427,
+      "fichier": "12-click.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=/Annuler la suppression/]",
+      "note": "toast : annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 396,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "click",
+      "cible": "role=button[name=/Appel visio/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 405,
+      "fichier": "14-click.png"
+    },
+    {
+      "n": 15,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name=/Supprimer/]",
+      "note": "supprimer pour de bon",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 401,
+      "fichier": "15-click.png"
+    },
+    {
+      "n": 16,
+      "action": "wait",
+      "ms": 7844,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "evenements",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a40003",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "16-wait.png"
+    },
+    {
+      "n": 17,
+      "action": "click",
+      "cible": "role=button[name=/Relire le compte rendu/] >> nth=0",
+      "note": "toucher une tâche de la frise",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 383,
+      "fichier": "17-click.png"
+    },
+    {
+      "n": 18,
+      "action": "wait",
+      "ms": 941,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "fichier": "18-wait.png"
+    },
+    {
+      "n": 19,
+      "action": "scroll",
+      "pixels": 3000,
+      "note": "bas de page",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 344,
+      "fichier": "19-scroll.png"
+    },
+    {
+      "n": 20,
+      "action": "click",
+      "cible": "summary:has-text('Plan, jour libre')",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 384,
+      "fichier": "20-click.png"
+    },
+    {
+      "n": 21,
+      "action": "click",
+      "cible": "role=button[name=/Jours libres/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 487,
+      "fichier": "21-click.png"
+    },
+    {
+      "n": 22,
+      "action": "scroll",
+      "pixels": 600,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 350,
+      "fichier": "22-scroll.png"
+    },
+    {
+      "n": 23,
+      "action": "click",
+      "cible": "role=button[name=/Poser un jour libre : aujourd/]",
+      "note": "poser un jour libre aujourd'hui",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 395,
+      "fichier": "23-click.png"
+    },
+    {
+      "n": 24,
+      "action": "wait",
+      "ms": 1531,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_libres",
+          "query": "",
+          "body": {
+            "date": "2026-11-15"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "24-wait.png"
+    },
+    {
+      "n": 25,
+      "action": "click",
+      "cible": "role=button[name=/Poser un jour libre : demain/]",
+      "note": "poser demain : 3e jeton, refus attendu",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 718,
+      "fichier": "25-click.png"
+    },
+    {
+      "n": 26,
+      "action": "scroll",
+      "pixels": -3000,
+      "note": "haut : score sans Nutrition",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "jours_libres",
+          "query": "",
+          "body": {
+            "date": "2026-11-16"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 353,
+      "fichier": "26-scroll.png"
+    },
+    {
+      "n": 27,
+      "action": "reload",
+      "note": "recharger : persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 3437,
+      "fichier": "27-reload.png"
+    }
+  ]
+}

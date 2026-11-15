@@ -1,0 +1,77 @@
+{
+ "nom": "04-en-retard-reporter",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/",
+   "note": "ouvrir l'écran du jour"
+  },
+  {
+   "action": "scroll",
+   "pixels": 900,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Afficher l'autre\"]",
+   "note": "afficher la 4e tâche en retard"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Choisir une date de report pour « Rapporter les livres à la médiathèque »']",
+   "note": "ouvrir Reporter"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Reporter « Rapporter les livres à la médiathèque » à demain/]",
+   "note": "reporter à demain"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Annuler/]",
+   "note": "toast : annuler le report"
+  },
+  {
+   "action": "wait",
+   "ms": 800
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Choisir une date de report pour « Payer la facture/]",
+   "note": "ouvrir Reporter (autre tâche)"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Reporter « Payer la facture d.électricité » à aujourd/]",
+   "note": "reporter à aujourd'hui"
+  },
+  {
+   "action": "wait",
+   "ms": 7000
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Marquer « Prendre rendez-vous pour le contrôle technique » comme fait']",
+   "note": "cocher une tâche en retard"
+  },
+  {
+   "action": "wait",
+   "ms": 7000
+  },
+  {
+   "action": "reload",
+   "note": "recharger : persistance"
+  },
+  {
+   "action": "scroll",
+   "pixels": 350,
+   "note": "défiler"
+  },
+  {
+   "action": "scroll",
+   "pixels": 600,
+   "note": "défiler"
+  }
+ ]
+}

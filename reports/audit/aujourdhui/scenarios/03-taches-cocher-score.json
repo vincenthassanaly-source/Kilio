@@ -1,0 +1,98 @@
+{
+ "nom": "03-taches-cocher-score",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/",
+   "note": "ouvrir l'écran du jour"
+  },
+  {
+   "action": "expect_text",
+   "texte": "1/8"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Marquer « Lancer une lessive de draps » comme fait']",
+   "note": "cocher une tâche du jour"
+  },
+  {
+   "action": "expect_text",
+   "texte": "2/8"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Annuler/]",
+   "note": "toast : annuler le cochage"
+  },
+  {
+   "action": "expect_text",
+   "texte": "1/8"
+  },
+  {
+   "action": "dblclick",
+   "cible": "role=button[name=/Marquer « Sortir les poubelles jaunes »/]",
+   "note": "double clic sur la coche (tâche récurrente)"
+  },
+  {
+   "action": "wait",
+   "ms": 1500
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Marquer « Lancer une lessive de draps » comme fait']",
+   "note": "cocher à nouveau"
+  },
+  {
+   "action": "wait",
+   "ms": 7000
+  },
+  {
+   "action": "scroll",
+   "pixels": 450,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "text=/Faites \\(/",
+   "note": "déplier « Faites »"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Marquer « Arroser les plantes du salon » comme non fait']",
+   "note": "décocher une tâche faite"
+  },
+  {
+   "action": "wait",
+   "ms": 1000
+  },
+  {
+   "action": "reload",
+   "note": "recharger : persistance"
+  },
+  {
+   "action": "scroll",
+   "pixels": 450,
+   "note": "défiler"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name='Planifier « Tâche e2e du jour »']",
+   "note": "ouvrir Planifier"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Planifier de /] >> nth=0",
+   "note": "choisir le premier créneau libre"
+  },
+  {
+   "action": "wait",
+   "ms": 1000
+  },
+  {
+   "action": "scroll",
+   "pixels": -450,
+   "note": "remonter : frise et score"
+  }
+ ]
+}

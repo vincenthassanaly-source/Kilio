@@ -1,0 +1,268 @@
+{
+  "nom": "04-en-retard-reporter",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3101/",
+      "note": "ouvrir l'écran du jour",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/nutrition?_rsc=Ttpak_kYnRwtnQXE (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 3430,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "scroll",
+      "pixels": 900,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 351,
+      "fichier": "02-scroll.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=\"Afficher l'autre\"]",
+      "note": "afficher la 4e tâche en retard",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 419,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name='Choisir une date de report pour « Rapporter les livres à la médiathèque »']",
+      "note": "ouvrir Reporter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 402,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/Reporter « Rapporter les livres à la médiathèque » à demain/]",
+      "note": "reporter à demain",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=in.%2800000000-0000-4000-8000-000000a12010%29",
+          "body": {
+            "echeance": "2026-11-16",
+            "rappel_envoye_le": null,
+            "rappel_reporte_jusqua": null
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 395,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=/Annuler/]",
+      "note": "toast : annuler le report",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a12010",
+          "body": {
+            "echeance": "2026-11-09",
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "ordre": 10,
+            "rappel_envoye_le": null,
+            "rappel_reporte_jusqua": null
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 1234,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "wait",
+      "ms": 1154,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "fichier": "07-wait.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/Choisir une date de report pour « Payer la facture/]",
+      "note": "ouvrir Reporter (autre tâche)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 403,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/Reporter « Payer la facture d.électricité » à aujourd/]",
+      "note": "reporter à aujourd'hui",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=in.%2800000000-0000-4000-8000-000000a12008%29",
+          "body": {
+            "echeance": "2026-11-15",
+            "rappel_envoye_le": null,
+            "rappel_reporte_jusqua": null
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "ms": 393,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "wait",
+      "ms": 7363,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "fichier": "10-wait.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name='Marquer « Prendre rendez-vous pour le contrôle technique » comme fait']",
+      "note": "cocher une tâche en retard",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 390,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "wait",
+      "ms": 7352,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3101/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000a12009",
+          "body": {
+            "fait": true,
+            "echeance": "2026-11-12"
+          }
+        }
+      ],
+      "url": "http://localhost:3101/",
+      "fichier": "12-wait.png"
+    },
+    {
+      "n": 13,
+      "action": "reload",
+      "note": "recharger : persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3101/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3101/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3101/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3101/notes?_rsc=w09g-vogoJZODC4M (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3101/ (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 3433,
+      "fichier": "13-reload.png"
+    },
+    {
+      "n": 14,
+      "action": "scroll",
+      "pixels": 350,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 348,
+      "fichier": "14-scroll.png"
+    },
+    {
+      "n": 15,
+      "action": "scroll",
+      "pixels": 600,
+      "note": "défiler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3101/",
+      "ms": 344,
+      "fichier": "15-scroll.png"
+    }
+  ]
+}
