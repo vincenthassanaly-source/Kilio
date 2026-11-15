@@ -16,7 +16,7 @@ import { bilanSemaine, nbSansDate, semaineProchaine } from "@/lib/revue/compute"
 import { libelleDuree } from "@/lib/taches/compute";
 import { card, linkButton, sectionTitle } from "@/lib/ui";
 import { EnRetardSection } from "../_accueil/EnRetardSection";
-import { BoutonAssistantRevue } from "./BoutonAssistantRevue";
+import { MenuAssistantRevue } from "./MenuAssistantRevue";
 import { SyntheseSemaine } from "../nutrition/bilan/SyntheseSemaine";
 
 const NB_TERMINEES_VISIBLES = 5;
@@ -78,15 +78,12 @@ export function RevueView({ today }: { today: string }) {
 
   return (
     <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
-      <BoutonAssistantRevue mode="semaine" libelle="Analyser ma semaine" />
+      <MenuAssistantRevue peutReplanifier={enRetard.length > 0} />
 
       <section aria-labelledby="revue-bilan" className={`${card} flex flex-col gap-3`}>
-        <div className="flex items-center justify-between gap-2">
-          <h2 id="revue-bilan" className={sectionTitle}>
-            1. Bilan des 7 derniers jours
-          </h2>
-          <BoutonAssistantRevue mode="bilan" libelle="Bilan en mots" />
-        </div>
+        <h2 id="revue-bilan" className={sectionTitle}>
+          1. Les 7 derniers jours
+        </h2>
         <div className="flex gap-2">
           <Chiffre valeur={bilan.terminees.length} libelle="tâches terminées" />
           <Chiffre valeur={evenementsPasses.length} libelle="rendez-vous" />
@@ -110,12 +107,9 @@ export function RevueView({ today }: { today: string }) {
       </section>
 
       <section aria-labelledby="revue-retards" className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <h2 id="revue-retards" className={sectionTitle}>
-            2. Retards à replanifier
-          </h2>
-          {enRetard.length > 0 && <BoutonAssistantRevue mode="replanifier" libelle="Replanifier" />}
-        </div>
+        <h2 id="revue-retards" className={sectionTitle}>
+          2. Retards à replanifier
+        </h2>
         {enRetard.length > 0 ? (
           <EnRetardSection taches={enRetard} today={today} masquerTitre />
         ) : (
@@ -124,12 +118,9 @@ export function RevueView({ today }: { today: string }) {
       </section>
 
       <section aria-labelledby="revue-semaine" className={`${card} flex flex-col gap-3`}>
-        <div className="flex items-center justify-between gap-2">
-          <h2 id="revue-semaine" className={sectionTitle}>
-            3. Les 7 prochains jours
-          </h2>
-          <BoutonAssistantRevue mode="avenir" libelle="Résumé" />
-        </div>
+        <h2 id="revue-semaine" className={sectionTitle}>
+          3. Les 7 prochains jours
+        </h2>
         <ul className="flex flex-col gap-2">
           {jours.map((jour) => {
             const vide = jour.taches.length === 0 && jour.evenements.length === 0;

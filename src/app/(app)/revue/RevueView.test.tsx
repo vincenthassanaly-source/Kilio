@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RevueView } from "./RevueView";
 import { queryKeys } from "@/lib/query/keys";
@@ -48,7 +48,7 @@ describe("RevueView", () => {
       makeTache({ id: "t3", titre: "Lundi matin", echeance: "2026-10-12" }),
       makeTache({ id: "t4", titre: "Sans date" }),
     ]);
-    expect(screen.getByText("1. Bilan des 7 derniers jours")).toBeTruthy();
+    expect(screen.getByText("1. Les 7 derniers jours")).toBeTruthy();
     expect(screen.getByText("Fini hier")).toBeTruthy();
     expect(screen.getByText("Facture en retard")).toBeTruthy();
     expect(screen.getByText("Lundi matin")).toBeTruthy();
@@ -63,6 +63,30 @@ describe("RevueView", () => {
     expect(screen.getByText("types faits cette semaine")).toBeTruthy();
     expect(screen.getByText("Pas de relevé")).toBeTruthy(); // tour de taille
     expect(screen.getByRole("link", { name: "Voir le bilan complet" }).getAttribute("href")).toBe("/nutrition/bilan");
+  });
+
+  it("regroupe l'assistant IA dans un seul menu, replié au départ", () => {
+    monter([makeTache({ id: "t2", titre: "Facture en retard", echeance: "2026-10-07" })]);
+    const menu = screen.getByRole("button", { name: /Assistant IA/ });
+    expect(menu.getAttribute("aria-expanded")).toBe("false");
+    // Plus de boutons IA éparpillés dans les sections.
+    expect(screen.queryByRole("button", { name: "Bilan en mots" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Résumé" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Replanifier" })).toBeNull();
+
+    fireEvent.click(menu);
+    expect(menu.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("button", { name: /Analyser ma semaine/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Résumer les 7 derniers jours/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Résumer les 7 prochains jours/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Replanifier les retards/ })).toBeTruthy();
+  });
+
+  it("ne propose pas « Replanifier les retards » quand rien n'est en retard", () => {
+    monter([makeTache({ id: "t1", echeance: "2026-10-13" })]);
+    fireEvent.click(screen.getByRole("button", { name: /Assistant IA/ }));
+    expect(screen.getByRole("button", { name: /Analyser ma semaine/ })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Replanifier les retards/ })).toBeNull();
   });
 
   it("félicite quand rien n'est en retard", () => {

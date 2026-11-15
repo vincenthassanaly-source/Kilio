@@ -27,8 +27,8 @@ type Etat =
   | { phase: "erreur"; message: string };
 
 const TITRES: Record<ModeAssistantRevue, string> = {
-  bilan: "Bilan de la semaine",
-  avenir: "Résumé de la semaine",
+  bilan: "Les 7 derniers jours",
+  avenir: "Les 7 prochains jours",
   replanifier: "Replanifier avec l'IA",
   semaine: "Analyse de ma semaine",
 };
