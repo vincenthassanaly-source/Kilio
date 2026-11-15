@@ -606,7 +606,7 @@ export function AddTaskForm({
                 onChange={(e) => setProgrammeJour(e.target.checked)}
                 className="h-4 w-4 rounded border-line"
               />
-              Tâche du jour
+              Tâche éphémère
             </label>
             <p className="text-caption text-ink-2">
               Sera supprimée automatiquement si non cochée à la fin de la journée.
@@ -800,7 +800,7 @@ export function AddTaskForm({
         )}
 
         <button type="submit" disabled={pending} className={`${primaryButton} min-h-11 w-full shadow-card`}>
-          {pending ? "Enregistrement..." : tache ? "Enregistrer" : "Ajouter"}
+          {pending ? "Enregistrement…" : tache ? "Enregistrer" : "Ajouter"}
         </button>
       </div>
     </form>

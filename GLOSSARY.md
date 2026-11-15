@@ -56,6 +56,14 @@ _Avoid_: Journal (réservé au module d'écriture), journal alimentaire
 L'écran « Revue de la semaine » (`/revue`) : le point hebdomadaire (tâches terminées, retards à replanifier, 7 prochains jours, santé de la semaine). Rappel : « Rappel de la revue hebdomadaire ».
 _Avoid_: Bilan (pour désigner la Revue)
 
+**En retard**:
+Une tâche non faite dont l'échéance est passée. Un seul mot partout : l'onglet « En retard » de Tâches, la section « En retard » d'Aujourd'hui, « 2. Retards à replanifier » de la Revue.
+_Avoid_: « Retard » seul pour l'onglet
+
+**Tâche terminée / Tâche éphémère**:
+« Terminée » est une tâche cochée ; elle est rangée dans « Tâches terminées » (Tâches et Agenda), où on peut la rouvrir. Une tâche **éphémère** (anciennement « Tâche du jour ») est supprimée automatiquement à la fin de la journée si elle n'est pas cochée ; la case du formulaire et la pastille de la carte la nomment ainsi.
+_Avoid_: archivée (pour une tâche cochée), « Tâche du jour » (a trois sens dans l'app)
+
 **Reporter / Replanifier**:
 « Reporter » est le geste manuel : décaler l'échéance d'une ou plusieurs tâches à Aujourd'hui, Demain ou Lundi, avec « Annuler ». « Replanifier » est le geste de l'assistant IA de la Revue (« Replanifier les retards ») : il propose de nouvelles dates, que Vincent coche avant de les appliquer ensemble.
 _Avoid_: « Reporter » pour l'IA, « Replanifier » pour le report manuel

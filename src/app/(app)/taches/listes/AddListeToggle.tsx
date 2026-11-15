@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AddListeForm } from "./AddListeForm";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card } from "@/lib/ui";
+import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
 import { PlusIcon } from "@/components/icons";
 
 export function AddListeToggle() {
@@ -32,7 +32,7 @@ export function AddListeToggle() {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="mt-2 text-label text-ink-2 underline"
+          className={`${textButton} mt-2`}
         >
           Annuler
         </button>

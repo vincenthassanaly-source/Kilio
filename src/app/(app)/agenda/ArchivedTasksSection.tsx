@@ -35,7 +35,7 @@ export function ArchivedTasksSection({
         className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         aria-expanded={open}
       >
-        <span className={sectionTitle}>Tâches archivées ({taches.length})</span>
+        <span className={sectionTitle}>Tâches terminées ({taches.length})</span>
         <span
           className={`text-ink-2 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           aria-hidden
