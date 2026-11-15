@@ -20,7 +20,7 @@ export function AddHabitudeToggle({ onSaved }: { onSaved?: () => void }) {
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une habitude</span>
-        <span className="text-xs font-medium text-ink-3">Un suivi quotidien</span>
+        <span className="text-xs font-medium text-ink-3">Une habitude à suivre</span>
       </div>
     </button>
   );

@@ -12,6 +12,8 @@ export const queryKeys = {
   pharmacieHuiles: ["pharmacie-huiles"] as const,
   courses: ["courses"] as const,
   habitudes: (date: string) => ["habitudes", date] as const,
+  // Habitudes archivées (écran « Archives », lecture seule).
+  habitudesArchivees: ["habitudes-archivees"] as const,
   // Historique mensuel d'une habitude (vue calendrier) : clé par habitude +
   // mois (premier jour du mois, format ISO) pour que changer d'habitude ou
   // naviguer d'un mois à l'autre déclenche un nouveau fetch distinct.

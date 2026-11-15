@@ -32,6 +32,10 @@ _Avoid_: Valider, Sauvegarder
 Ouvrir un élément existant pour le changer : bouton d'entrée en modification (« Modifier la recette », « Modifier » sur une ligne d'ingrédient ou d'étape), puis « Enregistrer » pour valider. Un seul verbe pour ce geste, partout.
 _Avoid_: Éditer, Renommer (pour ouvrir un formulaire qui change plus que le nom)
 
+**Archiver (une habitude)**:
+Retirer une habitude d'Aujourd'hui sans effacer son historique : elle reste en base (`actif = false`, avec sa date d'archivage) et se retrouve en lecture seule dans Habitudes › Archives. Même patron différé que « Supprimer » : elle disparaît tout de suite, un toast « Annuler » reste 6 secondes, l'archivage part ensuite.
+_Avoid_: Supprimer (pour une habitude : rien n'est détruit)
+
 **Supprimer**:
 Détruire un élément. Toujours écrit en entier, jamais « Suppr. ». Un seul patron : l'élément disparaît tout de suite, un toast « X supprimé · Annuler » reste 6 secondes, et l'appel serveur ne part qu'à la fin de ce délai (annuler ne fait aucun appel réseau ; quitter l'écran n'empêche pas la suppression, fermer l'app avant la fin la fait renoncer et l'élément réapparaît). Aucune boîte de confirmation pour supprimer : elles sont réservées aux pertes de brouillon (« Quitter sans enregistrer », « Vider le brouillon »). Exception : Courses supprime tout de suite côté serveur et restaure par réinsertion si on touche « Annuler » (patron d'origine de `supprimerAvecAnnulation`).
 _Avoid_: Suppr., Effacer (réservé à « Effacer la feuille » du Journal, qui vide les traits sans supprimer la page), Vider
