@@ -42,7 +42,7 @@ describe("TranscriptionDialog : texte du jour", () => {
     rendre();
     expect(screen.getByRole("dialog", { name: "Texte du jour" })).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "Texte du jour" })).toHaveValue("Ma journée");
-    expect(screen.queryByRole("button", { name: "Valider" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ajouter au texte du jour" })).toBeNull();
   });
 
   it("copie le texte actuel du champ, corrections comprises", async () => {
@@ -84,23 +84,23 @@ describe("TranscriptionDialog : texte du jour", () => {
 });
 
 describe("TranscriptionDialog : proposition à valider", () => {
-  it("propose Valider, sans « Supprimer le texte »", () => {
+  it("propose « Ajouter au texte du jour », sans « Supprimer le texte »", () => {
     rendre({ mode: "proposition" });
     expect(screen.getByRole("dialog", { name: "Texte transcrit" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Valider" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Ajouter au texte du jour" })).toBeEnabled();
     expect(screen.queryByRole("button", { name: "Supprimer le texte" })).toBeNull();
   });
 
   it("valide le texte tel qu'il est dans le champ, corrections comprises", async () => {
     const props = rendre({ mode: "proposition" });
     await userEvent.type(screen.getByRole("textbox", { name: "Texte transcrit" }), " !");
-    await userEvent.click(screen.getByRole("button", { name: "Valider" }));
+    await userEvent.click(screen.getByRole("button", { name: "Ajouter au texte du jour" }));
     expect(props.onValider).toHaveBeenCalledWith("Ma journée !");
   });
 
   it("ne permet pas de valider un champ vidé", async () => {
     rendre({ mode: "proposition" });
     await userEvent.clear(screen.getByRole("textbox", { name: "Texte transcrit" }));
-    expect(screen.getByRole("button", { name: "Valider" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Ajouter au texte du jour" })).toBeDisabled();
   });
 });
