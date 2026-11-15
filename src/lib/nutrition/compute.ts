@@ -103,7 +103,9 @@ export function nutritionFromOverride(
 
 export type MomentRepas = "petit_dej" | "dejeuner" | "diner" | "collation";
 
-export const MOMENTS_REPAS: readonly MomentRepas[] = ["petit_dej", "dejeuner", "diner", "collation"];
+// Ordre d'une journée, le même dans le Carnet, les Menus, la feuille d'ajout et
+// la fiche recette (voir CRENEAUX_MENU, que `compute.test.ts` garde aligné).
+export const MOMENTS_REPAS: readonly MomentRepas[] = ["petit_dej", "dejeuner", "collation", "diner"];
 
 export const MOMENT_LABELS: Record<MomentRepas, string> = {
   petit_dej: "Petit-déj",

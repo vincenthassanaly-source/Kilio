@@ -149,11 +149,11 @@ export function ObjectifForm({
 
       <div className="flex gap-2">
         <button type="submit" disabled={pending} className={primaryButton}>
-          {pending ? "Enregistrement..." : "Enregistrer"}
+          {pending ? "Enregistrement…" : "Enregistrer"}
         </button>
         {(repos || entrainement) && (
           <button type="button" onClick={() => setOpen(false)} className={secondaryButton}>
-            Fermer
+            Annuler
           </button>
         )}
       </div>

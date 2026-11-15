@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { CRENEAUX_MENU } from "@/lib/menus/compute";
 import {
   addNutrition,
   cleCatalogue,
   extraireRecents,
   hasNutritionOverride,
+  MOMENTS_REPAS,
   momentParDefaut,
   nutritionAliment,
   nutritionFromOverride,
@@ -90,6 +92,13 @@ describe("hasNutritionOverride / nutritionFromOverride", () => {
   it("multiplie l'override par les portions consommées, avec null traités comme 0", () => {
     const override = { kcal_portion: 300, proteines_portion: 20, glucides_portion: null, lipides_portion: 10 };
     expect(nutritionFromOverride(override, 2)).toEqual({ kcal: 600, proteines: 40, glucides: 0, lipides: 20 });
+  });
+});
+
+describe("MOMENTS_REPAS", () => {
+  it("suit l'ordre d'une journée, le même que les créneaux des Menus", () => {
+    expect(MOMENTS_REPAS).toEqual(["petit_dej", "dejeuner", "collation", "diner"]);
+    expect(MOMENTS_REPAS).toEqual(CRENEAUX_MENU);
   });
 });
 
