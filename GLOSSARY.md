@@ -48,6 +48,14 @@ _Avoid_: Journal (réservé au module d'écriture), journal alimentaire
 L'écran « Revue de la semaine » (`/revue`) : le point hebdomadaire (tâches terminées, retards à replanifier, 7 prochains jours, santé de la semaine). Rappel : « Rappel de la revue hebdomadaire ».
 _Avoid_: Bilan (pour désigner la Revue)
 
+**Reporter / Replanifier**:
+« Reporter » est le geste manuel : décaler l'échéance d'une ou plusieurs tâches à Aujourd'hui, Demain ou Lundi, avec « Annuler ». « Replanifier » est le geste de l'assistant IA de la Revue (« Replanifier les retards ») : il propose de nouvelles dates, que Vincent coche avant de les appliquer ensemble.
+_Avoid_: « Reporter » pour l'IA, « Replanifier » pour le report manuel
+
+**Assistant IA (Revue)**:
+Le menu unique de la Revue (« Assistant IA ») qui regroupe quatre actions : analyser la semaine, résumer les 7 derniers jours, résumer les 7 prochains jours, replanifier les retards. Les résumés et l'analyse sont en lecture seule.
+_Avoid_: « Bilan en mots » (le mot Bilan est réservé à Nutrition)
+
 **Bilan**:
 L'onglet Nutrition › Bilan : réussite des jours sur 7 et 30 jours. Deux mesures distinctes, nommées précisément : « sous la limite kcal » (kcal seuls, dans la synthèse de la semaine) et « cibles kcal et protéines atteintes » (kcal et protéines, dans le bilan par jour).
 _Avoid_: « dans la limite », « dans les clous » (ambigus entre les deux mesures)

@@ -1,5 +1,5 @@
-// Assistant IA de la Revue (boutons « Bilan en mots », « Résumé de la semaine »
-// et « Replanifier avec l'IA ») : consignes, schémas et lecture défensive des
+// Assistant IA de la Revue (menu « Assistant IA » : résumés des 7 derniers et
+// des 7 prochains jours, et « Replanifier les retards ») : consignes, schémas et lecture défensive des
 // réponses de Gemini. Module neutre (ni "use server" ni "use client"), partagé
 // par l'action serveur, l'interface et les tests. Gemini ne fait que proposer :
 // les dates de replanification sont revérifiées ici avant d'être montrées, puis
