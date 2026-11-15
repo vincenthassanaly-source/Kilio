@@ -70,7 +70,7 @@ const VUES: { key: VueKey; label: string }[] = [
   // quand des tâches sont dues. (« Aujourd'hui » est déjà le premier onglet de
   // la barre du bas, avec un autre sens.)
   { key: "aujourdhui", label: "À faire" },
-  { key: "en_retard", label: "Retard" },
+  { key: "en_retard", label: "En retard" },
   { key: "semaine", label: "7 jours" },
   { key: "toutes", label: "Tout" },
 ];

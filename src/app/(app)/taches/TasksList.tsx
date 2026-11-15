@@ -718,7 +718,7 @@ export const TaskCard = memo(function TaskCard({
               </span>
             )}
             {tache.programme_jour && (
-              <span className={pillTag}>Tâche du jour</span>
+              <span className={pillTag}>Éphémère</span>
             )}
             {tache.tags.map((tag) => (
               <span key={tag.id} className={pillTag} style={couleurStyle(tag.couleur)}>
@@ -1005,7 +1005,7 @@ export function TasksList({
     <>
       {aDesTachesDuJour && (
         <p className="mb-2.5 text-small text-ink-2">
-          Les tâches du jour non cochées sont supprimées à la fin de la journée.
+          Les tâches éphémères non cochées sont supprimées à la fin de la journée.
         </p>
       )}
       {actives.length > 0 &&
@@ -1042,7 +1042,7 @@ export function TasksList({
       {archivees.length > 0 && (
         <details className="group mt-2.5 border-t border-line pt-1">
           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-1 text-body font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal [&::-webkit-details-marker]:hidden">
-            <span>Tâches archivées ({archivees.length})</span>
+            <span>Tâches terminées ({archivees.length})</span>
             <svg
               aria-hidden="true"
               width="16"

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteListe, reordonnerListes } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
-import { dangerButton, ghostButton, listCard, nameText } from "@/lib/ui";
+import { dangerButton, ghostButton, listCard, nameText, textButton } from "@/lib/ui";
 
 // Flèches d'ordre : cible réelle de 36×44 px (même gabarit que `sousTacheBouton`
 // de TasksList) au lieu du glyphe nu de 13×23 px.
@@ -41,7 +41,7 @@ function ListeRow({
       <li className={listCard}>
         <AddListeForm liste={liste} onDone={() => setEditing(false)} />
         <div className="mt-2 flex items-center justify-between gap-2">
-          <button type="button" onClick={() => setEditing(false)} className="text-label text-ink-2 underline">
+          <button type="button" onClick={() => setEditing(false)} className={textButton}>
             Annuler
           </button>
           {/* La suppression vit ici, hors de la ligne : plus de bouton rouge

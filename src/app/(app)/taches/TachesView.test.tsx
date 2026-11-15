@@ -103,8 +103,8 @@ describe("TachesView : vue « À faire » et compteur de retard", () => {
   it("affiche le retard en badge sur le segment, sans l'écrire dans le libellé", async () => {
     monter(false);
     await screen.findByText(/Tâche du jour/);
-    const segment = screen.getByRole("button", { name: "Retard, 1" });
-    expect(segment.textContent).toBe("Retard1");
+    const segment = screen.getByRole("button", { name: "En retard, 1" });
+    expect(segment.textContent).toBe("En retard1");
   });
 
   it("n'annonce jamais « Rien à faire » quand du retard existe : la vue le contient", async () => {

@@ -67,7 +67,7 @@ export function AddListeForm({
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Enregistrement..." : liste ? "Enregistrer" : "Ajouter"}
+        {pending ? "Enregistrement…" : liste ? "Enregistrer" : "Ajouter"}
       </button>
     </form>
   );

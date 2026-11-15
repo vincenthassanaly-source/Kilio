@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query/keys";
 import { deleteTag } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
-import { dangerButton, ghostButton, listCard, nameText } from "@/lib/ui";
+import { dangerButton, ghostButton, listCard, nameText, textButton } from "@/lib/ui";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
 import { AddTagForm } from "./AddTagForm";
@@ -19,7 +19,7 @@ function TagRow({ tag }: { tag: Tables<"tags"> }) {
       <li className={listCard}>
         <AddTagForm tag={tag} onDone={() => setEditing(false)} />
         <div className="mt-2 flex items-center justify-between gap-2">
-          <button type="button" onClick={() => setEditing(false)} className="text-label text-ink-2 underline">
+          <button type="button" onClick={() => setEditing(false)} className={textButton}>
             Annuler
           </button>
           <button
