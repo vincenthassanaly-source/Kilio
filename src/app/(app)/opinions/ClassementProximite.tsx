@@ -61,7 +61,7 @@ export function ClassementProximite({ classement, aDesIdees }: { classement: rea
       )}
 
       <p className="text-xs text-ink-3">
-        Proximité de positions sur les thèmes et les axes que vous avez en commun, pondérée par tes priorités. Ce
+        Proximité de positions sur les thèmes et les axes que tu as en commun, pondérée par tes priorités. Ce
         n&apos;est pas une recommandation de vote.
       </p>
     </div>

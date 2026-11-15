@@ -12,6 +12,10 @@ _Avoid_: Proposition seule (ambiguë avec les propositions de partis dans Opinio
 Une mesure d'un programme de parti, lue puis marquée `lu` ou `favori` dans Opinions → Partis.
 _Avoid_: Suggestion, mesure
 
+**Reprendre (une proposition)**:
+Le geste « Reprendre dans mes idées » d'une proposition de parti : il crée un brouillon d'idée à partir d'elle, que Vincent complète puis valide. Ce n'est ni « Ajouter » ni « Suggestion » : la proposition d'origine reste telle quelle.
+_Avoid_: « Copier », « Importer » (pour ce geste)
+
 ## Vocabulaire des actions
 
 Charte des libellés visibles (boutons, aria-labels, toasts, messages). Un verbe par geste, partout.
