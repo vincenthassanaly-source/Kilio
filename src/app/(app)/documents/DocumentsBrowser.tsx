@@ -310,7 +310,7 @@ export function DocumentsBrowser({
             <select
               value={tri}
               onChange={(e) => setTri(e.target.value as TriCle)}
-              aria-label="Trier les documents"
+              aria-label="Ordre des documents"
               className={`${input} max-w-[152px] shrink-0 truncate`}
             >
               {(Object.keys(TRI_LABELS) as TriCle[]).map((key) => (

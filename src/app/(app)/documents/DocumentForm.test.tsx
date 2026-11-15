@@ -72,7 +72,7 @@ describe("DocumentForm", () => {
     render(<DocumentForm categories={CATEGORIES} />);
 
     const options = Array.from((screen.getByLabelText(/Catégorie/) as HTMLSelectElement).options).map((o) => o.textContent);
-    expect(options).toEqual(["—", "Identité", "Logement", "Santé"]);
+    expect(options).toEqual(["Sans catégorie", "Identité", "Logement", "Santé"]);
   });
 
   it("propose « Document » par défaut : un sélecteur de plusieurs fichiers, pas de recto/verso", () => {
