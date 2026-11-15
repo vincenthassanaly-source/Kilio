@@ -15,7 +15,8 @@ import {
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
-import { showToast } from "@/components/toast/toast-store";
+import { supprimerTaches } from "@/app/actions/taches";
+import { showActionToast, showToast } from "@/components/toast/toast-store";
 import { noteBackgroundStyle } from "@/lib/notes/palette";
 import { CheckToggle } from "@/components/CheckToggle";
 import { Modal } from "@/components/Modal";
@@ -88,7 +89,9 @@ function PinIcon({ filled }: { filled: boolean }) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+      {/* Punaise : le geste s'appelle « Épingler », l'icône doit le dire (pas une étoile). */}
+      <path d="M12 17v5" />
+      <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
     </svg>
   );
 }
@@ -217,8 +220,18 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
     const resultat = await runAction(creation, { erreur: "Impossible de créer la tâche. Réessaie." });
     setCreationEnCours(false);
     if (!resultat.ok) return;
-    showToast("Tâche créée");
     void queryClient.invalidateQueries({ queryKey: queryKeys.taches });
+    // « Annuler » supprime la tâche qui vient d'être créée : un second tap par
+    // erreur ne laisse plus un doublon silencieux. La note reste intacte.
+    const tacheId = resultat.data.id;
+    showActionToast("Tâche créée", {
+      ariaLabel: "Annuler : tâche créée",
+      onAction: () => {
+        void runAction(() => supprimerTaches([tacheId]), { erreur: "Impossible d'annuler. Réessaie." }).then((r) => {
+          if (r.ok) void queryClient.invalidateQueries({ queryKey: queryKeys.taches });
+        });
+      },
+    });
   }
 
   // Suppression différée : la note disparaît tout de suite, « Annuler » la

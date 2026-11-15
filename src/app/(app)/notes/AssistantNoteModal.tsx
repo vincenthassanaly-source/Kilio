@@ -28,7 +28,7 @@ const ACTIONS: { mode: ModeAssistantNote; titre: string; description: string; te
     description: "Corrige et structure le texte. Tu compares avant d'appliquer.",
     texteSeulement: true,
   },
-  { mode: "tags", titre: "Classer avec des tags", description: "Propose des tags, d'abord parmi les tiens." },
+  { mode: "tags", titre: "Classer avec des tags", description: "Suggère des tags, d'abord parmi les tiens." },
 ];
 
 const MESSAGES_CHARGEMENT: Record<ModeAssistantNote, string> = {
@@ -93,7 +93,7 @@ function ApercuResume({
   return (
     <div className="flex flex-col gap-4">
       {proposition.resume && (
-        <section aria-label="Résumé proposé" className="flex flex-col gap-1.5">
+        <section aria-label="Résumé suggéré" className="flex flex-col gap-1.5">
           <h3 className="text-sm font-medium text-ink-2">Résumé</h3>
           <p className="text-body leading-relaxed text-ink">{proposition.resume}</p>
           {peutAjouterResume && (
@@ -105,7 +105,7 @@ function ApercuResume({
       )}
 
       {titreChange ? (
-        <section aria-label="Titre proposé" className="flex flex-col gap-1.5">
+        <section aria-label="Titre suggéré" className="flex flex-col gap-1.5">
           <h3 className="text-sm font-medium text-ink-2">Titre</h3>
           <p className="text-sm text-ink-3 line-through">{note.titre}</p>
           <CaseAvecTexte id={`${uid}-titre`} coche={changerTitre} onChange={setChangerTitre}>
@@ -113,7 +113,7 @@ function ApercuResume({
           </CaseAvecTexte>
         </section>
       ) : (
-        <p className="text-sm text-ink-2">Le titre actuel te convient déjà : Gemini n&apos;en propose pas d&apos;autre.</p>
+        <p className="text-sm text-ink-2">Le titre actuel te convient déjà : Gemini n&apos;en suggère pas d&apos;autre.</p>
       )}
 
       <button

@@ -13,9 +13,21 @@ vi.mock("@/app/actions/notes", () => ({
   toggleEpingle: vi.fn(),
   toggleNoteItem: vi.fn(),
   deleteNote: vi.fn(),
+  noteVersTache: vi.fn(),
+  noteItemVersTache: vi.fn(),
+}));
+vi.mock("@/app/actions/taches", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/app/actions/taches")>()),
+  supprimerTaches: vi.fn(),
+}));
+vi.mock("@/components/toast/toast-store", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/components/toast/toast-store")>()),
+  showActionToast: vi.fn(),
 }));
 
-import { toggleEpingle, toggleNoteItem } from "@/app/actions/notes";
+import { noteVersTache, toggleEpingle, toggleNoteItem } from "@/app/actions/notes";
+import { supprimerTaches } from "@/app/actions/taches";
+import { showActionToast } from "@/components/toast/toast-store";
 
 function renderWithClient(client: QueryClient, note: NoteAvecRelations) {
   return render(
@@ -97,6 +109,23 @@ describe("NoteCard - rollback scopé des mutations optimistes (CLICK-PATH-603)",
     const client = new QueryClient();
     renderWithClient(client, makeNote({ id: "note-p", epingle: true }));
     expect(screen.getByRole("button", { name: /Épingler la note/ })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("« Ajouter une tâche depuis cette note » : le toast « Annuler » supprime la tâche créée, pas la note", async () => {
+    const user = userEvent.setup();
+    const client = new QueryClient();
+    vi.mocked(noteVersTache).mockResolvedValue({ ok: true, data: { id: "tache-1" } });
+    vi.mocked(supprimerTaches).mockResolvedValue({ ok: true, data: undefined });
+    renderWithClient(client, makeNote({ id: "note-t", titre: "Dentiste" }));
+
+    await user.click(screen.getByRole("button", { name: "Ouvrir la note Dentiste" }));
+    await user.click(await screen.findByRole("button", { name: "Ajouter une tâche depuis cette note" }));
+
+    await waitFor(() => expect(showActionToast).toHaveBeenCalledWith("Tâche créée", expect.objectContaining({ ariaLabel: "Annuler : tâche créée" })));
+    const options = vi.mocked(showActionToast).mock.calls[0][1];
+    options.onAction();
+
+    await waitFor(() => expect(supprimerTaches).toHaveBeenCalledWith(["tache-1"]));
   });
 
   it("checklist : barre de progression annoncée et actions de la tuile nommées", () => {
