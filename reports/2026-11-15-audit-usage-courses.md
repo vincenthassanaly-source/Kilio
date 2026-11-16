@@ -2,7 +2,7 @@
 
 Audit joué sur un build de production contre le faux Supabase local (`e2e/mock-supabase.mjs`, seed fictif `e2e/seed-audit/courses.mjs`). Aucune donnée réelle, aucun appel à la base réelle ni à Gemini. Sorties : `reports/audit/courses/` (`index.html`, `ecrans/`, `parcours/`, `scenarios/`).
 
-> État du rapport : première version poussée tôt (quota instable). Les sections 4 et 5 sont complétées au fil de l'eau ; ce qui manque est écrit en clair.
+> État du rapport : audit et critique faits ; la section 5 (corrections) est complétée après ouverture des PR.
 
 ## 1. Périmètre
 
@@ -50,11 +50,11 @@ Audit joué sur un build de production contre le faux Supabase local (`e2e/mock-
 - Observé : « Autres ».
 - Cause : `cleDoublon` retire les accents par NFD (`compute.ts:48-55`), ce qui ne décompose pas la ligature `œ` : « Œufs » devient `œufs`, jamais `oeufs`. Le dictionnaire contient `bœuf` en double mais pas `œuf`/`œufs` (`compute.ts:292-298`). Conséquence voisine, non corrigée ici : « oeufs » et « œufs » ne sont pas vus comme doublons à l'ajout.
 
-**B3 — Double tap sur la coche : deux écritures identiques et une coche qui saute — gravité basse, confiance moyenne**
+**B3 — Double clic sur la coche : deux écritures identiques — gravité basse, confiance basse (non confirmé en usage réel)**
 - Étape : `02-cocher-decocher`, étapes 15 à 19 (`parcours/02-cocher-decocher/17-screenshot.png`).
 - Attendu : un seul `PATCH` (le bouton est censé être désactivé pendant la mutation), ou deux `PATCH` opposés.
 - Observé : deux `PATCH {"coche":true}` sur le même article. L'état final est cohérent (article pris, en base et à l'écran après rechargement).
-- Cause probable : `disabled={toggleMutation.isPending}` (`CourseItemRow.tsx:248`) n'est appliqué qu'au rendu suivant, et `mutationFn` lit `!item.coche` de la fermeture (`CourseItemRow.tsx:61`) : le second clic part avec la même valeur, pendant que `onMutate` inverse une seconde fois le cache optimiste (`:80-82`). Reproduit avec un double clic synthétique (deux clics à quelques millisecondes) ; **non établi** pour un double tap humain (150 à 300 ms) : mesure à refaire, voir § 5.
+- Cause probable : `disabled={toggleMutation.isPending}` (`CourseItemRow.tsx:248`) n'est appliqué qu'au rendu suivant, et `mutationFn` lit `!item.coche` de la fermeture (`CourseItemRow.tsx:61`) : le second clic part avec la même valeur, pendant que `onMutate` inverse une seconde fois le cache optimiste (`:80-82`). Reproduit une fois avec le double clic synthétique de Playwright. Contre-mesure : deux clics séparés envoyés sans délai n'ont produit qu'**une** écriture et un état cohérent (le second clic trouve le bouton désactivé). Les mesures à 60, 150, 300 et 600 ms n'ont pas abouti (cache serveur du banc après remise à zéro, puis redémarrage de la machine). En l'état : non confirmé pour un doigt humain, pas de PR.
 
 ### Design
 
@@ -103,7 +103,45 @@ Constat : « 16 articles à prendre » en tête, et les pris sont tout en bas d'
 
 ## 4. Critique impeccable
 
-À venir (non lancée au moment de ce premier envoi).
+⚠️ DÉGRADÉ : contexte unique. Aucun outil de sous-agent n'est disponible dans cette session : les évaluations A (revue de design) et B (détecteur) ont été faites par le même agent, l'une après l'autre, A d'abord. Le détecteur CLI a tourné ; la superposition dans le navigateur n'a pas été faite (pas d'outil de navigateur interactif, serveurs arrêtés après un redémarrage de la machine). La revue s'appuie sur les captures de `reports/audit/courses/` et sur le code. Rien de ce qui suit ne contredit `PRODUCT.md`, `DESIGN.md` ou `GLOSSARY.md` ; ce qui les touche est étiqueté « à reconsidérer ».
+
+**Écran unique `/courses` (mode « Operate » : accomplir une tâche, vite, en magasin).**
+
+| # | Heuristique | Note /4 | Point clé |
+|---|---|---|---|
+| 1 | Visibilité de l'état | 3 | Compteur « N articles à prendre », message d'ajout sur une ligne, « En attente de synchro » ; pas d'avancement « pris / total » |
+| 2 | Correspondance avec le réel | 3 | Rayons dans l'ordre d'un magasin ; affaibli par B1 et B2 (articles rangés à tort dans « Autres ») |
+| 3 | Contrôle et liberté | 4 | « Annuler » sur chaque suppression, « Fermer », retour arrière qui referme la carte |
+| 4 | Cohérence | 3 | Vocabulaire conforme ; l'ajout refuse les doublons mais le renommage les laisse passer (P1) |
+| 5 | Prévention des erreurs | 3 | Erreur de longueur affichée pendant la frappe, aperçu « 3 articles : … » avant d'ajouter |
+| 6 | Reconnaître plutôt que se souvenir | 3 | Suggestions d'habituels ; le renommage par simple appui sur le libellé n'est signalé nulle part |
+| 7 | Souplesse et efficacité | 4 | Ajout multiple, liste collée, virgule décimale respectée, carte qui reste ouverte |
+| 8 | Sobriété | 3 | « Supprimer » répété sur chaque ligne (P4) |
+| 9 | Récupération d'erreur | 3 | Messages clairs et en français ; retour arrière silencieux si le serveur échoue, avec toast |
+| 10 | Aide | 3 | Sous-titre, placeholder et état vide expliquent l'ajout multiple |
+| **Total** | | **32/40** | **Bon** |
+
+**Verdict de spécificité.** L'écran est pensé pour cet usage et pas pour une liste de tâches générique : rayons dans l'ordre du parcours en magasin, articles pris repliés en bas avec « Supprimer les articles pris » accessible sans déplier, carte d'ajout qui ne se referme pas pour enchaîner. Détecteur : `impeccable detect` sur `src/app/(app)/courses` ne renvoie aucun constat (`[]`).
+
+**Ce qui fonctionne.**
+- Le geste central (cocher) est une cible de 44 px, optimiste, et l'article glisse dans « Articles pris » sans confirmation.
+- La saisie multiple est lisible avant validation (« 3 articles : Farine · sucre roux · 1,5 L de lait », bouton « Ajouter 3 articles »).
+- Les états limites sont tous traités : vide, tout pris (« Tout est dans le chariot ! »), libellé très long, doublon, remise dans la liste d'un article pris.
+
+**Problèmes prioritaires.**
+- **[P1] Le classement par rayon se trompe sur les cas les plus courants** (B1, B2). C'est la seule promesse « intelligente » de l'écran ; quand « Œufs » et tout ce qui vient des Menus finit dans « Autres », le groupement perd son intérêt en magasin. Correction : voir § 5.
+- **[P2] L'avancement n'est pas visible** (P6). En magasin, la question est « où j'en suis » ; l'écran répond seulement « combien il reste », et les pris sont hors de vue.
+- **[P2] Le renommage est invisible** : rien n'indique qu'un appui sur le libellé le rend modifiable. Un appui imprécis à côté de la coche ouvre un champ au lieu de cocher. Jugement d'usage, non mesuré.
+- **[P3] Poids de la colonne « Supprimer »** (P4) : à reconsidérer seulement, le choix du libellé visible est assumé.
+- **[P3] Coche violette** (P3) : à reconsidérer seulement ; `DESIGN.md` prévoit des `CheckToggle` colorés mais réserve le vert à l'interaction.
+
+**Personas.**
+- Vincent en magasin, une main, réseau instable : la coche et le repli des pris tiennent ; l'absence d'avancement et les articles mal rangés l'obligent à relire « Autres » en entier.
+- Vincent chez lui, qui prépare la semaine depuis les Menus : il retrouve ses ingrédients en vrac dans « Autres » (B1), et rien ne dit qu'ils viennent d'un menu.
+
+**Cohérence entre écrans.** Un seul écran, donc peu de risque interne. Vers l'extérieur : titre, carte d'ajout, toasts et état vide suivent les mêmes patrons que les autres modules ; clair et sombre sont équivalents sur toutes les captures (`ecrans/courses.clair.png`, `ecrans/courses.sombre.png`, parcours 04 et 05).
+
+**Questions.** Faut-il un avancement « pris / total » en tête ? Le renommage doit-il rester un appui sur le libellé, ou passer derrière un geste explicite ? Questions non posées à l'utilisateur : audit non interactif, elles sont reprises en propositions (§ 3).
 
 ## 5. Corrections
 
