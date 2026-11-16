@@ -13,64 +13,14 @@
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=V6LDxjTYF9Hcqkq- (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=sw2pi3DjxZBW9EPd (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=gTQNfE_KcskDALzN (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3103/nutrition/recettes/00000000-0000-4000-8000-000000000216?_rsc=LdB1tpLyTapDRyuB (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3103/nutrition?_rsc=sw2pi3DjxZBW9EPd (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=P_U07AWgBD50QkDo (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/recettes/00000000-0000-4000-8000-000000000216?_rsc=LdB1tpLyTapDRyuB (net::ERR_ABORTED)"
       ],
-      "ecritures": [
-        {
-          "method": "POST",
-          "table": "jours_feries",
-          "query": "?on_conflict=date&columns=%22date%22%2C%22nom%22",
-          "body": [
-            {
-              "date": "2026-01-01",
-              "nom": "1er janvier"
-            },
-            {
-              "date": "2026-04-06",
-              "nom": "Lundi de Pâques"
-            },
-            {
-              "date": "2026-05-01",
-              "nom": "1er mai"
-            },
-            {
-              "date": "2026-05-08",
-              "nom": "8 mai"
-            },
-            {
-              "date": "2026-05-14",
-              "nom": "Ascension"
-            },
-            {
-              "date": "2026-05-25",
-              "nom": "Lundi de Pentecôte"
-            },
-            {
-              "date": "2026-07-14",
-              "nom": "14 juillet"
-            },
-            {
-              "date": "2026-08-15",
-              "nom": "Assomption"
-            },
-            {
-              "date": "2026-11-01",
-              "nom": "Toussaint"
-            },
-            {
-              "date": "2026-11-11",
-              "nom": "11 novembre"
-            },
-            {
-              "date": "2026-12-25",
-              "nom": "Jour de Noël"
-            }
-          ]
-        }
-      ],
-      "ms": 1554,
+      "ecritures": [],
+      "ms": 1442,
       "fichier": "01-goto.png"
     },
     {
@@ -84,7 +34,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 384,
+      "ms": 344,
       "fichier": "02-fill.png"
     },
     {
@@ -97,7 +47,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 368,
+      "ms": 373,
       "fichier": "03-fill.png"
     },
     {
@@ -109,7 +59,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 385,
+      "ms": 382,
       "fichier": "04-click.png"
     },
     {
@@ -122,7 +72,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 547,
+      "ms": 568,
       "fichier": "05-click.png"
     },
     {
@@ -136,7 +86,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 345,
+      "ms": 327,
       "fichier": "06-fill.png"
     },
     {
@@ -149,7 +99,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 351,
+      "ms": 340,
       "fichier": "07-fill.png"
     },
     {
@@ -162,7 +112,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 353,
+      "ms": 348,
       "fichier": "08-fill.png"
     },
     {
@@ -205,21 +155,22 @@
         }
       ],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 388,
+      "ms": 385,
       "fichier": "09-dblclick.png"
     },
     {
       "n": 10,
       "action": "wait",
-      "ms": 2333,
+      "ms": 2336,
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
         "requête échouée : GET http://localhost:3103/notes?_rsc=V6LDxjTYF9Hcqkq- (net::ERR_ABORTED)",
         "requête échouée : POST http://localhost:3103/nutrition/recettes (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3103/nutrition/recettes?_rsc=e3EQ4dxCrm2RCKbS (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3103/nutrition/recettes/00000000-0000-4000-8000-000000000216?_rsc=LdB1tpLyTapDRyuB (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=P_U07AWgBD50QkDo (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=gTQNfE_KcskDALzN (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=P_U07AWgBD50QkDo (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/recettes/00000000-0000-4000-8000-000000000216?_rsc=LdB1tpLyTapDRyuB (net::ERR_ABORTED)"
       ],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
@@ -234,7 +185,7 @@
       "anomalies": [],
       "ecritures": [],
       "url": "http://localhost:3103/nutrition/recettes",
-      "ms": 333,
+      "ms": 335,
       "fichier": "11-screenshot.png"
     },
     {
@@ -249,26 +200,27 @@
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3103/nutrition/recettes/00000000-0000-4000-8000-000000000216?_rsc=LdB1tpLyTapDRyuB (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=P_U07AWgBD50QkDo (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3103/nutrition/journal?_rsc=gTQNfE_KcskDALzN (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/menus?_rsc=P_U07AWgBD50QkDo (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition/recettes/00000000-0000-4000-8000-000000000216?_rsc=LdB1tpLyTapDRyuB (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/notes?_rsc=V6LDxjTYF9Hcqkq- (net::ERR_ABORTED)",
         "requête échouée : GET http://localhost:3103/nutrition?_rsc=sw2pi3DjxZBW9EPd (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "ms": 1199,
+      "ms": 1246,
       "fichier": "12-goto.png"
     },
     {
       "n": 13,
       "action": "click",
       "cible": "role=link[name=/Gratin de courgettes/i]",
-      "note": "ouvrir la fiche",
+      "note": "ouvrir la fiche (nom très long)",
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 464,
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 463,
       "fichier": "13-click.png"
     },
     {
@@ -279,11 +231,11 @@
       "statut": "anomalie",
       "erreur": null,
       "anomalies": [
-        "requête échouée : GET http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395?_rsc=_1nYljOrs5IoBwFO (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be?_rsc=nvje8DTLSuuNQUrL (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 554,
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 549,
       "fichier": "14-click.png"
     },
     {
@@ -295,8 +247,8 @@
       "erreur": null,
       "anomalies": [],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 346,
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 330,
       "fichier": "15-fill.png"
     },
     {
@@ -310,7 +262,7 @@
         {
           "method": "PATCH",
           "table": "recettes",
-          "query": "?id=eq.df66fe67-c1c0-4207-b232-0bc52e4e1395",
+          "query": "?id=eq.97ff3ac8-ea60-4222-9fac-eaea98c896be",
           "body": {
             "nom": "Gratin de courgettes",
             "description": null,
@@ -337,8 +289,8 @@
           }
         }
       ],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 405,
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 391,
       "fichier": "16-click.png"
     },
     {
@@ -349,77 +301,165 @@
       "erreur": null,
       "anomalies": [
         "requête échouée : GET http://localhost:3103/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
-        "requête échouée : POST http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395 (net::ERR_ABORTED)"
+        "requête échouée : POST http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 1144,
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 1127,
       "fichier": "17-expect_text.png"
     },
     {
       "n": 18,
-      "action": "scroll",
-      "pixels": 600,
+      "action": "select",
+      "cible": "select[name=aliment_id]",
+      "valeur": {
+        "label": "Œuf entier"
+      },
+      "note": "ingrédient à la pièce",
       "statut": "ok",
       "erreur": null,
       "anomalies": [],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 350,
-      "fichier": "18-scroll.png"
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 340,
+      "fichier": "18-select.png"
     },
     {
       "n": 19,
       "action": "fill",
-      "cible": "textarea[name=consigne]",
-      "valeur": "Couper les courgettes en rondelles fines.",
-      "statut": "échec",
-      "erreur": "locator.fill: Timeout 5000ms exceeded.",
+      "cible": "input[name=quantite]",
+      "valeur": "3",
+      "note": "3 pièces (le champ indique « pièce »)",
+      "statut": "ok",
+      "erreur": null,
       "anomalies": [],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 5061,
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 347,
       "fichier": "19-fill.png"
     },
     {
       "n": 20,
       "action": "click",
-      "cible": "role=button[name=/Ajouter l'étape/i]",
-      "statut": "échec",
-      "erreur": "locator.click: InvalidSelectorError: Error while parsing selector `button[name=/Ajouter l'étape/i] >> nth=0` - unexpected symbol \">\" at position 32",
+      "cible": "role=button[name=/Ajouter l.ingrédient/]",
+      "statut": "ok",
+      "erreur": null,
       "anomalies": [],
-      "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 39,
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "recette_ingredients",
+          "query": "",
+          "body": {
+            "recette_id": "97ff3ac8-ea60-4222-9fac-eaea98c896be",
+            "aliment_id": "00000000-0000-4000-8000-000000000111",
+            "quantite": 3,
+            "unite": "piece"
+          }
+        }
+      ],
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 381,
       "fichier": "20-click.png"
     },
     {
       "n": 21,
-      "action": "expect_text",
-      "texte": "Couper les courgettes",
-      "statut": "échec",
-      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
-      "anomalies": [],
+      "action": "wait",
+      "ms": 1845,
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : GET http://localhost:3103/notes?_rsc=gFW0MxFV8ywPcvsL (net::ERR_ABORTED)",
+        "requête échouée : POST http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be (net::ERR_ABORTED)"
+      ],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 5036,
-      "fichier": "21-expect_text.png"
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "fichier": "21-wait.png"
     },
     {
       "n": 22,
+      "action": "reload",
+      "note": "kcal par portion pour 3 œufs / 3 portions (attendu : environ 80)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3103/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=yNz3dV729Zgrm-_A (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 1871,
+      "fichier": "22-reload.png"
+    },
+    {
+      "n": 23,
+      "action": "select",
+      "cible": "select[name=aliment_id]",
+      "valeur": {
+        "label": "Riz basmati cuit"
+      },
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 441,
+      "fichier": "23-select.png"
+    },
+    {
+      "n": 24,
+      "action": "fill",
+      "cible": "input[name=quantite]",
+      "valeur": "300",
+      "statut": "échec",
+      "erreur": "locator.fill: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 5048,
+      "fichier": "24-fill.png"
+    },
+    {
+      "n": 25,
       "action": "click",
-      "cible": "[aria-label=\"Supprimer l'étape 1\"]",
-      "note": "supprimer l'étape",
+      "cible": "role=button[name=/Ajouter l.ingrédient/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 379,
+      "fichier": "25-click.png"
+    },
+    {
+      "n": 26,
+      "action": "wait",
+      "ms": 1849,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "fichier": "26-wait.png"
+    },
+    {
+      "n": 27,
+      "action": "click",
+      "cible": "[aria-label*='Supprimer'][aria-label*='Riz']",
+      "note": "supprimer un ingrédient",
       "statut": "échec",
       "erreur": "locator.click: Timeout 5000ms exceeded.",
       "anomalies": [],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 5047,
-      "fichier": "22-click.png"
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 5055,
+      "fichier": "27-click.png"
     },
     {
-      "n": 23,
+      "n": 28,
       "action": "click",
       "cible": "role=button[name=/annuler/i]",
       "note": "Annuler",
@@ -427,12 +467,12 @@
       "erreur": "locator.click: Timeout 5000ms exceeded.",
       "anomalies": [],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 5032,
-      "fichier": "23-click.png"
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 5055,
+      "fichier": "28-click.png"
     },
     {
-      "n": 24,
+      "n": 29,
       "action": "reload",
       "statut": "anomalie",
       "erreur": null,
@@ -441,25 +481,25 @@
         "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
         "console.error : Refused to execute script from 'http://localhost:3103/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
         "requête échouée : GET http://localhost:3103/_vercel/speed-insights/script.js (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3103/notes?_rsc=apzz4-0xZhUMWXYT (net::ERR_ABORTED)",
-        "requête échouée : GET http://localhost:3103/nutrition?_rsc=tGT_yOPraup2CD-x (net::ERR_ABORTED)"
+        "requête échouée : GET http://localhost:3103/notes?_rsc=trdq3jQLpI3KPtmF (net::ERR_ABORTED)",
+        "requête échouée : GET http://localhost:3103/nutrition?_rsc=yNz3dV729Zgrm-_A (net::ERR_ABORTED)"
       ],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 1422,
-      "fichier": "24-reload.png"
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 1311,
+      "fichier": "29-reload.png"
     },
     {
-      "n": 25,
+      "n": 30,
       "action": "expect_text",
-      "texte": "Couper les courgettes",
+      "texte": "Riz basmati cuit",
       "statut": "échec",
       "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
       "anomalies": [],
       "ecritures": [],
-      "url": "http://localhost:3103/nutrition/recettes/df66fe67-c1c0-4207-b232-0bc52e4e1395",
-      "ms": 5027,
-      "fichier": "25-expect_text.png"
+      "url": "http://localhost:3103/nutrition/recettes/97ff3ac8-ea60-4222-9fac-eaea98c896be",
+      "ms": 5039,
+      "fichier": "30-expect_text.png"
     }
   ]
 }
