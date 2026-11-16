@@ -217,6 +217,20 @@ describe("classerParRayon", () => {
     expect(classerParRayon("2 kg de pommes de terre")).toBe("Fruits & légumes");
   });
 
+  it("reconnaît un mot-clé suivi de ponctuation (format « Nom, quantité » des Menus)", () => {
+    expect(classerParRayon("Poulet, 600 g")).toBe("Boucherie/Poisson/Traiteur");
+    expect(classerParRayon("Blanc de poulet, 600 g")).toBe("Boucherie/Poisson/Traiteur");
+    expect(classerParRayon("Riz, 200 g")).toBe("Épicerie salée");
+    expect(classerParRayon("Pommes de terre, 1 kg")).toBe("Fruits & légumes");
+    expect(classerParRayon("Tomates (grappe)")).toBe("Fruits & légumes");
+  });
+
+  it("reconnaît les ligatures œ et æ", () => {
+    expect(classerParRayon("Œufs")).toBe("Crémerie/Fromage");
+    expect(classerParRayon("œuf")).toBe("Crémerie/Fromage");
+    expect(classerParRayon("Bœuf haché")).toBe("Boucherie/Poisson/Traiteur");
+  });
+
   it("renvoie 'Autres' pour un libellé sans mot-clé connu", () => {
     expect(classerParRayon("Truc introuvable xyz")).toBe(RAYON_AUTRES);
   });

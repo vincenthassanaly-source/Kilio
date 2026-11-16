@@ -360,13 +360,21 @@ const RAYONS: { nom: string; motsCles: string[] }[] = [
  * aucun ne correspond. Fonction pure, aucune saisie de rayon requise côté
  * utilisateur — respecte la décision produit « libellé texte libre
  * uniquement ». */
+function sansLigatures(texte: string): string {
+  return texte.replace(/œ/g, "oe").replace(/æ/g, "ae");
+}
+
 export function classerParRayon(libelle: string): string {
-  const normalise = cleDoublon(libelle);
-  const mots = normalise.split(" ").filter(Boolean);
+  // Mots séparés par tout ce qui n'est ni lettre ni chiffre : « Poulet, 600 g »
+  // (format des articles envoyés par les Menus) donne bien le mot « poulet »,
+  // pas « poulet, ». Les ligatures sont dépliées (« Œufs » -> « oeufs ») : la
+  // normalisation NFD de `cleDoublon` ne les décompose pas.
+  const mots = sansLigatures(cleDoublon(libelle)).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+  const normalise = mots.join(" ");
 
   for (const { nom, motsCles } of RAYONS) {
     for (const motCle of motsCles) {
-      const motCleNormalise = cleDoublon(motCle);
+      const motCleNormalise = sansLigatures(cleDoublon(motCle));
       const correspond = motCleNormalise.includes(" ")
         ? normalise.includes(motCleNormalise)
         : mots.includes(motCleNormalise);
