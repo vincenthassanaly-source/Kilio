@@ -48,13 +48,26 @@ function Lecteur({ video, muet }: { video: Video; muet: boolean }) {
   if (erreur) return <Message texte="Impossible de charger cette vidéo TikTok." />;
   if (!idTiktok) return <Message texte="Chargement…" faible />;
   return (
-    <iframe
-      src={`https://www.tiktok.com/embed/v2/${idTiktok}`}
-      title="Vidéo TikTok"
-      allow="autoplay; encrypted-media; fullscreen"
-      allowFullScreen
-      className="h-full max-h-full w-full max-w-[420px] border-0"
-    />
+    <>
+      {/* `embed/v2` renvoie « Player authentication failed » : TikTok sert
+          désormais `player/v1` (cf. son oEmbed). Autoplay forcément muet. */}
+      <iframe
+        src={`https://www.tiktok.com/player/v1/${idTiktok}?embed_from=oembed&music_info=1&description=1&autoplay=1&muted=1`}
+        title="Vidéo TikTok"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+        className="h-full max-h-full w-full max-w-[420px] border-0"
+      />
+      {/* Secours : l'erreur du lecteur est invisible depuis l'iframe. */}
+      <a
+        href={video.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute bottom-[calc(env(safe-area-inset-bottom)+16px)] left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/60 px-4 py-2 text-xs font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+      >
+        Ouvrir dans TikTok
+      </a>
+    </>
   );
 }
 
