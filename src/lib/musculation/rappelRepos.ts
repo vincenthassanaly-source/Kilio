@@ -30,6 +30,18 @@ function notificationsAutorisees(): boolean {
   return typeof Notification !== "undefined" && Notification.permission === "granted";
 }
 
+/** Retire du tiroir la notification de fin de repos (tag `repos`, voir public/sw.js) : une fois vue
+ *  ou périmée (séance finie, nouvelle série), elle ne doit pas rester jusqu'à un balayage manuel. */
+export function fermerNotificationsRepos(): void {
+  if (typeof navigator === "undefined" || !navigator.serviceWorker) return;
+  void navigator.serviceWorker.ready
+    .then((registration) => registration.getNotifications({ tag: "repos" }))
+    .then((liste) => liste.forEach((n) => n.close()))
+    .catch(() => {
+      // Pas de service worker ou API indisponible : rien à fermer.
+    });
+}
+
 function corpsDuRappel(b: Brouillon): string {
   const suivante = prochaineSerie(b);
   return suivante ? `${suivante.nom} · série ${suivante.rang}/${suivante.nbSeries}` : "Toutes les séries sont validées";
@@ -83,6 +95,8 @@ function poserEcouteurs(): void {
   window.addEventListener("online", renvoyer);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") renvoyer();
+    // Retour dans l'app : l'utilisateur a vu la notification, on la retire.
+    else if (document.visibilityState === "visible") fermerNotificationsRepos();
   });
 }
 
@@ -94,6 +108,8 @@ export function synchroniserRappelRepos(b: Brouillon | null): void {
   // Un premier état « sans repos » annule quand même : après un rechargement, un rappel
   // programmé avant pourrait encore exister côté serveur (repos passé entre-temps).
   if (cle === souhaite?.cle) return;
+  // Séance finie (pas de repos) ou nouveau repos : l'ancienne notification affichée est périmée.
+  fermerNotificationsRepos();
   if (rappel && !notificationsAutorisees()) return;
 
   poserEcouteurs();
