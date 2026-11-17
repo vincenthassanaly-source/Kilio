@@ -68,4 +68,28 @@ describe("synchroniserRappelRepos", () => {
     synchroniserRappelRepos(brouillon("2026-11-01T10:01:30.000Z"));
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("ferme la notification affichée quand le repos se termine avec la séance", async () => {
+    const fermer = vi.fn();
+    const getNotifications = vi.fn().mockResolvedValue([{ close: fermer }]);
+    vi.stubGlobal("navigator", { serviceWorker: { ready: Promise.resolve({ getNotifications }) } });
+    const { synchroniserRappelRepos } = await import("./rappelRepos");
+    synchroniserRappelRepos(brouillon("2026-11-01T10:01:30.000Z"));
+    synchroniserRappelRepos(null);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(getNotifications).toHaveBeenCalledWith({ tag: "repos" });
+    expect(fermer).toHaveBeenCalled();
+  });
+
+  it("ferme la notification au retour dans l'app", async () => {
+    const fermer = vi.fn();
+    vi.stubGlobal("navigator", { serviceWorker: { ready: Promise.resolve({ getNotifications: vi.fn().mockResolvedValue([{ close: fermer }]) }) } });
+    const { synchroniserRappelRepos } = await import("./rappelRepos");
+    synchroniserRappelRepos(brouillon("2026-11-01T10:01:30.000Z"));
+    await vi.advanceTimersByTimeAsync(0);
+    fermer.mockClear();
+    document.dispatchEvent(new Event("visibilitychange"));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fermer).toHaveBeenCalled();
+  });
 });
