@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { ecrireBrouillon, effacerBrouillon, lireBrouillon, synchroniserSeances, terminerSeance } from "@/lib/musculation/brouillon";
+import { ecrireBrouillon, effacerBrouillon, lireBrouillonSecurise, synchroniserSeances, terminerSeance } from "@/lib/musculation/brouillon";
 import { exerciceDepuisCatalogue } from "@/lib/musculation/demarrer";
 import {
   ajouterExercice,
@@ -78,22 +78,28 @@ export function SeanceView() {
   // Une fois la séance terminée ou abandonnée, plus aucune écriture du brouillon.
   const clos = useRef(false);
 
+  // Lecture du stockage local impossible : on ne redirige PAS (la séance existe
+  // sans doute encore), on propose de réessayer.
+  const [erreurLecture, setErreurLecture] = useState(false);
+  const [essaiLecture, setEssaiLecture] = useState(0);
+
   useEffect(() => {
     let annule = false;
     void (async () => {
-      const lu = await lireBrouillon();
+      const lecture = await lireBrouillonSecurise();
       if (annule) return;
-      if (lu) {
-        setBrouillon(lu);
+      if (lecture.statut === "erreur") {
+        setErreurLecture(true);
         return;
       }
-      // Pas de séance en cours : retour à l'accueil du module.
-      setBrouillon(null);
+      setErreurLecture(false);
+      // Aucune séance en cours : retour à l'accueil du module (null).
+      setBrouillon(lecture.brouillon);
     })();
     return () => {
       annule = true;
     };
-  }, []);
+  }, [essaiLecture]);
 
   // Chaque modification est écrite sur le téléphone : fermer l'app, perdre le
   // réseau ou recharger la page ne fait perdre aucune série.
@@ -129,6 +135,26 @@ export function SeanceView() {
 
   useWakeLock(Boolean(brouillon));
   const restant = useMinuteurRepos(brouillon?.repos ?? null, signalerFinRepos);
+
+  if (erreurLecture && !brouillon) {
+    return (
+      <div className="flex flex-col gap-3">
+        <p className={metaText}>
+          Impossible de lire ta séance pour l&apos;instant. Elle est toujours sur ton téléphone, rien n&apos;est perdu.
+        </p>
+        <button
+          type="button"
+          className={primaryButton}
+          onClick={() => {
+            setErreurLecture(false);
+            setEssaiLecture((n) => n + 1);
+          }}
+        >
+          Réessayer
+        </button>
+      </div>
+    );
+  }
 
   if (brouillon === undefined || brouillon === null) {
     return (
