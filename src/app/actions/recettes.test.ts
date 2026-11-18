@@ -212,27 +212,33 @@ describe("étapes", () => {
   });
 
   it("updateEtape nettoie les champs, refuse une consigne vide et une étape introuvable", async () => {
-    await expect(updateEtape(ID, RECETTE, "t", "  ", "a")).rejects.toThrow("La consigne est requise.");
+    expect(await updateEtape(ID, RECETTE, "t", "  ", "a")).toEqual({ ok: false, error: "La consigne est requise." });
 
     const fake = brancher(ligneTouchee);
-    await updateEtape(ID, RECETTE, " ", " Cuire ", " vite ");
+    expect(await updateEtape(ID, RECETTE, " ", " Cuire ", " vite ")).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "recette_etapes", "update")[0].payload).toEqual({ titre: null, consigne: "Cuire", astuce: "vite" });
 
     brancher();
-    await expect(updateEtape(ID, RECETTE, "", "x", "")).rejects.toThrow("Modification impossible : cette étape est introuvable.");
+    expect(await updateEtape(ID, RECETTE, "", "x", "")).toEqual({
+      ok: false,
+      error: "Modification impossible : cette étape est introuvable.",
+    });
+    // Erreur de base : message générique, jamais le texte technique.
+    vi.spyOn(console, "error").mockImplementation(() => {});
     brancher(() => ({ error: { message: "ko" } }));
-    await expect(updateEtape(ID, RECETTE, "", "x", "")).rejects.toThrow("ko");
+    expect(await updateEtape(ID, RECETTE, "", "x", "")).toEqual({ ok: false, error: "La modification a échoué. Réessaie." });
   });
 
-  it("removeEtape supprime l'étape, signale une étape introuvable et lève sur erreur", async () => {
+  it("removeEtape supprime l'étape, signale une étape introuvable et retourne l'échec", async () => {
     const fake = brancher(ligneTouchee);
-    await removeEtape(ID, RECETTE);
+    expect(await removeEtape(ID, RECETTE)).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "recette_etapes", "delete")[0].filtres).toContainEqual(["eq", "id", ID]);
 
     brancher();
-    await expect(removeEtape(ID, RECETTE)).rejects.toThrow("Suppression impossible : cette étape est introuvable.");
+    expect(await removeEtape(ID, RECETTE)).toEqual({ ok: false, error: "Suppression impossible : cette étape est introuvable." });
+    vi.spyOn(console, "error").mockImplementation(() => {});
     brancher(() => ({ error: { message: "ko" } }));
-    await expect(removeEtape(ID, RECETTE)).rejects.toThrow("ko");
+    expect(await removeEtape(ID, RECETTE)).toEqual({ ok: false, error: "La suppression a échoué. Réessaie." });
   });
 });
 
@@ -274,29 +280,39 @@ describe("ingrédients du catalogue", () => {
   });
 
   it("updateIngredient valide la quantité, met à jour et signale une recette partagée", async () => {
-    await expect(updateIngredient(ID, RECETTE, 0)).rejects.toThrow("La quantité doit être un nombre positif.");
-    await expect(updateIngredient(ID, RECETTE, NaN)).rejects.toThrow("La quantité doit être un nombre positif.");
+    const quantiteInvalide = { ok: false, error: "La quantité doit être un nombre positif." };
+    expect(await updateIngredient(ID, RECETTE, 0)).toEqual(quantiteInvalide);
+    expect(await updateIngredient(ID, RECETTE, NaN)).toEqual(quantiteInvalide);
+    expect(await updateIngredient(ID, RECETTE, -3)).toEqual(quantiteInvalide);
 
     const fake = brancher(ligneTouchee);
-    await updateIngredient(ID, RECETTE, 200);
+    expect(await updateIngredient(ID, RECETTE, 200)).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "recette_ingredients", "update")[0].payload).toEqual({ quantite: 200 });
     expect(etat.updateTag).toHaveBeenCalledWith("recettes");
 
     brancher();
-    await expect(updateIngredient(ID, RECETTE, 200)).rejects.toThrow("cette recette est partagée et non modifiable");
+    expect(await updateIngredient(ID, RECETTE, 200)).toEqual({
+      ok: false,
+      error: "Modification impossible : cette recette est partagée et non modifiable.",
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {});
     brancher(() => ({ error: { message: "ko" } }));
-    await expect(updateIngredient(ID, RECETTE, 200)).rejects.toThrow("ko");
+    expect(await updateIngredient(ID, RECETTE, 200)).toEqual({ ok: false, error: "La modification a échoué. Réessaie." });
   });
 
-  it("removeIngredient supprime, signale une recette partagée et lève sur erreur", async () => {
+  it("removeIngredient supprime, signale une recette partagée et retourne l'échec", async () => {
     const fake = brancher(ligneTouchee);
-    await removeIngredient(ID, RECETTE);
+    expect(await removeIngredient(ID, RECETTE)).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "recette_ingredients", "delete")[0].filtres).toContainEqual(["eq", "id", ID]);
 
     brancher();
-    await expect(removeIngredient(ID, RECETTE)).rejects.toThrow("cette recette est partagée et non modifiable");
+    expect(await removeIngredient(ID, RECETTE)).toEqual({
+      ok: false,
+      error: "Suppression impossible : cette recette est partagée et non modifiable.",
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {});
     brancher(() => ({ error: { message: "ko" } }));
-    await expect(removeIngredient(ID, RECETTE)).rejects.toThrow("ko");
+    expect(await removeIngredient(ID, RECETTE)).toEqual({ ok: false, error: "La suppression a échoué. Réessaie." });
   });
 });
 
@@ -332,26 +348,34 @@ describe("ingrédients libres", () => {
   });
 
   it("updateIngredientLibre nettoie les champs, refuse un nom vide et un ingrédient introuvable", async () => {
-    await expect(updateIngredientLibre(ID, RECETTE, " ", "1")).rejects.toThrow("Le nom est requis.");
+    expect(await updateIngredientLibre(ID, RECETTE, " ", "1")).toEqual({ ok: false, error: "Le nom est requis." });
 
     const fake = brancher(ligneTouchee);
-    await updateIngredientLibre(ID, RECETTE, " Sel ", "  ");
+    expect(await updateIngredientLibre(ID, RECETTE, " Sel ", "  ")).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "recette_ingredients_libres", "update")[0].payload).toEqual({ nom: "Sel", quantite: null });
 
     brancher();
-    await expect(updateIngredientLibre(ID, RECETTE, "x", "")).rejects.toThrow("Modification impossible : cet ingrédient est introuvable.");
+    expect(await updateIngredientLibre(ID, RECETTE, "x", "")).toEqual({
+      ok: false,
+      error: "Modification impossible : cet ingrédient est introuvable.",
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {});
     brancher(() => ({ error: { message: "ko" } }));
-    await expect(updateIngredientLibre(ID, RECETTE, "x", "")).rejects.toThrow("ko");
+    expect(await updateIngredientLibre(ID, RECETTE, "x", "")).toEqual({ ok: false, error: "La modification a échoué. Réessaie." });
   });
 
-  it("removeIngredientLibre supprime, signale un ingrédient introuvable et lève sur erreur", async () => {
+  it("removeIngredientLibre supprime, signale un ingrédient introuvable et retourne l'échec", async () => {
     const fake = brancher(ligneTouchee);
-    await removeIngredientLibre(ID, RECETTE);
+    expect(await removeIngredientLibre(ID, RECETTE)).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "recette_ingredients_libres", "delete")[0].filtres).toContainEqual(["eq", "id", ID]);
 
     brancher();
-    await expect(removeIngredientLibre(ID, RECETTE)).rejects.toThrow("Suppression impossible : cet ingrédient est introuvable.");
+    expect(await removeIngredientLibre(ID, RECETTE)).toEqual({
+      ok: false,
+      error: "Suppression impossible : cet ingrédient est introuvable.",
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {});
     brancher(() => ({ error: { message: "ko" } }));
-    await expect(removeIngredientLibre(ID, RECETTE)).rejects.toThrow("ko");
+    expect(await removeIngredientLibre(ID, RECETTE)).toEqual({ ok: false, error: "La suppression a échoué. Réessaie." });
   });
 });

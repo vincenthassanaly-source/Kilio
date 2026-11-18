@@ -215,9 +215,12 @@ describe("ajouterLienVideo", () => {
 
   it("refuse un lien vide ou introuvable", async () => {
     const fake = brancher();
-    await expect(ajouterLienVideo(ID, "  ")).rejects.toThrow("Le lien est requis.");
+    expect(await ajouterLienVideo(ID, "  ")).toEqual({ ok: false, error: "Le lien est requis." });
     etat.metadonnees.mockResolvedValue(null);
-    await expect(ajouterLienVideo(ID, "https://exemple.fr")).rejects.toThrow("Lien TikTok ou YouTube invalide ou introuvable.");
+    expect(await ajouterLienVideo(ID, "https://exemple.fr")).toEqual({
+      ok: false,
+      error: "Lien TikTok ou YouTube invalide ou introuvable.",
+    });
     expect(fake.appels).toHaveLength(0);
   });
 
@@ -236,14 +239,15 @@ describe("ajouterLienVideo", () => {
     });
   });
 
-  it("met un titre vide à null et lève l'erreur d'insertion", async () => {
+  it("met un titre vide à null et retourne l'échec d'insertion sans montrer le texte technique", async () => {
     etat.metadonnees.mockResolvedValue({ ...meta, titre: "" });
     const fake = brancher();
-    await ajouterLienVideo(ID, "https://youtu.be/abc");
+    expect(await ajouterLienVideo(ID, "https://youtu.be/abc")).toMatchObject({ ok: true });
     expect(ecritures(fake.appels, "collection_items", "insert")[0].payload).toMatchObject({ titre: null, ordre: 0 });
 
+    vi.spyOn(console, "error").mockImplementation(() => {});
     brancher((a) => (a.action === "insert" ? { error: { message: "ko" } } : undefined));
-    await expect(ajouterLienVideo(ID, "https://youtu.be/abc")).rejects.toThrow("ko");
+    expect(await ajouterLienVideo(ID, "https://youtu.be/abc")).toEqual({ ok: false, error: "L'ajout du lien a échoué. Réessaie." });
   });
 });
 
@@ -334,7 +338,8 @@ describe("miniatures TikTok copiées dans le bucket", () => {
     etat.metadonnees.mockResolvedValue(metaTiktok);
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(await reponseImage()));
     const fake = brancher((a) => (a.action === "insert" ? { error: { message: "ko" } } : undefined));
-    await expect(ajouterLienVideo(ID, metaTiktok.url)).rejects.toThrow("ko");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await ajouterLienVideo(ID, metaTiktok.url)).toEqual({ ok: false, error: "L'ajout du lien a échoué. Réessaie." });
     expect(fake.stockage.map((o) => o.action)).toEqual(["upload", "remove"]);
   });
 

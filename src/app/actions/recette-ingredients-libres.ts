@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, updateTag } from "next/cache";
+import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RECETTES_TAG } from "@/lib/nutrition/tags";
 
@@ -48,15 +49,16 @@ export async function addIngredientLibre(
   return { error: null };
 }
 
+// Contrat T1 (lib/actions/result.ts) : l'échec est retourné, jamais levé.
 export async function updateIngredientLibre(
   id: string,
   recette_id: string,
   nom: string,
   quantite: string
-) {
+): Promise<ActionResult> {
   const trimmedNom = nom.trim();
   if (!trimmedNom) {
-    throw new Error("Le nom est requis.");
+    return fail("Le nom est requis.");
   }
 
   const supabase = createAdminClient();
@@ -65,26 +67,34 @@ export async function updateIngredientLibre(
     .update({ nom: trimmedNom, quantite: quantite.trim() || null }, { count: "exact" })
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("updateIngredientLibre : échec de la mise à jour", error);
+    return fail("La modification a échoué. Réessaie.");
+  }
   if (!count) {
-    throw new Error("Modification impossible : cet ingrédient est introuvable.");
+    return fail("Modification impossible : cet ingrédient est introuvable.");
   }
 
   revalidateRecette(recette_id);
+  return ok();
 }
 
-export async function removeIngredientLibre(id: string, recette_id: string) {
+export async function removeIngredientLibre(id: string, recette_id: string): Promise<ActionResult> {
   const supabase = createAdminClient();
   const { error, count } = await supabase
     .from("recette_ingredients_libres")
     .delete({ count: "exact" })
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("removeIngredientLibre : échec de la suppression", error);
+    return fail("La suppression a échoué. Réessaie.");
+  }
   if (!count) {
-    throw new Error("Suppression impossible : cet ingrédient est introuvable.");
+    return fail("Suppression impossible : cet ingrédient est introuvable.");
   }
 
   revalidateRecette(recette_id);
+  return ok();
 }
 

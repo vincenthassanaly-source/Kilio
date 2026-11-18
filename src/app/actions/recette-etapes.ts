@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type EtapeFormState = { error: string | null };
@@ -49,16 +50,17 @@ export async function addEtape(
   return { error: null };
 }
 
+// Contrat T1 (lib/actions/result.ts) : l'échec est retourné, jamais levé.
 export async function updateEtape(
   id: string,
   recette_id: string,
   titre: string,
   consigne: string,
   astuce: string
-) {
+): Promise<ActionResult> {
   const trimmedConsigne = consigne.trim();
   if (!trimmedConsigne) {
-    throw new Error("La consigne est requise.");
+    return fail("La consigne est requise.");
   }
 
   const supabase = createAdminClient();
@@ -74,25 +76,33 @@ export async function updateEtape(
     )
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("updateEtape : échec de la mise à jour", error);
+    return fail("La modification a échoué. Réessaie.");
+  }
   if (!count) {
-    throw new Error("Modification impossible : cette étape est introuvable.");
+    return fail("Modification impossible : cette étape est introuvable.");
   }
 
   revalidateRecette(recette_id);
+  return ok();
 }
 
-export async function removeEtape(id: string, recette_id: string) {
+export async function removeEtape(id: string, recette_id: string): Promise<ActionResult> {
   const supabase = createAdminClient();
   const { error, count } = await supabase
     .from("recette_etapes")
     .delete({ count: "exact" })
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("removeEtape : échec de la suppression", error);
+    return fail("La suppression a échoué. Réessaie.");
+  }
   if (!count) {
-    throw new Error("Suppression impossible : cette étape est introuvable.");
+    return fail("Suppression impossible : cette étape est introuvable.");
   }
 
   revalidateRecette(recette_id);
+  return ok();
 }
