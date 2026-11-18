@@ -3,12 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
+import { hoteStockageApp } from "@/lib/collection/image";
 import { estMiniatureStockee, estUrlMiniatureTiktokCopiable } from "@/lib/collection/miniature";
+import { estUrlHttp, estUrlStockageApp } from "@/lib/url-sure";
 import { extraireIdVideoTiktok, recupererMetadonneesTiktok } from "@/lib/collection/tiktok";
 import { estTypeVideo, recupererMetadonneesVideo, recupererMetadonneesVideoOuLien } from "@/lib/collection/video";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   IMAGE_JPEG_QUALITY,
+  LIMITE_PIXELS_ENTREE,
   compresserEtUploaderImage,
   extraireCheminStorage as extraireCheminStockageBucket,
   retirerObjetsStorage,
@@ -66,7 +69,7 @@ async function copierMiniatureTiktok(supabase: SupabaseClient, urlSource: string
     const source = Buffer.from(await response.arrayBuffer());
     if (source.length > MINIATURE_MAX_OCTETS) return null;
 
-    const compresse = await sharp(source)
+    const compresse = await sharp(source, { limitInputPixels: LIMITE_PIXELS_ENTREE })
       .rotate()
       .resize(MINIATURE_MAX_DIMENSION, MINIATURE_MAX_DIMENSION, { fit: "inside", withoutEnlargement: true })
       .jpeg({ quality: IMAGE_JPEG_QUALITY })
@@ -406,6 +409,12 @@ export async function rattacherPhotoACollection(
 
   if (urls.length === 0 && !videoUrl) return { error: "Rien à rattacher." };
   if (videoUrl && !estTypeVideo(videoType)) return { error: "Type de vidéo inconnu." };
+  // Ces adresses viennent d'un formulaire (partage natif) : on n'enregistre
+  // que des URL http(s), et les photos doivent venir du stockage de l'app.
+  const hoteStockage = hoteStockageApp();
+  if (urls.some((url) => !estUrlStockageApp(url, hoteStockage))) return { error: "Adresse de photo invalide." };
+  if (videoUrl && !estUrlHttp(videoUrl)) return { error: "Lien vidéo invalide." };
+  if (videoThumbnail && !estUrlHttp(videoThumbnail)) return { error: "Miniature invalide." };
   if (!collectionIdChoisie && !nouvelleCollectionNom) {
     return { error: "Choisis une collection ou crée-en une nouvelle." };
   }

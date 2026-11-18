@@ -11,6 +11,8 @@ type ClientStorage = Pick<ReturnType<typeof createAdminClient>, "storage">;
 export const IMAGE_MAX_DIMENSION = 1600;
 /** Qualité JPEG de la compression serveur. */
 export const IMAGE_JPEG_QUALITY = 75;
+/** Nombre maximal de pixels accepté en entrée par sharp (protège la mémoire du serveur). */
+export const LIMITE_PIXELS_ENTREE = 80_000_000;
 
 /**
  * Extrait le chemin d'objet d'une URL publique de bucket
@@ -35,7 +37,7 @@ export async function compresserEtUploaderImage(
   bucket: string,
   buffer: Buffer
 ): Promise<string> {
-  const compresse = await sharp(buffer)
+  const compresse = await sharp(buffer, { limitInputPixels: LIMITE_PIXELS_ENTREE })
     .rotate()
     .resize(IMAGE_MAX_DIMENSION, IMAGE_MAX_DIMENSION, {
       fit: "inside",
