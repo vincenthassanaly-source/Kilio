@@ -14,7 +14,9 @@ import { FREQUENCE_LABELS, aujourdhuiISO } from "@/lib/date/recurrence";
 import {
   DUREES_MINUTES,
   champsAvancesRenseignes,
+  estErreurDeNavigation,
   libelleDuree,
+  messageEchecServeur,
   messageHorsLigne,
   type TacheInitiale,
 } from "@/lib/taches/compute";
@@ -141,7 +143,12 @@ export function AddTaskForm({
       return await actionServeur(prevState, formData);
     } catch (err) {
       if (isNetworkError(err)) return { error: messageReseau };
-      throw err;
+      // redirect() / notFound() : navigation voulue, pas un échec.
+      if (estErreurDeNavigation(err)) throw err;
+      // Échec inattendu du serveur (500) : on garde la saisie et on l'annonce
+      // dans le formulaire plutôt que de tomber sur la page d'erreur.
+      console.error("AddTaskForm : échec inattendu de l'action serveur", err);
+      return { error: messageEchecServeur(Boolean(tache)) };
     }
   };
   const [state, formAction, pending] = useActionState(action, initialState);
