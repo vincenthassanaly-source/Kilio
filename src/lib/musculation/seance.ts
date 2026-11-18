@@ -502,7 +502,18 @@ export function libellePrecedent(mode: ModeSaisie, p: SeriePrecedente | undefine
 
 const NB_EXERCICES_MAX = 60;
 const NB_SERIES_MAX = 400;
-const DUREE_SEANCE_MAX_MS = 24 * 3600 * 1000;
+export const DUREE_SEANCE_MAX_MS = 24 * 3600 * 1000;
+
+/** `true` si la séance a démarré il y a plus de 24 h : le serveur refuserait sa durée. */
+export function dureeTropLongue(debutA: string, maintenantMs: number): boolean {
+  return maintenantMs - ms(debutA) > DUREE_SEANCE_MAX_MS;
+}
+
+/** Fin de séance (ISO) pour une durée en minutes entières de 1 à 1440, sinon `null`. */
+export function finPourDuree(debutA: string, minutes: number): string | null {
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes * 60_000 > DUREE_SEANCE_MAX_MS) return null;
+  return new Date(ms(debutA) + minutes * 60_000).toISOString();
+}
 
 function estObjet(valeur: unknown): valeur is Record<string, unknown> {
   return typeof valeur === "object" && valeur !== null && !Array.isArray(valeur);

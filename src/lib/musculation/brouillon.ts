@@ -2,7 +2,7 @@
 
 import { enregistrerEntrainement } from "@/app/actions/musculation";
 import { isNetworkError } from "@/lib/network";
-import type { Brouillon, EntrainementPayload } from "./seance";
+import { finPourDuree, type Brouillon, type EntrainementPayload } from "./seance";
 
 // Stockage local de la séance (Dexie, voir lib/offline/db.ts) : la séance vit
 // sur le téléphone pendant l'entraînement, puis est envoyée au serveur. Le
@@ -68,6 +68,45 @@ async function compterSeancesEnAttente(): Promise<number> {
   } catch {
     return 0;
   }
+}
+
+export type SeanceRefusee = { id: string; nom: string; debutA: string; erreur: string };
+
+/** Séances terminées que le serveur a refusées et qui attendent sur le téléphone. */
+export async function lireSeancesRefusees(): Promise<SeanceRefusee[]> {
+  try {
+    const enAttente = await (await base()).musculation_a_envoyer.orderBy("cree_le").toArray();
+    return enAttente
+      .filter((seance) => seance.erreur)
+      .map((seance) => {
+        const payload = seance.payload as EntrainementPayload;
+        return { id: seance.id, nom: payload.nom, debutA: payload.debutA, erreur: seance.erreur as string };
+      });
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Corrige la durée d'une séance refusée (en minutes, 1 à 1440) puis la remet en
+ * file d'envoi. `false` si la séance n'existe plus ou si la durée est invalide.
+ */
+export async function ajusterDureeSeanceEnAttente(id: string, minutes: number): Promise<boolean> {
+  const db = await base();
+  const seance = await db.musculation_a_envoyer.get(id);
+  if (!seance) return false;
+  const payload = seance.payload as EntrainementPayload;
+  const fin = finPourDuree(payload.debutA, minutes);
+  if (!fin) return false;
+  await db.musculation_a_envoyer.put({ id: seance.id, cree_le: seance.cree_le, payload: { ...payload, finA: fin } });
+  signaler(EVENEMENT_SEANCE_EN_ATTENTE);
+  return true;
+}
+
+/** Supprime définitivement une séance en attente d'envoi (action explicite de l'utilisateur). */
+export async function supprimerSeanceEnAttente(id: string): Promise<void> {
+  await (await base()).musculation_a_envoyer.delete(id);
+  signaler(EVENEMENT_SEANCE_EN_ATTENTE);
 }
 
 export type ResultatEnvoi = { envoyees: number; restantes: number; refus: string[] };

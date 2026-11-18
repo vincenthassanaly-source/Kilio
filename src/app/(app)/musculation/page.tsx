@@ -6,6 +6,7 @@ import { card, cardTight, eyebrow, metaText, nameText, screenTitle, sectionTitle
 import { DemarrerSeance } from "./DemarrerSeance";
 import { DernieresSeances } from "./DernieresSeances";
 import { RoutinesSection } from "./RoutinesSection";
+import { SeancesBloquees } from "./SeancesBloquees";
 
 export default async function MusculationPage() {
   await connection();
@@ -14,6 +15,7 @@ export default async function MusculationPage() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className={screenTitle}>Musculation</h1>
+      <SeancesBloquees />
       <DemarrerSeance catalogueVide={nbExercices === 0} />
       <RoutinesSection catalogueVide={nbExercices === 0} />
       <DernieresSeances />
