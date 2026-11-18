@@ -17,6 +17,8 @@ import {
   compterSeries,
   deplacerExercice,
   dureeMarcheFinale,
+  dureeTropLongue,
+  finPourDuree,
   formaterMinutes,
   formaterPoids,
   modifierSerie,
@@ -34,7 +36,7 @@ import { signalerFinRepos, useMinuteurRepos } from "@/lib/musculation/useMinuteu
 import { useWakeLock } from "@/lib/musculation/useWakeLock";
 import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE, ORDRE_TYPES } from "@/lib/seances/compute";
-import { metaText, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { input, metaText, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { BarreRepos } from "./BarreRepos";
 import { ExerciceBloc } from "./ExerciceBloc";
 import { SelecteurExercices } from "./SelecteurExercices";
@@ -50,7 +52,7 @@ function Chrono({ debutA }: { debutA: string }) {
   return <span className="tabular-nums">{formaterMinutes(secondes)}</span>;
 }
 
-type Confirmation = "abandonner" | "vide" | "partiel" | "marche" | null;
+type Confirmation = "abandonner" | "vide" | "partiel" | "marche" | "duree" | null;
 
 /**
  * Séance en direct. Le brouillon vit dans Dexie (écrit à chaque modification) ;
@@ -71,6 +73,8 @@ export function SeanceView() {
   const [envoi, setEnvoi] = useState(false);
   // Durée (s) de la marche qui vient d'être validée en dernier : ajoutée au temps de la séance si on termine.
   const [marcheFinaleS, setMarcheFinaleS] = useState(0);
+  // Séance restée ouverte plus de 24 h : durée réelle (minutes) saisie pour pouvoir l'enregistrer.
+  const [dureeReelleMin, setDureeReelleMin] = useState("60");
   // Une fois la séance terminée ou abandonnée, plus aucune écriture du brouillon.
   const clos = useRef(false);
 
@@ -140,8 +144,14 @@ export function SeanceView() {
   const { faites, total } = compterSeries(b);
   const volume = Math.round(volumeTotal(b));
 
-  async function finir(ajoutS = 0) {
-    const payload = versPayload(b, new Date(Date.now() + ajoutS * 1000).toISOString());
+  async function finir(ajoutS = 0, finA?: string) {
+    // Le serveur refuse une séance de plus de 24 h : on demande la vraie durée
+    // plutôt que de laisser la séance bloquée à vie sur le téléphone.
+    if (finA === undefined && dureeTropLongue(b.debutA, Date.now())) {
+      setConfirmation("duree");
+      return;
+    }
+    const payload = versPayload(b, finA ?? new Date(Date.now() + ajoutS * 1000).toISOString());
     if (!payload) return;
     setEnvoi(true);
     clos.current = true;
@@ -366,6 +376,41 @@ export function SeanceView() {
           La marche de {Math.round(marcheFinaleS / 60)} min est ajoutée à la durée de la séance. Choisis « Garder » pour
           continuer la séance et la terminer plus tard.
         </p>
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={confirmation === "duree"}
+        titre="Cette séance dure depuis plus de 24 h"
+        confirmer="Enregistrer avec cette durée"
+        destructif={false}
+        onClose={() => setConfirmation(null)}
+        onConfirm={() => {
+          const fin = finPourDuree(b.debutA, Number(dureeReelleMin));
+          if (!fin) {
+            showErrorToast("Indique une durée entière entre 1 et 1440 minutes.");
+            return;
+          }
+          setConfirmation(null);
+          void finir(0, fin);
+        }}
+      >
+        <p>
+          Une séance ne peut pas être enregistrée au-delà de 24 h. Indique sa durée réelle pour la garder, ou choisis
+          « Garder » puis « Quitter » pour la supprimer.
+        </p>
+        <label className="flex flex-col gap-1.5 text-label font-semibold text-ink">
+          Durée réelle (minutes)
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={1440}
+            step={1}
+            value={dureeReelleMin}
+            onChange={(e) => setDureeReelleMin(e.target.value)}
+            className={`${input} h-11 font-normal tabular-nums`}
+          />
+        </label>
       </ConfirmDialog>
 
       <ConfirmDialog

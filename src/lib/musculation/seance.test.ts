@@ -8,6 +8,8 @@ import {
   compterSeries,
   creerBrouillon,
   deplacerExercice,
+  dureeTropLongue,
+  finPourDuree,
   formaterDureeSeance,
   formaterMinutes,
   formaterPoids,
@@ -344,6 +346,40 @@ describe("versPayload", () => {
     const b = brouillon();
     const { cle, series } = b.exercices[0];
     expect(versPayload(basculerSerie(b, cle, series[0].id, apres(0)), apres(3600))!.typeSeance).toBeNull();
+  });
+});
+
+describe("durée d'une séance restée ouverte", () => {
+  const HEURE = 3600 * 1000;
+
+  it("signale une séance démarrée il y a plus de 24 h, pas avant", () => {
+    const debut = Date.parse(DEBUT);
+    expect(dureeTropLongue(DEBUT, debut + 24 * HEURE)).toBe(false);
+    expect(dureeTropLongue(DEBUT, debut + 24 * HEURE + 1)).toBe(true);
+    expect(dureeTropLongue(DEBUT, debut + HEURE)).toBe(false);
+  });
+
+  it("calcule la fin à partir d'une durée en minutes", () => {
+    expect(finPourDuree(DEBUT, 90)).toBe("2026-10-12T18:30:00.000Z");
+    expect(finPourDuree(DEBUT, 1440)).toBe("2026-10-13T17:00:00.000Z");
+  });
+
+  it("refuse une durée vide, nulle, négative, décimale ou de plus de 24 h", () => {
+    for (const minutes of [0, -5, 1.5, 1441, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(finPourDuree(DEBUT, minutes)).toBeNull();
+    }
+  });
+
+  it("produit une fin que le serveur accepte, même pour une séance ouverte depuis plusieurs jours", () => {
+    let b = brouillon();
+    const { cle, series } = b.exercices[0];
+    b = basculerSerie(b, cle, series[0].id, apres(0));
+    const fin = finPourDuree(b.debutA, 75);
+    expect(fin).not.toBeNull();
+    expect(validerPayload(versPayload(b, fin!)!)).toBeNull();
+    // Sans ajustement, la même séance terminée 3 jours plus tard est refusée.
+    const troisJours = new Date(Date.parse(b.debutA) + 72 * HEURE).toISOString();
+    expect(validerPayload(versPayload(b, troisJours)!)).toBe("Durée de séance invalide.");
   });
 });
 
