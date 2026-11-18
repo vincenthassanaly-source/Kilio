@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import sharp from "sharp";
+import { LIMITE_PIXELS_ENTREE } from "@/lib/storage/objets";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchAllRows } from "@/lib/supabase/pagination";
 import { NOTES_TAG } from "@/lib/notes/tags";
@@ -428,7 +429,7 @@ async function uploadTacheImages(tacheId: string, formData: FormData) {
 
   for (const fichier of fichiers) {
     const buffer = Buffer.from(await fichier.arrayBuffer());
-    const compresse = await sharp(buffer)
+    const compresse = await sharp(buffer, { limitInputPixels: LIMITE_PIXELS_ENTREE })
       .rotate()
       .resize(TACHE_IMAGE_MAX_DIMENSION, TACHE_IMAGE_MAX_DIMENSION, {
         fit: "inside",

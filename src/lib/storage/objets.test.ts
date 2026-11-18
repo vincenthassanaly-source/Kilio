@@ -18,6 +18,7 @@ vi.mock("sharp", () => ({ default: sharpMock.sharp }));
 
 import {
   IMAGE_JPEG_QUALITY,
+  LIMITE_PIXELS_ENTREE,
   IMAGE_MAX_DIMENSION,
   compresserEtUploaderImage,
   extraireCheminStorage,
@@ -78,7 +79,7 @@ describe("compresserEtUploaderImage", () => {
 
     expect(IMAGE_MAX_DIMENSION).toBe(1600);
     expect(IMAGE_JPEG_QUALITY).toBe(75);
-    expect(sharpMock.sharp).toHaveBeenCalledWith(entree);
+    expect(sharpMock.sharp).toHaveBeenCalledWith(entree, { limitInputPixels: LIMITE_PIXELS_ENTREE });
     expect(sharpMock.chaine.rotate).toHaveBeenCalledWith();
     expect(sharpMock.chaine.resize).toHaveBeenCalledWith(1600, 1600, { fit: "inside", withoutEnlargement: true });
     expect(sharpMock.chaine.jpeg).toHaveBeenCalledWith({ quality: 75 });

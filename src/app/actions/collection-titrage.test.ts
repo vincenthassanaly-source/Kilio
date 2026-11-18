@@ -38,6 +38,8 @@ function reponseImage(type = "image/jpeg", octets = 4) {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.unstubAllGlobals();
+  // Le téléchargement d'image n'accepte que le stockage de l'app ou un CDN connu.
+  vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://stockage.test");
   // Les durées écrites par l'action dans le journal ne sont pas le sujet des tests.
   vi.spyOn(console, "info").mockImplementation(() => {});
 });
@@ -89,6 +91,18 @@ describe("analyserElementCollection", () => {
 
     expect(r.statut).toBe("ok");
     expect(etat.gemini.mock.calls[0][0].images).toBeUndefined();
+  });
+
+  it("ne télécharge jamais une adresse hors stockage de l'app et hors CDN connu", async () => {
+    brancher(lireElement({ type: "photo", url: "https://interne.example/a.jpg", thumbnail_url: null, titre: null }));
+    const fetchMock = vi.fn().mockResolvedValue(reponseImage());
+    vi.stubGlobal("fetch", fetchMock);
+
+    const r = await analyserElementCollection(ID);
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(r).toMatchObject({ statut: "echec" });
+    expect(etat.gemini).not.toHaveBeenCalled();
   });
 
   it("n'appelle pas Gemini sans image ni texte", async () => {

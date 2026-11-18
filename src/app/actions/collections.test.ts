@@ -432,6 +432,18 @@ describe("rattacherPhotoACollection", () => {
     ["rien à rattacher", { collection_id: ID }, "Rien à rattacher."],
     ["type de vidéo inconnu", { collection_id: ID, video_url: "https://x", video_type: "vimeo" }, "Type de vidéo inconnu."],
     ["aucune collection", { url: "https://x/a.jpg" }, "Choisis une collection ou crée-en une nouvelle."],
+    ["photo en javascript:", { collection_id: ID, url: "javascript:alert(1)" }, "Adresse de photo invalide."],
+    ["photo en data:", { collection_id: ID, url: "data:text/html,x" }, "Adresse de photo invalide."],
+    [
+      "lien vidéo en javascript:",
+      { collection_id: ID, video_url: "javascript:alert(1)", video_type: "youtube" },
+      "Lien vidéo invalide.",
+    ],
+    [
+      "miniature en data:",
+      { collection_id: ID, video_url: "https://youtu.be/abc", video_type: "youtube", video_thumbnail: "data:text/html,x" },
+      "Miniature invalide.",
+    ],
   ])("refuse : %s", async (_nom, champs, erreur) => {
     const fake = brancher();
     expect(await rattacherPhotoACollection(etatInitial, form(champs))).toEqual({ error: erreur });

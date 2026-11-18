@@ -8,6 +8,7 @@ import { planifierIndexation } from "@/lib/documents/indexation";
 import { CATEGORIE_MAX, CATEGORIES_PAR_DEFAUT, nomDepuisFichier } from "@/lib/documents/tri";
 import {
   IMAGE_JPEG_QUALITY,
+  LIMITE_PIXELS_ENTREE,
   compresserEtUploaderImage,
   extraireCheminStorage as extraireCheminStockageBucket,
   retirerObjetsStorage,
@@ -44,7 +45,7 @@ const DOCUMENT_APERCU_MAX_DIMENSION = 640;
 async function uploaderApercu(supabase: SupabaseClient, apercu: File | null): Promise<string | null> {
   if (!apercu || apercu.size === 0) return null;
   try {
-    const jpeg = await sharp(Buffer.from(await apercu.arrayBuffer()))
+    const jpeg = await sharp(Buffer.from(await apercu.arrayBuffer()), { limitInputPixels: LIMITE_PIXELS_ENTREE })
       .resize(DOCUMENT_APERCU_MAX_DIMENSION, DOCUMENT_APERCU_MAX_DIMENSION, {
         fit: "inside",
         withoutEnlargement: true,

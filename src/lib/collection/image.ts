@@ -40,9 +40,10 @@ export type ImageGemini = { mimeType: string; data: string };
 
 /** Image à l'adresse donnée, ou null si elle est illisible, trop lourde ou pas une image. */
 export async function telechargerImage(url: string | null): Promise<ImageGemini | null> {
-  if (!url || !/^https?:\/\//i.test(url)) return null;
+  if (!url || !estUrlImageAnalysable(url, hoteStockageApp())) return null;
   try {
-    const reponse = await fetch(url, { signal: AbortSignal.timeout(TELECHARGEMENT_TIMEOUT_MS) });
+    // `redirect: "error"` : une redirection ne doit pas sortir de la liste fermée.
+    const reponse = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(TELECHARGEMENT_TIMEOUT_MS) });
     if (!reponse.ok) return null;
     const type = reponse.headers.get("content-type") ?? "";
     if (!type.startsWith("image/")) return null;

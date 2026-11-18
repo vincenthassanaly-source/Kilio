@@ -5,6 +5,7 @@ import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import { Portal } from "@/components/Portal";
 import { FadeInImage } from "@/components/FadeInImage";
+import { estUrlHttp } from "@/lib/url-sure";
 
 /** Overlay plein écran pour agrandir une image au tap. Fermeture au tap
  * n'importe où (y compris sur l'image, cf. object-contain qui laisse de
@@ -44,7 +45,7 @@ export function ImageLightbox({
       link.click();
       URL.revokeObjectURL(objectUrl);
     } catch {
-      window.open(src, "_blank");
+      if (estUrlHttp(src)) window.open(src, "_blank", "noopener,noreferrer");
     } finally {
       setDownloading(false);
     }
