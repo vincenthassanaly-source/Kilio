@@ -75,10 +75,7 @@ const ANIMATIONS = [
   "marche",
   "traction-verticale-machine",
 ];
-const FICHIERS_ANIMATIONS = ANIMATIONS.flatMap((cle) => [
-  `${DOSSIER_ANIMATIONS}${cle}.webm`,
-  `${DOSSIER_ANIMATIONS}${cle}.webp`,
-]);
+const PAGE_SEANCE = "/musculation/seance";
 const APP_SHELL = [
   "/",
   "/manifest.json",
@@ -89,15 +86,15 @@ const APP_SHELL = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    Promise.all([
-      caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
-      // Un échec (réseau coupé à l'installation) ne doit pas bloquer le service
-      // worker : les animations se mettront en cache à la première lecture.
-      caches
-        .open(CACHE_ANIMATIONS)
-        .then((cache) => cache.addAll(FICHIERS_ANIMATIONS))
-        .catch(() => {}),
-    ])
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await cache.addAll(APP_SHELL);
+      // L'écran de séance est statique : on le garde pour qu'il s'ouvre sans
+      // réseau. Un échec ne doit pas bloquer l'installation.
+      await cache.add(PAGE_SEANCE).catch(() => {});
+    })
+    // Les animations ne sont plus téléchargées d'un coup (~60 fichiers) : elles
+    // se mettent en cache à la demande (voir repondreAnimation) et celles des
+    // routines sont préchargées par l'appli (lib/musculation/cacheLocal.ts).
   );
   self.skipWaiting();
 });
@@ -234,6 +231,36 @@ function pageHorsConnexion() {
   return new Response(html, { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
 
+const DELAI_RESEAU_PAGE_MS = 4000;
+
+// Pages Musculation : en salle le réseau est lent ou absent. L'écran de séance
+// (statique, entièrement local) est servi depuis le cache et rafraîchi en
+// arrière-plan ; les autres pages attendent le réseau au plus DELAI_RESEAU_PAGE_MS
+// avant de se rabattre sur leur dernière copie.
+async function repondrePageMusculation(event, url) {
+  const { request } = event;
+  const cache = await caches.open(CACHE_NAME);
+  const enCache = await cache.match(request);
+  const reseau = fetch(request).then((reponse) => {
+    if (reponse.ok) cache.put(request, reponse.clone());
+    return reponse;
+  });
+
+  if (url.pathname === PAGE_SEANCE) {
+    if (enCache) {
+      event.waitUntil(reseau.catch(() => {}));
+      return enCache;
+    }
+    return reseau.catch(() => pageHorsConnexion());
+  }
+
+  if (!enCache) return reseau.catch(() => pageHorsConnexion());
+  return Promise.race([
+    reseau.catch(() => enCache),
+    new Promise((resolve) => setTimeout(() => resolve(enCache), DELAI_RESEAU_PAGE_MS)),
+  ]);
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -250,8 +277,16 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.startsWith(DOSSIER_ANIMATIONS)) {
+  if (
+    url.pathname.startsWith(DOSSIER_ANIMATIONS) &&
+    ANIMATIONS.includes(url.pathname.slice(DOSSIER_ANIMATIONS.length).replace(/\.(webm|webp)$/, ""))
+  ) {
     event.respondWith(repondreAnimation(request));
+    return;
+  }
+
+  if (request.mode === "navigate" && url.pathname.startsWith("/musculation")) {
+    event.respondWith(repondrePageMusculation(event, url));
     return;
   }
 

@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { getExercices } from "@/app/actions/musculation";
+import { exercicesAvecCache } from "@/lib/musculation/cacheLocal";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
@@ -39,7 +39,7 @@ function Contenu({ onChoisir }: { onChoisir: (exercice: ExerciceCatalogue) => vo
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.musculationExercices,
-    queryFn: getExercices,
+    queryFn: exercicesAvecCache,
     staleTime: 5 * 60_000,
   });
 

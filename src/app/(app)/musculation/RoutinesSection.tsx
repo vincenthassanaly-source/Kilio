@@ -5,13 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  creerDossier,
-  getRoutine,
-  getRoutines,
-  renommerDossier,
-  supprimerDossier,
-} from "@/app/actions/musculation";
+import { creerDossier, renommerDossier, supprimerDossier } from "@/app/actions/musculation";
+import { routineAvecCache, routinesAvecCache } from "@/lib/musculation/cacheLocal";
 import { Modal } from "@/components/Modal";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { showErrorToast } from "@/components/toast/toast-store";
@@ -147,7 +142,7 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
   const [demarrage, setDemarrage] = useState(false);
   // undefined : fermé ; null : nouveau dossier ; sinon dossier à modifier.
   const [dossierOuvert, setDossierOuvert] = useState<DossierRoutines | null | undefined>(undefined);
-  const { data, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.musculationRoutines, queryFn: getRoutines });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: queryKeys.musculationRoutines, queryFn: routinesAvecCache });
   // Routines et dossiers en cours de suppression (toast « Annuler » encore affiché) : cachés.
   const routinesMasquees = useMasques("routine");
   const dossiersMasques = useMasques("dossier-routines");
@@ -155,7 +150,7 @@ export function RoutinesSection({ catalogueVide = false }: { catalogueVide?: boo
   async function demarrer(id: string) {
     setDemarrage(true);
     try {
-      const routine = await getRoutine(id);
+      const routine = await routineAvecCache(id);
       if (!routine) {
         showErrorToast("Cette routine n'existe plus.");
         setDemarrage(false);
