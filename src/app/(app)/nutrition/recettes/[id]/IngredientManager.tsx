@@ -18,6 +18,7 @@ import {
   nameTextComplet,
   primaryButton,
 } from "@/lib/ui";
+import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
 
@@ -74,12 +75,11 @@ function IngredientLine({
                 setError(null);
                 const n = Number(quantite);
                 startTransition(async () => {
-                  try {
-                    await updateIngredient(ingredient.id, recetteId, n);
-                    setEditing(false);
-                  } catch (e) {
-                    setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                  }
+                  // `runAction` : l'échec (retourné ou réseau) devient un message,
+                  // jamais une exception qui remonterait à l'écran d'erreur.
+                  const resultat = await runAction(() => updateIngredient(ingredient.id, recetteId, n), { silencieux: true });
+                  if (resultat.ok) setEditing(false);
+                  else setError(resultat.error);
                 });
               }}
               className={ghostButton}

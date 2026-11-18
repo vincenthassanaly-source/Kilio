@@ -27,7 +27,7 @@ function rendre() {
 describe("AddPhotoButton - erreurs d'ajout", () => {
   it("l'erreur du lien vidéo remplace une erreur de photo périmée", async () => {
     compresserImages.mockRejectedValueOnce(new TypeError("Failed to fetch"));
-    ajouterLienVideo.mockRejectedValueOnce(new Error("Lien TikTok ou YouTube invalide"));
+    ajouterLienVideo.mockResolvedValueOnce({ ok: false, error: "Lien TikTok ou YouTube invalide" });
     const user = userEvent.setup({ applyAccept: false });
     rendre();
 
@@ -44,8 +44,21 @@ describe("AddPhotoButton - erreurs d'ajout", () => {
     expect(screen.queryByText(/Pas de connexion/)).not.toBeInTheDocument();
   });
 
+  it("une exception de l'action (message masqué en production) donne un message lisible, pas une erreur React", async () => {
+    ajouterLienVideo.mockRejectedValueOnce(new Error("An error occurred in the Server Components render."));
+    const user = userEvent.setup({ applyAccept: false });
+    rendre();
+
+    await user.click(screen.getByRole("button", { name: "Lien vidéo" }));
+    await user.type(screen.getByLabelText("Lien TikTok ou YouTube"), "https://exemple.test/x");
+    await user.click(screen.getByRole("button", { name: "Ajouter" }));
+
+    expect(await screen.findByText("Erreur lors de l'ajout.")).toBeInTheDocument();
+    expect(screen.queryByText(/Server Components render/)).not.toBeInTheDocument();
+  });
+
   it("un texte qui n'est pas une URL part au serveur au lieu de la bulle native en anglais", async () => {
-    ajouterLienVideo.mockRejectedValueOnce(new Error("Lien TikTok ou YouTube invalide"));
+    ajouterLienVideo.mockResolvedValueOnce({ ok: false, error: "Lien TikTok ou YouTube invalide" });
     const user = userEvent.setup({ applyAccept: false });
     rendre();
 

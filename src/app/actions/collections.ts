@@ -257,15 +257,15 @@ export async function uploadCollectionPhotos(collectionId: string, formData: For
 
 // Ajoute un lien vidéo (TikTok ou YouTube, détecté depuis l'URL) à une
 // collection : récupère ses métadonnées (miniature, titre) via oEmbed puis
-// insère un collection_items du type correspondant ('tiktok' / 'youtube'). Suit le même pattern (throw + gestion d'erreur côté composant)
-// que uploadCollectionPhotos, plutôt qu'un useActionState : c'est le champ
-// d'ajout inline le plus proche dans AddPhotoButton.
-export async function ajouterLienVideo(collectionId: string, url: string) {
+// insère un collection_items du type correspondant ('tiktok' / 'youtube'). Contrat T1
+// (lib/actions/result.ts) : l'échec est retourné, jamais levé — Next masque en
+// production le message d'une exception de Server Action (erreur React #441).
+export async function ajouterLienVideo(collectionId: string, url: string): Promise<ActionResult> {
   const lien = url.trim();
-  if (!lien) throw new Error("Le lien est requis.");
+  if (!lien) return fail("Le lien est requis.");
 
   const metadonnees = await recupererMetadonneesVideo(lien);
-  if (!metadonnees) throw new Error("Lien TikTok ou YouTube invalide ou introuvable.");
+  if (!metadonnees) return fail("Lien TikTok ou YouTube invalide ou introuvable.");
 
   const supabase = createAdminClient();
 
@@ -289,10 +289,12 @@ export async function ajouterLienVideo(collectionId: string, url: string) {
   });
   if (error) {
     await supprimerMiniatureStockee(supabase, miniature);
-    throw new Error(error.message);
+    console.error("ajouterLienVideo : échec de l'enregistrement du lien", error);
+    return fail("L'ajout du lien a échoué. Réessaie.");
   }
 
   revalidateCollectionsPaths(collectionId);
+  return ok();
 }
 
 export async function deleteCollectionItem(itemId: string) {

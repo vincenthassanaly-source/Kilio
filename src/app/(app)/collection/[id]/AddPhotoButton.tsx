@@ -5,7 +5,7 @@ import { useRef, useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ajouterLienVideo, uploadCollectionPhotos } from "@/app/actions/collections";
 import { queryKeys } from "@/lib/query/keys";
-import { estErreurReseau } from "@/lib/actions/runAction";
+import { estErreurReseau, runAction } from "@/lib/actions/runAction";
 import {
   TAILLE_MAX_REQUETE_OCTETS,
   compresserImages,
@@ -141,15 +141,20 @@ export function AddPhotoButton({
     setVideoError(null);
     setError(null);
     startVideoTransition(async () => {
-      try {
-        await ajouterLienVideo(collectionId, lien);
-        await invalidate();
-        setVideoUrl("");
-        setVideoOpen(false);
-        onAjoute?.();
-      } catch (err) {
-        setVideoError(err instanceof Error ? err.message : "Erreur lors de l'ajout.");
+      // `runAction` : un lien refusé arrive comme message lisible (une exception
+      // de Server Action est masquée en production, d'où l'ancienne erreur #441).
+      const resultat = await runAction(() => ajouterLienVideo(collectionId, lien), {
+        silencieux: true,
+        erreur: "Erreur lors de l'ajout.",
+      });
+      if (!resultat.ok) {
+        setVideoError(resultat.error);
+        return;
       }
+      await invalidate();
+      setVideoUrl("");
+      setVideoOpen(false);
+      onAjoute?.();
     });
   }
 

@@ -13,6 +13,7 @@ import {
   nameTextComplet,
   primaryButton,
 } from "@/lib/ui";
+import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
 
@@ -80,12 +81,13 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 onClick={() => {
                   setError(null);
                   startTransition(async () => {
-                    try {
-                      await updateEtape(etape.id, recetteId, titre, consigne, astuce);
-                      setEditing(false);
-                    } catch (e) {
-                      setError(e instanceof Error ? e.message : "Erreur inconnue.");
-                    }
+                    // `runAction` : l'échec (retourné ou réseau) devient un message,
+                    // jamais une exception qui remonterait à l'écran d'erreur.
+                    const resultat = await runAction(() => updateEtape(etape.id, recetteId, titre, consigne, astuce), {
+                      silencieux: true,
+                    });
+                    if (resultat.ok) setEditing(false);
+                    else setError(resultat.error);
                   });
                 }}
                 className={ghostButton}
