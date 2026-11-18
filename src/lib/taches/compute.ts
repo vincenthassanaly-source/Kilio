@@ -56,6 +56,27 @@ export function messageHorsLigne(edition: boolean): string {
     : "Connexion impossible : la tâche n'a pas été enregistrée. Vérifie ta connexion et réessaie.";
 }
 
+/**
+ * Message affiché dans le formulaire quand le serveur échoue de façon inattendue
+ * (réponse 500). La saisie est conservée. En création, la tâche a pu être
+ * enregistrée avant l'échec : on invite à vérifier la liste avant de réessayer,
+ * pour ne pas créer de doublon.
+ */
+export function messageEchecServeur(edition: boolean): string {
+  return edition
+    ? "Le serveur a rencontré une erreur : les modifications n'ont peut-être pas été enregistrées. Ta saisie est conservée, réessaie."
+    : "Le serveur a rencontré une erreur : la tâche n'a peut-être pas été enregistrée. Ta saisie est conservée : vérifie ta liste avant de réessayer, pour éviter un doublon.";
+}
+
+/**
+ * `true` pour les « erreurs » que Next utilise pour naviguer (`redirect()`,
+ * `notFound()`...) : elles doivent remonter, ce ne sont pas des échecs.
+ */
+export function estErreurDeNavigation(erreur: unknown): boolean {
+  const digest = typeof erreur === "object" && erreur !== null ? (erreur as { digest?: unknown }).digest : undefined;
+  return typeof digest === "string" && digest.startsWith("NEXT_");
+}
+
 /** Libellé discret du nombre de tâches d'une liste (« 12 tâches »). */
 export function libelleNombreTaches(total: number): string {
   if (total <= 0) return "Aucune tâche";

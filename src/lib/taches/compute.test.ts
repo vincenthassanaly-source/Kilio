@@ -11,6 +11,8 @@ import {
   libelleDuree,
   libelleNombreTaches,
   messageAvertissementCreation,
+  messageEchecServeur,
+  estErreurDeNavigation,
   messageHorsLigne,
   parseDureeMinutes,
   trierTaches,
@@ -127,6 +129,26 @@ describe("messageHorsLigne", () => {
   it("distingue création et édition", () => {
     expect(messageHorsLigne(false)).toContain("n'a pas été enregistrée");
     expect(messageHorsLigne(true)).toContain("n'ont pas été enregistrées");
+  });
+});
+
+describe("messageEchecServeur", () => {
+  it("garde la saisie, et en création invite à vérifier la liste avant de réessayer", () => {
+    expect(messageEchecServeur(false)).toContain("Ta saisie est conservée");
+    expect(messageEchecServeur(false)).toContain("doublon");
+    expect(messageEchecServeur(true)).toContain("Ta saisie est conservée");
+    expect(messageEchecServeur(true)).not.toContain("doublon");
+  });
+});
+
+describe("estErreurDeNavigation", () => {
+  it("reconnaît les erreurs de navigation de Next, pas les autres", () => {
+    expect(estErreurDeNavigation({ digest: "NEXT_REDIRECT;replace;/taches;307;" })).toBe(true);
+    expect(estErreurDeNavigation({ digest: "NEXT_HTTP_ERROR_FALLBACK;404" })).toBe(true);
+    expect(estErreurDeNavigation(new Error("An unexpected response was received from the server."))).toBe(false);
+    expect(estErreurDeNavigation({ digest: 12345 })).toBe(false);
+    expect(estErreurDeNavigation(null)).toBe(false);
+    expect(estErreurDeNavigation("NEXT_REDIRECT")).toBe(false);
   });
 });
 
