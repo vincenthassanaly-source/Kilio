@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { queryKeys } from "@/lib/query/keys";
-import { EVENEMENT_SEANCE_EN_ATTENTE, synchroniserSeances } from "./brouillon";
+import { EVENEMENT_SEANCE_EN_ATTENTE, rearmerSeancesEnErreurTechnique, synchroniserSeances } from "./brouillon";
 
 // Rejeux automatiques tant qu'une séance reste en attente (une erreur réseau
 // peut survenir alors que le navigateur se croit en ligne, auquel cas aucun
@@ -62,7 +62,9 @@ export function MusculationSync() {
     // Après « Terminer » l'écran de séance annonce lui-même le résultat.
     const apresFinDeSeance = () => relancer(false);
 
-    relancer(true);
+    void rearmerSeancesEnErreurTechnique().then(() => {
+      if (actif) relancer(true);
+    });
     window.addEventListener("online", auRetourReseau);
     document.addEventListener("visibilitychange", auRetourPremierPlan);
     window.addEventListener(EVENEMENT_SEANCE_EN_ATTENTE, apresFinDeSeance);

@@ -17,7 +17,13 @@ export function AppResumeRefresh() {
   const router = useRouter();
 
   useEffect(() => {
-    const refresh = () => router.refresh();
+    // Pas de rafraîchissement serveur hors ligne ni pendant une séance : le
+    // fetch échouerait (mauvais réseau en salle) et ferait perdre la page.
+    const refresh = () => {
+      if (!navigator.onLine) return;
+      if (window.location.pathname.startsWith("/musculation/seance")) return;
+      router.refresh();
+    };
 
     // Instant où l'app est passée en arrière-plan (null : on ne l'a pas vue
     // partir). Une absence courte (notification consultée, changement d'app)

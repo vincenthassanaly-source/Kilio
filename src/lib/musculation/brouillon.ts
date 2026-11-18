@@ -35,6 +35,26 @@ export async function lireBrouillon(): Promise<Brouillon | null> {
   }
 }
 
+export type LectureBrouillon = { statut: "ok"; brouillon: Brouillon | null } | { statut: "erreur" };
+
+/**
+ * Comme `lireBrouillon`, mais distingue « aucune séance » d'une lecture qui
+ * échoue (module Dexie non chargé hors ligne, base verrouillée un instant…) :
+ * une erreur ne doit jamais être prise pour une séance absente. Quelques essais
+ * avant de renoncer.
+ */
+export async function lireBrouillonSecurise(essais = 3, delaiMs = 400): Promise<LectureBrouillon> {
+  for (let i = 0; i < essais; i += 1) {
+    try {
+      const lu = (await (await base()).musculation_brouillon.get(CLE_BROUILLON))?.valeur as Brouillon | undefined;
+      return { statut: "ok", brouillon: lu ?? null };
+    } catch {
+      if (i < essais - 1) await new Promise((resolve) => setTimeout(resolve, delaiMs));
+    }
+  }
+  return { statut: "erreur" };
+}
+
 /** Écrit le brouillon. `signal` : prévient les autres écrans (bannière « séance en cours »). */
 export async function ecrireBrouillon(valeur: Brouillon, signal = false): Promise<void> {
   await (await base()).musculation_brouillon.put({ cle: CLE_BROUILLON, valeur });
@@ -109,7 +129,27 @@ export async function supprimerSeanceEnAttente(id: string): Promise<void> {
   signaler(EVENEMENT_SEANCE_EN_ATTENTE);
 }
 
-export type ResultatEnvoi = { envoyees: number; restantes: number; refus: string[] };
+const MESSAGE_ERREUR_SERVEUR = "Le serveur n'a pas pu enregistrer la séance.";
+
+/**
+ * Au lancement de l'app : remet en file les séances bloquées par une erreur
+ * serveur « technique » (typiquement une ancienne version de l'appli appelant
+ * une Server Action disparue après un déploiement). Les refus explicites du
+ * serveur (durée, exercice retiré…) restent, eux, à traiter par l'utilisateur.
+ */
+export async function rearmerSeancesEnErreurTechnique(): Promise<void> {
+  try {
+    const db = await base();
+    const bloquees = await db.musculation_a_envoyer.filter((s) => s.erreur === MESSAGE_ERREUR_SERVEUR).toArray();
+    for (const seance of bloquees) {
+      await db.musculation_a_envoyer.update(seance.id, { erreur: undefined });
+    }
+  } catch {
+    // Stockage local indisponible : rien à rejouer pour l'instant.
+  }
+}
+
+export type ResultatEnvoi ={ envoyees: number; restantes: number; refus: string[] };
 
 // Les envois s'enchaînent : fin de séance et synchronisation de fond peuvent
 // partir en même temps, le second appel attend le premier puis traite ce qui
@@ -151,9 +191,8 @@ async function envoyerEnAttente(): Promise<ResultatEnvoi> {
       if (!isNetworkError(erreur)) {
         // Remontée comme un refus : l'écran dit la vérité au lieu d'annoncer un
         // envoi « dès que le réseau revient » qui n'aura pas lieu.
-        const message = "Le serveur n'a pas pu enregistrer la séance.";
-        await db.musculation_a_envoyer.update(seance.id, { erreur: message });
-        refus.push(message);
+        await db.musculation_a_envoyer.update(seance.id, { erreur: MESSAGE_ERREUR_SERVEUR });
+        refus.push(MESSAGE_ERREUR_SERVEUR);
       }
       break;
     }

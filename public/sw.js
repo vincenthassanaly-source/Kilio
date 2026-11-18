@@ -215,6 +215,25 @@ async function repondreAnimation(request) {
   });
 }
 
+// Écran de repli quand une page est demandée sans réseau et sans copie en cache.
+function pageHorsConnexion() {
+  const html =
+    '<!doctype html><html lang="fr"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    "<title>Hors connexion</title>" +
+    "<style>body{font-family:system-ui,sans-serif;margin:0;min-height:100vh;display:flex;" +
+    "flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;" +
+    "text-align:center;background:#fff;color:#111}button,a{font:inherit;padding:12px 20px;" +
+    "border-radius:12px;border:1px solid #888;background:transparent;color:inherit;text-decoration:none}" +
+    "@media(prefers-color-scheme:dark){body{background:#111;color:#eee}}</style></head><body>" +
+    "<h1>Hors connexion</h1>" +
+    "<p>Cette page n&rsquo;est pas disponible sans réseau. Ta séance en cours reste enregistrée sur ton téléphone.</p>" +
+    '<button onclick="location.reload()">Réessayer</button>' +
+    '<a href="/musculation/seance">Reprendre ma séance</a>' +
+    "</body></html>";
+  return new Response(html, { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } });
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -244,7 +263,23 @@ self.addEventListener("fetch", (event) => {
 
   if (!isStaticAsset) {
     event.respondWith(
-      fetch(request).catch(() => caches.match(request).then((r) => r || caches.match("/")))
+      fetch(request).catch(async () => {
+        const enCache = await caches.match(request);
+        if (enCache) return enCache;
+        if (request.mode === "navigate") {
+          // Seule la racine peut se rabattre sur l'accueil mis en cache : toute
+          // autre page tombait sinon silencieusement sur l'accueil (et la
+          // séance en cours semblait « éjectée »).
+          if (url.pathname === "/") {
+            const accueil = await caches.match("/");
+            if (accueil) return accueil;
+          }
+          return pageHorsConnexion();
+        }
+        // Payload RSC / fetch interne du routeur : une vraie erreur réseau, que
+        // Next sait gérer, plutôt que du HTML d'accueil pris pour un payload.
+        return Response.error();
+      })
     );
     return;
   }
@@ -254,8 +289,11 @@ self.addEventListener("fetch", (event) => {
       (cached) =>
         cached ||
         fetch(request).then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          // Jamais de 404/500 en cache : ils seraient resservis indéfiniment.
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
     )
