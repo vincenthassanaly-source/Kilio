@@ -39,6 +39,7 @@ import { LIBELLES_TYPE, ORDRE_TYPES } from "@/lib/seances/compute";
 import { input, metaText, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { BarreRepos } from "./BarreRepos";
 import { ExerciceBloc } from "./ExerciceBloc";
+import { PanneauDiagnosticRepos } from "./PanneauDiagnosticRepos";
 import { SelecteurExercices } from "./SelecteurExercices";
 
 /** Temps écoulé depuis le début de la séance, rafraîchi chaque seconde. */
@@ -455,6 +456,8 @@ export function SeanceView() {
           enregistrées. Seules les {faites} série{faites > 1 ? "s" : ""} cochée{faites > 1 ? "s" : ""} comptent. Choisis « Garder » pour reprendre la séance.
         </p>
       </ConfirmDialog>
+
+      <PanneauDiagnosticRepos />
     </div>
   );
 }
