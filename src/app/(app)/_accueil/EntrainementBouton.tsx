@@ -77,7 +77,7 @@ export function EntrainementBouton({ today }: { today: string }) {
         </svg>
       </button>
       {error && (
-        <p className={`${errorText} max-w-[12rem] text-right text-xs`} role="alert">
+        <p className={`${errorText} max-w-[12rem] text-right text-caption`} role="alert">
           {error}
         </p>
       )}

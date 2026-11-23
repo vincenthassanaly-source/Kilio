@@ -21,7 +21,7 @@ import { dangerButton, ghostButton } from "@/lib/ui";
 import { LIBELLES_REPORT, useReporterTaches } from "./useReporterTaches";
 
 const linkButtonSel =
-  "relative inline-flex min-h-11 items-center rounded-xl px-2 text-label font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "relative inline-flex min-h-11 items-center rounded-xl px-2 text-label font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 const REPORTS = (Object.keys(LIBELLES_REPORT) as CibleReport[]).map((cible) => ({
   cible,
@@ -143,7 +143,7 @@ export function SelectionBar({
           type="button"
           onClick={onDone}
           aria-label="Quitter la sélection"
-          className="relative -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 transition-colors hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="relative -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 transition-colors hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" />

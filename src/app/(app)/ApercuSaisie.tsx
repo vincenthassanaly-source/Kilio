@@ -91,7 +91,7 @@ function CarteElement({
               type="button"
               aria-pressed={e.type === t}
               onClick={() => changerType(t)}
-              className={`min-h-11 rounded-full px-3 text-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+              className={`min-h-11 rounded-full px-3 text-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                 e.type === t ? "bg-kcal text-on-kcal" : "text-ink-2"
               }`}
             >
@@ -102,7 +102,7 @@ function CarteElement({
         <button
           type="button"
           onClick={onRetirer}
-          className="min-h-11 px-2 text-small font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="min-h-11 px-2 text-small font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           Retirer
         </button>
@@ -158,7 +158,7 @@ function CarteElement({
         </div>
       </div>
 
-      <label className="flex min-h-11 items-center gap-2 text-sm text-ink">
+      <label className="flex min-h-11 items-center gap-2 text-small text-ink">
         <input
           type="checkbox"
           checked={e.touteLaJournee}
@@ -274,13 +274,13 @@ function CarteElement({
       {!evenement && e.sousTaches.length > 0 && (
         <ul className="flex flex-col gap-1" aria-label="Sous-tâches">
           {e.sousTaches.map((s, i) => (
-            <li key={`${i}-${s}`} className="flex items-center justify-between gap-2 text-sm text-ink">
+            <li key={`${i}-${s}`} className="flex items-center justify-between gap-2 text-small text-ink">
               <span className="min-w-0 flex-1 truncate">• {s}</span>
               <button
                 type="button"
                 aria-label={`Retirer la sous-tâche « ${s} »`}
                 onClick={() => onChange({ sousTaches: e.sousTaches.filter((_, j) => j !== i) })}
-                className="flex h-11 w-11 shrink-0 items-center justify-center text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                className="flex h-11 w-11 shrink-0 items-center justify-center text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
               >
                 ×
               </button>

@@ -57,7 +57,7 @@ function PuceEvenement({
           ? `Événement ${evenement.titre} à ${heure}, avant le début de la grille. Modifier`
           : `Événement journée entière ${evenement.titre}. Modifier`
       }
-      className={`${PUCE_BASE} max-w-[260px] bg-agenda font-semibold text-on-agenda focus-visible:ring-ink`}
+      className={`${PUCE_BASE} max-w-[260px] bg-agenda font-semibold text-on-agenda focus-visible:ring-kcal focus-visible:ring-offset-2`}
     >
       {avantGrille && <span className="tabular-nums">{heure} </span>}
       {evenement.titre}
@@ -72,7 +72,7 @@ function PuceTache({ tache, onSelect }: { tache: TacheAvecRelations; onSelect: (
       type="button"
       onClick={() => onSelect(tache.id)}
       aria-label={`${heure ? `Tâche à ${heure}, avant le début de la grille` : "Tâche sans heure"} ${tache.titre}. Voir la tâche`}
-      className={`${PUCE_BASE} flex max-w-[220px] items-center gap-1.5 border border-line bg-surface-alt text-ink-2 focus-visible:ring-kcal`}
+      className={`${PUCE_BASE} flex max-w-[220px] items-center gap-1.5 border border-line bg-surface-alt text-ink-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
     >
       {/* Cercle de coche décoratif : même repère visuel que la carte de tâche
           de la Liste (la puce ouvre la tâche, elle ne la coche pas). */}
@@ -246,7 +246,7 @@ export function DayView({
           tabIndex={0}
           role="region"
           aria-label="Grille horaire du jour. Appui long sur un créneau pour ajouter un événement"
-          className="max-h-[55vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="max-h-[55vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           style={{ touchAction: "pan-x pan-y" }}
           {...touchHandlers}
         >

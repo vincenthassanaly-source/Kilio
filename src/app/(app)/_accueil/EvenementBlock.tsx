@@ -62,7 +62,7 @@ export function EvenementBlock({
       // utilisateur de commande vocale doit pouvoir dire ce qu'il lit (WCAG 2.5.3).
       aria-label={`${heure} ${evenement.titre}, événement ${plage}. Modifier`}
       title={`${heure} ${evenement.titre}`}
-      className={`${className} ${zoneTap} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink`}
+      className={`${className} ${zoneTap} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
       style={blockStyle}
     >
       {!sansTexte && (

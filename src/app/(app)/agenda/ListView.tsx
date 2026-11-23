@@ -91,7 +91,7 @@ export function ListView({
                   onClick={() => onSelectEvenement?.(evenement)}
                   disabled={!onSelectEvenement}
                   aria-label={`Événement ${evenement.titre}, ${plage}. Modifier`}
-                  className="flex min-h-11 w-full items-baseline gap-x-3 rounded-xl bg-agenda px-3 py-2 text-left text-label font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                  className="flex min-h-11 w-full items-baseline gap-x-3 rounded-xl bg-agenda px-3 py-2 text-left text-label font-semibold text-on-agenda focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
                 >
                   <span className="shrink-0 whitespace-nowrap tabular-nums">{plage}</span>
                   <span className="min-w-0 break-words [overflow-wrap:anywhere]">{evenement.titre}</span>
@@ -123,7 +123,7 @@ export function ListView({
             type="button"
             onClick={() => setPassesOuverts((v) => !v)}
             aria-expanded={passesOuverts}
-            className="flex min-h-11 w-full items-center justify-between gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            className="flex min-h-11 w-full items-center justify-between gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           >
             <span className={sectionTitle}>Jours passés ({passes.length})</span>
             <svg
