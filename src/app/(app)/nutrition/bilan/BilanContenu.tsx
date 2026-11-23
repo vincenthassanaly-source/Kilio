@@ -104,6 +104,9 @@ export async function BilanContenu() {
             <LigneSerie jours={serie.jours} tronquee={serie.tronquee} />
           </div>
         </div>
+        {/* Détail jour par jour dans le même bloc (autrefois « Détail de la semaine ») :
+            une seule lecture de la semaine glissante. */}
+        <DetailJours jours={semaine} />
       </SectionBilan>
 
       <SectionBilan titre="30 derniers jours">
@@ -112,10 +115,6 @@ export async function BilanContenu() {
           <LegendeStatuts />
           <ResumeTaux {...taux30} periode="30 jours" />
         </div>
-      </SectionBilan>
-
-      <SectionBilan titre="Détail de la semaine">
-        <DetailJours jours={semaine} />
       </SectionBilan>
     </>
   );

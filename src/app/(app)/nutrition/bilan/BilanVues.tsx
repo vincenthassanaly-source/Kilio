@@ -184,13 +184,15 @@ export function CalendrierMois({ jours }: { jours: JourBilan[] }) {
 
 export function LegendeStatuts() {
   const exemples: { jour: Pick<JourBilan, "statut" | "gravite">; libelle: string }[] = [
-    { jour: { statut: "reussi", gravite: null }, libelle: "Dans les clous" },
-    { jour: { statut: "rate", gravite: "leger" }, libelle: "Hors de la cible" },
+    { jour: { statut: "reussi", gravite: null }, libelle: "Cibles atteintes" },
+    { jour: { statut: "rate", gravite: "leger" }, libelle: "Dépassement léger" },
+    { jour: { statut: "rate", gravite: "marque" }, libelle: "Dépassement net" },
+    { jour: { statut: "en_cours", gravite: null }, libelle: "Journée en cours" },
     { jour: { statut: "libre", gravite: null }, libelle: "Jour libre" },
     { jour: { statut: "vide", gravite: null }, libelle: "Sans saisie" },
   ];
   return (
-    <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-ink-2">
+    <ul aria-label="Légende" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-caption text-ink-2">
       {exemples.map(({ jour, libelle }) => (
         <li key={libelle} className="flex items-center gap-1.5">
           <CercleStatut jour={jour} className="h-5 w-5 [&_svg]:h-3 [&_svg]:w-3" />
