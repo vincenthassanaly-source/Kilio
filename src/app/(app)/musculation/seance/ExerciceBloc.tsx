@@ -228,7 +228,7 @@ export function ExerciceBloc({
           <button
             type="button"
            
-            className={`${ligneMenu} !text-alert`}
+            className={`${ligneMenu} !text-ink-2 hover:!text-alert focus-visible:!text-alert`}
             onClick={() => (faites > 0 ? setConfirmerRetrait(true) : onRetirerExercice(cle))}
           >
             <IconeMenu d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
