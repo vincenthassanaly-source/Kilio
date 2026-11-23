@@ -136,9 +136,14 @@ describe("supprimerHabitude", () => {
 });
 
 describe("enregistrerEntreeHabitude", () => {
-  it.each([[-1], [NaN], [Infinity]])("refuse la valeur %s sans écrire", async (valeur) => {
+  it.each([
+    [-1, "La valeur ne peut pas être négative."],
+    [NaN, "La valeur doit être un nombre."],
+    [Infinity, "La valeur doit être un nombre."],
+    [100_001, "La valeur ne peut pas dépasser"],
+  ])("refuse la valeur %s sans écrire", async (valeur, message) => {
     const fake = brancher();
-    await expect(enregistrerEntreeHabitude(ID, "2026-10-09", valeur)).rejects.toThrow("Valeur invalide.");
+    await expect(enregistrerEntreeHabitude(ID, "2026-10-09", valeur)).rejects.toThrow(message);
     expect(fake.appels).toHaveLength(0);
   });
 
