@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { enregistrerEntreeHabitude, type HabitudeDuJour } from "@/app/actions/habitudes";
 import { queryKeys } from "@/lib/query/keys";
@@ -76,19 +77,52 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
     toggleMutation.mutate(fait ? 0 : 1);
   }
 
+  const classeTuile =
+    "flex w-[60px] shrink-0 flex-col items-center gap-1.5 rounded-2xl pb-1 transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  const nom = (
+    // Deux lignes plutôt qu'une coupure à ~12 caractères : « Boire 2 L … » ne dit pas quelle habitude.
+    <span className="line-clamp-2 w-full break-words text-center text-micro font-semibold leading-tight text-ink-2">{habitude.nom}</span>
+  );
+
+  // Habitude chiffrée : une valeur se saisit, elle ne se coche pas (pas de « +1 »).
+  // La tuile mène à Habitudes, où se trouve le champ ; anneau en pointillé et
+  // valeur du jour sous le nom pour la distinguer d'une tuile à cocher.
+  if (habitude.type === "quantifiee") {
+    const valeurLue = `${valeur}${habitude.valeur_cible != null ? ` / ${habitude.valeur_cible}` : ""}${habitude.unite ? ` ${habitude.unite}` : ""}`;
+    return (
+      <Link
+        href="/habitudes"
+        aria-label={`${habitude.nom} : ${valeurLue}. Saisir la valeur dans Habitudes`}
+        className={classeTuile}
+      >
+        <span className="relative">
+          <ProgressRing size={50} strokeWidth={5} pct={pct} color="var(--accent-habitudes)">
+            <span className="text-base leading-none">{habitude.icone || <CheckIcon size={16} />}</span>
+          </ProgressRing>
+          {/* Contour pointillé : se lit « à saisir » plutôt que « à cocher ». */}
+          <span aria-hidden className="pointer-events-none absolute -inset-1 rounded-full border border-dashed border-control-border" />
+        </span>
+        {nom}
+        <span aria-hidden className="text-micro font-bold tabular-nums text-ink-2">
+          {valeur}
+          {habitude.valeur_cible != null && `/${habitude.valeur_cible}`}
+        </span>
+      </Link>
+    );
+  }
+
   return (
     <button
       type="button"
-      disabled={toggleMutation.isPending || habitude.type === "quantifiee"}
+      disabled={toggleMutation.isPending}
       onClick={toggle}
-      aria-pressed={habitude.type === "quantifiee" ? undefined : fait}
-      className="flex w-[60px] shrink-0 flex-col items-center gap-1.5 rounded-2xl pb-1 transition-transform active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+      aria-pressed={fait}
+      className={classeTuile}
     >
       <ProgressRing size={50} strokeWidth={5} pct={pct} color="var(--accent-habitudes)" trackColor="var(--control-border)">
         <span className="text-base leading-none">{habitude.icone || <CheckIcon size={16} />}</span>
       </ProgressRing>
-      {/* Deux lignes plutôt qu'une coupure à ~12 caractères : « Boire 2 L … » ne dit pas quelle habitude. */}
-      <span className="line-clamp-2 w-full break-words text-center text-micro font-semibold leading-tight text-ink-2">{habitude.nom}</span>
+      {nom}
       {(habitude.type === "streak" || habitude.frequence_hebdo != null) && habitude.streak > 0 && (
         <span className="inline-flex items-center gap-0.5 text-micro font-bold text-habitudes">
           <FlameIcon size={12} />

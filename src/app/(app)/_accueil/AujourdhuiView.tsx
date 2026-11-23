@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteEvenement, getEvenements, type Evenement } from "@/app/actions/evenements";
 import { getPlanningTravail, getPlanningTravailExceptions } from "@/app/actions/planning-travail";
-import { getTachesAvecRelations } from "@/app/actions/taches";
+import { getListes, getTachesAvecRelations, getTags, type TacheAvecRelations } from "@/app/actions/taches";
 import { ErrorInline } from "@/components/ErrorInline";
 import { Modal } from "@/components/Modal";
 import { showToast } from "@/components/toast/toast-store";
@@ -38,6 +39,11 @@ import { useHeureCourante } from "./useHeureCourante";
 
 const DUREE_SURBRILLANCE_MS = 2600;
 
+// Formulaire de tâche (modification depuis Aujourd'hui) : chargé à la demande.
+const AddTaskForm = dynamic(() => import("../taches/AddTaskForm").then((m) => m.AddTaskForm), {
+  ssr: false,
+});
+
 type Formulaire = { evenement?: Evenement } | null;
 
 // `jourRevue` : jour réglé pour la revue hebdomadaire (0 = dimanche), le même
@@ -49,8 +55,22 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
   // Événements masqués le temps du toast « Annuler » d'une suppression.
   const [masques, setMasques] = useState<ReadonlySet<string>>(() => new Set());
   const [tacheSurlignee, setTacheSurlignee] = useState<string | null>(null);
+  // Tâche ouverte par un tap sur son titre (modification dans une feuille).
+  const [tacheOuverteId, setTacheOuverteId] = useState<string | null>(null);
 
   useBackClose(formulaire !== null, () => setFormulaire(null));
+  useBackClose(tacheOuverteId !== null, () => setTacheOuverteId(null));
+  // Listes et tags : seulement une fois une tâche ouverte (le formulaire en a besoin).
+  const { data: listes = [] } = useQuery({
+    queryKey: queryKeys.listes,
+    queryFn: getListes,
+    enabled: tacheOuverteId !== null,
+  });
+  const { data: tags = [] } = useQuery({
+    queryKey: queryKeys.tags,
+    queryFn: getTags,
+    enabled: tacheOuverteId !== null,
+  });
 
   const {
     data: taches,
@@ -97,6 +117,9 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
   const enRetard = useMemo(() => tachesEnRetard(taches ?? [], today), [taches, today]);
   const duJour = useMemo(() => tachesDuJour(taches ?? [], today), [taches, today]);
   const horodatees = useMemo(() => duJour.filter((t) => !t.fait && t.heure), [duJour]);
+  // Lue dans le cache à chaque rendu : la feuille montre toujours l'état à jour.
+  const tacheOuverte = tacheOuverteId ? taches?.find((t) => t.id === tacheOuverteId) : undefined;
+  const ouvrirTache = (tache: TacheAvecRelations) => setTacheOuverteId(tache.id);
   const evenementsVisibles = useMemo(() => evenements.filter((e) => !masques.has(e.id)), [evenements, masques]);
   const evenementsHorairesVisibles = useMemo(() => evenementsHoraires(evenementsVisibles), [evenementsVisibles]);
   const evenementsJournee = useMemo(() => evenementsJourneeEntiere(evenementsVisibles), [evenementsVisibles]);
@@ -218,6 +241,7 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
           today={today}
           libres={libres}
           tacheSurlignee={tacheSurlignee}
+          onOuvrir={ouvrirTache}
         />
       )}
 
@@ -226,7 +250,7 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
       {tachesChargent ? (
         <Skeleton className="h-24 w-full rounded-card" />
       ) : tachesKo && !taches ? null : (
-        <EnRetardSection taches={enRetard} today={today} compact />
+        <EnRetardSection taches={enRetard} today={today} compact onOuvrir={ouvrirTache} />
       )}
 
       <DashboardHabitudesSection today={today} className={card} />
@@ -243,7 +267,7 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
       {/* Le reste n'est pas ce qu'on consulte en premier : replié par défaut
           pour que l'écran se lise en trois secondes. */}
       <details className="group flex flex-col gap-4">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-1 text-label font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal [&::-webkit-details-marker]:hidden">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-1 text-label font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
           Plan, jour libre et revue
           <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3 transition-transform group-open:rotate-90">
             <path d="M9 5l7 7-7 7" />
@@ -260,6 +284,23 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
       </details>
 
       <QuickAddFab />
+
+      <AnimatePresence>
+        {tacheOuverte && (
+          <Modal key="tache" title="Modifier la tâche" onClose={() => setTacheOuverteId(null)}>
+            <AddTaskForm
+              tache={tacheOuverte}
+              listes={listes}
+              tags={tags}
+              onDone={() => {
+                setTacheOuverteId(null);
+                showToast("Tâche modifiée");
+                void queryClient.invalidateQueries({ queryKey: queryKeys.taches });
+              }}
+            />
+          </Modal>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {formulaire && (

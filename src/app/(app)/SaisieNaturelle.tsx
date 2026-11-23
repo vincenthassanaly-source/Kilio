@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { AnimatePresence } from "framer-motion";
 import { interpreterSaisie } from "@/app/actions/saisie";
 import { Modal } from "@/components/Modal";
@@ -14,9 +14,21 @@ import { ApercuSaisie } from "./ApercuSaisie";
  * seulement à la demande (bouton ou Entrée), puis un aperçu modifiable. Le
  * texte tapé est conservé tant que rien n'a été ajouté.
  */
-export function SaisieNaturelle() {
+export function SaisieNaturelle({
+  valeur,
+  onValeur,
+  prefixe,
+}: {
+  // Texte contrôlé : partagé avec la recherche dans le champ unique de l'accueil.
+  valeur?: string;
+  onValeur?: (texte: string) => void;
+  // Remplace l'icône « + » (sélecteur de mode du champ unique).
+  prefixe?: ReactNode;
+} = {}) {
   const uid = useId();
-  const [texte, setTexte] = useState("");
+  const [texteInterne, setTexteInterne] = useState("");
+  const texte = valeur ?? texteInterne;
+  const setTexte = onValeur ?? setTexteInterne;
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [apercu, setApercu] = useState<ElementSaisie[] | null>(null);
@@ -44,21 +56,22 @@ export function SaisieNaturelle() {
             Ajouter une tâche ou un événement en une phrase
           </label>
           <div className="relative min-w-0 flex-1">
-            {/* « + » : distingue d'un coup d'oeil la saisie (ajoute) de la
-                recherche juste au-dessus (loupe), deux champs sinon identiques. */}
-            <svg
-              aria-hidden
-              width="17"
-              height="17"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--ink-3)"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2"
-            >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
+            {prefixe ?? (
+              // « + » : signale la saisie (ajoute), distincte de la recherche (loupe).
+              <svg
+                aria-hidden
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--ink-3)"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            )}
             <input
               id={`${uid}-texte`}
               type="text"
@@ -69,7 +82,7 @@ export function SaisieNaturelle() {
               autoComplete="off"
               maxLength={LONGUEUR_MAX_SAISIE}
               aria-describedby={erreur ? `${uid}-erreur` : undefined}
-              className={`${inputAvecIcone} min-h-11 w-full placeholder:text-ink-2`}
+              className={`${inputAvecIcone} min-h-11 w-full placeholder:text-ink-2 ${prefixe ? "pl-[5.5rem]" : ""}`}
             />
           </div>
           <button

@@ -7,6 +7,8 @@ import { libelleRetard } from "@/lib/aujourdhui/compute";
 import { DashboardTaskItem } from "../DashboardTaskItem";
 import { LIBELLES_REPORT, useReporterTaches } from "../taches/useReporterTaches";
 import { card, sectionTitle } from "@/lib/ui";
+import { badgeEnRetard } from "@/lib/taches/badges";
+import { pastilleAction } from "./pastilles";
 
 // Au-delà, le reste se déplie : une liste de retard qui s'allonge ne doit pas
 // repousser la journée hors de l'écran.
@@ -14,9 +16,6 @@ const NB_VISIBLES = 3;
 
 const CIBLES = Object.keys(LIBELLES_REPORT) as CibleReport[];
 
-// Pastille de report : 36 px visibles, zone de tap étendue à 44 px.
-const pastilleReport =
-  "relative min-h-9 rounded-full border border-line bg-surface-alt px-3 text-small font-semibold text-ink after:absolute after:-inset-y-1 after:inset-x-0 transition-colors hover:border-kcal/60 active:scale-[0.97] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
 
 // Flèche « reporter » (dessinée, trait de 1.8 comme les icônes de la barre du bas).
 const REPORT_ICON = (
@@ -26,7 +25,17 @@ const REPORT_ICON = (
   </svg>
 );
 
-function LigneRetard({ tache, today, compact }: { tache: TacheAvecRelations; today: string; compact: boolean }) {
+function LigneRetard({
+  tache,
+  today,
+  compact,
+  onOuvrir,
+}: {
+  tache: TacheAvecRelations;
+  today: string;
+  compact: boolean;
+  onOuvrir?: (tache: TacheAvecRelations) => void;
+}) {
   const reporter = useReporterTaches();
   const [enCours, setEnCours] = useState(false);
   // En mode compact, les trois puces ne s'affichent qu'à la demande : une ligne
@@ -56,6 +65,7 @@ function LigneRetard({ tache, today, compact }: { tache: TacheAvecRelations; tod
             fait={tache.fait}
             echeance={tache.echeance}
             detail={libelleRetard(tache.echeance!, today)}
+            onOuvrir={onOuvrir ? () => onOuvrir(tache) : undefined}
           />
         </div>
         {compact && (
@@ -65,7 +75,7 @@ function LigneRetard({ tache, today, compact }: { tache: TacheAvecRelations; tod
             aria-controls={idPuces}
             aria-label={`Choisir une date de report pour « ${tache.titre} »`}
             onClick={() => setOuvert((v) => !v)}
-            className="relative shrink-0 text-small font-semibold text-kcal after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            className={pastilleAction}
           >
             Reporter
           </button>
@@ -87,7 +97,7 @@ function LigneRetard({ tache, today, compact }: { tache: TacheAvecRelations; tod
               type="button"
               disabled={enCours}
               onClick={() => handleReport(cible)}
-              className={pastilleReport}
+              className={pastilleAction}
               aria-label={`Reporter « ${tache.titre} » à ${LIBELLES_REPORT[cible].toLowerCase()}`}
             >
               {LIBELLES_REPORT[cible]}
@@ -104,6 +114,7 @@ export function EnRetardSection({
   today,
   compact = false,
   masquerTitre = false,
+  onOuvrir,
 }: {
   taches: TacheAvecRelations[];
   today: string;
@@ -111,6 +122,8 @@ export function EnRetardSection({
   compact?: boolean;
   /** Masque le titre « En retard » et sa pastille de nombre, quand un titre d'étape les porte déjà (Revue). */
   masquerTitre?: boolean;
+  /** Toucher le titre d'une tâche l'ouvre (écran Aujourd'hui). */
+  onOuvrir?: (tache: TacheAvecRelations) => void;
 }) {
   const [deplie, setDeplie] = useState(false);
   if (taches.length === 0) return null;
@@ -128,15 +141,16 @@ export function EnRetardSection({
           <h2 id="aujourdhui-retard" className={sectionTitle}>
             En retard
           </h2>
-          <span className="rounded-full bg-alert/10 px-2.5 py-1 text-micro font-bold tabular-nums text-alert">
+          <span className={badgeEnRetard}>
             {taches.length}
+            <span className="sr-only"> en retard</span>
           </span>
         </div>
       )}
       {!compact && <p className={`${masquerTitre ? "" : "-mt-1.5 "}text-small text-ink-2`}>Reporte d&apos;un tap : aujourd&apos;hui, demain ou lundi.</p>}
       <ul className="flex flex-col gap-3.5">
         {visibles.map((tache) => (
-          <LigneRetard key={tache.id} tache={tache} today={today} compact={compact} />
+          <LigneRetard key={tache.id} tache={tache} today={today} compact={compact} onOuvrir={onOuvrir} />
         ))}
       </ul>
       {taches.length > NB_VISIBLES && (
@@ -144,7 +158,7 @@ export function EnRetardSection({
           type="button"
           aria-expanded={deplie}
           onClick={() => setDeplie((v) => !v)}
-          className="relative -mb-1 self-start text-sm font-semibold text-kcal after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="relative -mb-1 self-start text-small font-semibold text-kcal after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           {deplie ? "Réduire" : `Afficher ${cachees === 1 ? "l'autre" : `les ${cachees} autres`}`}
         </button>

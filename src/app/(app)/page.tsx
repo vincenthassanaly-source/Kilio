@@ -5,9 +5,8 @@ import { ListItemSkeletonGroup } from "@/components/skeletons/ListItemSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { screenTitle } from "@/lib/ui";
 import { AujourdhuiContenu } from "./_accueil/AujourdhuiContenu";
-import { GlobalSearchBar } from "./GlobalSearchBar";
+import { ChampAccueil } from "./ChampAccueil";
 import { ReveilButton } from "./ReveilButton";
-import { SaisieNaturelle } from "./SaisieNaturelle";
 import { heureParis } from "@/lib/date/paris";
 import { getToday } from "./today";
 
@@ -29,9 +28,11 @@ async function DashboardHeader() {
   });
 
   return (
-    <header className="flex flex-col gap-0.5">
-      <p className="text-label font-medium text-ink-2 first-letter:uppercase">{dateLabel}</p>
-      <h1 className={screenTitle}>{greeting()}</h1>
+    // La date est le titre (ce qu'on vient chercher) ; la salutation passe en
+    // petit au-dessus. `pr-12` : dégage le bouton Réveil posé en haut à droite.
+    <header className="flex flex-col gap-0.5 pr-12">
+      <p className="text-label font-medium text-ink-2">{greeting()}</p>
+      <h1 className={`${screenTitle} first-letter:uppercase`}>{dateLabel}</h1>
     </header>
   );
 }
@@ -64,8 +65,7 @@ export default function AujourdhuiPage() {
         <ReveilButton />
       </div>
 
-      <GlobalSearchBar />
-      <SaisieNaturelle />
+      <ChampAccueil />
 
       <PullToRefresh>
         <Suspense fallback={<ContenuSkeleton />}>
