@@ -70,7 +70,7 @@ export async function BilanContenu() {
     return (
       <div className={`${card} flex flex-col items-start gap-2`}>
         <p className="text-body font-bold text-ink">Aucun objectif défini.</p>
-        <p className="text-sm text-ink-2 text-pretty">
+        <p className="text-small text-ink-2 text-pretty">
           Définis tes objectifs de kcal et de protéines dans le Carnet alimentaire pour suivre les jours où tes cibles sont atteintes.
         </p>
         <TransitionLink href="/nutrition/journal?from=bilan" className={linkButton}>

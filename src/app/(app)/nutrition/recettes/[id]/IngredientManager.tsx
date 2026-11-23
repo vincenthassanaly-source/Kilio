@@ -290,7 +290,7 @@ export function IngredientManager({
   return (
     <div className="flex flex-col gap-3">
       {visibles.length === 0 ? (
-        hideEmptyMessage ? null : <p className="text-sm text-ink-2">Aucun ingrédient pour l&apos;instant.</p>
+        hideEmptyMessage ? null : <p className="text-small text-ink-2">Aucun ingrédient pour l&apos;instant.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {visibles.map((ing) => (

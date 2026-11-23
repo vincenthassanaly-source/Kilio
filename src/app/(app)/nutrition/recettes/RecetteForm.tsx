@@ -167,7 +167,7 @@ export function RecetteForm({
             className="flex items-center justify-between text-left"
           >
             <span className={labelClass}>Valeurs nutritionnelles (si imprimées)</span>
-            <span className="text-sm text-ink-2">{nutritionOpen ? "−" : "+"}</span>
+            <span className="text-small text-ink-2">{nutritionOpen ? "−" : "+"}</span>
           </button>
           {nutritionOpen && (
             <div className="grid grid-cols-2 gap-2.5">

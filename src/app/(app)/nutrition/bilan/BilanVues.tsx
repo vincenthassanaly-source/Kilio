@@ -227,13 +227,13 @@ export function DetailJours({ jours }: { jours: JourBilan[] }) {
               <CercleStatut jour={jour} className="h-8 w-8" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-body font-semibold capitalize text-ink">{libelleCourt(jour.date)}</p>
-                <p className="text-xs text-ink-2">
+                <p className="text-caption text-ink-2">
                   {jour.jourType === "entrainement" ? "Entraînement" : "Repos"}
                   {libre && " · jour libre"}
                 </p>
               </div>
               {jour.nbRepas === 0 ? (
-                <p className="text-xs text-ink-3">Aucun repas saisi</p>
+                <p className="text-caption text-ink-3">Aucun repas saisi</p>
               ) : (
                 <div className="flex flex-col items-end gap-0.5 text-caption tabular-nums">
                   <p className={`flex items-center gap-1 ${classeKcal}`}>

@@ -306,7 +306,7 @@ export function AddCourseForm({
               // (le clavier reste ouvert).
               onPointerDown={(e) => e.preventDefault()}
               onClick={() => handleSuggestionSelect(suggestion)}
-              className={`flex min-h-11 items-center rounded-full border px-3.5 text-sm font-medium transition active:scale-[0.97] ${
+              className={`flex min-h-11 items-center rounded-full border px-3.5 text-small font-medium transition-[color,background-color,border-color,transform] active:scale-[0.97] ${
                 index === suggestionActiveIndex
                   ? "border-kcal/60 bg-kcal-soft text-kcal"
                   : "border-line bg-surface-alt text-ink-2"
@@ -319,7 +319,7 @@ export function AddCourseForm({
       </div>
 
       {nbArticlesDetectes > 1 && (
-        <p className="px-1 text-xs text-ink-2">
+        <p className="px-1 text-caption text-ink-2">
           {nbArticlesDetectes} articles : {decoupageActuel.ok ? decoupageActuel.libelles.join(" · ") : ""}
         </p>
       )}
@@ -331,7 +331,7 @@ export function AddCourseForm({
       )}
 
       {!erreurAffichee && messageStatut && (
-        <p role="status" aria-live="polite" className="px-1 text-xs text-ink-2">
+        <p role="status" aria-live="polite" className="px-1 text-caption text-ink-2">
           {messageStatut}
         </p>
       )}

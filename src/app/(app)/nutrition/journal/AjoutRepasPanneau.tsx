@@ -102,7 +102,7 @@ function LigneCatalogue({
       >
         <span className="min-w-0">
           <span className={`block ${nameTextComplet} font-semibold`}>{item.nom}</span>
-          <span className="block truncate text-xs text-ink-2">{detail}</span>
+          <span className="block truncate text-caption text-ink-2">{detail}</span>
         </span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="shrink-0">
           <path d="M12 5v14M5 12h14" />
@@ -178,19 +178,19 @@ function EtapeChoix({
         </ul>
       ) : isError || !data ? (
         <div className="flex flex-col items-start gap-2 py-2" role="alert">
-          <p className="text-sm text-ink-2">Le catalogue n&apos;a pas pu être chargé. Vérifie la connexion.</p>
+          <p className="text-small text-ink-2">Le catalogue n&apos;a pas pu être chargé. Vérifie la connexion.</p>
           <button
             type="button"
             onClick={() => refetch()}
             disabled={isFetching}
-            className={`min-h-11 rounded-xl border border-line px-3 text-sm font-semibold text-ink ${focusRing}`}
+            className={`min-h-11 rounded-xl border border-line px-3 text-small font-semibold text-ink ${focusRing}`}
           >
             {isFetching ? "Nouvel essai…" : "Réessayer"}
           </button>
         </div>
       ) : enRecherche ? (
         resultats.length === 0 ? (
-          <p className="py-3 text-sm text-ink-2">
+          <p className="py-3 text-small text-ink-2">
             Aucun aliment ni recette pour « {requete.trim()} ».
           </p>
         ) : (
@@ -220,7 +220,7 @@ function EtapeChoix({
           </ul>
         </div>
       ) : (
-        <p className="py-3 text-sm text-ink-2">
+        <p className="py-3 text-small text-ink-2">
           Tape le nom d&apos;un aliment ou d&apos;une recette : tes derniers repas s&apos;afficheront ici ensuite.
         </p>
       )}
@@ -307,7 +307,7 @@ function EtapeQuantite({
     setTexte(String(suivant).replace(".", ","));
   }
 
-  const boutonPas = `flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-xl text-ink transition active:scale-[0.97] ${focusRing}`;
+  const boutonPas = `flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-xl text-ink transition-transform active:scale-[0.97] ${focusRing}`;
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -332,7 +332,7 @@ function EtapeQuantite({
         </button>
         <div className="min-w-0">
           <p className="truncate text-body font-bold text-ink">{item.nom}</p>
-          <p className="truncate text-xs text-ink-2">{referenceKcal(item)}</p>
+          <p className="truncate text-caption text-ink-2">{referenceKcal(item)}</p>
         </div>
       </div>
 
@@ -353,7 +353,7 @@ function EtapeQuantite({
       )}
 
       <div className="flex flex-col gap-2">
-        <label htmlFor={champId} className="text-sm font-medium text-ink">
+        <label htmlFor={champId} className="text-small font-medium text-ink">
           Quantité
         </label>
         <div className="flex items-center gap-2">
@@ -372,7 +372,7 @@ function EtapeQuantite({
               aria-describedby={[etat.error ? erreurId : null, !valide ? quantiteErreurId : null].filter(Boolean).join(" ") || undefined}
               className={`${input} w-full pr-20 text-center font-display text-xl font-semibold tabular-nums`}
             />
-            <span className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-sm text-ink-2">
+            <span className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-small text-ink-2">
               {uniteSaisie(item, mode, valide ? valeur : 1)}
             </span>
           </div>
@@ -387,7 +387,7 @@ function EtapeQuantite({
               type="button"
               onClick={() => setTexte(String(r).replace(".", ","))}
               aria-pressed={valide && valeur === r}
-              className={`min-h-11 flex-1 rounded-xl border text-sm font-semibold tabular-nums transition-colors ${focusRing} ${
+              className={`min-h-11 flex-1 rounded-xl border text-small font-semibold tabular-nums transition-colors ${focusRing} ${
                 valide && valeur === r ? "border-kcal/60 bg-kcal-soft text-kcal" : "border-line text-ink-2"
               }`}
             >
@@ -407,10 +407,10 @@ function EtapeQuantite({
       <div className="flex items-baseline justify-between rounded-2xl bg-surface-alt px-4 py-3" aria-live="polite">
         <span className="font-display text-display font-semibold text-ink tabular-nums">
           {nutrition ? Math.round(nutrition.kcal) : "—"}
-          <span className="ml-1 font-sans text-sm font-semibold text-ink-2">kcal</span>
+          <span className="ml-1 font-sans text-small font-semibold text-ink-2">kcal</span>
         </span>
         {nutrition && (
-          <span className="flex gap-3 text-xs font-semibold tabular-nums">
+          <span className="flex gap-3 text-caption font-semibold tabular-nums">
             <span style={{ color: "var(--accent-protein)" }}>P {Math.round(nutrition.proteines)} g</span>
             <span style={{ color: "var(--accent-carbs)" }}>G {Math.round(nutrition.glucides)} g</span>
             <span style={{ color: "var(--accent-fat)" }}>L {Math.round(nutrition.lipides)} g</span>

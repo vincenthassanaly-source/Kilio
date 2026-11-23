@@ -123,9 +123,9 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
             <p className="text-small font-medium text-ink-3">Prévu sur la semaine</p>
             <p className="font-display text-heading font-semibold tabular-nums text-ink">
               {moyenneKcal === null ? "—" : Math.round(moyenneKcal).toLocaleString("fr-FR")}
-              <span className="ml-1 font-sans text-sm font-semibold text-ink-2">kcal / jour</span>
+              <span className="ml-1 font-sans text-small font-semibold text-ink-2">kcal / jour</span>
             </p>
-            <p className="text-xs text-ink-2">
+            <p className="text-caption text-ink-2">
               {repas.length === 0
                 ? "Aucun repas planifié."
                 : `${repas.length} repas sur ${joursRemplis.length} jour${joursRemplis.length > 1 ? "s" : ""}`}

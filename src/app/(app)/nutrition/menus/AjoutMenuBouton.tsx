@@ -48,7 +48,7 @@ export function AjoutMenuBouton({
         onFocus={prechargerPanneau}
         aria-haspopup="dialog"
         aria-label={`Planifier un repas · ${jourLabel}, ${MOMENT_LABELS[moment]}`}
-        className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-kcal transition active:scale-[0.97] hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-kcal transition-[background-color,transform] active:scale-[0.97] hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
           <path d="M12 5v14M5 12h14" />
