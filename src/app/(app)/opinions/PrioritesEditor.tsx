@@ -33,7 +33,7 @@ export function PrioritesEditor() {
         <span className={pillTag}>{definies} définie{definies > 1 ? "s" : ""}</span>
       </summary>
       <div className="mt-3 flex flex-col gap-4">
-        <p className="text-xs text-ink-3">
+        <p className="text-caption text-ink-3">
           Ce qui compte le plus pour toi pèse davantage dans la proximité avec les partis. Un thème non réglé vaut
           « Normal ».
         </p>

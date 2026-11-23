@@ -19,7 +19,7 @@ function PisteAxe({ axe, marqueurs }: { axe: Axe; marqueurs: readonly Marqueur[]
     <li className="flex flex-col gap-1.5">
       <span className="text-body font-semibold text-ink">{axe.label}</span>
       {places.length === 0 ? (
-        <p className="text-xs text-ink-3">Aucune donnée sur cet axe.</p>
+        <p className="text-caption text-ink-3">Aucune donnée sur cet axe.</p>
       ) : (
         <>
           <div
@@ -47,7 +47,7 @@ function PisteAxe({ axe, marqueurs }: { axe: Axe; marqueurs: readonly Marqueur[]
               </span>
             ))}
           </div>
-          <div className="mx-5 flex justify-between text-xs text-ink-3" aria-hidden="true">
+          <div className="mx-5 flex justify-between text-caption text-ink-3" aria-hidden="true">
             <span>‹ {axe.gauche}</span>
             <span>{axe.droite} ›</span>
           </div>

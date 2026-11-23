@@ -231,7 +231,7 @@ export function PropositionFormModal({
         </Champ>
         <fieldset className="flex flex-col gap-3">
           <legend className={label}>Mots à surligner (facultatif)</legend>
-          <p className="text-xs text-ink-3">
+          <p className="text-caption text-ink-3">
             Chaque mot doit être écrit tel quel dans la proposition. Avec une définition, il devient cliquable.
           </p>
           {termes.map((ligne, index) => {
@@ -248,7 +248,7 @@ export function PropositionFormModal({
                   autoComplete="off"
                   onChange={(e) => majTerme(ligne.cle, "terme", e.target.value)}
                 />
-                {absent && <p className="text-xs text-alert">Ce mot n&apos;apparaît pas dans la proposition.</p>}
+                {absent && <p className="text-caption text-alert">Ce mot n&apos;apparaît pas dans la proposition.</p>}
                 <textarea
                   className={`${input} min-h-16 resize-y`}
                   aria-label={`Définition du mot ${index + 1} (facultative)`}
@@ -289,7 +289,7 @@ export function PropositionFormModal({
             </select>
           )}
         </Champ>
-        <p className="text-xs text-ink-3">
+        <p className="text-caption text-ink-3">
           Note uniquement ce que dit le texte, avec les mêmes pôles pour tous les partis. « — » : axe non concerné.
         </p>
         {AXES.map((axe) => (

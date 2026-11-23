@@ -10,7 +10,15 @@ import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { showToast } from "@/components/toast/toast-store";
 import { queryKeys } from "@/lib/query/keys";
 import { dangerButton, errorText, input, label, primaryButton } from "@/lib/ui";
-import { appliquerNiveau, contientNiveau, META_NIVEAU, NIVEAUX, type Niveau } from "@/lib/pharmacie/contenu";
+import {
+  appliquerNiveau,
+  contientAutreCouleur,
+  contientNiveau,
+  META_NIVEAU,
+  NIVEAUX_AUTRES,
+  NIVEAUX_FIXES,
+  type Niveau,
+} from "@/lib/pharmacie/contenu";
 import { pluriel } from "@/lib/pharmacie/format";
 import type { PharmaNotion } from "@/lib/pharmacie/types";
 import { ContenuColore, IconeNiveau } from "../../ContenuColore";
@@ -37,6 +45,9 @@ export function NotionEditeur({
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, startTransition] = useTransition();
   const idContenu = useId();
+  const idAutres = useId();
+  // Les couleurs de catégorie restent repliées, sauf si la notion en utilise déjà.
+  const [autresOuvertes, setAutresOuvertes] = useState(() => contientAutreCouleur(notion.contenu));
   const zoneRef = useRef<HTMLTextAreaElement>(null);
 
   useBackClose(true, onClose);
@@ -52,6 +63,24 @@ export function NotionEditeur({
       zone.focus();
       zone.setSelectionRange(edition.debut, edition.fin);
     });
+  }
+
+  function boutonCouleur(niveau: Niveau) {
+    const libelle = META_NIVEAU[niveau].libelle;
+    return (
+      <button
+        key={niveau}
+        type="button"
+        // Garde la sélection du champ pendant le tap sur le bouton.
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => colorer(niveau)}
+        aria-label={`Colorer en ${niveau}${libelle.toLowerCase() === niveau ? "" : ` (${libelle.toLowerCase()})`}`}
+        className={boutonNiveau}
+      >
+        <IconeNiveau niveau={niveau} taille={14} />
+        {libelle}
+      </button>
+    );
   }
 
   function enregistrer(e: React.FormEvent) {
@@ -101,29 +130,47 @@ export function NotionEditeur({
             <label htmlFor={idContenu} className={label}>
               Contenu
             </label>
-            <div role="group" aria-label="Colorer la ligne" className="flex flex-wrap gap-1.5">
-              {NIVEAUX.map((niveau) => (
+            <div role="group" aria-label="Colorer la ligne" className="flex flex-col gap-1.5">
+              <div className="flex flex-wrap gap-1.5">
+                {NIVEAUX_FIXES.map(boutonCouleur)}
                 <button
-                  key={niveau}
                   type="button"
-                  // Garde la sélection du champ pendant le tap sur le bouton.
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => colorer(niveau)}
-                  aria-label={`Colorer en ${niveau}${META_NIVEAU[niveau].libelle.toLowerCase() === niveau ? "" : ` (${META_NIVEAU[niveau].libelle.toLowerCase()})`}`}
-                  className={boutonNiveau}
+                  onClick={() => colorer(null)}
+                  className={`${boutonNiveau} text-ink-2`}
                 >
-                  <IconeNiveau niveau={niveau} taille={14} />
-                  {META_NIVEAU[niveau].libelle}
+                  Sans couleur
                 </button>
-              ))}
-              <button
-                type="button"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => colorer(null)}
-                className={`${boutonNiveau} text-ink-2`}
-              >
-                Sans couleur
-              </button>
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setAutresOuvertes((o) => !o)}
+                  aria-expanded={autresOuvertes}
+                  aria-controls={idAutres}
+                  className={`${boutonNiveau} text-ink-2`}
+                >
+                  Autres couleurs
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                    className={`transition-transform duration-150 ${autresOuvertes ? "rotate-180" : ""}`}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+              </div>
+              {autresOuvertes && (
+                <div id={idAutres} className="flex flex-wrap gap-1.5">
+                  {NIVEAUX_AUTRES.map(boutonCouleur)}
+                </div>
+              )}
             </div>
             <p className="text-caption text-ink-3">La couleur s&apos;applique à la ligne du curseur ou aux lignes sélectionnées.</p>
             <textarea

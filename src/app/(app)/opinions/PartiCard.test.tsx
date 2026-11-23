@@ -69,7 +69,8 @@ afterEach(() => {
 describe("PartiCard : suppressions avec annulation différée", () => {
   it("supprimer le parti : sans boîte de confirmation ni appel serveur, avec le nombre de programmes dans le toast", async () => {
     ouvrir();
-    fireEvent.click(screen.getByRole("button", { name: "Supprimer le parti" }));
+    fireEvent.click(screen.getByRole("button", { name: "Gérer PT" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Supprimer le parti" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(supprimerParti).not.toHaveBeenCalled();
     expect(getToasts().find((t) => t.action)?.text).toBe("Parti « PT » supprimé avec son programme");
@@ -82,7 +83,8 @@ describe("PartiCard : suppressions avec annulation différée", () => {
 
   it("supprimer le parti puis « Annuler » : aucun appel serveur", async () => {
     ouvrir();
-    fireEvent.click(screen.getByRole("button", { name: "Supprimer le parti" }));
+    fireEvent.click(screen.getByRole("button", { name: "Gérer PT" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Supprimer le parti" }));
     act(() => getToasts().find((t) => t.action)?.action?.onAction());
     await act(async () => {
       await vi.advanceTimersByTimeAsync(10_000);
@@ -92,7 +94,8 @@ describe("PartiCard : suppressions avec annulation différée", () => {
 
   it("supprimer le programme : toast avec le nombre de propositions, appel après le délai seulement", async () => {
     ouvrir();
-    fireEvent.click(screen.getByRole("button", { name: "Supprimer le programme" }));
+    fireEvent.click(screen.getByRole("button", { name: "Gérer PT" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Supprimer le programme" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(supprimerProgramme).not.toHaveBeenCalled();
     expect(getToasts().find((t) => t.action)?.text).toBe("Programme « Présidentielle 2027 » supprimé avec ses 2 propositions");

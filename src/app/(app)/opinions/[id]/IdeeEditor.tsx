@@ -39,6 +39,8 @@ import { card, dangerButton, errorText, input, label, pillTag, primaryButton, sc
 import { Champ, LigneScore } from "../ChampsFormulaire";
 import { StatutPill } from "../StatutPill";
 import { BackLink } from "@/components/BackLink";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { lienRetourOpinions } from "@/lib/opinions/url";
 
 function resumeScores(version: VersionIdee): string {
   const parties = AXES.flatMap((axe) => {
@@ -63,6 +65,9 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
   const [initiale, setInitiale] = useState(() => champsDe(idee));
   const [saisie, setSaisie] = useState(initiale);
   const [erreur, setErreur] = useState<string | null>(null);
+  // Erreur d'un changement de statut : affichée dans la section Statut, là où l'on a tapé.
+  const [erreurStatut, setErreurStatut] = useState<string | null>(null);
+  const [quitter, setQuitter] = useState(false);
   const [enCours, startTransition] = useTransition();
 
   const statut = idee.statut;
@@ -105,17 +110,18 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
 
   function onStatut(nouveau: Statut) {
     if (nouveau === "validee" && !saisie.theme) {
-      setErreur("Choisis un thème avant de valider cette idée.");
+      setErreurStatut("Choisis un thème avant de valider cette idée.");
       return;
     }
+    setErreurStatut(null);
     startTransition(async () => {
       if (modifie && !(await enregistrer())) return;
       const resultat = await runAction(() => changerStatutIdee(idee.id, nouveau), { silencieux: true });
       if (!resultat.ok) {
-        setErreur(resultat.error);
+        setErreurStatut(resultat.error);
         return;
       }
-      setErreur(null);
+      setErreurStatut(null);
       invalidate();
       showToast(`Statut : ${LIBELLE_STATUT[nouveau]}`, 1800);
     });
@@ -130,7 +136,7 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
       texte: `Idée « ${extrait} » supprimée`,
       ariaLabel: `Annuler la suppression de l'idée « ${extrait} »`,
       masque: { type: "idee", id: idee.id },
-      masquer: () => navigate("/opinions"),
+      masquer: () => navigate(lienRetourOpinions()),
       supprimer: () => supprimerIdee(idee.id),
       erreur: "La suppression de l'idée a échoué. Réessaie.",
       onSupprime: invalidate,
@@ -140,7 +146,18 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <BackLink href="/opinions">Opinions</BackLink>
+        <BackLink
+          href="/opinions"
+          onClick={(e) => {
+            // Retour à l'onglet et aux filtres quittés ; modifications non
+            // enregistrées : on demande avant de les perdre.
+            e.preventDefault();
+            if (modifie) setQuitter(true);
+            else navigate(lienRetourOpinions(), "recule");
+          }}
+        >
+          Opinions
+        </BackLink>
         <div className="flex items-center justify-between gap-3">
           <h1 className={screenTitle}>Idée</h1>
           <StatutPill statut={statut} />
@@ -149,9 +166,9 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
 
       {idee.origine && (
         <section className={`${card} flex flex-col gap-1`}>
-          <p className="text-xs font-semibold text-ink-3">Reprise d&apos;une proposition de parti</p>
+          <p className="text-caption font-semibold text-ink-3">Reprise d&apos;une proposition de parti</p>
           <p className="break-words text-body leading-snug text-ink">« {idee.origine.proposition} »</p>
-          <p className="text-xs text-ink-2">
+          <p className="text-caption text-ink-2">
             {idee.origine.parti} · {idee.origine.echeance}
           </p>
         </section>
@@ -253,7 +270,7 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
         <section className={`${card} flex flex-col gap-4`}>
           <div className="flex flex-col gap-1">
             <h2 className={sectionTitle}>Sur les axes</h2>
-            <p className="text-xs text-ink-3">
+            <p className="text-caption text-ink-3">
               Ne renseigne que les axes que l&apos;idée touche : « — » veut dire non concerné, « 0 » une position
               centrale assumée.
             </p>
@@ -277,7 +294,7 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
       <section className={`${card} flex flex-col gap-3`}>
         <div className="flex flex-col gap-1">
           <h2 className={sectionTitle}>Statut</h2>
-          <p className="text-xs text-ink-3">
+          <p className="text-caption text-ink-3">
             {statut === "validee"
               ? "Cette idée compte dans ton profil."
               : "Seules les idées validées comptent dans ton profil. Valider demande un thème."}
@@ -300,7 +317,25 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
             </button>
           )}
         </div>
+        {erreurStatut && (
+          <p className={errorText} role="alert">
+            {erreurStatut}
+          </p>
+        )}
       </section>
+
+      <ConfirmDialog
+        open={quitter}
+        titre="Quitter sans enregistrer ?"
+        confirmer="Quitter sans enregistrer"
+        onClose={() => setQuitter(false)}
+        onConfirm={() => {
+          setQuitter(false);
+          navigate(lienRetourOpinions(), "recule");
+        }}
+      >
+        <p>Tes modifications de cette idée seront perdues.</p>
+      </ConfirmDialog>
 
       {idee.versions.length > 0 && (
         <details className={`${card} group`}>
@@ -313,9 +348,9 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
           <ol className="mt-3 flex flex-col gap-3">
             {idee.versions.map((version) => (
               <li key={version.id} className="flex flex-col gap-1 border-t border-line pt-3">
-                <p className="text-xs font-semibold text-ink-3">Remplacée le {dateVersion(version.created_at)}</p>
+                <p className="text-caption font-semibold text-ink-3">Remplacée le {dateVersion(version.created_at)}</p>
                 <p className="text-body leading-snug text-ink">« {version.position} »</p>
-                <p className="text-xs text-ink-2">
+                <p className="text-caption text-ink-2">
                   {version.theme ? LIBELLE_THEME[version.theme] : "Sans thème"} · {LIBELLE_CONVICTION[version.conviction]} ·{" "}
                   {resumeScores(version)}
                 </p>

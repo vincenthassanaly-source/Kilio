@@ -33,7 +33,7 @@ export function SuiviProposition({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <label className="flex min-h-11 cursor-pointer items-center gap-2.5 pr-3 text-sm font-medium text-ink">
+      <label className="flex min-h-11 cursor-pointer items-center gap-2.5 pr-3 text-small font-medium text-ink">
         <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
           <input
             type="checkbox"
