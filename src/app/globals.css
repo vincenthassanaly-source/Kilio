@@ -124,6 +124,13 @@
   --note-citron: oklch(0.93 0.05 100);
   --note-menthe: oklch(0.93 0.035 185);
   --note-argile: oklch(0.91 0.04 40);
+  /* Pharmacie : les 5 niveaux à sens fixe ont leurs propres teintes, sans
+     emprunter le vert d'action (kcal) ni le bleu de l'agenda. ≥ 3:1 sur surface. */
+  --niveau-bleu: oklch(0.5 0.13 255);
+  --niveau-vert: oklch(0.52 0.13 140);
+  --niveau-orange: oklch(0.6 0.15 60);
+  --niveau-rouge: oklch(0.52 0.18 18);
+  --niveau-gris: oklch(0.55 0.01 250);
 }
 
 :root.dark {
@@ -214,6 +221,11 @@
   --note-citron: oklch(0.34 0.065 100);
   --note-menthe: oklch(0.32 0.045 185);
   --note-argile: oklch(0.32 0.05 40);
+  --niveau-bleu: oklch(0.72 0.12 255);
+  --niveau-vert: oklch(0.75 0.14 140);
+  --niveau-orange: oklch(0.77 0.14 60);
+  --niveau-rouge: oklch(0.72 0.16 18);
+  --niveau-gris: oklch(0.7 0.01 250);
 }
 
 @theme inline {

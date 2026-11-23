@@ -75,7 +75,7 @@ function Accueil({ snapshot }: { snapshot: PharmaSnapshot }) {
   return (
     <>
       <section className={`${card} flex items-center gap-4 rounded-hero p-[18px]`} aria-label="Révision du jour">
-        <ProgressRing size={72} strokeWidth={7} pct={maitrise / 100} color="var(--accent-kcal)">
+        <ProgressRing size={72} strokeWidth={7} pct={maitrise / 100} color="var(--accent-pharmacie)">
           <span className="font-display text-heading-sm font-bold leading-none text-ink">{maitrise}%</span>
           <span className="mt-0.5 text-micro font-semibold text-ink-3">acquis</span>
         </ProgressRing>
@@ -113,12 +113,17 @@ function Accueil({ snapshot }: { snapshot: PharmaSnapshot }) {
                       {pluriel(stats.chapitres, "chapitre")} · {pluriel(stats.notions, "notion")}
                     </span>
                   </span>
-                  <span
-                    className="h-1.5 w-full overflow-hidden rounded-full bg-surface-alt"
-                    role="img"
-                    aria-label={`${pct} % des cartes acquises`}
-                  >
-                    <span className="block h-full rounded-full bg-pharmacie" style={{ width: `${pct}%` }} />
+                  <span className="flex items-center gap-2.5">
+                    <span
+                      className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-alt"
+                      role="img"
+                      aria-label={`${pct} % des cartes acquises`}
+                    >
+                      <span className="block h-full rounded-full bg-pharmacie" style={{ width: `${pct}%` }} />
+                    </span>
+                    <span className="shrink-0 text-caption font-semibold tabular-nums text-ink-2" aria-hidden="true">
+                      {pct} %
+                    </span>
                   </span>
                 </TransitionLink>
               </li>

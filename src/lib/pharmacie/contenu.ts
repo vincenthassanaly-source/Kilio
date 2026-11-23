@@ -16,11 +16,11 @@ export type MetaNiveau = {
 };
 
 export const META_NIVEAU = {
-  bleu: { libelle: "Bas", couleur: "var(--accent-agenda)" },
-  vert: { libelle: "Normal", couleur: "var(--accent-kcal)" },
-  orange: { libelle: "À surveiller", couleur: "var(--accent-warning)" },
-  rouge: { libelle: "Danger", couleur: "var(--accent-alert)" },
-  gris: { libelle: "Repère", couleur: "var(--ink-3)" },
+  bleu: { libelle: "Bas", couleur: "var(--niveau-bleu)" },
+  vert: { libelle: "Normal", couleur: "var(--niveau-vert)" },
+  orange: { libelle: "À surveiller", couleur: "var(--niveau-orange)" },
+  rouge: { libelle: "Danger", couleur: "var(--niveau-rouge)" },
+  gris: { libelle: "Repère", couleur: "var(--niveau-gris)" },
   violet: { libelle: "Violet", couleur: "var(--niveau-violet)" },
   rose: { libelle: "Rose", couleur: "var(--niveau-rose)" },
   jaune: { libelle: "Jaune", couleur: "var(--niveau-jaune)" },
@@ -32,6 +32,15 @@ export const META_NIVEAU = {
 
 export type Niveau = keyof typeof META_NIVEAU;
 export const NIVEAUX = Object.keys(META_NIVEAU) as Niveau[];
+/** Les 5 niveaux à sens fixe (Bas, Normal, À surveiller, Danger, Repère), toujours visibles dans l'éditeur. */
+export const NIVEAUX_FIXES = NIVEAUX.slice(0, 5);
+/** Couleurs de catégorie, rangées sous « Autres couleurs » dans l'éditeur. */
+export const NIVEAUX_AUTRES = NIVEAUX.slice(5);
+
+/** `true` si une ligne du texte porte une des « autres couleurs » (catégories). */
+export function contientAutreCouleur(texte: string): boolean {
+  return new RegExp(`^\\[(?:${NIVEAUX_AUTRES.join("|")})\\]`, "im").test(texte);
+}
 
 export type BlocContenu =
   | { type: "texte"; texte: string }
