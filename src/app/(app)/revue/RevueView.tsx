@@ -77,7 +77,7 @@ export function RevueView({ today }: { today: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
+    <div className="flex flex-col gap-4 pb-10">
       <MenuAssistantRevue peutReplanifier={enRetard.length > 0} />
 
       <section aria-labelledby="revue-bilan" className={`${card} flex flex-col gap-3`}>

@@ -184,7 +184,7 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
   );
 
   return (
-    <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
+    <div className="flex flex-col gap-4 pb-10">
       {ferieDuJour && <FerieBadge nom={ferieDuJour} className="self-start" />}
 
       <ScoreDuJourCard today={today} tachesDuJour={duJour} tachesChargent={tachesChargent} />
