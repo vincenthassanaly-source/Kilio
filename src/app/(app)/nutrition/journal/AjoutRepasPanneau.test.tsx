@@ -8,6 +8,7 @@ vi.mock("@/app/actions/journal", () => ({
   getCatalogueJournal: vi.fn().mockResolvedValue({ items: [], recents: [] }),
 }));
 
+import { getCatalogueJournal } from "@/app/actions/journal";
 import { AjoutRepasPanneau } from "./AjoutRepasPanneau";
 
 const zero = { kcal: 0, proteines: 0, glucides: 0, lipides: 0 };
@@ -55,5 +56,29 @@ describe("AjoutRepasPanneau — point de départ", () => {
   it("sans point de départ : recherche vide, comme avant", () => {
     afficher();
     expect(screen.getByRole("searchbox", { name: "Rechercher un aliment ou une recette" })).toHaveValue("");
+  });
+});
+
+describe("AjoutRepasPanneau — correction d'un repas", () => {
+  it("rouvre le dosage avec la quantité et le moment enregistrés, et envoie l'id de la ligne", async () => {
+    vi.mocked(getCatalogueJournal).mockResolvedValueOnce({ items: [oeuf], recents: [] });
+    afficher({
+      date: "2026-09-30",
+      edition: { id: "ligne-1", cle: "aliment:a-oeuf", quantite: 180, moment: "collation" },
+    });
+
+    expect(await screen.findByText("Œuf")).toBeInTheDocument();
+    // 180 g = 3 pièces de 60 g.
+    expect(screen.getByLabelText("Quantité")).toHaveValue("3");
+    expect(screen.getByRole("button", { name: "Collation" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeInTheDocument();
+    expect(document.querySelector('input[name="id"]')).toHaveValue("ligne-1");
+    expect(document.querySelector('input[name="moment"]')).toHaveValue("collation");
+  });
+
+  it("signale un aliment qui n'existe plus", async () => {
+    vi.mocked(getCatalogueJournal).mockResolvedValueOnce({ items: [], recents: [] });
+    afficher({ edition: { id: "ligne-1", cle: "aliment:disparu", quantite: 100, moment: "diner" } });
+    expect(await screen.findByText("Cet aliment ou cette recette n'existe plus.")).toBeInTheDocument();
   });
 });

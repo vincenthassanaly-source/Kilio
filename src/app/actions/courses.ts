@@ -91,6 +91,9 @@ export type ResultatAjoutArticlesCourses = {
   crees: number;
   reactives: number;
   dejaPresents: string[];
+  /** Ids des articles créés et réactivés : de quoi annuler l'envoi (annulerAjoutArticlesCourses). */
+  idsCrees: string[];
+  idsReactives: string[];
 };
 
 // Ajout multiple (#2 de l'audit) : valide le lot, relit les articles
@@ -134,13 +137,15 @@ export async function ajouterArticlesCourses(libelles: string[]): Promise<Result
   const plan = planifierAjoutCourses(trimmes, existants ?? []);
   const maintenant = Date.now();
 
+  let idsCrees: string[] = [];
   if (plan.aCreer.length > 0) {
     const lignes = plan.aCreer.map((libelle, index) => ({
       libelle,
       created_at: new Date(maintenant + index).toISOString(),
     }));
-    const { error } = await supabase.from("courses_items").insert(lignes);
+    const { data: creees, error } = await supabase.from("courses_items").insert(lignes).select("id");
     if (error) throw new Error(error.message);
+    idsCrees = (creees ?? []).map((ligne) => ligne.id);
   }
 
   const resultatsReactivation = await Promise.all(
@@ -158,7 +163,39 @@ export async function ajouterArticlesCourses(libelles: string[]): Promise<Result
   revalidatePath("/courses");
   updateTag(COURSES_TAG);
 
-  return { crees: plan.aCreer.length, reactives: plan.aReactiver.length, dejaPresents: plan.dejaPresents };
+  return {
+    crees: plan.aCreer.length,
+    reactives: plan.aReactiver.length,
+    dejaPresents: plan.dejaPresents,
+    idsCrees,
+    idsReactives: plan.aReactiver.map((article) => article.id),
+  };
+}
+
+/**
+ * Défait un ajout groupé (« Annuler » du toast d'envoi des Menus) : supprime
+ * les articles créés et recoche ceux qui avaient été remis à prendre. Les ids
+ * viennent du client : ils sont validés, et un article déjà retiré ou recoché
+ * entre-temps ne fait pas échouer l'annulation.
+ */
+export async function annulerAjoutArticlesCourses(idsCrees: string[], idsReactives: string[]) {
+  if ([...idsCrees, ...idsReactives].some((id) => !estUuid(id))) {
+    throw new Error("Identifiant d'article invalide.");
+  }
+  if (idsCrees.length === 0 && idsReactives.length === 0) return;
+
+  const supabase = createAdminClient();
+  if (idsCrees.length > 0) {
+    const { error } = await supabase.from("courses_items").delete().in("id", idsCrees);
+    if (error) throw new Error(error.message);
+  }
+  if (idsReactives.length > 0) {
+    const { error } = await supabase.from("courses_items").update({ coche: true }).in("id", idsReactives);
+    if (error) throw new Error(error.message);
+  }
+
+  revalidatePath("/courses");
+  updateTag(COURSES_TAG);
 }
 
 

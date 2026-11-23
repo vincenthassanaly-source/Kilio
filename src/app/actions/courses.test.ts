@@ -14,6 +14,7 @@ vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client })
 
 import {
   ajouterArticlesCourses,
+  annulerAjoutArticlesCourses,
   createCourseItem,
   deleteCourseItem,
   deleteCourseItems,
@@ -139,11 +140,11 @@ describe("ajouterArticlesCourses", () => {
   it("crée les nouveaux articles en un seul INSERT avec des created_at strictement croissants", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-10-09T10:00:00.000Z"));
-    const fake = brancher(() => ({ data: [] }));
+    const fake = brancher((a) => (a.action === "insert" ? { data: [{ id: ID1 }, { id: ID2 }] } : { data: [] }));
 
     const res = await ajouterArticlesCourses(["Lait", "Pain"]);
 
-    expect(res).toEqual({ crees: 2, reactives: 0, dejaPresents: [] });
+    expect(res).toEqual({ crees: 2, reactives: 0, dejaPresents: [], idsCrees: [ID1, ID2], idsReactives: [] });
     const insertions = ecritures(fake.appels, "courses_items", "insert");
     expect(insertions).toHaveLength(1);
     expect(insertions[0].payload).toEqual([
@@ -169,7 +170,7 @@ describe("ajouterArticlesCourses", () => {
 
     const res = await ajouterArticlesCourses(["Lait", "Pain", "Beurre"]);
 
-    expect(res).toEqual({ crees: 1, reactives: 1, dejaPresents: ["Lait"] });
+    expect(res).toEqual({ crees: 1, reactives: 1, dejaPresents: ["Lait"], idsCrees: [], idsReactives: [ID2] });
     expect(ecritures(fake.appels, "courses_items", "insert")[0].payload).toEqual([
       { libelle: "Beurre", created_at: "2026-10-09T10:00:00.000Z" },
     ]);
@@ -180,7 +181,13 @@ describe("ajouterArticlesCourses", () => {
 
   it("n'écrit rien quand tout est déjà présent mais expire quand même le cache", async () => {
     const fake = brancher((a) => (a.action === "select" ? { data: [{ id: ID1, libelle: "Lait", coche: false }] } : undefined));
-    expect(await ajouterArticlesCourses(["lait"])).toEqual({ crees: 0, reactives: 0, dejaPresents: ["lait"] });
+    expect(await ajouterArticlesCourses(["lait"])).toEqual({
+      crees: 0,
+      reactives: 0,
+      dejaPresents: ["lait"],
+      idsCrees: [],
+      idsReactives: [],
+    });
     expect(ecritures(fake.appels, "courses_items")).toHaveLength(0);
   });
 
@@ -229,5 +236,30 @@ describe("restoreCourseItems", () => {
   it("lève l'erreur Supabase", async () => {
     brancher(() => ({ error: { message: "ko" } }));
     await expect(restoreCourseItems([item])).rejects.toThrow("ko");
+  });
+});
+
+describe("annulerAjoutArticlesCourses", () => {
+  it("supprime les articles créés et recoche les articles réactivés", async () => {
+    const fake = brancher();
+    await annulerAjoutArticlesCourses([ID1], [ID2]);
+    const [suppression] = ecritures(fake.appels, "courses_items", "delete");
+    expect(suppression.filtres).toContainEqual(["in", "id", [ID1]]);
+    const [recoche] = ecritures(fake.appels, "courses_items", "update");
+    expect(recoche.payload).toEqual({ coche: true });
+    expect(recoche.filtres).toContainEqual(["in", "id", [ID2]]);
+    attendreRevalidation();
+  });
+
+  it("refuse un id invalide et ne fait rien sans id", async () => {
+    const fake = brancher();
+    await expect(annulerAjoutArticlesCourses(["temp-1"], [])).rejects.toThrow("Identifiant d'article invalide.");
+    await annulerAjoutArticlesCourses([], []);
+    expect(fake.appels).toHaveLength(0);
+  });
+
+  it("lève l'erreur Supabase", async () => {
+    brancher(() => ({ error: { message: "ko" } }));
+    await expect(annulerAjoutArticlesCourses([ID1], [])).rejects.toThrow("ko");
   });
 });

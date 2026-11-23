@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useDeferredValue, useId, useMemo, useState } from "react";
+import { useActionState, useDeferredValue, useId, useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { addJournalEntry, getCatalogueJournal, type JournalFormState } from "@/app/actions/journal";
 import { MESSAGE_HORS_LIGNE } from "@/lib/actions/runAction";
@@ -32,6 +32,13 @@ const focusRing =
 export type ActionSaisieRepas = (precedent: JournalFormState, formData: FormData) => Promise<JournalFormState>;
 
 const libelleAjoutJournal = (moment: MomentRepas) => `Ajouter ${AJOUT_LABELS[moment]}`;
+
+/**
+ * Repas déjà saisi qu'on corrige (tap sur une ligne du Carnet ou d'un menu) :
+ * `cle` est la clé catalogue de son aliment ou de sa recette (cleCatalogue),
+ * `quantite` la quantité stockée (g/ml ou portions).
+ */
+export type EditionRepas = { id: string; cle: string; quantite: number; moment: MomentRepas };
 
 function arrondir(n: number) {
   return Math.round(n * 10) / 10;
@@ -224,6 +231,7 @@ function EtapeChoix({
 function EtapeQuantite({
   item,
   recent,
+  idEdition,
   moment,
   momentFige,
   date,
@@ -235,6 +243,8 @@ function EtapeQuantite({
 }: {
   item: CatalogueItem;
   recent?: SaisieRecente;
+  /** Ligne corrigée : envoyée en champ `id`, le bouton devient « Enregistrer ». */
+  idEdition?: string;
   moment: MomentRepas;
   momentFige: boolean;
   date?: string;
@@ -307,6 +317,7 @@ function EtapeQuantite({
       <input type="hidden" name="saisie_mode" value={mode} />
       <input type="hidden" name="moment" value={moment} />
       {date && <input type="hidden" name="date" value={date} />}
+      {idEdition && <input type="hidden" name="id" value={idEdition} />}
 
       <div className="flex items-center gap-2">
         <button
@@ -414,10 +425,53 @@ function EtapeQuantite({
       )}
 
       <button type="submit" disabled={!valide || enCours} className={`${primaryButton} min-h-12 w-full`}>
-        {enCours ? "Ajout…" : libelleAjout(moment)}
+        {idEdition ? (enCours ? "Enregistrement…" : "Enregistrer") : enCours ? "Ajout…" : libelleAjout(moment)}
       </button>
     </form>
   );
+}
+
+/**
+ * Ouverture d'un repas à corriger : retrouve son aliment ou sa recette dans le
+ * catalogue (déjà en cache la plupart du temps) puis ouvre directement le
+ * dosage, pré-rempli avec la quantité et le moment enregistrés.
+ */
+function EtapeEdition({
+  edition,
+  children,
+}: {
+  edition: EditionRepas;
+  children: (item: CatalogueItem, recent: SaisieRecente) => ReactNode;
+}) {
+  const { data, isLoading, isError, refetch, isFetching } = useQuery({
+    queryKey: queryKeys.catalogueJournal,
+    queryFn: getCatalogueJournal,
+    staleTime: 5 * 60_000,
+  });
+  const item = data?.items.find((i) => cleCatalogue(i) === edition.cle);
+
+  if (isLoading) {
+    return <div className="h-64 animate-pulse rounded-2xl bg-surface-alt" aria-busy="true" aria-label="Chargement du repas" />;
+  }
+  if (isError || !data) {
+    return (
+      <div className="flex flex-col items-start gap-2 py-2" role="alert">
+        <p className="text-small text-ink-2">Le repas n&apos;a pas pu être chargé. Vérifie la connexion.</p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className={`min-h-11 rounded-xl border border-line px-3 text-small font-semibold text-ink ${focusRing}`}
+        >
+          {isFetching ? "Nouvel essai…" : "Réessayer"}
+        </button>
+      </div>
+    );
+  }
+  if (!item) {
+    return <p className="py-3 text-small text-ink-2">Cet aliment ou cette recette n&apos;existe plus.</p>;
+  }
+  return children(item, { type: item.type, id: item.id, quantite: edition.quantite, moment: edition.moment });
 }
 
 /**
@@ -431,12 +485,15 @@ function EtapeQuantite({
 export function AjoutRepasPanneau({
   date,
   depart,
+  edition,
   momentFige = false,
   action = addJournalEntry,
   libelleAjout = libelleAjoutJournal,
   onAjoute,
 }: {
   date?: string;
+  /** Repas à corriger : ouvre le dosage pré-rempli ; `action` doit être l'action de modification. */
+  edition?: EditionRepas;
   /** Moment imposé par l'appelant (créneau d'un menu) : le sélecteur de moment est masqué. */
   momentFige?: boolean;
   /** Action d'enregistrement ; le Journal par défaut. */
@@ -451,6 +508,7 @@ export function AjoutRepasPanneau({
   onAjoute: (item: CatalogueItem, moment: MomentRepas) => void;
 }) {
   const [moment, setMoment] = useState<MomentRepas>(() => {
+    if (edition) return edition.moment;
     if (depart?.moment) return depart.moment;
     const maintenant = new Date();
     return momentParDefaut(maintenant.getHours() + maintenant.getMinutes() / 60);
@@ -459,11 +517,37 @@ export function AjoutRepasPanneau({
     depart?.item ? { item: depart.item, recent: depart.recent } : null
   );
 
+  // En correction, « ‹ » permet de changer d'aliment : la ligne garde son id.
+  const [changerItem, setChangerItem] = useState(false);
+
+  if (edition && !choix && !changerItem) {
+    return (
+      <EtapeEdition edition={edition}>
+        {(item, recent) => (
+          <EtapeQuantite
+            item={item}
+            recent={recent}
+            idEdition={edition.id}
+            moment={moment}
+            momentFige={momentFige}
+            date={date}
+            action={action}
+            libelleAjout={libelleAjout}
+            onMoment={setMoment}
+            onRetour={() => setChangerItem(true)}
+            onAjoute={onAjoute}
+          />
+        )}
+      </EtapeEdition>
+    );
+  }
+
   return choix ? (
     <EtapeQuantite
       key={cleCatalogue(choix.item)}
       item={choix.item}
       recent={choix.recent}
+      idEdition={edition?.id}
       moment={moment}
       momentFige={momentFige}
       date={date}

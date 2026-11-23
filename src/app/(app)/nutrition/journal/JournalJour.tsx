@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { vueRepas } from "@/lib/nutrition/vue-repas";
-import { eyebrow, sectionTitle } from "@/lib/ui";
+import { eyebrow } from "@/lib/ui";
 import { ObjectifForm } from "./ObjectifForm";
 import type { JournalEntryView } from "./JournalEntriesList";
 import { JournalRepas } from "./JournalRepas";
@@ -52,7 +52,17 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
   // en base) : vueRepas renvoie null et on l'ignore plutôt que de planter.
   const views: JournalEntryView[] = (entries ?? []).flatMap((entry) => {
     const vue = vueRepas(entry);
-    return vue ? [{ id: entry.id, moment: entry.moment, ...vue }] : [];
+    return vue
+      ? [
+          {
+            id: entry.id,
+            moment: entry.moment,
+            cle: entry.aliment ? `aliment:${entry.aliment_id}` : `recette:${entry.recette_id}`,
+            quantite: Number(entry.quantite),
+            ...vue,
+          },
+        ]
+      : [];
   });
 
   const jourType = jourTypePourDate(date, datesEntrainement);
@@ -73,12 +83,14 @@ export async function JournalJour({ searchParams }: { searchParams: JournalSearc
     <>
     <JournalJourAnime key={date} date={date} depuisBilan={depuisBilan}>
       <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-2">
-          <h2 className={sectionTitle}>Objectif ({jourType === "repos" ? "repos" : "entraînement"})</h2>
-          <ObjectifForm repos={objectifRepos} entrainement={objectifEntrainement} />
-        </div>
-
-        <JournalRepas entries={views} cible={cible} date={date} estAujourdhui={estAujourdhui} jourType={jourType} />
+        <JournalRepas
+          entries={views}
+          cible={cible}
+          date={date}
+          estAujourdhui={estAujourdhui}
+          jourType={jourType}
+          objectifs={<ObjectifForm repos={objectifRepos} entrainement={objectifEntrainement} />}
+        />
         {/* Réserve la place du bouton flottant pour ne jamais masquer la
             dernière entrée. */}
         <div aria-hidden="true" className="h-16" />
