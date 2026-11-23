@@ -334,3 +334,23 @@ describe("dateReport", () => {
     expect(dateReport("semaine_prochaine", "2026-10-10")).toBe("2026-10-12");
   });
 });
+
+import { nomListeDejaPris } from "./compute";
+
+describe("nomListeDejaPris", () => {
+  const listes = [
+    { id: "a", nom: "Général" },
+    { id: "b", nom: "Maison" },
+  ];
+
+  it("détecte un nom déjà pris, sans tenir compte de la casse ni des espaces", () => {
+    expect(nomListeDejaPris(listes, " maison ")).toBe(true);
+    expect(nomListeDejaPris(listes, "GÉNÉRAL")).toBe(true);
+    expect(nomListeDejaPris(listes, "Travail")).toBe(false);
+  });
+
+  it("ignore la liste renommée elle-même", () => {
+    expect(nomListeDejaPris(listes, "maison", "b")).toBe(false);
+    expect(nomListeDejaPris(listes, "Général", "b")).toBe(true);
+  });
+});

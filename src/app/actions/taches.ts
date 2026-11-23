@@ -16,6 +16,7 @@ import {
   appliquerCochage,
   cochageDejaApplique,
   messageAvertissementCreation,
+  nomListeDejaPris,
   parseDureeMinutes,
 } from "@/lib/taches/compute";
 import { calculerHeureFin } from "@/lib/evenements/compute";
@@ -865,6 +866,24 @@ export async function getTachesAvecRelations(): Promise<TacheAvecRelations[]> {
 
 export type ListeFormState = { error: string | null };
 
+// Deux listes du même nom seraient indiscernables dans les sélecteurs : refus
+// en français (jamais le message Postgres brut). Renvoie le message d'erreur,
+// ou `null` si le nom est libre.
+async function verifierNomListeLibre(
+  supabase: ReturnType<typeof createAdminClient>,
+  nom: string,
+  idExclu?: string
+): Promise<string | null> {
+  const { data, error } = await supabase.from("listes_taches").select("id, nom");
+  if (error) {
+    console.error(`[listes] lecture des noms impossible : ${error.message}`);
+    return "Impossible de vérifier le nom de la liste. Réessaie.";
+  }
+  return nomListeDejaPris(data ?? [], nom, idExclu)
+    ? `Une liste « ${nom} » existe déjà. Choisis un autre nom.`
+    : null;
+}
+
 export async function createListe(
   _prevState: ListeFormState,
   formData: FormData
@@ -874,6 +893,9 @@ export async function createListe(
   if (!nom) return { error: "Le nom est requis." };
 
   const supabase = createAdminClient();
+
+  const doublon = await verifierNomListeLibre(supabase, nom);
+  if (doublon) return { error: doublon };
 
   const { data: derniere } = await supabase
     .from("listes_taches")
@@ -888,7 +910,10 @@ export async function createListe(
     ordre: (derniere?.ordre ?? -1) + 1,
   });
 
-  if (error) return { error: error.message };
+  if (error) {
+    console.error(`[listes] création impossible : ${error.message}`);
+    return { error: "Impossible de créer la liste. Réessaie." };
+  }
 
   revalidatePath("/taches");
   revalidatePath("/taches/listes");
@@ -908,12 +933,19 @@ export async function updateListe(
   if (!nom) return { error: "Le nom est requis." };
 
   const supabase = createAdminClient();
+
+  const doublon = await verifierNomListeLibre(supabase, nom, id);
+  if (doublon) return { error: doublon };
+
   const { error } = await supabase
     .from("listes_taches")
     .update({ nom, couleur: couleur || null })
     .eq("id", id);
 
-  if (error) return { error: error.message };
+  if (error) {
+    console.error(`[listes] modification impossible : ${error.message}`);
+    return { error: "Impossible de modifier la liste. Réessaie." };
+  }
 
   // `/taches/listes` (Server Component sans refetch client) est la page
   // réellement affichée par ce formulaire — même correctif que
