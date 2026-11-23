@@ -8,10 +8,11 @@ import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Tables } from "@/lib/supabase/types";
-import { listCard, nameTextComplet } from "@/lib/ui";import { CheckToggle } from "@/components/CheckToggle";
+import { listCard, nameTextComplet } from "@/lib/ui";
+import { CheckToggle } from "@/components/CheckToggle";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
-import { estIdTemporaire } from "@/lib/courses/compute";
+import { estIdTemporaire, LONGUEUR_MAX_LIBELLE_COURSE } from "@/lib/courses/compute";
 import { restaurerArticlesCourses } from "./undo";
 
 // Extrait de CoursesList pour être réutilisé tel quel par
@@ -256,6 +257,7 @@ function CourseItemRowBase({
             <input
               ref={inputRef}
               value={draft}
+              maxLength={LONGUEUR_MAX_LIBELLE_COURSE}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={commitRename}
