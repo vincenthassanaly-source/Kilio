@@ -9,7 +9,7 @@ import { shiftDate } from "@/lib/date/iso";
 import { runAction } from "@/lib/actions/runAction";
 import { JETONS_PAR_SEMAINE, erreurPoseJourLibre, jetonsRestants } from "@/lib/nutrition/libres";
 import { queryKeys } from "@/lib/query/keys";
-import { card, ghostButton, secondaryButton } from "@/lib/ui";
+import { card, ghostButton, secondaryButton, sectionTitle } from "@/lib/ui";
 
 /**
  * Jours libres : 2 jetons par semaine qui suspendent la limite kcal d'un jour.
@@ -71,7 +71,7 @@ export function JourLibreCard({ today }: { today: string }) {
           className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl p-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
         >
           <span className="min-w-0">
-            <span className="block text-body font-semibold tracking-[-0.01em] text-ink">Jours libres</span>
+            <span className={`block ${sectionTitle}`}>Jours libres</span>
             {lignes[0].libre && <span className="block text-small font-normal text-ink-2">Aujourd&apos;hui : jour libre</span>}
           </span>
           <span className="flex shrink-0 items-center gap-2 text-small font-semibold tabular-nums text-ink-2">

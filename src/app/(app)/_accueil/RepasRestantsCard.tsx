@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getResumeNutritionJour } from "@/app/actions/journal";
 import { queryKeys } from "@/lib/query/keys";
 import { repasRestants, type Restant } from "@/lib/aujourdhui/compute";
-import { card } from "@/lib/ui";
+import { card, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 
@@ -57,7 +57,7 @@ export function RepasRestantsCard({ today }: { today: string }) {
       className={`${card} flex flex-col gap-2.5 transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
     >
       <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-body font-semibold tracking-[-0.01em] text-ink">Repas</h2>
+        <h2 className={sectionTitle}>Repas</h2>
         <span className="text-small font-semibold text-kcal">Ajouter un repas</span>
       </div>
       {resume?.jourLibre ? (

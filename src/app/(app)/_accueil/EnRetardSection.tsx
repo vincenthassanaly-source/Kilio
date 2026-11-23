@@ -6,6 +6,7 @@ import type { CibleReport } from "@/lib/taches/compute";
 import { libelleRetard } from "@/lib/aujourdhui/compute";
 import { DashboardTaskItem } from "../DashboardTaskItem";
 import { LIBELLES_REPORT, useReporterTaches } from "../taches/useReporterTaches";
+import { card, sectionTitle } from "@/lib/ui";
 
 // Au-delà, le reste se déplie : une liste de retard qui s'allonge ne doit pas
 // repousser la journée hors de l'écran.
@@ -120,11 +121,11 @@ export function EnRetardSection({
   return (
     <section
       {...(masquerTitre ? { "aria-label": "Tâches en retard" } : { "aria-labelledby": "aujourdhui-retard" })}
-      className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4 shadow-card"
+      className={`${card} flex flex-col gap-3`}
     >
       {!masquerTitre && (
         <div className="flex items-center justify-between gap-2">
-          <h2 id="aujourdhui-retard" className="text-body font-semibold tracking-[-0.01em] text-ink">
+          <h2 id="aujourdhui-retard" className={sectionTitle}>
             En retard
           </h2>
           <span className="rounded-full bg-alert/10 px-2.5 py-1 text-micro font-bold tabular-nums text-alert">
