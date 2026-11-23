@@ -173,11 +173,11 @@ export function RecetteForm({
             <div className="grid grid-cols-2 gap-2.5">
               {NUTRITION_FIELDS.map((field) => (
                 <div key={field.key} className="flex flex-col gap-1">
-                  <label htmlFor={field.key} className="text-xs text-ink-2">
+                  <label htmlFor={`${uid}-${field.key}`} className="text-caption text-ink-2">
                     {field.label}
                   </label>
                   <input
-                    id={field.key}
+                    id={`${uid}-${field.key}`}
                     name={field.key}
                     type="number"
                     inputMode="decimal"

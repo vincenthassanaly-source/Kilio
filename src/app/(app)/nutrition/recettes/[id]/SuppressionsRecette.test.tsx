@@ -89,7 +89,7 @@ describe("IngredientManager : suppression avec annulation différée", () => {
   function supprimer() {
     vi.mocked(removeIngredient).mockResolvedValue(undefined as never);
     render(<IngredientManager recetteId="rec-1" ingredients={INGREDIENTS} aliments={[]} />);
-    fireEvent.click(screen.getByRole("button", { name: "Supprimer l'ingrédient « Pois chiches »" }));
+    fireEvent.click(screen.getByRole("button", { name: "Retirer « Pois chiches »" }));
   }
 
   it("retire la ligne tout de suite, sans confirmation ni appel serveur", () => {
@@ -97,7 +97,7 @@ describe("IngredientManager : suppression avec annulation différée", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByText("Pois chiches")).not.toBeInTheDocument();
     expect(removeIngredient).not.toHaveBeenCalled();
-    expect(getToasts().find((t) => t.action)?.text).toBe("Ingrédient « Pois chiches » supprimé");
+    expect(getToasts().find((t) => t.action)?.text).toBe("« Pois chiches » retiré de la recette");
   });
 
   it("« Annuler » remet l'ingrédient sans appel serveur", async () => {
@@ -119,7 +119,7 @@ describe("IngredientsLibresManager : suppression avec annulation différée", ()
   function supprimer() {
     vi.mocked(removeIngredientLibre).mockResolvedValue(undefined as never);
     render(<IngredientsLibresManager recetteId="rec-1" ingredients={LIBRES} />);
-    fireEvent.click(screen.getByRole("button", { name: "Supprimer l'ingrédient « Sel »" }));
+    fireEvent.click(screen.getByRole("button", { name: "Retirer « Sel »" }));
   }
 
   it("retire la ligne tout de suite, sans confirmation ni appel serveur", () => {

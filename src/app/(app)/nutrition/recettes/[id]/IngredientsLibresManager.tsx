@@ -11,7 +11,6 @@ import type { Tables } from "@/lib/supabase/types";
 import {
   actionsLigne,
   cardTight,
-  dangerButton,
   errorText,
   ghostButton,
   input,
@@ -21,6 +20,7 @@ import {
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
+import { boutonSupprimerLigne } from "../../suppressionLigne";
 
 type IngredientLibreRow = Tables<"recette_ingredients_libres">;
 
@@ -46,20 +46,22 @@ function IngredientLibreLine({
               type="text"
               value={nom}
               onChange={(e) => setNom(e.target.value)}
-              className={`text-sm ${input}`}
+              aria-label={`Nom de l'ingrédient « ${ingredient.nom} »`}
+              className={input}
             />
             <input
               type="text"
               value={quantite}
               onChange={(e) => setQuantite(e.target.value)}
               placeholder="Quantité (ex. 1 sachet)"
-              className={`text-sm ${input}`}
+              aria-label={`Quantité de « ${ingredient.nom} »`}
+              className={input}
             />
           </div>
         ) : (
           <>
             <p className={nameTextComplet}>{ingredient.nom}</p>
-            {ingredient.quantite && <p className="text-xs text-ink-2">{ingredient.quantite}</p>}
+            {ingredient.quantite && <p className="text-caption text-ink-2">{ingredient.quantite}</p>}
           </>
         )}
         {error && <p className={errorText}>{error}</p>}
@@ -84,7 +86,7 @@ function IngredientLibreLine({
               }}
               className={ghostButton}
             >
-              OK
+              {isPending ? "Enregistrement…" : "Enregistrer"}
             </button>
             <button
               type="button"
@@ -109,17 +111,17 @@ function IngredientLibreLine({
                 // Suppression différée : la ligne disparaît tout de suite,
                 // « Annuler » la ramène pendant le délai du toast.
                 supprimerAvecAnnulation({
-                  texte: `Ingrédient « ${ingredient.nom} » supprimé`,
-                  ariaLabel: `Annuler la suppression de l'ingrédient « ${ingredient.nom} »`,
+                  texte: `« ${ingredient.nom} » retiré de la recette`,
+                  ariaLabel: `Annuler le retrait de « ${ingredient.nom} »`,
                   masque: { type: "recette-ingredient-libre", id: ingredient.id },
                   supprimer: () => removeIngredientLibre(ingredient.id, recetteId),
-                  erreur: `Impossible de supprimer l'ingrédient « ${ingredient.nom} ». Réessaie.`,
+                  erreur: `Impossible de retirer « ${ingredient.nom} ». Réessaie.`,
                 })
               }
-              aria-label={`Supprimer l'ingrédient « ${ingredient.nom} »`}
-              className={dangerButton}
+              aria-label={`Retirer « ${ingredient.nom} »`}
+              className={boutonSupprimerLigne}
             >
-              Supprimer
+              Retirer
             </button>
           </>
         )}

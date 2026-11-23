@@ -6,7 +6,6 @@ import type { Tables } from "@/lib/supabase/types";
 import {
   actionsLigne,
   cardTight,
-  dangerButton,
   errorText,
   ghostButton,
   input,
@@ -16,6 +15,7 @@ import {
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
+import { boutonSupprimerLigne } from "../../suppressionLigne";
 
 type EtapeRow = Tables<"recette_etapes">;
 
@@ -92,7 +92,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 }}
                 className={ghostButton}
               >
-                OK
+                {isPending ? "Enregistrement…" : "Enregistrer"}
               </button>
               <button
                 type="button"
@@ -127,7 +127,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                   })
                 }
                 aria-label={`Supprimer l'étape ${index + 1}`}
-                className={dangerButton}
+                className={boutonSupprimerLigne}
               >
                 Supprimer
               </button>
