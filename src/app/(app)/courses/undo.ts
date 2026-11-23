@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { restoreCourseItems, type CourseItemARestaurer } from "@/app/actions/courses";
+import { restoreCourseItems, toggleCourseItem, type CourseItemARestaurer } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";
 import { showToast } from "@/components/toast/toast-store";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
@@ -44,6 +44,33 @@ export async function restaurerArticlesCourses(
     }
     await enqueueAction("courses", "restoreCourseItems", [items]);
     showToast("Enregistré, sera synchronisé à la reconnexion");
+  }
+
+  queryClient.invalidateQueries({ queryKey: queryKeys.courses });
+}
+
+// « Annuler » du toast de coche : remet l'article « à prendre ». Même
+// contrainte que ci-dessus (l'article a quitté la liste active, sa ligne a pu
+// être démontée) : fonction autonome, optimiste, avec repli dans la file hors
+// ligne comme la coche elle-même.
+export async function annulerCocheCourse(queryClient: QueryClient, id: string) {
+  await queryClient.cancelQueries({ queryKey: queryKeys.courses });
+  queryClient.setQueryData<Tables<"courses_items">[]>(queryKeys.courses, (old) =>
+    old?.map((i) => (i.id === id ? { ...i, coche: false } : i))
+  );
+
+  try {
+    await toggleCourseItem(id, false);
+  } catch (err) {
+    if (!isNetworkError(err)) {
+      showToast("Impossible d'annuler la coche.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses });
+      return;
+    }
+    await enqueueAction("courses", "toggleCourseItem", [id, false]);
+    showToast("Enregistré, sera synchronisé à la reconnexion");
+    // Pas d'invalidation : un refetch relirait l'état serveur encore coché.
+    return;
   }
 
   queryClient.invalidateQueries({ queryKey: queryKeys.courses });

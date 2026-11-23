@@ -1,19 +1,20 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useId, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { deleteCourseItem, toggleCourseItem, updateCourseItem } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";
 import { restaurerElement } from "@/lib/query/rollback";
-import { showActionToast, showToast } from "@/components/toast/toast-store";
+import { dismissToast, showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Tables } from "@/lib/supabase/types";
 import { listCard, nameTextComplet } from "@/lib/ui";
 import { CheckToggle } from "@/components/CheckToggle";
 import { vibrate } from "@/lib/haptics";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 import { estIdTemporaire, LONGUEUR_MAX_LIBELLE_COURSE } from "@/lib/courses/compute";
-import { restaurerArticlesCourses } from "./undo";
+import { annulerCocheCourse, restaurerArticlesCourses } from "./undo";
+import { useAppuiLong } from "./useAppuiLong";
 
 // Extrait de CoursesList pour être réutilisé tel quel par
 // ArchivedCoursesSection (mêmes mutations optimistes toggle/suppression pour
@@ -81,9 +82,19 @@ function CourseItemRowBase({
       queryClient.setQueryData<Tables<"courses_items">[]>(queryKeys.courses, (old) =>
         old?.map((i) => (i.id === item.id ? { ...i, coche: !i.coche } : i))
       );
-      return { previous };
+      // L'article coché part tout de suite dans « Articles pris » (repliée) :
+      // le toast « Annuler » est le filet d'un tap raté, affiché dès le geste.
+      // `annulerCocheCourse` est autonome : la ligne aura déjà été démontée.
+      const toastId = item.coche
+        ? null
+        : showActionToast(`« ${item.libelle} » pris`, {
+            ariaLabel: `Annuler : remettre « ${item.libelle} » à prendre`,
+            onAction: () => void annulerCocheCourse(queryClient, item.id),
+          });
+      return { previous, toastId };
     },
     onError: (_err, _vars, context) => {
+      if (context?.toastId != null) dismissToast(context.toastId);
       restaurerElement(queryClient, queryKeys.courses, context?.previous, item.id);
       showToast("Impossible de mettre à jour l'article.");
     },
@@ -141,11 +152,12 @@ function CourseItemRowBase({
     onSettled: invalidate,
   });
 
-  // Renommage inline : tap sur le libellé -> <input>, Entrée/perte de focus
+  // Renommage inline : appui long sur le libellé -> <input>, Entrée/perte de focus
   // valide, Échap annule. Bloqué tant que l'article reste `temp-` (même
   // garde-fou que cocher/supprimer), avec défense en profondeur dans la
   // mutationFn (jamais de mise en file d'un id temporaire).
   const [renaming, setRenaming] = useState(false);
+  const consigneId = useId();
   const [draft, setDraft] = useState(item.libelle);
   const inputRef = useRef<HTMLInputElement>(null);
   // Évite qu'Entrée (ou Échap) valide/annule une première fois, puis que le
@@ -213,6 +225,10 @@ function CourseItemRowBase({
     setRenaming(false);
   }
 
+  // Toute la ligne coche (le libellé comme la case) ; l'appui long (ou le
+  // clic droit, ou F2 au clavier) ouvre le renommage.
+  const appuiLong = useAppuiLong(handleStartRenaming);
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -243,8 +259,17 @@ function CourseItemRowBase({
     >
       <div className="flex items-center gap-3">
         {/* Nom stable (le libellé) : `aria-pressed` annonce l'état coché. */}
-        <div className={enAttenteDeCreation ? "opacity-60" : ""}>
+        <div
+          className={enAttenteDeCreation ? "opacity-60" : ""}
+          onKeyDown={(e) => {
+            if (e.key === "F2") {
+              e.preventDefault();
+              handleStartRenaming();
+            }
+          }}
+        >
           <CheckToggle
+            describedBy={consigneId}
             checked={item.coche}
             disabled={toggleMutation.isPending || enAttenteDeCreation}
             onToggle={() => toggleMutation.mutate()}
@@ -279,10 +304,15 @@ function CourseItemRowBase({
           ) : (
             <button
               type="button"
-              onClick={handleStartRenaming}
-              disabled={enAttenteDeCreation}
-              aria-label={`Renommer « ${item.libelle} »`}
-              className={`flex min-h-[44px] w-full min-w-0 flex-col justify-center text-left disabled:cursor-default ${enAttenteDeCreation ? "opacity-60" : ""}`}
+              {...appuiLong}
+              onClick={() => toggleMutation.mutate()}
+              disabled={toggleMutation.isPending || enAttenteDeCreation}
+              // Zone de tap élargie de la case, pour le doigt et la souris :
+              // la case reste le seul contrôle annoncé (même nom, même état),
+              // d'où aria-hidden et tabIndex -1 ici.
+              aria-hidden="true"
+              tabIndex={-1}
+              className={`flex min-h-[44px] w-full min-w-0 select-none flex-col justify-center rounded-lg text-left [-webkit-touch-callout:none] disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${enAttenteDeCreation ? "opacity-60" : ""}`}
             >
               <span className={`${nameTextComplet} ${item.coche ? "text-ink-2 line-through" : ""}`}>
                 {item.libelle}
@@ -290,8 +320,11 @@ function CourseItemRowBase({
             </button>
           )}
           {enAttenteDeCreation && (
-            <span className="text-xs text-ink-2">En attente de synchro</span>
+            <span className="text-caption text-ink-2">En attente de synchro</span>
           )}
+          <span id={consigneId} className="sr-only">
+            Appui long ou F2 pour renommer
+          </span>
         </div>
         <button
           type="button"
