@@ -6,10 +6,7 @@ import { card, sectionTitle } from "@/lib/ui";
 import type { Plage } from "@/lib/programme/disponibilites";
 import { DashboardTaskItem } from "../DashboardTaskItem";
 import { PlanifierPanneau } from "./PlanifierPanneau";
-
-// Pastille « Planifier » : 36 px visibles, zone de tap étendue à 44 px.
-const pastillePlanifier =
-  "relative min-h-9 shrink-0 rounded-full border border-line bg-surface-alt px-3 text-small font-semibold text-ink transition-colors hover:border-kcal/60 active:scale-[0.97] after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+import { pastilleAction } from "./pastilles";
 
 function Ligne({
   tache,
@@ -18,6 +15,7 @@ function Ligne({
   libres,
   planificationOuverte,
   onTogglePlanification,
+  onOuvrir,
 }: {
   tache: TacheAvecRelations;
   surlignee: boolean;
@@ -25,6 +23,7 @@ function Ligne({
   libres: Plage[];
   planificationOuverte: boolean;
   onTogglePlanification: () => void;
+  onOuvrir?: (tache: TacheAvecRelations) => void;
 }) {
   const ref = useRef<HTMLLIElement>(null);
 
@@ -50,6 +49,7 @@ function Ligne({
             heure={tache.heure}
             fait={tache.fait}
             echeance={tache.echeance}
+            onOuvrir={onOuvrir ? () => onOuvrir(tache) : undefined}
           />
         </div>
         {planifiable && (
@@ -58,7 +58,7 @@ function Ligne({
             aria-expanded={planificationOuverte}
             aria-label={`Planifier « ${tache.titre} »`}
             onClick={onTogglePlanification}
-            className={pastillePlanifier}
+            className={pastilleAction}
           >
             Planifier
           </button>
@@ -80,6 +80,7 @@ export function TachesDuJour({
   today,
   libres,
   tacheSurlignee,
+  onOuvrir,
 }: {
   // Toutes les tâches du jour (faites ou non), déjà triées.
   taches: TacheAvecRelations[];
@@ -87,6 +88,8 @@ export function TachesDuJour({
   // Trous libres du jour, pour « Planifier ».
   libres: Plage[];
   tacheSurlignee: string | null;
+  // Toucher le titre d'une tâche l'ouvre (cocher reste sur la case).
+  onOuvrir?: (tache: TacheAvecRelations) => void;
 }) {
   // Un seul panneau de planification ouvert à la fois.
   const [planificationId, setPlanificationId] = useState<string | null>(null);
@@ -101,7 +104,7 @@ export function TachesDuJour({
         </h2>
         {taches.length > 0 && (
           <span className="text-small font-medium tabular-nums text-ink-2">
-            {faites.length}/{taches.length} faites
+            {faites.length}/{taches.length} terminées
           </span>
         )}
       </div>
@@ -121,6 +124,7 @@ export function TachesDuJour({
               libres={libres}
               planificationOuverte={planificationId === t.id}
               onTogglePlanification={() => setPlanificationId((id) => (id === t.id ? null : t.id))}
+              onOuvrir={onOuvrir}
             />
           ))}
         </ul>
@@ -129,8 +133,11 @@ export function TachesDuJour({
       {faites.length > 0 && (
         // Tout est coché : les tâches faites restent visibles, c'est la victoire du jour.
         <details className="group" open={aFaire.length === 0}>
-          <summary className="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
-            Faites ({faites.length})
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl text-small font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
+            Tâches terminées ({faites.length})
+            <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3 transition-transform duration-150 ease-[var(--ease-out)] group-open:rotate-90">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
           </summary>
           <ul className="flex flex-col gap-2.5">
             {faites.map((t) => (
@@ -142,6 +149,7 @@ export function TachesDuJour({
                 libres={libres}
                 planificationOuverte={false}
                 onTogglePlanification={() => {}}
+                onOuvrir={onOuvrir}
               />
             ))}
           </ul>

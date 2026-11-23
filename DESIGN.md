@@ -12,7 +12,7 @@ colors:
   background: "oklch(0.97 0.012 95)"
   surface: "oklch(0.995 0.006 95)"
   surface-alt: "oklch(0.935 0.012 95)"
-  line: "oklch(0.9 0.012 95)"
+  line: "oklch(0.915 0.01 95)"
   ink: "oklch(0.22 0.02 150)"
   ink-2: "oklch(0.42 0.018 150)"
   ink-3: "oklch(0.52 0.014 150)"
@@ -129,7 +129,7 @@ Palette OKLCH entièrement teintée verte, construite autour d'un unique accent 
 - **Fond Ivoire Chaud** (`oklch(0.97 0.012 95)`, teinte 95 = légèrement jaune) : fond de page.
 - **Surface** (`oklch(0.995 0.006 95)`) : fond des cartes, quasi blanc mais jamais blanc pur.
 - **Surface Alt** (`oklch(0.935 0.012 95)`) : fond des inputs, segmented control, pastilles/chips — un cran plus sombre que la carte.
-- **Ligne** (`oklch(0.9 0.012 95)`) : bordures hairline (1px) des cartes et inputs.
+- **Ligne** (`oklch(0.915 0.01 95)`, valeur de `--line` dans `globals.css`, qui fait foi) : bordures hairline (1px) des cartes et inputs.
 - **Encre** (`oklch(0.22 0.02 150)`, teinte 150 = vert) : texte principal — pas de noir pur, toujours teinté vert comme le logo.
 - **Encre 2 / Encre 3** (`oklch(0.42 0.018 150)` / `oklch(0.52 0.014 150)`) : texte secondaire et tertiaire (labels, meta, placeholders). Encre 2 a été assombrie de 0,50 à 0,42 en clair (≈ 8,3:1 sur `surface`) : à 0,50 elle était presque indiscernable d'Encre 3 (5,9:1 contre 5,4:1). Encre 3 a été assombrie en septembre 2026 (0,64 → 0,55 en clair, 0,54 → 0,64 en sombre) pour passer ≥ 4,5:1 sur `surface` ; elle ne descend jamais sous 11px. Lot 6 (octobre 2026) : 0,52 en clair et 0,66 en sombre, pour atteindre 4,5:1 aussi sur `surface-alt`.
 - **Bordure de contrôle** (`--control-border`, `oklch(0.64 0.012 150)` / sombre `oklch(0.54 0.02 195)`) : contour des contrôles non textuels à l'état « off » (cercle non coché de `CheckToggle`, piste d'interrupteur éteint) — ≥ 3:1 sur `surface`. `--line` reste réservé aux séparations décoratives.
@@ -158,9 +158,10 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 - **Agenda** : les contrôles (sélecteur Jour/Semaine/Mois glissant, FAB, anneau de focus, « Aujourd'hui ») sont en vert Kcal comme partout (One Accent Rule, ancienne exception retirée le 2026-11-10). Le bleu `--accent-agenda` désigne uniquement de la donnée temporelle : blocs d'événement (texte `--on-agenda`, y compris les boutons qui ouvrent un événement dans la liste, la vue Jour et la frise), repère de l'heure courante, points du mois, icône du module. Jamais un contrôle d'action.
 - **Échelle de priorité des tâches** : les badges et blocs de priorité (basse / moyenne / haute) utilisent `agenda` / `carbs` / `alert` en **teinte de fond à 10-15 %**, toujours doublée d'un marqueur non chromatique (glyphe ou libellé). Ce sont des indicateurs passifs, jamais des contrôles ; le sélecteur de priorité, lui, est un contrôle segmenté standard (actif en vert Kcal).
 - **Barre de navigation** : les labels de la barre du bas sont en 11px (plancher du système).
-- **Journal** : teinte `--accent-vidage` (`oklch(0.55 0.14 250)`, identité du module et vignette du calendrier). L'écran d'écriture est **immersif** : pas de barre du bas, une barre d'outils flottante à sa place (stylo, gomme, 3 épaisseurs, annuler/rétablir, cibles 44 px). L'encre est `--ink` (suit clair/sombre) sur la surface, avec des lignes d'écriture `--line` ; les aperçus PNG du calendrier restent en encre sombre sur papier clair quel que soit le thème (image opaque).
+- **Journal** : teinte `--accent-vidage` (`oklch(0.55 0.14 250)`, identité du module et vignette du calendrier). L'écran d'écriture est **immersif** : pas de barre du bas, une barre d'outils flottante à sa place (stylo, gomme, un bouton d'épaisseur qui fait défiler fin / moyen / épais, annuler/rétablir, puis « Transcrire » en vert Kcal plein avec son mot visible dès 360 px). Les boutons sont collés, sans zone de tap débordante : 40 px sous 26rem, 44 px au-delà, jamais de chevauchement. « Écrire aussi au doigt » vit dans le menu « … » de l'en-tête ; le statut d'enregistrement suit la date sur la même ligne. L'encre est `--ink` (suit clair/sombre) sur la surface, avec des lignes d'écriture `--line` ; les aperçus PNG du calendrier restent en encre sombre sur papier clair quel que soit le thème (image opaque).
 - **Scanner** : viseur et aperçu sont **immersifs** sur fond noir (indépendant du thème, comme un viseur d'appareil photo). Le cadre de détection est vert `rgb(80,220,140)` et les erreurs rouges, choisis pour le contraste sur une image de caméra et non issus des tokens. L'ombre du cadre est ad hoc. Ces couleurs ne sortent pas des écrans Scanner.
 - **Musculation** : teinte `--accent-musculation` (`oklch(0.55 0.14 20)`, identité du module). Sa teinte est voisine de `--alert` (25) : ne jamais la placer à côté d'une alerte sans marqueur non chromatique.
+- **Pastilles de Musculation (type de séance, type de série)** : conservées telles quelles, colorées selon le type de séance ou de série, alors que les autres pastilles du système sont neutres (`surface-alt`) ou Kcal. Exception assumée : en pleine séance, le type d'une série doit se lire d'un coup d'œil, sans lire le libellé. Ce sont des indicateurs passifs (jamais des contrôles d'action), toujours doublés de leur libellé ; ne pas les « neutraliser » lors d'une passe d'harmonisation.
 - **Avertissement (`--accent-warning`)** : en clair, `oklch(0.53 0.15 55)` (et non 0.6) pour tenir 4,5:1 en texte sur `surface`. Le fond `bg-warning/15` reste une teinte douce.
 ## Typography
 
@@ -181,7 +182,7 @@ Huit teintes pastel très claires (`--note-sauge`, `--note-peche`, `--note-lavan
 **Échelle observée** (toutes ces tailles sont légitimes) : 11 · 12 · 12,5 · 13 · 13,5 · 14 · 14,5 · 15 · 16 · 17 (titres de carte hero) · 22 (chiffre-clé de carte) · 28px (titre d'écran et chiffre-clé hero).
 
 ### Named Rules
-**The Two-Voice Rule.** Une app entière tient sur deux polices : Sora uniquement pour les titres et les chiffres qui doivent dominer visuellement, Inter pour absolument tout le reste. Aucune troisième police, aucune variation de graisse Sora en dessous de 600.
+**The Two-Voice Rule.** Une app entière tient sur deux polices : Sora uniquement pour les titres et les chiffres qui doivent dominer visuellement, Inter pour absolument tout le reste. Aucune troisième police, aucune variation de graisse Sora en dessous de 600. Concrètement, Sora = titre d'écran (`screenTitle`), chiffres-clés et titre d'un état d'erreur pleine page ; **jamais** les noms de tuiles (grille « Plus »), les titres de cartes d'ajout (`addCardTitre`), ni les titres d'états vides.
 
 ## Layout
 
@@ -229,6 +230,8 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 - **Ghost / Danger / Link:** sans fond (ou fond transparent avec hover `surface-alt`), texte `ink` (ghost), `alert` (danger) ou `kcal` (link) ; toujours le même `active:scale-[0.97]`.
 - **Focus:** anneau `focus-visible:ring-2 ring-kcal ring-offset-2` — jamais sur simple `focus`/clic souris, toujours détaché du fond par l'offset.
 - **Cible tactile : 44px minimum.** Les boutons compacts (`ghostButton`, `dangerButton` ≈ 32px, `iconButton` 36px) gardent leur taille visible mais portent une zone de tap étendue (pseudo-élément `after:`) jusqu'à 44px ; `navArrowButton` fait 44×44px en propre.
+- **Suppression d'une ligne — un seul style :** le bouton « Supprimer » (ou « Retirer ») posé sur une ligne de liste est un texte **neutre** (`ink-2`), qui ne passe au rouge `alert` qu'au survol/focus ; la suppression est **toujours annulable** (disparition immédiate + toast « Annuler », `supprimerAvecAnnulation`), jamais une boîte de confirmation. Modèle : Courses. Le rouge plein (`dangerButton`) reste réservé aux confirmations d'actions sans retour et aux feuilles de détail.
+- **Menu « … » (`<MenuActions>`, `src/components/MenuActions.tsx`) :** les actions de gestion rares d'un écran ou d'une carte (Réorganiser, Modifier, Archiver…) y sont rangées, hors de la lecture. Bouton 44×44 `rounded-xl`, menu `shadow-float`, focus au premier choix, flèches, Échap. Sur les cartes de liste (Notes, Documents…), ces actions vont dans le menu ou dans la fiche/feuille de détail, pas en rangée sous chaque carte.
 - **Libellés :** les verbes des boutons suivent la charte « Vocabulaire des actions » de `GLOSSARY.md` (Ajouter / Enregistrer / Supprimer / Retirer / Annuler) ; jamais d'abréviation (« Suppr. »). Dans un dialogue de confirmation déclenché par l'action inverse (ex. « Terminer » sans série validée), le bouton sûr « Garder » est le bouton primaire et l'action destructrice passe en style `dangerButton` (`ConfirmDialog` : `gardePrimaire`).
 
 ### Chips / Pills
@@ -240,7 +243,8 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 - **Background:** `surface`, bordure hairline `line`.
 - **Shadow Strategy:** `--shadow-card` (posé) et `--shadow-float` (flottant) uniquement (voir Elevation & Depth).
 - **Internal Padding:** 14px (dense/liste) à 18px (hero).
-- **Feedback tap:** les cartes "ligne de liste unique" (`cardTight`, `listCard`) ont un `active:scale-[0.97]` ; les cartes "conteneur de groupe" (plusieurs enfants indépendants) n'en ont volontairement pas, pour ne pas faire "trembler" tout un groupe au tap d'un enfant.
+- **Feedback tap:** les cartes "ligne de liste unique" (`cardTight`, `listCard`) ont un `active:scale-[0.97]` ; les cartes "conteneur de groupe" (plusieurs enfants indépendants) n'en ont volontairement pas, pour ne pas faire "trembler" tout un groupe au tap d'un enfant. Même règle pour une tuile qui contient ses propres contrôles (note avec cases à cocher et épingle) et pour une carte entièrement lien (Documents) : retour en teinte (`hover/active:bg-surface-alt`), pas d'échelle.
+- **Grille de notes :** deux colonnes remplies **ligne par ligne** en JS (`repartirEnColonnes`, `lib/notes/colonnes.ts`), pas `columns-2` qui remplit la colonne de gauche d'abord.
 
 ### Inputs / Fields
 - **Style:** fond `surface-alt`, bordure `line`, 16px de rayon, texte 16px.
@@ -248,7 +252,8 @@ Bordures : hairline 1px `--line` sur quasi tout élément de surface (cartes, in
 - **Erreur:** texte `alert`, `role="alert"` sous le champ concerné (pas de bordure rouge sur le champ lui-même dans le code observé).
 
 ### Navigation
-- **Barre du bas :** pilule flottante flou verre (`backdrop-blur-xl`, fond `--nav-bg` translucide), items icône + label 11px, pastille de fond active (`--accent-kcal-soft`) qui **glisse** (layout animation Framer Motion) d'un onglet à l'autre plutôt que d'apparaître/disparaître.
+- **Barre du bas :** pilule flottante flou verre (`backdrop-blur-xl`, fond `--nav-bg` translucide), items icône + label 11px, pastille de fond active (`--accent-kcal-soft`) qui **glisse** (layout animation Framer Motion) d'un onglet à l'autre plutôt que d'apparaître/disparaître. Anneau `focus-visible:ring-kcal` (sans offset) sur chaque emplacement ; à 360 px avec des libellés longs épinglés, les emplacements rétrécissent (`min-w-0`, label tronqué) au lieu de faire déborder la barre.
+- **Grille « Plus » en mode édition :** le tremblement anime la carte intérieure de la tuile, jamais le lien qui porte le transform de dnd-kit ; l'alternance des deux rotations se lit sur la cellule (`.plus-grille > :nth-child(odd|even)`). « Personnaliser la navigation » (Réglages) ouvre `/plus?edition=1`, déjà en mode édition.
 - **Contrôle segmenté — composant unique `<SegmentedControl>`** (`src/components/SegmentedControl.tsx`) : pilule `surface-alt`, segments `rounded-xl` de 44px de haut, actif en fond `kcal` + `text-on-kcal`, `aria-pressed`, anneau de focus, option `glissant` (pastille animée). Les variantes « lien » (sous-navigation Journal/Recettes, bascule Repos/Entraînement) réutilisent `SEGMENT_CADRE` et `segmentClasse()` (`src/lib/segmented.ts`). Tout choix à 2-4 options passe par lui — jamais un `<select>`, jamais une couleur de module pour l'actif.
 - **États :** actif = couleur `kcal` + `font-weight: 700` ; inactif = `ink-3` + `font-weight: 500`. Toujours `aria-current="page"` sur l'item actif.
 

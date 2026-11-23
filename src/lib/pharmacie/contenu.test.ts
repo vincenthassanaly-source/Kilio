@@ -2,7 +2,10 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   appliquerNiveau,
+  contientAutreCouleur,
   contientNiveau,
+  NIVEAUX_AUTRES,
+  NIVEAUX_FIXES,
   enTexteBrut,
   estTitreSection,
   grouperSections,
@@ -71,6 +74,24 @@ describe("couleurs disponibles", () => {
       // --ink-3 et les accents historiques sont redéfinis en sombre comme les nouveaux.
       expect(sombre, `${jeton} (sombre)`).toContain(`${jeton}:`);
     }
+  });
+
+  it("donne à chaque niveau son jeton --niveau-* dédié (ni vert d'action ni bleu agenda)", () => {
+    for (const niveau of NIVEAUX) {
+      expect(META_NIVEAU[niveau].couleur).toBe(`var(--niveau-${niveau})`);
+    }
+  });
+
+  it("sépare les 5 niveaux à sens fixe des autres couleurs", () => {
+    expect(NIVEAUX_FIXES).toEqual(COULEURS.slice(0, 5));
+    expect(NIVEAUX_AUTRES).toEqual(COULEURS.slice(5));
+  });
+
+  it("détecte une ligne portant une des autres couleurs", () => {
+    expect(contientAutreCouleur("a\n[violet] b")).toBe(true);
+    expect(contientAutreCouleur("[Lime] b")).toBe(true);
+    expect(contientAutreCouleur("[vert] a\n[rouge] b")).toBe(false);
+    expect(contientAutreCouleur("texte [violet] au milieu")).toBe(false);
   });
 });
 

@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getNotesAvecRelations } from "@/app/actions/notes";
+import { getNotesAvecRelations, type NoteAvecRelations } from "@/app/actions/notes";
+import { repartirEnColonnes } from "@/lib/notes/colonnes";
+import type { Tables } from "@/lib/supabase/types";
 import { getTags } from "@/app/actions/taches";
 import { normalizeSearch } from "@/lib/normalize";
 import { queryKeys } from "@/lib/query/keys";
@@ -16,6 +18,30 @@ import { ErrorInline } from "@/components/ErrorInline";
 
 // Tag des idées : sa pastille passe en tête.
 const CLE_TAG_IDEES = normalizeSearch("idées");
+
+// Pastille de filtre active : fond vert doux propre, pas `pillTag` +
+// surcharge (le `bg-surface-alt` de `pillTag` l'emportait sur `bg-kcal-soft`
+// et la pastille active restait grise).
+const PASTILLE_FILTRE_ACTIVE = "shrink-0 rounded-full bg-kcal-soft px-2.5 py-1 text-micro font-semibold text-kcal";
+
+// Deux colonnes remplies ligne par ligne (voir repartirEnColonnes) : la
+// deuxième note est à droite de la première, plus sous toute la colonne
+// de gauche comme avec `columns-2`.
+function GrilleNotes({ notes, tags }: { notes: NoteAvecRelations[]; tags: Tables<"tags">[] }) {
+  return (
+    <div className="grid grid-cols-2 items-start gap-3">
+      {repartirEnColonnes(notes).map((colonne, index) => (
+        <ul key={index} className="flex min-w-0 flex-col gap-3">
+          <AnimatePresence initial={false}>
+            {colonne.map((note) => (
+              <NoteCard key={note.id} note={note} tags={tags} />
+            ))}
+          </AnimatePresence>
+        </ul>
+      ))}
+    </div>
+  );
+}
 
 export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; defaultTag?: string }) {
   const [search, setSearch] = useState("");
@@ -95,7 +121,7 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
         <ErrorInline message="Impossible de charger les notes." retry={() => refetch()} />
       ) : !notes || notes.length === 0 ? (
         <div className="flex flex-col items-center gap-1 px-4 py-10 text-center">
-          <p className="font-display text-heading-sm font-semibold text-ink">Aucune note pour l&apos;instant</p>
+          <p className="text-heading-sm font-semibold text-ink">Aucune note pour l&apos;instant</p>
           <p className="text-label text-ink-2">
             Ajoute une première note ou une liste avec le bouton ci-dessus.
           </p>
@@ -122,7 +148,7 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
                   onClick={() => toggleTagFilter(tag.id)}
                   aria-pressed={tagFilter.includes(tag.id)}
                   className={`${zoneTapPill} max-w-full truncate transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
-                    tagFilter.includes(tag.id) ? `${pillTag} bg-kcal-soft text-kcal` : pillTag
+                    tagFilter.includes(tag.id) ? PASTILLE_FILTRE_ACTIVE : pillTag
                   }`}
                 >
                   #{tag.nom}
@@ -148,28 +174,20 @@ export function NotesGrid({ defaultOpen, defaultTag }: { defaultOpen?: boolean; 
           ) : (
             <>
               {epinglees.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  <p className={sectionTitle}>Épinglées</p>
-                  <ul className="columns-2 gap-3">
-                    <AnimatePresence initial={false}>
-                      {epinglees.map((note) => (
-                        <NoteCard key={note.id} note={note} tags={tags} />
-                      ))}
-                    </AnimatePresence>
-                  </ul>
-                </div>
+                <section aria-labelledby="notes-epinglees" className="flex flex-col gap-2">
+                  <h2 id="notes-epinglees" className={sectionTitle}>Épinglées</h2>
+                  <GrilleNotes notes={epinglees} tags={tags} />
+                </section>
               )}
               {autres.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  {epinglees.length > 0 && <p className={sectionTitle}>Autres</p>}
-                  <ul className="columns-2 gap-3">
-                    <AnimatePresence initial={false}>
-                      {autres.map((note) => (
-                        <NoteCard key={note.id} note={note} tags={tags} />
-                      ))}
-                    </AnimatePresence>
-                  </ul>
-                </div>
+                <section aria-labelledby={epinglees.length > 0 ? "notes-autres" : undefined} className="flex flex-col gap-2">
+                  {epinglees.length > 0 && (
+                    <h2 id="notes-autres" className={sectionTitle}>
+                      Autres
+                    </h2>
+                  )}
+                  <GrilleNotes notes={autres} tags={tags} />
+                </section>
               )}
             </>
           )}

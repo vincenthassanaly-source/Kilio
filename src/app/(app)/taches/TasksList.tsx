@@ -39,6 +39,7 @@ import { restaurerElement } from "@/lib/query/rollback";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { card, dangerButton, input, listCard, metaText, pillTag, textButton } from "@/lib/ui";
+import { badgeEnRetard } from "@/lib/taches/badges";
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import type { ActionResult } from "@/lib/actions/result";
@@ -140,7 +141,7 @@ const GRIP_ICON = (
 // Boutons de ligne des sous-tâches : zone de tap de 44 px de haut (au lieu
 // des glyphes nus d'environ 10×24 px relevés par l'audit), anneau de focus.
 const sousTacheBouton =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
   const [isPending, startTransition] = useTransition();
@@ -240,7 +241,8 @@ function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
                 type="button"
                 disabled={isPending}
                 onClick={() => handleSupprimer(sousTache)}
-                className={`${sousTacheBouton} text-alert`}
+                // Suppression de ligne : neutre au repos, rouge au survol, toujours annulable.
+                className={`${sousTacheBouton} text-ink-2 transition-colors hover:text-alert`}
                 aria-label={`Supprimer « ${sousTache.titre} »`}
               >
                 <IconeSupprimer />
@@ -262,7 +264,7 @@ function SousTachesList({ tache }: { tache: TacheAvecRelations }) {
         <button
           type="submit"
           disabled={isPending || !titre.trim()}
-          className="min-h-11 rounded-xl px-2 text-label font-semibold text-kcal disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="min-h-11 rounded-xl px-2 text-label font-semibold text-kcal disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           {isPending ? "Ajout…" : "Ajouter"}
         </button>
@@ -595,6 +597,9 @@ export const TaskCard = memo(function TaskCard({
               invalidateTaches();
             }}
           />
+          {/* Sous-tâches modifiables dans la tâche ouverte : c'est ici qu'on en
+              ajoute une première. */}
+          <SousTachesList tache={tache} />
           <div className="mt-2 flex items-center justify-between gap-2">
             <button type="button" onClick={() => setEditing(false)} className={textButton}>
               Annuler
@@ -637,7 +642,7 @@ export const TaskCard = memo(function TaskCard({
         {reorderable && !selectionMode && (
           <button
             type="button"
-            className="relative -ml-1 -mr-2 mt-[-2px] flex h-11 w-8 shrink-0 items-center justify-center rounded-xl text-ink-2 after:absolute after:-inset-x-1 after:inset-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            className="relative -ml-1 -mr-2 mt-[-2px] flex h-11 w-8 shrink-0 items-center justify-center rounded-xl text-ink-2 after:absolute after:-inset-x-1 after:inset-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
             style={{ touchAction: "none", WebkitTouchCallout: "none" }}
             data-drag-handle
             aria-label="Réordonner : glisser pour déplacer la tâche"
@@ -678,7 +683,7 @@ export const TaskCard = memo(function TaskCard({
                 id={`tache-titre-${tache.id}`}
                 type="button"
                 onClick={() => setEditing(true)}
-                className={`relative min-w-0 flex-1 whitespace-normal break-words line-clamp-3 rounded-md text-left text-body font-semibold text-ink after:absolute after:inset-x-0 after:-inset-y-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${tache.fait ? "text-ink-2 line-through" : ""}`}
+                className={`relative min-w-0 flex-1 whitespace-normal break-words line-clamp-3 rounded-md text-left text-body font-semibold text-ink after:absolute after:inset-x-0 after:-inset-y-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${tache.fait ? "text-ink-2 line-through" : ""}`}
               >
                 {tache.titre}
                 <span className="sr-only"> (modifier)</span>
@@ -693,8 +698,8 @@ export const TaskCard = memo(function TaskCard({
           </div>
 
           {(tache.echeance || tache.duree_minutes) && (
-            <span className={enRetard ? "text-small font-semibold tabular-nums text-alert" : metaText}>
-              {enRetard && "En retard · "}
+            <span className={`${metaText} flex flex-wrap items-center gap-x-1.5 gap-y-1`}>
+              {enRetard && <span className={badgeEnRetard}>En retard</span>}
               {tache.echeance && formatEcheance(tache.echeance)}
               {tache.heure &&
                 (tache.heure_fin
@@ -725,17 +730,22 @@ export const TaskCard = memo(function TaskCard({
                 #{tag.nom}
               </span>
             ))}
-            {selectionMode ? (
-              tache.sous_taches.length > 0 && (
+            {/* Compteur seul (plus de « + sous-tâches » sur chaque carte) : on en
+                ajoute en ouvrant la tâche par son titre. */}
+            {tache.sous_taches.length > 0 &&
+              (selectionMode ? (
                 <span className={pillTag}>{`${sousTachesFaites}/${tache.sous_taches.length}`}</span>
-              )
-            ) : tache.fait && tache.sous_taches.length === 0 ? null : (
-              <button type="button" onClick={() => setExpanded((v) => !v)} className={`${pillTag} relative after:absolute after:inset-x-0 after:-inset-y-2.5`}>
-                {tache.sous_taches.length > 0
-                  ? `${sousTachesFaites}/${tache.sous_taches.length}`
-                  : "+ sous-tâches"}
-              </button>
-            )}
+              ) : (
+                <button
+                  type="button"
+                  aria-expanded={expanded}
+                  aria-label={`Sous-tâches : ${sousTachesFaites} sur ${tache.sous_taches.length} terminées`}
+                  onClick={() => setExpanded((v) => !v)}
+                  className={`${pillTag} relative tabular-nums after:absolute after:inset-x-0 after:-inset-y-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
+                >
+                  {`${sousTachesFaites}/${tache.sous_taches.length}`}
+                </button>
+              ))}
           </div>
 
           {tache.notes && (
@@ -754,7 +764,7 @@ export const TaskCard = memo(function TaskCard({
           type="button"
           onClick={() => onEnterSelect(tache.id)}
           aria-label={`Sélectionner « ${tache.titre} »`}
-          className="absolute right-2 top-2 hidden h-8 w-8 items-center justify-center rounded-lg text-ink-3 opacity-0 transition-opacity hover:bg-surface-alt hover:text-ink focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal group-hover/carte:opacity-100 [@media(hover:hover)]:flex"
+          className="absolute right-2 top-2 hidden h-8 w-8 items-center justify-center rounded-lg text-ink-3 opacity-0 transition-opacity hover:bg-surface-alt hover:text-ink focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 group-hover/carte:opacity-100 [@media(hover:hover)]:flex"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="4" y="4" width="16" height="16" rx="4" />
@@ -1041,7 +1051,7 @@ export function TasksList({
         ))}
       {archivees.length > 0 && (
         <details className="group mt-2.5 border-t border-line pt-1">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-1 text-body font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal [&::-webkit-details-marker]:hidden">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-1 text-body font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
             <span>Tâches terminées ({archivees.length})</span>
             <svg
               aria-hidden="true"

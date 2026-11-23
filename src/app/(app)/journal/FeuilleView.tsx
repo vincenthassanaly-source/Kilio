@@ -14,7 +14,6 @@ import {
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { Switch } from "@/components/Switch";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { TransitionLink } from "@/components/TransitionLink";
 import { runAction } from "@/lib/actions/runAction";
@@ -404,10 +403,13 @@ export function FeuilleView({ jour, retour }: Props) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <h1 className={screenTitle}>Journal</h1>
-          <p className={eyebrow}>{libelleJour(jour)}</p>
-          {/* Ligne toujours présente : le sélecteur Stylo / Clavier ne bouge pas quand on change de mode. */}
-          <p className={`${eyebrow} min-h-5`} role="status" aria-live={statutTransitoire ? "off" : "polite"} data-testid="vidage-statut">
-            {mode === "stylo" ? statut : ""}
+          {/* Statut sur la ligne de la date (« Jeudi 12 novembre · Enregistré ») :
+              une ligne de moins au-dessus de la feuille, rien ne bouge quand il change. */}
+          <p className={`${eyebrow} min-h-5`}>
+            {libelleJour(jour)}
+            <span role="status" aria-live={statutTransitoire ? "off" : "polite"} data-testid="vidage-statut">
+              {mode === "stylo" && statut ? ` · ${statut}` : ""}
+            </span>
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -423,6 +425,7 @@ export function FeuilleView({ jour, retour }: Props) {
             peutEffacer={traits.length > 0}
             onVoirTexte={() => setDialogue("texte")}
             onEffacer={() => setDialogue("effacer")}
+            doigt={mode === "stylo" ? { actif: ecritAuDoigt, onBasculer: () => ecrireDoigt(!ecritAuDoigt) } : undefined}
           />
         </div>
       </div>
@@ -442,11 +445,6 @@ export function FeuilleView({ jour, retour }: Props) {
         <SaisieClavier jour={jour} onAjouter={ajouterNote} />
       ) : (
         <>
-          <label className="flex min-h-11 items-center justify-between gap-3">
-            <span className="text-label font-medium text-ink">Écrire aussi au doigt</span>
-            <Switch checked={ecritAuDoigt} onToggle={() => ecrireDoigt(!ecritAuDoigt)} label="Écrire aussi au doigt" />
-          </label>
-
           {pret ? (
             <FeuilleCanvas
               traits={traits}

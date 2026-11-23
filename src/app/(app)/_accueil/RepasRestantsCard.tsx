@@ -54,7 +54,7 @@ export function RepasRestantsCard({ today }: { today: string }) {
   return (
     <Link
       href="/nutrition/journal"
-      className={`${card} flex flex-col gap-2.5 transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
+      className={`${card} flex flex-col gap-2.5 transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
     >
       <div className="flex items-baseline justify-between gap-2">
         <h2 className={sectionTitle}>Repas</h2>

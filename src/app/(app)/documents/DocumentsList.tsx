@@ -22,7 +22,7 @@ export function DocumentsList({
           <path d="M9 13h6M9 16.5h4" />
         </svg>
         <p className="text-body font-bold text-ink text-balance">{emptyMessage}</p>
-        <p className="text-sm text-ink-2 text-pretty">Ajoute une photo ou un PDF avec le bouton ci-dessus.</p>
+        <p className="text-label text-ink-2 text-pretty">Ajoute une photo ou un PDF avec le bouton ci-dessus.</p>
       </div>
     );
   }

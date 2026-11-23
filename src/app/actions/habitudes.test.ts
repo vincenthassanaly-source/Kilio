@@ -9,6 +9,7 @@ vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => etat.client })
 
 import {
   creerHabitude,
+  desarchiverHabitude,
   enregistrerEntreeHabitude,
   getHabitudesDuJour,
   getHistoriqueHabitude,
@@ -132,6 +133,26 @@ describe("supprimerHabitude", () => {
   it("lève l'erreur Supabase", async () => {
     brancher(() => ({ error: { message: "ko" } }));
     await expect(supprimerHabitude(ID)).rejects.toThrow("ko");
+  });
+});
+
+describe("desarchiverHabitude", () => {
+  it("remet l'habitude active et efface la date d'archivage", async () => {
+    const fake = brancher();
+    expect(await desarchiverHabitude(ID)).toEqual({ ok: true, data: undefined });
+    expect(ecritures(fake.appels, "habitudes", "update")[0].payload).toEqual({ actif: true, archivee_le: null });
+    expect(etat.updateTag).toHaveBeenCalledWith("habitudes");
+  });
+
+  it("retourne l'échec au lieu de lever", async () => {
+    brancher(() => ({ error: { message: "ko" } }));
+    expect(await desarchiverHabitude(ID)).toEqual({ ok: false, error: "Impossible de désarchiver l'habitude. Réessaie." });
+  });
+
+  it("refuse un id vide sans écrire", async () => {
+    const fake = brancher();
+    expect(await desarchiverHabitude("")).toEqual({ ok: false, error: "Habitude introuvable." });
+    expect(fake.appels).toHaveLength(0);
   });
 });
 

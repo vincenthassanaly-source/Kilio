@@ -37,14 +37,14 @@ export function ExplicationProposition({ explication }: { explication: Explicati
         {BLOCS.flatMap(({ cle, titre }) =>
           explication[cle] ? (
             <section key={cle} className="flex flex-col gap-1">
-              <h4 className="text-xs font-semibold text-ink-3">{titre}</h4>
+              <h4 className="text-caption font-semibold text-ink-3">{titre}</h4>
               <p className="text-label leading-relaxed text-ink">{explication[cle]}</p>
             </section>
           ) : (
             []
           )
         )}
-        <p className="text-xs text-ink-3">Une aide pour réfléchir, pas une source : le texte du programme fait foi.</p>
+        <p className="text-caption text-ink-3">Une aide pour réfléchir, pas une source : le texte du programme fait foi.</p>
       </div>
     </details>
   );

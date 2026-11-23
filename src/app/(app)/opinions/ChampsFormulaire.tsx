@@ -22,7 +22,7 @@ export function Champ({
         {libelle}
       </label>
       {children(id)}
-      {aide && <div className="text-xs text-ink-3">{aide}</div>}
+      {aide && <div className="text-caption text-ink-3">{aide}</div>}
     </div>
   );
 }
@@ -55,7 +55,7 @@ export function LigneScore({
     <div className="flex flex-col gap-1.5">
       <div className="flex items-baseline justify-between gap-3">
         <span className={label}>{axe.label}</span>
-        <span className="text-xs text-ink-2" aria-live="polite">
+        <span className="text-caption text-ink-2" aria-live="polite">
           {libelleScore(axe, score)}
         </span>
       </div>
@@ -66,7 +66,7 @@ export function LigneScore({
         ariaLabel={`Position sur l'axe ${axe.label}`}
         taille="sm"
       />
-      <div className="flex justify-between text-xs text-ink-3" aria-hidden="true">
+      <div className="flex justify-between text-caption text-ink-3" aria-hidden="true">
         <span>‹ {axe.gauche}</span>
         <span>{axe.droite} ›</span>
       </div>

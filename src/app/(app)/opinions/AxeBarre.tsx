@@ -42,7 +42,7 @@ export function AxeBarre({
         />
         <span aria-hidden="true" className="absolute -top-1 left-1/2 h-5 w-px bg-control-border" />
       </div>
-      <div className="flex justify-between gap-3 text-xs text-ink-3" aria-hidden="true">
+      <div className="flex justify-between gap-3 text-caption text-ink-3" aria-hidden="true">
         <span>‹ {axe.gauche}</span>
         <span className="text-right">{axe.droite} ›</span>
       </div>

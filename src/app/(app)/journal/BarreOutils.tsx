@@ -22,8 +22,18 @@ type Props = {
 const DIAMETRE: Record<Epaisseur, number> = { 1: 4, 2: 8, 3: 13 };
 const LIBELLE_EPAISSEUR: Record<Epaisseur, string> = { 1: "Trait fin", 2: "Trait moyen", 3: "Trait épais" };
 
+/** Épaisseur suivante (fin → moyen → épais → fin) : un seul bouton pour les trois. */
+export function epaisseurSuivante(e: Epaisseur): Epaisseur {
+  return EPAISSEURS[(EPAISSEURS.indexOf(e) + 1) % EPAISSEURS.length];
+}
+
+// Boutons de 40 px collés (sans écart ni pseudo-élément débordant) : chaque
+// zone de tap est exactement le bouton visible, jamais à cheval sur sa
+// voisine. 44 px dès que la barre a la place.
 const bouton =
-  "relative flex h-9 w-9 min-w-8 shrink items-center after:absolute after:-inset-1 min-[26rem]:after:hidden justify-center rounded-full text-ink transition-[color,background-color,opacity,transform] min-[26rem]:h-11 min-[26rem]:w-11 active:scale-[0.94] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink transition-[color,background-color,opacity,transform] min-[26rem]:h-11 min-[26rem]:w-11 active:scale-[0.94] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+
+const separateur = "mx-0.5 h-6 w-px shrink-0 bg-line min-[26rem]:mx-1";
 
 function Icone({ children }: { children: React.ReactNode }) {
   return (
@@ -35,13 +45,17 @@ function Icone({ children }: { children: React.ReactNode }) {
 
 function Rotation() {
   return (
-    <svg className="animate-spin motion-reduce:animate-none" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+    <svg className="animate-spin motion-reduce:animate-none" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
       <path d="M12 3a9 9 0 1 0 9 9" />
     </svg>
   );
 }
 
-/** Barre d'outils flottante en bas de l'écran : stylo, gomme, épaisseur, annuler / rétablir, transcrire. */
+/**
+ * Barre d'outils flottante en bas de l'écran : stylo, gomme, épaisseur, annuler / rétablir, transcrire.
+ * Tient dans 360 px avec le mot « Transcrire » : l'épaisseur est un seul bouton qui fait défiler
+ * fin / moyen / épais (le point montre l'épaisseur active).
+ */
 export function BarreOutils({
   outil,
   onOutil,
@@ -61,7 +75,7 @@ export function BarreOutils({
       <div
         role="toolbar"
         aria-label="Outils d'écriture"
-        className="flex max-w-full items-center gap-0.5 rounded-full border border-line bg-surface/95 p-1 shadow-float backdrop-blur min-[26rem]:p-1.5"
+        className="flex max-w-full items-center rounded-full border border-line bg-surface/95 p-1 shadow-float backdrop-blur min-[26rem]:gap-0.5 min-[26rem]:p-1.5"
       >
         <button
           type="button"
@@ -87,23 +101,16 @@ export function BarreOutils({
             <path d="M8 11l5 5" />
           </Icone>
         </button>
+        <button
+          type="button"
+          aria-label={`Épaisseur : ${LIBELLE_EPAISSEUR[epaisseur].toLowerCase()}`}
+          onClick={() => onEpaisseur(epaisseurSuivante(epaisseur))}
+          className={bouton}
+        >
+          <span className="rounded-full bg-ink" style={{ width: DIAMETRE[epaisseur], height: DIAMETRE[epaisseur] }} />
+        </button>
 
-        <span className="mx-0.5 h-6 w-px shrink-0 bg-line min-[26rem]:mx-1" aria-hidden="true" />
-
-        {EPAISSEURS.map((e) => (
-          <button
-            key={e}
-            type="button"
-            aria-label={LIBELLE_EPAISSEUR[e]}
-            aria-pressed={epaisseur === e}
-            onClick={() => onEpaisseur(e)}
-            className={`${bouton} ${epaisseur === e ? "bg-kcal-soft" : ""}`}
-          >
-            <span className={`rounded-full ${epaisseur === e ? "bg-kcal" : "bg-ink"}`} style={{ width: DIAMETRE[e], height: DIAMETRE[e] }} />
-          </button>
-        ))}
-
-        <span className="mx-0.5 h-6 w-px shrink-0 bg-line min-[26rem]:mx-1" aria-hidden="true" />
+        <span className={separateur} aria-hidden="true" />
 
         <button type="button" aria-label="Annuler" disabled={!peutAnnuler} onClick={onAnnuler} className={bouton}>
           <Icone>
@@ -118,26 +125,19 @@ export function BarreOutils({
           </Icone>
         </button>
 
-        <span className="mx-0.5 h-6 w-px shrink-0 bg-line min-[26rem]:mx-1" aria-hidden="true" />
+        <span className={separateur} aria-hidden="true" />
 
-        {/* Le mot s'affiche quand la barre a la place ; sur un petit écran, l'icône seule garde le nom accessible. */}
+        {/* Action principale : vert Kilio (accent unique), le mot toujours visible dès 360 px. */}
         <button
           type="button"
-          aria-label={libelleTranscrire}
           aria-busy={enTranscription}
           disabled={!peutTranscrire || enTranscription}
           onClick={onTranscrire}
-          className="relative flex h-9 min-w-9 shrink-0 items-center after:absolute after:-inset-1 min-[26rem]:after:hidden min-[26rem]:h-11 min-[26rem]:min-w-11 justify-center gap-2 rounded-full bg-ink px-2 min-[26rem]:px-3 text-label font-medium text-surface transition-[opacity,transform] active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal min-[30rem]:px-4"
+          // Largeur minimale du mot : la barre ne rétrécit pas quand la rotation le remplace.
+          className="relative flex h-10 min-w-[6.25rem] shrink-0 items-center justify-center gap-1.5 rounded-full bg-kcal px-3.5 text-label font-semibold text-on-kcal transition-[opacity,transform] active:scale-[0.96] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 min-[26rem]:h-11 min-[26rem]:px-4"
         >
-          {enTranscription ? (
-            <Rotation />
-          ) : (
-            <Icone>
-              <path d="M4 7V5h9v2M8.5 5v9M7 14h3" />
-              <path d="M16 11h4M18 11v8M16 19h4" />
-            </Icone>
-          )}
-          <span className="hidden min-[30rem]:inline">{libelleTranscrire}</span>
+          {enTranscription && <Rotation />}
+          <span className={enTranscription ? "sr-only" : undefined}>{libelleTranscrire}</span>
         </button>
       </div>
     </div>

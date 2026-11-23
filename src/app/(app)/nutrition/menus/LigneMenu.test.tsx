@@ -7,13 +7,24 @@ import { reafficherElement } from "@/lib/actions/elementsMasques";
 vi.mock("@/app/actions/menus", () => ({
   annulerValidationMenuEntry: vi.fn(),
   removeMenuEntry: vi.fn(),
+  updateMenuEntry: vi.fn(),
   validerMenuEntry: vi.fn(),
 }));
 
 import { removeMenuEntry } from "@/app/actions/menus";
 import { LigneMenu } from "./LigneMenu";
 
-const REPAS = { id: "r1", label: "Curry de pois chiches", detail: "1 portion", kcal: 520, mange: false };
+const REPAS = {
+  id: "r1",
+  label: "Curry de pois chiches",
+  detail: "1 portion",
+  kcal: 520,
+  mange: false,
+  cle: "recette:c1",
+  quantite: 1,
+  moment: "diner" as const,
+  date: "2026-11-10",
+};
 
 beforeEach(() => {
   vi.useFakeTimers();

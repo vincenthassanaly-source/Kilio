@@ -30,11 +30,11 @@ export function ComparaisonObjectif({
   cible: Nutrition | null;
   libre: boolean;
 }) {
-  if (prevu.kcal <= 0) return <p className="text-xs text-ink-3">Rien de planifié ce jour-là.</p>;
+  if (prevu.kcal <= 0) return <p className="text-caption text-ink-3">Rien de planifié ce jour-là.</p>;
 
   if (libre) {
     return (
-      <p className="text-xs text-ink-2">
+      <p className="text-caption text-ink-2">
         <span className="mr-2 rounded-full bg-surface-alt px-2.5 py-1 text-micro font-semibold text-ink-2">
           Jour libre
         </span>
@@ -45,7 +45,7 @@ export function ComparaisonObjectif({
 
   if (!cible) {
     return (
-      <p className="text-xs tabular-nums text-ink-2">{fr(prevu.kcal)} kcal prévues · pas d&apos;objectif défini</p>
+      <p className="text-caption tabular-nums text-ink-2">{fr(prevu.kcal)} kcal prévues · pas d&apos;objectif défini</p>
     );
   }
 
@@ -62,7 +62,7 @@ export function ComparaisonObjectif({
       <div className="flex items-baseline justify-between gap-3">
         <span className="font-display text-body font-semibold tabular-nums text-ink">
           {fr(prevu.kcal)}
-          <span className="text-xs font-semibold text-ink-3"> / {fr(cible.kcal)} kcal</span>
+          <span className="text-caption font-semibold text-ink-3"> / {fr(cible.kcal)} kcal</span>
         </span>
         <span className={`text-small font-semibold tabular-nums ${CLASSE_TEXTE[severite]}`}>{resume}</span>
       </div>

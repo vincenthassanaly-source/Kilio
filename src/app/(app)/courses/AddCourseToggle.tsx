@@ -18,7 +18,7 @@ export function AddCourseToggle() {
       </div>
       <div className="flex flex-col gap-[1px]">
         <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un article</span>
-        <span className="text-xs font-medium text-ink-3">Un ou plusieurs articles, séparés par une virgule</span>
+        <span className="text-caption font-medium text-ink-3">Un ou plusieurs articles, séparés par une virgule</span>
       </div>
     </button>
   );

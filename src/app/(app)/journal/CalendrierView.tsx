@@ -19,6 +19,17 @@ function decaler(mois: string, delta: number): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
+/** « 12 novembre » : nom accessible d'une case (le numéro seul ne dit pas de quel mois). */
+export function libelleJourDuMois(jour: string): string {
+  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${jour}T12:00:00Z`));
+}
+
+/** Bilan du mois, toujours en « soirs » (le Journal se remplit le soir). */
+export function bilanMois(nombre: number): string {
+  if (nombre === 0) return "Aucun soir écrit ce mois-ci.";
+  return nombre === 1 ? "1 soir écrit ce mois-ci." : `${nombre} soirs écrits ce mois-ci.`;
+}
+
 function libelleMois(mois: string): string {
   const texte = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${mois}-01T12:00:00Z`));
   return texte.charAt(0).toUpperCase() + texte.slice(1);
@@ -111,7 +122,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
                 <TransitionLink
                   href={jour === aujourdhui ? "/journal" : `/journal/${jour}`}
                   aria-current={jour === aujourdhui ? "date" : undefined}
-                  aria-label={feuille ? `Voir le ${numero}` : `Écrire le ${numero}`}
+                  aria-label={feuille ? `Voir le soir du ${libelleJourDuMois(jour)}` : `Écrire le soir du ${libelleJourDuMois(jour)}`}
                   className={`${base} h-full w-full ${feuille ? "border-line bg-surface text-ink" : "border-line/60 text-ink-2"} ${jour === aujourdhui ? "border-kcal font-semibold ring-1 ring-kcal" : ""}`}
                 >
                   {feuille?.apercuUrl && (
@@ -133,7 +144,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
 
       {data && !isPlaceholderData && (
         <p className={`${eyebrow} text-center`}>
-          {data.length === 0 ? "Aucune page écrite ce mois-ci." : data.length === 1 ? "1 soir écrit ce mois-ci." : `${data.length} soirs écrits ce mois-ci.`}
+          {bilanMois(data.length)}
         </p>
       )}
     </div>

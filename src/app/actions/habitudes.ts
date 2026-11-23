@@ -13,6 +13,7 @@ import { aujourdhuiParis } from "@/lib/date/paris";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { HABITUDES_TAG } from "@/lib/habitudes/tags";
 import type { Enums, Tables } from "@/lib/supabase/types";
+import { fail, ok, type ActionResult } from "@/lib/actions/result";
 
 export type HabitudeFormState = { error: string | null };
 
@@ -148,6 +149,19 @@ export async function supprimerHabitude(id: string, archiveeLe?: string) {
 
   revalidatePath("/habitudes");
   updateTag(HABITUDES_TAG);
+}
+
+// Inverse de l'archivage : l'habitude revient dans Aujourd'hui avec tout son
+// historique (rien n'avait été effacé).
+export async function desarchiverHabitude(id: string): Promise<ActionResult> {
+  if (!id) return fail("Habitude introuvable.");
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("habitudes").update({ actif: true, archivee_le: null }).eq("id", id);
+  if (error) return fail("Impossible de désarchiver l'habitude. Réessaie.");
+
+  revalidatePath("/habitudes");
+  updateTag(HABITUDES_TAG);
+  return ok();
 }
 
 export async function enregistrerEntreeHabitude(

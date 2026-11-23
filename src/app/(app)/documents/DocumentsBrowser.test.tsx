@@ -99,8 +99,10 @@ describe("DocumentsBrowser : catégories", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
 
     expect(screen.queryByText(/étiquette/i)).toBeNull();
+    // Tri compact : libellés courts visibles, noms complets annoncés.
     const tri = screen.getByRole("group", { name: "Ordre des documents" });
-    expect(within(tri).getAllByRole("button").map((o) => o.textContent)).toEqual([
+    expect(within(tri).getAllByRole("button").map((o) => o.textContent)).toEqual(["Récent", "A→Z", "Catégorie"]);
+    expect(within(tri).getAllByRole("button").map((o) => o.getAttribute("aria-label"))).toEqual([
       "Récent",
       "Nom A→Z",
       "Catégorie A→Z",
@@ -198,7 +200,9 @@ describe("DocumentsBrowser : réorganiser", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
 
     expect(screen.queryByRole("dialog")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Réorganiser" }));
+    // « Réorganiser » est rangé dans le menu « … » de l'en-tête.
+    fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Réorganiser" }));
     // Chargée à la demande (next/dynamic) : elle apparaît un instant après le toucher.
     expect(await screen.findByRole("dialog", { name: "Réorganiser les documents" })).toBeInTheDocument();
 
@@ -209,7 +213,8 @@ describe("DocumentsBrowser : réorganiser", () => {
   it("reste disponible depuis l'onglet Vrac", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} vracInitial />);
 
-    expect(screen.getByRole("button", { name: "Réorganiser" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+    expect(screen.getByRole("menuitem", { name: "Réorganiser" })).toBeInTheDocument();
   });
 
   it("n'apparaît pas tant qu'il y a moins de deux documents classés", () => {
@@ -220,7 +225,8 @@ describe("DocumentsBrowser : réorganiser", () => {
       />
     );
 
-    expect(screen.queryByRole("button", { name: "Réorganiser" })).toBeNull();
+    // Seule action du menu : sans elle, pas de bouton « … » du tout.
+    expect(screen.queryByRole("button", { name: "Plus d'actions" })).toBeNull();
   });
 });
 

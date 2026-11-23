@@ -55,12 +55,12 @@ export function ClassementProximite({ classement, aDesIdees }: { classement: rea
       )}
 
       {sansDonnees.length > 0 && (
-        <p className="text-xs text-ink-3">
+        <p className="text-caption text-ink-3">
           Pas assez de données pour comparer : {sansDonnees.map((c) => libelleParti(c.parti)).join(", ")}.
         </p>
       )}
 
-      <p className="text-xs text-ink-3">
+      <p className="text-caption text-ink-3">
         Proximité de positions sur les thèmes et les axes que tu as en commun, pondérée par tes priorités. Ce
         n&apos;est pas une recommandation de vote.
       </p>

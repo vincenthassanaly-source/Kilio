@@ -94,8 +94,8 @@ export function ListeSelect({ listes, valeur, onChange, variante = "pilule" }: P
         onClick={() => setOuvert((o) => !o)}
         className={
           discret
-            ? "flex min-h-11 max-w-[7.5rem] items-center gap-1 rounded-xl px-2 text-label font-semibold text-ink-2 transition-colors hover:bg-surface active:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
-            : "flex min-h-11 max-w-full items-center gap-2 rounded-full border border-control-border bg-surface px-3.5 text-label font-semibold text-ink transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            ? "flex min-h-11 max-w-[7.5rem] items-center gap-1 rounded-xl px-2 text-label font-semibold text-ink-2 transition-colors hover:bg-surface active:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+            : "flex min-h-11 max-w-full items-center gap-2 rounded-full border border-control-border bg-surface px-3.5 text-label font-semibold text-ink transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         }
       >
         {active.id !== "toutes" && <Pastille couleur={active.couleur} />}

@@ -15,7 +15,7 @@ import { libelleDuree } from "@/lib/taches/compute";
 const DUREES_PANNEAU = [15, 30, 45, 60, 90, 120] as const;
 
 const chip =
-  "relative min-h-9 rounded-full border px-3 text-small font-semibold tabular-nums transition-colors active:scale-[0.97] disabled:opacity-50 after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "relative min-h-9 rounded-full border px-3 text-small font-semibold tabular-nums transition-colors active:scale-[0.97] disabled:opacity-50 after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 /**
  * Panneau « Planifier » d'une tâche du jour : la durée, puis les créneaux libres
@@ -127,7 +127,7 @@ export function PlanifierPanneau({
       <button
         type="button"
         onClick={onClose}
-        className="relative self-start text-small font-semibold text-ink-2 after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        className="relative self-start text-small font-semibold text-ink-2 after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         Fermer
       </button>

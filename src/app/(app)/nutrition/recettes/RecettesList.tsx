@@ -26,7 +26,7 @@ type KcalFilter = "300" | "600" | "600+" | null;
 const TEMPS_CHIPS: { value: NonNullable<TempsFilter>; label: string; max: number }[] = [
   { value: "15", label: "< 15 min", max: 15 },
   { value: "30", label: "< 30 min", max: 30 },
-  { value: "60", label: "< 1h", max: 60 },
+  { value: "60", label: "< 1 h", max: 60 },
 ];
 
 const KCAL_CHIPS: { value: NonNullable<KcalFilter>; label: string }[] = [
@@ -84,7 +84,7 @@ export function RecettesList({
           <path d="M18 8h1.5v12H18M9 9h6M9 12.5h6" />
         </svg>
         <p className="text-body font-bold text-ink">Aucune recette pour l&apos;instant.</p>
-        <p className="text-sm text-ink-2 text-pretty">Ajoute-en une avec ses ingrédients et ses étapes.</p>
+        <p className="text-small text-ink-2 text-pretty">Ajoutes-en une avec ses ingrédients et ses étapes.</p>
       </div>
     );
   }
@@ -129,7 +129,7 @@ export function RecettesList({
         </div>
       </div>
       {filtered.length === 0 ? (
-        <p className="py-5 text-center text-sm text-ink-3">Aucune recette ne correspond à ta recherche.</p>
+        <p className="py-5 text-center text-small text-ink-3">Aucune recette ne correspond à ta recherche.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {filtered.map((recette) => (

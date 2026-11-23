@@ -451,8 +451,11 @@ export function SeanceView() {
         }}
       >
         <p>
-          {total - faites} série{total - faites > 1 ? "s" : ""} non validée{total - faites > 1 ? "s" : ""} ne seront pas
-          enregistrées. Seules les {faites} série{faites > 1 ? "s" : ""} cochée{faites > 1 ? "s" : ""} comptent. Choisis « Garder » pour reprendre la séance.
+          {total - faites > 1
+            ? `${total - faites} séries non validées ne seront pas enregistrées.`
+            : "1 série non validée ne sera pas enregistrée."}{" "}
+          {faites > 1 ? `Seules les ${faites} séries cochées comptent.` : "Seule la série cochée compte."} Choisis
+          « Garder » pour reprendre la séance.
         </p>
       </ConfirmDialog>
     </div>

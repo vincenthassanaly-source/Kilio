@@ -81,6 +81,17 @@ describe("MenuFeuille", () => {
     expect(screen.queryByRole("menu")).toBeNull();
   });
 
+  it("bascule « Écrire aussi au doigt » sans refermer le menu", async () => {
+    const onBasculer = vi.fn();
+    rendre({ doigt: { actif: false, onBasculer } });
+    await ouvrir();
+    const choix = screen.getByRole("menuitemcheckbox", { name: "Écrire aussi au doigt" });
+    expect(choix).toHaveAttribute("aria-checked", "false");
+    await userEvent.click(choix);
+    expect(onBasculer).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+  });
+
   it("désactive le déclencheur quand aucune action n'est possible", () => {
     rendre({ aTexte: false, peutEffacer: false });
     expect(screen.getByRole("button", { name: "Plus d'actions" })).toBeDisabled();

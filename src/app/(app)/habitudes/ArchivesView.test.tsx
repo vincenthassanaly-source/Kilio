@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ArchivesView } from "./ArchivesView";
 
-vi.mock("@/app/actions/habitudes", () => ({ getHabitudesArchivees: vi.fn() }));
+vi.mock("@/app/actions/habitudes", () => ({ getHabitudesArchivees: vi.fn(), desarchiverHabitude: vi.fn() }));
 
-import { getHabitudesArchivees } from "@/app/actions/habitudes";
+import { desarchiverHabitude, getHabitudesArchivees } from "@/app/actions/habitudes";
 
 afterEach(() => {
   cleanup();
@@ -50,5 +50,16 @@ describe("ArchivesView", () => {
     rendre();
 
     expect(await screen.findByText("Impossible de charger les archives.")).toBeTruthy();
+  });
+
+  it("« Désarchiver » remet l'habitude active puis relit les archives", async () => {
+    vi.mocked(getHabitudesArchivees).mockResolvedValue([archivee("h1", "Lecture", "2026-11-05")]);
+    vi.mocked(desarchiverHabitude).mockResolvedValue({ ok: true, data: undefined });
+    rendre();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Désarchiver" }));
+
+    await waitFor(() => expect(desarchiverHabitude).toHaveBeenCalledWith("h1"));
+    await waitFor(() => expect(getHabitudesArchivees).toHaveBeenCalledTimes(2));
   });
 });

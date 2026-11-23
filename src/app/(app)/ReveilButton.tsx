@@ -123,7 +123,7 @@ function ContenuReveil({ etat, onRetry }: { etat: Etat; onRetry: () => void }) {
   }
 
   const phrase = (
-    <p className="text-sm text-ink-2 text-pretty">
+    <p className="text-small text-ink-2 text-pretty">
       Si tu te couches à {formaterHeure(etat.heureActuelle)} et t&apos;endors en {DELAI_ENDORMISSEMENT_MIN} min, réveille-toi à l&apos;une de ces heures : tu sors d&apos;un cycle complet.
     </p>
   );

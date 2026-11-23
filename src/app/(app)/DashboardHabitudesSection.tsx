@@ -24,12 +24,12 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
         {/* Le titre mène au module : jusqu'ici, le seul lien vers /habitudes était dans l'état vide. */}
         <Link
           href="/habitudes"
-          className="relative inline-flex min-h-11 items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="relative inline-flex min-h-11 items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           Habitudes
-          <span aria-hidden="true" className="text-ink-3">
-            ›
-          </span>
+          <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
+            <path d="M9 5l7 7-7 7" />
+          </svg>
         </Link>
       </h2>
       {isLoading ? (
@@ -45,9 +45,9 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
           Aucune habitude pour l&apos;instant.
           <Link
             href="/habitudes"
-            className="relative inline-flex min-h-11 items-center font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            className="relative inline-flex min-h-11 items-center font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           >
-            Créer une habitude
+            Ajouter une habitude
           </Link>
         </p>
       ) : (

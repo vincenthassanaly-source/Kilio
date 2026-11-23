@@ -37,4 +37,10 @@ describe("ErrorInline", () => {
     rerender(<ErrorInline message="x" />);
     expect(screen.queryByRole("heading")).toBeNull();
   });
+
+  it("rend un h2 sous le titre de l'écran (niveau 2), jamais un second h1", () => {
+    render(<ErrorInline titre="Chargement impossible" message="x" niveau={2} />);
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Chargement impossible");
+  });
 });

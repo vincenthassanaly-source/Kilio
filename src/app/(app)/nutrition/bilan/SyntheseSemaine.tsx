@@ -59,7 +59,7 @@ export function SyntheseSemaine({ synthese, lienBilan = false }: { synthese: Syn
         />
       </dl>
       {lienBilan && (
-        <TransitionLink href="/nutrition/bilan" className="self-start text-sm font-semibold text-kcal">
+        <TransitionLink href="/nutrition/bilan" className="self-start text-small font-semibold text-kcal">
           Voir le bilan complet
         </TransitionLink>
       )}

@@ -78,7 +78,7 @@ const VUES: { key: VueKey; label: string }[] = [
 // Grammaire unique des chips de filtre (liste et priorité) : pilule de 44 px,
 // contour de contrôle (≥ 3:1), actif plein comme les segments.
 const CHIP_FILTRE =
-  "relative flex min-h-11 shrink-0 items-center gap-[7px] whitespace-nowrap rounded-full border px-3.5 text-label font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+  "relative flex min-h-11 shrink-0 items-center gap-[7px] whitespace-nowrap rounded-full border px-3.5 text-label font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 const CHIP_ACTIF = "border-kcal bg-kcal text-on-kcal";
 const CHIP_INACTIF = "border-control-border bg-surface text-ink";
 
@@ -111,6 +111,8 @@ export function TachesView() {
   // Sélection multiple : cartes cochables + barre d'actions groupées.
   const [selection, setSelection] = useState(false);
   const [filtresOuverts, setFiltresOuverts] = useState(false);
+  // Feuille « Nouvelle tâche » : partagée par le « + » flottant et l'état vide.
+  const [ajoutOuvert, setAjoutOuvert] = useState(false);
   const [selectionIds, setSelectionIds] = useState<ReadonlySet<string>>(() => new Set());
   const queryClient = useQueryClient();
   // Jour courant : une PWA laissée ouverte la nuit doit basculer « Aujourd'hui »
@@ -252,9 +254,9 @@ export function TachesView() {
   // la carte n'est pas dans la liste affichée, seul le toast apparaît.
   function handleCreated(id?: string, avertissement?: string) {
     // La tâche existe dans tous les cas : un avertissement (tags ou image en
-    // échec) remplace « Tâche créée », plus longtemps affiché.
+    // échec) remplace « Tâche ajoutée », plus longtemps affiché.
     if (avertissement) showToast(avertissement, DUREE_TOAST_AVERTISSEMENT_MS);
-    else showToast("Tâche créée");
+    else showToast("Tâche ajoutée");
     invalidateTaches();
     if (id) setTacheSurlignee(id);
   }
@@ -310,12 +312,12 @@ export function TachesView() {
     setOrdre("manuel");
   }
   const toutSelectionnable = filtered.filter((t) => !t.fait).map((t) => t.id);
-  // Même action que le « + » flottant : on déclenche son bouton plutôt que de
-  // dupliquer l'ouverture de la feuille (QuickAddFab porte l'état d'ouverture).
+  // Même feuille que le « + » flottant : l'état d'ouverture est tenu ici et
+  // passé au FAB (plus de clic simulé retrouvé par son aria-label).
   const boutonAjout = (
     <button
       type="button"
-      onClick={() => document.querySelector<HTMLButtonElement>('button[aria-label="Ajouter une tâche"]')?.click()}
+      onClick={() => setAjoutOuvert(true)}
       className={`${ghostButton} mx-auto mt-2`}
     >
       Ajouter une tâche
@@ -362,14 +364,15 @@ export function TachesView() {
         options={VUES.map((v) => ({
           value: v.key,
           // Compte en badge (jamais dans le libellé, qui se coupait sur deux
-          // lignes) : ambre au repos, teinté du texte sur le segment actif.
+          // lignes) : teinte d'alerte au repos (badge « En retard » unique),
+          // teinté du texte sur le segment actif.
           label:
             v.key === "en_retard" && nbEnRetard > 0 ? (
               <span className="inline-flex items-center gap-1 whitespace-nowrap">
                 {v.label}
                 <span
                   className={`rounded-full px-1.5 text-micro font-bold tabular-nums ${
-                    vue === "en_retard" ? "bg-on-kcal/20 text-on-kcal" : "bg-warning/15 text-warning"
+                    vue === "en_retard" ? "bg-on-kcal/20 text-on-kcal" : "bg-alert/10 text-alert"
                   }`}
                 >
                   {nbEnRetard}
@@ -401,7 +404,7 @@ export function TachesView() {
             type="button"
             onClick={() => setRecherche("")}
             aria-label="Effacer la recherche"
-            className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors after:absolute after:-inset-2 hover:bg-surface"
+            className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors after:absolute after:-inset-2 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           >
             {CLEAR_ICON}
           </button>
@@ -413,7 +416,7 @@ export function TachesView() {
           onClick={() => setFiltresOuverts(true)}
           aria-haspopup="dialog"
           aria-label={nbReglages > 0 ? `Filtres et tri, ${nbReglages} actif${nbReglages > 1 ? "s" : ""}` : "Filtres et tri"}
-          className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+          className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
             nbReglages > 0 ? "text-kcal" : "text-ink-2"
           }`}
         >
@@ -545,7 +548,13 @@ export function TachesView() {
     )}
     {!selection && (
       <QuickAddFab
-        directTask={{ defaultListeId, defaultEcheance, onCreated: handleCreated }}
+        directTask={{
+          defaultListeId,
+          defaultEcheance,
+          onCreated: handleCreated,
+          ouvert: ajoutOuvert,
+          onOuvertChange: setAjoutOuvert,
+        }}
       />
     )}
     </>

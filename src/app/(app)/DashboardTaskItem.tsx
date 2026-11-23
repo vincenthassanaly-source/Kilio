@@ -18,6 +18,7 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
   fait,
   echeance,
   detail,
+  onOuvrir,
 }: {
   id: string;
   titre: string;
@@ -29,6 +30,8 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
   // Texte discret à droite à la place de l'heure (ex. « il y a 3 j » pour une
   // tâche en retard).
   detail?: string;
+  // Fourni : le titre devient un bouton qui ouvre la tâche.
+  onOuvrir?: () => void;
 }) {
   const queryClient = useQueryClient();
 
@@ -91,6 +94,12 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
     },
   });
 
+  const classeTitre = "line-clamp-2 break-words text-body font-semibold";
+  const styleTitre = {
+    color: fait ? "var(--ink-2)" : "var(--ink)",
+    textDecoration: fait ? "line-through" : "none",
+  };
+
   return (
     <div className="flex items-start gap-2.5">
       <CheckToggle
@@ -104,15 +113,22 @@ export const DashboardTaskItem = memo(function DashboardTaskItem({
         hitSlop={4}
       />
       <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
-        <span
-          className="line-clamp-2 break-words text-body font-semibold"
-          style={{
-            color: fait ? "var(--ink-2)" : "var(--ink)",
-            textDecoration: fait ? "line-through" : "none",
-          }}
-        >
-          {titre}
-        </span>
+        {onOuvrir ? (
+          // Toucher le titre ouvre la tâche ; cocher reste sur la case.
+          <button
+            type="button"
+            onClick={onOuvrir}
+            className={`${classeTitre} relative min-w-0 rounded-md text-left after:absolute after:inset-x-0 after:-inset-y-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
+            style={styleTitre}
+          >
+            {titre}
+            <span className="sr-only"> (ouvrir)</span>
+          </button>
+        ) : (
+          <span className={classeTitre} style={styleTitre}>
+            {titre}
+          </span>
+        )}
         {(detail ?? heure?.slice(0, 5)) && (
           <span className="shrink-0 text-caption font-medium tabular-nums text-ink-3">{detail ?? heure?.slice(0, 5)}</span>
         )}

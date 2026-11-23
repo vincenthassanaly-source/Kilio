@@ -13,7 +13,7 @@ import {
   type SeanceRefusee,
 } from "@/lib/musculation/brouillon";
 import { queryKeys } from "@/lib/query/keys";
-import { card, input, metaText, secondaryButton, sectionTitle } from "@/lib/ui";
+import { card, dangerButton, input, metaText, secondaryButton, sectionTitle } from "@/lib/ui";
 
 const ERREUR_DUREE = "Durée de séance invalide.";
 
@@ -104,7 +104,7 @@ export function SeancesBloquees() {
             )}
             <button
               type="button"
-              className={`${secondaryButton} h-11 !py-0 text-label`}
+              className={`${dangerButton} h-11 !py-0`}
               onClick={() => setASupprimer(seance)}
             >
               Supprimer la séance

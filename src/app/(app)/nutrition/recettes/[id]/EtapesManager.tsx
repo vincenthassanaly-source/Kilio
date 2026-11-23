@@ -6,7 +6,6 @@ import type { Tables } from "@/lib/supabase/types";
 import {
   actionsLigne,
   cardTight,
-  dangerButton,
   errorText,
   ghostButton,
   input,
@@ -16,6 +15,7 @@ import {
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
+import { boutonSupprimerLigne } from "../../suppressionLigne";
 
 type EtapeRow = Tables<"recette_etapes">;
 
@@ -39,7 +39,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 onChange={(e) => setTitre(e.target.value)}
                 placeholder="Titre (optionnel)"
                 aria-label="Titre de l'étape (optionnel)"
-                className={`text-sm ${input}`}
+                className={`text-small ${input}`}
               />
               <textarea
                 value={consigne}
@@ -47,7 +47,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 rows={3}
                 placeholder="Consigne"
                 aria-label="Consigne de l'étape"
-                className={`text-sm ${input}`}
+                className={`text-small ${input}`}
               />
               <textarea
                 value={astuce}
@@ -55,7 +55,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 rows={2}
                 placeholder="Astuce du chef (optionnel)"
                 aria-label="Astuce du chef (optionnel)"
-                className={`text-sm ${input}`}
+                className={`text-small ${input}`}
               />
             </div>
           ) : (
@@ -64,9 +64,9 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 Étape {index + 1}
                 {etape.titre ? ` — ${etape.titre}` : ""}
               </p>
-              <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{etape.consigne}</p>
+              <p className="mt-1 whitespace-pre-wrap text-small text-ink">{etape.consigne}</p>
               {etape.astuce && (
-                <p className="mt-1 text-xs italic text-ink-2">Astuce : {etape.astuce}</p>
+                <p className="mt-1 text-caption italic text-ink-2">Astuce : {etape.astuce}</p>
               )}
             </>
           )}
@@ -92,7 +92,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                 }}
                 className={ghostButton}
               >
-                OK
+                {isPending ? "Enregistrement…" : "Enregistrer"}
               </button>
               <button
                 type="button"
@@ -127,7 +127,7 @@ function EtapeLine({ etape, index, recetteId }: { etape: EtapeRow; index: number
                   })
                 }
                 aria-label={`Supprimer l'étape ${index + 1}`}
-                className={dangerButton}
+                className={boutonSupprimerLigne}
               >
                 Supprimer
               </button>
@@ -183,7 +183,7 @@ export function EtapesManager({ recetteId, etapes }: { recetteId: string; etapes
   return (
     <div className="flex flex-col gap-3">
       {visibles.length === 0 ? (
-        <p className="text-sm text-ink-2">Aucune étape pour l&apos;instant.</p>
+        <p className="text-small text-ink-2">Aucune étape pour l&apos;instant.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {visibles.map((etape, index) => (

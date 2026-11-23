@@ -285,7 +285,7 @@ export function WeekView({
                       dayEvenements.length + bandeEvenements.length,
                       [...bandeEvenements.map((e) => e.titre), ...bandeTaches.map((t) => t.titre)].slice(0, 3)
                     )}
-                    className="sticky top-0 z-10 flex h-11 flex-col items-center justify-center gap-0 border-b border-line bg-surface text-center text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal"
+                    className="sticky top-0 z-10 flex h-11 flex-col items-center justify-center gap-0 border-b border-line bg-surface text-center text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal focus-visible:ring-offset-2"
                   >
                     <span className="text-micro font-semibold">{format(day, "EEE", { locale: fr })}</span>
                     <span

@@ -79,7 +79,7 @@ export function PlanDuJourCard({
           aria-expanded={ouvert}
           aria-controls="plan-du-jour-detail"
           onClick={() => setOuvert((v) => !v)}
-          className="flex min-h-11 w-full items-start justify-between gap-3 rounded-xl p-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="flex min-h-11 w-full items-start justify-between gap-3 rounded-xl p-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <span className="min-w-0">
             <span className={`block ${sectionTitle}`}>Plan du jour</span>

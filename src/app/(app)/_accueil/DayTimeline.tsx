@@ -70,7 +70,7 @@ function GrilleJournee({
               type="button"
               onClick={() => onSelectEvenement(e)}
               aria-label={`Événement journée entière ${e.titre}. Modifier`}
-              className="relative min-h-9 max-w-[260px] truncate rounded-lg bg-agenda px-3 py-1.5 text-xs font-semibold text-on-agenda after:absolute after:inset-x-0 after:-inset-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+              className="relative min-h-9 max-w-[260px] truncate rounded-lg bg-agenda px-3 py-1.5 text-caption font-semibold text-on-agenda after:absolute after:inset-x-0 after:-inset-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
             >
               {e.titre}
             </button>
@@ -85,7 +85,7 @@ function GrilleJournee({
         // 36vh (et non 52vh) : l'échelle reste réelle, la fenêtre montre ~5 h
         // de la journée, calée sur l'heure courante, et la grille défile
         // dedans. Une fenêtre plus haute repoussait « Tâches » hors du premier écran.
-        className="max-h-[36vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        className="max-h-[36vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         data-swipe-ignore
       >
         <div className="flex">
@@ -239,7 +239,7 @@ export function DayTimeline({
             type="button"
             aria-expanded={false}
             onClick={() => setDeployee(true)}
-            className="relative shrink-0 text-small font-semibold text-kcal after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            className="relative shrink-0 text-small font-semibold text-kcal after:absolute after:-inset-x-2 after:-inset-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           >
             Voir la frise
           </button>

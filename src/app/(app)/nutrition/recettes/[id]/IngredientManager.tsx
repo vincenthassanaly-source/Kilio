@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useDeferredValue, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import {
   addIngredient,
   removeIngredient,
@@ -11,7 +11,6 @@ import type { Tables } from "@/lib/supabase/types";
 import {
   actionsLigne,
   cardTight,
-  dangerButton,
   errorText,
   ghostButton,
   input,
@@ -21,6 +20,8 @@ import {
 import { runAction } from "@/lib/actions/runAction";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
+import { nutritionAliment, rechercherCatalogue, type CatalogueAliment } from "@/lib/nutrition/compute";
+import { boutonSupprimerLigne } from "../../suppressionLigne";
 
 const UNITE_LABEL: Record<string, string> = { g: "g", ml: "ml", piece: "pièce" };
 
@@ -56,11 +57,11 @@ function IngredientLine({
               aria-label={`Quantité de ${ingredient.aliment.nom}`}
               className={`w-24 ${input}`}
             />
-            <span className="text-sm text-ink-2">{UNITE_LABEL[ingredient.unite]}</span>
+            <span className="text-small text-ink-2">{UNITE_LABEL[ingredient.unite]}</span>
           </div>
         ) : (
-          <p className="text-xs text-ink-2">
-            {ingredient.quantite} {UNITE_LABEL[ingredient.unite]}
+          <p className="text-caption tabular-nums text-ink-2">
+            {Number(ingredient.quantite).toLocaleString("fr-FR")} {UNITE_LABEL[ingredient.unite]}
           </p>
         )}
         {error && <p className={errorText}>{error}</p>}
@@ -84,7 +85,7 @@ function IngredientLine({
               }}
               className={ghostButton}
             >
-              OK
+              {isPending ? "Enregistrement…" : "Enregistrer"}
             </button>
             <button
               type="button"
@@ -109,17 +110,17 @@ function IngredientLine({
                 // « Annuler » la ramène pendant le délai du toast. Les macros de
                 // la recette (calculées côté serveur) suivent à l'expiration.
                 supprimerAvecAnnulation({
-                  texte: `Ingrédient « ${ingredient.aliment.nom} » supprimé`,
-                  ariaLabel: `Annuler la suppression de l'ingrédient « ${ingredient.aliment.nom} »`,
+                  texte: `« ${ingredient.aliment.nom} » retiré de la recette`,
+                  ariaLabel: `Annuler le retrait de « ${ingredient.aliment.nom} »`,
                   masque: { type: "recette-ingredient", id: ingredient.id },
                   supprimer: () => removeIngredient(ingredient.id, recetteId),
-                  erreur: `Impossible de supprimer l'ingrédient « ${ingredient.aliment.nom} ». Réessaie.`,
+                  erreur: `Impossible de retirer « ${ingredient.aliment.nom} ». Réessaie.`,
                 })
               }
-              aria-label={`Supprimer l'ingrédient « ${ingredient.aliment.nom} »`}
-              className={dangerButton}
+              aria-label={`Retirer « ${ingredient.aliment.nom} »`}
+              className={boutonSupprimerLigne}
             >
-              Supprimer
+              Retirer
             </button>
           </>
         )}
@@ -130,6 +131,27 @@ function IngredientLine({
 
 const initialState: IngredientFormState = { error: null };
 
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+
+/** Aliments de la base au format du catalogue du Carnet, pour réutiliser sa recherche. */
+function versCatalogue(aliments: Tables<"aliments">[]): CatalogueAliment[] {
+  return aliments.map((a) => ({
+    type: "aliment",
+    id: a.id,
+    nom: a.nom,
+    categorie: a.categorie,
+    unite: a.unite,
+    poidsUniteG: a.poids_unite_g,
+    par100: nutritionAliment(a, 100),
+  }));
+}
+
+/**
+ * Ajout d'un ingrédient : recherche dans les aliments (même recherche
+ * tolérante aux accents que le Carnet, `rechercherCatalogue`) au lieu d'un
+ * menu déroulant de toute la base, puis quantité.
+ */
 function AddIngredientForm({
   recetteId,
   aliments,
@@ -137,22 +159,31 @@ function AddIngredientForm({
   recetteId: string;
   aliments: Tables<"aliments">[];
 }) {
+  const uid = useId();
   const [state, formAction, pending] = useActionState(addIngredient, initialState);
   const [alimentId, setAlimentId] = useState("");
+  const [requete, setRequete] = useState("");
+  const requeteDifferee = useDeferredValue(requete);
   const formRef = useRef<HTMLFormElement>(null);
   const prevPending = useRef(pending);
+  const catalogue = useMemo(() => versCatalogue(aliments), [aliments]);
+  const resultats = useMemo(
+    () => rechercherCatalogue(catalogue, requeteDifferee, 8) as CatalogueAliment[],
+    [catalogue, requeteDifferee]
+  );
 
   useEffect(() => {
     if (prevPending.current && !pending && !state.error) {
       formRef.current?.reset();
       setAlimentId("");
+      setRequete("");
     }
     prevPending.current = pending;
   }, [pending, state.error]);
 
   if (aliments.length === 0) {
     return (
-      <p className="text-sm text-ink-2">
+      <p className="text-small text-ink-2">
         Aucun aliment en base pour l&apos;instant : impossible de composer cette recette. Demande à Claude d&apos;en ajouter dans le chat, puis reviens ici.
       </p>
     );
@@ -163,39 +194,71 @@ function AddIngredientForm({
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-2">
       <input type="hidden" name="recette_id" value={recetteId} />
+      <input type="hidden" name="aliment_id" value={alimentId} />
       <input type="hidden" name="unite" value={selected?.unite ?? ""} />
 
-      <div className="flex gap-2">
-        <select
-          name="aliment_id"
-          aria-label="Ingrédient"
-          value={alimentId}
-          onChange={(e) => setAlimentId(e.target.value)}
-          required
-          className={`min-w-0 flex-1 ${input}`}
-        >
-          <option value="" disabled>
-            Choisir un ingrédient…
-          </option>
-          {aliments.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.nom}
-            </option>
-          ))}
-        </select>
-        <input
-          name="quantite"
-          type="number"
-          inputMode="decimal"
-          step="0.1"
-          min="0"
-          required
-          disabled={!selected}
-          placeholder={selected ? UNITE_LABEL[selected.unite] : "Quantité"}
-          aria-label="Quantité de l'ingrédient"
-          className={`w-24 ${input}`}
-        />
-      </div>
+      {selected ? (
+        <div className="flex items-center gap-2">
+          <p className={`${nameTextComplet} min-w-0 flex-1 font-semibold`}>{selected.nom}</p>
+          <button type="button" onClick={() => setAlimentId("")} className={ghostButton}>
+            Changer
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${uid}-recherche`} className="sr-only">
+            Rechercher un ingrédient
+          </label>
+          <input
+            id={`${uid}-recherche`}
+            type="search"
+            value={requete}
+            onChange={(e) => setRequete(e.target.value)}
+            placeholder="Rechercher un ingrédient…"
+            autoComplete="off"
+            spellCheck={false}
+            enterKeyHint="search"
+            className={input}
+          />
+          {requete.trim() !== "" &&
+            (resultats.length === 0 ? (
+              <p className="px-1 py-2 text-small text-ink-2">Aucun aliment pour « {requete.trim()} ».</p>
+            ) : (
+              <ul className="-mx-1 flex flex-col" aria-label="Aliments trouvés">
+                {resultats.map((a) => (
+                  <li key={a.id}>
+                    <button
+                      type="button"
+                      onClick={() => setAlimentId(a.id)}
+                      className={`flex min-h-11 w-full items-center rounded-xl px-2 text-left transition-colors hover:bg-surface-alt ${focusRing}`}
+                    >
+                      <span className={nameTextComplet}>{a.nom}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ))}
+        </div>
+      )}
+
+      {selected && (
+        <div className="flex items-center gap-2">
+          <label htmlFor={`${uid}-quantite`} className="text-label font-medium text-ink">
+            Quantité
+          </label>
+          <input
+            id={`${uid}-quantite`}
+            name="quantite"
+            type="number"
+            inputMode="decimal"
+            step="0.1"
+            min="0"
+            required
+            className={`w-24 ${input}`}
+          />
+          <span className="text-small text-ink-2">{UNITE_LABEL[selected.unite]}</span>
+        </div>
+      )}
 
       {state.error && (
         <p className={errorText} role="alert">
@@ -203,7 +266,7 @@ function AddIngredientForm({
         </p>
       )}
 
-      <button type="submit" disabled={pending} className={primaryButton}>
+      <button type="submit" disabled={pending || !selected} className={primaryButton}>
         {pending ? "Ajout…" : "Ajouter l'ingrédient"}
       </button>
     </form>
@@ -227,7 +290,7 @@ export function IngredientManager({
   return (
     <div className="flex flex-col gap-3">
       {visibles.length === 0 ? (
-        hideEmptyMessage ? null : <p className="text-sm text-ink-2">Aucun ingrédient pour l&apos;instant.</p>
+        hideEmptyMessage ? null : <p className="text-small text-ink-2">Aucun ingrédient pour l&apos;instant.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {visibles.map((ing) => (

@@ -433,7 +433,7 @@ export function AgendaView() {
           aria-keyshortcuts="n e"
           aria-expanded={menuAjoutOpen}
           aria-controls="agenda-choix-ajout"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <svg
             width="24"
@@ -459,7 +459,7 @@ export function AgendaView() {
                 setMenuAjoutOpen(false);
                 setEvenementForm({});
               }}
-              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
             >
               Événement
             </button>
@@ -469,7 +469,7 @@ export function AgendaView() {
                 setMenuAjoutOpen(false);
                 setFabOpen(true);
               }}
-              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
             >
               Tâche
             </button>
@@ -489,6 +489,7 @@ export function AgendaView() {
                 queryClient.invalidateQueries({ queryKey: queryKeys.taches });
                 // Création réussie mais tags/image en échec : ne pas le taire.
                 if (avertissement) showToast(avertissement, DUREE_TOAST_AVERTISSEMENT_MS);
+                else showToast("Tâche ajoutée");
               }}
             />
           </Modal>

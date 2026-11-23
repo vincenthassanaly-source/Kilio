@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useEffect, useRef, useState, useTransition, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { rechercheGlobale, type ModuleRecherche, type ResultatRecherche } from "@/app/actions/recherche";
 import { inputAvecIcone } from "@/lib/ui";
 import { runAction } from "@/lib/actions/runAction";
@@ -31,9 +31,24 @@ function SearchIcon({ color }: { color: string }) {
   );
 }
 
-export function GlobalSearchBar() {
+/**
+ * Recherche globale. Contrôlable (`valeur`/`onValeur`) pour partager le texte
+ * avec la saisie « Ajoute… » dans le champ unique de l'accueil (ChampAccueil) ;
+ * `prefixe` remplace alors la loupe par le sélecteur de mode.
+ */
+export function GlobalSearchBar({
+  valeur,
+  onValeur,
+  prefixe,
+}: {
+  valeur?: string;
+  onValeur?: (texte: string) => void;
+  prefixe?: ReactNode;
+} = {}) {
   const router = useRouter();
-  const [query, setQuery] = useState("");
+  const [queryInterne, setQueryInterne] = useState("");
+  const query = valeur ?? queryInterne;
+  const setQuery = onValeur ?? setQueryInterne;
   const [resultats, setResultats] = useState<ResultatRecherche[]>([]);
   const [ouvert, setOuvert] = useState(false);
   const [aRecherche, setARecherche] = useState(false);
@@ -138,9 +153,11 @@ export function GlobalSearchBar() {
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2">
-          <SearchIcon color="var(--ink-3)" />
-        </span>
+        {prefixe ?? (
+          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2">
+            <SearchIcon color="var(--ink-3)" />
+          </span>
+        )}
         <input
           type="text"
           value={query}
@@ -155,7 +172,7 @@ export function GlobalSearchBar() {
           role="combobox"
           aria-autocomplete="list"
           autoComplete="off"
-          className={`${inputAvecIcone} w-full pr-9`}
+          className={`${inputAvecIcone} min-h-11 w-full pr-9 ${prefixe ? "pl-[5.5rem]" : ""}`}
         />
         {isPending && (
           <span

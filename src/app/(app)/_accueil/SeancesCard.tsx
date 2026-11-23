@@ -50,7 +50,7 @@ function Pastille({
       disabled={desactivee || vide}
       aria-label={`Commencer ${routine.nom}${routine.faite ? " (déjà faite cette semaine)" : ""}`}
       title={vide ? `${LIBELLES_TYPE[groupe.type]} ${routine.pastille} n'a pas d'exercice` : undefined}
-      className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal disabled:opacity-40 ${
+      className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 disabled:opacity-40 ${
         routine.faite ? "bg-kcal-soft text-kcal" : "bg-surface-alt text-ink-2"
       }`}
     >

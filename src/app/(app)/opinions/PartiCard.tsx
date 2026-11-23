@@ -30,7 +30,8 @@ import {
 } from "@/lib/opinions/partis";
 import { AXES, THEMES, formaterScore, type Theme } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
-import { dangerButton, ghostButton, input, label, metaText, pillTag, primaryButton, secondaryButton } from "@/lib/ui";
+import { ghostButton, input, label, metaText, pillTag } from "@/lib/ui";
+import { MenuActions } from "./MenuActions";
 import { BarreSuiviLecture, MARGE_DEFILEMENT } from "./BarreSuiviLecture";
 import { BoutonRetourBarre } from "./BoutonRetourBarre";
 import { EtiquetteTheme, PastilleParti, TexteProposition } from "./CouleursOpinions";
@@ -66,13 +67,29 @@ function Chevron({ ouvert }: { ouvert: boolean }) {
   );
 }
 
-export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite: Proximite | null }) {
+export function PartiCard({
+  parti,
+  proximite,
+  ouvert: ouvertControle,
+  onOuvert,
+}: {
+  parti: PartiComplet;
+  proximite: Proximite | null;
+  /** Dépliage piloté par le parent (parti ouvert porté par l'URL). */
+  ouvert?: boolean;
+  onOuvert?: (ouvert: boolean) => void;
+}) {
   const queryClient = useQueryClient();
   const navigate = useViewTransitionNavigate();
   const idPanneau = useId();
   const panneauRef = useRef<HTMLDivElement>(null);
   const barreRef = useRef<HTMLDivElement>(null);
-  const [ouvert, setOuvert] = useState(false);
+  const [ouvertLocal, setOuvertLocal] = useState(false);
+  const ouvert = ouvertControle ?? ouvertLocal;
+  function basculerOuvert() {
+    if (onOuvert) onOuvert(!ouvert);
+    else setOuvertLocal(!ouvert);
+  }
   const [choix, setChoix] = useState<string | null>(null);
   const [filtre, setFiltre] = useState<FiltreSuivi>({ nonLues: false, favoris: false });
   const [formulaire, setFormulaire] = useState<Formulaire>(null);
@@ -240,7 +257,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
         type="button"
         aria-expanded={ouvert}
         aria-controls={idPanneau}
-        onClick={() => setOuvert((o) => !o)}
+        onClick={basculerOuvert}
         className="flex min-h-14 w-full items-center gap-3 rounded-card p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -264,48 +281,45 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
 
       {ouvert && (
         <div ref={panneauRef} id={idPanneau} className="flex flex-col gap-4 border-t border-line p-4">
-          {programme === null ? (
-            <p className="text-sm text-ink-2">
-              Aucun programme pour l&apos;instant. Ajoute-en un, puis demande à Claude d&apos;importer ses propositions.
-            </p>
-          ) : (
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={`${idPanneau}-programme`} className={label}>
-                Programme
-              </label>
-              <select
-                id={`${idPanneau}-programme`}
-                className={input}
-                value={programme.id}
-                onChange={(e) => setChoix(e.target.value)}
-              >
-                {programmes.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {libelleProgramme(p)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-x-2 gap-y-4">
-            <button type="button" className={ghostButton} onClick={() => setFormulaire("programme-nouveau")}>
-              Ajouter un programme
-            </button>
-            {programme && (
-              <>
-                <button type="button" className={ghostButton} onClick={() => setFormulaire("programme-modifier")}>
-                  Modifier le programme
-                </button>
-                <button type="button" className={dangerButton} onClick={supprimerLeProgramme}>
-                  Supprimer le programme
-                </button>
-              </>
+          <div className="flex items-end gap-2">
+            {programme === null ? (
+              <p className="min-w-0 flex-1 text-small text-ink-2">
+                Aucun programme pour l&apos;instant. Ajoute-en un, puis demande à Claude d&apos;importer ses propositions.
+              </p>
+            ) : (
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <label htmlFor={`${idPanneau}-programme`} className={label}>
+                  Programme
+                </label>
+                <select
+                  id={`${idPanneau}-programme`}
+                  className={input}
+                  value={programme.id}
+                  onChange={(e) => setChoix(e.target.value)}
+                >
+                  {programmes.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {libelleProgramme(p)}
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
+            <MenuActions
+              libelle={`Gérer ${libelleParti(parti)}`}
+              actions={[
+                ...(programme ? [{ libelle: "Ajouter une proposition", onSelect: () => setPropositionEditee("nouvelle") }] : []),
+                { libelle: "Ajouter un programme", onSelect: () => setFormulaire("programme-nouveau") },
+                ...(programme ? [{ libelle: "Modifier le programme", onSelect: () => setFormulaire("programme-modifier") }] : []),
+                { libelle: "Modifier le parti", onSelect: () => setFormulaire("parti") },
+                ...(programme ? [{ libelle: "Supprimer le programme", onSelect: supprimerLeProgramme, suppression: true }] : []),
+                { libelle: "Supprimer le parti", onSelect: supprimerLeParti, suppression: true },
+              ]}
+            />
           </div>
 
           {programme && propositions.length === 0 && (
-            <p className="text-sm text-ink-2">
+            <p className="text-small text-ink-2">
               Aucune proposition pour ce programme. Demande à Claude de l&apos;importer, ou ajoute-en à la main.
             </p>
           )}
@@ -337,7 +351,7 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
 
               {visibles.length === 0 && (
                 <div className="flex flex-col items-start gap-2">
-                  <p className="text-sm text-ink-2">Aucune proposition ne correspond à ces filtres.</p>
+                  <p className="text-small text-ink-2">Aucune proposition ne correspond à ces filtres.</p>
                   <button
                     type="button"
                     className={ghostButton}
@@ -374,14 +388,17 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
                           })}
                         </ul>
                         <ExplicationProposition explication={proposition.explication} />
-                        <SuiviProposition proposition={proposition} onBasculer={(champ) => basculerSuivi(proposition, champ)} />
-                        <div className="flex flex-wrap gap-2">
-                          <button type="button" className={ghostButton} disabled={enCours} onClick={() => reprendre(proposition)}>
-                            Reprendre dans mes idées
-                          </button>
-                          <button type="button" className={ghostButton} onClick={() => setPropositionEditee(proposition)}>
-                            Modifier la proposition
-                          </button>
+                        <div className="flex items-center gap-1">
+                          <div className="min-w-0 flex-1">
+                            <SuiviProposition proposition={proposition} onBasculer={(champ) => basculerSuivi(proposition, champ)} />
+                          </div>
+                          <MenuActions
+                            libelle="Actions de la proposition"
+                            actions={[
+                              { libelle: "Reprendre dans mes idées", onSelect: () => reprendre(proposition), disabled: enCours },
+                              { libelle: "Modifier la proposition", onSelect: () => setPropositionEditee(proposition) },
+                            ]}
+                          />
                         </div>
                       </li>
                     ))}
@@ -390,20 +407,6 @@ export function PartiCard({ parti, proximite }: { parti: PartiComplet; proximite
               ))}
             </>
           )}
-
-          <div className="flex flex-wrap gap-2 border-t border-line pt-4">
-            {programme && (
-              <button type="button" className={primaryButton} onClick={() => setPropositionEditee("nouvelle")}>
-                Ajouter une proposition
-              </button>
-            )}
-            <button type="button" className={secondaryButton} onClick={() => setFormulaire("parti")}>
-              Modifier le parti
-            </button>
-            <button type="button" className={dangerButton} onClick={supprimerLeParti}>
-              Supprimer le parti
-            </button>
-          </div>
         </div>
       )}
 

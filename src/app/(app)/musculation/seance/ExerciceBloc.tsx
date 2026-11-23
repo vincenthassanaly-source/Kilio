@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { showToast } from "@/components/toast/toast-store";
 import { vibrate } from "@/lib/haptics";
 import {
   CHAMPS_PAR_MODE,
@@ -229,7 +228,7 @@ export function ExerciceBloc({
           <button
             type="button"
            
-            className={`${ligneMenu} !text-alert`}
+            className={`${ligneMenu} !text-ink-2 hover:!text-alert focus-visible:!text-alert`}
             onClick={() => (faites > 0 ? setConfirmerRetrait(true) : onRetirerExercice(cle))}
           >
             <IconeMenu d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
@@ -249,8 +248,9 @@ export function ExerciceBloc({
         }}
       >
         <p>
-          {faites} série{faites > 1 ? "s" : ""} validée{faites > 1 ? "s" : ""} sur {exercice.nom} sera
-          {faites > 1 ? "ont" : ""} perdue{faites > 1 ? "s" : ""}.
+          {faites > 1
+            ? `${faites} séries validées sur ${exercice.nom} seront perdues.`
+            : `1 série validée sur ${exercice.nom} sera perdue.`}
         </p>
       </ConfirmDialog>
 
@@ -299,7 +299,7 @@ export function ExerciceBloc({
                   {serie.type === "echec" && <span aria-hidden="true">!</span>}
                 </button>
                 {!edition && (
-                  <span className="truncate text-center text-small tabular-nums text-ink-2">
+                  <span className="min-w-0 break-words text-center text-small leading-tight tabular-nums text-ink-2">
                     {libellePrecedent(mode, precedent)}
                   </span>
                 )}
@@ -335,14 +335,7 @@ export function ExerciceBloc({
                       if (!serie.fait) {
                         deverrouillerAudio();
                         vibrate(15);
-                        // Série validée = record de charge battu (comme le badge sous la série) : on félicite.
-                        const apresValidation = recordsBattus(
-                          exercice.series.map((s) => (s.fait || s.id === serie.id ? s : { ...s, type: "echauffement" as const })),
-                          exercice.records,
-                        );
-                        if (apresValidation[index]?.includes("poids")) {
-                          showToast(`Record de charge sur ${exercice.nom}`, 3600);
-                        }
+                        // Un record battu n'est signalé qu'une fois : la ligne « Nouveau record » sous la série.
                       }
                       onBasculer(cle, serie.id);
                     }}

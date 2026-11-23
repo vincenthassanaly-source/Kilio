@@ -67,7 +67,7 @@ function ImageThumb({
         disabled={disabled}
         onClick={onRemove}
         aria-label={removeLabel}
-        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-alert text-micro font-bold text-on-accent after:absolute after:-inset-3 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-alert text-micro font-bold text-on-accent after:absolute after:-inset-3 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         ×
       </button>
@@ -448,7 +448,7 @@ export function AddTaskForm({
                 type="button"
                 aria-pressed={actif}
                 onClick={() => setListeChoisie(liste.id)}
-                className={`relative flex min-h-11 items-center gap-[7px] whitespace-nowrap rounded-2xl border px-3.5 text-label font-semibold text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                className={`relative flex min-h-11 items-center gap-[7px] whitespace-nowrap rounded-2xl border px-3.5 text-label font-semibold text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                   actif ? "border-kcal bg-kcal-soft" : "border-line bg-surface"
                 }`}
               >
@@ -735,7 +735,7 @@ export function AddTaskForm({
                     key={tag.id}
                     type="button"
                     onClick={() => toggleTag(tag.id)}
-                    className={`relative inline-flex min-h-9 items-center rounded-full px-3 text-caption font-semibold transition-colors after:absolute after:inset-x-0 after:-inset-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                    className={`relative inline-flex min-h-9 items-center rounded-full px-3 text-caption font-semibold transition-colors after:absolute after:inset-x-0 after:-inset-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                       tagIds.includes(tag.id) ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                     }`}
                   >

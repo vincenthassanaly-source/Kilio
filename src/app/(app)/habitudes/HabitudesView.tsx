@@ -14,6 +14,7 @@ import { HabitudesListeSkeleton } from "./HabitudesSkeleton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { ErrorInline } from "@/components/ErrorInline";
+import { showToast } from "@/components/toast/toast-store";
 
 type ViewKey = "aujourdhui" | "historique" | "archives";
 
@@ -25,6 +26,8 @@ const VIEWS: { key: ViewKey; label: string }[] = [
 
 export function HabitudesView({ today }: { today: string }) {
   const [view, setView] = useState<ViewKey>("aujourdhui");
+  // Feuille « Nouvelle habitude » : ouverte par le « + » flottant ou l'état vide.
+  const [ajoutOuvert, setAjoutOuvert] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: habitudes = [], isLoading, isError, refetch } = useQuery({
@@ -33,6 +36,7 @@ export function HabitudesView({ today }: { today: string }) {
   });
 
   return (
+    <>
     <PullToRefresh
       onRefresh={() => queryClient.invalidateQueries({ queryKey: queryKeys.habitudes(today) })}
     >
@@ -49,16 +53,14 @@ export function HabitudesView({ today }: { today: string }) {
       />
 
       {view === "aujourdhui" && (
-        <div className="flex flex-col gap-4">
-          <AddHabitudeToggle
-            onSaved={() => queryClient.invalidateQueries({ queryKey: queryKeys.habitudes(today) })}
-          />
+        // pb-20 : la dernière carte (et son menu « … ») reste dégagée du « + » flottant.
+        <div className="flex flex-col gap-4 pb-20">
           {isLoading ? (
             <HabitudesListeSkeleton />
           ) : isError ? (
             <ErrorInline message="Impossible de charger les habitudes." retry={() => refetch()} />
           ) : habitudes.length === 0 ? (
-            <HabitudesVides />
+            <HabitudesVides onAjouter={() => setAjoutOuvert(true)} />
           ) : (
             <ul className="flex flex-col gap-2.5">
               <AnimatePresence initial={false}>
@@ -76,5 +78,18 @@ export function HabitudesView({ today }: { today: string }) {
       {view === "archives" && <ArchivesView />}
     </div>
     </PullToRefresh>
+    {/* Hors de PullToRefresh (même raison que Tâches) : le « + » et sa feuille
+        ne partagent pas les gestes du tirer-pour-rafraîchir. */}
+    {view === "aujourdhui" && (
+      <AddHabitudeToggle
+        ouvert={ajoutOuvert}
+        onOuvertChange={setAjoutOuvert}
+        onSaved={() => {
+          showToast("Habitude ajoutée");
+          void queryClient.invalidateQueries({ queryKey: queryKeys.habitudes(today) });
+        }}
+      />
+    )}
+    </>
   );
 }

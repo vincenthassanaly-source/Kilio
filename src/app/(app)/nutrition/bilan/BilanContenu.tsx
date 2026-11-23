@@ -70,7 +70,7 @@ export async function BilanContenu() {
     return (
       <div className={`${card} flex flex-col items-start gap-2`}>
         <p className="text-body font-bold text-ink">Aucun objectif défini.</p>
-        <p className="text-sm text-ink-2 text-pretty">
+        <p className="text-small text-ink-2 text-pretty">
           Définis tes objectifs de kcal et de protéines dans le Carnet alimentaire pour suivre les jours où tes cibles sont atteintes.
         </p>
         <TransitionLink href="/nutrition/journal?from=bilan" className={linkButton}>
@@ -104,6 +104,9 @@ export async function BilanContenu() {
             <LigneSerie jours={serie.jours} tronquee={serie.tronquee} />
           </div>
         </div>
+        {/* Détail jour par jour dans le même bloc (autrefois « Détail de la semaine ») :
+            une seule lecture de la semaine glissante. */}
+        <DetailJours jours={semaine} />
       </SectionBilan>
 
       <SectionBilan titre="30 derniers jours">
@@ -112,10 +115,6 @@ export async function BilanContenu() {
           <LegendeStatuts />
           <ResumeTaux {...taux30} periode="30 jours" />
         </div>
-      </SectionBilan>
-
-      <SectionBilan titre="Détail de la semaine">
-        <DetailJours jours={semaine} />
       </SectionBilan>
     </>
   );

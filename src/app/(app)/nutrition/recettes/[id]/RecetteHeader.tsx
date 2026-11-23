@@ -79,7 +79,7 @@ export function RecetteHeader({
           </button>
         </div>
       </div>
-      {recette.description && <p className="text-sm text-ink text-pretty">{recette.description}</p>}
+      {recette.description && <p className="text-small text-ink text-pretty">{recette.description}</p>}
     </div>
   );
 }

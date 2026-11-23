@@ -128,7 +128,7 @@ export function TacheBlock({
     <button
       type="button"
       onClick={() => onSelect(tache.id)}
-      className={`${classeBouton} ${zoneTap} text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
+      className={`${classeBouton} ${zoneTap} text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
       style={blockStyle}
       aria-label={ariaLabel}
       title={ariaLabel}

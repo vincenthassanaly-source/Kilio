@@ -68,7 +68,7 @@ export function JourLibreCard({ today }: { today: string }) {
           aria-expanded={ouvert}
           aria-controls="jours-libres-detail"
           onClick={() => setOuvert((v) => !v)}
-          className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl p-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl p-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <span className="min-w-0">
             <span className={`block ${sectionTitle}`}>Jours libres</span>
