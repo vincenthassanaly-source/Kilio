@@ -42,6 +42,15 @@ function pillTransition(reduceMotion: boolean) {
 // un enfant, pour un "press" naturel au doigt sur toute la cible.
 const MotionLink = motion(Link);
 
+// Classe commune des 5 emplacements. Anneau focus-visible ring-kcal (clavier)
+// sans offset : il reste dans la barre arrondie. `min-w-0 shrink` et le label
+// `truncate` : à 360 px avec quatre libellés longs épinglés (« Musculation »,
+// « Aujourd'hui », « Collection »…), la barre rétrécit ses emplacements au
+// lieu de déborder de l'écran ; le padding latéral se resserre sous 400 px.
+const SLOT_CLASSE =
+  "relative flex min-w-0 shrink flex-col items-center gap-0.5 rounded-row px-2 py-[7px] transition-colors min-[400px]:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+const LABEL_CLASSE = "max-w-full truncate text-micro";
+
 // Fond de l'onglet actif : enfant supplémentaire du slot, positionné derrière
 // l'icône + le label (grâce à l'ordre de peinture des éléments flex, qui
 // place cet élément `position: absolute` sous les items flex statiques
@@ -96,7 +105,7 @@ function BottomNavSlot({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       whileTap={reduceMotion ? undefined : { scale: 0.94 }}
-      className="relative flex flex-col items-center gap-0.5 rounded-row px-3 py-[7px] transition-colors"
+      className={SLOT_CLASSE}
       style={{
         outline: showDropRing ? "2px dashed var(--accent-kcal)" : undefined,
         outlineOffset: showDropRing ? "2px" : undefined,
@@ -104,7 +113,7 @@ function BottomNavSlot({
     >
       {active && <ActivePill reduceMotion={reduceMotion} />}
       <span className="flex h-6 items-center justify-center">{item.icon(color)}</span>
-      <span className="text-micro" style={{ color, fontWeight: active ? 700 : 500 }}>
+      <span className={LABEL_CLASSE} style={{ color, fontWeight: active ? 700 : 500 }}>
         {item.label}
       </span>
     </MotionLink>
@@ -169,7 +178,7 @@ export function BottomNav() {
           fixe pendant que seule la page change. */}
       <nav
         aria-label="Navigation principale"
-        className="flex items-center gap-0.5 rounded-dock border border-line bg-nav p-[7px] shadow-float backdrop-blur-xl"
+        className="flex min-w-0 max-w-full items-center gap-0.5 rounded-dock border border-line bg-nav p-[7px] shadow-float backdrop-blur-xl"
         style={{ viewTransitionName: "bottom-nav" }}
       >
         {modulesBarreBasse.map((href, index) => (
@@ -188,12 +197,12 @@ export function BottomNav() {
           onClick={(e) => handleClick(e, "/plus")}
           aria-current={plusActive ? "page" : undefined}
           whileTap={reduceMotion ? undefined : { scale: 0.94 }}
-          className="relative flex flex-col items-center gap-0.5 rounded-row px-3 py-[7px] transition-colors"
+          className={SLOT_CLASSE}
         >
           {plusActive && <ActivePill reduceMotion={reduceMotion} />}
           <span className="flex h-6 items-center justify-center">{PLUS_ICON(plusActive ? "var(--accent-kcal)" : "var(--ink-3)")}</span>
           <span
-            className="text-micro"
+            className={LABEL_CLASSE}
             style={{ color: plusActive ? "var(--accent-kcal)" : "var(--ink-3)", fontWeight: plusActive ? 700 : 500 }}
           >
             Plus

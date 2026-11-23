@@ -7,46 +7,10 @@ import { creerTacheRapide } from "@/lib/taches/creation-rapide";
 import { TACHES_TAG } from "@/lib/taches/tags";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 import { estUuid } from "@/lib/uuid";
-import { estCouleurValide } from "@/lib/notes/palette";
-import type { Enums, Tables } from "@/lib/supabase/types";
+import { parseNoteInput, titreNote } from "@/lib/notes/saisie";
+import type { Tables } from "@/lib/supabase/types";
 
 export type NoteFormState = { error: string | null };
-
-type NoteInput = {
-  titre: string;
-  contenu: string;
-  type: Enums<"note_type">;
-  couleur: string | null;
-};
-
-type ParseResult = { ok: true; value: NoteInput } | { ok: false; error: string };
-
-const TYPES: readonly Enums<"note_type">[] = ["texte", "checklist"];
-
-function parseNoteInput(formData: FormData): ParseResult {
-  const titre = String(formData.get("titre") ?? "").trim();
-  const contenu = String(formData.get("contenu") ?? "").trim();
-  const type = String(formData.get("type") ?? "texte");
-  const couleur = String(formData.get("couleur") ?? "").trim();
-
-  if (!titre) return { ok: false, error: "Le titre est requis." };
-  if (!TYPES.includes(type as Enums<"note_type">)) {
-    return { ok: false, error: "Type de note invalide." };
-  }
-  if (couleur && !estCouleurValide(couleur)) {
-    return { ok: false, error: "Couleur invalide." };
-  }
-  // Une checklist porte son contenu dans note_items, pas dans notes.contenu :
-  // seul le type "texte" exige un contenu.
-  if (type === "texte" && !contenu) {
-    return { ok: false, error: "Le contenu est requis." };
-  }
-
-  return {
-    ok: true,
-    value: { titre, contenu, type: type as Enums<"note_type">, couleur: couleur || null },
-  };
-}
 
 type SupabaseClient = ReturnType<typeof createAdminClient>;
 
@@ -372,7 +336,7 @@ export async function noteVersTache(noteId: string): Promise<ActionResult<{ id: 
           .join("\n")
       : note.contenu;
 
-  const creation = await creerTacheRapide(supabase, { titre: note.titre, notes: details, note_id: noteId });
+  const creation = await creerTacheRapide(supabase, { titre: titreNote(note), notes: details, note_id: noteId });
   if (!creation.ok) return fail(creation.error);
 
   revalidateApresCreationTache();
@@ -393,7 +357,7 @@ export async function noteItemVersTache(itemId: string): Promise<ActionResult<{ 
 
   const creation = await creerTacheRapide(supabase, {
     titre: item.libelle,
-    notes: item.note ? `Depuis la note « ${item.note.titre} »` : null,
+    notes: item.note ? `Depuis la note « ${titreNote(item.note)} »` : null,
     note_id: item.note_id,
   });
   if (!creation.ok) return fail(creation.error);

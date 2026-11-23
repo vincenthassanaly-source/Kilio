@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NoteCard } from "./NoteCard";
@@ -128,7 +128,26 @@ describe("NoteCard - rollback scopé des mutations optimistes (CLICK-PATH-603)",
     await waitFor(() => expect(supprimerTaches).toHaveBeenCalledWith(["tache-1"]));
   });
 
-  it("checklist : barre de progression annoncée et actions de la tuile nommées", () => {
+  it("checklist sans titre : annoncée « Liste sans titre », le libellé ouvre la lecture", async () => {
+    const client = new QueryClient();
+    const user = userEvent.setup();
+    const item = { note_id: "note-s", created_at: "", updated_at: "", termine_le: null };
+    renderWithClient(
+      client,
+      makeNote({
+        id: "note-s",
+        titre: "",
+        type: "checklist",
+        items: [{ ...item, id: "i1", libelle: "Pain", coche: false, position: 0 }],
+      })
+    );
+    expect(screen.getByRole("button", { name: "Ouvrir la note Liste sans titre" })).toBeInTheDocument();
+    await user.click(screen.getByText("Pain"));
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("checklist : barre de progression annoncée, gestion dans la feuille de lecture", async () => {
+    const user = userEvent.setup();
     const client = new QueryClient();
     const item = { note_id: "note-c", created_at: "", updated_at: "", termine_le: null };
     renderWithClient(
@@ -146,8 +165,12 @@ describe("NoteCard - rollback scopé des mutations optimistes (CLICK-PATH-603)",
     const barre = screen.getByRole("progressbar");
     expect(barre).toHaveAttribute("aria-valuenow", "1");
     expect(barre).toHaveAttribute("aria-valuetext", "1 sur 2");
-    expect(screen.getByRole("button", { name: "Modifier la note « Courses »" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Supprimer la note « Courses »" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Décocher « Pain »" })).toBeInTheDocument();
+    // La tuile n'expose plus Modifier / Supprimer : ils sont dans la feuille.
+    expect(screen.queryByRole("button", { name: "Supprimer" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Ouvrir la note Courses" }));
+    const feuille = await screen.findByRole("dialog");
+    expect(within(feuille).getByRole("button", { name: "Modifier" })).toBeInTheDocument();
+    expect(within(feuille).getByRole("button", { name: "Supprimer" })).toBeInTheDocument();
   });
 });

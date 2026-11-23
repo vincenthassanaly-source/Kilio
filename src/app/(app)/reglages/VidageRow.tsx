@@ -6,8 +6,9 @@ import { Switch } from "@/components/Switch";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
+import { showToast } from "@/components/toast/toast-store";
 import { DependsOnNotifications } from "./NotificationsContext";
-import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
+import { MESSAGE_HEURE_ENREGISTREE, Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 function VidageIcon() {
   return (
@@ -42,7 +43,7 @@ export function VidageRow({ reglages }: { reglages: Pick<Tables<"reglages_briefi
     setEtat(suivant);
     setEnregistre(suivant);
     startTransition(async () => {
-      await runAction(() => updateReglagesVidage(suivant.actif, suivant.heure), {
+      const resultat = await runAction(() => updateReglagesVidage(suivant.actif, suivant.heure), {
         silencieux: true,
         erreur: "Le réglage n'a pas pu être enregistré. Réessaie.",
         onError: (message) => {
@@ -51,6 +52,7 @@ export function VidageRow({ reglages }: { reglages: Pick<Tables<"reglages_briefi
           setEnregistre(precedent);
         },
       });
+      if (resultat.ok && suivant.heure !== precedent.heure) showToast(MESSAGE_HEURE_ENREGISTREE);
     });
   }
 

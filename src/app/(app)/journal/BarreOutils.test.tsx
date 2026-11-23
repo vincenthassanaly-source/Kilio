@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { BarreOutils } from "./BarreOutils";
+import { BarreOutils, epaisseurSuivante } from "./BarreOutils";
 
 function rendre(surcharges: Partial<React.ComponentProps<typeof BarreOutils>> = {}) {
   const props = {
@@ -29,16 +29,25 @@ describe("BarreOutils", () => {
     rendre({ outil: "gomme", epaisseur: 3 });
     expect(screen.getByRole("button", { name: "Gomme" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Stylo" })).toHaveAttribute("aria-pressed", "false");
-    expect(screen.getByRole("button", { name: "Trait épais" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Épaisseur : trait épais" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Gomme" })).toHaveClass("bg-kcal-soft", "text-kcal");
   });
 
-  it("change d'outil et d'épaisseur", async () => {
+  it("change d'outil et fait défiler les épaisseurs (fin → moyen → épais → fin)", async () => {
     const props = rendre();
     await userEvent.click(screen.getByRole("button", { name: "Gomme" }));
-    await userEvent.click(screen.getByRole("button", { name: "Trait fin" }));
+    await userEvent.click(screen.getByRole("button", { name: "Épaisseur : trait moyen" }));
     expect(props.onOutil).toHaveBeenCalledWith("gomme");
-    expect(props.onEpaisseur).toHaveBeenCalledWith(1);
+    expect(props.onEpaisseur).toHaveBeenCalledWith(3);
+    expect(epaisseurSuivante(3)).toBe(1);
+    expect(epaisseurSuivante(1)).toBe(2);
+  });
+
+  it("Transcrire est l'action verte, le mot visible", () => {
+    rendre();
+    const bouton = screen.getByRole("button", { name: "Transcrire" });
+    expect(bouton).toHaveClass("bg-kcal", "text-on-kcal");
+    expect(bouton.textContent).toBe("Transcrire");
   });
 
   it("désactive annuler / rétablir quand il n'y a rien à défaire", async () => {

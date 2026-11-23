@@ -10,6 +10,11 @@ type Props = {
   peutEffacer: boolean;
   onVoirTexte: () => void;
   onEffacer: () => void;
+  /**
+   * Réglage « Écrire aussi au doigt » (mode Stylo seulement) : rare, il quitte
+   * l'écran pour le menu et libère une ligne au-dessus de la feuille.
+   */
+  doigt?: { actif: boolean; onBasculer: () => void };
 };
 
 // Cible tactile de 44 px (guide UX : zone minimale, 8 px d'écart entre cibles voisines).
@@ -37,13 +42,16 @@ function Rotation() {
  * rangées loin de la zone d'écriture pour qu'un geste de paume ne les déclenche pas.
  * « Transcrire », d'usage courant, vit dans la barre d'outils du bas.
  */
-export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte, onEffacer }: Props) {
+export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte, onEffacer, doigt }: Props) {
   const [ouvert, setOuvert] = useState(false);
   const racine = useRef<HTMLDivElement>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
 
-  const elementsActifs = () => Array.from(menu.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ?? []);
+  const elementsActifs = () =>
+    Array.from(
+      menu.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled), [role="menuitemcheckbox"]:not(:disabled)') ?? []
+    );
 
   // À l'ouverture, le focus va au premier choix possible (clavier et lecteur d'écran).
   useEffect(() => {
@@ -94,7 +102,7 @@ export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte,
         aria-haspopup="menu"
         aria-expanded={ouvert}
         aria-busy={enTranscription}
-        disabled={!enTranscription && !aTexte && !peutEffacer}
+        disabled={!enTranscription && !aTexte && !peutEffacer && !doigt}
         onClick={() => setOuvert((o) => !o)}
         className="flex h-11 w-11 items-center justify-center rounded-xl border border-control-border text-ink transition-[color,background-color,opacity,transform] hover:bg-surface-alt active:scale-[0.97] disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
       >
@@ -124,6 +132,36 @@ export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte,
                   <path d="M14 3v5h5M9 13h6M9 17h6" />
                 </Icone>
                 Voir le texte
+              </button>
+              <span className="mx-3.5 my-1 h-px bg-line" role="separator" />
+            </>
+          )}
+          {doigt && (
+            <>
+              {/* Bascule : le menu reste ouvert pour qu'on voie l'état changer. */}
+              <button
+                type="button"
+                role="menuitemcheckbox"
+                aria-checked={doigt.actif}
+                onClick={doigt.onBasculer}
+                className={`${item} text-ink`}
+              >
+                <Icone>
+                  <path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0 0V8.5a1.5 1.5 0 0 1 3 0V11m0 0v-.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4 14.5a1.5 1.5 0 0 1 2.4-1.8L9 15" />
+                </Icone>
+                <span className="flex-1">Écrire aussi au doigt</span>
+                <span
+                  aria-hidden="true"
+                  className={`flex h-5 w-5 items-center justify-center rounded-md border-2 transition-colors ${
+                    doigt.actif ? "border-kcal bg-kcal text-on-kcal" : "border-control-border"
+                  }`}
+                >
+                  {doigt.actif && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12.5l4.5 4.5L19 7.5" />
+                    </svg>
+                  )}
+                </span>
               </button>
               <span className="mx-3.5 my-1 h-px bg-line" role="separator" />
             </>

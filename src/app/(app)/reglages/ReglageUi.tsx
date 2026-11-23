@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 
+/** Toast de confirmation après l'enregistrement (au blur) d'une heure de rappel. */
+export const MESSAGE_HEURE_ENREGISTREE = "Heure enregistrée";
+
 /** Pastille d'icône d'une ligne de réglage (teinte du module à 12 %). */
 export function Pastille({ children, teinte = "var(--accent-kcal)" }: { children: ReactNode; teinte?: string }) {
   return (

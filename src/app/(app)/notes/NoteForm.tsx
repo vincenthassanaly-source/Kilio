@@ -209,7 +209,7 @@ function NoteItemsDraft({
       {items.map((libelle, index) => (
         <div key={index} className="flex items-center gap-2">
           <input type="hidden" name="item_libelle" value={libelle} />
-          <span className="min-w-0 flex-1 break-words text-sm text-ink">{libelle}</span>
+          <span className="min-w-0 flex-1 break-words text-label text-ink">{libelle}</span>
           <button
             type="button"
             onClick={() => onChange(items.filter((_, i) => i !== index))}
@@ -343,9 +343,16 @@ export function NoteForm({
 
       <div className="flex flex-col gap-1">
         <label htmlFor={`${uid}-titre`} className={labelClass}>
-          Titre
+          {type === "checklist" ? "Titre (facultatif)" : "Titre"}
         </label>
-        <input id={`${uid}-titre`} name="titre" required defaultValue={note?.titre ?? initial?.titre} className={input} />
+        {/* Une checklist se comprend par ses items : titre facultatif (voir parseNoteInput). */}
+        <input
+          id={`${uid}-titre`}
+          name="titre"
+          required={type === "texte"}
+          defaultValue={note?.titre ?? initial?.titre}
+          className={input}
+        />
       </div>
 
       {type === "texte" ? (
@@ -366,7 +373,10 @@ export function NoteForm({
         <div className="flex flex-col gap-1">
           <span className={labelClass}>Items</span>
           {note ? (
-            <NoteItemsEditor noteId={note.id} items={note.items} />
+            <>
+              <p className="text-small text-ink-2">Chaque item s&apos;enregistre tout de suite.</p>
+              <NoteItemsEditor noteId={note.id} items={note.items} />
+            </>
           ) : (
             <NoteItemsDraft items={draftItems} onChange={setDraftItems} />
           )}

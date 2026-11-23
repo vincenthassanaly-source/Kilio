@@ -5,7 +5,9 @@ import { errorText, secondaryButton } from "@/lib/ui";
  * page de détail : message en clair, bouton « Réessayer » quand un `retry`
  * est fourni, annoncé aux lecteurs d'écran (`role="alert"`). `titre` rend un
  * `<h1>` : à passer sur les pages de détail, dont le titre habituel n'existe
- * pas tant que le contenu n'est pas chargé. Jamais de message technique
+ * pas tant que le contenu n'est pas chargé. Quand l'écran affiche déjà son
+ * propre `<h1>` (titre de module visible au-dessus), passer `niveau={2}` :
+ * jamais de second `<h1>` sur une route. Jamais de message technique
  * ici : le détail d'une erreur va dans la console, pas à l'écran.
  * Cadre à contour fin teinté et sans fond ni ombre : il tient seul comme dans
  * une carte (Aujourd'hui) sans créer de carte imbriquée. */
@@ -13,11 +15,15 @@ export function ErrorInline({
   message,
   retry,
   titre,
+  niveau = 1,
 }: {
   message: string;
   retry?: () => void;
   titre?: string;
+  /** Niveau du titre : 1 (page de détail sans autre titre) ou 2 (sous le `<h1>` de l'écran). */
+  niveau?: 1 | 2;
 }) {
+  const Titre = niveau === 1 ? "h1" : "h2";
   return (
     <div className="flex flex-col items-center gap-3 rounded-row border border-alert/30 px-4 py-5 text-center" role="alert">
       <span
@@ -26,7 +32,7 @@ export function ErrorInline({
       >
         <AlerteIcon size={20} />
       </span>
-      {titre && <h1 className="font-display text-heading-sm font-semibold text-ink">{titre}</h1>}
+      {titre && <Titre className="font-display text-heading-sm font-semibold text-ink">{titre}</Titre>}
       <p className={errorText}>{message}</p>
       {retry && (
         <button type="button" onClick={retry} className={secondaryButton}>

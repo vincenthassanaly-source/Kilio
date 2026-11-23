@@ -13,7 +13,8 @@ import { runAction } from "@/lib/actions/runAction";
 import { useMasques } from "@/lib/actions/elementsMasques";
 import { TAILLE_LOT_TRI } from "@/lib/documents/tri";
 import { normalizeSearch } from "@/lib/normalize";
-import { card, errorText, input, kcalPillTag, pillTag, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { card, errorText, input, kcalPillTag, pillTag, primaryButton, screenTitle, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { MenuActions } from "@/components/MenuActions";
 import { EtincelleIcon } from "@/components/EtincelleIcon";
 
 const TriVracModal = dynamic(() => import("./TriVracModal").then((m) => m.TriVracModal), { ssr: false });
@@ -25,6 +26,8 @@ const DOCUMENTS_MIN_REORGANISATION = 2;
 type TriCle = "recent" | "nom" | "categorie";
 type Onglet = "documents" | "vrac";
 
+// Libellé court (segment compact) et nom complet annoncé aux lecteurs d'écran.
+const TRI_COURT: Record<TriCle, string> = { recent: "Récent", nom: "A→Z", categorie: "Catégorie" };
 const TRI_LABELS: Record<TriCle, string> = {
   recent: "Récent",
   nom: "Nom A→Z",
@@ -208,15 +211,39 @@ export function DocumentsBrowser({
 
   return (
     <div className="flex flex-col gap-4">
-      {classes.length >= DOCUMENTS_MIN_REORGANISATION && (
-        <button
-          type="button"
-          onClick={() => setReorganiserOuvert(true)}
-          className={`${secondaryButton} flex min-h-11 items-center justify-center gap-2 self-end px-4 py-2 text-sm`}
+      {/* Titre + menu « … » : « Réorganiser » (rare) quitte la page pour le menu. */}
+      <div className="flex items-center justify-between gap-3">
+        <h1 className={screenTitle}>Documents</h1>
+        <MenuActions
+          libelleMenu="Actions des documents"
+          actions={
+            classes.length >= DOCUMENTS_MIN_REORGANISATION
+              ? [{ libelle: "Réorganiser", icone: <EtincelleIcon />, onSelect: () => setReorganiserOuvert(true) }]
+              : []
+          }
+        />
+      </div>
+
+      {/* Recherche juste sous le titre : le geste le plus courant de l'écran. */}
+      {!aucunDocument && (
+        <form
+          className="flex gap-2"
+          role="search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (ongletActif === "documents") void chercherAvecIa();
+          }}
         >
-          <EtincelleIcon />
-          Réorganiser
-        </button>
+          <input
+            type="search"
+            enterKeyHint="search"
+            placeholder="Rechercher ou poser une question…"
+            aria-label="Rechercher un document"
+            value={search}
+            onChange={(e) => modifierRecherche(e.target.value)}
+            className={`${input} min-w-0 flex-1`}
+          />
+        </form>
       )}
 
       {ongletActif === "documents" && <AddDocumentToggle categories={categories} />}
@@ -236,7 +263,7 @@ export function DocumentsBrowser({
 
       {ongletActif === "vrac" && (
         <div className={`${card} flex flex-col gap-3`}>
-          <p className="text-sm text-ink-2">
+          <p className="text-label text-ink-2">
             Documents reçus par le partage, en attente de classement. Gemini propose un nom et une catégorie ; tu
             valides avant que rien ne change.
           </p>
@@ -249,7 +276,7 @@ export function DocumentsBrowser({
             {vrac.length > TAILLE_LOT_TRI ? `Trier ${TAILLE_LOT_TRI} documents` : "Trier"}
           </button>
           {vrac.length > TAILLE_LOT_TRI && (
-            <p className="-mt-1 text-xs text-ink-3">
+            <p className="-mt-1 text-caption text-ink-3">
               Les documents sont triés par lots de {TAILLE_LOT_TRI} : relance après chaque lot.
             </p>
           )}
@@ -290,31 +317,19 @@ export function DocumentsBrowser({
             </div>
           )}
 
-          <form
-            className="flex gap-2"
-            role="search"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (ongletActif === "documents") void chercherAvecIa();
-            }}
-          >
-            <input
-              type="search"
-              enterKeyHint="search"
-              placeholder="Rechercher ou poser une question…"
-              aria-label="Rechercher un document"
-              value={search}
-              onChange={(e) => modifierRecherche(e.target.value)}
-              className={`${input} min-w-0 flex-1`}
-            />
-          </form>
-
+          {/* Tri compact : segments courts, alignés à droite à la largeur de
+              leur contenu, au lieu de trois segments sur toute la largeur. */}
           <SegmentedControl<TriCle>
             ariaLabel="Ordre des documents"
             taille="sm"
+            className="self-end [&>button]:px-3"
             value={tri}
             onChange={setTri}
-            options={(Object.keys(TRI_LABELS) as TriCle[]).map((key) => ({ value: key, label: TRI_LABELS[key] }))}
+            options={(Object.keys(TRI_LABELS) as TriCle[]).map((key) => ({
+              value: key,
+              label: TRI_COURT[key],
+              ariaLabel: TRI_LABELS[key],
+            }))}
           />
 
           {ongletActif === "documents" && search.trim() !== "" && (!ia || ia.question !== search.trim()) && (
@@ -325,7 +340,7 @@ export function DocumentsBrowser({
               }
               disabled={iaEnCours}
               aria-busy={iaEnCours}
-              className={`${secondaryButton} flex min-h-11 items-center justify-center gap-2 text-sm`}
+              className={`${secondaryButton} flex min-h-11 items-center justify-center gap-2 text-label`}
             >
               <EtincelleIcon />
               {iaEnCours ? "Recherche en cours…" : "Chercher avec l’IA"}
@@ -345,7 +360,7 @@ export function DocumentsBrowser({
               tabIndex={-1}
               className="flex items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5 focus:outline-none"
             >
-              <p className="min-w-0 text-sm text-ink">
+              <p className="min-w-0 text-label text-ink">
                 <span className="font-semibold">Sélection de l’IA</span> pour «&nbsp;{ia.question}&nbsp;»
                 {" · "}
                 <span className="tabular-nums">{filtres.length}</span> {filtres.length > 1 ? "documents" : "document"}
@@ -353,7 +368,7 @@ export function DocumentsBrowser({
               <button
                 type="button"
                 onClick={() => modifierRecherche("")}
-                className="min-h-11 shrink-0 px-2 text-sm font-semibold text-kcal"
+                className="min-h-11 shrink-0 px-2 text-label font-semibold text-kcal"
               >
                 Effacer
               </button>
@@ -361,7 +376,7 @@ export function DocumentsBrowser({
           )}
 
           {iaActive && ia.nonLus > 0 && (
-            <p className="text-xs text-ink-3">
+            <p className="text-caption text-ink-3">
               {ia.nonLus} {ia.nonLus > 1 ? "documents n’ont" : "document n’a"} pas pu être {ia.nonLus > 1 ? "lus" : "lu"} par
               l’IA : {ia.nonLus > 1 ? "ils sont cherchés" : "il est cherché"} par {ia.nonLus > 1 ? "leur" : "son"} nom et {ia.nonLus > 1 ? "leurs" : "ses"} notes
               seulement. Relance la recherche pour réessayer.
@@ -369,11 +384,11 @@ export function DocumentsBrowser({
           )}
 
           {base.length === 0 ? (
-            <p className="py-5 text-center text-sm text-ink-3">
+            <p className="py-5 text-center text-label text-ink-3">
               Tous tes documents sont en vrac : trie-les depuis l&apos;onglet Vrac.
             </p>
           ) : filtres.length === 0 ? (
-            <p className="py-5 text-center text-sm text-ink-3">
+            <p className="py-5 text-center text-label text-ink-3">
               {ongletActif === "documents" && categorieFilter.length > 0 && search === ""
                 ? "Aucun document dans cette catégorie."
                 : iaActive

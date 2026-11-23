@@ -5,6 +5,8 @@ import { BriefingRow } from "./BriefingRow";
 
 vi.mock("@/app/actions/briefing", () => ({ updateReglagesBriefing: vi.fn() }));
 import { updateReglagesBriefing } from "@/app/actions/briefing";
+vi.mock("@/components/toast/toast-store", () => ({ showToast: vi.fn(), showErrorToast: vi.fn() }));
+import { showToast } from "@/components/toast/toast-store";
 
 afterEach(() => cleanup());
 
@@ -43,6 +45,15 @@ describe("BriefingRow", () => {
     fireEvent.change(champ, { target: { value: "08:15" } });
     fireEvent.blur(champ);
     await waitFor(() => expect(updateReglagesBriefing).toHaveBeenCalledWith(true, "08:15"));
+    await waitFor(() => expect(showToast).toHaveBeenCalledWith("Heure enregistrée"));
+  });
+
+  it("ne confirme pas d'heure quand seul l'interrupteur change", async () => {
+    vi.mocked(updateReglagesBriefing).mockResolvedValue({ ok: true, data: undefined });
+    render(<BriefingRow reglages={reglages} />);
+    await userEvent.click(screen.getByRole("switch", { name: "Briefing du matin" }));
+    await waitFor(() => expect(updateReglagesBriefing).toHaveBeenCalled());
+    expect(showToast).not.toHaveBeenCalled();
   });
 
   it("désactive le briefing et masque l'heure", async () => {

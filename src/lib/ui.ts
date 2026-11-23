@@ -44,6 +44,10 @@ export const addCard =
 // Rule, One Accent Rule) — un seul endroit à modifier désormais.
 export const addCardIcon =
   "flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[13px] bg-kcal text-on-kcal";
+// Titre et sous-titre d'une carte d'ajout : Inter, pas Sora (réservée aux
+// titres d'écran et aux chiffres-clés, The Two-Voice Rule de DESIGN.md).
+export const addCardTitre = "text-body font-semibold tracking-[-0.01em] text-ink";
+export const addCardSousTitre = "text-caption font-medium text-ink-3";
 
 // Zone de tap étendue à 44 px de haut (T6) sans grossir le bouton visible :
 // pseudo-élément transparent débordant de 6 px en haut et en bas (le bouton

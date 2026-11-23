@@ -22,9 +22,8 @@ import { CheckToggle } from "@/components/CheckToggle";
 import { Modal } from "@/components/Modal";
 import { useBackClose } from "@/hooks/useBackClose";
 import type { Tables } from "@/lib/supabase/types";
+import { titreNote } from "@/lib/notes/saisie";
 import {
-  actionTuile,
-  actionsLigne,
   card,
   dangerButton,
   ghostButton,
@@ -239,27 +238,30 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
   const [masquee, setMasquee] = useState(false);
   function supprimer() {
     supprimerAvecAnnulation({
-      texte: `Note « ${note.titre} » supprimée`,
-      ariaLabel: `Annuler la suppression de la note « ${note.titre} »`,
+      texte: `Note « ${titreNote(note)} » supprimée`,
+      ariaLabel: `Annuler la suppression de la note « ${titreNote(note)} »`,
       masquer: () => {
         setMode("closed");
         setMasquee(true);
       },
       restaurer: () => setMasquee(false),
       supprimer: () => deleteMutation.mutateAsync(),
-      erreur: `Impossible de supprimer la note « ${note.titre} ». Réessaie.`,
+      erreur: `Impossible de supprimer la note « ${titreNote(note)} ». Réessaie.`,
     });
   }
 
   if (masquee) return null;
 
+  const titre = titreNote(note);
+  const ouvrir = () => setMode("view");
   const itemsCoches = note.items.filter((i) => i.coche).length;
   const itemsAffiches = note.items.slice(0, ITEMS_PREVIEW_LIMIT);
   const itemsRestants = note.items.length - itemsAffiches.length;
 
-  // `active:scale` ajouté ici localement (pas dans `card` de ui.ts, utilisé
-  // ailleurs comme conteneur de groupe/formulaire — voir ui.ts) : cette
-  // tuile est la seule utilisation de `card` visée par ce chantier.
+  // Plus de `active:scale` sur la tuile : elle contient des cases à cocher et
+  // l'épingle, toute la carte « s'enfonçait » au moindre tap sur l'un d'eux.
+  // Modifier / Supprimer vivent dans la feuille de lecture (un tap sur la
+  // tuile l'ouvre) : la tuile reste une lecture épurée.
   return (
     <motion.li
       layout={!reduceMotion}
@@ -267,23 +269,25 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
       animate={{ opacity: 1, y: 0 }}
       exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
       transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-      className={`${card} mb-3 flex flex-col gap-2 break-inside-avoid !p-3.5 transition-transform active:scale-[0.97]`}
+      className={`${card} flex flex-col gap-2 !p-3.5`}
       style={noteBackgroundStyle(note.couleur)}
     >
       <div className="flex items-start justify-between gap-2">
+        {/* Checklist sans titre : le bouton d'ouverture reste (annoncé
+            « Liste sans titre ») mais n'affiche rien de plus que les items. */}
         <button
           type="button"
-          onClick={() => setMode("view")}
-          aria-label={`Ouvrir la note ${note.titre}`}
-          className={`${nameTextComplet} line-clamp-4 min-w-0 flex-1 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
+          onClick={ouvrir}
+          aria-label={`Ouvrir la note ${titre}`}
+          className={`${nameTextComplet} line-clamp-4 min-w-0 flex-1 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${note.titre.trim() ? "" : "min-h-6"}`}
         >
-          {note.titre}
+          {note.titre.trim()}
         </button>
         <button
           type="button"
           disabled={pinMutation.isPending}
           onClick={() => pinMutation.mutate()}
-          aria-label={`Épingler la note « ${note.titre} »`}
+          aria-label={`Épingler la note « ${titre} »`}
           aria-pressed={note.epingle}
           // Épingle de 18 px : zone de tap étendue à 44 px (T6) et focus visible.
           className={`relative -m-1 shrink-0 rounded-lg p-1 transition-colors after:absolute after:-inset-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${note.epingle ? "text-kcal" : "text-ink-3"}`}
@@ -296,12 +300,12 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
         note.contenu && (
           <button
             type="button"
-            onClick={() => setMode("view")}
+            onClick={ouvrir}
             tabIndex={-1}
             aria-hidden="true"
             className="text-left"
           >
-            <p className="line-clamp-6 whitespace-pre-wrap text-sm text-ink-2">{note.contenu}</p>
+            <p className="line-clamp-6 whitespace-pre-wrap text-label text-ink-2">{note.contenu}</p>
           </button>
         )
       ) : (
@@ -320,13 +324,21 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                 // reports/2026-09-16-fix-dashboard-audit-constats-1-2.md.
                 hitSlop={2}
               />
-              <span className={`min-w-0 break-words pt-px text-sm ${item.coche ? "text-ink-2 line-through" : "text-ink-2"}`}>
+              {/* Le libellé ouvre la note (comme le corps d'une note texte) :
+                  seule la case coche. Pas annoncé (le titre ouvre déjà). */}
+              <button
+                type="button"
+                onClick={ouvrir}
+                tabIndex={-1}
+                aria-hidden="true"
+                className={`min-w-0 flex-1 break-words pt-px text-left text-label ${item.coche ? "text-ink-2 line-through" : "text-ink"}`}
+              >
                 {item.libelle}
-              </span>
+              </button>
             </div>
           ))}
           {itemsRestants > 0 && (
-            <button type="button" onClick={() => setMode("view")} className={`${linkButton} self-start`}>
+            <button type="button" onClick={ouvrir} className={`${linkButton} self-start`}>
               +{itemsRestants} autres
             </button>
           )}
@@ -343,35 +355,15 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
         </div>
       )}
 
-      <div className={`${actionsLigne} -mx-1.5 -mb-1 gap-0.5`}>
-        <button
-          type="button"
-          onClick={() => setMode("edit")}
-          aria-label={`Modifier la note « ${note.titre} »`}
-          className={`${actionTuile} text-ink-2`}
-        >
-          Modifier
-        </button>
-        <button
-          type="button"
-          disabled={deleteMutation.isPending}
-          onClick={supprimer}
-          aria-label={`Supprimer la note « ${note.titre} »`}
-          className={`${actionTuile} text-alert`}
-        >
-          Supprimer
-        </button>
-      </div>
-
       <AnimatePresence>
         {mode === "view" && (
-          <Modal key="lecture" title={note.titre} onClose={() => setMode("closed")}>
+          <Modal key="lecture" title={titre} onClose={() => setMode("closed")}>
             <div className="flex flex-col gap-4">
               {note.type === "texte" ? (
                 note.contenu ? (
                   <p className="whitespace-pre-wrap break-words text-base leading-relaxed text-ink">{note.contenu}</p>
                 ) : (
-                  <p className="text-sm text-ink-2">Note vide.</p>
+                  <p className="text-label text-ink-2">Note vide.</p>
                 )
               ) : (
                 <div className="flex flex-col gap-3">
@@ -462,8 +454,12 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                 invalidate();
               }}
             />
+            {/* « Fermer », pas « Annuler » : les items d'une checklist
+                s'enregistrent au fil de l'eau, fermer n'annule rien de ce
+                qui a déjà été coché ou renommé (seuls titre, couleur et
+                tags attendent « Enregistrer »). */}
             <button type="button" onClick={() => setMode("closed")} className={`${textButton} mt-2`}>
-              Annuler
+              Fermer
             </button>
           </Modal>
         )}

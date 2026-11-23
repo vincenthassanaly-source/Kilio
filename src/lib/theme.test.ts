@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { basculerTheme, THEME_COLOR_CLAIR, THEME_COLOR_SOMBRE, themeInitScript } from "./theme";
+import { basculerTheme, choisirTheme, lirePreferenceTheme, THEME_COLOR_CLAIR, THEME_COLOR_SOMBRE, themeInitScript } from "./theme";
 
 function metaThemeColor() {
   const meta = document.createElement("meta");
@@ -53,6 +53,39 @@ describe("basculerTheme", () => {
     }
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(document.cookie).toContain("kilio-theme=dark");
+  });
+});
+
+describe("choisirTheme / lirePreferenceTheme", () => {
+  it("sans choix enregistré, la préférence est « system »", () => {
+    expect(lirePreferenceTheme()).toBe("system");
+  });
+
+  it("retient un choix forcé (cookie et localStorage)", () => {
+    choisirTheme("dark");
+    expect(lirePreferenceTheme()).toBe("dark");
+    expect(localStorage.getItem("kilio-theme")).toBe("dark");
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    choisirTheme("light");
+    expect(lirePreferenceTheme()).toBe("light");
+    expect(document.documentElement.classList.contains("dark")).toBe(false);
+  });
+
+  it("« system » efface le choix forcé et suit prefers-color-scheme", () => {
+    const meta = metaThemeColor();
+    choisirTheme("light");
+    const original = window.matchMedia;
+    window.matchMedia = (() => ({ matches: true })) as unknown as typeof window.matchMedia;
+    try {
+      choisirTheme("system");
+    } finally {
+      window.matchMedia = original;
+    }
+    expect(lirePreferenceTheme()).toBe("system");
+    expect(localStorage.getItem("kilio-theme")).toBeNull();
+    expect(document.cookie).not.toContain("kilio-theme=");
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(meta.getAttribute("content")).toBe(THEME_COLOR_SOMBRE);
   });
 });
 

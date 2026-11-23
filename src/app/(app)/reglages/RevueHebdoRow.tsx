@@ -6,8 +6,9 @@ import { Switch } from "@/components/Switch";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
+import { showToast } from "@/components/toast/toast-store";
 import { DependsOnNotifications } from "./NotificationsContext";
-import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
+import { MESSAGE_HEURE_ENREGISTREE, Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 // 0 = dimanche, comme Date#getDay et la colonne revue_jour.
 const JOURS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"] as const;
@@ -43,7 +44,7 @@ export function RevueHebdoRow({ reglages }: { reglages: Pick<Tables<"reglages_br
     setEtat(suivant);
     setEnregistre(suivant);
     startTransition(async () => {
-      await runAction(() => updateReglagesRevue(suivant.actif, suivant.jour, suivant.heure), {
+      const resultat = await runAction(() => updateReglagesRevue(suivant.actif, suivant.jour, suivant.heure), {
         silencieux: true,
         erreur: "Le réglage n'a pas pu être enregistré. Réessaie.",
         onError: (message) => {
@@ -52,6 +53,7 @@ export function RevueHebdoRow({ reglages }: { reglages: Pick<Tables<"reglages_br
           setEnregistre(precedent);
         },
       });
+      if (resultat.ok && suivant.heure !== precedent.heure) showToast(MESSAGE_HEURE_ENREGISTREE);
     });
   }
 
