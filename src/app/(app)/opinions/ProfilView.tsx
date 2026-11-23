@@ -26,7 +26,7 @@ export function ProfilView({ idees }: { idees: readonly IdeePourProfil[] }) {
           <h2 id="profil-positions" className={sectionTitle}>
             Tes positions
           </h2>
-          <p className="text-xs text-ink-3">
+          <p className="text-caption text-ink-3">
             {nombreValidees} idée{nombreValidees > 1 ? "s" : ""} validée{nombreValidees > 1 ? "s" : ""}. Chaque barre va
             d&apos;un pôle à l&apos;autre ; une idée certaine pèse plus qu&apos;une hésitation.
           </p>
@@ -44,7 +44,7 @@ export function ProfilView({ idees }: { idees: readonly IdeePourProfil[] }) {
             <h2 id="profil-tensions" className={sectionTitle}>
               Tensions à examiner
             </h2>
-            <p className="text-xs text-ink-3">
+            <p className="text-caption text-ink-3">
               Deux idées validées d&apos;un même thème qui s&apos;opposent sur un axe : contradiction, ou nuance assumée ?
             </p>
           </div>
@@ -76,7 +76,7 @@ export function ProfilView({ idees }: { idees: readonly IdeePourProfil[] }) {
             <h2 id="profil-sujets" className={sectionTitle}>
               Sujets à creuser
             </h2>
-            <p className="text-xs text-ink-3">Des thèmes sur lesquels tu n&apos;as encore validé aucune idée.</p>
+            <p className="text-caption text-ink-3">Des thèmes sur lesquels tu n&apos;as encore validé aucune idée.</p>
           </div>
           <ul className="flex flex-wrap gap-2">
             {sujets.map((s) => (

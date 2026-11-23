@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { creerIdee, getIdees, type Idee } from "@/app/actions/opinions";
@@ -16,11 +17,19 @@ import {
   LIBELLE_THEME,
   POSITION_MAX,
   THEMES,
+  LIBELLE_STATUT,
+  estStatut,
   estTheme,
   formaterScore,
   type Statut,
-  type Theme,
 } from "@/lib/opinions/types";
+import {
+  ecrireEtatOpinions,
+  lireEtatOpinions,
+  memoriserRetourOpinions,
+  type EtatOpinions,
+  type OngletOpinions,
+} from "@/lib/opinions/url";
 import { queryKeys } from "@/lib/query/keys";
 import { useMasques } from "@/lib/actions/elementsMasques";
 import { cardTight, emptyState, errorText, input, label, metaText, pillTag, primaryButton, textButton } from "@/lib/ui";
@@ -30,23 +39,16 @@ import { ProfilView } from "./ProfilView";
 import { StatutPill } from "./StatutPill";
 import { ErrorInline } from "@/components/ErrorInline";
 
-type Onglet = "idees" | "partis" | "profil";
-type Filtre = "tous" | Statut;
-type FiltreTheme = "tous" | Theme;
-
-const ONGLETS: { value: Onglet; label: string }[] = [
+const ONGLETS: { value: OngletOpinions; label: string }[] = [
   { value: "idees", label: "Idées" },
   { value: "partis", label: "Partis" },
   { value: "profil", label: "Profil" },
 ];
 
+// Filtres compacts : deux listes côte à côte, sur une seule rangée.
+const filtreCompact = `${input} min-h-11 min-w-0 flex-1 py-2 text-small`;
 
-const FILTRES: { value: Filtre; label: string }[] = [
-  { value: "tous", label: "Toutes" },
-  { value: "brouillon", label: "Brouillons" },
-  { value: "validee", label: "Validées" },
-  { value: "rejetee", label: "Rejetées" },
-];
+const LIBELLE_FILTRE_STATUT: Record<Statut, string> = { brouillon: "Brouillons", validee: "Validées", rejetee: "Rejetées" };
 
 function LigneIdee({ idee, index }: { idee: Idee; index: number }) {
   const scores = AXES.flatMap((axe) => {
@@ -84,9 +86,21 @@ function LigneIdee({ idee, index }: { idee: Idee; index: number }) {
 
 export function OpinionsView() {
   const queryClient = useQueryClient();
-  const [onglet, setOnglet] = useState<Onglet>("idees");
-  const [filtre, setFiltre] = useState<Filtre>("tous");
-  const [theme, setTheme] = useState<FiltreTheme>("tous");
+  // Onglet, filtres et parti ouvert vivent dans l'URL : retrouvés au retour
+  // d'une idée, au rechargement ou depuis un lien. `replaceState` (intégré au
+  // routeur de Next) met à jour `useSearchParams` sans requête serveur ni
+  // entrée d'historique par tap.
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const etat = lireEtatOpinions(searchParams);
+  const { onglet, statut: filtre, theme } = etat;
+  const requete = ecrireEtatOpinions(etat);
+  useEffect(() => memoriserRetourOpinions(requete), [requete]);
+
+  function majEtat(partiel: Partial<EtatOpinions>) {
+    const suivant = ecrireEtatOpinions({ ...etat, ...partiel });
+    window.history.replaceState(window.history.state, "", `${pathname}${suivant}`);
+  }
   const [saisie, setSaisie] = useState("");
   const [erreur, setErreur] = useState<string | null>(null);
   const [ajoutEnCours, startAjout] = useTransition();
@@ -128,14 +142,20 @@ export function OpinionsView() {
   return (
     <PullToRefresh onRefresh={invalidate}>
       <div className="flex flex-col gap-4">
-        <SegmentedControl options={ONGLETS} value={onglet} onChange={setOnglet} ariaLabel="Section" glissant />
+        <SegmentedControl
+          options={ONGLETS}
+          value={onglet}
+          onChange={(o) => majEtat({ onglet: o })}
+          ariaLabel="Section"
+          glissant
+        />
 
         {isLoading ? (
           <ListItemSkeletonGroup withSubtitle />
         ) : isError || !idees ? (
           <ErrorInline message="Impossible de charger les idées." retry={() => refetch()} />
         ) : onglet === "partis" ? (
-          <PartisView idees={idees} />
+          <PartisView idees={idees} partiOuvert={etat.parti} onPartiOuvert={(parti) => majEtat({ parti })} />
         ) : onglet === "profil" ? (
           <div className="flex flex-col gap-4">
             <ProfilView idees={idees} />
@@ -168,24 +188,39 @@ export function OpinionsView() {
                   {erreur}
                 </p>
               )}
-              <p className="text-xs text-ink-3">Elle arrive en brouillon : thème et axes se complètent ensuite.</p>
+              {saisie.trim() && (
+                <p className="text-caption text-ink-3">Elle arrive en brouillon : thème et axes se complètent ensuite.</p>
+              )}
             </form>
 
-            <SegmentedControl options={FILTRES} value={filtre} onChange={setFiltre} ariaLabel="Filtrer par statut" taille="sm" />
-
-            <select
-              className={input}
-              aria-label="Filtrer par thème"
-              value={theme}
-              onChange={(e) => setTheme(estTheme(e.target.value) ? e.target.value : "tous")}
-            >
-              <option value="tous">Tous les thèmes</option>
-              {THEMES.map((t) => (
-                <option key={t} value={t}>
-                  {LIBELLE_THEME[t]}
-                </option>
-              ))}
-            </select>
+            <div className="flex gap-2" role="group" aria-label="Filtres">
+              <select
+                className={filtreCompact}
+                aria-label="Filtrer par statut"
+                value={filtre}
+                onChange={(e) => majEtat({ statut: estStatut(e.target.value) ? e.target.value : "tous" })}
+              >
+                <option value="tous">Tous les statuts</option>
+                {(Object.keys(LIBELLE_STATUT) as Statut[]).map((s) => (
+                  <option key={s} value={s}>
+                    {LIBELLE_FILTRE_STATUT[s]}
+                  </option>
+                ))}
+              </select>
+              <select
+                className={filtreCompact}
+                aria-label="Filtrer par thème"
+                value={theme}
+                onChange={(e) => majEtat({ theme: estTheme(e.target.value) ? e.target.value : "tous" })}
+              >
+                <option value="tous">Tous les thèmes</option>
+                {THEMES.map((t) => (
+                  <option key={t} value={t}>
+                    {LIBELLE_THEME[t]}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {visibles.length === 0 ? (
               <div className={`${emptyState} flex flex-col items-center gap-1`}>
@@ -198,8 +233,7 @@ export function OpinionsView() {
                       type="button"
                       className={textButton}
                       onClick={() => {
-                        setFiltre("tous");
-                        setTheme("tous");
+                        majEtat({ statut: "tous", theme: "tous" });
                       }}
                     >
                       Tout afficher

@@ -20,7 +20,16 @@ import { PartiFormModal } from "./PartisForms";
 import { ErrorInline } from "@/components/ErrorInline";
 
 
-export function PartisView({ idees }: { idees: readonly Idee[] }) {
+export function PartisView({
+  idees,
+  partiOuvert = null,
+  onPartiOuvert,
+}: {
+  idees: readonly Idee[];
+  /** Parti déplié (porté par l'URL) : un seul à la fois. */
+  partiOuvert?: string | null;
+  onPartiOuvert?: (parti: string | null) => void;
+}) {
   const queryClient = useQueryClient();
   const [ajout, setAjout] = useState(false);
   const partis = useQuery({ queryKey: queryKeys.opinionsPartis, queryFn: getPartis });
@@ -90,7 +99,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
               <h2 id="partis-axes" className={sectionTitle}>
                 Où se situent les partis
               </h2>
-              <p className="text-xs text-ink-3">
+              <p className="text-caption text-ink-3">
                 Programme le plus récent de chaque parti, face à ton profil (« Moi »). Même grille pour tous : chaque
                 proposition est notée sur ce que dit le texte.
               </p>
@@ -117,7 +126,7 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
       </div>
           <div className="flex flex-col gap-[1px]">
             <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un parti</span>
-            <span className="text-xs font-medium text-ink-3">Puis demande à Claude d&apos;importer son programme</span>
+            <span className="text-caption font-medium text-ink-3">Puis demande à Claude d&apos;importer son programme</span>
           </div>
         </button>
 
@@ -127,7 +136,12 @@ export function PartisView({ idees }: { idees: readonly Idee[] }) {
           <ul className="flex flex-col gap-2.5">
             {classement.map(({ parti, proximite }) => (
               <li key={parti.id}>
-                <PartiCard parti={parti} proximite={proximite} />
+                <PartiCard
+                  parti={parti}
+                  proximite={proximite}
+                  ouvert={onPartiOuvert ? partiOuvert === parti.id : undefined}
+                  onOuvert={onPartiOuvert ? (o) => onPartiOuvert(o ? parti.id : null) : undefined}
+                />
               </li>
             ))}
           </ul>
