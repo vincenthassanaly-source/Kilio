@@ -26,7 +26,7 @@ export const DEFAULT_MODULES_BARRE_BASSE: readonly string[] = ["/", "/courses", 
 const ACCUEIL_ICON = (c: string) =>
   createElement(
     "svg",
-    { width: 19, height: 19, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
     createElement("path", { d: "M4 11.5 12 4l8 7.5" }),
     createElement("path", { d: "M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9" })
   );
@@ -34,7 +34,7 @@ const ACCUEIL_ICON = (c: string) =>
 const NUTRITION_ICON = (c: string) =>
   createElement(
     "svg",
-    { width: 19, height: 19, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
     createElement("path", { d: "M4 6c2.4-1.6 5.6-1.6 8 0v13c-2.4-1.6-5.6-1.6-8 0V6z" }),
     createElement("path", { d: "M20 6c-2.4-1.6-5.6-1.6-8 0v13c2.4-1.6 5.6-1.6 8 0V6z" })
   );
@@ -42,7 +42,7 @@ const NUTRITION_ICON = (c: string) =>
 const TACHES_ICON = (c: string) =>
   createElement(
     "svg",
-    { width: 19, height: 19, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
     createElement("rect", { x: 3.5, y: 3.5, width: 17, height: 17, rx: 3 }),
     createElement("path", { d: "M7.5 12.5l2.5 2.5 6-6" })
   );
@@ -50,7 +50,7 @@ const TACHES_ICON = (c: string) =>
 const HABITUDES_ICON = (c: string) =>
   createElement(
     "svg",
-    { width: 19, height: 19, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
     createElement("path", {
       d: "M12 3.5c1.2 2.6-.4 3.9-1.4 5-1.3 1.4-1.9 2.7-1.9 4.2a5.3 5.3 0 0 0 10.6 0c0-1.9-1-3.4-2.1-4.5.2 1.6-.5 2.3-1.2 2.3-1 0-1.4-.9-1.1-2 .4-1.5.4-3.2-2.9-5z",
     })
@@ -200,7 +200,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Habitudes",
     description: "Suivi quotidien de tes habitudes",
     icon: HABITUDES_ICON,
-    accentVar: "var(--accent-kcal)",
+    accentVar: "var(--accent-habitudes)",
   },
   {
     href: "/agenda",
@@ -227,7 +227,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/notes",
     label: "Notes",
     description: "Notes libres",
-    accentVar: "var(--accent-protein)",
+    accentVar: "var(--accent-notes)",
     icon: NOTES_ICON,
   },
   {
@@ -261,7 +261,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/revue",
     label: "Revue",
-    description: "Bilan, retards et 7 prochains jours",
+    description: "Tâches terminées, retards, 7 prochains jours",
     accentVar: "var(--accent-agenda)",
     icon: REVUE_ICON,
   },

@@ -175,7 +175,7 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
       >
         <span className="flex flex-col">
           <span className="text-body font-semibold text-ink">Revue de la semaine</span>
-          <span className="text-small text-ink-2">Bilan, retards à replanifier, 7 prochains jours</span>
+          <span className="text-small text-ink-2">Tâches terminées, retards, 7 prochains jours</span>
         </span>
         <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
           <path d="M9 5l7 7-7 7" />
@@ -184,7 +184,7 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
   );
 
   return (
-    <div className="flex flex-col gap-4 pb-[calc(env(safe-area-inset-bottom)+110px)]">
+    <div className="flex flex-col gap-4 pb-10">
       {ferieDuJour && <FerieBadge nom={ferieDuJour} className="self-start" />}
 
       <ScoreDuJourCard today={today} tachesDuJour={duJour} tachesChargent={tachesChargent} />

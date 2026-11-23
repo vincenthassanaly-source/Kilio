@@ -23,6 +23,7 @@ import {
 } from "../agenda/TimeGrid";
 import { TacheBlock } from "../agenda/TacheBlock";
 import { EvenementBlock } from "./EvenementBlock";
+import { sectionTitle } from "@/lib/ui";
 
 // Échelle fixe : pas de pincement ici, la frise est un coup d'oeil, l'Agenda
 // reste l'écran où l'on zoome.
@@ -219,7 +220,7 @@ export function DayTimeline({
         <div className="min-w-0">
           <h2
             id="aujourdhui-frise"
-            className="text-body font-semibold tracking-[-0.01em] text-ink"
+            className={sectionTitle}
           >
             Journée
           </h2>

@@ -13,6 +13,7 @@ import { ProgressRing } from "@/components/ProgressRing";
 import { card, ghostButton, input, listCard, metaText, nameTextComplet, pillTag, textButton } from "@/lib/ui";
 import { vibrate } from "@/lib/haptics";
 import { aujourdhuiParis } from "@/lib/date/paris";
+import { erreurValeurEntree, VALEUR_MAX_ENTREE_HABITUDE } from "@/lib/habitudes/compute";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 import { CheckIcon, FlameIcon } from "@/components/icons";
 
@@ -118,7 +119,11 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
     // Champ vide : rien à enregistrer (Number("") vaudrait 0 et écraserait la valeur du jour).
     if (valeurInput.trim() === "") return;
     const valeur = Number(valeurInput);
-    if (!Number.isFinite(valeur) || valeur < 0) return;
+    const erreur = erreurValeurEntree(valeur);
+    if (erreur) {
+      showErrorToast(erreur);
+      return;
+    }
     // Valeur inchangée : pas d'aller-retour serveur à chaque blur.
     if (habitude.entreeDuJour && habitude.entreeDuJour.valeur === valeur) return;
     // Même patron que le toggle ci-dessus : hors ligne, mise en file ;
@@ -208,7 +213,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
         </ProgressRing>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex min-w-0 items-center justify-between gap-2">
-            <p className={nameTextComplet}>
+            <p className={`min-w-0 ${nameTextComplet}`}>
               {habitude.type === "quantifiee" && habitude.icone && <span className="mr-1.5">{habitude.icone}</span>}
               {habitude.nom}
             </p>
@@ -234,6 +239,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
                 type="number"
                 inputMode="decimal"
                 min="0"
+                max={VALEUR_MAX_ENTREE_HABITUDE}
                 step="any"
                 aria-label={`Valeur de ${habitude.nom}`}
                 value={valeurInput}

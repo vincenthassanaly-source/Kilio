@@ -38,7 +38,7 @@ export function CoursesList() {
         <div className="flex flex-col gap-1">
           <p className={sectionTitle}>Aucun article pour l&apos;instant.</p>
           <p className="text-small text-ink-2 text-pretty">
-            Ajoutez-en un ci-dessus, ou plusieurs d&apos;un coup : lait, œufs, pain.
+            Ajoutes-en un ci-dessus, ou plusieurs d&apos;un coup : lait, œufs, pain.
           </p>
         </div>
       </div>

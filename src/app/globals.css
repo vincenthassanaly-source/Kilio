@@ -51,7 +51,8 @@
   --accent-courses: oklch(0.55 0.14 305);
   --accent-reglages: oklch(0.55 0.14 150);
   --accent-collection: oklch(0.55 0.14 280);
-  --accent-documents: oklch(0.55 0.14 25);
+  --accent-documents: oklch(0.55 0.14 200);
+  --accent-notes: oklch(0.55 0.14 115);
   --accent-pharmacie: oklch(0.55 0.14 355);
   --accent-musculation: oklch(0.55 0.14 20);
   --accent-opinions: oklch(0.55 0.14 315);
@@ -151,7 +152,8 @@
   --accent-courses: oklch(0.72 0.13 305);
   --accent-reglages: oklch(0.72 0.13 150);
   --accent-collection: oklch(0.72 0.13 280);
-  --accent-documents: oklch(0.72 0.13 25);
+  --accent-documents: oklch(0.72 0.13 200);
+  --accent-notes: oklch(0.72 0.13 115);
   --accent-pharmacie: oklch(0.72 0.13 355);
   --accent-musculation: oklch(0.72 0.13 20);
   --accent-opinions: oklch(0.72 0.13 315);
@@ -242,6 +244,7 @@
   --color-reglages: var(--accent-reglages);
   --color-collection: var(--accent-collection);
   --color-documents: var(--accent-documents);
+  --color-notes: var(--accent-notes);
   --color-pharmacie: var(--accent-pharmacie);
   --color-musculation: var(--accent-musculation);
   --color-opinions: var(--accent-opinions);

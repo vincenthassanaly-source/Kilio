@@ -314,3 +314,20 @@ export function dateReport(cible: CibleReport, today: string): string {
   const joursJusquauLundi = ((8 - base.getDay()) % 7) || 7;
   return format(addDays(base, joursJusquauLundi), "yyyy-MM-dd");
 }
+
+// --- Listes -----------------------------------------------------------------
+
+/**
+ * Vrai si `nom` est déjà porté par une autre liste (comparaison sans tenir
+ * compte de la casse, des accents composés ni des espaces autour). `idExclu` :
+ * la liste renommée elle-même, qui peut garder son nom ou en changer la casse.
+ */
+export function nomListeDejaPris(
+  listes: readonly { id: string; nom: string }[],
+  nom: string,
+  idExclu?: string
+): boolean {
+  const cle = (n: string) => n.trim().normalize("NFC").toLocaleLowerCase("fr-FR");
+  const cible = cle(nom);
+  return listes.some((l) => l.id !== idExclu && cle(l.nom) === cible);
+}

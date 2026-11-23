@@ -7,6 +7,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { ErrorInline } from "@/components/ErrorInline";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { DashboardHabitItem } from "./DashboardHabitItem";
+import { sectionTitle } from "@/lib/ui";
 
 export function DashboardHabitudesSection({ today, className = "mt-4" }: { today: string; className?: string }) {
   const { data: habitudes, isLoading, isError, refetch } = useQuery({
@@ -17,7 +18,7 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
   return (
     <div className={`${className} flex flex-col gap-2.5`}>
       <h2
-        className="px-0.5 text-body font-semibold tracking-[-0.01em] text-ink"
+        className={`px-0.5 ${sectionTitle}`}
         style={{ viewTransitionName: "habitudes-titre-dashboard" }}
       >
         {/* Le titre mène au module : jusqu'ici, le seul lien vers /habitudes était dans l'état vide. */}

@@ -23,6 +23,7 @@ function chargerServiceWorker(enCache: boolean) {
   const cache = {
     match: vi.fn().mockImplementation(async () => (enCache ? complet() : undefined)),
     put: vi.fn().mockResolvedValue(undefined),
+    add: vi.fn().mockResolvedValue(undefined),
     addAll: vi.fn().mockResolvedValue(undefined),
   };
   const caches = { open: vi.fn().mockResolvedValue(cache), keys: vi.fn().mockResolvedValue([]), delete: vi.fn() };
@@ -40,14 +41,20 @@ async function demander(listeners: Record<string, (e: unknown) => unknown>, rang
 }
 
 describe("service worker : animations", () => {
-  it("précache les vidéos et les images à l'installation", async () => {
+  // Depuis le lot 2 du hors-ligne Musculation, les animations ne sont plus
+  // précachées d'un coup : seuls le shell et l'écran de séance le sont.
+  it("précache le shell et l'écran de séance, pas les animations, à l'installation", async () => {
     const { listeners, cache } = chargerServiceWorker(true);
     let attente: Promise<unknown> = Promise.resolve();
     listeners.install({ waitUntil: (p: Promise<unknown>) => (attente = p) });
     await attente;
-    const urls: string[] = cache.addAll.mock.calls.flatMap((c) => c[0]);
-    expect(urls).toContain("/animations/musculation/elevation-laterale.webm");
-    expect(urls).toContain("/animations/musculation/developpe-couche-incline.webp");
+    const urls: string[] = [
+      ...cache.addAll.mock.calls.flatMap((c) => c[0]),
+      ...cache.add.mock.calls.map((c) => c[0]),
+    ];
+    expect(urls).toContain("/");
+    expect(urls).toContain("/musculation/seance");
+    expect(urls.some((u) => u.startsWith("/animations/"))).toBe(false);
   });
 
   it("sert le fichier entier depuis le cache sans Range", async () => {

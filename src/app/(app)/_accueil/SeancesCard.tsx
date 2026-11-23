@@ -13,7 +13,7 @@ import { demarrerDepuisRoutine } from "@/lib/musculation/demarrer";
 import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE, progressionSemaine, type GroupeSemaine, type PastilleRoutine } from "@/lib/seances/compute";
-import { card } from "@/lib/ui";
+import { card, sectionTitle } from "@/lib/ui";
 import { EntrainementBouton } from "./EntrainementBouton";
 
 function Coche({ faite }: { faite: boolean }) {
@@ -121,7 +121,7 @@ export function SeancesCard({ today }: { today: string }) {
   return (
     <section className={`${card} flex flex-col gap-3`} aria-label="Séances de la semaine">
       <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-body font-semibold tracking-[-0.01em] text-ink">Séances de la semaine</h2>
+        <h2 className={sectionTitle}>Séances de la semaine</h2>
         <span className="text-small font-semibold tabular-nums text-ink-2">
           {faites}/{total} faites
         </span>

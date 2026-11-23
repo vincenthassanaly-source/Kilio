@@ -307,19 +307,15 @@ export function DocumentsBrowser({
               onChange={(e) => modifierRecherche(e.target.value)}
               className={`${input} min-w-0 flex-1`}
             />
-            <select
-              value={tri}
-              onChange={(e) => setTri(e.target.value as TriCle)}
-              aria-label="Ordre des documents"
-              className={`${input} max-w-[152px] shrink-0 truncate`}
-            >
-              {(Object.keys(TRI_LABELS) as TriCle[]).map((key) => (
-                <option key={key} value={key}>
-                  {TRI_LABELS[key]}
-                </option>
-              ))}
-            </select>
           </form>
+
+          <SegmentedControl<TriCle>
+            ariaLabel="Ordre des documents"
+            taille="sm"
+            value={tri}
+            onChange={setTri}
+            options={(Object.keys(TRI_LABELS) as TriCle[]).map((key) => ({ value: key, label: TRI_LABELS[key] }))}
+          />
 
           {ongletActif === "documents" && search.trim() !== "" && (!ia || ia.question !== search.trim()) && (
             <button

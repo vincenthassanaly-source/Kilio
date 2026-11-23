@@ -316,29 +316,55 @@ describe("updateTache", () => {
 });
 
 describe("listes", () => {
+  // Lecture des noms existants (sans `.maybeSingle()`) vs lecture du dernier ordre.
+  const noms: Repondre = (a) =>
+    a.action === "select" && !a.terminal ? { data: [{ id: LISTE, nom: "Général" }, { id: ID, nom: "Maison" }] } : undefined;
+
   it("createListe valide, se place à la suite et revalide", async () => {
-    const fake = brancher((a) => (a.action === "select" ? { data: { ordre: 2 } } : undefined));
+    const fake = brancher((a) => noms(a) ?? (a.action === "select" ? { data: { ordre: 2 } } : undefined));
     expect(await createListe({ error: null }, form({ nom: " " }))).toEqual({ error: "Le nom est requis." });
-    expect(await createListe({ error: null }, form({ nom: " Maison ", couleur: "#fff" }))).toEqual({ error: null });
-    expect(ecritures(fake.appels, "listes_taches", "insert")[0].payload).toEqual({ nom: "Maison", couleur: "#fff", ordre: 3 });
+    expect(await createListe({ error: null }, form({ nom: " Courses ", couleur: "#fff" }))).toEqual({ error: null });
+    expect(ecritures(fake.appels, "listes_taches", "insert")[0].payload).toEqual({ nom: "Courses", couleur: "#fff", ordre: 3 });
     expect(etat.revalidatePath).toHaveBeenCalledWith("/taches/listes");
     expect(etat.revalidateTag).toHaveBeenCalledWith("taches", { expire: 0 });
 
     brancher((a) => (a.action === "insert" ? { error: { message: "ko" } } : undefined));
-    expect(await createListe({ error: null }, form({ nom: "x" }))).toEqual({ error: "ko" });
+    expect(await createListe({ error: null }, form({ nom: "x" }))).toEqual({
+      error: "Impossible de créer la liste. Réessaie.",
+    });
+  });
+
+  it("createListe refuse un nom déjà pris, sans rien insérer", async () => {
+    const fake = brancher(noms);
+    expect(await createListe({ error: null }, form({ nom: " maison " }))).toEqual({
+      error: "Une liste « maison » existe déjà. Choisis un autre nom.",
+    });
+    expect(ecritures(fake.appels, "listes_taches", "insert")).toHaveLength(0);
   });
 
   it("updateListe valide et met à jour la liste ciblée", async () => {
-    const fake = brancher();
+    const fake = brancher(noms);
     expect(await updateListe({ error: null }, form({ nom: "x" }))).toEqual({ error: "Liste introuvable." });
     expect(await updateListe({ error: null }, form({ id: ID, nom: " " }))).toEqual({ error: "Le nom est requis." });
     expect(await updateListe({ error: null }, form({ id: ID, nom: " Travail " }))).toEqual({ error: null });
+    // Garder son propre nom (ou en changer la casse) reste permis.
+    expect(await updateListe({ error: null }, form({ id: ID, nom: "MAISON" }))).toEqual({ error: null });
     const [maj] = ecritures(fake.appels, "listes_taches", "update");
     expect(maj.payload).toEqual({ nom: "Travail", couleur: null });
     expect(maj.filtres).toContainEqual(["eq", "id", ID]);
 
-    brancher(() => ({ error: { message: "ko" } }));
-    expect(await updateListe({ error: null }, form({ id: ID, nom: "x" }))).toEqual({ error: "ko" });
+    brancher((a) => (a.action === "update" ? { error: { message: "ko" } } : undefined));
+    expect(await updateListe({ error: null }, form({ id: ID, nom: "x" }))).toEqual({
+      error: "Impossible de modifier la liste. Réessaie.",
+    });
+  });
+
+  it("updateListe refuse le nom d'une autre liste", async () => {
+    const fake = brancher(noms);
+    expect(await updateListe({ error: null }, form({ id: ID, nom: "général" }))).toEqual({
+      error: "Une liste « général » existe déjà. Choisis un autre nom.",
+    });
+    expect(ecritures(fake.appels, "listes_taches", "update")).toHaveLength(0);
   });
 
   it("reordonnerListes échange l'ordre avec la voisine et ignore les extrémités", async () => {

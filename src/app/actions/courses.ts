@@ -22,6 +22,9 @@ export async function getCoursesItems(): Promise<Tables<"courses_items">[]> {
 export async function createCourseItem(libelle: string) {
   const trimmed = libelle.trim();
   if (!trimmed) throw new Error("Le libellé est requis.");
+  if (trimmed.length > LONGUEUR_MAX_LIBELLE_COURSE) {
+    throw new Error(`Un article ne doit pas dépasser ${LONGUEUR_MAX_LIBELLE_COURSE} caractères.`);
+  }
 
   const supabase = createAdminClient();
   const { error } = await supabase.from("courses_items").insert({ libelle: trimmed });
@@ -55,6 +58,9 @@ export async function deleteCourseItem(id: string) {
 export async function updateCourseItem(id: string, libelle: string) {
   const trimmed = libelle.trim();
   if (!trimmed) throw new Error("Le libellé est requis.");
+  if (trimmed.length > LONGUEUR_MAX_LIBELLE_COURSE) {
+    throw new Error(`Un article ne doit pas dépasser ${LONGUEUR_MAX_LIBELLE_COURSE} caractères.`);
+  }
 
   const supabase = createAdminClient();
   const { error } = await supabase.from("courses_items").update({ libelle: trimmed }).eq("id", id);

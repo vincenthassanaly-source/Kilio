@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { TacheAvecRelations } from "@/app/actions/taches";
-import { card } from "@/lib/ui";
+import { card, sectionTitle } from "@/lib/ui";
 import type { Plage } from "@/lib/programme/disponibilites";
 import { DashboardTaskItem } from "../DashboardTaskItem";
 import { PlanifierPanneau } from "./PlanifierPanneau";
@@ -96,7 +96,7 @@ export function TachesDuJour({
   return (
     <section aria-labelledby="aujourdhui-taches" className={`${card} flex flex-col gap-3`}>
       <div className="flex items-center justify-between gap-2">
-        <h2 id="aujourdhui-taches" className="text-body font-semibold tracking-[-0.01em] text-ink">
+        <h2 id="aujourdhui-taches" className={sectionTitle}>
           Tâches
         </h2>
         {taches.length > 0 && (

@@ -21,7 +21,7 @@ export async function JournalDateLibelle({ searchParams }: { searchParams: Journ
     day: "numeric",
     month: "long",
   });
-  return <p className={`${eyebrow} capitalize`}>{dateLabel}</p>;
+  return <p className={`${eyebrow} first-letter:uppercase`}>{dateLabel}</p>;
 }
 
 export async function JournalJourNavigation({ searchParams }: { searchParams: JournalSearchParams }) {

@@ -5,6 +5,7 @@ import { creerHabitude, modifierHabitude, type HabitudeFormState } from "@/app/a
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { LONGUEUR_MAX_NOM_HABITUDE } from "@/lib/habitudes/compute";
 
 // `valeurs` : la saisie renvoyée avec l'état. React 19 remet les champs non
 // contrôlés à leur valeur par défaut à la fin de l'action, même en cas d'erreur ;
@@ -70,6 +71,7 @@ export function HabitudeForm({
           id={`${uid}-nom`}
           name="nom"
           required
+          maxLength={LONGUEUR_MAX_NOM_HABITUDE}
           autoFocus={!habitude}
           autoComplete="off"
           defaultValue={saisie?.nom ?? habitude?.nom}

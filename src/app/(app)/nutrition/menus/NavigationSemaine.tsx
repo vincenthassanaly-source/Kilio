@@ -20,7 +20,7 @@ function libelleSemaine(lundi: string): string {
 /** Semaine affichée, en légende au-dessus du titre (lue dans l'URL, sous <Suspense>). */
 export async function MenusSemaineLibelle({ searchParams }: { searchParams: MenusSearchParams }) {
   const { lundi } = await lireSemaineMenus(searchParams);
-  return <p className={`${eyebrow} capitalize`}>Semaine du {libelleSemaine(lundi)}</p>;
+  return <p className={`${eyebrow} first-letter:uppercase`}>Semaine du {libelleSemaine(lundi)}</p>;
 }
 
 /**
