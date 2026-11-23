@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type FormEvent } from "react";
+import { useId, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { enregistrerMesure } from "@/app/actions/sante";
@@ -34,6 +34,8 @@ export function PeseeForm({ today, mesures, compact = false }: { today: string; 
   const [date, setDate] = useState(today);
   const [erreur, setErreur] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // Ids par instance : le formulaire vit dans la carte d'Aujourd'hui et dans le Bilan.
+  const uid = useId();
 
   const dernierPoids = mesures.find((m) => m.poids_kg !== null)?.poids_kg ?? null;
   const dernierTour = mesures.find((m) => m.tour_taille_cm !== null)?.tour_taille_cm ?? null;
@@ -74,11 +76,11 @@ export function PeseeForm({ today, mesures, compact = false }: { today: string; 
       <form onSubmit={enregistrer} className="flex flex-col gap-3">
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="pesee-poids" className={label}>
+            <label htmlFor={`${uid}-poids`} className={label}>
               Poids (kg)
             </label>
             <input
-              id="pesee-poids"
+              id={`${uid}-poids`}
               inputMode="decimal"
               autoComplete="off"
               value={poids}
@@ -88,11 +90,11 @@ export function PeseeForm({ today, mesures, compact = false }: { today: string; 
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="pesee-taille" className={label}>
+            <label htmlFor={`${uid}-taille`} className={label}>
               Tour de taille (cm)
             </label>
             <input
-              id="pesee-taille"
+              id={`${uid}-taille`}
               inputMode="decimal"
               autoComplete="off"
               value={taille}
@@ -104,11 +106,11 @@ export function PeseeForm({ today, mesures, compact = false }: { today: string; 
         </div>
         {!compact && (
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="pesee-date" className={label}>
+            <label htmlFor={`${uid}-date`} className={label}>
               Date du relevé
             </label>
             <input
-              id="pesee-date"
+              id={`${uid}-date`}
               type="date"
               value={date}
               max={today}
@@ -122,8 +124,8 @@ export function PeseeForm({ today, mesures, compact = false }: { today: string; 
             {erreur}
           </p>
         )}
-        <button type="submit" disabled={pending || (poids.trim() === "" && taille.trim() === "")} className={`${primaryButton} self-start`}>
-          Enregistrer
+        <button type="submit" disabled={pending || (poids.trim() === "" && taille.trim() === "")} className={`${primaryButton} min-h-11 self-start`}>
+          {pending ? "Enregistrement…" : "Enregistrer"}
         </button>
       </form>
 

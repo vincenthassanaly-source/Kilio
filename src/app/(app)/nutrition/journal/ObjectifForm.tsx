@@ -19,7 +19,7 @@ function ChampsCible({ jourType, objectif, uid }: { jourType: JourType; objectif
   const champ = (nom: string) => `${jourType}_${nom}`;
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-sm font-semibold text-ink">{TITRES[jourType]}</legend>
+      <legend className="text-small font-semibold text-ink">{TITRES[jourType]}</legend>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label htmlFor={`${uid}-${champ("kcal_cible")}`} className={labelClass}>

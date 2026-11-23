@@ -7,7 +7,7 @@ import { PLAFOND_ARTICLES_COURSES } from "@/lib/courses/compute";
 import { joursDeLaSemaine, libellesCoursesDepuisMenu, repasSemaineSuivante } from "@/lib/menus/compute";
 import { shiftDate } from "@/lib/date/iso";
 import { lireSaisieRepas } from "@/lib/nutrition/saisie-repas";
-import { ajouterArticlesCourses } from "./courses";
+import { ajouterArticlesCourses, annulerAjoutArticlesCourses } from "./courses";
 import type { JournalFormState } from "./journal";
 import { estUuid } from "@/lib/uuid";
 
@@ -35,6 +35,41 @@ export async function addMenuEntry(_prevState: JournalFormState, formData: FormD
   if (error) return { error: "Le repas n'a pas pu être planifié. Réessaie." };
 
   revaliderMenus();
+  return { error: null, ok: true };
+}
+
+/**
+ * Corrige un repas planifié (tap sur une ligne du menu) : quantité et créneau,
+ * l'aliment ou la recette restant ceux de la ligne. Si le repas est déjà
+ * validé « mangé », l'entrée liée du Carnet suit : les deux écrans gardent les
+ * mêmes chiffres.
+ */
+export async function updateMenuEntry(_prevState: JournalFormState, formData: FormData): Promise<JournalFormState> {
+  const id = String(formData.get("id") ?? "");
+  if (!estUuid(id)) return { error: "Identifiant de repas invalide." };
+  const lecture = await lireSaisieRepas(formData);
+  if ("error" in lecture) return { error: lecture.error };
+
+  const { quantite, moment, aliment_id, recette_id } = lecture.saisie;
+  const supabase = createAdminClient();
+  const { data: repas, error } = await supabase
+    .from("menus_repas")
+    .update({ quantite, moment, aliment_id, recette_id })
+    .eq("id", id)
+    .select("journal_repas_id")
+    .maybeSingle();
+  if (error) return { error: "Le repas n'a pas pu être modifié. Réessaie." };
+
+  if (repas?.journal_repas_id) {
+    const { error: erreurJournal } = await supabase
+      .from("journal_repas")
+      .update({ quantite, moment, aliment_id, recette_id })
+      .eq("id", repas.journal_repas_id);
+    if (erreurJournal) return { error: "Le menu est modifié, mais pas le Carnet alimentaire. Réessaie." };
+    revaliderApresValidation();
+  } else {
+    revaliderMenus();
+  }
   return { error: null, ok: true };
 }
 
@@ -131,7 +166,14 @@ export async function annulerValidationMenuEntry(id: string): Promise<ActionResu
  * `ajoutes` : articles créés. `reactives` : articles déjà sur la liste mais
  * cochés « pris », remis à prendre. `dejaPresents` : déjà à prendre, inchangés.
  */
-export type ResultatEnvoiCourses = { ajoutes: number; reactives: number; dejaPresents: number };
+export type ResultatEnvoiCourses = {
+  ajoutes: number;
+  reactives: number;
+  dejaPresents: number;
+  /** Pour « Annuler » : articles créés à supprimer, articles remis à prendre à recocher. */
+  idsCrees: string[];
+  idsReactives: string[];
+};
 
 /**
  * Envoie aux Courses les ingrédients des repas pas encore mangés de la
@@ -182,16 +224,30 @@ export async function envoyerMenuAuxCourses(lundi: string): Promise<ActionResult
     let ajoutes = 0;
     let reactives = 0;
     let dejaPresents = 0;
+    const idsCrees: string[] = [];
+    const idsReactives: string[] = [];
     // L'ajout multiple est plafonné : un menu de 7 jours dépasse facilement 30 lignes.
     for (let i = 0; i < libelles.length; i += PLAFOND_ARTICLES_COURSES) {
       const resultat = await ajouterArticlesCourses(libelles.slice(i, i + PLAFOND_ARTICLES_COURSES));
       ajoutes += resultat.crees;
       reactives += resultat.reactives;
       dejaPresents += resultat.dejaPresents.length;
+      idsCrees.push(...resultat.idsCrees);
+      idsReactives.push(...resultat.idsReactives);
     }
-    return ok({ ajoutes, reactives, dejaPresents });
+    return ok({ ajoutes, reactives, dejaPresents, idsCrees, idsReactives });
   } catch {
     return fail("Les courses n'ont pas pu être mises à jour. Réessaie.");
+  }
+}
+
+/** « Annuler » de l'envoi aux Courses : retire ce que l'envoi a ajouté ou remis à prendre. */
+export async function annulerEnvoiMenuAuxCourses(idsCrees: string[], idsReactives: string[]): Promise<ActionResult> {
+  try {
+    await annulerAjoutArticlesCourses(idsCrees, idsReactives);
+    return ok();
+  } catch {
+    return fail("L'envoi aux Courses n'a pas pu être annulé. Réessaie.");
   }
 }
 

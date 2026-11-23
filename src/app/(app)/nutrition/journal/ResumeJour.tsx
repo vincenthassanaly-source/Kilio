@@ -84,7 +84,7 @@ export function ResumeJour({
     const manquant =
       jourType === "entrainement" ? " d'entraînement" : jourType === "repos" ? " de repos" : "";
     return (
-      <p className="text-sm text-ink-2">
+      <p className="text-small text-ink-2">
         Définis l&apos;objectif{manquant} (« Modifier les objectifs ») pour voir ton résumé du jour.
       </p>
     );

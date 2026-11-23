@@ -16,6 +16,7 @@ import {
 } from "@/lib/nutrition/compute";
 import { jourTypePourDate, type JourType } from "@/lib/nutrition/planning";
 import { lireSaisieRepas } from "@/lib/nutrition/saisie-repas";
+import { estUuid } from "@/lib/uuid";
 
 export type JournalFormState = { error: string | null; ok?: boolean };
 
@@ -173,6 +174,35 @@ export async function addJournalEntry(
   if (error) return { error: "Le repas n'a pas pu être ajouté. Réessaie." };
 
   revalidatePath("/nutrition/journal");
+  revalidatePath("/");
+  return { error: null, ok: true };
+}
+
+/**
+ * Corrige un repas déjà saisi (tap sur une ligne du Carnet) : même saisie que
+ * l'ajout (quantité, mode, moment), plus l'`id` de la ligne. L'aliment ou la
+ * recette et la date restent ceux de la ligne d'origine.
+ */
+export async function updateJournalEntry(
+  _prevState: JournalFormState,
+  formData: FormData
+): Promise<JournalFormState> {
+  const id = String(formData.get("id") ?? "");
+  if (!estUuid(id)) return { error: "Identifiant de repas invalide." };
+  const lecture = await lireSaisieRepas(formData);
+  if ("error" in lecture) return { error: lecture.error };
+
+  const { quantite, moment, aliment_id, recette_id } = lecture.saisie;
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("journal_repas")
+    .update({ quantite, moment, aliment_id, recette_id })
+    .eq("id", id);
+
+  if (error) return { error: "Le repas n'a pas pu être modifié. Réessaie." };
+
+  revalidatePath("/nutrition/journal");
+  revalidatePath("/nutrition/bilan");
   revalidatePath("/");
   return { error: null, ok: true };
 }

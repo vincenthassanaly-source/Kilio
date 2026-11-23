@@ -7,7 +7,7 @@ import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
 import { queryKeys } from "@/lib/query/keys";
 import { nombreFr, type Mesure } from "@/lib/sante/compute";
-import { ghostButton } from "@/lib/ui";
+import { boutonSupprimerLigne } from "../suppressionLigne";
 
 const libelleDate = (date: string) =>
   new Date(`${date}T00:00:00Z`).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
@@ -22,7 +22,7 @@ function resume(mesure: Mesure): string {
 /**
  * Derniers relevés (récents d'abord) du Bilan : date, poids, tour de taille, et
  * suppression d'un relevé erroné. Lecture seule hors suppression : la saisie
- * vit dans la carte « Pesée » d'Aujourd'hui (`PeseeForm`).
+ * vit dans `PeseeForm` (carte d'Aujourd'hui et Bilan).
  */
 export function ReleveListe({ mesures }: { mesures: Mesure[] }) {
   const router = useRouter();
@@ -67,7 +67,7 @@ export function ReleveListe({ mesures }: { mesures: Mesure[] }) {
             type="button"
             onClick={() => supprimer(mesure)}
             aria-label={`Supprimer le relevé du ${libelleDate(mesure.date)}`}
-            className={`${ghostButton} text-alert`}
+            className={boutonSupprimerLigne}
           >
             Supprimer
           </button>

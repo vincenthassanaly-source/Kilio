@@ -11,6 +11,7 @@ import {
   MOMENTS_REPAS,
   MOMENT_LABELS,
   momentParDefaut,
+  QUANTITE_MAX_PORTIONS,
   type MomentRepas,
   type Nutrition,
 } from "@/lib/nutrition/compute";
@@ -20,11 +21,13 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
-const boutonPortion = `flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-base text-ink transition active:scale-[0.97] ${focusRing}`;
+const boutonPortion = `flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-base text-ink transition-transform active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
+
+// Portions par pas d'une demi : « 1,5 portion » se mange aussi.
+const PAS_PORTION = 0.5;
 
 function fmt(n: number) {
-  const rounded = Math.round(n * 10) / 10;
-  return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+  return (Math.round(n * 10) / 10).toLocaleString("fr-FR");
 }
 
 const CHIPS: { key: keyof Nutrition; label: string; unit: string; color: string }[] = [
@@ -82,7 +85,7 @@ export function RecetteMacros({
         if (resultat.ok) {
           queryClient.invalidateQueries({ queryKey: queryKeys.catalogueJournal });
           queryClient.invalidateQueries({ queryKey: ["resume-nutrition"] });
-          showActionToast(`${count} portion${count > 1 ? "s" : ""} de « ${nom} » ajoutée${count > 1 ? "s" : ""} ${AJOUT_LABELS[moment]}`, {
+          showActionToast(`${fmt(count)} portion${count > 1 ? "s" : ""} de « ${nom} » ajoutée${count > 1 ? "s" : ""} ${AJOUT_LABELS[moment]}`, {
             label: "Voir",
             ariaLabel: "Voir le Carnet du jour",
             onAction: () => router.push("/nutrition/journal"),
@@ -107,20 +110,22 @@ export function RecetteMacros({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setCount((n) => Math.max(1, n - 1))}
+            onClick={() => setCount((n) => Math.max(PAS_PORTION, n - PAS_PORTION))}
+            disabled={count <= PAS_PORTION}
             className={boutonPortion}
-            aria-label="Retirer une portion"
+            aria-label="Retirer une demi-portion"
           >
             −
           </button>
-          <span className="w-5 text-center font-display text-base font-semibold text-ink tabular-nums" aria-live="polite">
-            {count}
+          <span className="min-w-8 text-center font-display text-base font-semibold text-ink tabular-nums" aria-live="polite">
+            {fmt(count)}
           </span>
           <button
             type="button"
-            onClick={() => setCount((n) => n + 1)}
+            onClick={() => setCount((n) => Math.min(QUANTITE_MAX_PORTIONS, n + PAS_PORTION))}
+            disabled={count >= QUANTITE_MAX_PORTIONS}
             className={boutonPortion}
-            aria-label="Ajouter une portion"
+            aria-label="Ajouter une demi-portion"
           >
             +
           </button>
@@ -172,12 +177,12 @@ export function RecetteMacros({
           </button>
           {detailOpen && (
             <div className="overflow-hidden rounded-xl border border-line">
-              <table className="w-full text-small">
+              <table className="w-full text-small tabular-nums">
                 <thead>
                   <tr className="border-b border-line bg-surface-alt text-ink-2">
                     <th className="px-2.5 py-1.5 text-left font-medium">Valeur nutritionnelle</th>
                     <th className="px-2.5 py-1.5 text-right font-medium">Par portion</th>
-                    <th className="px-2.5 py-1.5 text-right font-medium">Pour 100g</th>
+                    <th className="px-2.5 py-1.5 text-right font-medium">Pour 100 g</th>
                   </tr>
                 </thead>
                 <tbody>

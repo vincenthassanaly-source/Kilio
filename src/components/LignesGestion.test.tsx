@@ -78,7 +78,7 @@ describe("lignes de gestion avec un nom long", () => {
         ingredients={[{ id: "I1", recette_id: "R1", nom: NOM_LONG, quantite: "1 sachet" } as never]}
       />
     );
-    verifierLigne(screen.getByText(NOM_LONG), ["Modifier", /^Supprimer/]);
+    verifierLigne(screen.getByText(NOM_LONG), ["Modifier", /^Retirer/]);
   });
 
   it("Étapes : l'intitulé de l'étape passe à la ligne et les boutons sont dans leur rangée", () => {

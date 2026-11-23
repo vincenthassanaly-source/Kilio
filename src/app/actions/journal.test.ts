@@ -13,6 +13,7 @@ import {
   getDatesEntrainement,
   getResumeNutritionJour,
   removeJournalEntry,
+  updateJournalEntry,
 } from "./journal";
 
 const ID = "11111111-1111-4111-8111-111111111111";
@@ -120,6 +121,41 @@ describe("addJournalEntry", () => {
     brancher(() => ({ error: { message: "violates foreign key constraint" } }));
     expect(await addJournalEntry({ error: null }, form(saisieAliment))).toEqual({
       error: "Le repas n'a pas pu être ajouté. Réessaie.",
+    });
+    expect(etat.revalidatePath).not.toHaveBeenCalled();
+  });
+});
+
+describe("updateJournalEntry", () => {
+  it("corrige la quantité et le moment de la ligne, puis revalide le Carnet, le Bilan et l'accueil", async () => {
+    const fake = brancher();
+    const resultat = await updateJournalEntry(
+      { error: null },
+      form({ ...saisieAliment, id: ID, quantite: "200", moment: "diner" })
+    );
+    expect(resultat).toEqual({ error: null, ok: true });
+    const [maj] = ecritures(fake.appels, "journal_repas", "update");
+    expect(maj.payload).toEqual({ quantite: 200, moment: "diner", aliment_id: ALIMENT, recette_id: null });
+    expect(maj.filtres).toContainEqual(["eq", "id", ID]);
+    expect(etat.revalidatePath).toHaveBeenCalledWith("/nutrition/journal");
+    expect(etat.revalidatePath).toHaveBeenCalledWith("/nutrition/bilan");
+  });
+
+  it("refuse un id invalide ou une saisie invalide sans rien écrire", async () => {
+    const fake = brancher();
+    expect(await updateJournalEntry({ error: null }, form({ ...saisieAliment, id: "x" }))).toEqual({
+      error: "Identifiant de repas invalide.",
+    });
+    expect(await updateJournalEntry({ error: null }, form({ ...saisieAliment, id: ID, quantite: "0" }))).toEqual({
+      error: "La quantité doit être un nombre positif.",
+    });
+    expect(fake.appels).toHaveLength(0);
+  });
+
+  it("renvoie un message lisible si la mise à jour échoue", async () => {
+    brancher(() => ({ error: { message: "ko" } }));
+    expect(await updateJournalEntry({ error: null }, form({ ...saisieAliment, id: ID }))).toEqual({
+      error: "Le repas n'a pas pu être modifié. Réessaie.",
     });
     expect(etat.revalidatePath).not.toHaveBeenCalled();
   });

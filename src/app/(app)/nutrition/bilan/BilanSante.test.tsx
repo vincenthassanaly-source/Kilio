@@ -14,6 +14,7 @@ vi.mock("@/app/actions/sante", () => ({
     { date: "2026-11-05", poids_kg: 83, tour_taille_cm: null },
   ]),
   supprimerMesure: vi.fn(),
+  enregistrerMesure: vi.fn(),
 }));
 vi.mock("./SyntheseSemaine", () => ({ SyntheseSemaine: () => <p>synthèse</p> }));
 
@@ -29,14 +30,16 @@ async function monter() {
 }
 
 describe("BilanSante", () => {
-  it("consulte seulement : un lien « Peser » mène à la carte d'Aujourd'hui, sans formulaire de saisie", async () => {
+  it("propose la saisie compacte de la pesée dans le Bilan, sans renvoi vers Aujourd'hui", async () => {
     await monter();
 
-    expect(screen.getByRole("link", { name: "Peser" })).toHaveAttribute("href", "/?peser=1");
+    expect(screen.queryByRole("link", { name: "Peser" })).toBeNull();
     expect(screen.getByText("synthèse")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Poids (kg)")).toBeNull();
-    expect(screen.queryByLabelText("Tour de taille (cm)")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Enregistrer" })).toBeNull();
+    expect(screen.getByLabelText("Poids (kg)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Tour de taille (cm)")).toBeInTheDocument();
+    // Compact : datée du jour, pas de champ de date.
+    expect(screen.queryByLabelText("Date du relevé")).toBeNull();
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeInTheDocument();
   });
 
   it("affiche la liste des derniers relevés avec leur suppression", async () => {
