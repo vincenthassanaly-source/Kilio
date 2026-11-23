@@ -80,5 +80,5 @@ export async function interpreterSaisie(texte: string): Promise<ActionResult<Ele
   }
   // Le détail technique (fournisseur, clé absente…) reste dans les logs serveur.
   console.error(`[saisie-naturelle] interprétation impossible : ${detail}`);
-  return fail("Je n'ai pas pu lire cette phrase pour le moment. Ajoute-la comme tâche ci-dessous, ou réessaie plus tard.");
+  return fail("Je n'ai pas pu lire cette phrase pour le moment. Réessaie plus tard, ou reformule-la.");
 }
