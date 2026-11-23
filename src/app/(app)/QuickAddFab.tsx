@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
@@ -39,13 +39,32 @@ export type DirectTaskOptions = {
   // l'appelant de rafraîchir ses données (le dashboard, lui, invalide déjà
   // queryKeys.taches).
   onCreated?: (id?: string, avertissement?: string) => void;
+  // Ouverture contrôlée par l'appelant (optionnelle) : un autre bouton de
+  // l'écran (état vide de /taches) ouvre la même feuille que le « + ».
+  ouvert?: boolean;
+  onOuvertChange?: (ouvert: boolean) => void;
 };
 
 // listes/tags ne servent qu'une fois un formulaire ouvert : fetch client
 // pur, non préchargé côté serveur, pour ne jamais retarder l'affichage des
 // cartes principales du dashboard (voir reports/2026-09-04-dashboard-streaming-par-section.md).
 export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) {
-  const [mode, setMode] = useState<Mode>(null);
+  const [modeInterne, setModeInterne] = useState<Mode>(null);
+  // Mode direct contrôlé : l'état « formulaire ouvert » appartient à l'appelant.
+  const controle = directTask?.ouvert !== undefined;
+  const mode: Mode = controle ? (directTask?.ouvert ? "tache" : null) : modeInterne;
+  const onOuvertChange = directTask?.onOuvertChange;
+  const setMode = useCallback(
+    (suivant: Mode | ((m: Mode) => Mode)) => {
+      if (!controle) {
+        setModeInterne(suivant);
+        return;
+      }
+      const valeur = typeof suivant === "function" ? suivant(mode) : suivant;
+      onOuvertChange?.(valeur !== null);
+    },
+    [controle, mode, onOuvertChange]
+  );
   const queryClient = useQueryClient();
   const router = useRouter();
   const { data: listes = [] } = useQuery({ queryKey: queryKeys.listes, queryFn: getListes });
@@ -92,7 +111,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
       window.removeEventListener("pageshow", planifier);
       document.removeEventListener("visibilitychange", auRetourAuPremierPlan);
     };
-  }, [direct]);
+  }, [direct, setMode]);
 
   // The dial's history entry stays pushed for as long as *anything* is
   // open (menu or form) so a single back press from a form lands on the
@@ -213,7 +232,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
             pointerEvents: dialInteractive ? "auto" : "none",
           }}
         >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink shadow-card">
+          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
             Repas
           </span>
           <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
@@ -239,7 +258,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
             pointerEvents: dialInteractive ? "auto" : "none",
           }}
         >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink shadow-card">
+          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
             Courses
           </span>
           <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
@@ -264,7 +283,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
             pointerEvents: dialInteractive ? "auto" : "none",
           }}
         >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink shadow-card">
+          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
             Tâches
           </span>
           <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
@@ -288,7 +307,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
             pointerEvents: dialInteractive ? "auto" : "none",
           }}
         >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink shadow-card">
+          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
             Événement
           </span>
           <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
@@ -313,7 +332,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
             pointerEvents: dialInteractive ? "auto" : "none",
           }}
         >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink shadow-card">
+          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
             Notes
           </span>
           <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
@@ -349,6 +368,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
                   // avertissement (image ou tags en échec) ne doit pas être
                   // perdu en silence.
                   if (avertissement) showToast(avertissement, DUREE_TOAST_AVERTISSEMENT_MS);
+                  else showToast("Tâche ajoutée");
                   goBackSteps(2);
                 }
               }}

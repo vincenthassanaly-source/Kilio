@@ -186,7 +186,7 @@ describe("createTache : suites de la création", () => {
     expect(res).toEqual({
       error: null,
       id: ID,
-      avertissement: "Tâche créée, mais l'enregistrement des tags a échoué. Rouvre la tâche pour réessayer.",
+      avertissement: "Tâche ajoutée, mais l'enregistrement des tags a échoué. Rouvre la tâche pour réessayer.",
     });
     expect(etat.revalidatePath).toHaveBeenCalledWith("/taches");
   });
@@ -203,9 +203,9 @@ describe("createTache : suites de la création", () => {
   it("signale un échec d'envoi d'image au singulier ou au pluriel sans refuser la tâche", async () => {
     brancher(creation, () => ({ error: { message: "envoi ko" } }));
     const un = await createTache({ error: null }, form({ ...minimal, images: await photo() }));
-    expect(un.avertissement).toBe("Tâche créée, mais l'envoi de l'image a échoué. Rouvre la tâche pour réessayer.");
+    expect(un.avertissement).toBe("Tâche ajoutée, mais l'envoi de l'image a échoué. Rouvre la tâche pour réessayer.");
     const deux = await createTache({ error: null }, form({ ...minimal, images: [await photo(), await photo()] }));
-    expect(deux.avertissement).toBe("Tâche créée, mais l'envoi des images a échoué. Rouvre la tâche pour réessayer.");
+    expect(deux.avertissement).toBe("Tâche ajoutée, mais l'envoi des images a échoué. Rouvre la tâche pour réessayer.");
   });
 
   it("nettoie le fichier orphelin quand l'enregistrement de l'image échoue", async () => {
@@ -219,7 +219,7 @@ describe("createTache : suites de la création", () => {
   it("signale tags et images ensemble", async () => {
     brancher((a) => (a.table === "tags" ? { error: { message: "tags ko" } } : creation(a)), () => ({ error: { message: "envoi ko" } }));
     const res = await createTache({ error: null }, form({ ...minimal, nouveaux_tags: "x", images: await photo() }));
-    expect(res.avertissement).toBe("Tâche créée, mais l'enregistrement des tags et l'envoi de l'image ont échoué. Rouvre la tâche pour réessayer.");
+    expect(res.avertissement).toBe("Tâche ajoutée, mais l'enregistrement des tags et l'envoi de l'image ont échoué. Rouvre la tâche pour réessayer.");
   });
 });
 

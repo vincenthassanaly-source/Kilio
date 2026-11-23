@@ -42,7 +42,7 @@ export function messageAvertissementCreation(echecs: {
   if (echecs.tags && echecs.images) detail = `${tags} et ${images} ont échoué`;
   else if (echecs.tags) detail = `${tags} a échoué`;
   else detail = `${images} a échoué`;
-  return `Tâche créée, mais ${detail}. Rouvre la tâche pour réessayer.`;
+  return `Tâche ajoutée, mais ${detail}. Rouvre la tâche pour réessayer.`;
 }
 
 /**

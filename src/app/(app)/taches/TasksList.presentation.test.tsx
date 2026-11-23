@@ -73,7 +73,13 @@ describe("TaskCard : présentation", () => {
 
   it("met l'échéance en retard en évidence avec un libellé, pas seulement une couleur", () => {
     monter([makeTache({ id: "t1", titre: "Payer", echeance: "2026-11-08" })]);
-    expect(screen.getByText(/En retard · /)).toBeTruthy();
+    const badge = screen.getByText("En retard");
+    expect(badge.className).toContain("text-alert");
+  });
+
+  it("n'affiche plus « + sous-tâches » : le compteur seul, et seulement s'il y en a", () => {
+    monter([makeTache({ id: "t1", titre: "Payer" })]);
+    expect(screen.queryByText(/sous-tâches/)).toBeNull();
   });
 
   it("nomme la coche avec le titre de la tâche pour les lecteurs d'écran", () => {
