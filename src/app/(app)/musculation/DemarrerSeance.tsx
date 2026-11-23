@@ -53,16 +53,18 @@ export function DemarrerSeance({ catalogueVide }: { catalogueVide: boolean }) {
   return (
     <section className={`${card} flex flex-col gap-3`} aria-label="Démarrer une séance">
       <h2 className={sectionTitle}>Séance libre</h2>
-      <p className={eyebrow}>
+      <p id="demarrer-seance-aide" className={eyebrow}>
         {catalogueVide
-          ? "Le catalogue d'exercices est vide : tu pourras démarrer une séance dès qu'il sera ajouté."
+          ? "Aucun exercice au catalogue pour l'instant : dès qu'il sera ajouté, tu pourras démarrer une séance, créer des routines et suivre ta progression."
           : "Ajoute tes exercices au fil de l'entraînement, le minuteur de repos se lance à chaque série."}
       </p>
       <button
         type="button"
-        className={`${primaryButton} self-start`}
+        // Catalogue vide : bouton neutre bien contrasté plutôt qu'un vert d'action délavé.
+        className={`${primaryButton} self-start ${catalogueVide ? "!bg-surface-alt !text-ink-2 disabled:!opacity-100" : ""}`}
         onClick={demarrer}
         disabled={catalogueVide || demarrage}
+        aria-describedby={catalogueVide ? "demarrer-seance-aide" : undefined}
       >
         Démarrer une séance
       </button>
