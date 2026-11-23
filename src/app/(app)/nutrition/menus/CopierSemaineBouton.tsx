@@ -21,7 +21,13 @@ export function CopierSemaineBouton({ lundi }: { lundi: string }) {
     setEnCours(false);
     if (!resultat.ok) return;
     const { copies } = resultat.data;
-    showToast(`${copies} repas copiés de la semaine précédente`);
+    // « repas » est invariable ; seul le participe s'accorde. Rien de copié :
+    // on le dit plutôt que d'annoncer « 0 repas copiés ».
+    showToast(
+      copies === 0
+        ? "Aucun repas à copier depuis la semaine précédente"
+        : `${copies} repas copié${copies > 1 ? "s" : ""} de la semaine précédente`
+    );
   }
 
   return (

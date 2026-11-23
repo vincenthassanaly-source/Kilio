@@ -36,7 +36,7 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
     supabase
       .from("menus_repas")
       .select(
-        "id, date, moment, quantite, mange, aliment:aliments(*), recette:recettes(id, nom, portions, kcal_portion, proteines_portion, glucides_portion, lipides_portion, recette_ingredients(quantite, aliment:aliments(kcal_100g, proteines_100g, glucides_100g, lipides_100g)))"
+        "id, date, moment, quantite, mange, aliment_id, recette_id, aliment:aliments(*), recette:recettes(id, nom, portions, kcal_portion, proteines_portion, glucides_portion, lipides_portion, recette_ingredients(quantite, aliment:aliments(kcal_100g, proteines_100g, glucides_100g, lipides_100g)))"
       )
       .gte("date", jours[0])
       .lte("date", jours[6])
@@ -74,7 +74,17 @@ export async function MenusSemaine({ searchParams }: { searchParams: MenusSearch
             moment: entree.moment,
             mange: entree.mange,
             nutrition: vue.nutrition,
-            planifie: { id: entree.id, label: vue.label, detail: vue.detail, kcal: vue.nutrition.kcal, mange: entree.mange },
+            planifie: {
+              id: entree.id,
+              label: vue.label,
+              detail: vue.detail,
+              kcal: vue.nutrition.kcal,
+              mange: entree.mange,
+              cle: entree.aliment ? `aliment:${entree.aliment_id}` : `recette:${entree.recette_id}`,
+              quantite: Number(entree.quantite),
+              moment: entree.moment,
+              date: entree.date,
+            },
           },
         ]
       : [];

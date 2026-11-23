@@ -82,7 +82,7 @@ export function JourMenu({
           {repas.length > 0 && (
             <ul className="flex flex-col pb-1">
               {repas.map((r) => (
-                <LigneMenu key={r.id} repas={r} />
+                <LigneMenu key={r.id} repas={r} jourLabel={jourLabel} />
               ))}
             </ul>
           )}
