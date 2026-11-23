@@ -78,12 +78,12 @@ export function RevueView({ today }: { today: string }) {
 
   return (
     <div className="flex flex-col gap-4 pb-10">
-      <MenuAssistantRevue peutReplanifier={enRetard.length > 0} />
-
-      <section aria-labelledby="revue-bilan" className={`${card} flex flex-col gap-3`}>
+      {/* Gabarit unique des étapes : titre au-dessus, contenu en carte dessous. */}
+      <section aria-labelledby="revue-bilan" className="flex flex-col gap-2">
         <h2 id="revue-bilan" className={sectionTitle}>
           1. Les 7 derniers jours
         </h2>
+        <div className={`${card} flex flex-col gap-3`}>
         <div className="flex gap-2">
           <Chiffre valeur={bilan.terminees.length} libelle="tâches terminées" />
           <Chiffre valeur={evenementsPasses.length} libelle="rendez-vous" />
@@ -104,6 +104,7 @@ export function RevueView({ today }: { today: string }) {
             )}
           </ul>
         )}
+        </div>
       </section>
 
       <section aria-labelledby="revue-retards" className="flex flex-col gap-2">
@@ -113,15 +114,15 @@ export function RevueView({ today }: { today: string }) {
         {enRetard.length > 0 ? (
           <EnRetardSection taches={enRetard} today={today} masquerTitre />
         ) : (
-          <p className={`${card} text-label text-ink-2`}>Rien en retard. Bien joué.</p>
+          <p className={`${card} text-label text-ink-2`}>Rien en retard. Tout est à jour.</p>
         )}
       </section>
 
-      <section aria-labelledby="revue-semaine" className={`${card} flex flex-col gap-3`}>
+      <section aria-labelledby="revue-semaine" className="flex flex-col gap-2">
         <h2 id="revue-semaine" className={sectionTitle}>
           3. Les 7 prochains jours
         </h2>
-        <ul className="flex flex-col gap-2">
+        <ul className={`${card} flex flex-col gap-2`}>
           {jours.map((jour) => {
             const vide = jour.taches.length === 0 && jour.evenements.length === 0;
             const total = jour.minutesTaches + jour.minutesEvenements;
@@ -130,12 +131,12 @@ export function RevueView({ today }: { today: string }) {
                 <TransitionLink
                   href={`/agenda?date=${jour.date}&from=revue`}
                   aria-label={`Ouvrir ${format(parseISODate(jour.date), "EEEE d MMMM", { locale: fr })} dans l'agenda`}
-                  className={`flex min-h-11 flex-col gap-1 rounded-xl px-3 py-2.5 transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+                  className={`flex min-h-11 flex-col gap-1 rounded-2xl px-3 py-2.5 transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                     vide ? "border border-line" : "bg-surface-alt"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-label font-semibold capitalize text-ink">
+                    <span className="min-w-0 flex-1 text-label font-semibold capitalize text-ink">
                       {format(parseISODate(jour.date), "EEEE d MMM", { locale: fr })}
                     </span>
                     {jour.charge && (
@@ -147,6 +148,10 @@ export function RevueView({ today }: { today: string }) {
                       <span className="shrink-0 text-caption tabular-nums text-ink-3">{libelleDuree(total)}</span>
                     )}
                     {vide && <span className="shrink-0 text-small text-ink-3">Libre</span>}
+                    {/* Chevron : chaque jour s'ouvre dans l'Agenda. */}
+                    <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="-mr-1 shrink-0 text-ink-3">
+                      <path d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
                   {!vide && (
                     <ul className="flex flex-col gap-0.5 text-small text-ink-2">
@@ -187,21 +192,24 @@ export function RevueView({ today }: { today: string }) {
       </section>
 
       {sansDate > 0 && (
-        <section aria-labelledby="revue-sans-date" className={`${card} flex items-center justify-between gap-3`}>
-          <div>
-            <h2 id="revue-sans-date" className={sectionTitle}>
-              5. Sans date
-            </h2>
-            <p className="mt-0.5 text-small text-ink-2">
+        <section aria-labelledby="revue-sans-date" className="flex flex-col gap-2">
+          <h2 id="revue-sans-date" className={sectionTitle}>
+            5. Sans date
+          </h2>
+          <div className={`${card} flex items-center justify-between gap-3`}>
+            <p className="text-small text-ink-2">
               {sansDate === 1 ? "1 tâche n'a pas d'échéance" : `${sansDate} tâches n'ont pas d'échéance`} : à dater ou à
               abandonner.
             </p>
+            <TransitionLink href="/taches" className={`shrink-0 ${linkButton}`}>
+              Voir
+            </TransitionLink>
           </div>
-          <TransitionLink href="/taches" className={`shrink-0 ${linkButton}`}>
-            Voir
-          </TransitionLink>
         </section>
       )}
+
+      {/* Assistant IA après les étapes, en bouton secondaire. */}
+      <MenuAssistantRevue peutReplanifier={enRetard.length > 0} />
     </div>
   );
 }

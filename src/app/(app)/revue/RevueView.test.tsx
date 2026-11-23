@@ -91,7 +91,7 @@ describe("RevueView", () => {
 
   it("félicite quand rien n'est en retard", () => {
     monter([makeTache({ id: "t1", echeance: "2026-10-13" })]);
-    expect(screen.getByText("Rien en retard. Bien joué.")).toBeTruthy();
+    expect(screen.getByText("Rien en retard. Tout est à jour.")).toBeTruthy();
   });
 
   it("liste les événements à venir, journée entière comprise", () => {
