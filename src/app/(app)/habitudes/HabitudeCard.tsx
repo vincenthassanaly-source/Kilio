@@ -10,7 +10,8 @@ import { restaurerElement } from "@/lib/query/rollback";
 import { showErrorToast, showToast } from "@/components/toast/toast-store";
 import { HabitudeForm } from "./HabitudeForm";
 import { ProgressRing } from "@/components/ProgressRing";
-import { card, ghostButton, input, listCard, metaText, nameTextComplet, pillTag, textButton } from "@/lib/ui";
+import { card, input, listCard, metaText, nameTextComplet, pillTag, textButton } from "@/lib/ui";
+import { MenuHabitude } from "./MenuHabitude";
 import { vibrate } from "@/lib/haptics";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { erreurValeurEntree, VALEUR_MAX_ENTREE_HABITUDE } from "@/lib/habitudes/compute";
@@ -114,6 +115,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
   const fait = valeur > 0;
   const atteint = habitude.valeur_cible != null && valeur >= habitude.valeur_cible;
   const pct = habitude.type === "quantifiee" && habitude.valeur_cible ? valeur / habitude.valeur_cible : fait ? 1 : 0;
+  const cochable = habitude.type !== "quantifiee";
 
   function enregistrerValeur() {
     // Champ vide : rien à enregistrer (Number("") vaudrait 0 et écraserait la valeur du jour).
@@ -176,7 +178,18 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
       animate={{ opacity: 1, y: 0 }}
       exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -8 }}
       transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-      className={`${listCard} active:scale-100!`}
+      // Habitude à cocher : toute la ligne coche (le bouton de l'anneau reste
+      // la commande accessible au clavier). Les autres commandes de la carte
+      // (menu « … », champ) gardent leur propre geste.
+      onClick={
+        cochable
+          ? (e: React.MouseEvent) => {
+              if ((e.target as HTMLElement).closest("button, input, a, [role='menu']")) return;
+              if (!toggleMutation.isPending) toggleMutation.mutate(fait ? 0 : 1);
+            }
+          : undefined
+      }
+      className={`${listCard} ${cochable ? "cursor-pointer" : "active:scale-100!"}`}
     >
       <div className="flex items-start gap-3">
         <ProgressRing
@@ -193,7 +206,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
               onClick={() => toggleMutation.mutate(fait ? 0 : 1)}
               aria-label={habitude.nom}
               aria-pressed={fait}
-              className="relative flex h-full w-full items-center justify-center after:absolute after:-inset-[5px]"
+              className="relative flex h-full w-full items-center justify-center after:absolute after:-inset-[5px] rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
             >
               {fait ? (
                 <svg width="12" height="12" viewBox="0 0 12 12">
@@ -201,7 +214,7 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
                 </svg>
               ) : (
                 habitude.icone ? (
-                  <span className="text-sm">{habitude.icone}</span>
+                  <span className="text-small">{habitude.icone}</span>
                 ) : (
                   <span className="text-ink-3">
                     <CheckIcon size={12} />
@@ -225,6 +238,12 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
                 {habitude.frequence_hebdo != null ? " sem." : "j"}
               </span>
             )}
+            <MenuHabitude
+              nom={habitude.nom}
+              disabled={isPending}
+              onModifier={() => setEditing(true)}
+              onArchiver={supprimer}
+            />
           </div>
 
           {habitude.frequence_hebdo != null && (
@@ -265,14 +284,6 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
             </div>
           )}
         </div>
-      </div>
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-          Modifier
-        </button>
-        <button type="button" disabled={isPending} onClick={supprimer} className={ghostButton}>
-          Archiver
-        </button>
       </div>
     </motion.li>
   );
