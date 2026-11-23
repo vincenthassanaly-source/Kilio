@@ -6,8 +6,9 @@ import { Switch } from "@/components/Switch";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
+import { showToast } from "@/components/toast/toast-store";
 import { DependsOnNotifications } from "./NotificationsContext";
-import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
+import { MESSAGE_HEURE_ENREGISTREE, Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 const ICONE = {
   width: 16,
@@ -60,7 +61,7 @@ export function AlertesNutritionRow({ reglages }: { reglages: Pick<Tables<"regla
     setSaisie(suivant);
     setSaisieEnregistree(suivant);
     startTransition(async () => {
-      await runAction(() => updateReglagesRappelSaisie(suivant.actif, suivant.heure), {
+      const resultat = await runAction(() => updateReglagesRappelSaisie(suivant.actif, suivant.heure), {
         silencieux: true,
         erreur: "Le réglage n'a pas pu être enregistré. Réessaie.",
         onError: (message) => {
@@ -69,6 +70,7 @@ export function AlertesNutritionRow({ reglages }: { reglages: Pick<Tables<"regla
           setSaisieEnregistree(precedent);
         },
       });
+      if (resultat.ok && suivant.heure !== precedent.heure) showToast(MESSAGE_HEURE_ENREGISTREE);
     });
   }
 

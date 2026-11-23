@@ -28,6 +28,8 @@ type NavigationEditContextValue = {
   modulesBarreBasse: string[];
   isEditing: boolean;
   activeHref: string | null;
+  /** Entre en mode édition sans appui long (lien « Personnaliser la navigation » de Réglages). */
+  enterEditing: () => void;
   exitEditing: () => void;
 };
 
@@ -204,6 +206,7 @@ export function NavigationEditProvider({
       modulesBarreBasse,
       isEditing,
       activeHref,
+      enterEditing: () => setIsEditingRaw(true),
       exitEditing: () => setIsEditingRaw(false),
     }),
     [ordreGrillePlus, modulesBarreBasse, isEditing, activeHref]

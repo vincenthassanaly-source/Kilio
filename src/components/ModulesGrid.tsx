@@ -41,6 +41,10 @@ function ModuleTile({ href, isEditing }: { href: string; isEditing: boolean }) {
     if (isEditing) e.preventDefault();
   }
 
+  // Le lien porte le transform de dnd-kit (déplacement pendant le tri) : le
+  // tremblement du mode édition anime donc la carte intérieure, jamais cet
+  // élément, sinon l'animation CSS écraserait le transform inline à chaque
+  // image et la tuile sauterait entre sa place et celle du doigt.
   return (
     <TransitionLink
       ref={setNodeRef}
@@ -48,20 +52,22 @@ function ModuleTile({ href, isEditing }: { href: string; isEditing: boolean }) {
       onClick={handleClick}
       data-nav-edit-tile
       style={style}
-      className={`${card} flex w-full flex-col gap-2.5${isEditing ? " select-none plus-tuile-edition" : ""}`}
+      className={`flex w-full rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2${isEditing ? " select-none" : ""}`}
       {...attributes}
       {...listeners}
     >
-      <span
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl"
-        style={{ background: `color-mix(in oklch, ${mod.accentVar} 12%, transparent)` }}
-      >
-        {mod.icon(mod.accentVar)}
+      <span className={`${card} flex w-full flex-col gap-2.5${isEditing ? " plus-tuile-edition" : ""}`}>
+        <span
+          className="relative flex h-10 w-10 items-center justify-center rounded-xl"
+          style={{ background: `color-mix(in oklch, ${mod.accentVar} 12%, transparent)` }}
+        >
+          {mod.icon(mod.accentVar)}
+        </span>
+        <span className="flex flex-col">
+          <span className="text-body font-semibold text-ink">{mod.label}</span>
+          {mod.description && <span className="text-small text-ink-2 text-pretty">{mod.description}</span>}
+        </span>
       </span>
-      <div>
-        <p className="font-display text-body font-semibold text-ink">{mod.label}</p>
-        {mod.description && <p className="text-small text-ink-2 text-pretty">{mod.description}</p>}
-      </div>
     </TransitionLink>
   );
 }
@@ -72,7 +78,7 @@ export function ModulesGrid() {
 
   return (
     <SortableContext items={ordreGrillePlus} strategy={rectSortingStrategy}>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="plus-grille grid grid-cols-2 gap-3">
         {ordreGrillePlus.map((href, index) => (
           <motion.div
             key={href}

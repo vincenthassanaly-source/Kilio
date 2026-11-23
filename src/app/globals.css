@@ -511,8 +511,11 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
 
 /* Tremblement façon iOS des tuiles de la grille "Plus" en mode édition (voir
    ModulesGrid.tsx) : deux variantes de rotation légèrement différentes,
-   alternées par tuile (nth-child pair/impair) pour éviter que toute la
-   grille tremble parfaitement en phase. */
+   alternées par tuile pour éviter que toute la grille tremble parfaitement
+   en phase. La parité se lit sur la cellule (enfant direct de `.plus-grille`) :
+   la carte animée est seule dans son lien, un `:nth-child` posé sur elle
+   serait toujours impair. Seule la carte intérieure tremble, jamais le lien
+   qui porte le transform de dnd-kit (sinon la tuile saute pendant le tri). */
 @keyframes plus-tuile-tremble-a {
   0%, 100% { transform: rotate(-1deg); }
   50% { transform: rotate(1deg); }
@@ -521,10 +524,10 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
   0%, 100% { transform: rotate(1deg); }
   50% { transform: rotate(-1deg); }
 }
-.plus-tuile-edition:nth-child(odd) {
+.plus-grille > :nth-child(odd) .plus-tuile-edition {
   animation: plus-tuile-tremble-a 160ms ease-in-out infinite;
 }
-.plus-tuile-edition:nth-child(even) {
+.plus-grille > :nth-child(even) .plus-tuile-edition {
   animation: plus-tuile-tremble-b 160ms ease-in-out infinite;
 }
 
@@ -656,8 +659,7 @@ html[data-nav-direction="recule"]::view-transition-new(root) {
     animation-delay: 0s !important;
   }
 
-  .plus-tuile-edition:nth-child(odd),
-  .plus-tuile-edition:nth-child(even) {
+  .plus-grille .plus-tuile-edition {
     animation: none !important;
   }
 }

@@ -1,14 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigationEdit } from "@/lib/navigation/NavigationEditContext";
+import { consommerParamEdition } from "./paramEdition";
 
 // Indicateur de sortie du mode édition (voir Phase 2.3 du rapport) : un
 // appui long sur une tuile de ModulesGrid entre en mode édition (géré par
 // NavigationEditProvider, via l'activationConstraint delay de dnd-kit) ;
-// ce bouton, ou un tap en dehors des tuiles, en sort.
+// ce bouton, ou un tap en dehors des tuiles, en sort. « Personnaliser la
+// navigation » (Réglages) y entre aussi directement, via `/plus?edition=1`.
 export function PlusEditBar() {
-  const { isEditing, exitEditing } = useNavigationEdit();
+  const { isEditing, enterEditing, exitEditing } = useNavigationEdit();
+
+  // Lu dans un effet (et non via useSearchParams) : la page reste dans la
+  // coquille statique, sans frontière Suspense à ajouter.
+  useEffect(() => {
+    if (consommerParamEdition()) enterEditing();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- une seule lecture, à l'arrivée sur Plus
+  }, []);
 
   return (
     <AnimatePresence>

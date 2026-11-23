@@ -13,26 +13,7 @@ import { NotificationsRow } from "./NotificationsRow";
 import { Pastille, ReglageEntete } from "./ReglageUi";
 import { VidageRow } from "./VidageRow";
 import { BackLink } from "@/components/BackLink";
-
-const INFO_ICON_PROPS = {
-  width: 16,
-  height: 16,
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.8,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
-
-function ProfilIcon() {
-  return (
-    <svg {...INFO_ICON_PROPS}>
-      <circle cx="12" cy="8.5" r="3.5" />
-      <path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" />
-    </svg>
-  );
-}
+import { HREF_PLUS_EDITION } from "../plus/paramEdition";
 
 function NavigationIcon() {
   return (
@@ -65,8 +46,10 @@ export default async function ReglagesPage() {
       <section aria-labelledby="reglages-preferences" className="flex flex-col gap-2.5">
         <h2 id="reglages-preferences" className={sectionTitle}>Préférences</h2>
         <div className="rounded-card border border-line bg-surface px-4 shadow-card">
+          {/* Ouvre Plus déjà en mode édition (tuiles qui tremblent, bouton
+              « Terminé ») : plus besoin de deviner l'appui long. */}
           <TransitionLink
-            href="/plus"
+            href={HREF_PLUS_EDITION}
             className="-mx-2 block rounded-xl px-2 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
           >
             <ReglageEntete
@@ -110,9 +93,12 @@ export default async function ReglagesPage() {
         </div>
       </section>
 
-      <div className="flex flex-col gap-2.5">
-        <h2 className={sectionTitle}>Astuces</h2>
-        <ul className="flex flex-col gap-2.5 rounded-card border border-line bg-surface px-4 py-3.5 text-label leading-snug text-ink-2 shadow-card">
+      {/* Même structure que les sections au-dessus (section + h2 lié, carte
+          à lignes séparées par un filet) : les astuces se lisent dans le
+          même rythme que les réglages. */}
+      <section aria-labelledby="reglages-astuces" className="flex flex-col gap-2.5">
+        <h2 id="reglages-astuces" className={sectionTitle}>Astuces</h2>
+        <ul className="rounded-card border border-line bg-surface px-4 text-label leading-snug text-ink-2 shadow-card [&>li]:py-3.5 [&>li+li]:border-t [&>li+li]:border-line">
           <li>
             <strong className="font-semibold text-ink">Balayer</strong> l&apos;écran à gauche ou à droite pour passer d&apos;un onglet de la barre du bas à l&apos;autre.
           </li>
@@ -126,26 +112,7 @@ export default async function ReglagesPage() {
             <strong className="font-semibold text-ink">Jour d&apos;entraînement</strong> : la bascule se trouve dans la carte Séances de l&apos;écran du jour.
           </li>
         </ul>
-      </div>
-
-      <div className="flex flex-col gap-2.5">
-        <h2 className={sectionTitle}>À propos</h2>
-        <div className="rounded-card border border-line bg-surface px-4 shadow-card">
-          <div className="py-3.5">
-            <ReglageEntete
-              icone={
-                <Pastille teinte="var(--ink-3)">
-                  <span className="text-ink-2">
-                    <ProfilIcon />
-                  </span>
-                </Pastille>
-              }
-              titre="Profil"
-              action={<span className="shrink-0 text-small font-medium text-ink-2">Vincent</span>}
-            />
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

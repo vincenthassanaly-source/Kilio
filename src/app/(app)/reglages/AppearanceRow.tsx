@@ -1,9 +1,9 @@
 "use client";
 
-import { basculerTheme } from "@/lib/theme";
+import { useEffect, useSyncExternalStore } from "react";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { choisirTheme, lirePreferenceTheme, suivreThemeSysteme, type PreferenceTheme } from "@/lib/theme";
 import { Pastille, ReglageEntete } from "./ReglageUi";
-
-const toggleTheme = basculerTheme;
 
 function AppearanceIcon() {
   return (
@@ -13,11 +13,34 @@ function AppearanceIcon() {
   );
 }
 
-// Les deux libellés sont rendus côté serveur, la classe `dark:` choisit
-// lequel afficher : pas d'état React, donc pas de mismatch d'hydratation.
+const OPTIONS = [
+  { value: "light", label: "Clair" },
+  { value: "dark", label: "Sombre" },
+  { value: "system", label: "Système" },
+] as const satisfies readonly { value: PreferenceTheme; label: string }[];
+
+// Petit magasin autour du cookie de thème : le choix vit hors de React
+// (cookie + localStorage), useSyncExternalStore le relit après chaque
+// changement sans désaccord d'hydratation (rien n'est coché côté serveur).
+const EVENEMENT = "kilio-theme-change";
+function abonner(rappel: () => void) {
+  window.addEventListener(EVENEMENT, rappel);
+  return () => window.removeEventListener(EVENEMENT, rappel);
+}
+
 export function AppearanceRow() {
+  const preference = useSyncExternalStore<PreferenceTheme | null>(abonner, lirePreferenceTheme, () => null);
+
+  // En « Système », l'app suit un changement de thème de l'OS sans recharger.
+  useEffect(() => suivreThemeSysteme(), []);
+
+  function changer(suivante: PreferenceTheme) {
+    choisirTheme(suivante);
+    window.dispatchEvent(new Event(EVENEMENT));
+  }
+
   return (
-    <div className="py-3.5">
+    <div className="flex flex-col gap-2.5 py-3.5">
       <ReglageEntete
         icone={
           <Pastille>
@@ -25,16 +48,15 @@ export function AppearanceRow() {
           </Pastille>
         }
         titre="Apparence"
-        action={
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="min-h-11 shrink-0 rounded-full bg-surface-alt px-4 text-small font-semibold text-ink transition-[background-color,transform] active:scale-[0.97] hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
-          >
-            <span className="dark:hidden">Clair</span>
-            <span className="hidden dark:inline">Sombre</span>
-          </button>
-        }
+      />
+      <SegmentedControl
+        ariaLabel="Apparence"
+        options={OPTIONS}
+        // Avant hydratation (préférence inconnue côté serveur), aucun
+        // segment n'est actif plutôt qu'un faux « Système ».
+        value={(preference ?? "") as PreferenceTheme}
+        onChange={changer}
+        taille="sm"
       />
     </div>
   );

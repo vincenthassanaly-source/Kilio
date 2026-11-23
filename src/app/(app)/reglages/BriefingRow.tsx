@@ -6,8 +6,9 @@ import { Switch } from "@/components/Switch";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
 import type { Tables } from "@/lib/supabase/types";
+import { showToast } from "@/components/toast/toast-store";
 import { DependsOnNotifications } from "./NotificationsContext";
-import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
+import { MESSAGE_HEURE_ENREGISTREE, Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 function BriefingIcon() {
   return (
@@ -32,7 +33,7 @@ export function BriefingRow({ reglages }: { reglages: Pick<Tables<"reglages_brie
     setError(null);
     setHeureEnregistree(nextHeure);
     startTransition(async () => {
-      await runAction(() => updateReglagesBriefing(nextActif, nextHeure), {
+      const resultat = await runAction(() => updateReglagesBriefing(nextActif, nextHeure), {
         silencieux: true,
         erreur: "Le réglage n'a pas pu être enregistré. Réessaie.",
         onError: (message) => {
@@ -42,6 +43,9 @@ export function BriefingRow({ reglages }: { reglages: Pick<Tables<"reglages_brie
           setHeureEnregistree(precedentHeure);
         },
       });
+      // Retour de sauvegarde : l'heure s'enregistre au blur, sans bouton,
+      // rien ne confirmait sinon que le changement était pris en compte.
+      if (resultat.ok && nextHeure !== precedentHeure) showToast(MESSAGE_HEURE_ENREGISTREE);
     });
   }
 
