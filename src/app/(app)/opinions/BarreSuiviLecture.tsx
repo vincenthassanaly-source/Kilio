@@ -9,8 +9,13 @@ import { StarIcon } from "@/components/icons";
 
 export type StatTheme = { theme: Theme; lues: number; total: number };
 
-/** Marge de défilement : la cible ne se cale pas sous le bouton du thème fixe (haut à droite). */
-export const MARGE_DEFILEMENT = "scroll-mt-[calc(env(safe-area-inset-top)+5rem)]";
+/**
+ * Marge de défilement : la cible s'arrête là où commence le contenu de page,
+ * sous la zone haute de `<main>` (encoche + 64 px, `HAUTEUR_ZONE_HAUT_PX` de
+ * TabSwipeWrapper). L'ancienne valeur (+ 5rem) visait un bouton de thème fixe
+ * qui n'existe plus et laissait la cible 16 px trop bas.
+ */
+export const MARGE_DEFILEMENT = "scroll-mt-[calc(env(safe-area-inset-top)+4rem)]";
 
 const chip =
   "inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-full border px-3.5 text-small font-semibold tabular-nums transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
