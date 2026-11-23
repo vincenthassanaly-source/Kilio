@@ -26,6 +26,8 @@ const DOCUMENTS_MIN_REORGANISATION = 2;
 type TriCle = "recent" | "nom" | "categorie";
 type Onglet = "documents" | "vrac";
 
+// Libellé court (segment compact) et nom complet annoncé aux lecteurs d'écran.
+const TRI_COURT: Record<TriCle, string> = { recent: "Récent", nom: "A→Z", categorie: "Catégorie" };
 const TRI_LABELS: Record<TriCle, string> = {
   recent: "Récent",
   nom: "Nom A→Z",
@@ -315,22 +317,20 @@ export function DocumentsBrowser({
             </div>
           )}
 
-          {/* Tri compact : une liste déroulante alignée à droite au lieu d'un
-              contrôle segmenté à trois segments sur toute la largeur. */}
-          <label className="flex items-center justify-end gap-2 self-end text-small text-ink-2">
-            Trier
-            <select
-              value={tri}
-              onChange={(e) => setTri(e.target.value as TriCle)}
-              className="min-h-11 rounded-full border border-control-border bg-surface-alt px-3 text-small font-semibold text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
-            >
-              {(Object.keys(TRI_LABELS) as TriCle[]).map((key) => (
-                <option key={key} value={key}>
-                  {TRI_LABELS[key]}
-                </option>
-              ))}
-            </select>
-          </label>
+          {/* Tri compact : segments courts, alignés à droite à la largeur de
+              leur contenu, au lieu de trois segments sur toute la largeur. */}
+          <SegmentedControl<TriCle>
+            ariaLabel="Ordre des documents"
+            taille="sm"
+            className="self-end [&>button]:px-3"
+            value={tri}
+            onChange={setTri}
+            options={(Object.keys(TRI_LABELS) as TriCle[]).map((key) => ({
+              value: key,
+              label: TRI_COURT[key],
+              ariaLabel: TRI_LABELS[key],
+            }))}
+          />
 
           {ongletActif === "documents" && search.trim() !== "" && (!ia || ia.question !== search.trim()) && (
             <button
