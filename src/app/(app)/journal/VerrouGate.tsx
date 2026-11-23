@@ -109,7 +109,7 @@ export function VerrouGate({ children }: { children: ReactNode }) {
     };
   }, [ouvert, verifier]);
 
-  async function deverrouiller(inscrit: boolean) {
+  async function deverrouiller(inscrit: boolean, automatique = false) {
     setMessage(null);
     if (!browserSupportsWebAuthn()) {
       setMessage("Ce navigateur ne gère pas l'empreinte. Ouvre Kilio depuis Chrome ou Safari.");
@@ -133,11 +133,27 @@ export function VerrouGate({ children }: { children: ReactNode }) {
       }
       setPhase({ nom: "ouvert" });
     } catch (erreur) {
+      // Lancement automatique refusé (navigateur qui exige un geste, lecture
+      // fermée) : pas de message d'échec, le bouton « Déverrouiller » reste le repli.
+      const nom = erreur instanceof Error ? erreur.name : "";
+      if (automatique && (nom === "NotAllowedError" || nom === "AbortError" || nom === "SecurityError")) return;
       setMessage(messagePourErreur(erreur));
     } finally {
       setEnCours(false);
     }
   }
+
+  // Téléphone déjà enregistré : la lecture biométrique part dès l'ouverture,
+  // sans attendre un tap sur « Déverrouiller » (une seule tentative par
+  // montage ; en cas d'échec, le bouton reste là).
+  const tentativeAuto = useRef(false);
+  const fermeInscrit = phase.nom === "ferme" && phase.etat.configure && phase.etat.inscrit;
+  useEffect(() => {
+    if (!fermeInscrit || tentativeAuto.current || !browserSupportsWebAuthn()) return;
+    tentativeAuto.current = true;
+    void deverrouiller(true, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- une seule tentative à l'ouverture
+  }, [fermeInscrit]);
 
   if (phase.nom === "ouvert") return <>{children}</>;
 
