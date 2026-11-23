@@ -38,8 +38,26 @@ describe("calculerStreak (fuseau horaire)", () => {
     expect(calculerStreak(entries, "2026-09-26")).toBe(2);
   });
 
-  it("renvoie 0 quand le jour demandé n'a pas d'entrée", () => {
-    const entries = new Map([["2026-09-25", 1]]);
+  it("part de la veille quand le jour demandé n'a pas encore d'entrée", () => {
+    const entries = new Map([
+      ["2026-09-24", 1],
+      ["2026-09-25", 1],
+    ]);
+
+    expect(calculerStreak(entries, "2026-09-26")).toBe(2);
+  });
+
+  it("part de la veille quand le jour demandé a été décoché (valeur 0)", () => {
+    const entries = new Map([
+      ["2026-09-25", 1],
+      ["2026-09-26", 0],
+    ]);
+
+    expect(calculerStreak(entries, "2026-09-26")).toBe(1);
+  });
+
+  it("renvoie 0 quand ni le jour demandé ni la veille n'ont d'entrée", () => {
+    const entries = new Map([["2026-09-24", 1]]);
 
     expect(calculerStreak(entries, "2026-09-26")).toBe(0);
   });

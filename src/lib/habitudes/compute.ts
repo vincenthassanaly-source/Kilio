@@ -3,9 +3,13 @@ import { shiftDate } from "@/lib/date/iso";
 // Le streak se calcule côté serveur (JS, pas SQL récursif) : on remonte
 // jour par jour depuis `date` tant que la valeur de l'entrée est > 0, et on
 // s'arrête au premier jour manquant ou nul. Choix documenté dans le rapport.
+// Le jour `date` (aujourd'hui) est « en attente » jusqu'à minuit : s'il n'est
+// pas encore coché (pas d'entrée, ou valeur 0 après un décochage), on part de
+// la veille au lieu de casser la série.
 export function calculerStreak(entriesParDate: Map<string, number>, date: string): number {
   let streak = 0;
-  let jour = date;
+  const valeurDuJour = entriesParDate.get(date);
+  let jour = valeurDuJour && valeurDuJour > 0 ? date : shiftDate(date, -1);
 
   while (true) {
     const valeur = entriesParDate.get(jour);
