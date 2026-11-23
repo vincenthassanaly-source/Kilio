@@ -1,20 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { deleteDocument, enregistrerApercuPdf, type DocumentAvecFichiers } from "@/app/actions/documents";
+import { enregistrerApercuPdf, type DocumentAvecFichiers } from "@/app/actions/documents";
 import { genererApercuPdf } from "@/lib/pdf/apercuPdf";
-import { ImageLightbox } from "@/components/ImageLightbox";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, dangerButton, ghostButton, listCard, nameTextComplet, pillTag, textButton } from "@/lib/ui";
-import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
+import { nameTextComplet, pillTag } from "@/lib/ui";
 import { runAction } from "@/lib/actions/runAction";
-import { BoutonDescription } from "./BoutonDescription";
-import { BoutonRemettreEnVrac } from "./BoutonRemettreEnVrac";
-
-const DocumentForm = dynamic(() => import("./DocumentForm").then((m) => m.DocumentForm), { ssr: false });
 
 // Une tentative par fichier et par chargement de page : un PDF dont le rendu
 // échoue ne relance pas de calcul à chaque re-rendu de la liste.
@@ -40,16 +33,19 @@ function PdfIcon() {
   );
 }
 
+// Carte de liste : un seul lien (aperçu + nom) vers la fiche, où vivent toutes
+// les actions (description, remettre en vrac, modifier, supprimer). Pas
+// d'`active:scale` : la carte entière est la cible, un survol/press en teinte suffit.
+const CARTE =
+  "flex items-center gap-3 rounded-row border border-line bg-surface p-3.5 shadow-card transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal";
+
 export function DocumentCard({
   document,
-  categories,
 }: {
   document: DocumentAvecFichiers;
-  categories: string[];
+  /** Conservé pour la signature de DocumentsList ; l'édition se fait dans la fiche. */
+  categories?: string[];
 }) {
-  const [editing, setEditing] = useState(false);
-  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-
   // Rattrapage : un PDF ajouté avant les aperçus (ou dont le rendu avait
   // échoué) reçoit le sien à l'affichage de la liste.
   const premier = document.fichiers[0] ?? null;
@@ -59,33 +55,8 @@ export function DocumentCard({
     if (rattrapageId && rattrapageUrl) void rattraperApercu(rattrapageId, rattrapageUrl);
   }, [rattrapageId, rattrapageUrl]);
 
-  if (editing) {
-    return (
-      <motion.li
-        layout
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.18 }}
-        className={card}
-      >
-        <DocumentForm
-          document={document}
-          categories={categories}
-          onDone={() => setEditing(false)}
-        />
-        <button
-          type="button"
-          onClick={() => setEditing(false)}
-          className={textButton}
-        >
-          Annuler
-        </button>
-      </motion.li>
-    );
-  }
-
-  const apercu = document.fichiers[0] ?? null;
+  const apercu = premier;
+  const vignette = apercu?.fichier_type === "image" ? apercu.url : (apercu?.apercu_url ?? null);
 
   return (
     <motion.li
@@ -94,84 +65,31 @@ export function DocumentCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.18 }}
-      className={listCard}
     >
-      <div className="flex items-stretch gap-3">
-        {apercu && apercu.fichier_type === "image" ? (
-          <button
-            type="button"
-            onClick={() => setLightboxSrc(apercu.url)}
-            className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-line"
-            aria-label="Agrandir l'aperçu"
-          >
-            <Image
-              src={apercu.url}
-              alt=""
-              width={56}
-              height={56}
-              style={{ viewTransitionName: `document-cover-${document.id}` }}
-              className="h-full w-full object-cover"
-            />
-          </button>
-        ) : apercu ? (
-          <a
-            href={apercu.url}
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-surface-alt text-ink-2"
-            aria-label="Ouvrir le PDF"
-          >
-            {apercu.apercu_url ? (
+      <TransitionLink href={`/documents/${document.id}`} className={CARTE}>
+        {apercu && (
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-surface-alt text-ink-2">
+            {vignette ? (
               <Image
-                src={apercu.apercu_url}
+                src={vignette}
                 alt=""
                 width={56}
                 height={56}
-                className="h-full w-full object-cover object-top"
+                style={apercu.fichier_type === "image" ? { viewTransitionName: `document-cover-${document.id}` } : undefined}
+                className={`h-full w-full object-cover ${apercu.fichier_type === "pdf" ? "object-top" : ""}`}
               />
             ) : (
               <PdfIcon />
             )}
-          </a>
-        ) : null}
-
-        <TransitionLink href={`/documents/${document.id}`} className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 self-stretch">
-          <p className={nameTextComplet} style={{ viewTransitionName: `document-title-${document.id}` }}>
+          </span>
+        )}
+        <span className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
+          <span className={nameTextComplet} style={{ viewTransitionName: `document-title-${document.id}` }}>
             {document.nom}
-          </p>
+          </span>
           {document.categorie && <span className={`${pillTag} self-start`}>{document.categorie}</span>}
-        </TransitionLink>
-      </div>
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <BoutonDescription document={document} />
-        {!document.en_vrac && <BoutonRemettreEnVrac document={document} />}
-        <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-          Modifier
-        </button>
-        <button
-          type="button"
-          onClick={() =>
-            // Suppression différée : la carte disparaît tout de suite, le document
-            // et ses fichiers (stockage compris) ne sont supprimés qu'après le
-            // délai d'« Annuler », même si on quitte l'écran entre-temps.
-            // Contrat T1 : un échec Storage s'affiche en toast, pas error.tsx.
-            supprimerAvecAnnulation({
-              texte: `Document « ${document.nom} » supprimé`,
-              ariaLabel: `Annuler la suppression du document « ${document.nom} »`,
-              masque: { type: "document", id: document.id },
-              supprimer: () => deleteDocument(document.id),
-              erreur: `Le document « ${document.nom} » n'a pas pu être supprimé. Réessaie.`,
-            })
-          }
-          className={dangerButton}
-        >
-          Supprimer
-        </button>
-      </div>
-
-      {lightboxSrc && (
-        <ImageLightbox src={lightboxSrc} alt={document.nom} onClose={() => setLightboxSrc(null)} />
-      )}
+        </span>
+      </TransitionLink>
     </motion.li>
   );
 }

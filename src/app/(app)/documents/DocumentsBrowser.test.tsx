@@ -99,13 +99,13 @@ describe("DocumentsBrowser : catégories", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
 
     expect(screen.queryByText(/étiquette/i)).toBeNull();
-    const tri = screen.getByRole("group", { name: "Ordre des documents" });
-    expect(within(tri).getAllByRole("button").map((o) => o.textContent)).toEqual([
+    const tri = screen.getByRole("combobox", { name: "Trier" });
+    expect(within(tri).getAllByRole("option").map((o) => o.textContent)).toEqual([
       "Récent",
       "Nom A→Z",
       "Catégorie A→Z",
     ]);
-    expect(within(tri).getByRole("button", { name: "Récent" })).toHaveAttribute("aria-pressed", "true");
+    expect(tri).toHaveValue("recent");
   });
 
   it("filtre la liste au toucher d'une pastille, avec coche et état pressé, et se retire au second toucher", () => {
@@ -166,7 +166,7 @@ describe("DocumentsBrowser : catégories", () => {
   it("trie par catégorie A→Z, les documents sans catégorie en dernier", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Catégorie A→Z" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Trier" }), { target: { value: "categorie" } });
 
     expect(noms()).toEqual(["Carte d'identité", "Bail", "Facture EDF", "Sans catégorie"]);
   });
@@ -198,7 +198,9 @@ describe("DocumentsBrowser : réorganiser", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} />);
 
     expect(screen.queryByRole("dialog")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Réorganiser" }));
+    // « Réorganiser » est rangé dans le menu « … » de l'en-tête.
+    fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Réorganiser" }));
     // Chargée à la demande (next/dynamic) : elle apparaît un instant après le toucher.
     expect(await screen.findByRole("dialog", { name: "Réorganiser les documents" })).toBeInTheDocument();
 
@@ -209,7 +211,8 @@ describe("DocumentsBrowser : réorganiser", () => {
   it("reste disponible depuis l'onglet Vrac", () => {
     render(<DocumentsBrowser documents={DOCUMENTS} categories={CATEGORIES} vracInitial />);
 
-    expect(screen.getByRole("button", { name: "Réorganiser" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+    expect(screen.getByRole("menuitem", { name: "Réorganiser" })).toBeInTheDocument();
   });
 
   it("n'apparaît pas tant qu'il y a moins de deux documents classés", () => {
@@ -220,7 +223,8 @@ describe("DocumentsBrowser : réorganiser", () => {
       />
     );
 
-    expect(screen.queryByRole("button", { name: "Réorganiser" })).toBeNull();
+    // Seule action du menu : sans elle, pas de bouton « … » du tout.
+    expect(screen.queryByRole("button", { name: "Plus d'actions" })).toBeNull();
   });
 });
 
@@ -305,7 +309,7 @@ describe("DocumentsBrowser : l'adresse fait foi", () => {
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "bail" } });
     expect(liste.montages).toBe(2);
 
-    fireEvent.click(screen.getByRole("button", { name: "Nom A→Z" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Trier" }), { target: { value: "nom" } });
     expect(liste.montages).toBe(2);
   });
 
