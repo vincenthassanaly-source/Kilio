@@ -1,7 +1,14 @@
 "use server";
 
 import { revalidatePath, updateTag } from "next/cache";
-import { calculerStreak, calculerStreakHebdo, estFait, lundiDe } from "@/lib/habitudes/compute";
+import {
+  calculerStreak,
+  calculerStreakHebdo,
+  erreurValeurEntree,
+  estFait,
+  LONGUEUR_MAX_NOM_HABITUDE,
+  lundiDe,
+} from "@/lib/habitudes/compute";
 import { aujourdhuiParis } from "@/lib/date/paris";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { HABITUDES_TAG } from "@/lib/habitudes/tags";
@@ -33,6 +40,9 @@ function parseHabitudeInput(formData: FormData): ParseResult {
   const frequenceRaw = String(formData.get("frequence_hebdo") ?? "").trim();
 
   if (!nom) return { ok: false, error: "Le nom est requis." };
+  if (nom.length > LONGUEUR_MAX_NOM_HABITUDE) {
+    return { ok: false, error: `Le nom ne doit pas dépasser ${LONGUEUR_MAX_NOM_HABITUDE} caractères.` };
+  }
   if (!TYPES.includes(type as Enums<"habitude_type">)) {
     return { ok: false, error: "Type d'habitude invalide." };
   }
@@ -145,9 +155,8 @@ export async function enregistrerEntreeHabitude(
   date: string,
   valeur: number
 ) {
-  if (!Number.isFinite(valeur) || valeur < 0) {
-    throw new Error("Valeur invalide.");
-  }
+  const erreur = erreurValeurEntree(valeur);
+  if (erreur) throw new Error(erreur);
 
   const supabase = createAdminClient();
   const { error } = await supabase

@@ -135,3 +135,22 @@ describe("calculerTauxReussite", () => {
     expect(calculerTauxReussite(eau, entries, "2026-09-01", "2026-09-02").faits).toBe(1);
   });
 });
+
+import { erreurValeurEntree, VALEUR_MAX_ENTREE_HABITUDE } from "./compute";
+
+describe("erreurValeurEntree", () => {
+  it("accepte 0 et les valeurs positives jusqu'à la borne", () => {
+    expect(erreurValeurEntree(0)).toBeNull();
+    expect(erreurValeurEntree(2.5)).toBeNull();
+    expect(erreurValeurEntree(VALEUR_MAX_ENTREE_HABITUDE)).toBeNull();
+  });
+
+  it("rejette une valeur négative avec un message clair", () => {
+    expect(erreurValeurEntree(-1)).toBe("La valeur ne peut pas être négative.");
+  });
+
+  it("rejette une valeur au-delà de la borne haute ou non finie", () => {
+    expect(erreurValeurEntree(VALEUR_MAX_ENTREE_HABITUDE + 1)).toMatch(/dépasser/);
+    expect(erreurValeurEntree(Number.NaN)).toBe("La valeur doit être un nombre.");
+  });
+});
