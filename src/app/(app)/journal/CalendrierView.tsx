@@ -6,7 +6,7 @@ import { listerJoursEcrits, type JourEcrit } from "@/app/actions/vidage";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { TransitionLink } from "@/components/TransitionLink";
 import { queryKeys } from "@/lib/query/keys";
-import { eyebrow, linkButton, navArrowButton, screenTitle } from "@/lib/ui";
+import { errorText, eyebrow, linkButton, navArrowButton, screenTitle } from "@/lib/ui";
 import { premierEtDernierJour } from "@/lib/vidage/jours";
 import { BackLink } from "@/components/BackLink";
 import { ChevronIcon } from "@/components/icons";
@@ -97,7 +97,7 @@ export function CalendrierView({ aujourdhui }: { aujourdhui: string }) {
         <Skeleton className="aspect-[7/8] w-full rounded-card" />
       ) : isError ? (
         <div className="flex flex-col items-start gap-2">
-          <p className="text-label text-alert" role="alert">Le calendrier n&apos;a pas pu être chargé.</p>
+          <p className={errorText} role="alert">Le calendrier n&apos;a pas pu être chargé.</p>
           <button type="button" className={linkButton} onClick={() => void refetch()}>
             Réessayer
           </button>
