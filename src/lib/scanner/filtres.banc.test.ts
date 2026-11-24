@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { magicColor } from "./filtres";
 import { redresser, tailleSortie, type ImageDataLike } from "./geometrie";
 import { scenesDeReference } from "./scenes";
+import { ecartCouleurZone, mesurerFond, pagesDeRendu } from "./scenesEtendues";
 
 type Rvb = [number, number, number];
 
@@ -130,5 +131,33 @@ describe("Magique", () => {
     const apres = moyenne(sortie, 0.14, 0.14, 0.27, 0.26);
     expect(ecartTeinte(avant, apres)).toBeLessThan(12);
     expect(saturation(apres)).toBeGreaterThan(0.6 * saturation(avant));
+  });
+});
+
+// Régressions du rapport 02 (constat C1) : la protection du contenu coloré forçait le fond estimé à
+// 255 sous une photo, un logo ou un tampon. Dans une ombre ou sous faible lumière, ils devenaient un
+// bloc noir entouré d'un halo gris. Pages déjà redressées, contenu générique (scenesEtendues.ts).
+describe("Magique : contenu coloré dans l'ombre", () => {
+  const pages = pagesDeRendu();
+
+  it("lumière douce : papier uniforme et blanc (témoin)", () => {
+    const { image, ideale } = pages.normale;
+    const fond = mesurerFond(magicColor(image), ideale);
+    expect(fond.ecartType).toBeLessThanOrEqual(4);
+    expect(fond.tuileMin).toBeGreaterThanOrEqual(245);
+  });
+
+  it.fails("photo dans une ombre de main : fond σ ≤ 4, tuile la plus sombre ≥ 245, ΔE photo ≤ 10 (échoue avant R1)", () => {
+    const { image, ideale, zones } = pages.ombreSurPhoto;
+    const sortie = magicColor(image);
+    const fond = mesurerFond(sortie, ideale);
+    expect(fond.ecartType, "écart-type du fond").toBeLessThanOrEqual(4);
+    expect(fond.tuileMin, "tuile de fond la plus sombre").toBeGreaterThanOrEqual(245);
+    expect(ecartCouleurZone(sortie, ideale, zones.photo), "ΔE de la photo").toBeLessThanOrEqual(10);
+  });
+
+  it.fails("lampe chaude, peu de lumière, logo dans un coin vignetté : fond σ ≤ 8 (échoue avant R1)", () => {
+    const { image, ideale } = pages.faibleLumiere;
+    expect(mesurerFond(magicColor(image), ideale).ecartType).toBeLessThanOrEqual(8);
   });
 });

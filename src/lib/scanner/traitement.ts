@@ -2,19 +2,18 @@
 // API du navigateur (canvas, createImageBitmap, flux vidéo). Côté client
 // uniquement : ne jamais importer depuis un composant serveur.
 
-import { detecterFeuille, detecterQuadrilatere } from "./detection";
-import { affinerLesCotes } from "./affinage";
+import { detecterQuadrilatere } from "./detection";
 import { aplatirLesLignes } from "./aplatissage";
 import { nettoyerLesBords } from "./bordsPropres";
 import { effacerLesIntrusions } from "./intrusions";
-import { etendreAuxBordsDeLaFeuille } from "./extension";
 import { redresserParTranches } from "./redressementPage";
 import { redresserLesLignes } from "./redressementTexte";
 import { magicColor, type Filtre } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
 import { capturerPhotoPleine, captureurDuNavigateur } from "./capture";
-import { chargerOpenCv, openCvSiPret } from "./opencv";
-import { detecterDocumentCv, detecterDocumentRobuste, redresserCv } from "./opencvScan";
+import { chargerOpenCv, openCvSiPret, type Cv } from "./opencv";
+import { detecterDocumentCv, redresserCv } from "./opencvScan";
+import { detecterPhoto } from "./pipeline";
 
 /** Plus grand côté d'une photo chargée : borne la mémoire des téléphones. */
 const COTE_MAX_SOURCE_PX = 3000;
@@ -91,28 +90,16 @@ export function prechargerOpenCv(): void {
 /**
  * Coins du document sur une photo entière : OpenCV si disponible, sinon l'ancienne
  * détection. Ne rejette jamais ; null = rien de fiable (cadre par défaut à ajuster).
+ * La chaîne elle-même est pure (pipeline.ts) : les bancs d'essai la rejouent sous Node.
  */
 export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad | null> {
-  const quad = await detecterCoins(source);
-  if (!quad) return null;
-  // Une page qui déborde du cadre est souvent résumée à un pli ou à son bloc de texte : on
-  // repousse chaque côté jusqu'au vrai bord du papier (voir extension.ts), puis on recale chaque
-  // côté sur ce bord pour qu'il soit droit et parallèle au vrai (voir affinage.ts).
-  return affinerLesCotes(source, etendreAuxBordsDeLaFeuille(source, quad));
-}
-
-async function detecterCoins(source: ImageDataLike): Promise<Quad | null> {
+  let cv: Cv | null = null;
   try {
-    const { cv } = await chargerOpenCv();
-    // L'ancienne détection par droites (rapide, insensible au grain du fond) vote avec les
-    // analyses OpenCV : elle sauve les fonds texturés où les contours échouent.
-    const vieux = detecterFeuille(source);
-    const quad = await detecterDocumentRobuste(cv, source, { supplementaires: vieux ? [vieux] : [] });
-    if (quad) return quad;
+    ({ cv } = await chargerOpenCv());
   } catch {
-    // OpenCV indisponible ou en échec : voir ci-dessous.
+    // OpenCV indisponible : l'ancienne détection seule.
   }
-  return detecterFeuille(source);
+  return detecterPhoto(cv, source);
 }
 
 /**
