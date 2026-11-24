@@ -125,9 +125,10 @@ export type MoteurDirect = "opencv" | "maison";
 /**
  * Texte de la pastille du viseur. « Feuille repérée » n'est jamais promis sur un cadre maison
  * non confirmé (il n'est d'ailleurs pas affiché) ; tant qu'OpenCV n'est pas prêt et qu'aucun
- * cadre n'est confirmé, le viseur dit qu'il se prépare plutôt que de chercher.
+ * cadre n'est confirmé, le viseur dit qu'il se prépare plutôt que de chercher. Si le chargement
+ * d'OpenCV a échoué, rien ne se prépare plus : la détection maison cherche seule.
  */
-export function messageViseur(quad: Quad | null, moteur: MoteurDirect | null): string {
+export function messageViseur(quad: Quad | null, moteur: MoteurDirect | null, openCvEchoue = false): string {
   if (quad) return "Feuille repérée";
-  return moteur === "opencv" ? "Cherche la feuille…" : "Préparation de la détection…";
+  return moteur === "opencv" || openCvEchoue ? "Cherche la feuille…" : "Préparation de la détection…";
 }

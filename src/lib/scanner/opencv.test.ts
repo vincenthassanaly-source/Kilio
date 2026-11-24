@@ -18,6 +18,18 @@ describe("chargerOpenCv", () => {
   });
   afterEach(() => {
     delete (window as unknown as { cv?: unknown }).cv;
+    document.head.querySelectorAll("script").forEach((s) => s.remove());
+  });
+
+  it("signale l'échec du chargement (script introuvable), puis l'oublie à la tentative suivante", async () => {
+    const { chargerOpenCv, openCvEnEchec } = await import("./opencv");
+    expect(openCvEnEchec()).toBe(false);
+    const chargement = chargerOpenCv();
+    document.head.querySelector("script")!.dispatchEvent(new Event("error"));
+    await expect(chargement).rejects.toThrow();
+    expect(openCvEnEchec()).toBe(true);
+    void chargerOpenCv().catch(() => {});
+    expect(openCvEnEchec()).toBe(false);
   });
 
   it("se résout (sans boucler) quand `cv` est une promesse qui rend un moteur thenable", async () => {

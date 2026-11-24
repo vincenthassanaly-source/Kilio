@@ -6,6 +6,7 @@ import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import type { Quad } from "@/lib/scanner/geometrie";
 import { ETAT_SUIVI_INITIAL, messageViseur, suivreCadre, type EtatSuivi, type MoteurDirect } from "@/lib/scanner/suivi";
+import { openCvEnEchec } from "@/lib/scanner/opencv";
 import { capturerPhoto, detecterDepuisVideo, prechargerOpenCv } from "@/lib/scanner/traitement";
 
 /** Pause entre deux détections en direct (après la fin de la précédente). */
@@ -88,7 +89,13 @@ export function Viseur({
   const [echecCapture, setEchecCapture] = useState(false);
   /** Incrémenté par « Réessayer » : relance l'ouverture de la caméra. */
   const [essai, setEssai] = useState(0);
-  const [detection, setDetection] = useState<{ quad: Quad | null; largeur: number; hauteur: number; moteur: MoteurDirect } | null>(null);
+  const [detection, setDetection] = useState<{
+    quad: Quad | null;
+    largeur: number;
+    hauteur: number;
+    moteur: MoteurDirect;
+    openCvEchoue: boolean;
+  } | null>(null);
 
   // Reste actif même en pause : l'écran de recadrage empile sa propre entrée
   // d'historique par-dessus. Désactiver celle du viseur ferait un
@@ -174,7 +181,13 @@ export function Viseur({
               instant: performance.now(),
               zoneMorte: res.pas,
             });
-            setDetection({ quad: suivi.current.quad, largeur: res.largeur, hauteur: res.hauteur, moteur: res.moteur });
+            setDetection({
+              quad: suivi.current.quad,
+              largeur: res.largeur,
+              hauteur: res.hauteur,
+              moteur: res.moteur,
+              openCvEchoue: openCvEnEchec(),
+            });
           }
         } catch {
           // La détection est un confort : on ignore un échec ponctuel.
@@ -277,7 +290,7 @@ export function Viseur({
               className="absolute left-4 top-[calc(env(safe-area-inset-top)+16px)] flex h-11 items-center gap-2 rounded-full bg-black/50 px-4 text-xs font-semibold"
             >
               <span aria-hidden="true" className={`h-2 w-2 rounded-full ${quad ? "bg-[rgb(80,220,140)]" : "bg-white/50"}`} />
-              {messageViseur(quad, detection?.moteur ?? null)}
+              {messageViseur(quad, detection?.moteur ?? null, detection?.openCvEchoue ?? false)}
             </p>
           )}
 

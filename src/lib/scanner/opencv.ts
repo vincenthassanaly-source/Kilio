@@ -18,6 +18,13 @@ export type CvChargee = { cv: Cv };
 
 let chargement: Promise<CvChargee> | null = null;
 let pret: CvChargee | null = null;
+/** Vrai si le dernier chargement a échoué (hors ligne, script introuvable, délai dépassé). */
+let echec = false;
+
+/** Vrai si le dernier chargement d'OpenCV a échoué et qu'aucun autre n'est en cours. */
+export function openCvEnEchec(): boolean {
+  return echec;
+}
 
 /** OpenCV si déjà chargé, sinon null : permet un chemin synchrone (détection en direct). */
 export function openCvSiPret(): Cv | null {
@@ -56,6 +63,7 @@ function attendreInitialisation(): Promise<CvChargee> {
 export function chargerOpenCv(): Promise<CvChargee> {
   if (pret) return Promise.resolve(pret);
   if (chargement) return chargement;
+  echec = false;
   chargement = (async () => {
     let minuteur = 0;
     const delai = new Promise<never>((_, reject) => {
@@ -73,6 +81,7 @@ export function chargerOpenCv(): Promise<CvChargee> {
       return chargee;
     } catch (e) {
       chargement = null;
+      echec = true;
       throw e;
     } finally {
       window.clearTimeout(minuteur);

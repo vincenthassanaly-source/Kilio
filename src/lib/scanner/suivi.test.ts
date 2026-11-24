@@ -128,4 +128,9 @@ describe("messageViseur", () => {
     expect(messageViseur(null, null)).toBe("Préparation de la détection…");
     expect(messageViseur(null, "opencv")).toBe("Cherche la feuille…");
   });
+
+  it("ne reste pas sur « Préparation de la détection… » si OpenCV a échoué (hors ligne, délai dépassé)", () => {
+    expect(messageViseur(null, "maison", true)).toBe("Cherche la feuille…");
+    expect(messageViseur(null, null, true)).toBe("Cherche la feuille…");
+  });
 });
