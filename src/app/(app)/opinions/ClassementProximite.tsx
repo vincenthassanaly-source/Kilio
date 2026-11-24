@@ -34,7 +34,7 @@ export function ClassementProximite({ classement, aDesIdees }: { classement: rea
                     <PastilleParti couleur={parti.couleur} />
                     {libelleParti(parti)}
                   </span>
-                  <span className="shrink-0 text-body font-bold tabular-nums text-ink">{proximite.pourcentage} %</span>
+                  <span className="shrink-0 text-body font-bold tabular-nums text-ink">{proximite.pourcentage}{" "}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-surface-alt" role="presentation">
                   <div

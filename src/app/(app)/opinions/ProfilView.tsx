@@ -59,7 +59,7 @@ export function ProfilView({ idees }: { idees: readonly IdeePourProfil[] }) {
                   <TransitionLink
                     key={idee.id}
                     href={`/opinions/${idee.id}`}
-                    className="min-h-11 break-words text-body leading-snug text-ink underline-offset-2 hover:underline"
+                    className="flex min-h-11 items-center break-words text-body leading-snug text-ink underline-offset-2 hover:underline"
                   >
                     « {idee.position} »
                   </TransitionLink>

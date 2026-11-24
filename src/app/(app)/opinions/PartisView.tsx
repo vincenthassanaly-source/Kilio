@@ -122,8 +122,8 @@ export function PartisView({
         </h2>
         <button type="button" onClick={() => setAjout(true)} className={addCard}>
           <div className={addCardIcon}>
-        <PlusIcon size={18} />
-      </div>
+            <PlusIcon size={18} />
+          </div>
           <div className="flex flex-col gap-[1px]">
             <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un parti</span>
             <span className="text-caption font-medium text-ink-3">Puis demande à Claude d&apos;importer son programme</span>
