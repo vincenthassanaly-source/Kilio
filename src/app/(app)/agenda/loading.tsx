@@ -8,7 +8,7 @@ export default function AgendaLoading() {
       <h1 className={screenTitle}>Agenda</h1>
       <Skeleton className="h-[52px] w-full rounded-2xl" />
       <Skeleton className="h-11 w-full rounded-2xl" />
-      <Skeleton className="h-[55vh] w-full rounded-2xl" />
+      <Skeleton className="h-[55vh] w-full rounded-card" />
     </div>
   );
 }

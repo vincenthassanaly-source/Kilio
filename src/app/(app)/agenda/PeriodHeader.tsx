@@ -38,12 +38,13 @@ export function PeriodHeader({
         <ChevronIcon sens="gauche" size={18} />
       </button>
       <div className="flex flex-col items-center gap-0.5">
-        <span className={`${TITRE_PERIODE} ${capitalizeTitle ? "capitalize" : ""}`}>{title}</span>
+        {/* Titre de la période : vrai titre de section (navigation par titres au lecteur d'écran). */}
+        <h2 className={`${TITRE_PERIODE} ${capitalizeTitle ? "capitalize" : ""}`}>{title}</h2>
         {showToday ? (
           <button
             type="button"
             onClick={onToday}
-            className="relative text-caption font-semibold text-kcal underline after:absolute after:-inset-x-3 after:-inset-y-3.5"
+            className="relative rounded-md text-caption font-semibold text-kcal underline decoration-kcal/40 underline-offset-2 after:absolute after:-inset-x-3 after:-inset-y-3.5 hover:decoration-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           >
             Aujourd&apos;hui
           </button>

@@ -142,7 +142,7 @@ export function MonthView({
                   )}
                   {nbEvenements > 0 && (
                     <span className="flex items-center gap-0.5">
-                      <span className={`h-1.5 rounded-full bg-agenda ${count > 1 && nbEvenements > 1 ? "w-2" : "w-3.5"}`} />
+                      <span className={`h-1.5 rounded-full bg-agenda ${count > 1 && nbEvenements > 1 ? "w-3" : "w-3.5"}`} />
                       {nbEvenements > 1 && <span className="text-micro tabular-nums text-ink-2">{nbEvenements}</span>}
                     </span>
                   )}
