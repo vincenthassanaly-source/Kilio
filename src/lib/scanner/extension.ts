@@ -39,6 +39,12 @@ const BORD_ECART_LUMINANCE = 5;
 const BORD_ECART_COULEUR = 10;
 /** Profondeur (pixels d'analyse) des bandes comparées de part et d'autre d'un côté. */
 const BORD_PROFONDEUR = 3;
+/**
+ * Épaisseur maximale (pixels d'analyse) d'un trait sombre juste derrière le côté (ligne de texte,
+ * cadre imprimé d'un formulaire) au-delà duquel le même papier réapparaît : ce n'est alors pas le
+ * bord de la page, et l'extension continue derrière le trait.
+ */
+const TRAIT_MAX = 10;
 
 const luma = (r: number, g: number, b: number) => (77 * r + 150 * g + 29 * b) / 256;
 const mediane = (v: number[]): number => {
@@ -165,6 +171,32 @@ function longeUnBord(img: ImageDataLike, a: Point, b: Point, n: Point, k: number
   return mesures >= ECHANTILLONS / 2 && contrastes >= BORD_PART_MIN * mesures;
 }
 
+/**
+ * Premier décalage k (2 à TRAIT_MAX + 2) où la bande juste derrière la droite décalée de k a la même
+ * couleur que le papier juste à l'intérieur du côté (écarts sous les seuils de `longeUnBord`, sur la
+ * plupart des points), ou null. Une table presque aussi claire que le papier en diffère, elle.
+ */
+function papierQuiReapparait(img: ImageDataLike, a: Point, b: Point, n: Point): number | null {
+  for (let k = 2; k <= TRAIT_MAX + 2; k++) {
+    let mesures = 0;
+    let pareils = 0;
+    for (let s = 0; s < ECHANTILLONS; s++) {
+      const t = DEBUT_COTE + ((FIN_COTE - DEBUT_COTE) * (s + 0.5)) / ECHANTILLONS;
+      const x = a.x + (b.x - a.x) * t;
+      const y = a.y + (b.y - a.y) * t;
+      const dedans = moyenneBande(img, x, y, n, 0, -1);
+      const loin = moyenneBande(img, x, y, n, k, 1);
+      if (!dedans || !loin) continue;
+      mesures++;
+      const ecartL = Math.abs(luma(...dedans) - luma(...loin));
+      const ecartC = Math.hypot(dedans[0] - loin[0], dedans[1] - loin[1], dedans[2] - loin[2]);
+      if (ecartL < BORD_ECART_LUMINANCE && ecartC < BORD_ECART_COULEUR) pareils++;
+    }
+    if (mesures >= ECHANTILLONS / 2 && pareils >= BORD_PART_MIN * mesures) return k;
+  }
+  return null;
+}
+
 /** Intersection des droites (p1, d1) et (p2, d2), ou null si elles sont presque parallèles. */
 function intersection(p1: Point, d1: Point, p2: Point, d2: Point): Point | null {
   const det = d1.x * d2.y - d1.y * d2.x;
@@ -203,9 +235,13 @@ export function etendreAuxBordsDeLaFeuille(img: ImageDataLike, quad: Quad): Quad
     let ecarts = 0;
     let surLeBordDeLaPhoto = false;
     // Un côté déjà posé sur un vrai bord ne bouge pas : derrière lui, un fond presque aussi clair
-    // que le papier (blanc sur blanc, nappe claire) serait sinon pris pour la suite de la page.
-    if (!longeUnBord(image, a, b, n, 0, ref)) {
-      for (let k = 2; k <= maxK; k++) {
+    // que le papier (blanc sur blanc, nappe claire) serait sinon pris pour la suite de la page. Sauf
+    // si ce « bord » n'est qu'un trait (ligne de texte, cadre imprimé) derrière lequel le même papier
+    // réapparaît : l'extension repart alors de l'autre côté du trait.
+    let depart: number | null = 2;
+    if (longeUnBord(image, a, b, n, 0, ref)) depart = papierQuiReapparait(image, a, b, n);
+    if (depart !== null) {
+      for (let k = depart; k <= maxK; k++) {
         const etat = bande(image, a, b, n, k, ref);
         if (etat === "dehors") {
           surLeBordDeLaPhoto = true;

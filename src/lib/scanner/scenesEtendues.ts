@@ -6,7 +6,7 @@
 // Les métriques comparent les coins sans tenir compte de leur ordre : un détecteur juste ne doit
 // pas être pénalisé parce qu'il commence par un autre coin.
 
-import { aireQuad, type ImageDataLike, type Quad } from "./geometrie";
+import { aireQuad, homographie, type ImageDataLike, type Point, type Quad } from "./geometrie";
 import { fabriquerScene, rectangleTourne, type OptionsScene, type Scene } from "./scenes";
 
 const W = 640;
@@ -86,6 +86,56 @@ export function sceneRotation45(): { scene: Scene; coins: Quad } {
     papier: [240, 238, 232], contenu: "texte", bruit: 3, graine: 38,
   });
   return { scene, coins };
+}
+
+/** Point (u, v) ∈ [0,1]² du repère de la feuille, ramené dans l'image. */
+function versImage(verite: Quad, u: number, v: number): Point {
+  const H = homographie(verite, 1, 1)!;
+  const w = H[6] * u + H[7] * v + 1;
+  return { x: (H[0] * u + H[1] * v + H[2]) / w, y: (H[3] * u + H[4] * v + H[5]) / w };
+}
+
+/** Rectangle (u0, v0)-(u1, v1) du repère de la feuille, ramené dans l'image. */
+export function rectangleSurLaFeuille(verite: Quad, u0: number, v0: number, u1: number, v1: number): Quad {
+  return [versImage(verite, u0, v0), versImage(verite, u1, v0), versImage(verite, u1, v1), versImage(verite, u0, v1)];
+}
+
+/** Trace le contour d'un quadrilatère (trait de `epaisseur` px, niveau de gris `niveau`). */
+function tracerContour(img: ImageDataLike, q: Quad, epaisseur: number, niveau: number): void {
+  for (let y = 0; y < img.height; y++) {
+    for (let x = 0; x < img.width; x++) {
+      let d = Infinity;
+      for (let i = 0; i < 4; i++) {
+        const a = q[i], b = q[(i + 1) % 4];
+        const l2 = (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
+        const t = Math.max(0, Math.min(1, ((x + 0.5 - a.x) * (b.x - a.x) + (y + 0.5 - a.y) * (b.y - a.y)) / l2));
+        d = Math.min(d, Math.hypot(x + 0.5 - (a.x + t * (b.x - a.x)), y + 0.5 - (a.y + t * (b.y - a.y))));
+      }
+      if (d <= epaisseur / 2) {
+        const i = (y * img.width + x) * 4;
+        img.data[i] = img.data[i + 1] = img.data[i + 2] = niveau;
+      }
+    }
+  }
+}
+
+/**
+ * Cadres intérieurs trompeurs (revue du lot 1) : une page blanche sur table sombre dont on donne à
+ * l'extension un cadre posé sur le bloc de texte, avec une ligne de texte juste au-dessus ; et un
+ * formulaire au cadre imprimé, près du bord de la page.
+ */
+export function scenesCadreInterieur(): { scene: Scene; interieur: Quad }[] {
+  // Page photographiée de près (le cadre intérieur couvre plus d'un quart de l'image, sinon l'extension ne s'applique pas).
+  const pres: Quad = [{ x: 150, y: 10 }, { x: 482, y: 18 }, { x: 492, y: 470 }, { x: 140, y: 465 }];
+  const texte = feuille("page sur table sombre, cadre sur le bloc de texte (ligne juste au-dessus)", { fond: [60, 54, 48], quad: pres });
+  const formulaire = feuille("formulaire au cadre imprimé, sur table sombre", { fond: [60, 54, 48], quad: pres, graine: 33 });
+  const imprime = rectangleSurLaFeuille(formulaire.verite, 0.05, 0.04, 0.95, 0.96);
+  const img = copie(formulaire.image);
+  tracerContour(img, imprime, 2, 40);
+  return [
+    { scene: texte, interieur: rectangleSurLaFeuille(texte.verite, 0.1, 0.125, 0.9, 0.86) },
+    { scene: { ...formulaire, image: img }, interieur: imprime },
+  ];
 }
 
 /* ---------- Métriques géométriques ---------- */
