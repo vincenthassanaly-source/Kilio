@@ -51,4 +51,47 @@ describe("préchargement d'OpenCV à l'ouverture de /scanner", () => {
     await vi.runAllTimersAsync();
     expect(chargerOpenCv).not.toHaveBeenCalled();
   });
+
+  describe("avec requestIdleCallback (Chrome, Firefox)", () => {
+    type Fenetre = { requestIdleCallback?: unknown; cancelIdleCallback?: unknown };
+    let rappels: Map<number, () => void>;
+    let options: { timeout: number } | undefined;
+
+    function installer() {
+      rappels = new Map();
+      let suivant = 1;
+      (window as Fenetre).requestIdleCallback = (cb: () => void, o?: { timeout: number }) => {
+        options = o;
+        rappels.set(suivant, cb);
+        return suivant++;
+      };
+      (window as Fenetre).cancelIdleCallback = (id: number) => rappels.delete(id);
+    }
+
+    afterEach(() => {
+      delete (window as Fenetre).requestIdleCallback;
+      delete (window as Fenetre).cancelIdleCallback;
+    });
+
+    it("attend le temps libre (au plus 1,5 s) puis charge OpenCV, sans passer par setTimeout", () => {
+      installer();
+      const minuterie = vi.spyOn(window, "setTimeout");
+      prechargerOpenCvSiPossible();
+      expect(chargerOpenCv).not.toHaveBeenCalled();
+      expect(options).toEqual({ timeout: 1500 });
+      expect(minuterie).not.toHaveBeenCalled();
+      rappels.forEach((cb) => cb());
+      expect(chargerOpenCv).toHaveBeenCalledTimes(1);
+      minuterie.mockRestore();
+    });
+
+    it("annule le rappel de temps libre si la page est quittée avant", () => {
+      installer();
+      const annuler = prechargerOpenCvSiPossible();
+      expect(rappels.size).toBe(1);
+      annuler();
+      expect(rappels.size).toBe(0);
+      expect(chargerOpenCv).not.toHaveBeenCalled();
+    });
+  });
 });
