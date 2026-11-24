@@ -139,9 +139,14 @@ const ATTENTE_OPENCV_RECADRAGE_MS = 1000;
  */
 export async function detecterFeuilleAuto(
   source: ImageDataLike,
-  options: { delaiMs?: number; surAmelioration?: (quad: Quad) => void } = {}
+  options: {
+    delaiMs?: number;
+    surAmelioration?: (quad: Quad) => void;
+    /** Vrai si l'appelant a disparu (recadrage fermé ou validé) : le calcul tardif est abandonné. */
+    estAnnule?: () => boolean;
+  } = {}
 ): Promise<Quad | null> {
-  const { delaiMs = ATTENTE_OPENCV_RECADRAGE_MS, surAmelioration } = options;
+  const { delaiMs = ATTENTE_OPENCV_RECADRAGE_MS, surAmelioration, estAnnule = () => false } = options;
   const chargement = chargerOpenCv().then(
     ({ cv }) => ({ cv }),
     () => ({ cv: null as Cv | null })
@@ -157,9 +162,9 @@ export async function detecterFeuilleAuto(
   // OpenCV en retard : cadre maison tout de suite, cadre OpenCV plus tard s'il arrive.
   const rapide = await detecterPhoto(null, source);
   chargement
-    .then(async ({ cv }) => (cv ? detecterPhoto(cv, source) : null))
+    .then(async ({ cv }) => (cv && !estAnnule() ? detecterPhoto(cv, source) : null))
     .then((quad) => {
-      if (quad) surAmelioration?.(quad);
+      if (quad && !estAnnule()) surAmelioration?.(quad);
     })
     .catch(() => {
       // OpenCV en échec : le cadre maison reste.

@@ -103,4 +103,25 @@ describe("EditeurCoins : cadre OpenCV arrivé en retard", () => {
     ameliorer(opencv);
     expect(points()).toBe(entiere);
   });
+
+  it("n'applique pas un cadre OpenCV arrivé après « Ajouter la page »", async () => {
+    const { ameliorer } = preparer();
+    await screen.findByText(/Feuille détectée/);
+    fireEvent.click(screen.getByRole("button", { name: "Ajouter la page" }));
+    ameliorer(opencv);
+    expect(points()).toBe(enPoints(maison));
+  });
+
+  it("dit à la détection quand le recadrage est fermé, pour qu'elle abandonne le calcul tardif", async () => {
+    let estAnnule: (() => boolean) | undefined;
+    vi.mocked(detecterFeuilleAuto).mockImplementationOnce(async (_source, options) => {
+      estAnnule = options!.estAnnule;
+      return maison;
+    });
+    const { unmount } = render(<EditeurCoins {...base} cle={1} source={image(100, 80)} />);
+    await screen.findByText(/Feuille détectée/);
+    expect(estAnnule!()).toBe(false);
+    unmount();
+    expect(estAnnule!()).toBe(true);
+  });
 });

@@ -86,6 +86,7 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
       objectUrl = URL.createObjectURL(blob);
       setUrl(objectUrl);
       const trouve = await detecterFeuilleAuto(source, {
+        estAnnule: () => annule || retouche.current,
         // OpenCV arrivé après le cadre maison (premier usage, réseau lent) : son cadre le remplace.
         surAmelioration: (mieux) => {
           if (annule || retouche.current) return;
@@ -210,7 +211,11 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
         </button>
         <button
           type="button"
-          onClick={() => onValider(quad)}
+          onClick={() => {
+            // Le cadre validé est figé : un cadre OpenCV arrivé ensuite ne doit plus le remplacer.
+            retouche.current = true;
+            onValider(quad);
+          }}
           disabled={enCours || !valide || detecte === null}
           className="min-h-11 rounded-2xl bg-white px-5 text-sm font-semibold text-black disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         >
