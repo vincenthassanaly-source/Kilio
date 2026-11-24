@@ -7,6 +7,7 @@ import {
   endOfWeek,
   format,
   isSameDay,
+  isSameMonth,
   isToday,
   startOfToday,
   startOfWeek,
@@ -215,7 +216,7 @@ export function WeekView({
   return (
     <div className="flex flex-col gap-3">
       <PeriodHeader
-        title={`${format(weekStart, "d MMM", { locale: fr })} – ${format(weekEnd, "d MMM yyyy", { locale: fr })}`}
+        title={`${format(weekStart, isSameMonth(weekStart, weekEnd) ? "d" : "d MMM", { locale: fr })} – ${format(weekEnd, "d MMM yyyy", { locale: fr })}`}
         prevLabel="Semaine précédente"
         nextLabel="Semaine suivante"
         onPrev={() => onChangeDate(subWeeks(selectedDate, 1))}
@@ -228,7 +229,7 @@ export function WeekView({
         <p className="text-center text-small text-ink-2">Rien de prévu cette semaine.</p>
       )}
 
-      <div className="relative overflow-hidden rounded-2xl border border-line bg-surface">
+      <div className="relative overflow-hidden rounded-card border border-line bg-surface">
         {encoreAGauche && (
           <div
             aria-hidden
@@ -253,7 +254,9 @@ export function WeekView({
         >
           <div className="flex" style={{ width: GUTTER_WIDTH + days.length * dayColumnWidth }}>
             <div className="sticky left-0 z-20 bg-surface">
-              <div className="h-11 border-b border-line" />
+              {/* Coin haut-gauche collé en haut comme les en-têtes de jour : les heures
+                  défilent dessous au lieu d'apparaître à côté des en-têtes. */}
+              <div className="sticky top-0 z-10 h-11 border-b border-line bg-surface" />
               <div className="border-b border-line/60" style={{ height: UNSCHEDULED_BAND_HEIGHT }} />
               <TimeGutter zoom={zoom} />
             </div>

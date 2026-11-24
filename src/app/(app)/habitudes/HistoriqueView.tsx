@@ -148,7 +148,7 @@ export function HistoriqueView({
               <ErrorInline message="Impossible de charger l'historique." retry={() => refetch()} />
             )}
 
-            <div className={`grid grid-cols-7 gap-1 transition-opacity ${isFetching && !historiqueEnErreur ? "opacity-60" : ""}`}>
+            <div className={`grid grid-cols-7 gap-1 transition-opacity duration-150 ease-[var(--ease-out)] ${isFetching && !historiqueEnErreur ? "opacity-60" : ""}`}>
               {Array.from({ length: decalage }).map((_, i) => (
                 <span key={`vide-${i}`} />
               ))}
@@ -172,7 +172,9 @@ export function HistoriqueView({
                     key={iso}
                     aria-current={isToday(day) ? "date" : undefined}
                     className={`flex aspect-square flex-col items-center justify-center rounded-xl border text-small tabular-nums ${
-                      isToday(day) ? "border-habitudes" : "border-line"
+                      // Aujourd'hui : bordure de module doublée d'une graisse,
+                      // lisible même sur une case déjà teintée.
+                      isToday(day) ? "border-habitudes font-bold" : "border-line"
                     } ${inMonth && !aVenir ? "text-ink" : "text-ink-3"} ${
                       ratio > 0
                         ? "bg-[color-mix(in_oklch,var(--accent-habitudes)_var(--mix),transparent)] dark:bg-[color-mix(in_oklch,var(--accent-habitudes)_var(--mix-sombre),transparent)]"

@@ -24,12 +24,14 @@ async function ouvrirAjout(page: Page) {
 }
 
 async function ajouterArticle(page: Page, libelle: string) {
-  await page.getByRole("combobox", { name: /Ex\. lait/ }).fill(libelle);
+  await page.getByRole("combobox", { name: "Articles à ajouter" }).fill(libelle);
   await page.getByRole("button", { name: "Ajouter", exact: true }).click();
   // Attend la ligne définitive : pendant ~150 ms après l'ajout, l'article est
   // affiché en double (voir le test « fixme » plus bas).
   await expect(ligne(page, libelle)).toHaveCount(1);
-  await expect(page.getByRole("button", { name: `Renommer « ${libelle} »` })).toBeEnabled();
+  // Ligne confirmée : la coche (nommée par le libellé) n'est plus désactivée
+  // comme pour un id `temp-` en attente de création.
+  await expect(ligne(page, libelle).getByRole("button", { name: libelle, exact: true })).toBeEnabled();
 }
 
 test("ajoute un article à la liste", async ({ page }) => {
@@ -65,7 +67,7 @@ test("ajoute plusieurs articles à la suite", async ({ page }) => {
 test("n'affiche jamais un article en double après l'ajout", async ({ page }) => {
   const libelle = nom("Yaourt");
   await ouvrirAjout(page);
-  await page.getByRole("combobox", { name: /Ex\. lait/ }).fill(libelle);
+  await page.getByRole("combobox", { name: "Articles à ajouter" }).fill(libelle);
   await page.getByRole("button", { name: "Ajouter", exact: true }).click();
 
   const maxLignes = await page.evaluate(async (texte) => {

@@ -199,6 +199,14 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
           color="var(--accent-habitudes)"
           trackColor={habitude.type === "quantifiee" ? undefined : "var(--control-border)"}
         >
+          {/* Quantifiée : l'icône vit dans l'anneau comme pour les autres
+              types (et sur la tuile d'Aujourd'hui), pour que tous les noms
+              partent du même bord. */}
+          {habitude.type === "quantifiee" && habitude.icone && (
+            <span aria-hidden="true" className="text-small leading-none">
+              {habitude.icone}
+            </span>
+          )}
           {habitude.type !== "quantifiee" && (
             <button
               type="button"
@@ -226,16 +234,15 @@ function HabitudeCardBase({ habitude, date }: { habitude: HabitudeDuJour; date: 
         </ProgressRing>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex min-w-0 items-center justify-between gap-2">
-            <p className={`min-w-0 ${nameTextComplet}`}>
-              {habitude.type === "quantifiee" && habitude.icone && <span className="mr-1.5">{habitude.icone}</span>}
-              {habitude.nom}
-            </p>
+            {/* flex-1 : la pastille de série se range contre le menu « … »
+                au lieu de flotter au milieu de la ligne. */}
+            <p className={`min-w-0 flex-1 ${nameTextComplet}`}>{habitude.nom}</p>
             {habitude.streak > 0 && (habitude.type === "streak" || habitude.frequence_hebdo != null) && (
               <span className={`${pillTag} inline-flex items-center gap-1 tabular-nums`}>
                 <FlameIcon size={12} />
                 <span className="sr-only">Série : </span>
                 {habitude.streak}
-                {habitude.frequence_hebdo != null ? " sem." : "j"}
+                {habitude.frequence_hebdo != null ? " sem." : " j"}
               </span>
             )}
             <MenuHabitude

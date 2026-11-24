@@ -6,7 +6,8 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { Tables } from "@/lib/supabase/types";
 import { deleteCourseItems, type CourseItemARestaurer } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";
-import { showActionToast, showToast } from "@/components/toast/toast-store";
+import { dismissToast, showActionToast, showToast } from "@/components/toast/toast-store";
+import { trierCommeServeur } from "@/lib/courses/compute";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 import { restaurerArticlesCourses } from "./undo";
 import { CourseItemRow } from "./CourseItemRow";
@@ -48,22 +49,33 @@ export function ArchivedCoursesSection({ items }: { items: Tables<"courses_items
     },
     onMutate: async (snapshot) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.courses });
-      const previous = queryClient.getQueryData<Tables<"courses_items">[]>(queryKeys.courses);
       const ids = new Set(snapshot.map((item) => item.id));
+      const retires = (queryClient.getQueryData<Tables<"courses_items">[]>(queryKeys.courses) ?? []).filter((i) =>
+        ids.has(i.id)
+      );
       queryClient.setQueryData<Tables<"courses_items">[]>(queryKeys.courses, (old) =>
         old?.filter((i) => !ids.has(i.id))
       );
-      return { previous };
-    },
-    onSuccess: (_data, snapshot) => {
+      // Toast dès le geste (même règle que la suppression d'une ligne) : la
+      // section disparaît tout de suite, le filet « Annuler » aussi.
       const n = snapshot.length;
-      showActionToast(`${n} article${n > 1 ? "s" : ""} supprimé${n > 1 ? "s" : ""}`, {
+      const toastId = showActionToast(`${n} article${n > 1 ? "s" : ""} supprimé${n > 1 ? "s" : ""}`, {
         ariaLabel: `Annuler la suppression de ${n} article${n > 1 ? "s" : ""}`,
         onAction: () => restaurerArticlesCourses(queryClient, snapshot),
       });
+      return { retires, toastId };
     },
+    // Rollback ciblé : ne remet que les articles retirés par CETTE mutation,
+    // sans écraser une coche ou un ajout fait pendant l'appel.
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.courses, context.previous);
+      if (context) {
+        dismissToast(context.toastId);
+        queryClient.setQueryData<Tables<"courses_items">[]>(queryKeys.courses, (old) => {
+          const presents = new Set((old ?? []).map((i) => i.id));
+          const aRemettre = context.retires.filter((i) => !presents.has(i.id));
+          return [...(old ?? []), ...aRemettre].sort(trierCommeServeur);
+        });
+      }
       showToast("Impossible de supprimer les articles pris.");
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.courses }),

@@ -6,7 +6,7 @@ import { ajouterArticlesCourses, getCoursesItems } from "@/app/actions/courses";
 import { queryKeys } from "@/lib/query/keys";
 import { showToast } from "@/components/toast/toast-store";
 import type { Tables } from "@/lib/supabase/types";
-import { errorText, primaryButton } from "@/lib/ui";
+import { errorText, input, primaryButton } from "@/lib/ui";
 import { enqueueAction, isNetworkError } from "@/lib/offline/queue";
 import {
   decouperLibellesMultiples,
@@ -16,13 +16,10 @@ import {
   type PlanAjoutCourses,
 } from "@/lib/courses/compute";
 
-// Même géométrie/couleurs que le token partagé `input` de src/lib/ui.ts,
-// mais en 16px localement (`text-base`) plutôt que 15px : évite le zoom
-// automatique d'iOS Safari au focus sur CE champ précis, sans changer la
-// taille de tous les autres champs de l'app (même motif que le renommage
-// inline du lot B, CourseItemRow.tsx).
-const inputClassName =
-  "w-full rounded-2xl border border-line bg-surface-alt px-3.5 py-2.5 text-base text-ink outline-none focus:border-kcal/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+// Token partagé `input` (déjà en 16 px, contre le zoom d'iOS au focus, et
+// bordé de `--control-border`, ≥ 3:1 comme tout contrôle) : plus de copie
+// locale qui avait divergé (bordure `--line`, ≈ 1,3:1).
+const inputClassName = `w-full ${input}`;
 
 const MUTATION_KEY = ["courses", "ajouterArticlesCourses"];
 
@@ -274,6 +271,9 @@ export function AddCourseForm({
           autoComplete="off"
           enterKeyHint="send"
           role="combobox"
+          // Nom stable : le placeholder seul n'est pas un nom accessible fiable
+          // (il disparaît à la frappe et n'est qu'un exemple).
+          aria-label="Articles à ajouter"
           aria-expanded={suggestions.length > 0}
           aria-controls={listboxId}
           aria-autocomplete="list"

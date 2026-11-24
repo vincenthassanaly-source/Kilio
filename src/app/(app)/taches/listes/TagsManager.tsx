@@ -51,10 +51,13 @@ function TagRow({ tag }: { tag: Tables<"tags"> }) {
 
   return (
     <li className={`${listCard} flex-row items-center justify-between`}>
-      <div className="flex min-w-0 items-center gap-2">
-        {tag.couleur && (
-          <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tag.couleur }} aria-hidden="true" />
-        )}
+      <div className="flex min-w-0 items-center gap-2.5">
+        {/* Pastille neutre sans couleur : noms alignés, comme les listes. */}
+        <span
+          className="h-3 w-3 shrink-0 rounded-full"
+          style={{ backgroundColor: tag.couleur ?? "var(--ink-3)" }}
+          aria-hidden="true"
+        />
         <p className={nameText}>#{tag.nom}</p>
       </div>
       <button type="button" onClick={() => setEditing(true)} className={ghostButton}>

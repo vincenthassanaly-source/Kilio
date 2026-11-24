@@ -67,9 +67,12 @@ function ImageThumb({
         disabled={disabled}
         onClick={onRemove}
         aria-label={removeLabel}
-        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-alert text-micro font-bold text-on-accent after:absolute after:-inset-3 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-alert text-on-accent after:absolute after:-inset-3 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
-        ×
+        {/* Tracé plutôt que le glyphe × (rendu dépendant de la police). */}
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
       </button>
     </div>
   );
@@ -332,7 +335,7 @@ export function AddTaskForm({
     const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
 
     if (totalBytes > MAX_IMAGES_TOTAL_BYTES) {
-      setImagesError("Image trop volumineuse, réessayez avec une photo plus légère.");
+      setImagesError("Image trop volumineuse, réessaie avec une photo plus légère.");
       // Restaure la sélection précédente dans l'input : sinon son FileList
       // (ce qui est réellement soumis) se viderait alors que les vignettes
       // affichées (selectedFiles, inchangé) montreraient encore l'ancienne
@@ -611,7 +614,7 @@ export function AddTaskForm({
                 name="programme_jour"
                 checked={programmeJour}
                 onChange={(e) => setProgrammeJour(e.target.checked)}
-                className="h-4 w-4 rounded border-line"
+                className="h-4 w-4 rounded border-line accent-kcal"
               />
               Tâche éphémère
             </label>
@@ -622,14 +625,11 @@ export function AddTaskForm({
 
           <div className="flex flex-col gap-1">
             <span className={labelClass}>Images (optionnel)</span>
-            <div className="flex flex-wrap items-center gap-2">
-              <label
-                htmlFor={`${uid}-tache-images`}
-                className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-line text-ink-2 transition-colors hover:bg-surface-alt"
-                aria-label="Ajouter des images"
-              >
-                <ImageIcon />
-              </label>
+            {/* `relative` : contient le champ masqué (position absolue) dans la
+                zone qui défile ; sans lui, le focus faisait défiler la page entière. */}
+            <div className="relative flex flex-wrap items-center gap-2">
+              {/* Champ visuellement masqué mais focalisable (et non `hidden`) :
+                  la tuile reste atteignable au clavier, anneau de focus compris. */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -637,9 +637,16 @@ export function AddTaskForm({
                 name="images"
                 accept="image/*"
                 multiple
-                className="hidden"
+                aria-label="Ajouter des images"
+                className="peer sr-only"
                 onChange={handleFilesChange}
               />
+              <label
+                htmlFor={`${uid}-tache-images`}
+                className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-control-border text-ink-2 transition-colors hover:bg-surface-alt peer-focus-visible:ring-2 peer-focus-visible:ring-kcal peer-focus-visible:ring-offset-2"
+              >
+                <ImageIcon />
+              </label>
 
               {existingImages.map((image) => (
                 <ImageThumb
@@ -721,7 +728,7 @@ export function AddTaskForm({
                 if (checked && rappelMinutes !== "" && rappelMinutes !== "1440") setRappelMinutes("");
                 setTouteLaJournee(checked);
               }}
-              className="h-4 w-4 rounded border-line"
+              className="h-4 w-4 rounded border-line accent-kcal"
             />
             Toute la journée
           </label>

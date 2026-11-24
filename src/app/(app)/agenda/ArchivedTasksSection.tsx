@@ -37,7 +37,7 @@ export function ArchivedTasksSection({
       >
         <span className={sectionTitle}>Tâches terminées ({taches.length})</span>
         <span
-          className={`text-ink-2 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`text-ink-2 transition-transform duration-200 ease-[var(--ease-out)] ${open ? "rotate-180" : ""}`}
           aria-hidden
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

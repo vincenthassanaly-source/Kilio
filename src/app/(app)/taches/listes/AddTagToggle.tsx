@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AddTagForm } from "./AddTagForm";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
+import { addCard, addCardIcon, addCardSousTitre, addCardTitre, card, textButton } from "@/lib/ui";
 import { PlusIcon } from "@/components/icons";
 
 export function AddTagToggle() {
@@ -19,8 +19,8 @@ export function AddTagToggle() {
         <PlusIcon size={18} />
       </div>
       <div className="flex flex-col gap-[1px]">
-        <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un tag</span>
-        <span className="text-caption font-medium text-ink-3">Un tag pour classer tes tâches</span>
+        <span className={addCardTitre}>Ajouter un tag</span>
+        <span className={addCardSousTitre}>Un tag pour classer tes tâches</span>
       </div>
     </button>
   );
