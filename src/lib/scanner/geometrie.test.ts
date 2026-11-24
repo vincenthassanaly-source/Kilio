@@ -45,6 +45,27 @@ describe("ordonnerCoins", () => {
   it("refuse un nombre de points différent de 4", () => {
     expect(() => ordonnerCoins([{ x: 0, y: 0 }])).toThrow();
   });
+
+  it("garde 4 coins distincts, dans le sens horaire, pour un carré tourné de 0 à 90° par pas de 5°", () => {
+    // Régression : le tri par x+y et x−y sortait deux fois le même point à 45° pile.
+    for (let deg = 0; deg <= 90; deg += 5) {
+      const a = (deg * Math.PI) / 180;
+      const coins = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([dx, dy]) => ({
+        x: 200 + 100 * (dx * Math.cos(a) - dy * Math.sin(a)),
+        y: 150 + 100 * (dx * Math.sin(a) + dy * Math.cos(a)),
+      }));
+      const quad = ordonnerCoins([coins[2], coins[0], coins[3], coins[1]]);
+      const distincts = new Set(quad.map((p) => `${p.x.toFixed(6)},${p.y.toFixed(6)}`));
+      expect(distincts.size, `${deg}°`).toBe(4);
+      expect(quadValide(quad), `${deg}° : convexe et dans l'ordre`).toBe(true);
+      // Sens horaire à l'écran (y vers le bas) : aire signée positive.
+      let aire = 0;
+      for (let i = 0; i < 4; i++) aire += quad[i].x * quad[(i + 1) % 4].y - quad[(i + 1) % 4].x * quad[i].y;
+      expect(aire, `${deg}° : sens horaire`).toBeGreaterThan(0);
+      // Le premier coin est celui qui minimise x+y.
+      expect(quad[0].x + quad[0].y, `${deg}° : départ en haut à gauche`).toBeCloseTo(Math.min(...coins.map((p) => p.x + p.y)), 6);
+    }
+  });
 });
 
 describe("quadValide / aireQuad", () => {
@@ -181,5 +202,80 @@ describe("redresser", () => {
       { x: 0, y: 0 },
     ];
     expect(redresser(src, plat, 10, 10)).toBeNull();
+  });
+});
+
+/** Feuille de `l`×`h` mm vue par un téléphone (sténopé, focale 0,78 × le grand côté), inclinée puis tournée. */
+function photographier(l: number, h: number, inclinaison: number, lacet: number, roulis: number, f = 2325, bruit = 0, graine = 1): Quad {
+  const W = 2250, H = 3000, r = (d: number) => (d * Math.PI) / 180;
+  let a = graine;
+  const alea = () => {
+    a = (a * 1103515245 + 12345) & 0x7fffffff;
+    return a / 0x7fffffff - 0.5;
+  };
+  return [[-l / 2, -h / 2], [l / 2, -h / 2], [l / 2, h / 2], [-l / 2, h / 2]].map(([X, Y]) => {
+    let x = X * Math.cos(r(roulis)) - Y * Math.sin(r(roulis));
+    let y = X * Math.sin(r(roulis)) + Y * Math.cos(r(roulis));
+    let z = 0;
+    const x2 = x * Math.cos(r(lacet)) + z * Math.sin(r(lacet));
+    z = -x * Math.sin(r(lacet)) + z * Math.cos(r(lacet));
+    x = x2;
+    const y2 = y * Math.cos(r(inclinaison)) - z * Math.sin(r(inclinaison));
+    z = y * Math.sin(r(inclinaison)) + z * Math.cos(r(inclinaison));
+    y = y2;
+    z += ((290 + inclinaison * 1.5) * f) / 2325;
+    return { x: (f * x) / z + W / 2 + 2 * bruit * alea(), y: (f * y) / z + H / 2 + 2 * bruit * alea() };
+  }) as Quad;
+}
+
+describe("tailleSortie : rapport d'aspect réel", () => {
+  const photo = { largeur: 2250, hauteur: 3000 };
+  const angles: [number, number, number][] = [[0, 0, 0], [8, -4, 1.5], [15, 0, 0], [25, 5, 2], [35, 8, 1.5], [30, 25, 5]];
+
+  for (const [inclinaison, lacet, roulis] of angles) {
+    it(`A4 incliné de ${inclinaison}° (lacet ${lacet}°) : rapport à moins de 1 %`, () => {
+      const { largeur, hauteur } = tailleSortie(photographier(210, 297, inclinaison, lacet, roulis), 2000, photo);
+      expect(Math.abs(largeur / hauteur / (210 / 297) - 1)).toBeLessThan(0.01);
+    });
+    it(`format libre (0,6) incliné de ${inclinaison}° : rapport à moins de 1 %, sans aimantation`, () => {
+      const { largeur, hauteur } = tailleSortie(photographier(90, 150, inclinaison, lacet, roulis), 2000, photo);
+      expect(Math.abs(largeur / hauteur / 0.6 - 1)).toBeLessThan(0.01);
+    });
+  }
+
+  it("téléphone seulement incliné, coins bruités (±1,5 px), focales de 0,72 à 0,85 : rapport à moins de 1 %", () => {
+    // Régression (revue du lot 1) : un seul point de fuite mesurable suffisait à « mesurer » la focale ;
+    // avec un peu de bruit elle devenait aberrante et on retombait sur l'ancien calcul (+4 à +16 %).
+    for (const focale of [0.72, 0.85]) {
+      for (let inclinaison = 5; inclinaison <= 30; inclinaison += 5) {
+        for (const lacet of [0, 3]) {
+          const q = photographier(210, 297, inclinaison, lacet, 0, focale * 3000, 1.5, inclinaison * 7 + lacet + focale * 100);
+          const { largeur, hauteur } = tailleSortie(q, 2000, photo);
+          expect(Math.abs(largeur / hauteur / (210 / 297) - 1), `focale ${focale}, ${inclinaison}°, lacet ${lacet}°`).toBeLessThan(0.01);
+        }
+      }
+    }
+  });
+
+  it("aimante une carte (85,6 × 54 mm) en paysage", () => {
+    const { largeur, hauteur } = tailleSortie(photographier(85.6 * 1.02, 54, 10, 3, 0), 2000, photo);
+    expect(largeur / hauteur).toBeCloseTo(85.6 / 54, 2);
+  });
+
+  it("sans la taille de la photo, garde l'ancien calcul (plus grands côtés opposés)", () => {
+    const q = photographier(210, 297, 25, 5, 2);
+    const sans = tailleSortie(q);
+    const d = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y);
+    expect(sans.largeur / sans.hauteur).toBeCloseTo(Math.max(d(q[0], q[1]), d(q[3], q[2])) / Math.max(d(q[0], q[3]), d(q[1], q[2])), 2);
+  });
+
+  it("quadrilatères posés à la main qui ne sont l'image d'aucun rectangle : repli sur l'ancien calcul", () => {
+    const mains: Quad[] = [
+      [{ x: 300, y: 300 }, { x: 1900, y: 500 }, { x: 1700, y: 2700 }, { x: 600, y: 2500 }],
+      [{ x: 1000, y: 200 }, { x: 2000, y: 1500 }, { x: 1100, y: 2900 }, { x: 200, y: 1400 }],
+      [{ x: 200, y: 200 }, { x: 2100, y: 250 }, { x: 1300, y: 2900 }, { x: 900, y: 2850 }],
+      [{ x: 100, y: 1000 }, { x: 2200, y: 100 }, { x: 2100, y: 2900 }, { x: 300, y: 2000 }],
+    ];
+    for (const q of mains) expect(tailleSortie(q, 2000, photo)).toEqual(tailleSortie(q));
   });
 });

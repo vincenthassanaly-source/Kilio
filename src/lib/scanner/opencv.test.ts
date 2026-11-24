@@ -18,6 +18,18 @@ describe("chargerOpenCv", () => {
   });
   afterEach(() => {
     delete (window as unknown as { cv?: unknown }).cv;
+    document.head.querySelectorAll("script").forEach((s) => s.remove());
+  });
+
+  it("signale l'échec du chargement (script introuvable), puis l'oublie à la tentative suivante", async () => {
+    const { chargerOpenCv, openCvEnEchec } = await import("./opencv");
+    expect(openCvEnEchec()).toBe(false);
+    const chargement = chargerOpenCv();
+    document.head.querySelector("script")!.dispatchEvent(new Event("error"));
+    await expect(chargement).rejects.toThrow();
+    expect(openCvEnEchec()).toBe(true);
+    void chargerOpenCv().catch(() => {});
+    expect(openCvEnEchec()).toBe(false);
   });
 
   it("se résout (sans boucler) quand `cv` est une promesse qui rend un moteur thenable", async () => {
@@ -43,5 +55,25 @@ describe("chargerOpenCv", () => {
       new Promise<string>((res) => setTimeout(() => res("BLOQUE"), 2000)),
     ]);
     expect(gagnant).toBe("ok");
+  });
+
+  it("après le délai de 45 s, une nouvelle tentative réutilise le script en cours au lieu d'en injecter un second", async () => {
+    vi.useFakeTimers();
+    try {
+      const { chargerOpenCv } = await import("./opencv");
+      const premier = chargerOpenCv();
+      const rejet = expect(premier).rejects.toThrow(/délai/);
+      await vi.advanceTimersByTimeAsync(45_000);
+      await rejet;
+      const second = chargerOpenCv();
+      expect(document.head.querySelectorAll("script")).toHaveLength(1);
+      // Le téléchargement finit enfin : la seconde tentative en profite.
+      const moteur = moduleThenable();
+      (window as unknown as { cv: unknown }).cv = { then: (cb: (m: unknown) => void) => cb(moteur) };
+      document.head.querySelector("script")!.dispatchEvent(new Event("load"));
+      await expect(second.then((r) => r.cv === (moteur as never))).resolves.toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

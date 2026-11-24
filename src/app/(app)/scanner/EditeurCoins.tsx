@@ -72,6 +72,9 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
   // Coin en cours de déplacement : son index, l'échelle d'affichage (pixels écran par pixel
   // d'image, mesurée au début du geste) et la position du doigt, pour placer la loupe.
   const [geste, setGeste] = useState<{ index: number; echelle: number; x: number; y: number } | null>(null);
+  // Vrai dès que l'utilisateur a touché au cadre (coin déplacé, « Photo entière ») : un cadre
+  // OpenCV arrivé en retard ne l'écrase alors jamais.
+  const retouche = useRef(false);
 
   // Aperçu JPEG de la source + détection automatique des coins.
   useEffect(() => {
@@ -82,10 +85,19 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
       if (annule) return;
       objectUrl = URL.createObjectURL(blob);
       setUrl(objectUrl);
-      const trouve = await detecterFeuilleAuto(source);
+      const trouve = await detecterFeuilleAuto(source, {
+        estAnnule: () => annule || retouche.current,
+        // OpenCV arrivé après le cadre maison (premier usage, réseau lent) : son cadre le remplace.
+        surAmelioration: (mieux) => {
+          if (annule || retouche.current) return;
+          setDetecte(true);
+          setQuad(mieux);
+        },
+      });
       if (annule) return;
+      // Le cadre OpenCV éventuel arrive toujours après celui-ci (il est calculé ensuite).
       setDetecte(trouve !== null);
-      if (trouve) setQuad(trouve);
+      if (trouve && !retouche.current) setQuad(trouve);
     })();
     return () => {
       annule = true;
@@ -151,7 +163,8 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
                     r={rayon * 2}
                     fill="transparent"
                     onPointerDown={(e) => {
-                      (e.target as Element).setPointerCapture(e.pointerId);
+                      retouche.current = true;
+                      (e.target as Element).setPointerCapture?.(e.pointerId);
                       const rect = svgRef.current?.getBoundingClientRect();
                       setGeste({ index: i, echelle: rect ? rect.width / w : 1, x: e.clientX, y: e.clientY });
                     }}
@@ -187,7 +200,10 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
         </button>
         <button
           type="button"
-          onClick={() => setQuad(quadParDefaut(w, h, 0))}
+          onClick={() => {
+            retouche.current = true;
+            setQuad(quadParDefaut(w, h, 0));
+          }}
           disabled={enCours}
           className="min-h-11 rounded-2xl bg-white/15 px-4 text-sm font-semibold disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
@@ -195,7 +211,11 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
         </button>
         <button
           type="button"
-          onClick={() => onValider(quad)}
+          onClick={() => {
+            // Le cadre validé est figé : un cadre OpenCV arrivé ensuite ne doit plus le remplacer.
+            retouche.current = true;
+            onValider(quad);
+          }}
           disabled={enCours || !valide || detecte === null}
           className="min-h-11 rounded-2xl bg-white px-5 text-sm font-semibold text-black disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         >

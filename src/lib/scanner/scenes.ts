@@ -8,7 +8,7 @@ import { homographie, ordonnerCoins, type ImageDataLike, type Point, type Quad }
 
 type Couleur = [number, number, number];
 
-type OptionsScene = {
+export type OptionsScene = {
   largeur: number;
   hauteur: number;
   /** Coins du document dans l'image (HG, HD, BD, BG). */
@@ -88,7 +88,7 @@ function lignesDeTexte(rand: () => number): { v: number; fin: number }[] {
   return lignes;
 }
 
-function fabriquerScene(nom: string, o: OptionsScene): Scene {
+export function fabriquerScene(nom: string, o: OptionsScene): Scene {
   const { largeur: w, hauteur: h } = o;
   const rand = prng(o.graine ?? 1);
   const quad = o.quad;
@@ -203,7 +203,7 @@ const W = 640;
 const H = 480;
 
 /** Coins d'un rectangle de `l`×`h` pixels centré en (cx, cy) et tourné de `deg` degrés. */
-function rectangleTourne(cx: number, cy: number, l: number, h: number, deg: number): Quad {
+export function rectangleTourne(cx: number, cy: number, l: number, h: number, deg: number): Quad {
   const a = (deg * Math.PI) / 180;
   const c = Math.cos(a), s = Math.sin(a);
   const pt = (dx: number, dy: number): Point => ({ x: cx + dx * c - dy * s, y: cy + dx * s + dy * c });

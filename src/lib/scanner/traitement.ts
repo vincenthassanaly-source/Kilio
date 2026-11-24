@@ -2,19 +2,19 @@
 // API du navigateur (canvas, createImageBitmap, flux vidéo). Côté client
 // uniquement : ne jamais importer depuis un composant serveur.
 
-import { detecterFeuille, detecterQuadrilatere } from "./detection";
-import { affinerLesCotes } from "./affinage";
+import { detecterQuadrilatere, reduirePourDetection } from "./detection";
+import type { MoteurDirect } from "./suivi";
 import { aplatirLesLignes } from "./aplatissage";
-import { nettoyerLesBords } from "./bordsPropres";
+import { nettoyerLesBords, rognerLeLisere } from "./bordsPropres";
 import { effacerLesIntrusions } from "./intrusions";
-import { etendreAuxBordsDeLaFeuille } from "./extension";
 import { redresserParTranches } from "./redressementPage";
 import { redresserLesLignes } from "./redressementTexte";
 import { magicColor, type Filtre } from "./filtres";
 import { mettreAEchelle, redresser, tailleSortie, type ImageDataLike, type Quad } from "./geometrie";
 import { capturerPhotoPleine, captureurDuNavigateur } from "./capture";
-import { chargerOpenCv, openCvSiPret } from "./opencv";
-import { detecterDocumentCv, detecterDocumentRobuste, redresserCv } from "./opencvScan";
+import { chargerOpenCv, openCvSiPret, type Cv } from "./opencv";
+import { detecterDocumentCv, redresserCv } from "./opencvScan";
+import { detecterPhoto } from "./pipeline";
 
 /** Plus grand côté d'une photo chargée : borne la mémoire des téléphones. */
 const COTE_MAX_SOURCE_PX = 3000;
@@ -78,8 +78,21 @@ function capturerImage(video: HTMLVideoElement): ImageData {
   return ctx.getImageData(0, 0, w, h);
 }
 
-/** Côté analysé par OpenCV en direct : plus fin que l'ancien pipeline, qui plafonnait à 180 px. */
+/** Côté analysé par OpenCV en direct. */
 const COTE_LIVE_OPENCV_PX = 360;
+/**
+ * Côté analysé par la détection maison en direct, avant qu'OpenCV soit prêt. L'image est d'abord
+ * tirée du flux au double de cette taille, puis réduite par moyenne de blocs : un `drawImage` direct
+ * à 180 px replie les détails (texte, grain) et faisait s'accrocher le cadre à une ligne de texte.
+ */
+const COTE_LIVE_MAISON_PX = 240;
+
+/** Vrai si le navigateur demande d'économiser les données (Chrome Android « Économiseur de données »). */
+export function economieDeDonnees(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const connexion = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  return connexion?.saveData === true;
+}
 
 /** Lance le chargement d'OpenCV en tâche de fond (le scanner reste utilisable sans). */
 export function prechargerOpenCv(): void {
@@ -89,30 +102,74 @@ export function prechargerOpenCv(): void {
 }
 
 /**
- * Coins du document sur une photo entière : OpenCV si disponible, sinon l'ancienne
- * détection. Ne rejette jamais ; null = rien de fiable (cadre par défaut à ajuster).
+ * Préchargement dès l'ouverture de /scanner, pendant un temps libre du navigateur (repli sur un
+ * délai court où `requestIdleCallback` n'existe pas, comme Safari). Rien n'est téléchargé si
+ * l'utilisateur a demandé d'économiser les données : OpenCV se chargera alors à l'ouverture du viseur.
+ * Renvoie une fonction d'annulation (démontage avant le temps libre).
  */
-export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad | null> {
-  const quad = await detecterCoins(source);
-  if (!quad) return null;
-  // Une page qui déborde du cadre est souvent résumée à un pli ou à son bloc de texte : on
-  // repousse chaque côté jusqu'au vrai bord du papier (voir extension.ts), puis on recale chaque
-  // côté sur ce bord pour qu'il soit droit et parallèle au vrai (voir affinage.ts).
-  return affinerLesCotes(source, etendreAuxBordsDeLaFeuille(source, quad));
+export function prechargerOpenCvSiPossible(): () => void {
+  if (economieDeDonnees()) return () => {};
+  const w = window as Window & {
+    requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+    cancelIdleCallback?: (id: number) => void;
+  };
+  if (w.requestIdleCallback) {
+    const id = w.requestIdleCallback(() => prechargerOpenCv(), { timeout: 1500 });
+    return () => w.cancelIdleCallback?.(id);
+  }
+  const id = window.setTimeout(prechargerOpenCv, 200);
+  return () => window.clearTimeout(id);
 }
 
-async function detecterCoins(source: ImageDataLike): Promise<Quad | null> {
-  try {
-    const { cv } = await chargerOpenCv();
-    // L'ancienne détection par droites (rapide, insensible au grain du fond) vote avec les
-    // analyses OpenCV : elle sauve les fonds texturés où les contours échouent.
-    const vieux = detecterFeuille(source);
-    const quad = await detecterDocumentRobuste(cv, source, { supplementaires: vieux ? [vieux] : [] });
-    if (quad) return quad;
-  } catch {
-    // OpenCV indisponible ou en échec : voir ci-dessous.
-  }
-  return detecterFeuille(source);
+/**
+ * Délai au-delà duquel le recadrage n'attend plus OpenCV (premier usage en réseau lent) : le cadre de
+ * la détection maison est proposé tout de suite, puis remplacé si OpenCV arrive. Avec le calcul du
+ * cadre maison (≈ 0,1 à 0,3 s sur une photo de 3000 px), un cadre s'affiche en moins de 1,5 s.
+ */
+const ATTENTE_OPENCV_RECADRAGE_MS = 1000;
+
+/**
+ * Coins du document sur une photo entière : OpenCV si disponible, sinon l'ancienne
+ * détection. Ne rejette jamais ; null = rien de fiable (cadre par défaut à ajuster).
+ * La chaîne elle-même est pure (pipeline.ts) : les bancs d'essai la rejouent sous Node.
+ *
+ * Si OpenCV n'est pas prêt après `delaiMs`, le cadre maison est renvoyé sans attendre ; quand OpenCV
+ * arrive, la chaîne complète est rejouée et son cadre passé à `surAmelioration` (à l'appelant de ne
+ * pas écraser un coin que l'utilisateur a déjà déplacé).
+ */
+export async function detecterFeuilleAuto(
+  source: ImageDataLike,
+  options: {
+    delaiMs?: number;
+    surAmelioration?: (quad: Quad) => void;
+    /** Vrai si l'appelant a disparu (recadrage fermé ou validé) : le calcul tardif est abandonné. */
+    estAnnule?: () => boolean;
+  } = {}
+): Promise<Quad | null> {
+  const { delaiMs = ATTENTE_OPENCV_RECADRAGE_MS, surAmelioration, estAnnule = () => false } = options;
+  const chargement = chargerOpenCv().then(
+    ({ cv }) => ({ cv }),
+    () => ({ cv: null as Cv | null })
+  );
+  let minuteur = 0;
+  const delai = new Promise<"delai">((resolve) => {
+    minuteur = window.setTimeout(() => resolve("delai"), delaiMs);
+  });
+  const premier = await Promise.race([chargement, delai]);
+  window.clearTimeout(minuteur);
+  if (premier !== "delai") return detecterPhoto(premier.cv, source);
+
+  // OpenCV en retard : cadre maison tout de suite, cadre OpenCV plus tard s'il arrive.
+  const rapide = await detecterPhoto(null, source);
+  chargement
+    .then(async ({ cv }) => (cv && !estAnnule() ? detecterPhoto(cv, source) : null))
+    .then((quad) => {
+      if (quad && !estAnnule()) surAmelioration?.(quad);
+    })
+    .catch(() => {
+      // OpenCV en échec : le cadre maison reste.
+    });
+  return rapide;
 }
 
 /**
@@ -123,31 +180,48 @@ export function capturerPhoto(video: HTMLVideoElement, piste: MediaStreamTrack |
   return capturerPhotoPleine(piste, captureurDuNavigateur(), (photo) => chargerImage(photo), () => capturerImage(video));
 }
 
-/** Détection en direct sur une image de la vidéo (petite, donc rapide). */
-export function detecterDepuisVideo(
-  video: HTMLVideoElement,
-  coteMax: number
-): { quad: Quad | null; largeur: number; hauteur: number } | null {
+/** Image courante de la vidéo réduite à `coteMax` (lissage de qualité quand le navigateur le propose). */
+function imageReduite(video: HTMLVideoElement, coteMax: number): ImageData {
   const vw = video.videoWidth;
   const vh = video.videoHeight;
-  if (!vw || !vh) return null;
-  const cv = openCvSiPret();
-  if (cv) coteMax = Math.max(coteMax, COTE_LIVE_OPENCV_PX);
   const echelle = Math.min(1, coteMax / Math.max(vw, vh));
   const w = Math.max(8, Math.round(vw * echelle));
   const h = Math.max(8, Math.round(vh * echelle));
   const canvas = creerCanvas(w, h);
   const ctx = contexte(canvas);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   ctx.drawImage(video, 0, 0, w, h);
-  const img = ctx.getImageData(0, 0, w, h);
-  let quad: Quad | null;
-  try {
-    quad = cv ? detecterDocumentCv(cv, img, COTE_LIVE_OPENCV_PX) : detecterQuadrilatere(img);
-  } catch {
-    quad = detecterQuadrilatere(img);
+  return ctx.getImageData(0, 0, w, h);
+}
+
+/**
+ * Détection en direct sur une image de la vidéo (petite, donc rapide). Coins dans le repère natif du
+ * flux ; `pas` = taille d'un pixel de l'image analysée, en pixels du flux (zone morte du suivi).
+ */
+export function detecterDepuisVideo(
+  video: HTMLVideoElement
+): { quad: Quad | null; largeur: number; hauteur: number; moteur: MoteurDirect; pas: number } | null {
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  if (!vw || !vh) return null;
+  const cv = openCvSiPret();
+  if (cv) {
+    const img = imageReduite(video, COTE_LIVE_OPENCV_PX);
+    let quad: Quad | null = null;
+    try {
+      quad = detecterDocumentCv(cv, img, COTE_LIVE_OPENCV_PX);
+    } catch {
+      // Échec ponctuel d'OpenCV : pas de cadre pour cette image.
+    }
+    const pas = vw / img.width;
+    return { quad: quad ? mettreAEchelle(quad, pas) : null, largeur: vw, hauteur: vh, moteur: "opencv", pas };
   }
-  // Les coins sont ramenés au repère natif de la vidéo (celui de l'overlay SVG).
-  return { quad: quad ? mettreAEchelle(quad, vw / w) : null, largeur: vw, hauteur: vh };
+  const tiree = imageReduite(video, 2 * COTE_LIVE_MAISON_PX);
+  const { image, facteur } = reduirePourDetection(tiree, COTE_LIVE_MAISON_PX);
+  const quad = detecterQuadrilatere(image);
+  const pas = facteur * (vw / tiree.width);
+  return { quad: quad ? mettreAEchelle(quad, pas) : null, largeur: vw, hauteur: vh, moteur: "maison", pas };
 }
 
 export type PageTraitee = {
@@ -161,28 +235,63 @@ export type PageTraitee = {
   filtre: Filtre;
 };
 
-/** Redresse la perspective puis applique le filtre « Magique » (rendu CamScanner Magique Pro). */
-export async function creerPage(source: ImageDataLike, quad: Quad): Promise<PageTraitee> {
-  const { largeur, hauteur } = tailleSortie(quad);
+/** Attente maximale d'OpenCV au moment de créer une page : au-delà, redressement maison. */
+const ATTENTE_OPENCV_PAGE_MS = 300;
+
+/**
+ * OpenCV s'il est chargé avant `delaiMs`, sinon null (le chargement continue en arrière-plan).
+ * Toujours enveloppé : le module OpenCV est « thenable », une promesse ne doit jamais le renvoyer nu.
+ */
+async function chargerOpenCvSousDelai(delaiMs: number): Promise<{ cv: Cv | null }> {
+  let minuteur = 0;
+  const delai = new Promise<{ cv: Cv | null }>((resolve) => {
+    minuteur = window.setTimeout(() => resolve({ cv: null }), delaiMs);
+  });
+  const charge = chargerOpenCv().then(
+    (chargee): { cv: Cv | null } => chargee,
+    (): { cv: Cv | null } => ({ cv: null })
+  );
+  const gagnant = await Promise.race([charge, delai]);
+  window.clearTimeout(minuteur);
+  return gagnant;
+}
+
+/** Redresse la perspective (proportions réelles de la page) : OpenCV si disponible, sinon redressement maison. */
+export async function redresserPourPage(source: ImageDataLike, quad: Quad): Promise<ImageDataLike> {
+  // Proportions réelles de la page (perspective corrigée), d'après la position des coins dans la photo.
+  const { largeur, hauteur } = tailleSortie(quad, undefined, { largeur: source.width, hauteur: source.height });
   let redressee: ImageDataLike | null = null;
-  try {
-    const { cv } = await chargerOpenCv();
-    redressee = redresserCv(cv, source, quad, largeur, hauteur);
-  } catch {
-    // OpenCV indisponible : redressement bilinéaire maison.
+  // OpenCV seulement s'il est déjà prêt (ou le devient dans un court délai) : « Ajouter la page » ne
+  // doit jamais rester sur « Traitement… » le temps d'un premier téléchargement.
+  const cv = openCvSiPret() ?? (await chargerOpenCvSousDelai(ATTENTE_OPENCV_PAGE_MS)).cv;
+  if (cv) {
+    try {
+      redressee = redresserCv(cv, source, quad, largeur, hauteur);
+    } catch {
+      // Échec d'OpenCV : redressement maison ci-dessous.
+    }
   }
+  // OpenCV indisponible ou en retard : redressement bilinéaire maison.
   redressee ??= redresser(source, quad, largeur, hauteur);
   if (!redressee) throw new Error("Cadrage invalide : les quatre coins doivent former un quadrilatère convexe.");
+  return redressee;
+}
+
+/** Redresse la perspective puis applique le filtre « Magique » (rendu CamScanner Magique Pro). */
+export async function creerPage(source: ImageDataLike, quad: Quad): Promise<PageTraitee> {
+  let redressee = await redresserPourPage(source, quad);
   // Fond resté dans un coin (page coupée par la photo) repeint en papier, puis lignes de texte
   // nettement penchées remises à l'horizontale. Sans fond ni texte repérables, rien ne bouge.
   // Éventail des lignes et marge qui penche (papier courbé, perspective) : redressement local d'après le
   // texte, avant la rotation globale qui ne fait que corriger ce qui reste.
   // Bande de fond et doigt effacés au bord, puis lignes aplaties une par une (pli, courbure), avant la
   // rotation globale qui ne fait que corriger ce qui reste.
+  // Fine marge rognée : le pixel du bord mélange papier et table, « Magique » en faisait un liseré gris.
+  redressee = rognerLeLisere(redressee);
   redressee = redresserLesLignes(aplatirLesLignes(redresserParTranches(effacerLesIntrusions(nettoyerLesBords(redressee)))));
   const redresse = await imageVersJpeg(redressee);
   const traite = await imageVersJpeg(magicColor(redressee));
-  return { redresse, traite, largeur, hauteur, filtre: "magic" };
+  return { redresse, traite, largeur: redressee.width, hauteur: redressee.height, filtre: "magic" };
 }
 
 /** Recompresse une page pour l'export (taille et qualité du réglage choisi). */

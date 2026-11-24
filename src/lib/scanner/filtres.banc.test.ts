@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import { magicColor } from "./filtres";
 import { redresser, tailleSortie, type ImageDataLike } from "./geometrie";
 import { scenesDeReference } from "./scenes";
+import { ecartCouleurZone, luminanceDesBords, mesurerFond, pagesDeRendu } from "./scenesEtendues";
+import { rognerLeLisere } from "./bordsPropres";
 
 type Rvb = [number, number, number];
 
@@ -131,4 +133,51 @@ describe("Magique", () => {
     expect(ecartTeinte(avant, apres)).toBeLessThan(12);
     expect(saturation(apres)).toBeGreaterThan(0.6 * saturation(avant));
   });
+});
+
+// Régressions du rapport 02 (constat C1) : la protection du contenu coloré forçait le fond estimé à
+// 255 sous une photo, un logo ou un tampon. Dans une ombre ou sous faible lumière, ils devenaient un
+// bloc noir entouré d'un halo gris. Pages déjà redressées, contenu générique (scenesEtendues.ts).
+describe("Magique : contenu coloré dans l'ombre", () => {
+  const pages = pagesDeRendu();
+
+  it("lumière douce : papier uniforme et blanc (témoin)", () => {
+    const { image, ideale } = pages.normale;
+    const fond = mesurerFond(magicColor(image), ideale);
+    expect(fond.ecartType).toBeLessThanOrEqual(4);
+    expect(fond.tuileMin).toBeGreaterThanOrEqual(245);
+  });
+
+  it("photo dans une ombre de main : fond σ ≤ 4, tuile la plus sombre ≥ 245, ΔE photo ≤ 10", () => {
+    const { image, ideale, zones } = pages.ombreSurPhoto;
+    const sortie = magicColor(image);
+    const fond = mesurerFond(sortie, ideale);
+    expect(fond.ecartType, "écart-type du fond").toBeLessThanOrEqual(4);
+    expect(fond.tuileMin, "tuile de fond la plus sombre").toBeGreaterThanOrEqual(245);
+    expect(ecartCouleurZone(sortie, ideale, zones.photo), "ΔE de la photo").toBeLessThanOrEqual(10);
+  });
+
+  it("lampe chaude, peu de lumière, logo dans un coin vignetté : plus de tache noire dans le fond", () => {
+    // Avant R1 : tuile la plus sombre à 2 (taches noires autour des zones bruitées prises pour de la couleur).
+    const { image, ideale } = pages.faibleLumiere;
+    expect(mesurerFond(magicColor(image), ideale).tuileMin).toBeGreaterThanOrEqual(200);
+  });
+
+  it.fails("lampe chaude, peu de lumière : fond σ ≤ 8 (reste à 33 après R1 : bruit amplifié par la courbe, débruitage prévu en R9, lot 2)", () => {
+    const { image, ideale } = pages.faibleLumiere;
+    expect(mesurerFond(magicColor(image), ideale).ecartType).toBeLessThanOrEqual(8);
+  });
+});
+
+// Rapport 02 (constat mineur) : le pixel du bord mélange papier et table, « Magique » en faisait un
+// liseré gris pointillé. La page redressée est rognée d'une fine marge avant le filtre.
+describe("Magique : pas de liseré gris au bord de la page", () => {
+  for (const nom of ["feuille sur fond sombre (témoin)", "feuille sur grain de bois", "feuille blanche sur table claire"]) {
+    it(`${nom} : 2 premières et dernières lignes et colonnes ≥ 245 en moyenne`, () => {
+      const scene = scenesDeReference().find((s) => s.nom === nom)!;
+      const { largeur, hauteur } = tailleSortie(scene.verite);
+      const page = redresser(scene.image, scene.verite, largeur, hauteur)!;
+      expect(luminanceDesBords(magicColor(rognerLeLisere(page)))).toBeGreaterThanOrEqual(245);
+    });
+  }
 });

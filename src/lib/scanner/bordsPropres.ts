@@ -126,3 +126,23 @@ export function nettoyerLesBords(img: ImageDataLike): ImageDataLike {
   }
   return { data: sortie, width: W, height: H };
 }
+
+/** Marge rognée tout autour d'une page redressée : part du plus grand côté, au moins 2 px. */
+const MARGE_ROGNEE = 0.003;
+const MARGE_ROGNEE_MIN_PX = 2;
+
+/**
+ * Rogne une fine marge tout autour de la page redressée. Les pixels du bord mélangent papier et
+ * table (et l'ombre de contact) : la courbe tranchée de « Magique » les noircissait en un liseré gris
+ * pointillé sur toutes les pages. Une page trop petite pour être rognée est renvoyée telle quelle.
+ */
+export function rognerLeLisere(img: ImageDataLike): ImageDataLike {
+  const { width: w, height: h, data } = img;
+  const m = Math.max(MARGE_ROGNEE_MIN_PX, Math.round(MARGE_ROGNEE * Math.max(w, h)));
+  if (w <= 8 * m || h <= 8 * m) return img;
+  const lw = w - 2 * m;
+  const lh = h - 2 * m;
+  const sortie = new Uint8ClampedArray(lw * lh * 4);
+  for (let y = 0; y < lh; y++) sortie.set(data.subarray(((y + m) * w + m) * 4, ((y + m) * w + m + lw) * 4), y * lw * 4);
+  return { data: sortie, width: lw, height: lh };
+}
