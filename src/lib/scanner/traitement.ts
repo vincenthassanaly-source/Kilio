@@ -122,18 +122,49 @@ export function prechargerOpenCvSiPossible(): () => void {
 }
 
 /**
+ * Délai au-delà duquel le recadrage n'attend plus OpenCV (premier usage en réseau lent) : le cadre de
+ * la détection maison est proposé tout de suite, puis remplacé si OpenCV arrive. Avec le calcul du
+ * cadre maison (≈ 0,1 à 0,3 s sur une photo de 3000 px), un cadre s'affiche en moins de 1,5 s.
+ */
+const ATTENTE_OPENCV_RECADRAGE_MS = 1000;
+
+/**
  * Coins du document sur une photo entière : OpenCV si disponible, sinon l'ancienne
  * détection. Ne rejette jamais ; null = rien de fiable (cadre par défaut à ajuster).
  * La chaîne elle-même est pure (pipeline.ts) : les bancs d'essai la rejouent sous Node.
+ *
+ * Si OpenCV n'est pas prêt après `delaiMs`, le cadre maison est renvoyé sans attendre ; quand OpenCV
+ * arrive, la chaîne complète est rejouée et son cadre passé à `surAmelioration` (à l'appelant de ne
+ * pas écraser un coin que l'utilisateur a déjà déplacé).
  */
-export async function detecterFeuilleAuto(source: ImageDataLike): Promise<Quad | null> {
-  let cv: Cv | null = null;
-  try {
-    ({ cv } = await chargerOpenCv());
-  } catch {
-    // OpenCV indisponible : l'ancienne détection seule.
-  }
-  return detecterPhoto(cv, source);
+export async function detecterFeuilleAuto(
+  source: ImageDataLike,
+  options: { delaiMs?: number; surAmelioration?: (quad: Quad) => void } = {}
+): Promise<Quad | null> {
+  const { delaiMs = ATTENTE_OPENCV_RECADRAGE_MS, surAmelioration } = options;
+  const chargement = chargerOpenCv().then(
+    ({ cv }) => ({ cv }),
+    () => ({ cv: null as Cv | null })
+  );
+  let minuteur = 0;
+  const delai = new Promise<"delai">((resolve) => {
+    minuteur = window.setTimeout(() => resolve("delai"), delaiMs);
+  });
+  const premier = await Promise.race([chargement, delai]);
+  window.clearTimeout(minuteur);
+  if (premier !== "delai") return detecterPhoto(premier.cv, source);
+
+  // OpenCV en retard : cadre maison tout de suite, cadre OpenCV plus tard s'il arrive.
+  const rapide = await detecterPhoto(null, source);
+  chargement
+    .then(async ({ cv }) => (cv ? detecterPhoto(cv, source) : null))
+    .then((quad) => {
+      if (quad) surAmelioration?.(quad);
+    })
+    .catch(() => {
+      // OpenCV en échec : le cadre maison reste.
+    });
+  return rapide;
 }
 
 /**
