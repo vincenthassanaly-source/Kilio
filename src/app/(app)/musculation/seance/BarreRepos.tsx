@@ -3,7 +3,7 @@
 import { formaterMinutes, type Repos } from "@/lib/musculation/seance";
 
 const bouton =
-  "flex h-11 min-w-[56px] items-center justify-center rounded-xl border border-line bg-surface px-3 text-label font-semibold text-ink tabular-nums transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "flex h-11 min-w-[56px] items-center justify-center rounded-xl border border-line bg-surface px-3 text-label font-semibold text-ink tabular-nums transition-[color,background-color,border-color,transform] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 /**
  * Minuteur de repos collé en bas de l'écran de séance. Il reste affiché une

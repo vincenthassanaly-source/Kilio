@@ -29,10 +29,14 @@ function enDate(date: string): Date {
   return new Date(Date.UTC(a, m - 1, j));
 }
 
+// Majuscule sur la première lettre seulement (« Novembre 2026 ») : `capitalize`
+// mettait aussi une majuscule à chaque mois abrégé (« 23 Nov. – 29 Nov. »).
 function libellePeriode(type: TypePeriode, debut: string, fin: string): string {
-  return type === "mois"
-    ? formatMois.format(enDate(debut))
-    : `${formatJourMois.format(enDate(debut))} – ${formatJourMois.format(enDate(fin))}`;
+  const texte =
+    type === "mois"
+      ? formatMois.format(enDate(debut))
+      : `${formatJourMois.format(enDate(debut))} – ${formatJourMois.format(enDate(fin))}`;
+  return texte.charAt(0).toUpperCase() + texte.slice(1);
 }
 
 function Tuile({ libelle, valeur }: { libelle: string; valeur: string }) {
@@ -133,7 +137,7 @@ export function StatsView() {
         <button type="button" className={navArrowButton} onClick={() => setDecalage((d) => d - 1)} aria-label="Période précédente">
           <ChevronIcon sens="gauche" size={18} />
         </button>
-        <span className={`${nameText} capitalize`} aria-live="polite">
+        <span className={nameText} aria-live="polite">
           {donnees ? libellePeriode(type, donnees.debut, donnees.fin) : "…"}
         </span>
         <button type="button" className={navArrowButton} onClick={() => setDecalage((d) => Math.min(0, d + 1))} disabled={decalage === 0} aria-label="Période suivante">

@@ -39,11 +39,23 @@ import { ChampNombre } from "../../seance/ChampNombre";
 import { SelecteurExercices } from "../../seance/SelecteurExercices";
 import { BackLink } from "@/components/BackLink";
 import { ErrorInline } from "@/components/ErrorInline";
+import { SegmentedControl, type SegmentOption } from "@/components/SegmentedControl";
 
 const CLE_SERIE = { poids_kg: "poids", reps: "reps", duree_s: "duree", distance_m: "distance", vitesse_kmh: "vitesse" } as const;
 const REPOS_PAR_DEFAUT_AFFICHE_S = 90;
 
-const serieVide = (): RoutineSerie => ({ type: "normale", poids: null, reps: null, duree: null, distance: null, vitesse: null });
+const AUCUN = "aucun";
+const OPTIONS_TYPE: SegmentOption<TypeSeance | typeof AUCUN>[] = [
+  { value: AUCUN, label: "Aucun" },
+  ...ORDRE_TYPES.map((t) => ({ value: t, label: LIBELLES_TYPE[t] })),
+];
+
+// Retrait d'un exercice du formulaire (rien n'est enregistré avant « Enregistrer ») :
+// texte neutre qui ne passe au rouge qu'au survol ou au focus, comme toute suppression de ligne.
+const boutonRetirer =
+  "relative flex min-h-11 items-center rounded-xl px-2.5 text-label font-medium text-ink-2 transition-[color,background-color,transform] hover:bg-surface-alt hover:text-alert focus-visible:text-alert active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+
+const serieVide =(): RoutineSerie => ({ type: "normale", poids: null, reps: null, duree: null, distance: null, vitesse: null });
 
 /** Flèche tracée (même trait que le menu de l'exercice en séance) : remplace les glyphes ↑ ↓ du texte. */
 function FlecheIcone({ d }: { d: string }) {
@@ -159,11 +171,6 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
     });
   }
 
-  const chip = (actif: boolean) =>
-    `${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
-      actif ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
-    }`;
-
   return (
     <div className="flex flex-col gap-4 pb-8">
       <BackLink href="/musculation">Musculation</BackLink>
@@ -192,18 +199,17 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
           )}
         </label>
 
-        <div className="flex flex-col gap-1.5" role="group" aria-label="Type de séance">
-          <span className={label}>Type de séance</span>
-          <div className="flex flex-wrap gap-x-2 gap-y-4 py-1">
-            <button type="button" aria-pressed={typeSeance === null} className={chip(typeSeance === null)} onClick={() => setTypeSeance(null)}>
-              Aucun
-            </button>
-            {ORDRE_TYPES.map((t) => (
-              <button key={t} type="button" aria-pressed={typeSeance === t} className={chip(typeSeance === t)} onClick={() => setTypeSeance(t)}>
-                {LIBELLES_TYPE[t]}
-              </button>
-            ))}
-          </div>
+        {/* Choix unique parmi 4 : contrôle segmenté du système (DESIGN.md), plus des pastilles. */}
+        <div className="flex flex-col gap-1.5">
+          <span className={label} aria-hidden="true">
+            Type de séance
+          </span>
+          <SegmentedControl
+            options={OPTIONS_TYPE}
+            value={typeSeance ?? AUCUN}
+            onChange={(v) => setTypeSeance(v === AUCUN ? null : v)}
+            ariaLabel="Type de séance"
+          />
           <p className={metaText}>Détermine la ligne Push, Pull ou Legs que cette routine coche dans Aujourd&apos;hui.</p>
         </div>
 
@@ -254,7 +260,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                 >
                   <FlecheIcone d="M12 5v14m0 0 6-6m-6 6-6-6" />
                 </button>
-                <button type="button" className={dangerButton} onClick={() => setExercices((c) => c.filter((_, i) => i !== index))} aria-label={`Retirer ${exercice.nom}`}>
+                <button type="button" className={boutonRetirer} onClick={() => setExercices((c) => c.filter((_, i) => i !== index))} aria-label={`Retirer ${exercice.nom}`}>
                   Retirer
                 </button>
               </div>
@@ -293,7 +299,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                         aria-expanded={ouvert}
                         aria-label={`Type de la série ${rang + 1} : ${TYPE_SERIE_LABELS[serie.type]}`}
                         onClick={() => setTypeOuvert(ouvert ? null : cleType)}
-                        className={`h-12 rounded-xl bg-surface-alt text-center text-label font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                        className={`h-12 rounded-xl bg-surface-alt text-center text-label font-semibold tabular-nums transition-transform active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                           serie.type === "normale" ? "text-ink-2" : "text-kcal"
                         }`}
                       >
@@ -332,7 +338,7 @@ function Formulaire({ initial }: { initial: RoutineDetail | null }) {
                               surSerie(index, rang, { type });
                               setTypeOuvert(null);
                             }}
-                            className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                            className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition-[color,background-color,transform] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                               serie.type === type ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                             }`}
                           >
@@ -418,6 +424,7 @@ export function RoutineEditeur({ routineId }: { routineId: string | null }) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
+        <BackLink href="/musculation">Musculation</BackLink>
         <Skeleton className="h-9 w-2/3" />
         <Skeleton className="h-48 w-full rounded-card" />
       </div>
@@ -427,7 +434,7 @@ export function RoutineEditeur({ routineId }: { routineId: string | null }) {
     return (
       <div className="flex flex-col gap-4">
         <BackLink href="/musculation">Musculation</BackLink>
-        <ErrorInline message="Impossible de charger la routine. Vérifie ta connexion." retry={() => void refetch()} />
+        <ErrorInline titre="Chargement impossible" message="Impossible de charger la routine. Vérifie ta connexion." retry={() => void refetch()} />
       </div>
     );
   }
@@ -435,7 +442,7 @@ export function RoutineEditeur({ routineId }: { routineId: string | null }) {
     return (
       <div className="flex flex-col gap-4">
         <BackLink href="/musculation">Musculation</BackLink>
-        <p className={errorText}>Cette routine n&apos;existe plus.</p>
+        <ErrorInline titre="Routine introuvable" message="Cette routine n'existe plus." />
       </div>
     );
   }

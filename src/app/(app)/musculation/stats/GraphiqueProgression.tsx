@@ -154,7 +154,7 @@ export function GraphiqueProgression({ points, unite, libelle }: { points: Point
 
         {p && actif !== null && (
           <div
-            className="pointer-events-none absolute top-0 z-10 rounded-xl border border-line bg-surface px-3 py-2 shadow-card"
+            className="pointer-events-none absolute top-0 z-10 rounded-xl border border-line bg-surface px-3 py-2 shadow-float"
             style={{ left: `${gauche}%`, transform: `translateX(${gauche > 55 ? "-105%" : "5%"})` }}
             role="status"
           >

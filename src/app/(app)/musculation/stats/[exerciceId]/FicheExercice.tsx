@@ -9,7 +9,8 @@ import { formaterDateLongue } from "@/lib/musculation/historique";
 import { formaterPoids } from "@/lib/musculation/seance";
 import type { MetriqueProgression, RecordsExercice, ValeurRecord } from "@/lib/musculation/stats";
 import { queryKeys } from "@/lib/query/keys";
-import { card, metaText, screenTitle, sectionTitle, zoneTapPill } from "@/lib/ui";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { card, metaText, screenTitle, sectionTitle } from "@/lib/ui";
 import { GraphiqueProgression } from "../GraphiqueProgression";
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
@@ -49,18 +50,29 @@ export function FicheExercice({ exerciceId }: { exerciceId: string }) {
   });
   const [choix, setChoix] = useState<MetriqueProgression | null>(null);
 
+  // Le lien de retour reste en place pendant le chargement et en cas d'erreur : l'écran n'est jamais une impasse.
+  const retour = <BackLink href="/musculation/stats">Statistiques</BackLink>;
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
+        {retour}
         <Skeleton className="h-9 w-2/3" />
         <Skeleton className="h-48 w-full rounded-card" />
       </div>
     );
   }
-  if (isError) {
-    return <ErrorInline titre="Chargement impossible" message="Impossible de charger l'exercice. Vérifie ta connexion." retry={() => refetch()} />;
+  if (isError || !data) {
+    return (
+      <div className="flex flex-col gap-4">
+        {retour}
+        {isError ? (
+          <ErrorInline titre="Chargement impossible" message="Impossible de charger l'exercice. Vérifie ta connexion." retry={() => refetch()} />
+        ) : (
+          <ErrorInline titre="Exercice introuvable" message="Cet exercice n'existe pas." />
+        )}
+      </div>
+    );
   }
-  if (!data) return <ErrorInline titre="Exercice introuvable" message="Cet exercice n'existe pas." />;
 
   const { exercice, stats } = data;
   const disponibles = METRIQUES.filter((m) => stats.progression[m.value].length > 0);
@@ -70,7 +82,7 @@ export function FicheExercice({ exerciceId }: { exerciceId: string }) {
   return (
     <div className="flex flex-col gap-4 pb-8">
       <div className="flex flex-col gap-4">
-        <BackLink href="/musculation/stats">Statistiques</BackLink>
+        {retour}
         <div className="flex flex-col gap-1">
           <h1 className={screenTitle}>{exercice.nom}</h1>
           <p className={metaText}>
@@ -97,22 +109,9 @@ export function FicheExercice({ exerciceId }: { exerciceId: string }) {
       {metrique && (
         <section className={`${card} flex flex-col gap-3`} aria-label="Progression">
           <h2 className={sectionTitle}>{metrique.titre}</h2>
+          {/* Choix de 2 à 3 mesures : contrôle segmenté du système, comme Semaine / Mois des statistiques. */}
           {disponibles.length > 1 && (
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Mesure">
-              {disponibles.map((m) => (
-                <button
-                  key={m.value}
-                  type="button"
-                  aria-pressed={metrique.value === m.value}
-                  onClick={() => setChoix(m.value)}
-                  className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
-                    metrique.value === m.value ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
-                  }`}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl options={disponibles} value={metrique.value} onChange={setChoix} ariaLabel="Mesure" taille="sm" />
           )}
           <GraphiqueProgression
             points={stats.progression[metrique.value].map((p) => ({ date: p.date, valeur: p.valeur }))}

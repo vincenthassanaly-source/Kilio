@@ -36,7 +36,7 @@ import { signalerFinRepos, useMinuteurRepos } from "@/lib/musculation/useMinuteu
 import { useWakeLock } from "@/lib/musculation/useWakeLock";
 import { queryKeys } from "@/lib/query/keys";
 import { LIBELLES_TYPE, ORDRE_TYPES } from "@/lib/seances/compute";
-import { input, metaText, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
+import { emptyState, input, metaText, primaryButton, secondaryButton, zoneTapPill } from "@/lib/ui";
 import { BarreRepos } from "./BarreRepos";
 import { ExerciceBloc } from "./ExerciceBloc";
 import { SelecteurExercices } from "./SelecteurExercices";
@@ -277,7 +277,7 @@ export function SeanceView() {
                   type="button"
                   aria-pressed={actif}
                   onClick={() => maj((courant) => ({ ...courant, typeSeance: actif ? null : type }))}
-                  className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                  className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition-[color,background-color,transform] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                     actif ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                   }`}
                 >
@@ -290,9 +290,7 @@ export function SeanceView() {
       )}
 
       {b.exercices.length === 0 && (
-        <p className={`${metaText} rounded-2xl bg-surface-alt p-4 text-center`}>
-          Séance vide : ajoute ton premier exercice pour commencer.
-        </p>
+        <p className={emptyState}>Séance vide : ajoute ton premier exercice pour commencer.</p>
       )}
 
       {b.exercices.map((exercice, index) => (
