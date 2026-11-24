@@ -56,4 +56,24 @@ describe("chargerOpenCv", () => {
     ]);
     expect(gagnant).toBe("ok");
   });
+
+  it("après le délai de 45 s, une nouvelle tentative réutilise le script en cours au lieu d'en injecter un second", async () => {
+    vi.useFakeTimers();
+    try {
+      const { chargerOpenCv } = await import("./opencv");
+      const premier = chargerOpenCv();
+      const rejet = expect(premier).rejects.toThrow(/délai/);
+      await vi.advanceTimersByTimeAsync(45_000);
+      await rejet;
+      const second = chargerOpenCv();
+      expect(document.head.querySelectorAll("script")).toHaveLength(1);
+      // Le téléchargement finit enfin : la seconde tentative en profite.
+      const moteur = moduleThenable();
+      (window as unknown as { cv: unknown }).cv = { then: (cb: (m: unknown) => void) => cb(moteur) };
+      document.head.querySelector("script")!.dispatchEvent(new Event("load"));
+      await expect(second.then((r) => r.cv === (moteur as never))).resolves.toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
