@@ -9,7 +9,7 @@ export default function ReferentielPage() {
     <div className="flex flex-col gap-5">
       <h1 className={screenTitle}>Pharmacie</h1>
       <OngletsPharmacie actif="referentiel" />
-      <Suspense fallback={<PharmacieSkeleton />}>
+      <Suspense fallback={<PharmacieSkeleton recherche />}>
         <ReferentielAccueil />
       </Suspense>
     </div>

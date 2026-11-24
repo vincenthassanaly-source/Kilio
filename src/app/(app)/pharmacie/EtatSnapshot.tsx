@@ -7,10 +7,13 @@ import { useSnapshotPharmacie } from "@/lib/pharmacie/useSnapshotPharmacie";
 import type { PharmaSnapshot } from "@/lib/pharmacie/types";
 import { ErrorInline } from "@/components/ErrorInline";
 
-export function PharmacieSkeleton() {
+/** `recherche` : l'écran n'a pas encore rendu son champ de recherche (chargement
+ * de la route), le squelette en garde la place. Sous un champ déjà affiché
+ * (coquilles `Avec…`), il ne le double pas. */
+export function PharmacieSkeleton({ recherche = false }: { recherche?: boolean }) {
   return (
     <div className="flex flex-col gap-3" aria-hidden="true">
-      <Skeleton className="h-11 w-full rounded-2xl" />
+      {recherche && <Skeleton className="h-[46px] w-full rounded-2xl" />}
       <Skeleton className="h-28 w-full rounded-hero" />
       <Skeleton className="h-20 w-full rounded-row" />
       <Skeleton className="h-20 w-full rounded-row" />
