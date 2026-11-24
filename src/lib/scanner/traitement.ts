@@ -230,19 +230,51 @@ export type PageTraitee = {
   filtre: Filtre;
 };
 
-/** Redresse la perspective puis applique le filtre « Magique » (rendu CamScanner Magique Pro). */
-export async function creerPage(source: ImageDataLike, quad: Quad): Promise<PageTraitee> {
+/** Attente maximale d'OpenCV au moment de créer une page : au-delà, redressement maison. */
+const ATTENTE_OPENCV_PAGE_MS = 300;
+
+/**
+ * OpenCV s'il est chargé avant `delaiMs`, sinon null (le chargement continue en arrière-plan).
+ * Toujours enveloppé : le module OpenCV est « thenable », une promesse ne doit jamais le renvoyer nu.
+ */
+async function chargerOpenCvSousDelai(delaiMs: number): Promise<{ cv: Cv | null }> {
+  let minuteur = 0;
+  const delai = new Promise<{ cv: Cv | null }>((resolve) => {
+    minuteur = window.setTimeout(() => resolve({ cv: null }), delaiMs);
+  });
+  const charge = chargerOpenCv().then(
+    (chargee): { cv: Cv | null } => chargee,
+    (): { cv: Cv | null } => ({ cv: null })
+  );
+  const gagnant = await Promise.race([charge, delai]);
+  window.clearTimeout(minuteur);
+  return gagnant;
+}
+
+/** Redresse la perspective (proportions réelles de la page) : OpenCV si disponible, sinon redressement maison. */
+export async function redresserPourPage(source: ImageDataLike, quad: Quad): Promise<ImageDataLike> {
   // Proportions réelles de la page (perspective corrigée), d'après la position des coins dans la photo.
   const { largeur, hauteur } = tailleSortie(quad, undefined, { largeur: source.width, hauteur: source.height });
   let redressee: ImageDataLike | null = null;
-  try {
-    const { cv } = await chargerOpenCv();
-    redressee = redresserCv(cv, source, quad, largeur, hauteur);
-  } catch {
-    // OpenCV indisponible : redressement bilinéaire maison.
+  // OpenCV seulement s'il est déjà prêt (ou le devient dans un court délai) : « Ajouter la page » ne
+  // doit jamais rester sur « Traitement… » le temps d'un premier téléchargement.
+  const cv = openCvSiPret() ?? (await chargerOpenCvSousDelai(ATTENTE_OPENCV_PAGE_MS)).cv;
+  if (cv) {
+    try {
+      redressee = redresserCv(cv, source, quad, largeur, hauteur);
+    } catch {
+      // Échec d'OpenCV : redressement maison ci-dessous.
+    }
   }
+  // OpenCV indisponible ou en retard : redressement bilinéaire maison.
   redressee ??= redresser(source, quad, largeur, hauteur);
   if (!redressee) throw new Error("Cadrage invalide : les quatre coins doivent former un quadrilatère convexe.");
+  return redressee;
+}
+
+/** Redresse la perspective puis applique le filtre « Magique » (rendu CamScanner Magique Pro). */
+export async function creerPage(source: ImageDataLike, quad: Quad): Promise<PageTraitee> {
+  let redressee = await redresserPourPage(source, quad);
   // Fond resté dans un coin (page coupée par la photo) repeint en papier, puis lignes de texte
   // nettement penchées remises à l'horizontale. Sans fond ni texte repérables, rien ne bouge.
   // Éventail des lignes et marge qui penche (papier courbé, perspective) : redressement local d'après le
