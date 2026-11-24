@@ -128,10 +128,9 @@ function CourseItemRowBase({
       queryClient.setQueryData<Tables<"courses_items">[]>(queryKeys.courses, (old) =>
         old?.filter((i) => i.id !== item.id)
       );
-      return { previous };
-    },
-    onSuccess: () => {
-      showActionToast(`« ${item.libelle} » supprimé`, {
+      // Toast affiché dès le geste, comme pour la coche : la ligne disparaît
+      // tout de suite, le filet « Annuler » aussi (même sur réseau lent).
+      const toastId = showActionToast(`« ${item.libelle} » supprimé`, {
         ariaLabel: `Annuler la suppression de « ${item.libelle} »`,
         onAction: () =>
           restaurerArticlesCourses(queryClient, [
@@ -144,8 +143,10 @@ function CourseItemRowBase({
             },
           ]),
       });
+      return { previous, toastId };
     },
     onError: (_err, _vars, context) => {
+      if (context?.toastId != null) dismissToast(context.toastId);
       restaurerElement(queryClient, queryKeys.courses, context?.previous, item.id);
       showToast("Impossible de supprimer l'article.");
     },
@@ -292,7 +293,7 @@ function CourseItemRowBase({
               // src/lib/ui.ts, en 15px) : évite le zoom automatique d'iOS
               // Safari au focus sur ce champ précis, sans changer la taille
               // de tous les autres champs de l'app.
-              className="w-full rounded-lg border border-line bg-surface-alt px-2 py-1 text-base text-ink outline-none transition-colors focus:border-kcal/60 focus-visible:ring-2 focus-visible:ring-kcal"
+              className="w-full rounded-lg border border-control-border bg-surface-alt px-2 py-1 text-base text-ink outline-none transition-colors focus:border-kcal/60 focus-visible:ring-2 focus-visible:ring-kcal"
               // Empêche la sélection de texte / le geste tactile dans ce
               // champ de remonter jusqu'à TabSwipeWrapper et d'y être
               // interprété comme un swipe de navigation entre onglets (même

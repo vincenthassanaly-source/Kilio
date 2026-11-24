@@ -5,7 +5,7 @@ import { AddCourseForm } from "./AddCourseForm";
 import { PlusIcon } from "@/components/icons";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
+import { addCard, addCardIcon, addCardSousTitre, addCardTitre, card, textButton } from "@/lib/ui";
 
 export function AddCourseToggle() {
   const [open, setOpen] = useState(false);
@@ -16,9 +16,10 @@ export function AddCourseToggle() {
       <div className={addCardIcon}>
         <PlusIcon size={18} />
       </div>
-      <div className="flex flex-col gap-[1px]">
-        <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter un article</span>
-        <span className="text-caption font-medium text-ink-3">Un ou plusieurs articles, séparés par une virgule</span>
+      <div className="flex min-w-0 flex-col gap-[1px]">
+        {/* Inter (`addCardTitre`), pas Sora : The Two-Voice Rule de DESIGN.md. */}
+        <span className={addCardTitre}>Ajouter un article</span>
+        <span className={`${addCardSousTitre} text-pretty`}>Un ou plusieurs articles, séparés par une virgule</span>
       </div>
     </button>
   );
