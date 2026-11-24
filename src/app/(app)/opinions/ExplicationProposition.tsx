@@ -1,5 +1,6 @@
 import type { ExplicationProposition as Explication } from "@/lib/opinions/partis";
 import { metaText } from "@/lib/ui";
+import { Chevron } from "./Chevron";
 
 const BLOCS: { cle: keyof Explication; titre: string }[] = [
   { cle: "concret", titre: "Ce que ça change" },
@@ -18,20 +19,7 @@ export function ExplicationProposition({ explication }: { explication: Explicati
     <details className="group rounded-xl border border-line bg-surface-alt">
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-3 text-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
         Comprendre cette proposition
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          className="shrink-0 text-ink-3 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
+        <Chevron taille={16} />
       </summary>
       <div className="flex flex-col gap-3 border-t border-line px-3 py-3">
         {BLOCS.flatMap(({ cle, titre }) =>

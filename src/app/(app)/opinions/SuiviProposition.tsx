@@ -39,7 +39,7 @@ export function SuiviProposition({
             type="checkbox"
             checked={proposition.lu}
             onChange={() => onBasculer("lu")}
-            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-ink-3 bg-surface-alt transition-colors checked:border-kcal checked:bg-kcal motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-control-border bg-surface-alt transition-colors checked:border-kcal checked:bg-kcal motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           />
           <svg
             width="12"
@@ -63,7 +63,7 @@ export function SuiviProposition({
         aria-pressed={proposition.favori}
         aria-label={proposition.favori ? "Retirer des favoris" : "Mettre en favori"}
         onClick={() => onBasculer("favori")}
-        className={`flex h-11 w-11 items-center justify-center rounded-xl transition active:scale-[0.94] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+        className={`flex h-11 w-11 items-center justify-center rounded-xl transition-[color,background-color,transform] active:scale-[0.94] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
           proposition.favori ? "text-kcal" : "text-ink-3 hover:bg-surface-alt"
         }`}
       >

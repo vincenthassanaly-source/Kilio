@@ -38,6 +38,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { card, dangerButton, errorText, input, label, pillTag, primaryButton, screenTitle, secondaryButton, sectionTitle } from "@/lib/ui";
 import { Champ, LigneScore } from "../ChampsFormulaire";
 import { StatutPill } from "../StatutPill";
+import { Chevron } from "../Chevron";
 import { BackLink } from "@/components/BackLink";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { lienRetourOpinions } from "@/lib/opinions/url";
@@ -339,11 +340,12 @@ export function IdeeEditor({ idee }: { idee: IdeeAvecVersions }) {
 
       {idee.versions.length > 0 && (
         <details className={`${card} group`}>
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
-            <span className={sectionTitle}>Historique de mon avis</span>
-            <span className={pillTag}>
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
+            <span className={`${sectionTitle} min-w-0 flex-1`}>Historique de mon avis</span>
+            <span className={`${pillTag} shrink-0`}>
               {idee.versions.length} version{idee.versions.length > 1 ? "s" : ""}
             </span>
+            <Chevron />
           </summary>
           <ol className="mt-3 flex flex-col gap-3">
             {idee.versions.map((version) => (
