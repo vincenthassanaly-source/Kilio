@@ -190,10 +190,13 @@ function imageReduite(video: HTMLVideoElement, coteMax: number): ImageData {
   return ctx.getImageData(0, 0, w, h);
 }
 
-/** Détection en direct sur une image de la vidéo (petite, donc rapide). Coins dans le repère natif du flux. */
+/**
+ * Détection en direct sur une image de la vidéo (petite, donc rapide). Coins dans le repère natif du
+ * flux ; `pas` = taille d'un pixel de l'image analysée, en pixels du flux (zone morte du suivi).
+ */
 export function detecterDepuisVideo(
   video: HTMLVideoElement
-): { quad: Quad | null; largeur: number; hauteur: number; moteur: MoteurDirect } | null {
+): { quad: Quad | null; largeur: number; hauteur: number; moteur: MoteurDirect; pas: number } | null {
   const vw = video.videoWidth;
   const vh = video.videoHeight;
   if (!vw || !vh) return null;
@@ -206,12 +209,14 @@ export function detecterDepuisVideo(
     } catch {
       // Échec ponctuel d'OpenCV : pas de cadre pour cette image.
     }
-    return { quad: quad ? mettreAEchelle(quad, vw / img.width) : null, largeur: vw, hauteur: vh, moteur: "opencv" };
+    const pas = vw / img.width;
+    return { quad: quad ? mettreAEchelle(quad, pas) : null, largeur: vw, hauteur: vh, moteur: "opencv", pas };
   }
   const tiree = imageReduite(video, 2 * COTE_LIVE_MAISON_PX);
   const { image, facteur } = reduirePourDetection(tiree, COTE_LIVE_MAISON_PX);
   const quad = detecterQuadrilatere(image);
-  return { quad: quad ? mettreAEchelle(quad, facteur * (vw / tiree.width)) : null, largeur: vw, hauteur: vh, moteur: "maison" };
+  const pas = facteur * (vw / tiree.width);
+  return { quad: quad ? mettreAEchelle(quad, pas) : null, largeur: vw, hauteur: vh, moteur: "maison", pas };
 }
 
 export type PageTraitee = {
