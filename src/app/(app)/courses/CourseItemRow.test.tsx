@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { dismissToast, getToasts } from "@/components/toast/toast-store";
-import { toggleCourseItem } from "@/app/actions/courses";
+import { deleteCourseItem, toggleCourseItem } from "@/app/actions/courses";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CourseItemRow } from "./CourseItemRow";
 
@@ -70,6 +70,19 @@ describe("CourseItemRow : gestes", () => {
     const toast = getToasts().find((t) => t.action);
     expect(toast?.text).toBe("« Lait » pris");
     expect(toast?.action?.label).toBe("Annuler");
+  });
+
+  it("la suppression propose « Annuler » dès le geste, et le retire si le serveur échoue", async () => {
+    let echouer: (err: Error) => void = () => {};
+    vi.mocked(deleteCourseItem).mockImplementationOnce(
+      () => new Promise<void>((_resolve, reject) => (echouer = reject))
+    );
+    renderRow(base);
+    fireEvent.click(screen.getByRole("button", { name: "Supprimer « Lait »" }));
+    await waitFor(() => expect(getToasts().find((t) => t.action)?.text).toBe("« Lait » supprimé"));
+    await act(async () => echouer(new Error("refus serveur")));
+    await waitFor(() => expect(getToasts().some((t) => t.action)).toBe(false));
+    expect(getToasts().some((t) => t.text === "Impossible de supprimer l'article.")).toBe(true);
   });
 
   it("un appui long sur le libellé ouvre le renommage sans cocher", () => {
