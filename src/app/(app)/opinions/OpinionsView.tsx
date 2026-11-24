@@ -86,20 +86,29 @@ function LigneIdee({ idee, index }: { idee: Idee; index: number }) {
 
 export function OpinionsView() {
   const queryClient = useQueryClient();
-  // Onglet, filtres et parti ouvert vivent dans l'URL : retrouvés au retour
-  // d'une idée, au rechargement ou depuis un lien. `replaceState` (intégré au
-  // routeur de Next) met à jour `useSearchParams` sans requête serveur ni
-  // entrée d'historique par tap.
+  // Onglet, filtres et parti ouvert sont recopiés dans l'URL : retrouvés au
+  // retour d'une idée, au rechargement ou depuis un lien. Un état local pilote
+  // l'écran : en production, `useSearchParams` ne se re-rend pas après un
+  // `replaceState` (les onglets restaient figés). L'URL est écrite sans requête
+  // serveur ni entrée d'historique par tap, et relue si elle change autrement
+  // (lien, navigation).
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const etat = lireEtatOpinions(searchParams);
+  const [etat, setEtat] = useState<EtatOpinions>(() => lireEtatOpinions(searchParams));
+  const urlCourante = searchParams.toString();
+  const [urlVue, setUrlVue] = useState(urlCourante);
+  if (urlVue !== urlCourante) {
+    setUrlVue(urlCourante);
+    setEtat(lireEtatOpinions(searchParams));
+  }
   const { onglet, statut: filtre, theme } = etat;
   const requete = ecrireEtatOpinions(etat);
   useEffect(() => memoriserRetourOpinions(requete), [requete]);
 
   function majEtat(partiel: Partial<EtatOpinions>) {
-    const suivant = ecrireEtatOpinions({ ...etat, ...partiel });
-    window.history.replaceState(window.history.state, "", `${pathname}${suivant}`);
+    const suivant = { ...etat, ...partiel };
+    setEtat(suivant);
+    window.history.replaceState(window.history.state, "", `${pathname}${ecrireEtatOpinions(suivant)}`);
   }
   const [saisie, setSaisie] = useState("");
   const [erreur, setErreur] = useState<string | null>(null);
