@@ -39,7 +39,7 @@ const TOLERANCE_ABERRANT = 1.8;
 /** Un coin ne bouge jamais de plus de cette part de la diagonale : au-delà, on garde le cadre d'origine. */
 const DEPLACEMENT_MAX = 0.08;
 /** Part des mesures d'un côté où le papier continue jusqu'au bord de la photo : le côté se pose sur ce bord. */
-const PART_COUPEE_MIN = 0.5;
+const PART_COUPEE_MIN = 0.75;
 /** Un côté posé sur le bord de la photo peut bouger davantage (le cadre d'origine était à l'intérieur de la page). */
 const DEPLACEMENT_MAX_COLLE = 0.16;
 /** Écart angulaire maximal entre la droite ajustée et le côté d'origine (degrés). */

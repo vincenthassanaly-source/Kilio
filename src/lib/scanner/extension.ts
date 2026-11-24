@@ -30,6 +30,15 @@ const TOLERANCE_COULEUR = 32;
 const ECARTS_TOLERES = 3;
 /** Déplacement minimal (pixels d'analyse) en deçà duquel un côté reste où il est. */
 const DEPLACEMENT_MIN = 3;
+/**
+ * Un côté « s'appuie sur un bord » si, sur cette part au moins des points mesurés, l'intérieur et
+ * l'extérieur diffèrent d'au moins `BORD_ECART_LUMINANCE` en luminance ou `BORD_ECART_COULEUR` en couleur.
+ */
+const BORD_PART_MIN = 0.6;
+const BORD_ECART_LUMINANCE = 5;
+const BORD_ECART_COULEUR = 10;
+/** Profondeur (pixels d'analyse) des bandes comparées de part et d'autre d'un côté. */
+const BORD_PROFONDEUR = 3;
 
 const luma = (r: number, g: number, b: number) => (77 * r + 150 * g + 29 * b) / 256;
 const mediane = (v: number[]): number => {
@@ -101,6 +110,61 @@ function bande(img: ImageDataLike, a: Point, b: Point, n: Point, k: number, ref:
   return mediane(lums) >= TOLERANCE_LUMINANCE * ref.lum && dist <= TOLERANCE_COULEUR ? "papier" : "autre";
 }
 
+/**
+ * Couleur moyenne d'une bande de `BORD_PROFONDEUR` pixels le long de la normale (sens `signe`), de
+ * k+2 à k+1+BORD_PROFONDEUR : on saute le pixel du bord, où l'ombre de contact dessine souvent un
+ * trait plus sombre que le papier comme que la table.
+ */
+function moyenneBande(img: ImageDataLike, x: number, y: number, n: Point, k: number, signe: 1 | -1): Rvb | null {
+  const { data, width: w, height: h } = img;
+  let r = 0, g = 0, b = 0, c = 0;
+  for (let j = 2; j <= BORD_PROFONDEUR + 1; j++) {
+    const px = Math.round(x + n.x * (k + signe * j));
+    const py = Math.round(y + n.y * (k + signe * j));
+    if (px < 0 || py < 0 || px >= w || py >= h) continue;
+    const i = (py * w + px) * 4;
+    r += data[i]; g += data[i + 1]; b += data[i + 2]; c++;
+  }
+  return c ? [r / c, g / c, b / c] : null;
+}
+
+/**
+ * Vrai si la droite parallèle au côté a→b, décalée de `k` pixels vers l'extérieur, longe un vrai
+ * bord : sur la plupart des points, du papier à l'intérieur et autre chose juste derrière. Un bloc
+ * de texte ou un pli ne passe pas, le bord du papier passe, même sur une table presque aussi claire
+ * que lui.
+ */
+function longeUnBord(img: ImageDataLike, a: Point, b: Point, n: Point, k: number, ref: { rvb: Rvb; lum: number }): boolean {
+  let mesures = 0;
+  let contrastes = 0;
+  for (let s = 0; s < ECHANTILLONS; s++) {
+    const t = DEBUT_COTE + ((FIN_COTE - DEBUT_COTE) * (s + 0.5)) / ECHANTILLONS;
+    const x = a.x + (b.x - a.x) * t;
+    const y = a.y + (b.y - a.y) * t;
+    // Le côté peut être à un ou deux pixels du vrai bord : on garde le meilleur contraste à ±2 px.
+    let vu = false;
+    let contraste = false;
+    for (let o = -2; o <= 2 && !contraste; o++) {
+      const dedans = moyenneBande(img, x, y, n, k + o, -1);
+      const dehors = moyenneBande(img, x, y, n, k + o, 1);
+      if (!dedans || !dehors) continue;
+      vu = true;
+      const ecartL = Math.abs(luma(...dedans) - luma(...dehors));
+      const ecartC = Math.hypot(dedans[0] - dehors[0], dedans[1] - dehors[1], dedans[2] - dehors[2]);
+      // Du papier à l'intérieur (une ligne de texte juste à l'intérieur n'est pas un bord de page)…
+      const papierDedans =
+        luma(...dedans) >= TOLERANCE_LUMINANCE * ref.lum &&
+        Math.hypot(dedans[0] - ref.rvb[0], dedans[1] - ref.rvb[1], dedans[2] - ref.rvb[2]) <= TOLERANCE_COULEUR;
+      // …et, juste derrière, autre chose que ce papier, même de très peu (table presque aussi claire).
+      contraste = papierDedans && (ecartL >= BORD_ECART_LUMINANCE || ecartC >= BORD_ECART_COULEUR);
+    }
+    if (!vu) continue;
+    mesures++;
+    if (contraste) contrastes++;
+  }
+  return mesures >= ECHANTILLONS / 2 && contrastes >= BORD_PART_MIN * mesures;
+}
+
 /** Intersection des droites (p1, d1) et (p2, d2), ou null si elles sont presque parallèles. */
 function intersection(p1: Point, d1: Point, p2: Point, d2: Point): Point | null {
   const det = d1.x * d2.y - d1.y * d2.x;
@@ -137,17 +201,28 @@ export function etendreAuxBordsDeLaFeuille(img: ImageDataLike, quad: Quad): Quad
 
     let decalage = 0;
     let ecarts = 0;
-    for (let k = 2; k <= maxK; k++) {
-      const etat = bande(image, a, b, n, k, ref);
-      if (etat === "dehors") break;
-      if (etat === "papier") {
-        decalage = k;
-        ecarts = 0;
-      } else if (++ecarts > ECARTS_TOLERES) {
-        break;
+    let surLeBordDeLaPhoto = false;
+    // Un côté déjà posé sur un vrai bord ne bouge pas : derrière lui, un fond presque aussi clair
+    // que le papier (blanc sur blanc, nappe claire) serait sinon pris pour la suite de la page.
+    if (!longeUnBord(image, a, b, n, 0, ref)) {
+      for (let k = 2; k <= maxK; k++) {
+        const etat = bande(image, a, b, n, k, ref);
+        if (etat === "dehors") {
+          surLeBordDeLaPhoto = true;
+          break;
+        }
+        if (etat === "papier") {
+          decalage = k;
+          ecarts = 0;
+        } else if (++ecarts > ECARTS_TOLERES) {
+          break;
+        }
       }
     }
-    if (decalage < DEPLACEMENT_MIN) decalage = 0;
+    // Le côté étendu n'est gardé que s'il s'arrête sur un vrai bord, ou sur le bord de la photo
+    // quand la page continue jusque-là ; sinon le côté d'origine reste.
+    const arrivee = decalage > 0 && (surLeBordDeLaPhoto || longeUnBord(image, a, b, n, decalage, ref));
+    if (decalage < DEPLACEMENT_MIN || !arrivee) decalage = 0;
     else bouge = true;
     droites.push({ p: { x: a.x + n.x * decalage, y: a.y + n.y * decalage }, d });
   }

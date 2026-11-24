@@ -65,7 +65,7 @@ describe("banc de la chaîne photo (detecterFeuilleAuto)", () => {
   const [blanc12, blanc8, nappe, coinHors, plusHaute] = scenesDifficiles();
 
   for (const scene of [blanc12, blanc8, nappe]) {
-    it.fails(`${scene.nom} : erreur ≤ 1,5 % et IoU ≥ 0,95 (échoue avant D4a : l'extension déborde sur le fond)`, async () => {
+    it(`${scene.nom} : erreur ≤ 1,5 % et IoU ≥ 0,95`, async () => {
       const m = await mesurer(scene);
       expect(m.erreur).toBeLessThanOrEqual(0.015);
       expect(m.iou).toBeGreaterThanOrEqual(0.95);
@@ -73,7 +73,7 @@ describe("banc de la chaîne photo (detecterFeuilleAuto)", () => {
     });
   }
 
-  it.fails(`${coinHors.nom} : erreur ≤ 3 % (échoue avant D4a)`, async () => {
+  it(`${coinHors.nom} : erreur ≤ 3 %`, async () => {
     const m = await mesurer(coinHors);
     expect(m.erreur).toBeLessThanOrEqual(0.03);
   });

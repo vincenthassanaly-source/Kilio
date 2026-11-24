@@ -306,6 +306,10 @@ export async function detecterDocumentRobuste(
     const q = detecterDocumentCv(cv, img, cote);
     if (q) trouves.push(q);
   }
-  const quad = consensusQuads([...trouves, ...supplementaires], Math.hypot(img.width, img.height));
+  // Un cadre d'appoint dont 3 coins ou plus collent au bord de l'image a trouvé le cadre de la photo
+  // (ou le quadrillage d'une nappe), pas la feuille : la même règle écarte ces cadres côté OpenCV.
+  // Il ne départage donc pas les analyses OpenCV ; il reste le repli si aucune ne trouve rien.
+  const appoint = trouves.length ? supplementaires.filter((q) => coinsAuBord(q, img.width, img.height) < 3) : supplementaires;
+  const quad = consensusQuads([...trouves, ...appoint], Math.hypot(img.width, img.height));
   return quad && quadValide(quad) ? quad : null;
 }
