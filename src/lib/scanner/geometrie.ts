@@ -156,7 +156,7 @@ export function rapportReel(quad: Quad, largeurImage: number, hauteurImage: numb
       ) / (n2[2] * n3[2]);
     // Perspective trop faible pour mesurer la focale (quasi de face) : la focale par défaut suffit,
     // le rapport n'en dépend presque pas. Sinon une focale aberrante trahit un quadrilatère non projectif.
-    const mesurable = Math.abs(n2[2]) * cote > 0.02 * Math.hypot(n2[0], n2[1]) || Math.abs(n3[2]) * cote > 0.02 * Math.hypot(n3[0], n3[1]);
+    const mesurable = Math.abs(n2[2]) * cote > 0.02 * Math.hypot(n2[0], n2[1]) && Math.abs(n3[2]) * cote > 0.02 * Math.hypot(n3[0], n3[1]);
     if (mesurable) {
       if (!(f2 > 0)) return null;
       f = Math.sqrt(f2);

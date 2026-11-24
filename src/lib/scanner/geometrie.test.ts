@@ -206,8 +206,13 @@ describe("redresser", () => {
 });
 
 /** Feuille de `l`×`h` mm vue par un téléphone (sténopé, focale 0,78 × le grand côté), inclinée puis tournée. */
-function photographier(l: number, h: number, inclinaison: number, lacet: number, roulis: number): Quad {
-  const W = 2250, H = 3000, f = 2325, r = (d: number) => (d * Math.PI) / 180;
+function photographier(l: number, h: number, inclinaison: number, lacet: number, roulis: number, f = 2325, bruit = 0, graine = 1): Quad {
+  const W = 2250, H = 3000, r = (d: number) => (d * Math.PI) / 180;
+  let a = graine;
+  const alea = () => {
+    a = (a * 1103515245 + 12345) & 0x7fffffff;
+    return a / 0x7fffffff - 0.5;
+  };
   return [[-l / 2, -h / 2], [l / 2, -h / 2], [l / 2, h / 2], [-l / 2, h / 2]].map(([X, Y]) => {
     let x = X * Math.cos(r(roulis)) - Y * Math.sin(r(roulis));
     let y = X * Math.sin(r(roulis)) + Y * Math.cos(r(roulis));
@@ -218,8 +223,8 @@ function photographier(l: number, h: number, inclinaison: number, lacet: number,
     const y2 = y * Math.cos(r(inclinaison)) - z * Math.sin(r(inclinaison));
     z = y * Math.sin(r(inclinaison)) + z * Math.cos(r(inclinaison));
     y = y2;
-    z += 290 + inclinaison * 1.5;
-    return { x: (f * x) / z + W / 2, y: (f * y) / z + H / 2 };
+    z += ((290 + inclinaison * 1.5) * f) / 2325;
+    return { x: (f * x) / z + W / 2 + 2 * bruit * alea(), y: (f * y) / z + H / 2 + 2 * bruit * alea() };
   }) as Quad;
 }
 
@@ -237,6 +242,20 @@ describe("tailleSortie : rapport d'aspect réel", () => {
       expect(Math.abs(largeur / hauteur / 0.6 - 1)).toBeLessThan(0.01);
     });
   }
+
+  it("téléphone seulement incliné, coins bruités (±1,5 px), focales de 0,72 à 0,85 : rapport à moins de 1 %", () => {
+    // Régression (revue du lot 1) : un seul point de fuite mesurable suffisait à « mesurer » la focale ;
+    // avec un peu de bruit elle devenait aberrante et on retombait sur l'ancien calcul (+4 à +16 %).
+    for (const focale of [0.72, 0.85]) {
+      for (let inclinaison = 5; inclinaison <= 30; inclinaison += 5) {
+        for (const lacet of [0, 3]) {
+          const q = photographier(210, 297, inclinaison, lacet, 0, focale * 3000, 1.5, inclinaison * 7 + lacet + focale * 100);
+          const { largeur, hauteur } = tailleSortie(q, 2000, photo);
+          expect(Math.abs(largeur / hauteur / (210 / 297) - 1), `focale ${focale}, ${inclinaison}°, lacet ${lacet}°`).toBeLessThan(0.01);
+        }
+      }
+    }
+  });
 
   it("aimante une carte (85,6 × 54 mm) en paysage", () => {
     const { largeur, hauteur } = tailleSortie(photographier(85.6 * 1.02, 54, 10, 3, 0), 2000, photo);
