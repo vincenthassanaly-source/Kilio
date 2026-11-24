@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { createCollection, type CollectionFormState } from "@/app/actions/collections";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card, errorText, input, primaryButton, textButton } from "@/lib/ui";
+import { addCard, addCardIcon, addCardSousTitre, addCardTitre, card, errorText, input, primaryButton, textButton } from "@/lib/ui";
 import { PlusIcon } from "@/components/icons";
 
 const initialState: CollectionFormState = { error: null };
@@ -25,14 +25,12 @@ export function AddCollectionToggle({ onSaved }: { onSaved?: () => void }) {
 
   const trigger = (
     <button type="button" onClick={() => setOpen(true)} className={addCard}>
-      <div
-        className={addCardIcon}
-      >
+      <div className={addCardIcon}>
         <PlusIcon size={18} />
       </div>
       <div className="flex flex-col gap-[1px]">
-        <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une collection</span>
-        <span className="text-xs font-medium text-ink-3">Un ensemble de photos ou de liens vidéo</span>
+        <span className={addCardTitre}>Ajouter une collection</span>
+        <span className={addCardSousTitre}>Un ensemble de photos ou de liens vidéo</span>
       </div>
     </button>
   );
@@ -50,7 +48,7 @@ export function AddCollectionToggle({ onSaved }: { onSaved?: () => void }) {
 
         <div className="flex gap-2">
           <button type="submit" disabled={pending} className={primaryButton}>
-            {pending ? "Ajout..." : "Ajouter"}
+            {pending ? "Ajout…" : "Ajouter"}
           </button>
           <button type="button" onClick={() => setOpen(false)} className={textButton}>
             Annuler

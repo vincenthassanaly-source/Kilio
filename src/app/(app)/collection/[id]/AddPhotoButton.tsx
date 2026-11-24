@@ -16,11 +16,11 @@ import {
 import { errorText, input, primaryButton, textButton } from "@/lib/ui";
 
 const ADD_PHOTO_BUTTON =
-  "flex flex-1 cursor-pointer items-center justify-center gap-1.5 min-h-11 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-small font-semibold text-kcal transition-colors hover:bg-kcal-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kcal has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-kcal";
+  "flex flex-1 cursor-pointer items-center justify-center gap-1.5 min-h-11 rounded-2xl border-[1.5px] border-dashed border-kcal/50 py-3 text-small font-semibold text-kcal transition-[background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-kcal-soft active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kcal has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-kcal";
 
 function CameraIcon() {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M4 8.5a1.5 1.5 0 0 1 1.5-1.5h1.6l1-1.7A1.5 1.5 0 0 1 9.4 4.5h5.2a1.5 1.5 0 0 1 1.3.8l1 1.7h1.6A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9z" />
       <circle cx="12" cy="13" r="3.3" />
     </svg>
@@ -29,7 +29,7 @@ function CameraIcon() {
 
 function GalerieIcon() {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
       <circle cx="9" cy="9.5" r="1.4" />
       <path d="M4.5 16.5l4.5-4.5 3 3 3.5-3.5 4.5 4.5" />
@@ -41,7 +41,7 @@ function GalerieIcon() {
 // accepte indifféremment un lien TikTok ou YouTube.
 function VideoIcon() {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="8.5" />
       <path d="M10.2 8.8v6.4l5-3.2-5-3.2z" />
     </svg>
@@ -163,7 +163,7 @@ export function AddPhotoButton({
       <div className="flex gap-2">
         {/* Inputs `sr-only` (et non `hidden`) dans leur label : atteignables au
             clavier et au lecteur d'écran ; l'anneau de focus passe sur le label. */}
-        <label className={`${ADD_PHOTO_BUTTON} relative ${isPending ? "opacity-60" : ""}`}>
+        <label className={`${ADD_PHOTO_BUTTON} relative ${isPending ? "pointer-events-none opacity-60" : ""}`}>
           <CameraIcon />
           {isPending && source === "camera" ? (etape ?? "Envoi…") : "Appareil photo"}
           <input
@@ -178,7 +178,7 @@ export function AddPhotoButton({
           />
         </label>
 
-        <label className={`${ADD_PHOTO_BUTTON} relative ${isPending ? "opacity-60" : ""}`}>
+        <label className={`${ADD_PHOTO_BUTTON} relative ${isPending ? "pointer-events-none opacity-60" : ""}`}>
           <GalerieIcon />
           {isPending && source === "galerie" ? (etape ?? "Envoi…") : "Galerie"}
           <input

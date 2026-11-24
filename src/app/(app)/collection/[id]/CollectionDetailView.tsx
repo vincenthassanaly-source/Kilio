@@ -13,7 +13,7 @@ import { CollectionHeader } from "./CollectionHeader";
 import { PhotosGrid } from "./PhotosGrid";
 import { TitrageModal } from "./TitrageModal";
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { GridSkeleton } from "@/components/skeletons/GridSkeleton";
+import { AjoutsSkeleton, ElementsSkeleton } from "../GrilleSkeleton";
 import { ErrorInline } from "@/components/ErrorInline";
 import { showErrorToast } from "@/components/toast/toast-store";
 import { BackLink } from "@/components/BackLink";
@@ -47,12 +47,18 @@ export function CollectionDetailView({ id }: { id: string }) {
 
   if (isLoading) {
     return (
+      // Même silhouette que loading.tsx : le lien retour reste en place.
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <Skeleton className="mt-1 h-6 w-2/5" />
+          <BackLink href="/collection">Collection</BackLink>
+          <Skeleton className="mt-1 h-7 w-3/5" />
+          <div className="flex gap-2">
+            <Skeleton className="h-[35px] w-24 rounded-xl" />
+            <Skeleton className="h-[35px] w-24 rounded-xl" />
+          </div>
         </div>
-        <Skeleton className="h-11 w-full rounded-2xl" />
-        <GridSkeleton />
+        <AjoutsSkeleton />
+        <ElementsSkeleton />
       </div>
     );
   }
