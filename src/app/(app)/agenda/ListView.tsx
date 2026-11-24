@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { compareAsc, format, startOfToday } from "date-fns";
+import { compareAsc, format, isSameYear, startOfToday } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { TacheAvecRelations } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
@@ -12,8 +12,15 @@ import { FerieBadge } from "@/components/FerieBadge";
 import { sectionTitle } from "@/lib/ui";
 import { ArchivedTasksSection } from "./ArchivedTasksSection";
 import { parseISODate, toISODate } from "@/lib/date/iso";
-import { majusculePremiere } from "./date-utils";
-import { sortByHeure } from "./date-utils";
+import { majusculePremiere, sortByHeure } from "./date-utils";
+
+// Même écriture que l'en-tête de la vue Jour : l'année n'apparaît que hors de l'année en cours.
+function titreJour(iso: string): string {
+  const date = parseISODate(iso);
+  return majusculePremiere(
+    format(date, isSameYear(date, new Date()) ? "EEEE d MMMM" : "EEEE d MMMM yyyy", { locale: fr })
+  );
+}
 
 export function ListView({
   taches,
@@ -75,7 +82,7 @@ export function ListView({
       <div key={iso} className="flex flex-col gap-2">
         <h2 className={sectionTitle}>
           {iso === aujourdhuiIso ? "Aujourd'hui · " : ""}
-          {majusculePremiere(format(parseISODate(iso), "EEEE d MMMM yyyy", { locale: fr }))}
+          {titreJour(iso)}
         </h2>
         {feries?.has(iso) && <FerieBadge nom={feries.get(iso)!} className="self-start" />}
         <ul className="flex flex-col gap-2.5">
@@ -123,7 +130,7 @@ export function ListView({
             type="button"
             onClick={() => setPassesOuverts((v) => !v)}
             aria-expanded={passesOuverts}
-            className="flex min-h-11 w-full items-center justify-between gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+            className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           >
             <span className={sectionTitle}>Jours passés ({passes.length})</span>
             <svg
@@ -136,7 +143,7 @@ export function ListView({
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
-              className={`text-ink-2 transition-transform duration-200 ${passesOuverts ? "rotate-180" : ""}`}
+              className={`text-ink-2 transition-transform duration-200 ease-[var(--ease-out)] ${passesOuverts ? "rotate-180" : ""}`}
             >
               <path d="M6 9l6 6 6-6" />
             </svg>
@@ -149,7 +156,7 @@ export function ListView({
       {!avenir.includes(aujourdhuiIso) && (
         <div className="flex flex-col gap-2">
           <h2 className={sectionTitle}>
-            Aujourd&apos;hui · {majusculePremiere(format(parseISODate(aujourdhuiIso), "EEEE d MMMM yyyy", { locale: fr }))}
+            Aujourd&apos;hui · {titreJour(aujourdhuiIso)}
           </h2>
           {feries?.has(aujourdhuiIso) && <FerieBadge nom={feries.get(aujourdhuiIso)!} className="self-start" />}
           <p className="text-label text-ink-2">Rien de prévu.</p>

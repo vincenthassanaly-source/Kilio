@@ -224,7 +224,7 @@ export function DayView({
       />
       {ferieDuJour && <FerieBadge nom={ferieDuJour} className="self-center" />}
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+      <div className="overflow-hidden rounded-card border border-line bg-surface">
         {(dayJourneeEntiere.length > 0 ||
           dayEvenementsTot.length > 0 ||
           dayTachesTot.length > 0 ||
@@ -289,13 +289,13 @@ export function DayView({
       </div>
 
       {onCreerEvenement && (
-        <p className="text-center text-caption text-ink-2">
+        <p className="text-center text-caption text-ink-2 text-balance">
           Appui long sur la grille pour ajouter un événement à cette heure.
         </p>
       )}
 
       {dayTaches.length === 0 && dayTachesArchivees.length === 0 ? (
-        <p className="text-ink-2">
+        <p className="text-label text-ink-2">
           {dayEvenements.length + dayJourneeEntiere.length > 0
             ? "Aucune tâche ce jour-là, seulement des événements."
             : evenementsFiables

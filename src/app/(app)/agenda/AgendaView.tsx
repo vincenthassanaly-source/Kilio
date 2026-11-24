@@ -50,6 +50,10 @@ const VIEWS: { key: ViewKey; label: string }[] = [
 ];
 const CLES_VUES = VIEWS.map((v) => v.key);
 
+// Choix du menu du FAB (Événement / Tâche) : même retour au tap que les autres boutons.
+const CHOIX_AJOUT =
+  "flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float transition-[background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+
 // Distance horizontale minimum pour qu'un geste soit considéré comme un
 // swipe intentionnel (plutôt qu'un tap ou un léger tremblement du doigt).
 const SEUIL_SWIPE_HORIZONTAL_PX = 50;
@@ -433,7 +437,7 @@ export function AgendaView() {
           aria-keyshortcuts="n e"
           aria-expanded={menuAjoutOpen}
           aria-controls="agenda-choix-ajout"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-kcal text-on-kcal shadow-float transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <svg
             width="24"
@@ -444,7 +448,7 @@ export function AgendaView() {
             strokeWidth="2.2"
             strokeLinecap="round"
             aria-hidden="true"
-            className={reduceMotion ? "" : "transition-transform duration-200"}
+            className={reduceMotion ? "" : "transition-transform duration-200 ease-[var(--ease-out)]"}
             style={{ transform: menuAjoutOpen ? "rotate(45deg)" : undefined }}
           >
             <path d="M12 5v14M5 12h14" />
@@ -459,7 +463,7 @@ export function AgendaView() {
                 setMenuAjoutOpen(false);
                 setEvenementForm({});
               }}
-              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+              className={CHOIX_AJOUT}
             >
               Événement
             </button>
@@ -469,7 +473,7 @@ export function AgendaView() {
                 setMenuAjoutOpen(false);
                 setFabOpen(true);
               }}
-              className="flex h-11 items-center rounded-full border border-line bg-surface px-4 text-small font-semibold text-ink shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+              className={CHOIX_AJOUT}
             >
               Tâche
             </button>
@@ -543,7 +547,7 @@ export function AgendaView() {
       {etatListe === "chargement" ? (
         <div className="flex flex-col gap-4">
           <Skeleton className="h-11 w-full rounded-2xl" />
-          <Skeleton className="h-[55vh] w-full rounded-2xl" />
+          <Skeleton className="h-[55vh] w-full rounded-card" />
         </div>
       ) : etatListe === "erreur" || !taches ? (
         <div className="flex flex-col items-center gap-3 py-4 text-center" role="alert">

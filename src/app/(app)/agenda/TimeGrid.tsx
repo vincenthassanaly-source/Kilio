@@ -227,7 +227,8 @@ export function TimeGutter({ zoom, creneaux = [] }: { zoom: number; creneaux?: C
           className="absolute right-1 -translate-y-1/2 text-micro font-medium text-ink-2"
           style={{ top }}
         >
-          {String(hour).padStart(2, "0")}h
+          {/* « 8h », sans zéro de tête : même écriture que les repères de créneau (« 9h », « 12h30 »). */}
+          {hour}h
         </span>
       ))}
       {workMarks.map((mark) => (
