@@ -18,10 +18,12 @@ import {
 import { queryKeys } from "@/lib/query/keys";
 import { errorText, ghostButton, primaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { PlusIcon } from "@/components/icons";
+import { MoinsIcon } from "../../MoinsIcon";
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
-const boutonPortion = `flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-base text-ink transition-transform active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
+const boutonPortion = `flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-ink transition-[background-color,opacity,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt active:scale-[0.97] disabled:opacity-60 ${focusRing}`;
 
 // Portions par pas d'une demi : « 1,5 portion » se mange aussi.
 const PAS_PORTION = 0.5;
@@ -115,7 +117,7 @@ export function RecetteMacros({
             className={boutonPortion}
             aria-label="Retirer une demi-portion"
           >
-            −
+            <MoinsIcon size={18} />
           </button>
           <span className="min-w-8 text-center font-display text-base font-semibold text-ink tabular-nums" aria-live="polite">
             {fmt(count)}
@@ -127,7 +129,7 @@ export function RecetteMacros({
             className={boutonPortion}
             aria-label="Ajouter une demi-portion"
           >
-            +
+            <PlusIcon size={18} />
           </button>
         </div>
       </div>

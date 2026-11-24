@@ -65,7 +65,7 @@ function Progression({ coches, total }: { coches: number; total: number }) {
         className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink/10"
       >
         <div
-          className="h-full rounded-full bg-kcal transition-[width] duration-200"
+          className="h-full rounded-full bg-kcal transition-[width] duration-200 ease-[var(--ease-out)]"
           style={{ width: `${pourcent}%` }}
         />
       </div>
@@ -73,6 +73,26 @@ function Progression({ coches, total }: { coches: number; total: number }) {
         {coches}/{total}
       </span>
     </div>
+  );
+}
+
+// Flèche tracée de « → Tâche » : le glyphe « → » d'Inter tombait sous la
+// ligne de base du mot, en plus petit.
+function FlecheIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
   );
 }
 
@@ -387,9 +407,10 @@ export function NoteCard({ note, tags }: { note: NoteAvecRelations; tags: Tables
                         disabled={creationEnCours}
                         onClick={() => creerTache(() => noteItemVersTache(item.id))}
                         aria-label={`Ajouter une tâche : ${item.libelle}`}
-                        className={`${linkButton} shrink-0`}
+                        className={`${linkButton} inline-flex shrink-0 items-center gap-1`}
                       >
-                        → Tâche
+                        <FlecheIcon />
+                        Tâche
                       </button>
                     </div>
                   ))}

@@ -26,7 +26,9 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.mocked(deleteRecette).mockResolvedValue(undefined);
   render(<RecetteHeader recette={RECETTE} />);
-  fireEvent.click(screen.getByRole("button", { name: "Supprimer la recette « Curry »" }));
+  // « Supprimer » est rangé dans le menu « … » de l'en-tête.
+  fireEvent.click(screen.getByRole("button", { name: "Actions de la recette « Curry »" }));
+  fireEvent.click(screen.getByRole("menuitem", { name: "Supprimer" }));
 });
 
 afterEach(() => {

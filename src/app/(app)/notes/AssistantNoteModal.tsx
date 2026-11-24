@@ -11,6 +11,7 @@ import { EtincelleIcon } from "@/components/EtincelleIcon";
 import { Modal } from "@/components/Modal";
 import { runAction } from "@/lib/actions/runAction";
 import type { ModeAssistantNote, PropositionNote } from "@/lib/notes/assistant";
+import { titreNote } from "@/lib/notes/saisie";
 import { errorText, ghostButton, primaryButton, secondaryButton } from "@/lib/ui";
 
 type Etat =
@@ -40,9 +41,9 @@ const MESSAGES_CHARGEMENT: Record<ModeAssistantNote, string> = {
 function Squelette() {
   return (
     <div className="flex flex-col gap-2" aria-hidden="true">
-      <div className="h-3.5 w-full rounded bg-surface-alt motion-safe:animate-pulse" />
-      <div className="h-3.5 w-4/5 rounded bg-surface-alt motion-safe:animate-pulse" />
-      <div className="h-3.5 w-2/3 rounded bg-surface-alt motion-safe:animate-pulse" />
+      <div className="h-3.5 w-full rounded-full bg-surface-alt motion-safe:animate-pulse" />
+      <div className="h-3.5 w-4/5 rounded-full bg-surface-alt motion-safe:animate-pulse" />
+      <div className="h-3.5 w-2/3 rounded-full bg-surface-alt motion-safe:animate-pulse" />
     </div>
   );
 }
@@ -94,11 +95,11 @@ function ApercuResume({
     <div className="flex flex-col gap-4">
       {proposition.resume && (
         <section aria-label="Résumé suggéré" className="flex flex-col gap-1.5">
-          <h3 className="text-sm font-medium text-ink-2">Résumé</h3>
+          <h3 className="text-label font-medium text-ink-2">Résumé</h3>
           <p className="text-body leading-relaxed text-ink">{proposition.resume}</p>
           {peutAjouterResume && (
             <CaseAvecTexte id={`${uid}-resume`} coche={ajouterResume} onChange={setAjouterResume}>
-              <span className="text-sm text-ink">Ajouter ce résumé en tête de la note</span>
+              <span className="text-label text-ink">Ajouter ce résumé en tête de la note</span>
             </CaseAvecTexte>
           )}
         </section>
@@ -106,14 +107,14 @@ function ApercuResume({
 
       {titreChange ? (
         <section aria-label="Titre suggéré" className="flex flex-col gap-1.5">
-          <h3 className="text-sm font-medium text-ink-2">Titre</h3>
-          <p className="text-sm text-ink-3 line-through">{note.titre}</p>
+          <h3 className="text-label font-medium text-ink-2">Titre</h3>
+          <p className="text-label text-ink-3 line-through">{note.titre}</p>
           <CaseAvecTexte id={`${uid}-titre`} coche={changerTitre} onChange={setChangerTitre}>
             <span className="text-body font-semibold text-ink">{proposition.titre}</span>
           </CaseAvecTexte>
         </section>
       ) : (
-        <p className="text-sm text-ink-2">Le titre actuel te convient déjà : Gemini n&apos;en suggère pas d&apos;autre.</p>
+        <p className="text-label text-ink-2">Le titre actuel te convient déjà : Gemini n&apos;en suggère pas d&apos;autre.</p>
       )}
 
       <button
@@ -149,18 +150,18 @@ function ApercuReformulation({
   return (
     <div className="flex flex-col gap-4">
       {identique ? (
-        <p className="text-sm text-ink">Ta note est déjà claire : Gemini n&apos;y change rien.</p>
+        <p className="text-label text-ink">Ta note est déjà claire : Gemini n&apos;y change rien.</p>
       ) : (
         <>
           <section aria-label="Texte actuel" className="flex flex-col gap-1.5">
-            <h3 className="text-sm font-medium text-ink-2">Avant</h3>
-            <p className="max-h-36 overflow-y-auto whitespace-pre-wrap break-words rounded-2xl border border-line bg-surface-alt p-3 text-sm leading-relaxed text-ink-2">
+            <h3 className="text-label font-medium text-ink-2">Avant</h3>
+            <p className="max-h-36 overflow-y-auto whitespace-pre-wrap break-words rounded-2xl border border-line bg-surface-alt p-3 text-label leading-relaxed text-ink-2">
               {note.contenu}
             </p>
           </section>
           <section aria-label="Texte reformulé" className="flex flex-col gap-1.5">
-            <h3 className="text-sm font-medium text-ink">Après</h3>
-            <p className="max-h-52 overflow-y-auto whitespace-pre-wrap break-words rounded-2xl border border-kcal/40 bg-surface p-3 text-sm leading-relaxed text-ink">
+            <h3 className="text-label font-medium text-ink">Après</h3>
+            <p className="max-h-52 overflow-y-auto whitespace-pre-wrap break-words rounded-2xl border border-kcal/40 bg-surface p-3 text-label leading-relaxed text-ink">
               {proposition.contenu}
             </p>
           </section>
@@ -197,7 +198,7 @@ function ApercuTags({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-ink-2">Coche les tags à ajouter. Ceux déjà sur la note ne changent pas.</p>
+      <p className="text-label text-ink-2">Coche les tags à ajouter. Ceux déjà sur la note ne changent pas.</p>
       <div className="flex flex-wrap gap-2">
         {proposition.existants.map((tag) => {
           const actif = ids.includes(tag.id);
@@ -207,7 +208,7 @@ function ApercuTags({
               type="button"
               aria-pressed={actif}
               onClick={() => setIds((l) => basculer(l, tag.id))}
-              className={`relative min-h-9 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors after:absolute after:-inset-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+              className={`relative min-h-9 rounded-full px-3 py-1.5 text-label font-semibold transition-colors after:absolute after:-inset-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                 actif ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
               }`}
             >
@@ -223,7 +224,7 @@ function ApercuTags({
               type="button"
               aria-pressed={actif}
               onClick={() => setNouveaux((l) => basculer(l, nom))}
-              className={`relative min-h-9 rounded-full border border-dashed px-3 py-1.5 text-sm font-semibold transition-colors after:absolute after:-inset-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+              className={`relative min-h-9 rounded-full border border-dashed px-3 py-1.5 text-label font-semibold transition-colors after:absolute after:-inset-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                 actif ? "border-kcal bg-kcal text-on-kcal" : "border-line bg-surface text-ink-2"
               }`}
             >
@@ -307,7 +308,7 @@ export function AssistantNoteModal({
   return (
     <Modal title="Assistant IA" onClose={onClose}>
       <div className="flex flex-col gap-4">
-        <p className="truncate text-sm font-medium text-ink-2">{note.titre}</p>
+        <p className="truncate text-label font-medium text-ink-2">{titreNote(note)}</p>
 
         <div aria-live="polite" aria-busy={enCours} className="flex flex-col gap-4">
           {etat.phase === "choix" && (
@@ -317,14 +318,14 @@ export function AssistantNoteModal({
                   <button
                     type="button"
                     onClick={() => lancer(a.mode, false)}
-                    className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-line bg-surface p-3.5 text-left transition active:scale-[0.99] hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                    className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-line bg-surface p-3.5 text-left transition-[background-color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.99] hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-alt text-kcal">
                       <EtincelleIcon size={18} />
                     </span>
                     <span className="flex min-w-0 flex-col">
                       <span className="text-body font-semibold text-ink">{a.titre}</span>
-                      <span className="text-sm text-ink-2">{a.description}</span>
+                      <span className="text-label text-ink-2">{a.description}</span>
                     </span>
                   </button>
                 </li>
@@ -334,7 +335,7 @@ export function AssistantNoteModal({
 
           {etat.phase === "chargement" && (
             <div className="flex flex-col gap-3">
-              <p className="text-sm text-ink">{MESSAGES_CHARGEMENT[etat.mode]}</p>
+              <p className="text-label text-ink">{MESSAGES_CHARGEMENT[etat.mode]}</p>
               <Squelette />
             </div>
           )}
@@ -380,7 +381,7 @@ export function AssistantNoteModal({
         )}
 
         {proposition && !occupe && (
-          <p className="text-xs text-ink-3">Proposé par l&apos;IA : rien n&apos;est modifié avant que tu appliques.</p>
+          <p className="text-caption text-ink-3">Proposé par l&apos;IA : rien n&apos;est modifié avant que tu appliques.</p>
         )}
       </div>
     </Modal>

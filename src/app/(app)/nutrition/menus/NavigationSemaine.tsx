@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { shiftDate } from "@/lib/date/iso";
-import { eyebrow } from "@/lib/ui";
+import { eyebrow, navArrowButton } from "@/lib/ui";
+import { ChevronIcon } from "@/components/icons";
 import { hrefSemaineMenus, lireSemaineMenus, type MenusSearchParams, type SemaineMenus } from "./semaine";
 
-const boutonSemaine =
-  "flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-base";
+// Flèches de période du système : chevron tracé, pas de glyphe ‹ ›.
+const boutonSemaine = `${navArrowButton} bg-surface`;
 
 const FORMAT_JOUR_MOIS = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "UTC" });
 const FORMAT_JOUR = new Intl.DateTimeFormat("fr-FR", { day: "numeric", timeZone: "UTC" });
@@ -24,7 +25,7 @@ export async function MenusSemaineLibelle({ searchParams }: { searchParams: Menu
 }
 
 /**
- * Boutons ‹ › de changement de semaine. Sans `semaine` (fallback de
+ * Boutons de changement de semaine. Sans `semaine` (fallback de
  * `<Suspense>`, donc dans la coquille), même cadre, inactif, le temps que
  * l'URL soit lue.
  */
@@ -32,8 +33,12 @@ export function NavigationSemaine({ semaine }: { semaine?: SemaineMenus }) {
   if (!semaine) {
     return (
       <div className="flex gap-1.5" aria-hidden="true">
-        <span className={`${boutonSemaine} text-ink-3`}>‹</span>
-        <span className={`${boutonSemaine} text-ink-3`}>›</span>
+        <span className={`${boutonSemaine} text-ink-3`}>
+          <ChevronIcon sens="gauche" size={18} />
+        </span>
+        <span className={`${boutonSemaine} text-ink-3`}>
+          <ChevronIcon sens="droite" size={18} />
+        </span>
       </div>
     );
   }
@@ -44,17 +49,17 @@ export function NavigationSemaine({ semaine }: { semaine?: SemaineMenus }) {
         href={hrefSemaineMenus(shiftDate(semaine.lundi, -7))}
         replace
         aria-label="Semaine précédente"
-        className={`${boutonSemaine} text-ink`}
+        className={boutonSemaine}
       >
-        ‹
+        <ChevronIcon sens="gauche" size={18} />
       </Link>
       <Link
         href={hrefSemaineMenus(shiftDate(semaine.lundi, 7))}
         replace
         aria-label="Semaine suivante"
-        className={`${boutonSemaine} text-ink`}
+        className={boutonSemaine}
       >
-        ›
+        <ChevronIcon sens="droite" size={18} />
       </Link>
     </div>
   );

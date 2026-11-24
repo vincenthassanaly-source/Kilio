@@ -8,7 +8,8 @@ export default function NotesLoading() {
       <h1 className={screenTitle}>Notes</h1>
       {/* Silhouette de la carte « Ajouter une note » (≈ 72 px), puis de la recherche. */}
       <Skeleton className="h-[72px] w-full rounded-card" />
-      <Skeleton className="h-11 w-full rounded-2xl" />
+      {/* 46 px : hauteur réelle du champ (`input` : 24 px de texte, py-2.5, bordure). */}
+      <Skeleton className="h-[46px] w-full rounded-2xl" />
       <GridSkeleton />
     </div>
   );

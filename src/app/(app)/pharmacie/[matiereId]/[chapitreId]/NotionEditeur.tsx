@@ -25,7 +25,7 @@ import { ContenuColore, IconeNiveau } from "../../ContenuColore";
 
 // Cible tactile de 44 px (min-h-11), anneau de focus au clavier comme les autres boutons.
 const boutonNiveau =
-  "flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-small font-semibold text-ink transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-small font-semibold text-ink transition-[background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 // Correction rapide d'une notion (l'original dicté n'est pas conservé : c'est
 // le seul filet si une reformulation est ratée). L'ajout, lui, passe par le chat.

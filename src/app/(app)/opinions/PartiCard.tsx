@@ -39,6 +39,7 @@ import { SuiviProposition } from "./SuiviProposition";
 import { ExplicationProposition } from "./ExplicationProposition";
 import { PartiFormModal, ProgrammeFormModal, PropositionFormModal } from "./PartisForms";
 import { AxeBarre } from "./AxeBarre";
+import { Chevron } from "./Chevron";
 
 type Formulaire = "parti" | "programme-nouveau" | "programme-modifier" | null;
 
@@ -46,25 +47,6 @@ function libelleProgramme(programme: ProgrammeParti): string {
   return programme.date_programme
     ? `${programme.echeance} (${format(parseISO(programme.date_programme), "d MMM yyyy", { locale: fr })})`
     : programme.echeance;
-}
-
-function Chevron({ ouvert }: { ouvert: boolean }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={`shrink-0 text-ink-3 transition-transform duration-200 motion-reduce:transition-none ${ouvert ? "rotate-180" : ""}`}
-    >
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  );
 }
 
 export function PartiCard({
@@ -267,14 +249,15 @@ export function PartiCard({
           </span>
           <span className={metaText}>
             {parti.sigle ? `${parti.nom} · ` : ""}
+            {/* Espaces insécables : « 1 programme » et « 1/3 lues » ne se coupent jamais. */}
             {nombreTotal === 0
               ? "Aucun programme"
-              : `${nombreTotal} programme${nombreTotal > 1 ? "s" : ""}`}
-            {propositions.length > 0 && ` · ${lues}/${propositions.length} lues`}
+              : `${nombreTotal} programme${nombreTotal > 1 ? "s" : ""}`}
+            {propositions.length > 0 && ` · ${lues}/${propositions.length} lues`}
           </span>
         </span>
         {proximite && (
-          <span className={`${pillTag} tabular-nums`}>{proximite.pourcentage} % proche</span>
+          <span className={`${pillTag} shrink-0 tabular-nums`}>{proximite.pourcentage}{" "}% proche</span>
         )}
         <Chevron ouvert={ouvert} />
       </button>

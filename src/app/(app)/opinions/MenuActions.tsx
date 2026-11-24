@@ -15,6 +15,11 @@ const item =
   "flex min-h-11 w-full items-center px-3.5 text-left text-body font-medium transition-colors hover:bg-surface-alt active:bg-surface-alt disabled:opacity-40 focus-visible:bg-surface-alt focus-visible:outline-none";
 
 /**
+ * Variante locale du menu partagé `@/components/MenuActions` (même clavier),
+ * qui ajoute le rangement des suppressions après un séparateur. Le bouton reste
+ * sans contour : il se répète sous chaque proposition et ne doit pas peser sur
+ * la lecture.
+ *
  * Menu « … » des actions de gestion (modifier, reprendre, supprimer) : la
  * lecture reste épurée, la gestion est à un tap. Les suppressions viennent
  * toujours en dernier, après un séparateur, jamais en tête de menu.
@@ -90,7 +95,7 @@ export function MenuActions({ libelle, actions }: { libelle: string; actions: re
         aria-haspopup="menu"
         aria-expanded={ouvert}
         onClick={() => setOuvert((o) => !o)}
-        className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-2 transition-[color,background-color,transform] hover:bg-surface-alt active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+        className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-2 transition-[color,background-color,transform] hover:bg-surface-alt active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <circle cx="5" cy="12" r="1.8" />

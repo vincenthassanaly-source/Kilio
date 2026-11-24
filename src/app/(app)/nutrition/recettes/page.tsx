@@ -20,7 +20,7 @@ export default async function RecettesPage() {
   } catch (error) {
     console.error("Recettes : lecture impossible", error);
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
         <NutritionSubNav />
         <h1 className={screenTitle}>Recettes</h1>
         <ErrorInlineRefresh message="Impossible de charger les recettes." />
@@ -50,7 +50,7 @@ export default async function RecettesPage() {
 
   return (
     <PullToRefresh>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
         <NutritionSubNav />
         <h1 className={screenTitle}>Recettes</h1>
         <AddRecetteToggle />

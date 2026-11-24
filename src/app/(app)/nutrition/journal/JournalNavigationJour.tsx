@@ -2,21 +2,27 @@ import Link from "next/link";
 import type { JourJournal } from "./jour";
 import { shiftDate } from "@/lib/date/iso";
 import { hrefJourJournal } from "./liens";
-import { linkButton } from "@/lib/ui";
+import { linkButton, navArrowButton } from "@/lib/ui";
+import { ChevronIcon } from "@/components/icons";
 
-const boutonJour =
-  "flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-base";
+// Flèches de période du système (Agenda, Habitudes, Journal intime) : chevron
+// tracé plutôt que les glyphes ‹ ›, qui dépendent de la police de l'appareil.
+const boutonJour = `${navArrowButton} bg-surface`;
 
 /**
- * Boutons ‹ › de changement de jour. Sans `jour` (fallback de `<Suspense>`,
+ * Boutons de changement de jour. Sans `jour` (fallback de `<Suspense>`,
  * donc dans la coquille), même cadre, inactif, le temps que l'URL soit lue.
  */
 export function JourNavigation({ jour }: { jour?: JourJournal }) {
   if (!jour) {
     return (
       <div className="flex gap-1.5" aria-hidden="true">
-        <span className={`${boutonJour} text-ink-3`}>‹</span>
-        <span className={`${boutonJour} text-ink-3`}>›</span>
+        <span className={`${boutonJour} text-ink-3`}>
+          <ChevronIcon sens="gauche" size={18} />
+        </span>
+        <span className={`${boutonJour} text-ink-3`}>
+          <ChevronIcon sens="droite" size={18} />
+        </span>
       </div>
     );
   }
@@ -36,17 +42,17 @@ export function JourNavigation({ jour }: { jour?: JourJournal }) {
         href={hrefJourJournal(shiftDate(jour.date, -1), jour.depuisBilan)}
         replace
         aria-label="Jour précédent"
-        className={`${boutonJour} text-ink`}
+        className={boutonJour}
       >
-        ‹
+        <ChevronIcon sens="gauche" size={18} />
       </Link>
       <Link
         href={hrefJourJournal(shiftDate(jour.date, 1), jour.depuisBilan)}
         replace
         aria-label="Jour suivant"
-        className={`${boutonJour} text-ink`}
+        className={boutonJour}
       >
-        ›
+        <ChevronIcon sens="droite" size={18} />
       </Link>
     </div>
   );

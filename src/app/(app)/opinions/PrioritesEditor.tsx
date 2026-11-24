@@ -8,6 +8,7 @@ import { LIBELLE_NIVEAU, NIVEAUX, type Niveau, type Priorites } from "@/lib/opin
 import { LIBELLE_THEME, THEMES, type Theme } from "@/lib/opinions/types";
 import { queryKeys } from "@/lib/query/keys";
 import { card, label, pillTag, sectionTitle } from "@/lib/ui";
+import { Chevron } from "./Chevron";
 
 const OPTIONS = NIVEAUX.map((niveau) => ({ value: niveau, label: LIBELLE_NIVEAU[niveau] }));
 
@@ -27,10 +28,11 @@ export function PrioritesEditor() {
   }
 
   return (
-    <details className={card}>
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
-        <span className={sectionTitle}>Mes priorités par thème</span>
-        <span className={pillTag}>{definies} définie{definies > 1 ? "s" : ""}</span>
+    <details className={`${card} group`}>
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal">
+        <span className={`${sectionTitle} min-w-0 flex-1`}>Mes priorités par thème</span>
+        <span className={`${pillTag} shrink-0`}>{definies} définie{definies > 1 ? "s" : ""}</span>
+        <Chevron />
       </summary>
       <div className="mt-3 flex flex-col gap-4">
         <p className="text-caption text-ink-3">

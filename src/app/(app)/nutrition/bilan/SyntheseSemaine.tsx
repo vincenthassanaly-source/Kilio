@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { SyntheseSemaine as Synthese } from "@/app/actions/sante";
 import { TransitionLink } from "@/components/TransitionLink";
 import { formaterDelta, nombreFr, type EvolutionCorps } from "@/lib/sante/compute";
-import { card } from "@/lib/ui";
+import { card, linkButton } from "@/lib/ui";
 
 // Synthèse de la semaine : quatre chiffres pour sentir où on en est (kcal moyens
 // contre la limite, séances, poids lissé, tour de taille). Présentationnel, sans
@@ -59,7 +59,7 @@ export function SyntheseSemaine({ synthese, lienBilan = false }: { synthese: Syn
         />
       </dl>
       {lienBilan && (
-        <TransitionLink href="/nutrition/bilan" className="self-start text-small font-semibold text-kcal">
+        <TransitionLink href="/nutrition/bilan" className={`${linkButton} self-start`}>
           Voir le bilan complet
         </TransitionLink>
       )}
