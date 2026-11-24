@@ -157,7 +157,17 @@ export function VerrouGate({ children }: { children: ReactNode }) {
 
   if (phase.nom === "ouvert") return <>{children}</>;
 
-  if (phase.nom === "chargement") return <Skeleton className="h-[60vh] w-full rounded-card" />;
+  // Même silhouette que la coque de chargement (lien de retour, titre, feuille) mais sans aucun
+  // texte : la page ne saute pas entre la coque, cette attente et l'écran déverrouillé.
+  if (phase.nom === "chargement") {
+    return (
+      <div className="flex flex-col gap-4" aria-busy="true">
+        <div className="h-5" aria-hidden="true" />
+        <Skeleton className="h-[1.925rem] w-36 rounded-xl" />
+        <Skeleton className="h-[60vh] w-full rounded-card" />
+      </div>
+    );
+  }
 
   if (phase.nom === "erreur") {
     return (

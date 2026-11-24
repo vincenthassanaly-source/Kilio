@@ -443,23 +443,18 @@ export function FeuilleView({ jour, retour }: Props) {
 
       {mode === "clavier" ? (
         <SaisieClavier jour={jour} onAjouter={ajouterNote} />
+      ) : pret ? (
+        <FeuilleCanvas
+          traits={traits}
+          hauteur={hauteur}
+          outil={outil}
+          epaisseur={epaisseur}
+          ecritAuDoigt={ecritAuDoigt}
+          onTrait={surTrait}
+          onGomme={surGomme}
+        />
       ) : (
-        <>
-          {pret ? (
-            <FeuilleCanvas
-              traits={traits}
-              hauteur={hauteur}
-              outil={outil}
-              epaisseur={epaisseur}
-              ecritAuDoigt={ecritAuDoigt}
-              onTrait={surTrait}
-              onGomme={surGomme}
-            />
-          ) : (
-            <Skeleton className="h-[60vh] w-full rounded-card" />
-          )}
-
-        </>
+        <Skeleton className="h-[60vh] w-full rounded-card" />
       )}
 
       <ConfirmDialog

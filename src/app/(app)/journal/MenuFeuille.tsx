@@ -17,9 +17,10 @@ type Props = {
   doigt?: { actif: boolean; onBasculer: () => void };
 };
 
-// Cible tactile de 44 px (guide UX : zone minimale, 8 px d'écart entre cibles voisines).
+// Cible tactile de 44 px (guide UX : zone minimale, 8 px d'écart entre cibles voisines). Le
+// `py-2` garde de l'air autour d'un libellé qui passerait sur deux lignes (texte agrandi).
 const item =
-  "flex min-h-11 w-full items-center gap-3 px-3.5 text-left text-body font-medium transition-colors hover:bg-surface-alt active:bg-surface-alt disabled:opacity-40 focus-visible:bg-surface-alt focus-visible:outline-none";
+  "flex min-h-11 w-full items-center gap-3 px-3.5 py-2 text-left text-body font-medium transition-colors hover:bg-surface-alt active:bg-surface-alt disabled:opacity-40 focus-visible:bg-surface-alt focus-visible:outline-none";
 
 function Icone({ children }: { children: ReactNode }) {
   return (
@@ -122,7 +123,9 @@ export function MenuFeuille({ aTexte, enTranscription, peutEffacer, onVoirTexte,
           ref={menu}
           role="menu"
           aria-label="Actions de la feuille"
-          className="absolute right-0 top-[calc(100%+8px)] z-30 flex w-60 flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-float"
+          // Même cadre que <MenuActions> (py-1), un peu plus large : « Écrire aussi au doigt » et
+          // sa case tiennent sur une ligne.
+          className="absolute right-0 top-[calc(100%+8px)] z-30 flex w-[17rem] flex-col overflow-hidden rounded-2xl border border-line bg-surface py-1 shadow-float"
         >
           {aTexte && (
             <>
