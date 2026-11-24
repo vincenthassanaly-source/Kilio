@@ -13,6 +13,13 @@ import { BoutonDescription } from "../BoutonDescription";
 import { BoutonRemettreEnVrac } from "../BoutonRemettreEnVrac";
 import { BackLink } from "@/components/BackLink";
 
+const TITRE = "text-balance break-words font-display text-heading font-semibold text-ink";
+
+// Tuile d'un fichier (photo à agrandir, PDF à ouvrir) : anneau de focus clavier
+// et retour au toucher comme les autres cibles de l'écran.
+const TUILE =
+  "relative aspect-square w-full overflow-hidden rounded-2xl border border-line transition-[opacity,transform] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+
 function PdfIcon() {
   return (
     <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -80,16 +87,21 @@ export function DocumentDetail({
   }
 
   if (editing) {
+    // Le nom du document reste en titre pendant l'édition : sans lui, l'écran
+    // n'avait plus de titre (ni repère visuel, ni h1 pour les lecteurs d'écran).
     return (
-      <div className={card}>
-        <DocumentForm
-          document={document}
-          categories={categories}
-          onDone={() => setEditing(false)}
-        />
-        <button type="button" onClick={() => setEditing(false)} className={textButton}>
-          Annuler
-        </button>
+      <div className="flex flex-col gap-4">
+        <h1 className={TITRE}>{document.nom}</h1>
+        <div className={card}>
+          <DocumentForm
+            document={document}
+            categories={categories}
+            onDone={() => setEditing(false)}
+          />
+          <button type="button" onClick={() => setEditing(false)} className={textButton}>
+            Annuler
+          </button>
+        </div>
       </div>
     );
   }
@@ -100,10 +112,7 @@ export function DocumentDetail({
 
       <div className="flex flex-col gap-3">
         <div className="min-w-0">
-          <h1
-            style={{ viewTransitionName: `document-title-${document.id}` }}
-            className="mt-1 text-balance break-words font-display text-heading font-semibold text-ink"
-          >
+          <h1 style={{ viewTransitionName: `document-title-${document.id}` }} className={`mt-1 ${TITRE}`}>
             {document.nom}
           </h1>
           <div className="mt-1 flex flex-wrap gap-1.5">
@@ -159,7 +168,7 @@ export function DocumentDetail({
                     setLightboxSrc(fichier.url);
                     setLightboxAlt(caption ? `${caption} — ${document.nom}` : document.nom);
                   }}
-                  className="relative aspect-square w-full overflow-hidden rounded-2xl border border-line bg-surface-alt"
+                  className={`${TUILE} bg-surface-alt`}
                   aria-label={caption ? `Agrandir le ${caption.toLowerCase()}` : `Agrandir l'image ${index + 1}`}
                 >
                   <Image
@@ -180,7 +189,7 @@ export function DocumentDetail({
                   target="_blank"
                   rel="noreferrer"
                   aria-label={`Ouvrir le PDF${caption ? ` (${caption.toLowerCase()})` : document.fichiers.length > 1 ? ` ${index + 1} sur ${document.fichiers.length}` : ""} (nouvel onglet)`}
-                  className="relative flex aspect-square w-full flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border border-line text-ink-2"
+                  className={`${TUILE} flex flex-col items-center justify-center gap-1.5 text-ink-2`}
                 >
                   {fichier.apercu_url ? (
                     <>
