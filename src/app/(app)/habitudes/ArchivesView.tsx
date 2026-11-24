@@ -54,7 +54,7 @@ export function ArchivesView() {
         Une habitude archivée n&apos;apparaît plus dans Aujourd&apos;hui ; son historique est conservé.
       </p>
       {archivees.length === 0 ? (
-        <p className="py-6 text-center text-ink-2">Aucune habitude archivée.</p>
+        <p className="py-6 text-center text-label text-ink-2">Aucune habitude archivée.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {archivees.map((habitude) => (
