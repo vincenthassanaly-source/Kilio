@@ -22,7 +22,7 @@ import {
   type Brouillon,
 } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
-import { card, errorText, input, label, nameText, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
+import { card, emptyState, errorText, input, label, primaryButton, screenTitle, secondaryButton } from "@/lib/ui";
 import { ExerciceBloc } from "../seance/ExerciceBloc";
 import { SelecteurExercices } from "../seance/SelecteurExercices";
 import { ErrorInline } from "@/components/ErrorInline";
@@ -141,7 +141,7 @@ function Formulaire({ detail }: { detail: EntrainementDetail | null }) {
         />
       ))}
 
-      {brouillon.exercices.length === 0 && <p className={nameText}>Aucun exercice pour l&apos;instant.</p>}
+      {brouillon.exercices.length === 0 && <p className={emptyState}>Aucun exercice pour l&apos;instant.</p>}
 
       <button type="button" className={`${secondaryButton} h-12`} onClick={() => setSelecteur(true)}>
         + Ajouter un exercice
@@ -179,17 +179,28 @@ export function EditionEntrainement({ id }: { id: string | null }) {
   });
 
   if (id === null) return <Formulaire detail={null} />;
+  // Même lien de retour que le formulaire : visible dès le chargement, et seule issue en cas d'erreur.
+  const retour = <BackLink href={`/musculation/historique/${id}`}>Séance</BackLink>;
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
+        {retour}
         <Skeleton className="h-9 w-2/3" />
         <Skeleton className="h-48 w-full rounded-card" />
       </div>
     );
   }
-  if (isError) {
-    return <ErrorInline titre="Chargement impossible" message="Impossible de charger la séance. Vérifie ta connexion." retry={() => refetch()} />;
+  if (isError || !data) {
+    return (
+      <div className="flex flex-col gap-4">
+        {retour}
+        {isError ? (
+          <ErrorInline titre="Chargement impossible" message="Impossible de charger la séance. Vérifie ta connexion." retry={() => refetch()} />
+        ) : (
+          <ErrorInline titre="Séance introuvable" message="Cette séance n'existe plus." />
+        )}
+      </div>
+    );
   }
-  if (!data) return <ErrorInline titre="Séance introuvable" message="Cette séance n'existe plus." />;
   return <Formulaire detail={data} />;
 }

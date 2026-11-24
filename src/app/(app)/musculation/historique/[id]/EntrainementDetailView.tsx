@@ -31,6 +31,13 @@ import { card, dangerButton, input, metaText, primaryButton, screenTitle, second
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
 
+// Lien affiché comme un bouton de 48 px : texte centré par flex plutôt que par un interlignage calculé.
+const boutonLien = "flex h-12 items-center justify-center text-center";
+
+function Retour() {
+  return <BackLink href="/musculation/historique">Historique</BackLink>;
+}
+
 function Contenu({ detail }: { detail: EntrainementDetail }) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -118,7 +125,7 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
 
   return (
     <div className="flex flex-col gap-4 pb-8">
-      <BackLink href="/musculation/historique">Historique</BackLink>
+      <Retour />
       <div className="flex flex-col gap-1">
         <h1 className={screenTitle}>{detail.titre}</h1>
         <p className={metaText}>
@@ -155,17 +162,24 @@ function Contenu({ detail }: { detail: EntrainementDetail }) {
         {brouillonEnCours === undefined ? null : brouillonEnCours ? (
           // Une seule séance peut être en cours : on la reprend plutôt que de l'écraser.
           <>
-            <Link href="/musculation/seance" className={`${primaryButton} h-12 text-center leading-[1.6]`}>
+            <Link href="/musculation/seance" className={`${primaryButton} ${boutonLien}`}>
               Reprendre la séance en cours
             </Link>
             <p className={metaText}>« {brouillonEnCours.nom} » est en cours : termine-la avant d&apos;en refaire une.</p>
           </>
         ) : (
-          <button type="button" className={`${primaryButton} h-12`} onClick={() => void refaire()} disabled={enCours}>
+          // Désactivé pendant la préparation : un second tap ne relance pas une deuxième séance.
+          <button
+            type="button"
+            className={`${primaryButton} h-12`}
+            onClick={() => void refaire()}
+            disabled={enCours || demarrage}
+            aria-busy={demarrage}
+          >
             {demarrage ? "Préparation…" : "Refaire cette séance"}
           </button>
         )}
-        <Link href={`/musculation/historique/${detail.id}/modifier`} className={`${secondaryButton} h-12 text-center leading-[1.6]`}>
+        <Link href={`/musculation/historique/${detail.id}/modifier`} className={`${secondaryButton} ${boutonLien}`}>
           Modifier la séance
         </Link>
         <button type="button" className={`${secondaryButton} h-12`} onClick={() => setModalRoutine(true)} disabled={enCours}>
@@ -238,14 +252,23 @@ export function EntrainementDetailView({ id }: { id: string }) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
+        <Retour />
         <Skeleton className="h-9 w-2/3" />
         <Skeleton className="h-48 w-full rounded-card" />
       </div>
     );
   }
-  if (isError) {
-    return <ErrorInline titre="Chargement impossible" message="Impossible de charger la séance. Vérifie ta connexion." retry={() => refetch()} />;
+  if (isError || !data) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Retour />
+        {isError ? (
+          <ErrorInline titre="Chargement impossible" message="Impossible de charger la séance. Vérifie ta connexion." retry={() => refetch()} />
+        ) : (
+          <ErrorInline titre="Séance introuvable" message="Cette séance n'existe plus." />
+        )}
+      </div>
+    );
   }
-  if (!data) return <ErrorInline titre="Séance introuvable" message="Cette séance n'existe plus." />;
   return <Contenu detail={data} />;
 }

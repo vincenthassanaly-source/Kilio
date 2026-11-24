@@ -1,9 +1,11 @@
+import { BackLink } from "@/components/BackLink";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { screenTitle } from "@/lib/ui";
 
 export default function StatsLoading() {
   return (
     <div className="flex flex-col gap-4">
+      <BackLink href="/musculation">Musculation</BackLink>
       <h1 className={screenTitle}>Statistiques</h1>
       <Skeleton className="h-11 w-full rounded-2xl" />
       <Skeleton className="h-40 w-full rounded-card" />
