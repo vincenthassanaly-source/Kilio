@@ -6,6 +6,7 @@ import { AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { annulerValidationMenuEntry, removeMenuEntry, updateMenuEntry, validerMenuEntry } from "@/app/actions/menus";
 import { CheckToggle } from "@/components/CheckToggle";
+import { CrossIcon } from "@/components/icons";
 import { Modal } from "@/components/Modal";
 import { showActionToast, showToast } from "@/components/toast/toast-store";
 import { useBackClose } from "@/hooks/useBackClose";
@@ -127,9 +128,7 @@ export function LigneMenu({ repas, jourLabel }: { repas: RepasPlanifie; jourLabe
         aria-label={`Retirer « ${repas.label} » du menu`}
         className={`-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 transition-[color,background-color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] hover:bg-surface-alt hover:text-alert ${focusRing}`}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
+        <CrossIcon size={16} />
       </button>
 
       <AnimatePresence>

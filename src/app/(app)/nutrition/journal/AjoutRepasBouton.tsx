@@ -9,6 +9,8 @@ import { useBackClose } from "@/hooks/useBackClose";
 import { showToast } from "@/components/toast/toast-store";
 import { queryKeys } from "@/lib/query/keys";
 import { AJOUT_LABELS, type CatalogueItem, type MomentRepas } from "@/lib/nutrition/compute";
+import { primaryButton } from "@/lib/ui";
+import { PlusIcon } from "@/components/icons";
 
 const AjoutRepasPanneau = dynamic(() => import("./AjoutRepasPanneau").then((m) => m.AjoutRepasPanneau), {
   ssr: false,
@@ -74,9 +76,7 @@ export function AjoutRepasBouton({
           className="fixed right-[max(1rem,calc(50%-20rem))] z-40 flex h-14 items-center gap-2 rounded-full bg-kcal pl-4 pr-5 font-semibold text-on-kcal shadow-float transition-transform active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
+          <PlusIcon size={22} />
           Ajouter un repas
         </button>
       ) : (
@@ -85,7 +85,7 @@ export function AjoutRepasBouton({
           onClick={() => setOuvert(true)}
           onPointerDown={prechargerPanneau}
           aria-haspopup="dialog"
-          className="min-h-11 rounded-2xl bg-kcal px-4 py-2.5 font-semibold text-on-kcal transition-transform active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          className={`${primaryButton} min-h-11`}
         >
           Ajouter un repas
         </button>

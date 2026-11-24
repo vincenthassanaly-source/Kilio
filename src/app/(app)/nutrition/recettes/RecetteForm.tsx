@@ -9,6 +9,7 @@ import {
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { errorText, input, label as labelClass, primaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { ChevronIcon } from "@/components/icons";
 
 const initialState: RecetteFormState = { error: null };
 
@@ -161,16 +162,24 @@ export function RecetteForm({
 
       {source === "hellofresh" && (
         <div className="flex flex-col gap-2 rounded-2xl border border-line p-3">
+          {/* Volet repliable : chevron qui pivote et état annoncé (aria-expanded),
+              plutôt qu'un « + / − » texte sans rôle. */}
           <button
             type="button"
             onClick={() => setNutritionOpen((o) => !o)}
-            className="flex items-center justify-between text-left"
+            aria-expanded={nutritionOpen}
+            aria-controls={`${uid}-nutrition`}
+            className="-my-1 flex min-h-11 items-center justify-between gap-3 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           >
             <span className={labelClass}>Valeurs nutritionnelles (si imprimées)</span>
-            <span className="text-small text-ink-2">{nutritionOpen ? "−" : "+"}</span>
+            <span
+              className={`shrink-0 text-ink-2 transition-transform duration-200 ease-[var(--ease-out)] ${nutritionOpen ? "rotate-180" : ""}`}
+            >
+              <ChevronIcon sens="bas" size={18} />
+            </span>
           </button>
           {nutritionOpen && (
-            <div className="grid grid-cols-2 gap-2.5">
+            <div id={`${uid}-nutrition`} className="grid grid-cols-2 gap-2.5">
               {NUTRITION_FIELDS.map((field) => (
                 <div key={field.key} className="flex flex-col gap-1">
                   <label htmlFor={`${uid}-${field.key}`} className="text-caption text-ink-2">

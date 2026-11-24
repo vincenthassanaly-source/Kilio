@@ -8,6 +8,7 @@ import { Modal } from "@/components/Modal";
 import { showToast } from "@/components/toast/toast-store";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AJOUT_LABELS, MOMENT_LABELS, type MomentRepas } from "@/lib/nutrition/compute";
+import { PlusIcon } from "@/components/icons";
 
 // Même panneau que le Journal (recherche, récents, quantité, aperçu macros),
 // chargé à la demande : la grille de la semaine reste légère.
@@ -50,9 +51,7 @@ export function AjoutMenuBouton({
         aria-label={`Planifier un repas · ${jourLabel}, ${MOMENT_LABELS[moment]}`}
         className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-kcal transition-[background-color,transform] active:scale-[0.97] hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
+        <PlusIcon size={20} />
       </button>
 
       <AnimatePresence>

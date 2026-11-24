@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { TransitionLink } from "@/components/TransitionLink";
 import type { JourBilan } from "@/lib/nutrition/bilan";
 import { card, cardTight, sectionTitle } from "@/lib/ui";
+import { AlerteIcon } from "@/components/icons";
 
 // Vues présentationnelles du Bilan (rendu serveur, aucune interactivité
 // propre : chaque jour est un lien vers le Journal à cette date).
@@ -62,16 +63,6 @@ function classesMarque(jour: Pick<JourBilan, "statut" | "gravite">): string {
   }
 }
 
-function AlerteIcone({ taille = 10 }: { taille?: number }) {
-  return (
-    <svg width={taille} height={taille} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M12 3.5 22 20.5H2L12 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M12 10v4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="12" cy="17.5" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
 function Glyphe({ statut }: { statut: JourBilan["statut"] }) {
   switch (statut) {
     case "reussi":
@@ -81,7 +72,7 @@ function Glyphe({ statut }: { statut: JourBilan["statut"] }) {
         </svg>
       );
     case "rate":
-      return <AlerteIcone taille={16} />;
+      return <AlerteIcon size={16} />;
     case "en_cours":
       return (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -237,12 +228,12 @@ export function DetailJours({ jours }: { jours: JourBilan[] }) {
               ) : (
                 <div className="flex flex-col items-end gap-0.5 text-caption tabular-nums">
                   <p className={`flex items-center gap-1 ${classeKcal}`}>
-                    {kcalDepassees && <AlerteIcone />}
+                    {kcalDepassees && <AlerteIcon size={12} />}
                     {nombre.format(kcal)}
                     {cible ? ` / ${nombre.format(cible.kcal)}` : ""} kcal
                   </p>
                   <p className={`flex items-center gap-1 ${proteinesBasses ? "font-semibold text-warning" : "text-ink-2"}`}>
-                    {proteinesBasses && <AlerteIcone />}
+                    {proteinesBasses && <AlerteIcon size={12} />}
                     {nombre.format(proteines)}
                     {cible ? ` / ${nombre.format(cible.proteines)}` : ""} g prot.
                   </p>

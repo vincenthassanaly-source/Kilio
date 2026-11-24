@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteRecette } from "@/app/actions/recettes";
 import type { Tables } from "@/lib/supabase/types";
-import { card, dangerButton, ghostButton, textButton } from "@/lib/ui";
+import { card, textButton } from "@/lib/ui";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { BackLink } from "@/components/BackLink";
+import { MenuActions } from "@/components/MenuActions";
 
 const RecetteForm = dynamic(() => import("../RecetteForm").then((m) => m.RecetteForm), { ssr: false });
 
@@ -53,30 +54,31 @@ export function RecetteHeader({
             {recette.portions} portion{recette.portions > 1 ? "s" : ""}
           </p>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <button type="button" onClick={() => setEditing(true)} className={ghostButton}>
-            Modifier
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              // Suppression différée : retour à la liste (où la recette est
-              // masquée), « Annuler » la ramène pendant le délai du toast ; ses
-              // ingrédients et étapes partent avec elle à l'expiration.
-              supprimerAvecAnnulation({
-                texte: `Recette « ${recette.nom} » supprimée`,
-                ariaLabel: `Annuler la suppression de la recette « ${recette.nom} »`,
-                masque: { type: "recette", id: recette.id },
-                masquer: () => router.push("/nutrition/recettes"),
-                supprimer: () => deleteRecette(recette.id),
-                erreur: `Impossible de supprimer la recette « ${recette.nom} ». Réessaie.`,
-              })
-            }
-            aria-label={`Supprimer la recette « ${recette.nom} »`}
-            className={dangerButton}
-          >
-            Supprimer
-          </button>
+        {/* Actions de gestion rares rangées dans le menu « … » (DESIGN.md,
+            MenuActions) : le nom de la recette garde toute la largeur. */}
+        <div className="shrink-0">
+          <MenuActions
+            libelle={`Actions de la recette « ${recette.nom} »`}
+            libelleMenu={`Actions de la recette « ${recette.nom} »`}
+            actions={[
+              { libelle: "Modifier", onSelect: () => setEditing(true) },
+              {
+                libelle: "Supprimer",
+                // Suppression différée : retour à la liste (où la recette est
+                // masquée), « Annuler » la ramène pendant le délai du toast ; ses
+                // ingrédients et étapes partent avec elle à l'expiration.
+                onSelect: () =>
+                  supprimerAvecAnnulation({
+                    texte: `Recette « ${recette.nom} » supprimée`,
+                    ariaLabel: `Annuler la suppression de la recette « ${recette.nom} »`,
+                    masque: { type: "recette", id: recette.id },
+                    masquer: () => router.push("/nutrition/recettes"),
+                    supprimer: () => deleteRecette(recette.id),
+                    erreur: `Impossible de supprimer la recette « ${recette.nom} ». Réessaie.`,
+                  }),
+              },
+            ]}
+          />
         </div>
       </div>
       {recette.description && <p className="text-small text-ink text-pretty">{recette.description}</p>}
