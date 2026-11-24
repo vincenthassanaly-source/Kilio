@@ -25,19 +25,24 @@ function distance(a: Point, b: Point): number {
 }
 
 /**
- * Remet quatre points quelconques dans l'ordre haut-gauche, haut-droit,
- * bas-droit, bas-gauche : le coin haut-gauche minimise x+y, le bas-droit le
- * maximise ; le haut-droit maximise x−y, le bas-gauche le minimise.
+ * Remet quatre points quelconques dans l'ordre haut-gauche, haut-droit, bas-droit, bas-gauche :
+ * tri par angle autour du barycentre (sens des aiguilles d'une montre à l'écran, y vers le bas),
+ * puis départ au coin qui minimise x+y (à égalité, le plus haut). Contrairement à un tri par x+y
+ * et x−y, un rectangle tourné de 45° pile garde 4 coins distincts.
  */
 export function ordonnerCoins(points: Point[]): Quad {
   if (points.length !== 4) throw new Error("ordonnerCoins attend exactement 4 points");
-  const parSomme = [...points].sort((a, b) => a.x + a.y - (b.x + b.y));
-  const parDiff = [...points].sort((a, b) => a.x - a.y - (b.x - b.y));
-  const hg = parSomme[0];
-  const bd = parSomme[3];
-  const bg = parDiff[0];
-  const hd = parDiff[3];
-  return [hg, hd, bd, bg];
+  const cx = (points[0].x + points[1].x + points[2].x + points[3].x) / 4;
+  const cy = (points[0].y + points[1].y + points[2].y + points[3].y) / 4;
+  const tries = [...points].sort((a, b) => Math.atan2(a.y - cy, a.x - cx) - Math.atan2(b.y - cy, b.x - cx));
+  let depart = 0;
+  for (let i = 1; i < 4; i++) {
+    const p = tries[i];
+    const m = tries[depart];
+    const ecart = p.x + p.y - (m.x + m.y);
+    if (ecart < -1e-9 || (Math.abs(ecart) <= 1e-9 && p.y < m.y)) depart = i;
+  }
+  return [tries[depart], tries[(depart + 1) % 4], tries[(depart + 2) % 4], tries[(depart + 3) % 4]];
 }
 
 /** Cadre par défaut : toute l'image avec une petite marge. */

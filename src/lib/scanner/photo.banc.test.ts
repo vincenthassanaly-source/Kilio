@@ -87,7 +87,7 @@ describe("banc de la chaîne photo (detecterFeuilleAuto)", () => {
 describe("feuille tournée de 45°", () => {
   const { scene, coins } = sceneRotation45();
 
-  it.fails("la vérité terrain garde 4 coins distincts (échoue avant D5 : ordonnerCoins sort deux fois le même point)", () => {
+  it("la vérité terrain garde 4 coins distincts", () => {
     expect(coinsDistincts(scene.verite)).toBe(true);
   });
 

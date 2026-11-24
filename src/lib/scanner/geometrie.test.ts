@@ -45,6 +45,27 @@ describe("ordonnerCoins", () => {
   it("refuse un nombre de points différent de 4", () => {
     expect(() => ordonnerCoins([{ x: 0, y: 0 }])).toThrow();
   });
+
+  it("garde 4 coins distincts, dans le sens horaire, pour un carré tourné de 0 à 90° par pas de 5°", () => {
+    // Régression : le tri par x+y et x−y sortait deux fois le même point à 45° pile.
+    for (let deg = 0; deg <= 90; deg += 5) {
+      const a = (deg * Math.PI) / 180;
+      const coins = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([dx, dy]) => ({
+        x: 200 + 100 * (dx * Math.cos(a) - dy * Math.sin(a)),
+        y: 150 + 100 * (dx * Math.sin(a) + dy * Math.cos(a)),
+      }));
+      const quad = ordonnerCoins([coins[2], coins[0], coins[3], coins[1]]);
+      const distincts = new Set(quad.map((p) => `${p.x.toFixed(6)},${p.y.toFixed(6)}`));
+      expect(distincts.size, `${deg}°`).toBe(4);
+      expect(quadValide(quad), `${deg}° : convexe et dans l'ordre`).toBe(true);
+      // Sens horaire à l'écran (y vers le bas) : aire signée positive.
+      let aire = 0;
+      for (let i = 0; i < 4; i++) aire += quad[i].x * quad[(i + 1) % 4].y - quad[(i + 1) % 4].x * quad[i].y;
+      expect(aire, `${deg}° : sens horaire`).toBeGreaterThan(0);
+      // Le premier coin est celui qui minimise x+y.
+      expect(quad[0].x + quad[0].y, `${deg}° : départ en haut à gauche`).toBeCloseTo(Math.min(...coins.map((p) => p.x + p.y)), 6);
+    }
+  });
 });
 
 describe("quadValide / aireQuad", () => {
