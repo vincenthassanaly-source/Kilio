@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 import { magicColor } from "./filtres";
 import { redresser, tailleSortie, type ImageDataLike } from "./geometrie";
 import { scenesDeReference } from "./scenes";
-import { ecartCouleurZone, mesurerFond, pagesDeRendu } from "./scenesEtendues";
+import { ecartCouleurZone, luminanceDesBords, mesurerFond, pagesDeRendu } from "./scenesEtendues";
+import { rognerLeLisere } from "./bordsPropres";
 
 type Rvb = [number, number, number];
 
@@ -166,4 +167,17 @@ describe("Magique : contenu coloré dans l'ombre", () => {
     const { image, ideale } = pages.faibleLumiere;
     expect(mesurerFond(magicColor(image), ideale).ecartType).toBeLessThanOrEqual(8);
   });
+});
+
+// Rapport 02 (constat mineur) : le pixel du bord mélange papier et table, « Magique » en faisait un
+// liseré gris pointillé. La page redressée est rognée d'une fine marge avant le filtre.
+describe("Magique : pas de liseré gris au bord de la page", () => {
+  for (const nom of ["feuille sur fond sombre (témoin)", "feuille sur grain de bois", "feuille blanche sur table claire"]) {
+    it(`${nom} : 2 premières et dernières lignes et colonnes ≥ 245 en moyenne`, () => {
+      const scene = scenesDeReference().find((s) => s.nom === nom)!;
+      const { largeur, hauteur } = tailleSortie(scene.verite);
+      const page = redresser(scene.image, scene.verite, largeur, hauteur)!;
+      expect(luminanceDesBords(magicColor(rognerLeLisere(page)))).toBeGreaterThanOrEqual(245);
+    });
+  }
 });

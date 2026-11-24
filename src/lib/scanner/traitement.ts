@@ -5,7 +5,7 @@
 import { detecterQuadrilatere, reduirePourDetection } from "./detection";
 import type { MoteurDirect } from "./suivi";
 import { aplatirLesLignes } from "./aplatissage";
-import { nettoyerLesBords } from "./bordsPropres";
+import { nettoyerLesBords, rognerLeLisere } from "./bordsPropres";
 import { effacerLesIntrusions } from "./intrusions";
 import { redresserParTranches } from "./redressementPage";
 import { redresserLesLignes } from "./redressementTexte";
@@ -249,10 +249,12 @@ export async function creerPage(source: ImageDataLike, quad: Quad): Promise<Page
   // texte, avant la rotation globale qui ne fait que corriger ce qui reste.
   // Bande de fond et doigt effacés au bord, puis lignes aplaties une par une (pli, courbure), avant la
   // rotation globale qui ne fait que corriger ce qui reste.
+  // Fine marge rognée : le pixel du bord mélange papier et table, « Magique » en faisait un liseré gris.
+  redressee = rognerLeLisere(redressee);
   redressee = redresserLesLignes(aplatirLesLignes(redresserParTranches(effacerLesIntrusions(nettoyerLesBords(redressee)))));
   const redresse = await imageVersJpeg(redressee);
   const traite = await imageVersJpeg(magicColor(redressee));
-  return { redresse, traite, largeur, hauteur, filtre: "magic" };
+  return { redresse, traite, largeur: redressee.width, hauteur: redressee.height, filtre: "magic" };
 }
 
 /** Recompresse une page pour l'export (taille et qualité du réglage choisi). */

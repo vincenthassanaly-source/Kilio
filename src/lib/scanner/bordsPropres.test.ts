@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nettoyerLesBords } from "./bordsPropres";
+import { nettoyerLesBords, rognerLeLisere } from "./bordsPropres";
 import type { ImageDataLike } from "./geometrie";
 
 const W = 400, H = 500;
@@ -78,5 +78,22 @@ describe("nettoyage des bords d'une page redressée", () => {
   it("ne repeint pas une zone sombre énorme (plus d'un tiers de la page)", () => {
     const img = page(238, (x) => (x < 220 ? 12 : null));
     expect(nettoyerLesBords(img)).toBe(img);
+  });
+});
+
+describe("rognerLeLisere", () => {
+  it("rogne 0,3 % du plus grand côté (au moins 2 px) tout autour, sans décaler le contenu", () => {
+    const w = 1000, h = 700;
+    const data = new Uint8ClampedArray(w * h * 4);
+    for (let i = 0; i < w * h; i++) data[i * 4] = i % 251;
+    const r = rognerLeLisere({ data, width: w, height: h });
+    expect([r.width, r.height]).toEqual([994, 694]);
+    expect(r.data[0]).toBe((3 * w + 3) % 251);
+    expect(r.data[(10 * r.width + 20) * 4]).toBe(((10 + 3) * w + 20 + 3) % 251);
+  });
+
+  it("laisse une image minuscule telle quelle", () => {
+    const img = { data: new Uint8ClampedArray(10 * 10 * 4), width: 10, height: 10 };
+    expect(rognerLeLisere(img)).toBe(img);
   });
 });
