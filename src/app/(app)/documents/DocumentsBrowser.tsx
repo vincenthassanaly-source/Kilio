@@ -368,7 +368,7 @@ export function DocumentsBrowser({
               <button
                 type="button"
                 onClick={() => modifierRecherche("")}
-                className="min-h-11 shrink-0 px-2 text-label font-semibold text-kcal"
+                className="min-h-11 shrink-0 rounded-xl px-2 text-label font-semibold text-kcal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
               >
                 Effacer
               </button>

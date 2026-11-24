@@ -46,7 +46,7 @@ export function AnimationMiniature({ animation, nom }: { animation: string | nul
         type="button"
         onClick={() => setOuvert(true)}
         aria-label={`Agrandir l'animation de ${nom}`}
-        className={`${TUILE} h-14 w-14 transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
+        className={`${TUILE} h-14 w-14 transition-transform active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
       >
         {reduit ? (
           // eslint-disable-next-line @next/next/no-img-element -- image locale précachée, déjà dimensionnée
@@ -88,7 +88,7 @@ export function AnimationVignette({ animation, nom }: { animation: string | null
       onClick={() => setJoue((j) => !j)}
       aria-pressed={joue}
       aria-label={`${joue ? "Arrêter" : "Voir"} l'animation de ${nom}`}
-      className={`${TUILE} h-14 w-14 transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal`}
+      className={`${TUILE} h-14 w-14 transition-transform active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
     >
       {joue && !reduit ? (
         <Video cle={cle} className="h-full w-full object-contain" />

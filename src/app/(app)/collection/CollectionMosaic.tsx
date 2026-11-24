@@ -4,7 +4,7 @@ import type { ApercuItem } from "@/app/actions/collections";
 
 function PhotoPlaceholderIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
       <circle cx="9" cy="9.5" r="1.3" />
       <path d="M4.5 16.5l4.5-4.5 3 3 3.5-3.5 4.5 4.5" />
@@ -67,7 +67,9 @@ export function CollectionMosaic({
 
   if (photos.length === 3) {
     return (
-      <div className="grid aspect-square grid-cols-2 gap-0.5 overflow-hidden rounded-2xl border border-line bg-surface-alt">
+      // Deux rangées explicites, chaque colonne les couvre toutes les deux : sans
+      // `row-span-2` à droite, la colonne de droite n'occupait que la moitié haute.
+      <div className="grid aspect-square grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden rounded-2xl border border-line bg-surface-alt">
         <div className="relative row-span-2 h-full w-full">
           <FadeInImage
             src={photos[0].url}
@@ -79,7 +81,7 @@ export function CollectionMosaic({
             className="object-cover"
           />
         </div>
-        <div className="grid grid-rows-2 gap-0.5">
+        <div className="row-span-2 grid grid-rows-2 gap-0.5">
           <div className="relative h-full w-full">
             <FadeInImage
               src={photos[1].url}

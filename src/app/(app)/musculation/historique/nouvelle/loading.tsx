@@ -1,8 +1,10 @@
+import { BackLink } from "@/components/BackLink";
 import { Skeleton } from "@/components/skeletons/Skeleton";
 
 export default function NouvelleSeanceLoading() {
   return (
     <div className="flex flex-col gap-4">
+      <BackLink href="/musculation/historique">Historique</BackLink>
       <Skeleton className="h-9 w-2/3" />
       <Skeleton className="h-4 w-1/2" />
       <Skeleton className="h-48 w-full rounded-card" />

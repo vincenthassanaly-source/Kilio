@@ -92,8 +92,11 @@ function FichierThumb({
         // Zone de tap de 44 px centrée sur la pastille visible de 20 px.
         className="group absolute -right-3.5 -top-3.5 flex h-11 w-11 items-center justify-center rounded-full disabled:opacity-60 focus-visible:outline-none"
       >
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-alert text-micro font-bold text-on-accent group-focus-visible:ring-2 group-focus-visible:ring-kcal group-focus-visible:ring-offset-2">
-          ×
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-alert text-on-accent group-focus-visible:ring-2 group-focus-visible:ring-kcal group-focus-visible:ring-offset-2">
+          {/* Croix dessinée plutôt que le glyphe « × », décentré selon la police. */}
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+            <path d="M2.5 2.5l5 5M7.5 2.5l-5 5" />
+          </svg>
         </span>
       </button>
     </div>
@@ -159,7 +162,7 @@ function RectoVersoSlot({
       ) : (
         <label
           htmlFor={name}
-          className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-line text-ink-2 transition-colors hover:bg-surface-alt peer-focus-visible:ring-2 peer-focus-visible:ring-kcal peer-focus-visible:ring-offset-2"
+          className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-control-border text-ink-2 transition-colors hover:bg-surface-alt peer-focus-visible:ring-2 peer-focus-visible:ring-kcal peer-focus-visible:ring-offset-2"
           aria-label={`Ajouter le ${label.toLowerCase()}`}
         >
           <FichierIcon />
@@ -374,7 +377,7 @@ export function DocumentForm({
 
       {modeFichiers === "recto_verso" ? (
         <div className="flex flex-col gap-1">
-          <span className={labelClass}>Recto / Verso</span>
+          <span className={labelClass}>Recto / verso</span>
           <div className="flex flex-wrap items-start gap-4">
             <RectoVersoSlot
               label="Recto"
@@ -406,7 +409,7 @@ export function DocumentForm({
       ) : (
         <div className="flex flex-col gap-1">
           <span className={labelClass}>
-            {document ? "Fichiers (photos ou PDF)" : "Fichiers (photos ou PDF)"}
+            Fichiers (photos ou PDF)
           </span>
           <div className="flex flex-wrap items-center gap-2">
             <input
@@ -422,7 +425,7 @@ export function DocumentForm({
             />
             <label
               htmlFor={`${uid}-document-fichiers`}
-              className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-line text-ink-2 transition-colors hover:bg-surface-alt peer-focus-visible:ring-2 peer-focus-visible:ring-kcal peer-focus-visible:ring-offset-2"
+              className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-2xl border-[1.5px] border-dashed border-control-border text-ink-2 transition-colors hover:bg-surface-alt peer-focus-visible:ring-2 peer-focus-visible:ring-kcal peer-focus-visible:ring-offset-2"
               aria-label="Ajouter des fichiers"
             >
               <FichierIcon />

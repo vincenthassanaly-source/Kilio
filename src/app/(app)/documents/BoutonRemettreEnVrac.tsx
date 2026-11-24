@@ -6,9 +6,10 @@ import { remettreEnVrac } from "./remettreEnVrac";
 // Bouton icône discret (boîte de rangement) : 36 px visibles, zone de toucher
 // étendue à 44 px par le pseudo-élément. Le libellé « Remettre en vrac » reste
 // disponible pour les lecteurs d'écran (aria-label, avec le nom du document) et
-// en info-bulle (title) : une icône seule ne se suffit pas à elle-même.
+// en info-bulle (title) : une icône seule ne se suffit pas à elle-même. Contour
+// `control-border`, comme « Modifier » posé à côté (`--line` passait sous 3:1).
 const ICONE =
-  "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line text-ink-2 transition active:scale-[0.97] hover:bg-surface-alt hover:text-ink disabled:opacity-60 after:absolute after:-inset-1 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-control-border text-ink-2 transition-[color,background-color,opacity,transform] active:scale-[0.97] hover:bg-surface-alt hover:text-ink disabled:opacity-60 after:absolute after:-inset-1 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 function BoiteIcon() {
   return (

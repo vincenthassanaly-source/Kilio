@@ -174,7 +174,7 @@ export function TitrageModal({
       {etape === "analyse" && (
         <div className="flex flex-col gap-4 pb-1" aria-busy="true">
           <div className="flex flex-col gap-2">
-            <p className="text-sm text-ink" aria-live="polite">
+            <p className="text-label text-ink" aria-live="polite">
               Gemini regarde tes éléments… <span className="tabular-nums">{analyses} / {lot.length}</span>
             </p>
             <div
@@ -186,7 +186,7 @@ export function TitrageModal({
               className="h-2 overflow-hidden rounded-full bg-surface-alt"
             >
               <div
-                className="h-full rounded-full bg-kcal transition-[width] duration-300 ease-out"
+                className="h-full rounded-full bg-kcal transition-[width] duration-300 ease-[var(--ease-out)]"
                 style={{ width: `${lot.length === 0 ? 0 : (analyses / lot.length) * 100}%` }}
               />
             </div>
@@ -195,12 +195,14 @@ export function TitrageModal({
             {lot.map((element, index) => (
               <li key={element.id} className="flex items-center gap-3">
                 <Miniature element={element} />
-                <span className={`min-w-0 flex-1 truncate text-sm ${index < analyses ? "text-ink-3" : "text-ink"}`}>
+                <span className={`min-w-0 flex-1 truncate text-label ${index < analyses ? "text-ink-3" : "text-ink"}`}>
                   {element.titre || libelleNature(element.type)}
                 </span>
                 {index < analyses && (
-                  <span className="text-xs font-semibold text-kcal">
-                    <span aria-hidden="true">✓</span>
+                  <span className="shrink-0 text-kcal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M5 12.5l4.5 4.5L19 7.5" />
+                    </svg>
                     <span className="sr-only">Analysé</span>
                   </span>
                 )}
@@ -220,7 +222,7 @@ export function TitrageModal({
               {avertissement}
             </p>
           )}
-          <p className="text-sm text-ink-2">
+          <p className="text-label text-ink-2">
             Vérifie les propositions : rien n&apos;est modifié avant « Appliquer ». Décoche un élément pour le laisser tel quel.
           </p>
 

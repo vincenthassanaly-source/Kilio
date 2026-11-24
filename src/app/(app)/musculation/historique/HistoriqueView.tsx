@@ -10,7 +10,7 @@ import { formaterPoids } from "@/lib/musculation/seance";
 import { queryKeys } from "@/lib/query/keys";
 import { useMasques } from "@/lib/actions/elementsMasques";
 import { LIBELLES_TYPE } from "@/lib/seances/compute";
-import { card, cardTight, ghostButton, metaText, pillTag, nameTextComplet, screenTitle, secondaryButton } from "@/lib/ui";
+import { cardTight, emptyState, ghostButton, metaText, pillTag, nameTextComplet, screenTitle, secondaryButton } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
 import { BackLink } from "@/components/BackLink";
 
@@ -67,9 +67,7 @@ export function HistoriqueView() {
       )}
       {isError && <ErrorInline message="Impossible de charger l'historique. Vérifie ta connexion." retry={() => refetch()} />}
       {data && data.length === 0 && (
-        <section className={`${card} flex flex-col gap-1.5`}>
-          <p className={metaText}>Aucune séance enregistrée pour l&apos;instant.</p>
-        </section>
+        <p className={emptyState}>Aucune séance enregistrée pour l&apos;instant.</p>
       )}
       {data && data.length > 0 && (
         <ul className="flex flex-col gap-2">

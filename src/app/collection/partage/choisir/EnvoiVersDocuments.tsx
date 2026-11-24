@@ -176,7 +176,7 @@ export function EnvoiVersDocuments({ id, nb }: { id: string; nb: number }) {
         className="h-2 overflow-hidden rounded-full bg-surface-alt"
       >
         <div
-          className="h-full rounded-full bg-kcal transition-[width] duration-300 ease-out"
+          className="h-full rounded-full bg-kcal transition-[width] duration-300 ease-[var(--ease-out)]"
           style={{ width: `${etat.total === 0 ? 0 : (etat.fait / etat.total) * 100}%` }}
         />
       </div>

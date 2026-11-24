@@ -33,7 +33,7 @@ type Champs = Partial<Pick<SerieBrouillon, "poids" | "reps" | "duree" | "distanc
 
 // Ligne du menu d'options : cible tactile de 48 px, séparateur fin entre les lignes.
 const ligneMenu =
-  "flex min-h-12 items-center gap-3 border-t border-line px-3.5 text-left text-body font-medium text-ink transition hover:bg-surface active:bg-surface disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal";
+  "flex min-h-12 items-center gap-3 border-t border-line px-3.5 text-left text-body font-medium text-ink transition-colors hover:bg-surface active:bg-surface disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal";
 
 function IconeMenu({ d }: { d: string }) {
   return (
@@ -143,7 +143,7 @@ export function ExerciceBloc({
           onClick={() => setOptions((o) => !o)}
           aria-expanded={options}
           aria-label={`Options de ${exercice.nom}`}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-2 transition hover:bg-surface-alt active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 transition-[color,background-color,transform] hover:bg-surface-alt active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <circle cx="5" cy="12" r="1.8" />
@@ -202,7 +202,6 @@ export function ExerciceBloc({
           {onRemplacer && (
             <button
               type="button"
-             
               className={ligneMenu}
               onClick={() => {
                 setOptions(false);
@@ -216,7 +215,6 @@ export function ExerciceBloc({
           {!uneLigne && (
             <button
               type="button"
-             
               className={ligneMenu}
               onClick={() => onRetirerDerniereSerie(cle)}
               disabled={exercice.series.length <= 1}
@@ -227,7 +225,6 @@ export function ExerciceBloc({
           )}
           <button
             type="button"
-           
             className={`${ligneMenu} !text-ink-2 hover:!text-alert focus-visible:!text-alert`}
             onClick={() => (faites > 0 ? setConfirmerRetrait(true) : onRetirerExercice(cle))}
           >
@@ -290,7 +287,7 @@ export function ExerciceBloc({
                   aria-expanded={typeOuvert}
                   aria-label={`Type de la série ${index + 1} : ${TYPE_SERIE_LABELS[serie.type]}`}
                   onClick={() => setTypeOuvertPour(typeOuvert ? null : serie.id)}
-                  className={`h-11 rounded-xl text-center text-label font-semibold tabular-nums transition active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                  className={`h-11 rounded-xl text-center text-label font-semibold tabular-nums transition-transform active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
                     serie.type === "normale" ? "text-ink-2" : "bg-surface-alt text-kcal"
                   }`}
                 >
@@ -339,7 +336,7 @@ export function ExerciceBloc({
                       }
                       onBasculer(cle, serie.id);
                     }}
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 transition active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 transition-[color,background-color,border-color,transform] active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                       serie.fait ? "border-kcal bg-kcal text-on-kcal" : "border-control-border text-transparent"
                     }`}
                   >
@@ -363,7 +360,7 @@ export function ExerciceBloc({
                         onModifierSerie(cle, serie.id, { type });
                         setTypeOuvertPour(null);
                       }}
-                      className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
+                      className={`${zoneTapPill} rounded-full px-3.5 py-1.5 text-small font-semibold transition-[color,background-color,transform] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
                         serie.type === type ? "bg-kcal text-on-kcal" : "bg-surface-alt text-ink-2"
                       }`}
                     >

@@ -22,7 +22,9 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.mocked(supprimerCategorie).mockResolvedValue({ ok: true, data: undefined } as never);
   render(<CategoriesManager categories={CATEGORIES} />);
-  fireEvent.click(screen.getAllByRole("button", { name: "Supprimer" })[0]);
+  // « Supprimer » vit dans le menu « … » de la ligne.
+  fireEvent.click(screen.getByRole("button", { name: "Actions pour « Banque »" }));
+  fireEvent.click(screen.getByRole("menuitem", { name: "Supprimer" }));
 });
 
 afterEach(() => {

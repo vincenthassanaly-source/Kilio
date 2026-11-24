@@ -9,6 +9,10 @@ import { card, errorText, secondaryButton, textButton } from "@/lib/ui";
 
 type Destination = "collection" | "tache" | "documents";
 
+// Carte-bouton (une destination) : retour en teinte au tap et anneau de focus,
+// comme les cartes entièrement cliquables de Documents.
+const choix = `${card} text-left transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`;
+
 /**
  * Écran de choix après un partage d'image : « Ajouter à une collection »,
  * « Nouvelle tâche » ou, quand `documentsContenu` est fourni, « Documents
@@ -56,8 +60,8 @@ export function DestinationPartage({
   }
 
   const documents = documentsContenu ? (
-    <button type="button" onClick={() => setDestination("documents")} className={`${card} text-left`}>
-      <span className="font-semibold text-ink">Ajouter aux documents (vrac)</span>
+    <button type="button" onClick={() => setDestination("documents")} className={choix}>
+      <span className="text-body font-semibold text-ink">Ajouter aux documents (vrac)</span>
       <span className="block text-label text-ink-2">Photo ou PDF, à trier plus tard avec Gemini</span>
     </button>
   ) : null;
@@ -70,18 +74,18 @@ export function DestinationPartage({
         type="button"
         onClick={() => setDestination("collection")}
         disabled={seulementDocuments}
-        className={`${card} text-left ${seulementDocuments ? indisponible : ""}`}
+        className={`${choix} ${seulementDocuments ? indisponible : ""}`}
       >
-        <span className="font-semibold text-ink">Ajouter à une collection</span>
+        <span className="text-body font-semibold text-ink">Ajouter à une collection</span>
         <span className="block text-label text-ink-2">Des photos ou des liens vidéo, rangés par collection</span>
       </button>
       <button
         type="button"
         onClick={() => setDestination("tache")}
         disabled={seulementDocuments}
-        className={`${card} text-left ${seulementDocuments ? indisponible : ""}`}
+        className={`${choix} ${seulementDocuments ? indisponible : ""}`}
       >
-        <span className="font-semibold text-ink">Ajouter une tâche</span>
+        <span className="text-body font-semibold text-ink">Ajouter une tâche</span>
         <span className="block text-label text-ink-2">L&apos;image est jointe à la tâche</span>
       </button>
       {seulementDocuments && (

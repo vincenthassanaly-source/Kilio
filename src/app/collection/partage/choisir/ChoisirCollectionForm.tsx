@@ -141,7 +141,7 @@ export function ChoisirCollectionForm({
       )}
 
       <button type="submit" disabled={pending} className={primaryButton}>
-        {pending ? "Ajout..." : "Ajouter"}
+        {pending ? "Ajout…" : "Ajouter"}
       </button>
     </form>
   );

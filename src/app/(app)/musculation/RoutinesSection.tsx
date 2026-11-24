@@ -20,6 +20,7 @@ import { useBrouillonEnCours } from "@/lib/musculation/useBrouillonEnCours";
 import { queryKeys } from "@/lib/query/keys";
 import { card, dangerButton, errorText, eyebrow, ghostButton, input, metaText, nameTextComplet, primaryButton, secondaryButton, sectionTitle } from "@/lib/ui";
 import { ErrorInline } from "@/components/ErrorInline";
+import { ChevronIcon } from "@/components/icons";
 
 function LigneRoutine({
   routine,
@@ -36,7 +37,8 @@ function LigneRoutine({
     <li className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
       <Link
         href={`/musculation/routines/${routine.id}`}
-        className="flex min-w-0 flex-1 items-center gap-2"
+        // Chevron calé à droite du lien, juste avant « Démarrer » : il ne flotte plus au bout d'un nom court.
+        className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         aria-label={`Modifier la routine ${routine.nom}`}
       >
         <span className="flex min-w-0 flex-col gap-0.5">
@@ -46,8 +48,8 @@ function LigneRoutine({
             {routine.nbExercices === 0 ? "Aucun exercice" : `${routine.nbExercices} exercice${routine.nbExercices > 1 ? "s" : ""}`}
           </span>
         </span>
-        <span aria-hidden="true" className="shrink-0 text-heading-sm leading-none text-ink-3">
-          ›
+        <span aria-hidden="true" className="shrink-0 text-ink-3">
+          <ChevronIcon sens="droite" size={16} />
         </span>
       </Link>
       <button
