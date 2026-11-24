@@ -14,19 +14,22 @@ import type { ActionResult } from "@/lib/actions/result";
 import { supprimerAvecAnnulation } from "@/lib/actions/suppressionDifferee";
 import { useMasques } from "@/lib/actions/elementsMasques";
 import { CATEGORIE_MAX } from "@/lib/documents/tri";
+import { MenuActions, type ActionMenu } from "@/components/MenuActions";
 import {
-  actionsLigne,
   card,
-  dangerButton,
   errorText,
   ghostButton,
   input,
-  listCard,
+  label as labelClass,
   metaText,
   nameTextComplet,
   primaryButton,
   textButton,
 } from "@/lib/ui";
+
+// Ligne d'une catégorie : mêmes cotes que `listCard`, sans `active:scale`, car
+// elle porte plusieurs cibles (lien, menu « … ») ou un formulaire.
+const LIGNE = "flex flex-col gap-2 rounded-row border border-line bg-surface p-3.5 shadow-card";
 
 function libelleNombre(nb: number) {
   return nb === 0 ? "Aucun document" : `${nb} document${nb > 1 ? "s" : ""}`;
@@ -50,7 +53,7 @@ function AjoutCategorie() {
 
   return (
     <form onSubmit={ajouter} className={`${card} flex flex-col gap-2`}>
-      <label htmlFor="nouvelle-categorie" className="text-sm font-medium text-ink">
+      <label htmlFor="nouvelle-categorie" className={labelClass}>
         Nouvelle catégorie
       </label>
       <div className="flex gap-2">
@@ -112,7 +115,7 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
 
   if (mode === "renommer") {
     return (
-      <li className={`${listCard} gap-2`}>
+      <li className={LIGNE}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -156,7 +159,7 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
 
   if (mode === "fusionner") {
     return (
-      <li className={`${listCard} gap-2`}>
+      <li className={LIGNE}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -165,7 +168,7 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
           className="flex flex-col gap-2"
         >
           <label htmlFor={`fusion-${categorie.id}`} className="text-sm text-ink">
-            Fusionner « {categorie.nom} » dans :
+            Fusionner «&nbsp;{categorie.nom}&nbsp;» dans&nbsp;:
           </label>
           <select
             id={`fusion-${categorie.id}`}
@@ -180,7 +183,11 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
             ))}
           </select>
           <p className={metaText}>
-            {categorie.nb > 0 ? `${libelleNombre(categorie.nb)} passeront dans la catégorie choisie. ` : ""}« {categorie.nom} » sera supprimée.
+            {/* Accord du verbe (« 1 document passera ») et espaces insécables autour des guillemets. */}
+            {categorie.nb > 0
+              ? `${libelleNombre(categorie.nb)} ${categorie.nb > 1 ? "passeront" : "passera"} dans la catégorie choisie. `
+              : ""}
+            «&nbsp;{categorie.nom}&nbsp;» sera supprimée.
           </p>
           <div className="flex items-center gap-2">
             <button type="submit" disabled={enCours || !cible} className={ghostButton}>
@@ -207,16 +214,25 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
     );
   }
 
+  // Actions de gestion (rares) rangées dans le menu « … » de la ligne, comme sur
+  // les autres cartes de liste (DESIGN.md, Menu « … ») : la ligne se lit d'abord.
+  const actions: ActionMenu[] = [
+    { libelle: "Modifier", onSelect: () => setMode("renommer") },
+    ...(autres.length > 0 ? [{ libelle: "Fusionner", onSelect: () => setMode("fusionner") }] : []),
+    { libelle: "Supprimer", onSelect: supprimer },
+  ];
+
   return (
-    <li className={`${listCard} gap-2`}>
-      <div className="flex flex-col gap-2">
+    // Pas d'`active:scale` : la ligne porte deux cibles (lien et menu).
+    <li className={LIGNE}>
+      <div className="flex items-center gap-2">
         {/* Toucher le nom ouvre la liste des documents de la catégorie (page
             Documents filtrée). L'état local (déjà enregistré côté serveur), pas la
             prop : un renommage réussi doit s'afficher tout de suite (CLICK-PATH-702). */}
         <Link
           href={`/documents?categorie=${encodeURIComponent(nom)}`}
           aria-label={`Voir les documents de la catégorie ${nom} (${libelleNombre(categorie.nb).toLowerCase()})`}
-          className="flex min-w-0 items-center justify-between gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          className="flex min-h-11 min-w-0 flex-1 items-center justify-between gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <div className="flex min-w-0 flex-col">
             <p className={nameTextComplet}>{nom}</p>
@@ -237,19 +253,11 @@ function LigneCategorie({ categorie, autres }: { categorie: CategorieAvecCompte;
             <path d="M9 6l6 6-6 6" />
           </svg>
         </Link>
-        <div className={actionsLigne}>
-          <button type="button" onClick={() => setMode("renommer")} className={ghostButton}>
-            Modifier
-          </button>
-          {autres.length > 0 && (
-            <button type="button" onClick={() => setMode("fusionner")} className={ghostButton}>
-              Fusionner
-            </button>
-          )}
-          <button type="button" onClick={supprimer} className={dangerButton}>
-            Supprimer
-          </button>
-        </div>
+        <MenuActions
+          actions={actions}
+          libelle={`Actions pour « ${nom} »`}
+          libelleMenu={`Actions de la catégorie ${nom}`}
+        />
       </div>
       {erreur && (
         <p role="alert" className={errorText}>

@@ -8,9 +8,10 @@ import { EtincelleIcon } from "@/components/EtincelleIcon";
 
 // Bouton icône, même gabarit que « Remettre en vrac » : 36 px visibles, zone de
 // toucher étendue à 44 px. Le libellé reste disponible pour les lecteurs d'écran
-// (aria-label, avec le nom du document) et en info-bulle (title).
+// (aria-label, avec le nom du document) et en info-bulle (title). Contour
+// `control-border`, comme « Modifier » posé à côté (`--line` passait sous 3:1).
 const ICONE =
-  "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line text-ink-2 transition active:scale-[0.97] hover:bg-surface-alt hover:text-ink after:absolute after:-inset-1 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-control-border text-ink-2 transition-[color,background-color,transform] active:scale-[0.97] hover:bg-surface-alt hover:text-ink after:absolute after:-inset-1 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 /**
  * Bouton « Description par l'IA » d'un document : ouvre une fenêtre où Gemini

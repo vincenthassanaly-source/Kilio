@@ -305,7 +305,7 @@ export function TriVracModal({
                           href={`/documents/${ligne.doublon.documentId}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="font-semibold text-ink underline"
+                          className="rounded font-semibold text-ink underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
                         >
                           Ouvrir l&apos;existant
                         </a>
