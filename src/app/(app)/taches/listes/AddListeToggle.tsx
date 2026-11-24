@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AddListeForm } from "./AddListeForm";
 import { useBackClose } from "@/hooks/useBackClose";
 import { AnimatedAddCard } from "@/components/AnimatedAddCard";
-import { addCard, addCardIcon, card, textButton } from "@/lib/ui";
+import { addCard, addCardIcon, addCardSousTitre, addCardTitre, card, textButton } from "@/lib/ui";
 import { PlusIcon } from "@/components/icons";
 
 export function AddListeToggle() {
@@ -19,8 +19,8 @@ export function AddListeToggle() {
         <PlusIcon size={18} />
       </div>
       <div className="flex flex-col gap-[1px]">
-        <span className="font-display text-body font-semibold tracking-[-0.01em] text-ink">Ajouter une liste</span>
-        <span className="text-caption font-medium text-ink-3">Une liste pour regrouper des tâches</span>
+        <span className={addCardTitre}>Ajouter une liste</span>
+        <span className={addCardSousTitre}>Une liste pour regrouper des tâches</span>
       </div>
     </button>
   );

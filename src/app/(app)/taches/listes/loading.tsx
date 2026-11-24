@@ -12,15 +12,15 @@ export default function ListesTachesLoading() {
 
       <div className="flex flex-col gap-2.5">
         <h2 className={sectionTitle}>Listes</h2>
-        <Skeleton className="h-[74px] w-full rounded-2xl" />
-        <Skeleton className="h-[74px] w-full rounded-2xl" />
-        <Skeleton className="h-[74px] w-full rounded-2xl" />
+        <Skeleton className="h-[74px] w-full rounded-row" />
+        <Skeleton className="h-[74px] w-full rounded-row" />
+        <Skeleton className="h-[74px] w-full rounded-row" />
       </div>
 
       <div className="flex flex-col gap-2.5">
         <h2 className={sectionTitle}>Tags</h2>
-        <Skeleton className="h-[74px] w-full rounded-2xl" />
-        <Skeleton className="h-[74px] w-full rounded-2xl" />
+        <Skeleton className="h-[74px] w-full rounded-row" />
+        <Skeleton className="h-[74px] w-full rounded-row" />
       </div>
     </div>
   );

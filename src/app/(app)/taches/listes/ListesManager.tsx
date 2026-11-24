@@ -6,10 +6,10 @@ import { deleteListe, reordonnerListes } from "@/app/actions/taches";
 import type { Tables } from "@/lib/supabase/types";
 import { dangerButton, ghostButton, listCard, nameText, textButton } from "@/lib/ui";
 
-// Flèches d'ordre : cible réelle de 36×44 px (même gabarit que `sousTacheBouton`
+// Flèches d'ordre : cible réelle de 44×44 px (même gabarit que `sousTacheBouton`
 // de TasksList) au lieu du glyphe nu de 13×23 px.
 const flecheOrdre =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 import { libelleNombreTaches } from "@/lib/taches/compute";
 import { queryKeys } from "@/lib/query/keys";
 import { AddListeForm } from "./AddListeForm";
@@ -97,14 +97,14 @@ function ListeRow({
   return (
     <li className={`${listCard} gap-2`}>
       <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
-          {liste.couleur && (
-            <span
-              className="h-3 w-3 shrink-0 rounded-full"
-              style={{ backgroundColor: liste.couleur }}
-              aria-hidden="true"
-            />
-          )}
+        <div className="flex min-w-0 items-center gap-2.5">
+          {/* Pastille toujours présente (neutre sans couleur, comme le sélecteur
+              de liste de /taches) : les noms restent alignés d'une ligne à l'autre. */}
+          <span
+            className="h-3 w-3 shrink-0 rounded-full"
+            style={{ backgroundColor: liste.couleur ?? "var(--ink-3)" }}
+            aria-hidden="true"
+          />
           <div className="flex min-w-0 flex-col">
             <p className={nameText}>{liste.nom}</p>
             <span className="text-caption text-ink-2">{libelleNombreTaches(compte.total)}</span>
@@ -116,7 +116,7 @@ function ListeRow({
             disabled={isPending || index === 0}
             onClick={() => reordonner("haut")}
             className={flecheOrdre}
-            aria-label="Monter"
+            aria-label={`Monter « ${liste.nom} »`}
           >
             <IconeMonter />
           </button>
@@ -125,7 +125,7 @@ function ListeRow({
             disabled={isPending || index === total - 1}
             onClick={() => reordonner("bas")}
             className={flecheOrdre}
-            aria-label="Descendre"
+            aria-label={`Descendre « ${liste.nom} »`}
           >
             <IconeDescendre />
           </button>
