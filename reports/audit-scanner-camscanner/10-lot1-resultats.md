@@ -40,12 +40,12 @@ Scratchpad : `/tmp/claude-0/-home-user-Kilio/7d0e1a82-1b80-57c0-82df-0b89f9439b6
 | **D1** | « Feuille repérée » sur un cadre faux, table claire, 4G + processeur ×4 : ≤ 5 % | 59,4 % (41/69) ; 4G seule 51,5 % | 14,0 % après D1 seul (retard du lissage pendant le balayage) ; **2,0 %** (1/49) après D3. 4G seule : 1,1 %. Le cas restant est le saut de la vidéo qui boucle | oui (avec D3) |
 | | OpenCV prêt ≤ 1 s après l'ouverture du viseur, après 10 s sur `/scanner` en 4G froide | 7,6 s (8,7 s processeur ×4) | 33 ms (134 ms processeur ×4) | oui |
 | | Cible 03 : froid ≤ 4 s en 4G depuis le montage de `/scanner` | — | 7,8 s (9,2 s processeur ×4) : limité par le téléchargement de 10,4 Mo | **non** (relève de D11) |
-| **D2** | OpenCV bloqué : cadre proposé ≤ 1,5 s | jusqu'à 45 s (délai du chargeur) | 1,13 à 1,17 s (Node, photo 3000×2250 ; délai 1 s + détection maison). Non mesuré sur téléphone (le calcul maison y sera 3 à 5 fois plus lent) | oui (PC) |
+| **D2** | OpenCV bloqué : cadre proposé ≤ 1,5 s | jusqu'à 45 s (délai du chargeur) | 1,13 à 1,17 s (Node, photo 3000×2250 ; délai 1 s + détection maison). Non mesuré sur téléphone (le calcul maison y sera 3 à 5 fois plus lent). **Partiel au premier passage** : « Ajouter la page » attendait encore OpenCV (jusqu'à 45 s) ; corrigé après la revue (point 3 ci-dessous) | oui (PC, après revue) |
 | | Coin déplacé jamais écrasé (test de composant) | — | 3 tests : cadre maison puis OpenCV ; coin déplacé conservé ; « Photo entière » conservée | oui |
 | **D3** | Jitter à l'arrêt ≤ 1,5 px pour une vidéo 1080p | 0,94 à 0,97 px (voir écart 3) | 0,00 à 0,16 px | oui |
 | | Dérive lente : retard ≤ 2,5 % de la diagonale | erreur affichée 0,78 à 1,08 % (3,76 % en 4G + ×4, cadre maison) | 0,28 à 0,34 % | oui |
 | | Même tracé hors Chrome (plus de transition CSS `d`) | transition CSS `d` (Chrome seulement) | `requestAnimationFrame`, 100 ms, rien si `prefers-reduced-motion` | oui (non vérifié sur un appareil Safari) |
-| **R2** | Erreur d'aspect ≤ 1 % de 0° à 35° | +4,8 % (8°) … +45,6 % (35°) | ≤ 0,03 % (A4, aimanté) ; ≤ 0,25 % (format libre 0,6, non aimanté) | oui |
+| **R2** | Erreur d'aspect ≤ 1 % de 0° à 35° | +4,8 % (8°) … +45,6 % (35°) | ≤ 0,03 % (A4, aimanté) ; ≤ 0,25 % (format libre 0,6, non aimanté). Avec des coins bruités (±1,5 px) et d'autres focales, 5 cas sur 42 restent au-dessus de 1 % de 0 à 35° (voir la revue, point 1) | oui sans bruit ; **partiel** avec bruit |
 | | Repli : quadrilatère non projectif jamais pire que l'ancien calcul | — | 4 quadrilatères posés à la main : taille identique à l'ancien calcul (test unitaire) | oui |
 | | Banc 02 : erreur d'aspect | +5,0 % (A–D, F, G), +46,2 % (E) | 0,0 % sur les 7 scènes | oui |
 | **R3** | Luminance moyenne des 2 premières et dernières lignes et colonnes ≥ 245 sur les 7 scènes de 02 | 162,1 à 213,7 | 251,7 à 255,0 | oui |
@@ -61,7 +61,7 @@ Règle générale : les tests existants restent verts (suite du scanner : 206 �
 - `suivi.ts` : filtre « One Euro » cadencé par l'instant réel, zone morte d'un pixel d'analyse, premier cadre maison à confirmer, `messageViseur`.
 - `traitement.ts` : `prechargerOpenCvSiPossible` (temps libre, repli `setTimeout` sans `requestIdleCallback`, rien si `saveData`), détection maison en direct à 240 px par moyenne de blocs, course OpenCV / 1 s au recadrage.
 - `bordsPropres.ts` : `rognerLeLisere` (0,3 % du grand côté, au moins 2 px).
-- `ScannerApp.tsx` (préchargement), `Viseur.tsx` (moteur, confirmation, pastille, tracé animé par `requestAnimationFrame`), `EditeurCoins.tsx` (cadre OpenCV tardif, jamais sur un coin retouché).
+- `ScannerApp.tsx` (préchargement), `Viseur.tsx` (moteur, confirmation, pastille, tracé animé par `requestAnimationFrame`), `EditeurCoins.tsx` (cadre OpenCV tardif, jamais sur un coin retouché ni après « Ajouter la page », depuis la revue).
 
 ## Écarts et risques résiduels
 
@@ -75,8 +75,24 @@ Règle générale : les tests existants restent verts (suite du scanner : 206 �
 8. **Safari** : toutes les API nouvelles sont détectées avant usage (`navigator.connection`, `requestIdleCallback` avec repli `setTimeout`, `matchMedia`, `requestAnimationFrame`). Le repli sans `requestIdleCallback` ni `navigator.connection` est couvert par un test. Rien n'a été vérifié sur un appareil Safari.
 9. **D5** : près de 45°, l'ordre des coins peut basculer d'une détection à l'autre (le départ est le coin qui minimise x+y). Le suivi y voit alors un cadre lointain et attend sa confirmation. C'était déjà le cas avant ; le changement n'a pas été mesuré en direct.
 
+## Revue indépendante
+
+Une revue en lecture seule du lot 1 n'a relevé aucun bloquant, mais 3 points importants et 4 mineurs. Chacun est corrigé dans son propre commit, avec un test de régression qui échouait sur le code d'avant (sauf le point 7, qui ne fait qu'ajouter des tests ; il est vérifié par mutation).
+
+| # | Point | Correction | Avant → après |
+|---|---|---|---|
+| 1 | **R2** (important) : la focale était « mesurée » dès qu'un seul point de fuite l'était (`||`). Téléphone seulement incliné avec des coins bruités : focale aberrante, repli sur l'ancien calcul | Focale mesurée seulement si les deux points de fuite sont mesurables (`&&`), sinon focale par défaut | Banc d'aspect bruité (±1,5 px ; focales 0,72, 0,85 et 1,0 × le grand côté ; inclinaison de 5 à 40°, lacet 0 ou 3° ; 48 cas) : **24 → 10** cas au-dessus de 1 %. De 0 à 35° : **19 → 5**. Banc sans bruit identique. Les 5 cas restants : focale 1,0 sans lacet (focale par défaut 0,8 utilisée, 3 à 9 %) et focale 0,72 à 35° (repli, écart de plus d'un facteur 1,6) |
+| 2 | **D4a** (important) : le veto (côté déjà sur un vrai bord) se déclenchait sur une ligne de texte ou un cadre imprimé juste derrière le côté | Pas de veto si le même papier qu'à l'intérieur réapparaît à moins de 10 px d'analyse ; l'extension repart derrière le trait | Page blanche sur table sombre, cadre posé sur le bloc de texte : **6,75 → 0,23 %**. Formulaire au cadre imprimé, extension seule : 3,29 → 0,43 % (0,24 % après affinage, inchangé). Banc 26 scènes et banc de la chaîne photo identiques (blanc sur blanc et nappe toujours à 0,35 % et 0,20 %) |
+| 3 | **D2** (important) : `creerPage` attendait `chargerOpenCv()`, donc « Traitement… » jusqu'à 45 s après « Ajouter la page » | `redresserPourPage` : OpenCV s'il est prêt ou le devient en 300 ms, sinon redressement maison | OpenCV bloqué : page redressée en moins de 1 s (le test restait bloqué au-delà de 1,5 s avant) |
+| 4 | Cadre OpenCV tardif appliqué après « Valider » ; détection tardive lancée après démontage | « Ajouter la page » fige le cadre ; `estAnnule()` vérifié avant la détection tardive et avant de transmettre son cadre | 3 tests (composant et unitaire) |
+| 5 | « Préparation de la détection… » restait affiché pour toujours si OpenCV échouait | `openCvEnEchec()` ; dans ce cas, la pastille dit « Cherche la feuille… » | 2 tests |
+| 6 | Après le délai de 45 s, une nouvelle tentative injectait un second `<script>` (double téléchargement et double initialisation) | L'injection du script est gardée en mémoire et réutilisée ; elle n'est oubliée qu'en cas d'erreur du script | Une seule balise au lieu de deux (test avec minuteries simulées) |
+| 7 | Branche `requestIdleCallback` du préchargement jamais testée (jsdom ne l'a pas) | Faux `requestIdleCallback` et `cancelIdleCallback` : chargement au temps libre (délai maximal 1,5 s) et annulation | Mutation : sans `cancelIdleCallback`, le test échoue |
+
+Le correctif du point 2 a été commité en deux temps (le correctif, puis ses tests de régression dans le commit suivant) : un hook local refusait la réécriture du commit.
+
 ## Vérifications finales
 
-- `npx vitest run` (suite complète) : 272 fichiers, 2722 tests verts (120 s). Un seul cas reste marqué `it.fails`, avec un renvoi au lot 2 : faible lumière σ ≤ 8 (R9). Aucun test n'a été désactivé ni assoupli pour passer. Le seul seuil changé est celui que B1a avait posé pour la page faible lumière : il est remplacé par « plus de tache noire » (tuile ≥ 200), et l'ancien seuil reste en `it.fails`.
+- `npx vitest run` (suite complète, après la revue) : 272 fichiers, 2736 tests verts (116 s). Un seul cas reste marqué `it.fails`, avec un renvoi au lot 2 : faible lumière σ ≤ 8 (R9). Aucun test n'a été désactivé ni assoupli pour passer. Le seul seuil changé est celui que B1a avait posé pour la page faible lumière : il est remplacé par « plus de tache noire » (tuile ≥ 200), et l'ancien seuil reste en `it.fails`.
 - `npm run lint` : aucun problème.
 - `npm run build` : réussi (`/scanner` statique).
