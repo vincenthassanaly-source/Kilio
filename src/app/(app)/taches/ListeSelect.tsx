@@ -17,7 +17,7 @@ const TOUTES: ListeChoix = { id: "toutes", nom: "Toutes", couleur: null };
 
 // Cible tactile de 44 px (guide UX : zone minimale).
 const item =
-  "flex min-h-11 w-full items-center gap-2.5 px-3.5 text-left text-body font-medium transition hover:bg-surface-alt active:bg-surface-alt focus-visible:bg-surface-alt focus-visible:outline-none";
+  "flex min-h-11 w-full items-center gap-2.5 px-3.5 text-left text-body font-medium transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:bg-surface-alt focus-visible:outline-none";
 
 function Pastille({ couleur }: { couleur: string | null }) {
   return (
@@ -122,7 +122,7 @@ export function ListeSelect({ listes, valeur, onChange, variante = "pilule" }: P
           role="menu"
           aria-label="Choisir une liste"
           data-swipe-ignore
-          className={`absolute ${discret ? "right-0" : "left-0"} top-[calc(100%+8px)] z-30 flex max-h-[min(60vh,22rem)] w-64 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto overflow-x-hidden rounded-2xl border border-line bg-surface py-1 shadow-card`}
+          className={`absolute ${discret ? "right-0" : "left-0"} top-[calc(100%+8px)] z-30 flex max-h-[min(60vh,22rem)] w-64 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto overflow-x-hidden rounded-2xl border border-line bg-surface py-1 shadow-float`}
         >
           {choix.map((l, i) => {
             const actif = l.id === valeur;

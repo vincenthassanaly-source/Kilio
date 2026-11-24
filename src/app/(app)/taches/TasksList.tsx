@@ -138,6 +138,15 @@ const GRIP_ICON = (
   </svg>
 );
 
+// Repère de tâche récurrente : tracé du même jeu que les autres icônes (2 px,
+// bouts ronds), plutôt que le glyphe ↻ dont le rendu dépend de la police.
+const RECURRENCE_ICON = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M20 12a8 8 0 1 1-2.34-5.66" />
+    <path d="M20 4v4.5h-4.5" />
+  </svg>
+);
+
 // Boutons de ligne des sous-tâches : zone de tap de 44 px de haut (au lieu
 // des glyphes nus d'environ 10×24 px relevés par l'audit), anneau de focus.
 const sousTacheBouton =
@@ -690,8 +699,8 @@ export const TaskCard = memo(function TaskCard({
               </button>
             )}
             {tache.recurrence_frequence && (
-              <span className="shrink-0 text-ink-2">
-                <span aria-hidden="true">↻</span>
+              <span className="mt-[3px] shrink-0 text-ink-2">
+                {RECURRENCE_ICON}
                 <span className="sr-only">Tâche récurrente</span>
               </span>
             )}
@@ -764,7 +773,7 @@ export const TaskCard = memo(function TaskCard({
           type="button"
           onClick={() => onEnterSelect(tache.id)}
           aria-label={`Sélectionner « ${tache.titre} »`}
-          className="absolute right-2 top-2 hidden h-8 w-8 items-center justify-center rounded-lg text-ink-3 opacity-0 transition-opacity hover:bg-surface-alt hover:text-ink focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 group-hover/carte:opacity-100 [@media(hover:hover)]:flex"
+          className="absolute right-2 top-2 hidden h-8 w-8 items-center justify-center rounded-xl text-ink-3 opacity-0 transition-opacity hover:bg-surface-alt hover:text-ink focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 group-hover/carte:opacity-100 [@media(hover:hover)]:flex"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="4" y="4" width="16" height="16" rx="4" />
@@ -1063,7 +1072,7 @@ export function TasksList({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="shrink-0 transition-transform duration-150 group-open:rotate-180"
+              className="shrink-0 transition-transform duration-150 ease-[var(--ease-out)] group-open:rotate-180"
             >
               <path d="M6 9l6 6 6-6" />
             </svg>

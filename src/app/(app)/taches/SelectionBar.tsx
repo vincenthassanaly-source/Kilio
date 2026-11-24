@@ -125,7 +125,7 @@ export function SelectionBar({
     <div
       role="toolbar"
       aria-label="Actions sur la sélection"
-      className="fixed inset-x-3 z-40 mx-auto flex max-w-2xl flex-col gap-2 rounded-2xl border border-line bg-surface p-3 shadow-float"
+      className="fixed inset-x-3 z-40 mx-auto flex max-w-2xl flex-col gap-2 rounded-card border border-line bg-surface p-3 shadow-float"
       style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
     >
       {/* Sortie du mode : bouton « Quitter » ci-contre (Échap gère aussi, cf.
