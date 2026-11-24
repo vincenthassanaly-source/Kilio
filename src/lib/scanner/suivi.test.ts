@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Quad } from "./geometrie";
-import { ETAT_SUIVI_INITIAL, suivreCadre } from "./suivi";
+import { ETAT_SUIVI_INITIAL, messageViseur, suivreCadre } from "./suivi";
 
 const L = 640, H = 480;
 const cadre = (dx = 0, dy = 0): Quad => [
@@ -55,5 +55,33 @@ describe("suivreCadre", () => {
     etat = suivreCadre(etat, cadre(), L, H); // retour au cadre habituel
     etat = suivreCadre(etat, cadre(-80, 60), L, H); // nouveau saut : pas deux fois de suite
     expect(etat.quad![0].x).toBeGreaterThan(90);
+  });
+
+  it("détection maison : le premier cadre n'est montré qu'après deux détections concordantes", () => {
+    const maison = { confirmerPremier: true };
+    let etat = suivreCadre(ETAT_SUIVI_INITIAL, cadre(), L, H, maison);
+    expect(etat.quad).toBeNull();
+    etat = suivreCadre(etat, cadre(3, 2), L, H, maison);
+    expect(etat.quad).toEqual(cadre(3, 2));
+  });
+
+  it("détection maison : deux cadres qui ne concordent pas ne s'affichent pas", () => {
+    const maison = { confirmerPremier: true };
+    let etat = suivreCadre(ETAT_SUIVI_INITIAL, cadre(), L, H, maison);
+    etat = suivreCadre(etat, cadre(-80, 60), L, H, maison);
+    expect(etat.quad).toBeNull();
+  });
+});
+
+describe("messageViseur", () => {
+  it("ne dit « Feuille repérée » que lorsqu'un cadre est affiché", () => {
+    expect(messageViseur(cadre(), "opencv")).toBe("Feuille repérée");
+    expect(messageViseur(cadre(), "maison")).toBe("Feuille repérée");
+  });
+
+  it("dit qu'il se prépare tant qu'OpenCV n'est pas prêt et qu'aucun cadre n'est confirmé", () => {
+    expect(messageViseur(null, "maison")).toBe("Préparation de la détection…");
+    expect(messageViseur(null, null)).toBe("Préparation de la détection…");
+    expect(messageViseur(null, "opencv")).toBe("Cherche la feuille…");
   });
 });

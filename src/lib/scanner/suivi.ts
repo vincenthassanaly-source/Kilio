@@ -3,7 +3,9 @@
 //  - moyenne exponentielle tant que le nouveau cadre est proche de l'ancien ;
 //  - maintien du dernier cadre quelques images quand la détection échoue ;
 //  - un changement brusque (autre document, faux positif) n'est adopté qu'après
-//    deux détections concordantes consécutives.
+//    deux détections concordantes consécutives ;
+//  - avec la détection maison (avant qu'OpenCV soit prêt), même le premier cadre doit
+//    être confirmé : seule, elle se trompe souvent sur une table claire.
 // Pur et testable : aucun DOM.
 
 import type { Point, Quad } from "./geometrie";
@@ -41,7 +43,13 @@ function melange(ancien: Quad, nouveau: Quad): Quad {
 }
 
 /** Intègre une détection (ou son absence) et renvoie le nouvel état. */
-export function suivreCadre(etat: EtatSuivi, detecte: Quad | null, largeur: number, hauteur: number): EtatSuivi {
+export function suivreCadre(
+  etat: EtatSuivi,
+  detecte: Quad | null,
+  largeur: number,
+  hauteur: number,
+  options: { confirmerPremier?: boolean } = {}
+): EtatSuivi {
   const diagonale = Math.hypot(largeur, hauteur) || 1;
 
   if (!detecte) {
@@ -49,16 +57,29 @@ export function suivreCadre(etat: EtatSuivi, detecte: Quad | null, largeur: numb
     return { quad: manques > MANQUES_MAX ? null : etat.quad, manques, candidat: null, confirmations: 0 };
   }
 
-  // Premier cadre : on l'affiche tout de suite, pour rester réactif.
-  if (!etat.quad) return { quad: detecte, manques: 0, candidat: null, confirmations: 0 };
+  // Premier cadre : affiché tout de suite pour rester réactif, sauf s'il doit être confirmé.
+  if (!etat.quad && !options.confirmerPremier) return { quad: detecte, manques: 0, candidat: null, confirmations: 0 };
 
-  if (ecartMoyen(etat.quad, detecte, diagonale) <= PROCHE) {
+  if (etat.quad && ecartMoyen(etat.quad, detecte, diagonale) <= PROCHE) {
     return { quad: melange(etat.quad, detecte), manques: 0, candidat: null, confirmations: 0 };
   }
 
-  // Cadre lointain : on attend qu'il se confirme avant de quitter l'ancien.
+  // Cadre lointain (ou premier cadre à confirmer) : on attend qu'il se confirme.
   const concordant = etat.candidat && ecartMoyen(etat.candidat, detecte, diagonale) <= PROCHE;
   const confirmations = concordant ? etat.confirmations + 1 : 1;
   if (confirmations >= CONFIRMATIONS) return { quad: detecte, manques: 0, candidat: null, confirmations: 0 };
   return { quad: etat.quad, manques: 0, candidat: detecte, confirmations };
+}
+
+/** Moteur de la détection en direct : OpenCV une fois chargé, la détection maison avant. */
+export type MoteurDirect = "opencv" | "maison";
+
+/**
+ * Texte de la pastille du viseur. « Feuille repérée » n'est jamais promis sur un cadre maison
+ * non confirmé (il n'est d'ailleurs pas affiché) ; tant qu'OpenCV n'est pas prêt et qu'aucun
+ * cadre n'est confirmé, le viseur dit qu'il se prépare plutôt que de chercher.
+ */
+export function messageViseur(quad: Quad | null, moteur: MoteurDirect | null): string {
+  if (quad) return "Feuille repérée";
+  return moteur === "opencv" ? "Cherche la feuille…" : "Préparation de la détection…";
 }

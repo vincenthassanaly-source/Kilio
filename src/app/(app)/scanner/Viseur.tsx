@@ -5,12 +5,11 @@ import { Portal } from "@/components/Portal";
 import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import type { Quad } from "@/lib/scanner/geometrie";
-import { ETAT_SUIVI_INITIAL, suivreCadre, type EtatSuivi } from "@/lib/scanner/suivi";
+import { ETAT_SUIVI_INITIAL, messageViseur, suivreCadre, type EtatSuivi, type MoteurDirect } from "@/lib/scanner/suivi";
 import { capturerPhoto, detecterDepuisVideo, prechargerOpenCv } from "@/lib/scanner/traitement";
 
-/** Pause entre deux détections en direct (après la fin de la précédente) et côté de l'image analysée. */
+/** Pause entre deux détections en direct (après la fin de la précédente). */
 const PAUSE_ENTRE_DETECTIONS_MS = 120;
-const COTE_DETECTION_LIVE_PX = 180;
 
 type Erreur = "refuse" | "indisponible" | null;
 
@@ -52,7 +51,7 @@ export function Viseur({
   const [echecCapture, setEchecCapture] = useState(false);
   /** Incrémenté par « Réessayer » : relance l'ouverture de la caméra. */
   const [essai, setEssai] = useState(0);
-  const [detection, setDetection] = useState<{ quad: Quad | null; largeur: number; hauteur: number } | null>(null);
+  const [detection, setDetection] = useState<{ quad: Quad | null; largeur: number; hauteur: number; moteur: MoteurDirect } | null>(null);
 
   // Reste actif même en pause : l'écran de recadrage empile sa propre entrée
   // d'historique par-dessus. Désactiver celle du viseur ferait un
@@ -60,7 +59,8 @@ export function Viseur({
   useBackClose(true, onClose);
   useDialogFocus(overlayRef, onClose);
 
-  // OpenCV se charge pendant que la caméra s'ouvre ; d'ici là, l'ancienne détection suffit.
+  // OpenCV est d'ordinaire préchargé dès l'ouverture de /scanner (ScannerApp) ; sinon (économie de
+  // données) il se charge pendant que la caméra s'ouvre. D'ici là, la détection maison prend le relais.
   useEffect(() => {
     prechargerOpenCv();
   }, []);
@@ -114,6 +114,7 @@ export function Viseur({
   // suivante ne démarre qu'après la fin de la précédente, donc rien ne s'empile si le
   // téléphone est lent. Le cadre est lissé et maintenu entre images (suivi.ts).
   const suivi = useRef<EtatSuivi>(ETAT_SUIVI_INITIAL);
+  const moteur = useRef<MoteurDirect | null>(null);
   useEffect(() => {
     if (!pret || enPause) return;
     let arrete = false;
@@ -123,10 +124,15 @@ export function Viseur({
       const video = videoRef.current;
       if (video && video.readyState >= 2) {
         try {
-          const res = detecterDepuisVideo(video, COTE_DETECTION_LIVE_PX);
+          const res = detecterDepuisVideo(video);
           if (res) {
-            suivi.current = suivreCadre(suivi.current, res.quad, res.largeur, res.hauteur);
-            setDetection({ quad: suivi.current.quad, largeur: res.largeur, hauteur: res.hauteur });
+            // Changement de moteur (OpenCV vient d'être prêt) : on repart de zéro plutôt que de
+            // faire confirmer le cadre OpenCV contre un cadre maison.
+            if (res.moteur !== moteur.current) suivi.current = ETAT_SUIVI_INITIAL;
+            moteur.current = res.moteur;
+            // Seule, la détection maison se trompe souvent : son cadre n'est montré qu'une fois confirmé.
+            suivi.current = suivreCadre(suivi.current, res.quad, res.largeur, res.hauteur, { confirmerPremier: res.moteur === "maison" });
+            setDetection({ quad: suivi.current.quad, largeur: res.largeur, hauteur: res.hauteur, moteur: res.moteur });
           }
         } catch {
           // La détection est un confort : on ignore un échec ponctuel.
@@ -229,7 +235,7 @@ export function Viseur({
               className="absolute left-4 top-[calc(env(safe-area-inset-top)+16px)] flex h-11 items-center gap-2 rounded-full bg-black/50 px-4 text-xs font-semibold"
             >
               <span aria-hidden="true" className={`h-2 w-2 rounded-full ${quad ? "bg-[rgb(80,220,140)]" : "bg-white/50"}`} />
-              {quad ? "Feuille repérée" : "Cherche la feuille…"}
+              {messageViseur(quad, detection?.moteur ?? null)}
             </p>
           )}
 

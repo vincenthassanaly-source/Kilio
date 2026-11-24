@@ -10,7 +10,7 @@ import {
   type PageBrouillon,
 } from "@/lib/scanner/brouillon";
 import type { Quad } from "@/lib/scanner/geometrie";
-import { chargerImage, creerPage } from "@/lib/scanner/traitement";
+import { chargerImage, creerPage, prechargerOpenCvSiPossible } from "@/lib/scanner/traitement";
 import { card, dangerButton, errorText, ghostButton, primaryButton, secondaryButton } from "@/lib/ui";
 import { ApercuPage } from "./ApercuPage";
 import { EditeurCoins } from "./EditeurCoins";
@@ -65,6 +65,10 @@ export function ScannerApp() {
   const recharger = useCallback(async () => {
     setPages(await listerPages());
   }, []);
+
+  // OpenCV (~10 Mo, mis en cache par le service worker) se charge dès l'ouverture de /scanner, pour
+  // être prêt quand le viseur s'ouvre ; jamais si le navigateur demande d'économiser les données.
+  useEffect(() => prechargerOpenCvSiPossible(), []);
 
   useEffect(() => {
     let annule = false;

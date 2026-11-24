@@ -2,7 +2,8 @@
 // API du navigateur (canvas, createImageBitmap, flux vidéo). Côté client
 // uniquement : ne jamais importer depuis un composant serveur.
 
-import { detecterQuadrilatere } from "./detection";
+import { detecterQuadrilatere, reduirePourDetection } from "./detection";
+import type { MoteurDirect } from "./suivi";
 import { aplatirLesLignes } from "./aplatissage";
 import { nettoyerLesBords } from "./bordsPropres";
 import { effacerLesIntrusions } from "./intrusions";
@@ -77,14 +78,47 @@ function capturerImage(video: HTMLVideoElement): ImageData {
   return ctx.getImageData(0, 0, w, h);
 }
 
-/** Côté analysé par OpenCV en direct : plus fin que l'ancien pipeline, qui plafonnait à 180 px. */
+/** Côté analysé par OpenCV en direct. */
 const COTE_LIVE_OPENCV_PX = 360;
+/**
+ * Côté analysé par la détection maison en direct, avant qu'OpenCV soit prêt. L'image est d'abord
+ * tirée du flux au double de cette taille, puis réduite par moyenne de blocs : un `drawImage` direct
+ * à 180 px replie les détails (texte, grain) et faisait s'accrocher le cadre à une ligne de texte.
+ */
+const COTE_LIVE_MAISON_PX = 240;
+
+/** Vrai si le navigateur demande d'économiser les données (Chrome Android « Économiseur de données »). */
+export function economieDeDonnees(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const connexion = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  return connexion?.saveData === true;
+}
 
 /** Lance le chargement d'OpenCV en tâche de fond (le scanner reste utilisable sans). */
 export function prechargerOpenCv(): void {
   chargerOpenCv().catch(() => {
     // Hors ligne au premier usage ou mémoire insuffisante : l'ancien pipeline prend le relais.
   });
+}
+
+/**
+ * Préchargement dès l'ouverture de /scanner, pendant un temps libre du navigateur (repli sur un
+ * délai court où `requestIdleCallback` n'existe pas, comme Safari). Rien n'est téléchargé si
+ * l'utilisateur a demandé d'économiser les données : OpenCV se chargera alors à l'ouverture du viseur.
+ * Renvoie une fonction d'annulation (démontage avant le temps libre).
+ */
+export function prechargerOpenCvSiPossible(): () => void {
+  if (economieDeDonnees()) return () => {};
+  const w = window as Window & {
+    requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+    cancelIdleCallback?: (id: number) => void;
+  };
+  if (w.requestIdleCallback) {
+    const id = w.requestIdleCallback(() => prechargerOpenCv(), { timeout: 1500 });
+    return () => w.cancelIdleCallback?.(id);
+  }
+  const id = window.setTimeout(prechargerOpenCv, 200);
+  return () => window.clearTimeout(id);
 }
 
 /**
@@ -110,31 +144,43 @@ export function capturerPhoto(video: HTMLVideoElement, piste: MediaStreamTrack |
   return capturerPhotoPleine(piste, captureurDuNavigateur(), (photo) => chargerImage(photo), () => capturerImage(video));
 }
 
-/** Détection en direct sur une image de la vidéo (petite, donc rapide). */
-export function detecterDepuisVideo(
-  video: HTMLVideoElement,
-  coteMax: number
-): { quad: Quad | null; largeur: number; hauteur: number } | null {
+/** Image courante de la vidéo réduite à `coteMax` (lissage de qualité quand le navigateur le propose). */
+function imageReduite(video: HTMLVideoElement, coteMax: number): ImageData {
   const vw = video.videoWidth;
   const vh = video.videoHeight;
-  if (!vw || !vh) return null;
-  const cv = openCvSiPret();
-  if (cv) coteMax = Math.max(coteMax, COTE_LIVE_OPENCV_PX);
   const echelle = Math.min(1, coteMax / Math.max(vw, vh));
   const w = Math.max(8, Math.round(vw * echelle));
   const h = Math.max(8, Math.round(vh * echelle));
   const canvas = creerCanvas(w, h);
   const ctx = contexte(canvas);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   ctx.drawImage(video, 0, 0, w, h);
-  const img = ctx.getImageData(0, 0, w, h);
-  let quad: Quad | null;
-  try {
-    quad = cv ? detecterDocumentCv(cv, img, COTE_LIVE_OPENCV_PX) : detecterQuadrilatere(img);
-  } catch {
-    quad = detecterQuadrilatere(img);
+  return ctx.getImageData(0, 0, w, h);
+}
+
+/** Détection en direct sur une image de la vidéo (petite, donc rapide). Coins dans le repère natif du flux. */
+export function detecterDepuisVideo(
+  video: HTMLVideoElement
+): { quad: Quad | null; largeur: number; hauteur: number; moteur: MoteurDirect } | null {
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  if (!vw || !vh) return null;
+  const cv = openCvSiPret();
+  if (cv) {
+    const img = imageReduite(video, COTE_LIVE_OPENCV_PX);
+    let quad: Quad | null = null;
+    try {
+      quad = detecterDocumentCv(cv, img, COTE_LIVE_OPENCV_PX);
+    } catch {
+      // Échec ponctuel d'OpenCV : pas de cadre pour cette image.
+    }
+    return { quad: quad ? mettreAEchelle(quad, vw / img.width) : null, largeur: vw, hauteur: vh, moteur: "opencv" };
   }
-  // Les coins sont ramenés au repère natif de la vidéo (celui de l'overlay SVG).
-  return { quad: quad ? mettreAEchelle(quad, vw / w) : null, largeur: vw, hauteur: vh };
+  const tiree = imageReduite(video, 2 * COTE_LIVE_MAISON_PX);
+  const { image, facteur } = reduirePourDetection(tiree, COTE_LIVE_MAISON_PX);
+  const quad = detecterQuadrilatere(image);
+  return { quad: quad ? mettreAEchelle(quad, facteur * (vw / tiree.width)) : null, largeur: vw, hauteur: vh, moteur: "maison" };
 }
 
 export type PageTraitee = {
