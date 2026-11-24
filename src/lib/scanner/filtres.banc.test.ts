@@ -147,7 +147,7 @@ describe("Magique : contenu coloré dans l'ombre", () => {
     expect(fond.tuileMin).toBeGreaterThanOrEqual(245);
   });
 
-  it.fails("photo dans une ombre de main : fond σ ≤ 4, tuile la plus sombre ≥ 245, ΔE photo ≤ 10 (échoue avant R1)", () => {
+  it("photo dans une ombre de main : fond σ ≤ 4, tuile la plus sombre ≥ 245, ΔE photo ≤ 10", () => {
     const { image, ideale, zones } = pages.ombreSurPhoto;
     const sortie = magicColor(image);
     const fond = mesurerFond(sortie, ideale);
@@ -156,7 +156,13 @@ describe("Magique : contenu coloré dans l'ombre", () => {
     expect(ecartCouleurZone(sortie, ideale, zones.photo), "ΔE de la photo").toBeLessThanOrEqual(10);
   });
 
-  it.fails("lampe chaude, peu de lumière, logo dans un coin vignetté : fond σ ≤ 8 (échoue avant R1)", () => {
+  it("lampe chaude, peu de lumière, logo dans un coin vignetté : plus de tache noire dans le fond", () => {
+    // Avant R1 : tuile la plus sombre à 2 (taches noires autour des zones bruitées prises pour de la couleur).
+    const { image, ideale } = pages.faibleLumiere;
+    expect(mesurerFond(magicColor(image), ideale).tuileMin).toBeGreaterThanOrEqual(200);
+  });
+
+  it.fails("lampe chaude, peu de lumière : fond σ ≤ 8 (reste à 33 après R1 : bruit amplifié par la courbe, débruitage prévu en R9, lot 2)", () => {
     const { image, ideale } = pages.faibleLumiere;
     expect(mesurerFond(magicColor(image), ideale).ecartType).toBeLessThanOrEqual(8);
   });

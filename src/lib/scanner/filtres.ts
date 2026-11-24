@@ -96,6 +96,53 @@ function flouBoite(g: Grille, r: number): Grille {
   return { p: out, w, h };
 }
 
+/** Dilatation carrée d'un masque binaire (rayon `r` cellules). */
+function dilaterMasque(masque: Uint8Array, w: number, h: number, r: number): Uint8Array {
+  const g = extremum({ p: Float32Array.from(masque), w, h }, r, true);
+  return Uint8Array.from(g.p);
+}
+
+/**
+ * Remplace chaque cellule masquée par la moyenne de ses voisines déjà connues, couche après couche
+ * depuis le bord de la zone masquée (diffusion « en pelure d'oignon »). Une zone sans aucune cellule
+ * connue (page entièrement couverte par une photo) prend 255 : son fond reste celui du papier blanc.
+ */
+function remplirParLesVoisins(g: Grille, masque: Uint8Array): void {
+  const { w, h, p } = g;
+  const inconnu = Uint8Array.from(masque);
+  let front: number[] = [];
+  const voisins = (i: number, f: (j: number) => void) => {
+    const x = i % w;
+    if (x > 0) f(i - 1);
+    if (x < w - 1) f(i + 1);
+    if (i >= w) f(i - w);
+    if (i < w * (h - 1)) f(i + w);
+  };
+  for (let i = 0; i < p.length; i++) {
+    if (!inconnu[i]) continue;
+    let bord = false;
+    voisins(i, (j) => { if (!inconnu[j]) bord = true; });
+    if (bord) front.push(i);
+  }
+  const vu = new Uint8Array(p.length);
+  for (const i of front) vu[i] = 1;
+  while (front.length) {
+    const valeurs = front.map((i) => {
+      let s = 0, n = 0;
+      voisins(i, (j) => { if (!inconnu[j]) { s += p[j]; n++; } });
+      return n ? s / n : 255;
+    });
+    for (let k = 0; k < front.length; k++) {
+      p[front[k]] = valeurs[k];
+      inconnu[front[k]] = 0;
+    }
+    const suivant: number[] = [];
+    for (const i of front) voisins(i, (j) => { if (inconnu[j] && !vu[j]) { vu[j] = 1; suivant.push(j); } });
+    front = suivant;
+  }
+  for (let i = 0; i < p.length; i++) if (inconnu[i]) p[i] = 255;
+}
+
 /** Lecture bilinéaire de la grille au pixel plein format (x, y). */
 function lire(g: Grille, s: number, x: number, y: number): number {
   const fx = Math.min(g.w - 1, Math.max(0, (x + 0.5) / s - 0.5));
@@ -163,6 +210,8 @@ const SATURATION_MAGIC = 1.06;
 const SATURATION_PROTEGEE = 0.2;
 /** Et écart absolu minimal (niveaux 0-255) : sous ce seuil c'est du gris, pas de la couleur. */
 const SATURATION_MIN_ABS = 22;
+/** Marge (cellules de grille) ajoutée autour d'une zone colorée protégée avant d'y diffuser le papier voisin. */
+const MARGE_PROTECTION = 2;
 /** Bornes des gains de balance des blancs : on ne « corrige » pas un vrai papier coloré à outrance. */
 const WB_MIN = 0.75;
 const WB_MAX = 1.33;
@@ -223,15 +272,21 @@ export function magicColor(img: ImageDataLike): ImageDataLike {
   const grille: Grille = { p: new Float32Array(gr.p.length), w: gr.w, h: gr.h };
   for (let i = 0; i < grille.p.length; i++) grille.p[i] = luma(gr.p[i] * wbR, gg.p[i] * wbG, gb.p[i] * wbB);
   // Protection du contenu coloré : une grande zone sombre ET saturée (photo, tampon, logo
-  // épais) n'est pas une ombre. On la fait compter comme « papier » dans l'estimation du fond,
-  // sans quoi elle serait éclaircie et ses couleurs faussées (un brun deviendrait pêche).
+  // épais) n'est pas une ombre. Elle ne doit pas compter dans l'estimation du fond, sans quoi elle
+  // serait éclaircie et ses couleurs faussées (un brun deviendrait pêche). Ses cellules prennent le
+  // niveau du papier VOISIN (diffusion depuis les cellules non protégées) : forcer 255, comme avant,
+  // noircissait une photo ou un logo situés dans une ombre (bloc noir entouré d'un halo gris).
   const niveauPapier = percentile(grille.p, 0.85);
+  const protege = new Uint8Array(grille.p.length);
   for (let i = 0; i < grille.p.length; i++) {
     const rr = gr.p[i] * wbR, gg2 = gg.p[i] * wbG, bb = gb.p[i] * wbB;
     const saturation = Math.max(rr, gg2, bb) - Math.min(rr, gg2, bb);
     // Minimum absolu : l'encre noire, souvent légèrement bleutée, n'est pas « colorée ».
-    if (grille.p[i] < 0.8 * niveauPapier && saturation > SATURATION_MIN_ABS && saturation > SATURATION_PROTEGEE * Math.max(grille.p[i], 1)) grille.p[i] = 255;
+    if (grille.p[i] < 0.8 * niveauPapier && saturation > SATURATION_MIN_ABS && saturation > SATURATION_PROTEGEE * Math.max(grille.p[i], 1)) protege[i] = 1;
   }
+  // Le liseré flou qui entoure la zone (ni papier ni couleur franche) est masqué avec elle : la
+  // diffusion repart du papier propre, pas d'un bord à demi sombre.
+  remplirParLesVoisins(grille, dilaterMasque(protege, grille.w, grille.h, MARGE_PROTECTION));
   const rayon = Math.max(2, Math.round(RAYON_FOND * Math.max(grille.w, grille.h)));
   const fond = flouBoite(extremum(extremum(grille, rayon, true), rayon, false), Math.max(1, Math.round(rayon / 2)));
 
