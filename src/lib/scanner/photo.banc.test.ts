@@ -9,9 +9,10 @@ import { reduirePourDetection } from "./detection";
 import { mettreAEchelle, type Quad } from "./geometrie";
 import type { Cv } from "./opencv";
 import { detecterDocumentCv } from "./opencvScan";
-import { detecterPhoto } from "./pipeline";
+import { etendreAuxBordsDeLaFeuille } from "./extension";
+import { detecterPhoto, finaliserCadre } from "./pipeline";
 import { sceneLimite, scenesDeReference, type Scene } from "./scenes";
-import { coinsDistincts, erreurCoinsSansOrdre, iouQuads, sceneRotation45, scenesDifficiles, veriteVisible } from "./scenesEtendues";
+import { coinsDistincts, erreurCoinsSansOrdre, iouQuads, sceneRotation45, scenesCadreInterieur, scenesDifficiles, veriteVisible } from "./scenesEtendues";
 
 const rapport: string[] = [];
 let cv: Cv;
@@ -82,6 +83,22 @@ describe("banc de la chaîne photo (detecterFeuilleAuto)", () => {
     const m = await mesurer(plusHaute);
     expect(m.erreur).toBeLessThanOrEqual(0.015);
   });
+});
+
+// Revue du lot 1 : un trait sombre juste derrière le côté (ligne de texte, cadre imprimé) passait pour
+// le bord de la page et bloquait l'extension (6,75 % d'erreur au lieu de 0,23 %).
+describe("cadre intérieur avec un trait juste derrière un côté", () => {
+  for (const { scene, interieur } of scenesCadreInterieur()) {
+    it(`${scene.nom} : l'extension rejoint le vrai bord (≤ 1,5 %)`, () => {
+      const { width: w, height: h } = scene.image;
+      expect(erreurCoinsSansOrdre(etendreAuxBordsDeLaFeuille(scene.image, interieur), scene.verite, w, h)).toBeLessThanOrEqual(0.015);
+      expect(erreurCoinsSansOrdre(finaliserCadre(scene.image, interieur), scene.verite, w, h)).toBeLessThanOrEqual(0.015);
+    });
+    it(`${scene.nom} : chaîne photo complète ≤ 1,5 %`, async () => {
+      const m = await mesurer(scene);
+      expect(m.erreur).toBeLessThanOrEqual(0.015);
+    });
+  }
 });
 
 describe("feuille tournée de 45°", () => {
