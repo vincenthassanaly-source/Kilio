@@ -122,7 +122,7 @@ export function ObjectifForm({
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className={linkButton}>
+      <button type="button" onClick={() => setOpen(true)} className={`${linkButton} self-start`}>
         Modifier les objectifs
       </button>
     );

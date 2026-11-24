@@ -22,8 +22,10 @@ import {
   type SaisieRecente,
 } from "@/lib/nutrition/compute";
 import { queryKeys } from "@/lib/query/keys";
-import { errorText, input, nameTextComplet, primaryButton } from "@/lib/ui";
+import { errorText, input, nameTextComplet, navArrowButton, primaryButton } from "@/lib/ui";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { ChevronIcon, PlusIcon } from "@/components/icons";
+import { MoinsIcon } from "../MoinsIcon";
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
@@ -104,9 +106,9 @@ function LigneCatalogue({
           <span className={`block ${nameTextComplet} font-semibold`}>{item.nom}</span>
           <span className="block truncate text-caption text-ink-2">{detail}</span>
         </span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="shrink-0">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
+        <span className="shrink-0 text-ink-3">
+          <PlusIcon size={18} />
+        </span>
       </button>
     </li>
   );
@@ -307,7 +309,7 @@ function EtapeQuantite({
     setTexte(String(suivant).replace(".", ","));
   }
 
-  const boutonPas = `flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-xl text-ink transition-transform active:scale-[0.97] ${focusRing}`;
+  const boutonPas = `flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-ink transition-[background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt active:scale-[0.97] ${focusRing}`;
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -324,11 +326,9 @@ function EtapeQuantite({
           type="button"
           onClick={onRetour}
           aria-label="Changer d'aliment ou de recette"
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-ink ${focusRing}`}
+          className={`${navArrowButton} shrink-0`}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M15 6l-6 6 6 6" />
-          </svg>
+          <ChevronIcon sens="gauche" size={18} />
         </button>
         <div className="min-w-0">
           <p className="truncate text-body font-bold text-ink">{item.nom}</p>
@@ -358,7 +358,7 @@ function EtapeQuantite({
         </label>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => ajuster(-pas)} aria-label={`Retirer ${String(pas).replace(".", ",")} ${uniteSaisie(item, mode, pas)}`} className={boutonPas}>
-            −
+            <MoinsIcon size={20} />
           </button>
           <div className="relative min-w-0 flex-1">
             <input
@@ -370,14 +370,14 @@ function EtapeQuantite({
               autoComplete="off"
               aria-invalid={!valide}
               aria-describedby={[etat.error ? erreurId : null, !valide ? quantiteErreurId : null].filter(Boolean).join(" ") || undefined}
-              className={`${input} w-full pr-20 text-center font-display text-xl font-semibold tabular-nums`}
+              className={`${input} w-full pr-20 text-center font-display text-heading font-semibold tabular-nums`}
             />
             <span className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-small text-ink-2">
               {uniteSaisie(item, mode, valide ? valeur : 1)}
             </span>
           </div>
           <button type="button" onClick={() => ajuster(pas)} aria-label={`Ajouter ${String(pas).replace(".", ",")} ${uniteSaisie(item, mode, pas)}`} className={boutonPas}>
-            +
+            <PlusIcon size={20} />
           </button>
         </div>
         <div className="flex gap-1.5">
@@ -517,7 +517,7 @@ export function AjoutRepasPanneau({
     depart?.item ? { item: depart.item, recent: depart.recent } : null
   );
 
-  // En correction, « ‹ » permet de changer d'aliment : la ligne garde son id.
+  // En correction, la flèche de retour permet de changer d'aliment : la ligne garde son id.
   const [changerItem, setChangerItem] = useState(false);
 
   if (edition && !choix && !changerItem) {
