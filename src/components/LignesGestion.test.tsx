@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Les Server Actions importent Supabase, sharp… : inutiles pour un test de mise en page.
@@ -49,7 +49,7 @@ function verifierLigne(nom: HTMLElement, boutons: (string | RegExp)[]) {
 afterEach(cleanup);
 
 describe("lignes de gestion avec un nom long", () => {
-  it("Catégories : trois boutons dans la même rangée sous le nom", () => {
+  it("Catégories : le nom reste entier et les actions sont dans le menu « … »", () => {
     render(
       <CategoriesManager
         categories={[
@@ -62,13 +62,10 @@ describe("lignes de gestion avec un nom long", () => {
     const ligne = nom.closest("li") as HTMLElement;
     expect(ligne).not.toBeNull();
     expect(nom.className).not.toContain("truncate");
-    const rangee = ligne.querySelector("button")!.parentElement as HTMLElement;
-    expect(rangee.className).toContain("justify-end");
-    expect(Array.from(rangee.querySelectorAll("button")).map((b) => b.textContent)).toEqual([
-      "Modifier",
-      "Fusionner",
-      "Supprimer",
-    ]);
+    expect(
+      within(ligne).getByRole("button", { name: `Actions pour « ${NOM_LONG} »` })
+    ).toBeTruthy();
+    expect(within(ligne).queryByRole("button", { name: "Supprimer" })).toBeNull();
   });
 
   it("Ingrédients libres : le nom reste entier et les boutons sont dans leur rangée", () => {
