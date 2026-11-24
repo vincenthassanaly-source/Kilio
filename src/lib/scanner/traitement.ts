@@ -232,7 +232,8 @@ export type PageTraitee = {
 
 /** Redresse la perspective puis applique le filtre « Magique » (rendu CamScanner Magique Pro). */
 export async function creerPage(source: ImageDataLike, quad: Quad): Promise<PageTraitee> {
-  const { largeur, hauteur } = tailleSortie(quad);
+  // Proportions réelles de la page (perspective corrigée), d'après la position des coins dans la photo.
+  const { largeur, hauteur } = tailleSortie(quad, undefined, { largeur: source.width, hauteur: source.height });
   let redressee: ImageDataLike | null = null;
   try {
     const { cv } = await chargerOpenCv();

@@ -96,11 +96,118 @@ export function quadValide(quad: Quad): boolean {
   return aireQuad(quad) > 1;
 }
 
-/** Taille de la page redressée : plus grands côtés opposés, bornée. */
-export function tailleSortie(quad: Quad, coteMax = COTE_MAX_REDRESSE_PX): { largeur: number; hauteur: number } {
+/**
+ * Formats aimantés (largeur / hauteur, en portrait) : A4, Lettre US, carte au format ID-1
+ * (85,6 × 54 mm). Un rapport estimé à moins de `AIMANTATION` près devient exactement celui du format.
+ */
+const FORMATS = [210 / 297, 8.5 / 11, 54 / 85.6];
+const AIMANTATION = 0.03;
+/** Focale par défaut (part du plus grand côté de la photo) quand les 4 coins ne permettent pas de l'estimer. */
+const FOCALE_DEFAUT = 0.8;
+/**
+ * Focales plausibles (part du plus grand côté de la photo) : un téléphone va du grand-angle (≈ 0,6)
+ * au téléobjectif ×2 (≈ 1,6). Hors de cette plage, le quadrilatère n'est pas l'image d'un rectangle
+ * (coins posés à la main au hasard).
+ */
+const FOCALE_MIN = 0.5;
+const FOCALE_MAX = 2;
+/**
+ * Écart maximal (facteur) entre le rapport estimé et celui des plus grands côtés : même à 35°
+ * d'inclinaison la perspective ne fausse ce dernier que d'un facteur 1,46. Au-delà, l'estimation est
+ * jugée instable et l'ancien calcul est gardé.
+ */
+const ECART_RAPPORT_MAX = 1.6;
+
+type Vec3 = [number, number, number];
+const vectoriel = (a: Vec3, b: Vec3): Vec3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const scalaire = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+
+/**
+ * Rapport largeur/hauteur réel du rectangle dont `quad` est l'image en perspective (Zhang et He,
+ * « Whiteboard scanning and image enhancement », 2007), centre optique au milieu de la photo. La
+ * focale est estimée depuis les 4 coins ; si elle ne l'est pas (un couple de côtés parallèles à
+ * l'image), on prend une focale par défaut. Renvoie null si le quadrilatère n'est pas projectif
+ * (focale estimée aberrante, coins dégénérés) : l'appelant garde alors l'ancien calcul.
+ */
+export function rapportReel(quad: Quad, largeurImage: number, hauteurImage: number): number | null {
+  const [hg, hd, bd, bg] = quad;
+  const u0 = largeurImage / 2;
+  const v0 = hauteurImage / 2;
+  const cote = Math.max(largeurImage, hauteurImage);
+  const m1: Vec3 = [hg.x, hg.y, 1];
+  const m2: Vec3 = [hd.x, hd.y, 1];
+  const m3: Vec3 = [bg.x, bg.y, 1];
+  const m4: Vec3 = [bd.x, bd.y, 1];
+  const d2 = scalaire(vectoriel(m2, m4), m3);
+  const d3 = scalaire(vectoriel(m3, m4), m2);
+  if (Math.abs(d2) < 1e-9 || Math.abs(d3) < 1e-9) return null;
+  const k2 = scalaire(vectoriel(m1, m4), m3) / d2;
+  const k3 = scalaire(vectoriel(m1, m4), m2) / d3;
+  if (!(k2 > 0) || !(k3 > 0)) return null;
+  const n2 = m2.map((v, i) => k2 * v - m1[i]) as Vec3;
+  const n3 = m3.map((v, i) => k3 * v - m1[i]) as Vec3;
+  let f = FOCALE_DEFAUT * cote;
+  // n2[2] ou n3[2] nul : ce couple de côtés est parallèle dans l'image, la focale n'est pas mesurable.
+  if (Math.abs(n2[2]) > 1e-6 && Math.abs(n3[2]) > 1e-6) {
+    const f2 =
+      -(
+        n2[0] * n3[0] - (n2[0] * n3[2] + n2[2] * n3[0]) * u0 + n2[2] * n3[2] * u0 * u0 +
+        (n2[1] * n3[1] - (n2[1] * n3[2] + n2[2] * n3[1]) * v0 + n2[2] * n3[2] * v0 * v0)
+      ) / (n2[2] * n3[2]);
+    // Perspective trop faible pour mesurer la focale (quasi de face) : la focale par défaut suffit,
+    // le rapport n'en dépend presque pas. Sinon une focale aberrante trahit un quadrilatère non projectif.
+    const mesurable = Math.abs(n2[2]) * cote > 0.02 * Math.hypot(n2[0], n2[1]) || Math.abs(n3[2]) * cote > 0.02 * Math.hypot(n3[0], n3[1]);
+    if (mesurable) {
+      if (!(f2 > 0)) return null;
+      f = Math.sqrt(f2);
+      if (f < FOCALE_MIN * cote || f > FOCALE_MAX * cote) return null;
+    }
+  }
+  const norme = (n: Vec3) => {
+    const a = (n[0] - u0 * n[2]) / f;
+    const b = (n[1] - v0 * n[2]) / f;
+    return a * a + b * b + n[2] * n[2];
+  };
+  const rapport = Math.sqrt(norme(n2) / norme(n3));
+  return Number.isFinite(rapport) && rapport > 0 ? rapport : null;
+}
+
+/** Aimante un rapport largeur/hauteur au format connu le plus proche (portrait ou paysage), à 3 % près. */
+export function aimanterRapport(rapport: number): number {
+  for (const f of FORMATS) {
+    for (const cible of [f, 1 / f]) if (Math.abs(rapport / cible - 1) <= AIMANTATION) return cible;
+  }
+  return rapport;
+}
+
+/**
+ * Taille de la page redressée, bornée. Sans la taille de la photo : plus grands côtés opposés. Avec
+ * elle : rapport largeur/hauteur réel estimé depuis les 4 coins (la perspective allonge le côté proche
+ * et raccourcit le côté fuyant), aimanté à A4, Lettre US ou carte, et le plus grand côté mesuré comme
+ * échelle ; repli sur le premier calcul si le quadrilatère n'est pas projectif ou si l'estimation
+ * s'écarte trop du premier calcul (instable).
+ */
+export function tailleSortie(
+  quad: Quad,
+  coteMax = COTE_MAX_REDRESSE_PX,
+  image?: { largeur: number; hauteur: number }
+): { largeur: number; hauteur: number } {
   const [hg, hd, bd, bg] = quad;
   let largeur = Math.max(distance(hg, hd), distance(bg, bd));
   let hauteur = Math.max(distance(hg, bg), distance(hd, bd));
+  const estime = image ? rapportReel(quad, image.largeur, image.hauteur) : null;
+  const rapport = estime && Math.max(estime / (largeur / hauteur), (largeur / hauteur) / estime) <= ECART_RAPPORT_MAX ? estime : null;
+  if (rapport) {
+    const r = aimanterRapport(rapport);
+    const grand = Math.max(largeur, hauteur);
+    if (r >= 1) {
+      largeur = grand;
+      hauteur = grand / r;
+    } else {
+      hauteur = grand;
+      largeur = grand * r;
+    }
+  }
   const echelle = Math.min(1, coteMax / Math.max(largeur, hauteur, 1));
   largeur *= echelle;
   hauteur *= echelle;
