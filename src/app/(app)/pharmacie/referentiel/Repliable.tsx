@@ -2,7 +2,8 @@
 
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { card, sectionTitle } from "@/lib/ui";
+import { sectionTitle } from "@/lib/ui";
+import { carteNue } from "../styles";
 
 // Mémoire « pour la session » : l'écran se démonte quand on ouvre une fiche, le
 // state React seul serait perdu au retour. Un Set au niveau du module survit à
@@ -118,7 +119,7 @@ export function GroupeRepliable({
   const idPanneau = `${id}-contenu`;
 
   return (
-    <div className={`${card} p-0`} style={style}>
+    <div className={carteNue} style={style}>
       <button
         type="button"
         onClick={basculer}

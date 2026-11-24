@@ -100,7 +100,7 @@ export function TagsInput({
               <button
                 type="button"
                 onClick={() => ajouter(s)}
-                className="inline-flex min-h-11 items-center gap-1 rounded-full border border-line bg-surface px-3 text-small font-medium text-ink-2 transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                className="inline-flex min-h-11 items-center gap-1 rounded-full border border-line bg-surface px-3 text-small font-medium text-ink-2 transition-[background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
               >
                 <span aria-hidden>+</span>
                 {s}

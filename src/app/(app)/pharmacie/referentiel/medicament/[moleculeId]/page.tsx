@@ -27,6 +27,7 @@ import { IntrouvableCarte } from "../../../EtatSnapshot";
 import { RetourReferentiel } from "../../RetourReferentiel";
 import { AvecReferentiel, BlocInfo } from "../../EtatReferentiel";
 import { MoleculeEditeur } from "./MoleculeEditeur";
+import { carteClasse, carteNue, pastilleLien } from "../../../styles";
 
 export default function MedicamentPage({ params }: { params: Promise<{ moleculeId: string }> }) {
   const { moleculeId } = use(params);
@@ -62,7 +63,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
               </div>
 
               <section
-                className={`${card} flex flex-col gap-4 bg-[color-mix(in_oklch,var(--classe)_7%,var(--color-surface))]`}
+                className={`${carteClasse} flex flex-col gap-4`}
                 aria-label="Fiche du médicament"
               >
                 {molecule.indications.length > 0 && (
@@ -86,7 +87,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                           {liee ? (
                             <TransitionLink
                               href={`/pharmacie/referentiel/medicament/${liee.id}`}
-                              className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3.5 text-label font-semibold text-ink"
+                              className={pastilleLien}
                             >
                               {nom}
                             </TransitionLink>
@@ -106,7 +107,7 @@ export default function MedicamentPage({ params }: { params: Promise<{ moleculeI
                   <h2 id="titre-marques" className={sectionTitle}>
                     Noms commerciaux
                   </h2>
-                  <ul className={`${card} flex flex-col p-0`}>
+                  <ul className={`${carteNue} flex flex-col`}>
                     {specialites.map((specialite) => (
                       <li
                         key={specialite.id}

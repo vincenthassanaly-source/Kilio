@@ -16,13 +16,14 @@ import {
 import { IntrouvableCarte, PharmacieSkeleton } from "../../../EtatSnapshot";
 import { RetourReferentiel } from "../../RetourReferentiel";
 import { AvecReferentiel } from "../../EtatReferentiel";
-import { CheckIcon, CrossIcon } from "@/components/icons";
+import { CheckIcon, CrossIcon, PlusIcon } from "@/components/icons";
+import { classePuce } from "../../../styles";
 
 // Le rôle est dit en toutes lettres et par un pictogramme : la couleur
 // n'est jamais le seul vecteur d'information.
 const STYLE_ROLE: Record<RoleItem, { bordure: string; pastille: string; signe: ReactNode }> = {
   traitement: { bordure: "border-kcal/40", pastille: "bg-kcal-soft text-kcal", signe: <CheckIcon size={12} /> },
-  association: { bordure: "border-warning/40", pastille: "bg-surface-alt text-ink-2", signe: "+" },
+  association: { bordure: "border-warning/40", pastille: "bg-surface-alt text-ink-2", signe: <PlusIcon size={12} /> },
   eviter: { bordure: "border-alert/40", pastille: "bg-surface-alt text-alert", signe: <CrossIcon size={12} /> },
 };
 
@@ -161,9 +162,7 @@ function PathologieContenu({ pathologieId }: { pathologieId: string }) {
                             type="button"
                             aria-pressed={actif}
                             onClick={() => choisirProfil(profil)}
-                            className={`min-h-11 shrink-0 rounded-full border px-3.5 text-label font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal ${
-                              actif ? "border-kcal bg-kcal-soft text-kcal" : "border-line bg-surface text-ink-2"
-                            }`}
+                            className={classePuce(actif)}
                           >
                             {profil}
                           </button>

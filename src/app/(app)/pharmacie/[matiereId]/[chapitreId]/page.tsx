@@ -136,7 +136,7 @@ function Chapitre({
                   <button
                     type="button"
                     onClick={() => allerA(notion.id)}
-                    className="flex min-h-11 w-full items-center rounded-lg px-1 text-left text-body font-semibold text-ink transition-colors hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                    className="flex min-h-11 w-[calc(100%+0.5rem)] -mx-1 items-center rounded-xl px-2 py-2 text-left text-body font-semibold text-ink transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
                   >
                     {notion.titre}
                   </button>

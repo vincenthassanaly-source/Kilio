@@ -42,7 +42,7 @@ export function IconeNiveau({ niveau, taille = 16 }: { niveau: Niveau; taille?: 
 /**
  * Rend le contenu d'une notion ou d'une carte. Sans balise `[couleur]`, le
  * rendu est exactement le paragraphe d'avant ; une ligne balisée devient une
- * rangée avec barre latérale, fond teinté, pictogramme et libellé
+ * rangée avec contour et fond teintés, pictogramme et libellé
  * accessible. Le texte reste en encre normale (contraste identique en clair
  * et en sombre) ; seule la barre et le pictogramme portent la couleur.
  */

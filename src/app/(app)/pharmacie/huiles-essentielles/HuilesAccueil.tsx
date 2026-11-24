@@ -6,7 +6,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { TransitionLink } from "@/components/TransitionLink";
 import { queryKeys } from "@/lib/query/keys";
-import { addCard, addCardIcon, cardTight, eyebrow, input } from "@/lib/ui";
+import { PlusIcon } from "@/components/icons";
+import { addCard, addCardIcon, addCardTitre, cardTight, eyebrow, input } from "@/lib/ui";
 import { pluriel } from "@/lib/pharmacie/format";
 import {
   AUCUN_FILTRE,
@@ -21,6 +22,7 @@ import { IntrouvableCarte } from "../EtatSnapshot";
 import { BadgesListe } from "./BadgesHuile";
 import { AvecHuiles } from "./EtatHuiles";
 import { HuileEditeur } from "./HuileEditeur";
+import { classePuce } from "../styles";
 
 const MAX_INDICATIONS_FILTRE = 8;
 
@@ -49,11 +51,9 @@ export function HuilesAccueil() {
             <>
               <button type="button" onClick={() => setAjout(true)} className={addCard}>
                 <span aria-hidden className={addCardIcon}>
-                  <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth={2.25} strokeLinecap="round">
-                    <path d="M10 4v12M4 10h12" />
-                  </svg>
+                  <PlusIcon size={18} />
                 </span>
-                <span className="text-body font-semibold text-ink">Ajouter une huile essentielle</span>
+                <span className={addCardTitre}>Ajouter une huile essentielle</span>
               </button>
               {ajout && <HuileEditeur huiles={snapshot.huiles} onClose={() => setAjout(false)} />}
 
@@ -84,14 +84,7 @@ export function HuilesAccueil() {
 
 function Puce({ actif, onClick, children }: { actif: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
-      type="button"
-      aria-pressed={actif}
-      onClick={onClick}
-      className={`inline-flex min-h-11 items-center rounded-full border px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
-        actif ? "border-kcal bg-kcal text-on-kcal" : "border-line bg-surface text-ink-2"
-      }`}
-    >
+    <button type="button" aria-pressed={actif} onClick={onClick} className={classePuce(actif)}>
       {children}
     </button>
   );

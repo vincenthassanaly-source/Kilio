@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { TransitionLink } from "@/components/TransitionLink";
-import { card, cardTight, eyebrow, pillClasse, screenTitle, sectionTitle } from "@/lib/ui";
+import { cardTight, eyebrow, pillClasse, screenTitle, sectionTitle } from "@/lib/ui";
 import { pluriel } from "@/lib/pharmacie/format";
 import { styleClasse } from "@/lib/pharmacie/couleurClasse";
 import {
@@ -17,6 +17,7 @@ import {
 import { IntrouvableCarte } from "../../../EtatSnapshot";
 import { RetourReferentiel } from "../../RetourReferentiel";
 import { AvecReferentiel, BlocInfo } from "../../EtatReferentiel";
+import { carteClasse, pastilleLien } from "../../../styles";
 
 export default function ClassePage({ params }: { params: Promise<{ classeId: string }> }) {
   const { classeId } = use(params);
@@ -51,7 +52,7 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
               </div>
 
               {(classe.mecanisme || classe.contre_indications || classe.interactions || classe.conseils) && (
-                <div className={`${card} flex flex-col gap-4 bg-[color-mix(in_oklch,var(--classe)_7%,var(--color-surface))]`}>
+                <div className={`${carteClasse} flex flex-col gap-4`}>
                   <BlocInfo titre="Mécanisme" texte={classe.mecanisme} />
                   <BlocInfo titre="Contre-indications" texte={classe.contre_indications} />
                   <BlocInfo titre="Interactions" texte={classe.interactions} />
@@ -123,7 +124,7 @@ export default function ClassePage({ params }: { params: Promise<{ classeId: str
                       <li key={pathologie.id}>
                         <TransitionLink
                           href={`/pharmacie/referentiel/pathologie/${pathologie.id}`}
-                          className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3.5 text-label font-semibold text-ink"
+                          className={pastilleLien}
                         >
                           {pathologie.nom}
                         </TransitionLink>
