@@ -312,7 +312,7 @@ export function Viseur({
                   : "Importe une photo depuis ta galerie pour continuer."}
               </p>
               <div className="flex flex-col items-stretch gap-2">
-                <button type="button" onClick={reessayer} className={boutonImmersifPrincipal}>
+                <button type="button" onClick={reessayer} className={`${boutonImmersifPrincipal} px-5`}>
                   Réessayer
                 </button>
                 <button type="button" onClick={onImporter} className={`${boutonImmersif} px-5`}>
@@ -336,7 +336,7 @@ export function Viseur({
 
         {/* Grille 1fr / auto / 1fr : le déclencheur reste centré quelle que soit la largeur des libellés voisins. */}
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 pb-[calc(env(safe-area-inset-bottom)+20px)] pt-4">
-          <button type="button" onClick={onImporter} className={`${boutonImmersif} justify-self-start`}>
+          <button type="button" onClick={onImporter} className={`${boutonImmersif} justify-self-start whitespace-nowrap px-4`}>
             Importer
           </button>
           <button
@@ -349,7 +349,7 @@ export function Viseur({
           >
             <span className="h-14 w-14 rounded-full bg-white" />
           </button>
-          <button type="button" onClick={onClose} className={`${boutonImmersif} justify-self-end tabular-nums`}>
+          <button type="button" onClick={onClose} className={`${boutonImmersif} justify-self-end whitespace-nowrap px-4 tabular-nums`}>
             {remplacePage !== undefined ? "Annuler" : nombrePages > 0 ? `Terminer (${nombrePages})` : "Terminer"}
           </button>
         </div>

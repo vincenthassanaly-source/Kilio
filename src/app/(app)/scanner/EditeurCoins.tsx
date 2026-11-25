@@ -192,7 +192,7 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
       )}
 
       <div className="flex items-center gap-2 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-2">
-        <button type="button" onClick={onAnnuler} disabled={enCours} className={`${boutonImmersif} px-3.5`}>
+        <button type="button" onClick={onAnnuler} disabled={enCours} className={`${boutonImmersif} whitespace-nowrap px-3.5`}>
           Annuler
         </button>
         <button
@@ -202,7 +202,7 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
             setQuad(quadParDefaut(w, h, 0));
           }}
           disabled={enCours}
-          className={`${boutonImmersif} px-3.5`}
+          className={`${boutonImmersif} whitespace-nowrap px-3.5`}
         >
           Photo entière
         </button>
@@ -215,7 +215,9 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
           }}
           disabled={enCours || !valide || detecte === null}
           aria-busy={enCours}
-          className={`${boutonImmersifPrincipal} min-w-0 flex-1 px-4`}
+          // Seul bouton autorisé à passer sur deux lignes (« Remplacer la page » sur un écran étroit) :
+          // les deux autres gardent leur libellé entier.
+          className={`${boutonImmersifPrincipal} min-w-0 flex-1 px-3 py-1.5 text-center leading-tight text-balance`}
         >
           {enCours ? "Traitement…" : remplace ? "Remplacer la page" : "Ajouter la page"}
         </button>
