@@ -93,7 +93,7 @@ export function ReveilButton() {
         onClick={ouvrir}
         aria-label="Calculer une heure de réveil"
         aria-haspopup="dialog"
-        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-control-border bg-surface text-ink shadow-card transition active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-control-border bg-surface text-ink shadow-card transition-[background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
       >
         <AlarmIcon />
       </button>
@@ -151,14 +151,16 @@ function ContenuReveil({ etat, onRetry }: { etat: Etat; onRetry: () => void }) {
               key={p.cycles}
               className={`flex items-center justify-between gap-3 rounded-2xl px-3.5 py-3 ${recommande ? "bg-kcal-soft" : "bg-surface-alt"}`}
             >
-              <span className="font-display text-display leading-none font-semibold tracking-[-0.03em] text-ink tabular-nums">
-                {formaterHeure(p.heure)}
-              </span>
-              <span className="flex flex-col items-end gap-1 text-right">
-                {recommande && <span className={kcalPillTag}>Idéal</span>}
-                <span className="text-small font-medium text-ink-2 tabular-nums">
-                  {p.cycles} cycles · {formaterDuree(p.dureeSommeilMin)} de sommeil
+              {/* « Idéal » suit l'heure sur la même ligne : les trois rangées
+                  gardent la même hauteur. */}
+              <span className="flex items-center gap-2">
+                <span className="font-display text-display leading-none font-semibold tracking-[-0.03em] text-ink tabular-nums">
+                  {formaterHeure(p.heure)}
                 </span>
+                {recommande && <span className={kcalPillTag}>Idéal</span>}
+              </span>
+              <span className="text-right text-small font-medium text-ink-2 tabular-nums">
+                {p.cycles} cycles · {formaterDuree(p.dureeSommeilMin)} de sommeil
               </span>
             </li>
           );

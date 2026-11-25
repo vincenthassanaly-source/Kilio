@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { createSousTache, createTache, getListes } from "@/app/actions/taches";
 import { createEvenement } from "@/app/actions/evenements";
 import { showToast } from "@/components/toast/toast-store";
+import { CrossIcon } from "@/components/icons";
+import { SegmentedControl, type SegmentOption } from "@/components/SegmentedControl";
 import { runAction } from "@/lib/actions/runAction";
 import { queryKeys } from "@/lib/query/keys";
 import {
@@ -23,6 +25,12 @@ import { DUREE_TOAST_AVERTISSEMENT_MS, libelleDuree } from "@/lib/taches/compute
 import { errorText, input, label as labelClass, primaryButton, secondaryButton } from "@/lib/ui";
 
 const MESSAGE_ECHEC = "L'ajout a échoué. Réessaie.";
+// Marge basse du contenu de `Modal` (components/Modal.tsx), à garder alignée.
+const MARGE_BAS_MODAL = "(env(safe-area-inset-bottom) + 20px)";
+const TYPES = [
+  { value: "tache", label: "Tâche" },
+  { value: "evenement", label: "Événement" },
+] as const satisfies readonly SegmentOption<ElementSaisie["type"]>[];
 const puce = "rounded-full bg-surface-alt px-2 py-0.5 text-micro font-semibold text-ink-2";
 
 function Puce({ children }: { children: string }) {
@@ -82,27 +90,22 @@ function CarteElement({
   }
 
   return (
-    <li className="flex flex-col gap-3 rounded-[18px] border border-line bg-surface-alt/40 p-3.5">
+    <li className="flex flex-col gap-3 rounded-row border border-line bg-surface-alt/40 p-3.5">
       <div className="flex items-center justify-between gap-2">
-        <div role="group" aria-label="Type" className="flex rounded-full border border-line bg-surface p-0.5">
-          {(["tache", "evenement"] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              aria-pressed={e.type === t}
-              onClick={() => changerType(t)}
-              className={`min-h-11 rounded-full px-3 text-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
-                e.type === t ? "bg-kcal text-on-kcal" : "text-ink-2"
-              }`}
-            >
-              {t === "tache" ? "Tâche" : "Événement"}
-            </button>
-          ))}
-        </div>
+        {/* Contrôle segmenté du système (pilule `surface-alt`, actif en Kcal). */}
+        <SegmentedControl
+          ariaLabel="Type"
+          taille="sm"
+          options={TYPES}
+          value={e.type}
+          onChange={changerType}
+          className="w-[13.5rem] shrink-0"
+        />
+        {/* Retrait d'une ligne : neutre, rouge seulement au survol ou au focus. */}
         <button
           type="button"
           onClick={onRetirer}
-          className="min-h-11 px-2 text-small font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          className="min-h-11 rounded-xl px-2 text-small font-semibold text-ink-2 transition-colors hover:text-alert focus-visible:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           Retirer
         </button>
@@ -272,21 +275,25 @@ function CarteElement({
       )}
 
       {!evenement && e.sousTaches.length > 0 && (
-        <ul className="flex flex-col gap-1" aria-label="Sous-tâches">
-          {e.sousTaches.map((s, i) => (
-            <li key={`${i}-${s}`} className="flex items-center justify-between gap-2 text-small text-ink">
-              <span className="min-w-0 flex-1 truncate">• {s}</span>
-              <button
-                type="button"
-                aria-label={`Retirer la sous-tâche « ${s} »`}
-                onClick={() => onChange({ sousTaches: e.sousTaches.filter((_, j) => j !== i) })}
-                className="flex h-11 w-11 shrink-0 items-center justify-center text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
-              >
-                ×
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col gap-0.5">
+          <span className={labelClass}>Sous-tâches</span>
+          <ul className="flex flex-col" aria-label="Sous-tâches">
+            {e.sousTaches.map((s, i) => (
+              <li key={`${i}-${s}`} className="-mr-2.5 flex min-h-11 items-center gap-2.5 text-small text-ink">
+                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-ink-3" />
+                <span className="min-w-0 flex-1 truncate">{s}</span>
+                <button
+                  type="button"
+                  aria-label={`Retirer la sous-tâche « ${s} »`}
+                  onClick={() => onChange({ sousTaches: e.sousTaches.filter((_, j) => j !== i) })}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 transition-colors hover:text-alert focus-visible:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+                >
+                  <CrossIcon size={14} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {erreur && (
@@ -398,7 +405,13 @@ export function ApercuSaisie({ initiaux, onTermine }: { initiaux: ElementSaisie[
           />
         ))}
       </ul>
-      <div className="sticky bottom-0 flex gap-2 bg-surface pt-1">
+      {/* Barre collée au bas de la feuille : elle absorbe la marge basse de
+          `Modal` (zone sûre + 20 px) pour que les cartes ne défilent plus
+          visibles sous les boutons, et se détache par un filet comme l'en-tête. */}
+      <div
+        className="sticky -mx-4 flex gap-2 border-t border-line bg-surface px-4 pt-3"
+        style={{ bottom: `calc(-1 * ${MARGE_BAS_MODAL})`, paddingBottom: `calc${MARGE_BAS_MODAL}`, marginBottom: `calc(-1 * ${MARGE_BAS_MODAL})` }}
+      >
         <button type="button" onClick={() => onTermine(false)} disabled={enCours} className={`${secondaryButton} min-h-11 flex-1`}>
           Annuler
         </button>
