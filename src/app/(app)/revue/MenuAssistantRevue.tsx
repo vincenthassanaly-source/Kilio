@@ -72,7 +72,7 @@ export function MenuAssistantRevue({ peutReplanifier }: { peutReplanifier: boole
                     setDeplie(false);
                     setMode(action.mode);
                   }}
-                  className="flex min-h-11 w-full flex-col items-start gap-0.5 rounded-2xl border border-line bg-surface px-3.5 py-2.5 text-left transition-colors hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+                  className="flex min-h-11 w-full flex-col items-start gap-0.5 rounded-2xl border border-line bg-surface px-4 py-2.5 text-left transition-[background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
                 >
                   <span className="text-body font-medium text-ink">{action.libelle}</span>
                   <span className="text-label text-ink-2">{action.detail}</span>
