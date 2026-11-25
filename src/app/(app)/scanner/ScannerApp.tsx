@@ -11,7 +11,7 @@ import {
 } from "@/lib/scanner/brouillon";
 import type { Quad } from "@/lib/scanner/geometrie";
 import { chargerImage, creerPage, prechargerOpenCvSiPossible } from "@/lib/scanner/traitement";
-import { card, dangerButton, errorText, ghostButton, primaryButton, secondaryButton } from "@/lib/ui";
+import { card, errorText, ghostButton, primaryButton, secondaryButton } from "@/lib/ui";
 import { ApercuPage } from "./ApercuPage";
 import { EditeurCoins } from "./EditeurCoins";
 import { ExportPanel } from "./ExportPanel";
@@ -224,28 +224,34 @@ export function ScannerApp() {
       {pages.length > 0 && (
         <ol className="flex flex-col gap-3" aria-label="Pages scannées">
           {pages.map((p, i) => (
-            <li key={p.id} className={`${card} flex flex-col gap-3`}>
-              <div className="flex gap-3">
-                <div className="w-24 shrink-0">
+            // Une ligne = une page : rayon de ligne de liste (20 px), sans `active:scale` puisque
+            // la ligne porte ses propres contrôles (miniature, Reprendre, Supprimer).
+            <li key={p.id} className="flex gap-3 rounded-row border border-line bg-surface p-3.5 shadow-card">
+              <div className="w-24 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setApercu(i)}
+                  aria-label={`Agrandir la page ${i + 1}`}
+                  className="block w-full rounded-lg transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+                >
+                  <Miniature page={p} numero={i + 1} />
+                </button>
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
+                <p className="text-body font-semibold text-ink tabular-nums">Page {i + 1}</p>
+                <div className="flex items-center gap-2">
+                  <button type="button" className={ghostButton} onClick={() => ouvrirViseur(p.id)}>
+                    Reprendre
+                  </button>
+                  {/* Suppression annulable (toast) : texte neutre, rouge au survol seulement (modèle Courses). */}
                   <button
                     type="button"
-                    onClick={() => setApercu(i)}
-                    aria-label={`Agrandir la page ${i + 1}`}
-                    className="block w-full rounded-lg transition-transform active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+                    onClick={() => supprimer(p.id)}
+                    aria-label={`Supprimer la page ${i + 1}`}
+                    className="flex min-h-11 items-center justify-center rounded-xl px-2.5 text-label font-medium text-ink-2 transition-[color,background-color,transform] duration-150 ease-[var(--ease-out)] hover:bg-surface-alt hover:text-alert active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
                   >
-                    <Miniature page={p} numero={i + 1} />
+                    Supprimer
                   </button>
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
-                  <p className="text-sm font-semibold text-ink">Page {i + 1}</p>
-                  <div className="flex gap-2">
-                    <button type="button" className={ghostButton} onClick={() => ouvrirViseur(p.id)}>
-                      Reprendre
-                    </button>
-                    <button type="button" className={dangerButton} onClick={() => supprimer(p.id)} aria-label={`Supprimer la page ${i + 1}`}>
-                      Supprimer
-                    </button>
-                  </div>
                 </div>
               </div>
             </li>

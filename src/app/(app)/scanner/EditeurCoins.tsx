@@ -6,6 +6,7 @@ import { useBackClose } from "@/hooks/useBackClose";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import { bornerQuad, quadParDefaut, quadValide, type Quad } from "@/lib/scanner/geometrie";
 import { detecterFeuilleAuto, imageVersJpeg } from "@/lib/scanner/traitement";
+import { boutonImmersif, boutonImmersifPrincipal } from "./immersif";
 
 const QUALITE_APERCU = 0.85;
 
@@ -170,7 +171,8 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
                     }}
                     role="presentation"
                   />
-                  <circle cx={p.x} cy={p.y} r={rayon} fill="white" stroke="rgb(80, 220, 140)" strokeWidth={rayon * 0.2} pointerEvents="none" />
+                  {/* La poignée prend la couleur du cadre : rouge aussi quand les coins se croisent. */}
+                  <circle cx={p.x} cy={p.y} r={rayon} fill="white" stroke={valide ? "rgb(80, 220, 140)" : "rgb(240, 80, 80)"} strokeWidth={rayon * 0.2} pointerEvents="none" />
                 </g>
               ))}
             </svg>
@@ -189,13 +191,8 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
         <p role="alert" className="px-5 pb-2 text-center text-xs text-red-300">Les coins se croisent : replace-les pour former un quadrilatère.</p>
       )}
 
-      <div className="flex items-center justify-between gap-2 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-2">
-        <button
-          type="button"
-          onClick={onAnnuler}
-          disabled={enCours}
-          className="min-h-11 rounded-2xl bg-white/15 px-4 text-sm font-semibold disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        >
+      <div className="flex items-center gap-2 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-2">
+        <button type="button" onClick={onAnnuler} disabled={enCours} className={`${boutonImmersif} px-3.5`}>
           Annuler
         </button>
         <button
@@ -205,7 +202,7 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
             setQuad(quadParDefaut(w, h, 0));
           }}
           disabled={enCours}
-          className="min-h-11 rounded-2xl bg-white/15 px-4 text-sm font-semibold disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className={`${boutonImmersif} px-3.5`}
         >
           Photo entière
         </button>
@@ -217,7 +214,8 @@ function Recadrage({ source, restantes, enCours, erreur, remplace, onValider, on
             onValider(quad);
           }}
           disabled={enCours || !valide || detecte === null}
-          className="min-h-11 rounded-2xl bg-white px-5 text-sm font-semibold text-black disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+          aria-busy={enCours}
+          className={`${boutonImmersifPrincipal} min-w-0 flex-1 px-4`}
         >
           {enCours ? "Traitement…" : remplace ? "Remplacer la page" : "Ajouter la page"}
         </button>
