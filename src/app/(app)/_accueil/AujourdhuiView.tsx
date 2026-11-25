@@ -190,20 +190,19 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
   // Le jour réglé (dimanche par défaut), la revue sort du pli : c'est le jour où on la consulte.
   const jourDeRevue = parseISODate(today).getDay() === jourRevue;
   const revueCarte = (
+    // `cardTight` porte déjà l'anneau de focus et le retour au tap.
     <TransitionLink
-        href="/revue"
-        className={`${cardTight} flex min-h-11 items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
-          jourDeRevue ? "border-kcal/60" : ""
-        }`}
-      >
-        <span className="flex flex-col">
-          <span className="text-body font-semibold text-ink">Revue de la semaine</span>
-          <span className="text-small text-ink-2">Tâches terminées, retards, 7 prochains jours</span>
-        </span>
-        <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
-          <path d="M9 5l7 7-7 7" />
-        </svg>
-      </TransitionLink>
+      href="/revue"
+      className={`${cardTight} flex min-h-11 items-center justify-between gap-3 ${jourDeRevue ? "border-kcal/60" : ""}`}
+    >
+      <span className="flex min-w-0 flex-col">
+        <span className="text-body font-semibold text-ink">Revue de la semaine</span>
+        <span className="text-small text-ink-2">Tâches terminées, retards, 7 prochains jours</span>
+      </span>
+      <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3">
+        <path d="M9 5l7 7-7 7" />
+      </svg>
+    </TransitionLink>
   );
 
   return (
@@ -269,7 +268,7 @@ export function AujourdhuiView({ today, jourRevue = 0 }: { today: string; jourRe
       <details className="group flex flex-col gap-4">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-1 text-label font-semibold text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
           Plan, jour libre et revue
-          <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3 transition-transform group-open:rotate-90">
+          <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-3 transition-transform duration-150 ease-[var(--ease-out)] group-open:rotate-90">
             <path d="M9 5l7 7-7 7" />
           </svg>
         </summary>

@@ -50,7 +50,7 @@ function Pastille({
       disabled={desactivee || vide}
       aria-label={`Commencer ${routine.nom}${routine.faite ? " (déjà faite cette semaine)" : ""}`}
       title={vide ? `${LIBELLES_TYPE[groupe.type]} ${routine.pastille} n'a pas d'exercice` : undefined}
-      className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full px-3.5 text-label font-semibold transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 disabled:opacity-40 ${
+      className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full px-3.5 text-label font-semibold transition-[background-color,color,opacity,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 disabled:opacity-40 ${
         routine.faite ? "bg-kcal-soft text-kcal" : "bg-surface-alt text-ink-2"
       }`}
     >
@@ -136,7 +136,7 @@ export function SeancesCard({ today }: { today: string }) {
       {enCours && (
         <Link
           href="/musculation/seance"
-          className="flex items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5 text-label font-semibold text-ink transition active:scale-[0.985]"
+          className="flex min-h-11 items-center justify-between gap-3 rounded-2xl bg-kcal-soft px-3.5 py-2.5 text-label font-semibold text-ink transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           <span className="truncate">Séance en cours · {enCours.nom}</span>
           <span className="shrink-0 text-kcal">Reprendre</span>

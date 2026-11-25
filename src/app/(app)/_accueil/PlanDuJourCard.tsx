@@ -100,7 +100,7 @@ export function PlanDuJourCard({
               strokeWidth="1.8"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={`transition-transform ${ouvert ? "rotate-90" : ""}`}
+              className={`transition-transform duration-150 ease-[var(--ease-out)] ${ouvert ? "rotate-90" : ""}`}
             >
               <path d="M9 5l7 7-7 7" />
             </svg>

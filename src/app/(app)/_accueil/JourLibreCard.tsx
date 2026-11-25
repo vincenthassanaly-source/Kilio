@@ -86,7 +86,7 @@ export function JourLibreCard({ today }: { today: string }) {
               strokeWidth="1.8"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={`text-ink-3 transition-transform ${ouvert ? "rotate-90" : ""}`}
+              className={`text-ink-3 transition-transform duration-150 ease-[var(--ease-out)] ${ouvert ? "rotate-90" : ""}`}
             >
               <path d="M9 5l7 7-7 7" />
             </svg>

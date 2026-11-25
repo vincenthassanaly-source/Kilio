@@ -8,7 +8,10 @@ import { getTacheBlockStyle } from "../agenda/TimeGrid";
 // Un événement est un engagement horodaté, pas une tâche à cocher : plein
 // aplat `agenda` (texte `on-agenda`), là où les tâches de la frise sont
 // teintées ; comme elles, il porte un contour fin de 1 px (jamais de barre
-// latérale), ici l'agenda assombri vers l'encre. Même géométrie que TacheBlock (chevauchements compris).
+// latérale), à peine plus profond que l'aplat (15 % d'encre) : il sépare deux
+// blocs voisins sans dessiner un cerne sombre en thème clair. Même géométrie
+// et même écriture des heures que TacheBlock (« 09:00 – 10:00 Titre » en
+// pleine taille, « 09:00 Titre » en compact), chevauchements compris.
 export function EvenementBlock({
   evenement,
   zoom,
@@ -38,18 +41,20 @@ export function EvenementBlock({
   // Pas d'`overflow-hidden` sur le bouton : la troncature est portée par le
   // <span> interne, et le pseudo-élément `after:` étend la zone de tap
   // verticalement (un bloc de 15 à 30 min ferait sinon moins de 44 px).
-  const className = `absolute ${insetClass} border border-[color-mix(in_oklch,var(--accent-agenda),var(--ink)_35%)] bg-agenda ${sizingClass} text-left font-semibold leading-tight text-on-agenda`;
+  const className = `absolute ${insetClass} border border-[color-mix(in_oklch,var(--accent-agenda),var(--ink)_15%)] bg-agenda ${sizingClass} text-left font-semibold leading-tight text-on-agenda`;
   const zoneTap = "after:absolute after:inset-x-0 after:-inset-y-2";
   const blockStyle = { top: style.top, height: style.height, ...horizontalStyle(position) };
   const heure = evenement.heure.slice(0, 5);
   const plage = `de ${formatHeureHHMM(intervalle.start)} à ${formatHeureHHMM(intervalle.end)}`;
+  const avecFin = !compact && Boolean(evenement.heure_fin);
+  const texte = avecFin
+    ? `${heure} – ${evenement.heure_fin!.slice(0, 5)} ${evenement.titre}`
+    : `${heure} ${evenement.titre}`;
 
   if (!onSelect) {
     return (
       <div className={className} style={blockStyle}>
-        <span className="block truncate">
-          {heure} {evenement.titre}
-        </span>
+        <span className="block truncate">{texte}</span>
       </div>
     );
   }
@@ -58,16 +63,17 @@ export function EvenementBlock({
     <button
       type="button"
       onClick={() => onSelect(evenement)}
-      // Le nom accessible commence par le texte visible (« 09:00 Titre ») : un
-      // utilisateur de commande vocale doit pouvoir dire ce qu'il lit (WCAG 2.5.3).
-      aria-label={`${heure} ${evenement.titre}, événement ${plage}. Modifier`}
-      title={`${heure} ${evenement.titre}`}
+      // Le nom accessible commence par le texte visible : un utilisateur de
+      // commande vocale doit pouvoir dire ce qu'il lit (WCAG 2.5.3). La plage
+      // n'est répétée que si le texte visible ne la porte pas (bloc compact).
+      aria-label={`${texte}, événement${avecFin ? "" : ` ${plage}`}. Modifier`}
+      title={texte}
       className={`${className} ${zoneTap} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2`}
       style={blockStyle}
     >
       {!sansTexte && (
         <span className="block truncate" aria-hidden>
-          {heure} {evenement.titre}
+          {texte}
         </span>
       )}
     </button>

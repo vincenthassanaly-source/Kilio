@@ -30,7 +30,7 @@ test("affiche l'événement, la tâche du jour et le résumé des repas", async 
 
   // Écran du jour unique à la racine : le h1 est la salutation (qui varie avec l'heure).
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByRole("button", { name: /09:00 Rendez-vous e2e, événement de 09:00 à 10:00/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /09:00 – 10:00 Rendez-vous e2e, événement\. Modifier/ })).toBeVisible();
   // La tâche figure aussi dans la carte « Plan du jour » : on cible la liste du jour.
   await expect(page.getByLabel("Tâches").getByText("Tâche e2e du jour")).toBeVisible();
   // Le plan vit dans la section « Plan, jour libre et revue », repliée par
@@ -81,7 +81,7 @@ test("ajoute un événement depuis le bouton « + »", async ({ page }) => {
   // dizaine de Server Actions de relecture se mettent en file avant la
   // fermeture de la modale (≈ 5 s, plus en CI).
   await expect(dialogue).toHaveCount(0, { timeout: 20_000 });
-  await expect(page.getByRole("button", { name: /11:00 Dentiste e2e, événement de 11:00 à 12:00/ })).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("button", { name: /11:00 – 12:00 Dentiste e2e, événement\. Modifier/ })).toBeVisible({ timeout: 10_000 });
 });
 
 test("la barre « Aujourd'hui » est joignable depuis la grille Plus", async ({ page }) => {

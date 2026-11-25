@@ -198,48 +198,48 @@ export function EvenementForm({
               </span>
             )}
           </span>
-          <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-transform ${optionsOuvertes ? "rotate-90" : ""}`}>
+          <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-transform duration-150 ease-[var(--ease-out)] ${optionsOuvertes ? "rotate-90" : ""}`}>
             <path d="M9 5l7 7-7 7" />
           </svg>
         </button>
         {optionsOuvertes && (
           <div id={`${uid}-options`} className="flex flex-col gap-3.5">
-      <div className="flex flex-col gap-1">
-          <label htmlFor={`${uid}-rappel`} className={labelClass}>
-            Rappel
-          </label>
-          <select id={`${uid}-rappel`} value={rappel} onChange={(e) => setRappel(e.target.value)} className={input}>
-            {RAPPELS.filter((r) => (journeeEntiere ? r.valeur === "" || r.journeeEntiere : true)).map((r) => (
-              <option key={r.valeur} value={r.valeur}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={frequence ? "grid grid-cols-2 gap-3" : "flex flex-col gap-1"}>
-          <div className="flex flex-col gap-1">
-            <label htmlFor={`${uid}-freq`} className={labelClass}>
-              Répétition
-            </label>
-            <select id={`${uid}-freq`} value={frequence} onChange={(e) => setFrequence(e.target.value)} className={input}>
-              <option value="">Aucune</option>
-              {(Object.keys(FREQUENCE_LABELS) as Enums<"frequence_recurrence">[]).map((f) => (
-                <option key={f} value={f}>
-                  {FREQUENCE_LABELS[f]}
-                </option>
-              ))}
-            </select>
-          </div>
-          {frequence && (
             <div className="flex flex-col gap-1">
-              <label htmlFor={`${uid}-finrec`} className={labelClass}>
-                Jusqu&apos;au (facultatif)
+              <label htmlFor={`${uid}-rappel`} className={labelClass}>
+                Rappel
               </label>
-              <input id={`${uid}-finrec`} type="date" value={finRecurrence} min={date} onChange={(e) => setFinRecurrence(e.target.value)} className={input} />
+              <select id={`${uid}-rappel`} value={rappel} onChange={(e) => setRappel(e.target.value)} className={input}>
+                {RAPPELS.filter((r) => (journeeEntiere ? r.valeur === "" || r.journeeEntiere : true)).map((r) => (
+                  <option key={r.valeur} value={r.valeur}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
-        </div>
+
+            <div className={frequence ? "grid grid-cols-2 gap-3" : "flex flex-col gap-1"}>
+              <div className="flex flex-col gap-1">
+                <label htmlFor={`${uid}-freq`} className={labelClass}>
+                  Répétition
+                </label>
+                <select id={`${uid}-freq`} value={frequence} onChange={(e) => setFrequence(e.target.value)} className={input}>
+                  <option value="">Aucune</option>
+                  {(Object.keys(FREQUENCE_LABELS) as Enums<"frequence_recurrence">[]).map((f) => (
+                    <option key={f} value={f}>
+                      {FREQUENCE_LABELS[f]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {frequence && (
+                <div className="flex flex-col gap-1">
+                  <label htmlFor={`${uid}-finrec`} className={labelClass}>
+                    Jusqu&apos;au (facultatif)
+                  </label>
+                  <input id={`${uid}-finrec`} type="date" value={finRecurrence} min={date} onChange={(e) => setFinRecurrence(e.target.value)} className={input} />
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
