@@ -33,9 +33,13 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
         </Link>
       </h2>
       {isLoading ? (
-        <div className="flex gap-3 overflow-x-hidden pb-0.5">
+        // Même gabarit que les tuiles (anneau + nom) : rien ne saute à l'arrivée.
+        <div className="flex gap-3 overflow-x-hidden pb-0.5" aria-hidden>
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[50px] w-[50px] shrink-0 rounded-full" />
+            <div key={i} className="flex w-16 shrink-0 flex-col items-center gap-1.5 pb-1">
+              <Skeleton className="h-[50px] w-[50px] rounded-full" />
+              <Skeleton className="h-3 w-11 rounded-full" />
+            </div>
           ))}
         </div>
       ) : isError && !habitudes ? (
@@ -51,7 +55,9 @@ export function DashboardHabitudesSection({ today, className = "mt-4" }: { today
           </Link>
         </p>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-0.5" data-swipe-ignore>
+        // `-m-1 p-1` : le défilement horizontal rogne aussi en vertical ; ces
+        // 4 px gardent visibles l'anneau de focus et l'échelle au toucher.
+        <div className="-m-1 flex gap-3 overflow-x-auto p-1 pb-1.5" data-swipe-ignore>
           {habitudes.map((h) => (
             <DashboardHabitItem key={h.id} habitude={h} date={today} />
           ))}

@@ -56,10 +56,12 @@ export function EntrainementBouton({ today }: { today: string }) {
         aria-label="Jour d'entraînement"
         disabled={pending || !resume}
         onClick={basculer}
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition active:scale-[0.97] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kcal ${
+        // Éteint : contour `control-border` (≥ 3:1), comme tout contrôle « off »
+        // du système ; `line` reste aux séparations décoratives.
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2 ${
           entraine
             ? "border-transparent bg-kcal text-on-kcal"
-            : "border-line bg-surface text-ink-2 hover:bg-surface-alt"
+            : "border-control-border bg-surface text-ink-2 hover:bg-surface-alt"
         }`}
       >
         <svg

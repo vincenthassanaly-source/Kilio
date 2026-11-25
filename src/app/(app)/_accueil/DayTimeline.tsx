@@ -85,7 +85,9 @@ function GrilleJournee({
         // 36vh (et non 52vh) : l'échelle reste réelle, la fenêtre montre ~5 h
         // de la journée, calée sur l'heure courante, et la grille défile
         // dedans. Une fenêtre plus haute repoussait « Tâches » hors du premier écran.
-        className="max-h-[36vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+        // Anneau de focus intérieur : le cadre parent (`overflow-hidden`) rognait
+        // l'anneau détaché par un offset.
+        className="max-h-[36vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal"
         data-swipe-ignore
       >
         <div className="flex">

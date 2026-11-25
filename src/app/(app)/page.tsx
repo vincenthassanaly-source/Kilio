@@ -41,7 +41,7 @@ function ContenuSkeleton() {
   return (
     <div className="flex flex-col gap-4">
       <Skeleton className="h-[116px] w-full rounded-card" />
-      <Skeleton className="h-[40vh] w-full rounded-2xl" />
+      <Skeleton className="h-[40vh] w-full rounded-card" />
       <ListItemSkeletonGroup count={3} />
     </div>
   );

@@ -15,7 +15,7 @@ import { libelleDuree } from "@/lib/taches/compute";
 const DUREES_PANNEAU = [15, 30, 45, 60, 90, 120] as const;
 
 const chip =
-  "relative min-h-9 rounded-full border px-3 text-small font-semibold tabular-nums transition-colors active:scale-[0.97] disabled:opacity-50 after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+  "relative min-h-9 rounded-full border px-3 text-small font-semibold tabular-nums transition-[background-color,border-color,color,opacity,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] disabled:opacity-50 after:absolute after:-inset-y-1 after:inset-x-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
 
 /**
  * Panneau « Planifier » d'une tâche du jour : la durée, puis les créneaux libres
@@ -115,7 +115,7 @@ export function PlanifierPanneau({
                 disabled={enCours}
                 onClick={() => planifier(c)}
                 aria-label={`Planifier de ${c.debut} à ${c.fin}`}
-                className={`${chip} border-line bg-surface text-ink hover:border-kcal/60`}
+                className={`${chip} border-line bg-surface text-ink enabled:hover:border-kcal/60`}
               >
                 {c.debut} – {c.fin}
               </button>

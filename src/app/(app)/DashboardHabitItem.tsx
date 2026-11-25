@@ -78,10 +78,11 @@ export const DashboardHabitItem = memo(function DashboardHabitItem({
   }
 
   const classeTuile =
-    "flex w-[60px] shrink-0 flex-col items-center gap-1.5 rounded-2xl pb-1 transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
+    "flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-2xl pb-1 transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2";
   const nom = (
     // Deux lignes plutôt qu'une coupure à ~12 caractères : « Boire 2 L … » ne dit pas quelle habitude.
-    <span className="line-clamp-2 w-full break-words text-center text-micro font-semibold leading-tight text-ink-2">{habitude.nom}</span>
+    // Césure française (`hyphens-auto`, `lang="fr"`) : « Étire-ments » plutôt que « Étirement / s ».
+    <span className="line-clamp-2 w-full break-words hyphens-auto text-center text-micro font-semibold leading-tight text-ink-2">{habitude.nom}</span>
   );
 
   // Habitude chiffrée : une valeur se saisit, elle ne se coche pas (pas de « +1 »).

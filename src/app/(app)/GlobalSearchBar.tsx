@@ -14,7 +14,8 @@ function idOption(item: ResultatRecherche): string {
 const MODULE_INFO: Record<ModuleRecherche, { label: string; accentVar: string }> = {
   // Pas de bleu Protéines hors macros (Semantic-Only Macro Rule, T8).
   notes: { label: "Notes", accentVar: "var(--ink-2)" },
-  taches: { label: "Tâches", accentVar: "var(--accent-agenda)" },
+  // Tâches portent le vert Kcal ; le bleu Agenda reste réservé aux événements (DESIGN.md).
+  taches: { label: "Tâches", accentVar: "var(--accent-kcal)" },
   evenements: { label: "Événements", accentVar: "var(--accent-agenda)" },
   recettes: { label: "Recettes", accentVar: "var(--accent-kcal)" },
   courses: { label: "Courses", accentVar: "var(--accent-courses)" },
@@ -24,7 +25,7 @@ const ORDRE_MODULES: ModuleRecherche[] = ["notes", "taches", "evenements", "rece
 
 function SearchIcon({ color }: { color: string }) {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="10.5" cy="10.5" r="6.5" />
       <path d="M20 20l-4.5-4.5" />
     </svg>
@@ -218,7 +219,7 @@ export function GlobalSearchBar({
                         role="option"
                         aria-selected={active}
                         onClick={fermer}
-                        className={`flex min-h-11 flex-col justify-center rounded-2xl px-2.5 py-2 transition-colors hover:bg-surface-alt ${
+                        className={`flex min-h-11 flex-col justify-center rounded-xl px-2.5 py-2 transition-colors hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-kcal ${
                           active ? "bg-surface-alt" : ""
                         }`}
                       >

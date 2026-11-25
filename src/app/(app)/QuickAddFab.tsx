@@ -28,6 +28,56 @@ const AjoutRepasPanneau = dynamic(
 
 type Mode = null | "menu" | "tache" | "evenement" | "note" | "course" | "repas";
 
+// Entrées de l'éventail, du plus proche au plus éloigné du « + ».
+const ENTREES_MENU: { mode: Exclude<Mode, null | "menu">; libelle: string; ariaLabel: string; icone: React.ReactNode }[] = [
+  {
+    mode: "repas",
+    libelle: "Repas",
+    ariaLabel: "Ajouter un repas",
+    icone: (
+      <>
+        <path d="M7 3v8a2 2 0 0 0 2 2v8" />
+        <path d="M11 3v8a2 2 0 0 1-2 2" />
+        <path d="M17 21V3c-2 1.5-3 4-3 7v3h3" />
+      </>
+    ),
+  },
+  {
+    mode: "course",
+    libelle: "Courses",
+    ariaLabel: "Courses",
+    icone: (
+      <>
+        <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8z" />
+        <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+      </>
+    ),
+  },
+  { mode: "tache", libelle: "Tâches", ariaLabel: "Ajouter une tâche", icone: <path d="M5 13l4 4L19 7" /> },
+  {
+    mode: "evenement",
+    libelle: "Événement",
+    ariaLabel: "Ajouter un événement",
+    icone: (
+      <>
+        <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+        <path d="M3.5 10h17M8 3v4M16 3v4" />
+      </>
+    ),
+  },
+  {
+    mode: "note",
+    libelle: "Notes",
+    ariaLabel: "Ajouter une note",
+    icone: (
+      <>
+        <path d="M12 20h9" />
+        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+      </>
+    ),
+  },
+];
+
 // Mode « direct » : le FAB ouvre tout de suite le formulaire de tâche, sans
 // passer par le menu Tâche/Note/Course (utilisé par /taches). Sans cette
 // option, le comportement du dashboard est inchangé.
@@ -175,7 +225,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           Chaque bouton réactive ses propres événements. */}
       <div
         data-masquer-saisie
-        className="pointer-events-none fixed right-[max(1rem,calc(50%-20rem))] z-40 flex flex-col-reverse items-center gap-3"
+        className="pointer-events-none fixed right-[max(1rem,calc(50%-20rem))] z-40 flex flex-col-reverse items-end gap-3"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)", viewTransitionName: "fab" }}
       >
         <button
@@ -192,7 +242,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           }
           aria-expanded={direct ? undefined : mode !== null}
           aria-haspopup={direct ? "dialog" : undefined}
-          className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full text-on-kcal shadow-float transition-opacity duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+          className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full text-on-kcal shadow-float transition-[opacity,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
           style={{
             background: "var(--accent-kcal)",
             opacity: efface ? 0 : 1,
@@ -201,6 +251,7 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
           }}
         >
           <svg
+            aria-hidden
             width="24"
             height="24"
             viewBox="0 0 24 24"
@@ -208,142 +259,43 @@ export function QuickAddFab({ directTask }: { directTask?: DirectTaskOptions }) 
             stroke="currentColor"
             strokeWidth="2.2"
             strokeLinecap="round"
-            className="transition-transform duration-200 ease-out"
+            className="transition-transform duration-200 ease-[var(--ease-out)]"
             style={{ transform: dialOpen ? "rotate(45deg)" : "rotate(0deg)" }}
           >
             <path d="M12 5v14M5 12h14" />
           </svg>
         </button>
 
-        {/* Entrées du menu : absentes en mode direct (seul le "+" est affiché). */}
-        {!direct && (
-        <>
-        <button
-          type="button"
-          onClick={() => setMode("repas")}
-          aria-label="Ajouter un repas"
-          tabIndex={dialInteractive ? 0 : -1}
-          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
-          inert={!dialInteractive}
-          className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
-          style={{
-            opacity: dialOpen ? 1 : 0,
-            transform: dialOpen ? "translateY(0)" : "translateY(12px)",
-            pointerEvents: dialInteractive ? "auto" : "none",
-          }}
-        >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
-            Repas
-          </span>
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 3v8a2 2 0 0 0 2 2v8" />
-              <path d="M11 3v8a2 2 0 0 1-2 2" />
-              <path d="M17 21V3c-2 1.5-3 4-3 7v3h3" />
-            </svg>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setMode("course")}
-          aria-label="Courses"
-          tabIndex={dialInteractive ? 0 : -1}
-          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
-          inert={!dialInteractive}
-          className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
-          style={{
-            opacity: dialOpen ? 1 : 0,
-            transform: dialOpen ? "translateY(0)" : "translateY(12px)",
-            pointerEvents: dialInteractive ? "auto" : "none",
-          }}
-        >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
-            Courses
-          </span>
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setMode("tache")}
-          aria-label="Ajouter une tâche"
-          tabIndex={dialInteractive ? 0 : -1}
-          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
-          inert={!dialInteractive}
-          className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
-          style={{
-            opacity: dialOpen ? 1 : 0,
-            transform: dialOpen ? "translateY(0)" : "translateY(12px)",
-            pointerEvents: dialInteractive ? "auto" : "none",
-          }}
-        >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
-            Tâches
-          </span>
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 13l4 4L19 7" />
-            </svg>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setMode("evenement")}
-          aria-label="Ajouter un événement"
-          tabIndex={dialInteractive ? 0 : -1}
-          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
-          inert={!dialInteractive}
-          className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
-          style={{
-            opacity: dialOpen ? 1 : 0,
-            transform: dialOpen ? "translateY(0)" : "translateY(12px)",
-            pointerEvents: dialInteractive ? "auto" : "none",
-          }}
-        >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
-            Événement
-          </span>
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
-              <path d="M3.5 10h17M8 3v4M16 3v4" />
-            </svg>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setMode("note")}
-          aria-label="Ajouter une note"
-          tabIndex={dialInteractive ? 0 : -1}
-          // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
-          inert={!dialInteractive}
-          className="flex items-center gap-2 transition-[opacity,transform] duration-200 ease-out"
-          style={{
-            opacity: dialOpen ? 1 : 0,
-            transform: dialOpen ? "translateY(0)" : "translateY(12px)",
-            pointerEvents: dialInteractive ? "auto" : "none",
-          }}
-        >
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
-            Notes
-          </span>
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-            </svg>
-          </span>
-        </button>
-        </>
-        )}
+        {/* Entrées du menu : absentes en mode direct (seul le "+" est affiché).
+            Ordre du DOM = du plus proche au plus éloigné du « + » (colonne inversée). */}
+        {!direct &&
+          ENTREES_MENU.map((entree) => (
+            <button
+              key={entree.mode}
+              type="button"
+              onClick={() => setMode(entree.mode)}
+              aria-label={entree.ariaLabel}
+              tabIndex={dialInteractive ? 0 : -1}
+              // Fermé : retire l'entrée de l'arbre d'accessibilité (lecteurs d'écran).
+              inert={!dialInteractive}
+              // `mr-1` : le cercle de 48 px se centre sous le « + » de 56 px.
+              className="group mr-1 flex items-center gap-2 transition-[opacity,transform] duration-200 ease-[var(--ease-out)] focus-visible:outline-none"
+              style={{
+                opacity: dialOpen ? 1 : 0,
+                transform: dialOpen ? "translateY(0)" : "translateY(12px)",
+                pointerEvents: dialInteractive ? "auto" : "none",
+              }}
+            >
+              <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-small font-medium text-ink shadow-card">
+                {entree.libelle}
+              </span>
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card transition-[background-color,transform] duration-150 ease-[var(--ease-out)] group-hover:bg-surface-alt group-active:scale-[0.94] group-focus-visible:ring-2 group-focus-visible:ring-kcal group-focus-visible:ring-offset-2">
+                <svg aria-hidden width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  {entree.icone}
+                </svg>
+              </span>
+            </button>
+          ))}
       </div>
 
       <AnimatePresence>

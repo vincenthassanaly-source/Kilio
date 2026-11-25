@@ -6,7 +6,7 @@ import { interpreterSaisie } from "@/app/actions/saisie";
 import { Modal } from "@/components/Modal";
 import { runAction } from "@/lib/actions/runAction";
 import { LONGUEUR_MAX_SAISIE, type ElementSaisie } from "@/lib/saisie/compute";
-import { errorText, inputAvecIcone } from "@/lib/ui";
+import { errorText, inputAvecIcone, primaryButton } from "@/lib/ui";
 import { ApercuSaisie } from "./ApercuSaisie";
 
 /**
@@ -85,13 +85,21 @@ export function SaisieNaturelle({
               className={`${inputAvecIcone} min-h-11 w-full placeholder:text-ink-2 ${prefixe ? "pl-[5.5rem]" : ""}`}
             />
           </div>
+          {/* Pendant l'interprétation, le mot reste (transparent) pour garder la
+              largeur et le nom du bouton ; une roue tourne à sa place. */}
           <button
             type="submit"
             disabled={enCours || texte.trim() === ""}
             aria-busy={enCours}
-            className="min-h-11 min-w-[5.5rem] shrink-0 rounded-2xl bg-kcal px-4 text-label font-semibold text-on-kcal transition-[opacity,transform] active:scale-[0.97] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
+            className={`${primaryButton} relative min-h-11 min-w-[5.5rem] shrink-0 py-0 text-label`}
           >
-            {enCours ? "…" : "Ajouter"}
+            <span className={enCours ? "opacity-0" : undefined}>Ajouter</span>
+            {enCours && (
+              <span
+                aria-hidden
+                className="absolute inset-0 m-auto h-4 w-4 animate-spin rounded-full border-2 border-on-kcal/35 border-t-on-kcal motion-reduce:animate-none"
+              />
+            )}
           </button>
         </div>
         {erreur && (
