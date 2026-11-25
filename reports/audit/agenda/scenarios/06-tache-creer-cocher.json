@@ -1,0 +1,17 @@
+{ "nom": "06-tache-creer-cocher", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/agenda" },
+  { "action": "click", "cible": "role=button[name='Jour']" },
+  { "action": "click", "cible": "role=button[name='Ajouter une tâche ou un événement']" },
+  { "action": "click", "cible": "role=button[name='Tâche']", "note": "choisir Tâche" },
+  { "action": "wait", "ms": 800 },
+  { "action": "fill", "cible": "role=dialog >> role=textbox[name='Titre']", "valeur": "Acheter des timbres" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Ajouter']" },
+  { "action": "expect_text", "texte": "Tâche ajoutée" },
+  { "action": "expect_text", "texte": "Acheter des timbres" },
+  { "action": "click", "cible": "role=button[name='Marquer « Acheter des timbres » comme fait']", "note": "cocher la tâche" },
+  { "action": "wait", "ms": 6000, "note": "laisser passer le délai d'annulation" },
+  { "action": "expect_text", "texte": "Tâches terminées" },
+  { "action": "click", "cible": "role=button[name=/Tâches terminées/]", "note": "déplier les terminées" },
+  { "action": "reload", "note": "persistance" },
+  { "action": "expect_text", "texte": "Tâches terminées" }
+] }

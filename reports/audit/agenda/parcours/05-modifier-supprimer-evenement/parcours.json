@@ -1,0 +1,250 @@
+{
+  "nom": "05-modifier-supprimer-evenement",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2539,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name='Liste']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 417,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=/Événement Rendez-vous e2e/]",
+      "note": "ouvrir l'événement depuis la Liste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 459,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox[name='Titre']",
+      "valeur": "Rendez-vous modifié",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 386,
+      "fichier": "04-fill.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Enregistrer']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "evenements",
+          "query": "?id=eq.00000000-0000-4000-8000-0000000000e1",
+          "body": {
+            "titre": "Rendez-vous modifié",
+            "date": "2026-11-25",
+            "heure": "09:00",
+            "heure_fin": "10:00",
+            "notes": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "rappel_occurrence_envoyee": null,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "updated_at": "2026-11-25T16:40:58.677Z"
+          }
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "ms": 427,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "expect_text",
+      "texte": "Événement modifié",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 442,
+      "fichier": "06-expect_text.png"
+    },
+    {
+      "n": 7,
+      "action": "expect_text",
+      "texte": "Rendez-vous modifié",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 437,
+      "fichier": "07-expect_text.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=/Événement Rendez-vous modifié/]",
+      "note": "rouvrir",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 459,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Supprimer']",
+      "note": "supprimer",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 403,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_text",
+      "texte": "supprimé",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 346,
+      "fichier": "10-expect_text.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name=/Annuler la suppression/]",
+      "note": "annuler la suppression",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 376,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "Rendez-vous modifié",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 336,
+      "fichier": "12-expect_text.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=/Événement Rendez-vous modifié/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 399,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Supprimer']",
+      "note": "supprimer pour de bon",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 410,
+      "fichier": "14-click.png"
+    },
+    {
+      "n": 15,
+      "action": "wait",
+      "ms": 8334,
+      "note": "laisser expirer le toast",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "evenements",
+          "query": "?id=eq.00000000-0000-4000-8000-0000000000e1",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "fichier": "15-wait.png"
+    },
+    {
+      "n": 16,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 3729,
+      "fichier": "16-reload.png"
+    },
+    {
+      "n": 17,
+      "action": "expect_absent",
+      "texte": "Rendez-vous modifié",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 342,
+      "fichier": "17-expect_absent.png"
+    }
+  ]
+}

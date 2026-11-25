@@ -1,0 +1,13 @@
+{ "nom": "08-grille-puces-semaine", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/agenda" },
+  { "action": "click", "cible": "role=button[name='Jour']" },
+  { "action": "click", "cible": "role=button[name=/Tâche sans heure Tâche e2e du jour/]", "note": "taper la puce de tâche sans heure" },
+  { "action": "wait", "ms": 800 },
+  { "action": "click", "cible": "role=button[name=/Rendez-vous e2e, événement/]", "note": "taper le bloc d'événement dans la grille" },
+  { "action": "expect_text", "texte": "Modifier l'événement" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Fermer']" },
+  { "action": "click", "cible": "role=button[name='Semaine']" },
+  { "action": "click", "cible": "role=button[name=/Rendez-vous e2e/] >> nth=0", "note": "taper l'événement en Semaine" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Fermer']" },
+  { "action": "click", "cible": "role=button[name=/Tâche e2e du jour/] >> nth=0", "note": "taper la tâche en Semaine" }
+] }

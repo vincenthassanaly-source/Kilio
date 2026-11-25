@@ -1,0 +1,239 @@
+{
+  "nom": "04-evenement-cas-limites",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2537,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name='Jour']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 398,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name='Ajouter une tâche ou un événement']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 371,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name='Événement']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 425,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Ajouter']",
+      "note": "titre vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 415,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "expect_text",
+      "texte": "Le titre est requis.",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 383,
+      "fichier": "06-expect_text.png"
+    },
+    {
+      "n": 7,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox[name='Titre']",
+      "valeur": "   ",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 383,
+      "fichier": "07-fill.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Ajouter']",
+      "note": "titre fait d'espaces",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 410,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "Le titre est requis.",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 380,
+      "fichier": "09-expect_text.png"
+    },
+    {
+      "n": 10,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox[name='Titre']",
+      "valeur": "Réunion trimestrielle avec l'ensemble des équipes régionales pour préparer le budget prévisionnel de l'année prochaine et arbitrer les priorités",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 408,
+      "fichier": "10-fill.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=dialog >> role=switch[name='Journée entière']",
+      "note": "journée entière",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 413,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "dblclick",
+      "cible": "role=dialog >> role=button[name='Ajouter']",
+      "note": "double clic sur Ajouter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "evenements",
+          "query": "?select=id",
+          "body": {
+            "titre": "Réunion trimestrielle avec l'ensemble des équipes régionales pour préparer le budget prévisionnel de l'année prochaine et arbitrer les priorités",
+            "date": "2026-11-25",
+            "heure": "00:00",
+            "heure_fin": "23:59",
+            "notes": null,
+            "toute_la_journee": true,
+            "rappel_minutes": null,
+            "rappel_occurrence_envoyee": null,
+            "recurrence_frequence": null,
+            "recurrence_fin": null
+          }
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "ms": 422,
+      "fichier": "12-dblclick.png"
+    },
+    {
+      "n": 13,
+      "action": "wait",
+      "ms": 1837,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "fichier": "13-wait.png"
+    },
+    {
+      "n": 14,
+      "action": "expect_text",
+      "texte": "Réunion trimestrielle",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 337,
+      "fichier": "14-expect_text.png"
+    },
+    {
+      "n": 15,
+      "action": "screenshot",
+      "note": "puce journée entière tronquée ?",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 331,
+      "fichier": "15-screenshot.png"
+    },
+    {
+      "n": 16,
+      "action": "click",
+      "cible": "role=button[name='Semaine']",
+      "note": "titre long en Semaine",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 399,
+      "fichier": "16-click.png"
+    },
+    {
+      "n": 17,
+      "action": "click",
+      "cible": "role=button[name='Liste']",
+      "note": "titre long en Liste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 415,
+      "fichier": "17-click.png"
+    }
+  ]
+}

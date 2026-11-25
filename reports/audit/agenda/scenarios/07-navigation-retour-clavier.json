@@ -1,0 +1,19 @@
+{ "nom": "07-navigation-retour-clavier", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/agenda" },
+  { "action": "click", "cible": "role=button[name='Jour']" },
+  { "action": "click", "cible": "role=button[name='Ajouter une tâche ou un événement']" },
+  { "action": "click", "cible": "role=button[name='Événement']" },
+  { "action": "back", "note": "bouton Retour du téléphone : doit fermer la fenêtre" },
+  { "action": "expect_absent", "texte": "Nouvel événement" },
+  { "action": "expect_text", "texte": "Agenda" },
+  { "action": "press", "touche": "e", "note": "raccourci e" },
+  { "action": "expect_text", "texte": "Nouvel événement" },
+  { "action": "press", "touche": "Escape", "note": "Échap ferme" },
+  { "action": "expect_absent", "texte": "Nouvel événement" },
+  { "action": "press", "touche": "ArrowRight", "note": "flèche droite : jour suivant" },
+  { "action": "expect_text", "texte": "Jeudi 26 novembre" },
+  { "action": "press", "touche": "m", "note": "raccourci m : Mois" },
+  { "action": "click", "cible": "role=button[name=/^mardi 1 décembre/]", "note": "taper un jour du mois" },
+  { "action": "expect_text", "texte": "Mardi 1 décembre" },
+  { "action": "back", "note": "Retour après tap sur un jour du mois" }
+] }

@@ -1,0 +1,18 @@
+{ "nom": "03-creer-evenement", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/agenda" },
+  { "action": "click", "cible": "role=button[name='Jour']" },
+  { "action": "click", "cible": "role=button[name='Ajouter une tâche ou un événement']", "note": "ouvrir le menu du FAB" },
+  { "action": "click", "cible": "role=button[name='Événement']", "note": "choisir Événement" },
+  { "action": "fill", "cible": "role=dialog >> role=textbox[name='Titre']", "valeur": "Kiné audit" },
+  { "action": "fill", "cible": "role=dialog >> input[type=time]", "valeur": "19:00" },
+  { "action": "select", "cible": "role=dialog >> role=combobox[name='Durée']", "valeur": "90" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Rappel et répétition']", "note": "déplier les options" },
+  { "action": "select", "cible": "role=dialog >> role=combobox[name='Rappel']", "valeur": "15" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Ajouter']", "note": "enregistrer" },
+  { "action": "expect_text", "texte": "Événement ajouté" },
+  { "action": "expect_text", "texte": "Kiné audit" },
+  { "action": "reload", "note": "persistance" },
+  { "action": "expect_text", "texte": "Kiné audit" },
+  { "action": "click", "cible": "role=button[name='Liste']" },
+  { "action": "expect_text", "texte": "Kiné audit" }
+] }

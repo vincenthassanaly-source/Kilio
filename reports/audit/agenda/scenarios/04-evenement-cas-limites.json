@@ -1,0 +1,19 @@
+{ "nom": "04-evenement-cas-limites", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/agenda" },
+  { "action": "click", "cible": "role=button[name='Jour']" },
+  { "action": "click", "cible": "role=button[name='Ajouter une tâche ou un événement']" },
+  { "action": "click", "cible": "role=button[name='Événement']" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Ajouter']", "note": "titre vide" },
+  { "action": "expect_text", "texte": "Le titre est requis." },
+  { "action": "fill", "cible": "role=dialog >> role=textbox[name='Titre']", "valeur": "   " },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Ajouter']", "note": "titre fait d'espaces" },
+  { "action": "expect_text", "texte": "Le titre est requis." },
+  { "action": "fill", "cible": "role=dialog >> role=textbox[name='Titre']", "valeur": "Réunion trimestrielle avec l'ensemble des équipes régionales pour préparer le budget prévisionnel de l'année prochaine et arbitrer les priorités" },
+  { "action": "click", "cible": "role=dialog >> role=switch[name='Journée entière']", "note": "journée entière" },
+  { "action": "dblclick", "cible": "role=dialog >> role=button[name='Ajouter']", "note": "double clic sur Ajouter" },
+  { "action": "wait", "ms": 1500 },
+  { "action": "expect_text", "texte": "Réunion trimestrielle" },
+  { "action": "screenshot", "note": "puce journée entière tronquée ?" },
+  { "action": "click", "cible": "role=button[name='Semaine']", "note": "titre long en Semaine" },
+  { "action": "click", "cible": "role=button[name='Liste']", "note": "titre long en Liste" }
+] }

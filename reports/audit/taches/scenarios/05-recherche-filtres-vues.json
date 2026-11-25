@@ -1,0 +1,17 @@
+{ "nom": "05-recherche-filtres-vues", "theme": "sombre", "etapes": [
+  { "action": "goto", "url": "/taches" },
+  { "action": "fill", "cible": "role=textbox[name=\"Rechercher une tâche\" s]", "valeur": "e2e" },
+  { "action": "expect_text", "texte": "Tâche e2e du jour" },
+  { "action": "fill", "cible": "role=textbox[name=\"Rechercher une tâche\" s]", "valeur": "zzzz introuvable" },
+  { "action": "screenshot", "note": "état vide de recherche" },
+  { "action": "click", "cible": "role=button[name=\"Effacer la recherche\" s]" },
+  { "action": "click", "cible": "role=button[name=/^Filtres et tri/]", "note": "ouvrir filtres" },
+  { "action": "click", "cible": "role=button[name=\"Haute\" s]", "note": "filtrer priorité haute" },
+  { "action": "press", "touche": "Escape", "note": "fermer la feuille" },
+  { "action": "screenshot", "note": "filtre actif sans résultat" },
+  { "action": "click", "cible": "role=button[name=\"Réinitialiser les filtres\" s]" },
+  { "action": "click", "cible": "role=button[name=/^En retard/]" },
+  { "action": "click", "cible": "role=button[name=/^7 jours/]" },
+  { "action": "click", "cible": "role=button[name=/^Liste/]", "note": "sélecteur de liste" },
+  { "action": "screenshot" }
+] }

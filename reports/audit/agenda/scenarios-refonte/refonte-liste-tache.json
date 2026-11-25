@@ -1,9 +1,0 @@
-{"nom":"refonte-liste-edition","theme":"clair","etapes":[
-{"action":"goto","url":"/agenda","note":"ouvrir"},
-{"action":"click","cible":"role=button[name=\"Liste\"]","note":"liste"},
-{"action":"screenshot","note":"liste"},
-{"action":"click","cible":"role=button[name=/Événement .*Modifier/]","note":"ouvrir un événement"},
-{"action":"screenshot","note":"form modifier"},
-{"action":"click","cible":"role=button[name=\"Annuler\"]","note":"annuler ?"},
-{"action":"screenshot","note":"après annuler"}
-]}

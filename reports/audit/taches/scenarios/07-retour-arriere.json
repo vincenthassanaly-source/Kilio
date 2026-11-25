@@ -1,0 +1,48 @@
+{
+ "nom": "07-retour-arriere",
+ "theme": "sombre",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter une tâche\" s]",
+   "note": "ouvrir la feuille"
+  },
+  {
+   "action": "back",
+   "note": "retour Android : la feuille doit se fermer, on reste sur Tâches"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Tâche e2e du jour"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Tâche e2e du jour \\(modifier\\)/]",
+   "note": "ouvrir la tâche en édition"
+  },
+  {
+   "action": "back",
+   "note": "retour arrière : l’édition doit se refermer sans quitter Tâches"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Tâche e2e du jour"
+  },
+  {
+   "action": "click",
+   "cible": "role=link[name=\"Gérer les listes\" s]"
+  },
+  {
+   "action": "back",
+   "note": "retour depuis Listes & tags"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Tâche e2e du jour"
+  }
+ ]
+}

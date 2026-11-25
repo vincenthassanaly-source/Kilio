@@ -1,0 +1,233 @@
+{
+  "nom": "03-creer-evenement",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2535,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name='Jour']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 408,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name='Ajouter une tâche ou un événement']",
+      "note": "ouvrir le menu du FAB",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 361,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name='Événement']",
+      "note": "choisir Événement",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 437,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox[name='Titre']",
+      "valeur": "Kiné audit",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 383,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=dialog >> input[type=time]",
+      "valeur": "19:00",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 380,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "select",
+      "cible": "role=dialog >> role=combobox[name='Durée']",
+      "valeur": "90",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 387,
+      "fichier": "07-select.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Rappel et répétition']",
+      "note": "déplier les options",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 425,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "select",
+      "cible": "role=dialog >> role=combobox[name='Rappel']",
+      "valeur": "15",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 381,
+      "fichier": "09-select.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Ajouter']",
+      "note": "enregistrer",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "evenements",
+          "query": "?select=id",
+          "body": {
+            "titre": "Kiné audit",
+            "date": "2026-11-25",
+            "heure": "19:00",
+            "heure_fin": "20:30",
+            "notes": null,
+            "toute_la_journee": false,
+            "rappel_minutes": 15,
+            "rappel_occurrence_envoyee": null,
+            "recurrence_frequence": null,
+            "recurrence_fin": null
+          }
+        }
+      ],
+      "url": "http://localhost:3100/agenda",
+      "ms": 413,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "expect_text",
+      "texte": "Événement ajouté",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 438,
+      "fichier": "11-expect_text.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "Kiné audit",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 420,
+      "fichier": "12-expect_text.png"
+    },
+    {
+      "n": 13,
+      "action": "reload",
+      "note": "persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 2534,
+      "fichier": "13-reload.png"
+    },
+    {
+      "n": 14,
+      "action": "expect_text",
+      "texte": "Kiné audit",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 344,
+      "fichier": "14-expect_text.png"
+    },
+    {
+      "n": 15,
+      "action": "click",
+      "cible": "role=button[name='Liste']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 401,
+      "fichier": "15-click.png"
+    },
+    {
+      "n": 16,
+      "action": "expect_text",
+      "texte": "Kiné audit",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 332,
+      "fichier": "16-expect_text.png"
+    }
+  ]
+}

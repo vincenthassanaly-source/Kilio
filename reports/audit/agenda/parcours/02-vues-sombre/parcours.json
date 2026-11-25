@@ -1,0 +1,113 @@
+{
+  "nom": "02-vues-sombre",
+  "theme": "sombre",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "note": "agenda en sombre",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2535,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name='Jour']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 395,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name='Semaine']",
+      "note": "Semaine en sombre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 408,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name='Semaine suivante']",
+      "note": "semaine suivante",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 392,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name='Mois']",
+      "note": "Mois en sombre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 370,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name='Mois suivant']",
+      "note": "mois suivant (décembre)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 385,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name='Liste']",
+      "note": "Liste en sombre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 385,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name='Jour']",
+      "note": "retour Jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 382,
+      "fichier": "08-click.png"
+    }
+  ]
+}

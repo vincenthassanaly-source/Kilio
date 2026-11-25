@@ -1,0 +1,178 @@
+{
+  "nom": "02-cocher-annuler",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3110/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1726,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/Marquer « Tâche e2e du jour »/]",
+      "note": "cocher la tâche du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 427,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "wait",
+      "ms": 1142,
+      "note": "toast « faite » + Annuler",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000002",
+          "body": {
+            "fait": true,
+            "echeance": "2026-11-25"
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "fichier": "03-wait.png"
+    },
+    {
+      "n": 4,
+      "action": "screenshot",
+      "note": "état après coche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 346,
+      "fichier": "04-screenshot.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/Annuler : « Tâche e2e du jour » faite/]",
+      "note": "annuler via le toast",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000002",
+          "body": {
+            "fait": false
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "ms": 385,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "expect_text",
+      "texte": "Tâche e2e du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 350,
+      "fichier": "06-expect_text.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=button[name=/Marquer « Tâche e2e du jour »/]",
+      "note": "recocher",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 418,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "wait",
+      "ms": 7345,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.00000000-0000-4000-8000-000000000002",
+          "body": {
+            "fait": true,
+            "echeance": "2026-11-25"
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "fichier": "08-wait.png"
+    },
+    {
+      "n": 9,
+      "action": "reload",
+      "note": "persistance de l'état fait",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 1204,
+      "fichier": "09-reload.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/^Tout/]",
+      "note": "vue Tout : où est la tâche faite ?",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 396,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "screenshot",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 379,
+      "fichier": "11-screenshot.png"
+    }
+  ]
+}

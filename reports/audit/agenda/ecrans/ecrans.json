@@ -1,19 +1,73 @@
 [
   {
-    "route": "/agenda",
+    "route": "/agenda (vue Jour)",
     "dynamique": false,
     "url": "/agenda",
     "theme": "clair",
-    "fichier": "agenda.clair.png",
+    "fichier": "agenda-jour.clair.png",
     "statut": 200,
     "titre": "Kilio"
   },
   {
-    "route": "/agenda",
+    "route": "/agenda (vue Semaine)",
+    "dynamique": false,
+    "url": "/agenda",
+    "theme": "clair",
+    "fichier": "agenda-semaine.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/agenda (vue Mois)",
+    "dynamique": false,
+    "url": "/agenda",
+    "theme": "clair",
+    "fichier": "agenda-mois.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/agenda (vue Liste)",
+    "dynamique": false,
+    "url": "/agenda",
+    "theme": "clair",
+    "fichier": "agenda-liste.clair.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/agenda (vue Jour)",
     "dynamique": false,
     "url": "/agenda",
     "theme": "sombre",
-    "fichier": "agenda.sombre.png",
+    "fichier": "agenda-jour.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/agenda (vue Semaine)",
+    "dynamique": false,
+    "url": "/agenda",
+    "theme": "sombre",
+    "fichier": "agenda-semaine.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/agenda (vue Mois)",
+    "dynamique": false,
+    "url": "/agenda",
+    "theme": "sombre",
+    "fichier": "agenda-mois.sombre.png",
+    "statut": 200,
+    "titre": "Kilio"
+  },
+  {
+    "route": "/agenda (vue Liste)",
+    "dynamique": false,
+    "url": "/agenda",
+    "theme": "sombre",
+    "fichier": "agenda-liste.sombre.png",
     "statut": 200,
     "titre": "Kilio"
   }

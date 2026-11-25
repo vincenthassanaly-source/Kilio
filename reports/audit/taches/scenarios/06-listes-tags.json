@@ -1,0 +1,74 @@
+{
+ "nom": "06-listes-tags",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches"
+  },
+  {
+   "action": "click",
+   "cible": "role=link[name=\"Gérer les listes\" s]"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Listes & tags"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Ajouter une liste/]"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Nom\" s]",
+   "valeur": "Maison"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter\" s]"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Maison"
+  },
+  {
+   "action": "reload"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Maison",
+   "note": "persistance de la liste"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/Ajouter un tag/]"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Nom\" s]",
+   "valeur": "urgent"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter\" s]"
+  },
+  {
+   "action": "expect_text",
+   "texte": "#urgent"
+  },
+  {
+   "action": "click",
+   "cible": "role=link[name=/Tâches/] >> nth=0",
+   "note": "retour à Tâches par le lien"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter une tâche\" s]"
+  },
+  {
+   "action": "click",
+   "cible": "role=dialog >> role=button[name=/Maison/]",
+   "note": "nouvelle liste proposée et sélectionnable dans la feuille"
+  }
+ ]
+}

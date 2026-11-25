@@ -1,0 +1,16 @@
+{ "nom": "01-vues-clair", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/agenda", "note": "ouvrir l'agenda (vue Jour par défaut)" },
+  { "action": "expect_text", "texte": "Tâche e2e du jour" },
+  { "action": "scroll", "pixels": 900, "note": "voir le bas de la vue Jour (liste des tâches)" },
+  { "action": "click", "cible": "role=button[name='Semaine']", "note": "passer en vue Semaine" },
+  { "action": "click", "cible": "role=button[name='Mois']", "note": "passer en vue Mois" },
+  { "action": "click", "cible": "role=button[name='Liste']", "note": "passer en vue Liste" },
+  { "action": "expect_text", "texte": "Rendez-vous e2e" },
+  { "action": "reload", "note": "recharger : la vue Liste doit être mémorisée" },
+  { "action": "expect_text", "texte": "Rendez-vous e2e" },
+  { "action": "click", "cible": "role=button[name='Jour']", "note": "revenir en Jour" },
+  { "action": "click", "cible": "role=button[name='Jour suivant']", "note": "jour suivant" },
+  { "action": "expect_text", "texte": "Jeudi 26 novembre" },
+  { "action": "click", "cible": "role=button[name=\"Aujourd'hui\"] >> nth=-1", "note": "retour à aujourd'hui via le lien" },
+  { "action": "expect_text", "texte": "Mercredi 25 novembre" }
+] }

@@ -1,0 +1,198 @@
+{
+  "nom": "06-tache-creer-cocher",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2552,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name='Jour']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 407,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name='Ajouter une tâche ou un événement']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 360,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name='Tâche']",
+      "note": "choisir Tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 420,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "wait",
+      "ms": 1195,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "fichier": "05-wait.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=dialog >> role=textbox[name='Titre']",
+      "valeur": "Acheter des timbres",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 426,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name='Ajouter']",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 447,
+      "fichier": "07-click.png"
+    },
+    {
+      "n": 8,
+      "action": "expect_text",
+      "texte": "Tâche ajoutée",
+      "statut": "échec",
+      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 5083,
+      "fichier": "08-expect_text.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "Acheter des timbres",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 376,
+      "fichier": "09-expect_text.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name='Marquer « Acheter des timbres » comme fait']",
+      "note": "cocher la tâche",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 5069,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "wait",
+      "ms": 6379,
+      "note": "laisser passer le délai d'annulation",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "fichier": "11-wait.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "Tâches terminées",
+      "statut": "échec",
+      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 5082,
+      "fichier": "12-expect_text.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=/Tâches terminées/]",
+      "note": "déplier les terminées",
+      "statut": "échec",
+      "erreur": "locator.click: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 5098,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "reload",
+      "note": "persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 2532,
+      "fichier": "14-reload.png"
+    },
+    {
+      "n": 15,
+      "action": "expect_text",
+      "texte": "Tâches terminées",
+      "statut": "échec",
+      "erreur": "locator.waitFor: Timeout 5000ms exceeded.",
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 5035,
+      "fichier": "15-expect_text.png"
+    }
+  ]
+}

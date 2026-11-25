@@ -1,0 +1,224 @@
+{
+  "nom": "04-sous-taches",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3110/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1995,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=/^Tâche e2e du jour \\(modifier\\)/]",
+      "note": "ouvrir la tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 403,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Nouvelle sous-tâche\" s]",
+      "valeur": "Lait",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 371,
+      "fichier": "03-fill.png"
+    },
+    {
+      "n": 4,
+      "action": "press",
+      "cible": "role=textbox[name=\"Nouvelle sous-tâche\" s]",
+      "touche": "Enter",
+      "note": "ajouter la sous-tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 380,
+      "fichier": "04-press.png"
+    },
+    {
+      "n": 5,
+      "action": "expect_text",
+      "texte": "Lait",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "sous_taches",
+          "query": "",
+          "body": {
+            "tache_id": "00000000-0000-4000-8000-000000000002",
+            "titre": "Lait",
+            "ordre": 0
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "ms": 1661,
+      "fichier": "05-expect_text.png"
+    },
+    {
+      "n": 6,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Nouvelle sous-tâche\" s]",
+      "valeur": "Œufs",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 349,
+      "fichier": "06-fill.png"
+    },
+    {
+      "n": 7,
+      "action": "press",
+      "cible": "role=textbox[name=\"Nouvelle sous-tâche\" s]",
+      "touche": "Enter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 346,
+      "fichier": "07-press.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=button[name=\"Annuler\" s]",
+      "note": "refermer la tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "sous_taches",
+          "query": "",
+          "body": {
+            "tache_id": "00000000-0000-4000-8000-000000000002",
+            "titre": "Œufs",
+            "ordre": 1
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "ms": 406,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "0/2",
+      "note": "compteur sur la carte",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 1148,
+      "fichier": "09-expect_text.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/Sous-tâches : 0 sur 2/]",
+      "note": "déplier",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 421,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name=/Marquer « Lait »/]",
+      "note": "cocher Lait",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "sous_taches",
+          "query": "?id=eq.3ec9b692-3676-4997-bcc1-af6d219c6e5c",
+          "body": {
+            "fait": true
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "ms": 379,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "1/2",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 1135,
+      "fichier": "12-expect_text.png"
+    },
+    {
+      "n": 13,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 1267,
+      "fichier": "13-reload.png"
+    },
+    {
+      "n": 14,
+      "action": "expect_text",
+      "texte": "1/2",
+      "note": "persistance",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 346,
+      "fichier": "14-expect_text.png"
+    }
+  ]
+}

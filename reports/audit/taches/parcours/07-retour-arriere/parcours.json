@@ -1,0 +1,132 @@
+{
+  "nom": "07-retour-arriere",
+  "theme": "sombre",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3110/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1710,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter une tâche\" s]",
+      "note": "ouvrir la feuille",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 467,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "back",
+      "note": "retour Android : la feuille doit se fermer, on reste sur Tâches",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 368,
+      "fichier": "03-back.png"
+    },
+    {
+      "n": 4,
+      "action": "expect_text",
+      "texte": "Tâche e2e du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 346,
+      "fichier": "04-expect_text.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name=/^Tâche e2e du jour \\(modifier\\)/]",
+      "note": "ouvrir la tâche en édition",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 389,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "back",
+      "note": "retour arrière : l’édition doit se refermer sans quitter Tâches",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 347,
+      "fichier": "06-back.png"
+    },
+    {
+      "n": 7,
+      "action": "expect_text",
+      "texte": "Tâche e2e du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 336,
+      "fichier": "07-expect_text.png"
+    },
+    {
+      "n": 8,
+      "action": "click",
+      "cible": "role=link[name=\"Gérer les listes\" s]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 397,
+      "fichier": "08-click.png"
+    },
+    {
+      "n": 9,
+      "action": "back",
+      "note": "retour depuis Listes & tags",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 354,
+      "fichier": "09-back.png"
+    },
+    {
+      "n": 10,
+      "action": "expect_text",
+      "texte": "Tâche e2e du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 344,
+      "fichier": "10-expect_text.png"
+    }
+  ]
+}

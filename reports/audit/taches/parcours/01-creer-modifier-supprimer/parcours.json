@@ -1,0 +1,297 @@
+{
+  "nom": "01-creer-modifier-supprimer",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3110/taches",
+      "note": "ouvrir Tâches (vue À faire)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1642,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter une tâche\" s]",
+      "note": "« + » flottant",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 523,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Titre\" s]",
+      "valeur": "Acheter du pain",
+      "note": "saisir le titre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 421,
+      "fichier": "03-fill.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter\" s]",
+      "note": "créer",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 452,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "expect_text",
+      "texte": "Tâche ajoutée",
+      "note": "attendre la fin de l’enregistrement (toast)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Acheter du pain",
+            "echeance": "2026-11-25",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 1
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.60d76700-42a8-4575-a401-e9b0867e39d7",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "ms": 1703,
+      "fichier": "05-expect_text.png"
+    },
+    {
+      "n": 6,
+      "action": "expect_text",
+      "texte": "Acheter du pain",
+      "note": "carte visible dans À faire",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 362,
+      "fichier": "06-expect_text.png"
+    },
+    {
+      "n": 7,
+      "action": "reload",
+      "note": "persistance",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 1200,
+      "fichier": "07-reload.png"
+    },
+    {
+      "n": 8,
+      "action": "expect_text",
+      "texte": "Acheter du pain",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 388,
+      "fichier": "08-expect_text.png"
+    },
+    {
+      "n": 9,
+      "action": "click",
+      "cible": "role=button[name=/^Acheter du pain \\(modifier\\)/]",
+      "note": "ouvrir la tâche (modifier)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 380,
+      "fichier": "09-click.png"
+    },
+    {
+      "n": 10,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Titre\" s]",
+      "valeur": "Acheter du pain complet",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 553,
+      "fichier": "10-fill.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name=\"Enregistrer\" s]",
+      "note": "enregistrer",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 379,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "Acheter du pain complet",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "PATCH",
+          "table": "taches",
+          "query": "?id=eq.60d76700-42a8-4575-a401-e9b0867e39d7",
+          "body": {
+            "titre": "Acheter du pain complet",
+            "echeance": "2026-11-25",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "ms": 355,
+      "fichier": "12-expect_text.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=/^Acheter du pain complet \\(modifier\\)/]",
+      "note": "rouvrir",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.60d76700-42a8-4575-a401-e9b0867e39d7",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "ms": 1919,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "click",
+      "cible": "role=button[name=\"Supprimer\" s]",
+      "note": "supprimer (toast Annuler)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 496,
+      "fichier": "14-click.png"
+    },
+    {
+      "n": 15,
+      "action": "wait",
+      "ms": 7346,
+      "note": "laisser expirer le délai d'annulation",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "DELETE",
+          "table": "taches",
+          "query": "?id=eq.60d76700-42a8-4575-a401-e9b0867e39d7",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "fichier": "15-wait.png"
+    },
+    {
+      "n": 16,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 1217,
+      "fichier": "16-reload.png"
+    },
+    {
+      "n": 17,
+      "action": "expect_absent",
+      "texte": "Acheter du pain complet",
+      "note": "suppression persistée",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 348,
+      "fichier": "17-expect_absent.png"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{ "nom": "02-vues-sombre", "theme": "sombre", "etapes": [
+  { "action": "goto", "url": "/agenda", "note": "agenda en sombre" },
+  { "action": "click", "cible": "role=button[name='Jour']" },
+  { "action": "click", "cible": "role=button[name='Semaine']", "note": "Semaine en sombre" },
+  { "action": "click", "cible": "role=button[name='Semaine suivante']", "note": "semaine suivante" },
+  { "action": "click", "cible": "role=button[name='Mois']", "note": "Mois en sombre" },
+  { "action": "click", "cible": "role=button[name='Mois suivant']", "note": "mois suivant (décembre)" },
+  { "action": "click", "cible": "role=button[name='Liste']", "note": "Liste en sombre" },
+  { "action": "click", "cible": "role=button[name='Jour']", "note": "retour Jour" }
+] }

@@ -1,0 +1,13 @@
+{ "nom": "02-cocher-annuler", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/taches" },
+  { "action": "click", "cible": "role=button[name=/Marquer « Tâche e2e du jour »/]", "note": "cocher la tâche du jour" },
+  { "action": "wait", "ms": 800, "note": "toast « faite » + Annuler" },
+  { "action": "screenshot", "note": "état après coche" },
+  { "action": "click", "cible": "role=button[name=/Annuler : « Tâche e2e du jour » faite/]", "note": "annuler via le toast" },
+  { "action": "expect_text", "texte": "Tâche e2e du jour" },
+  { "action": "click", "cible": "role=button[name=/Marquer « Tâche e2e du jour »/]", "note": "recocher" },
+  { "action": "wait", "ms": 7000 },
+  { "action": "reload", "note": "persistance de l'état fait" },
+  { "action": "click", "cible": "role=button[name=/^Tout/]", "note": "vue Tout : où est la tâche faite ?" },
+  { "action": "screenshot" }
+] }

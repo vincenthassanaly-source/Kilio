@@ -1,0 +1,87 @@
+{
+ "nom": "01-creer-modifier-supprimer",
+ "theme": "clair",
+ "etapes": [
+  {
+   "action": "goto",
+   "url": "/taches",
+   "note": "ouvrir Tâches (vue À faire)"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter une tâche\" s]",
+   "note": "« + » flottant"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Titre\" s]",
+   "valeur": "Acheter du pain",
+   "note": "saisir le titre"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Ajouter\" s]",
+   "note": "créer"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Tâche ajoutée",
+   "note": "attendre la fin de l’enregistrement (toast)"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Acheter du pain",
+   "note": "carte visible dans À faire"
+  },
+  {
+   "action": "reload",
+   "note": "persistance"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Acheter du pain"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Acheter du pain \\(modifier\\)/]",
+   "note": "ouvrir la tâche (modifier)"
+  },
+  {
+   "action": "fill",
+   "cible": "role=textbox[name=\"Titre\" s]",
+   "valeur": "Acheter du pain complet"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Enregistrer\" s]",
+   "note": "enregistrer"
+  },
+  {
+   "action": "expect_text",
+   "texte": "Acheter du pain complet"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=/^Acheter du pain complet \\(modifier\\)/]",
+   "note": "rouvrir"
+  },
+  {
+   "action": "click",
+   "cible": "role=button[name=\"Supprimer\" s]",
+   "note": "supprimer (toast Annuler)"
+  },
+  {
+   "action": "wait",
+   "ms": 7000,
+   "note": "laisser expirer le délai d'annulation"
+  },
+  {
+   "action": "reload"
+  },
+  {
+   "action": "expect_absent",
+   "texte": "Acheter du pain complet",
+   "note": "suppression persistée"
+  }
+ ]
+}

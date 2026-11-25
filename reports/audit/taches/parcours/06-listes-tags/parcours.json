@@ -1,0 +1,232 @@
+{
+  "nom": "06-listes-tags",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3110/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 1647,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=link[name=\"Gérer les listes\" s]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 416,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "expect_text",
+      "texte": "Listes & tags",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 347,
+      "fichier": "03-expect_text.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name=/Ajouter une liste/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 374,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Nom\" s]",
+      "valeur": "Maison",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 365,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter\" s]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 417,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "expect_text",
+      "texte": "Maison",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "listes_taches",
+          "query": "",
+          "body": {
+            "nom": "Maison",
+            "couleur": null,
+            "ordre": 1
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 1698,
+      "fichier": "07-expect_text.png"
+    },
+    {
+      "n": 8,
+      "action": "reload",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 1349,
+      "fichier": "08-reload.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "Maison",
+      "note": "persistance de la liste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 355,
+      "fichier": "09-expect_text.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name=/Ajouter un tag/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 388,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Nom\" s]",
+      "valeur": "urgent",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 354,
+      "fichier": "11-fill.png"
+    },
+    {
+      "n": 12,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter\" s]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "tags",
+          "query": "",
+          "body": {
+            "nom": "urgent",
+            "couleur": null
+          }
+        }
+      ],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 385,
+      "fichier": "12-click.png"
+    },
+    {
+      "n": 13,
+      "action": "expect_text",
+      "texte": "#urgent",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches/listes",
+      "ms": 1147,
+      "fichier": "13-expect_text.png"
+    },
+    {
+      "n": 14,
+      "action": "click",
+      "cible": "role=link[name=/Tâches/] >> nth=0",
+      "note": "retour à Tâches par le lien",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 389,
+      "fichier": "14-click.png"
+    },
+    {
+      "n": 15,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter une tâche\" s]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 649,
+      "fichier": "15-click.png"
+    },
+    {
+      "n": 16,
+      "action": "click",
+      "cible": "role=dialog >> role=button[name=/Maison/]",
+      "note": "nouvelle liste proposée et sélectionnable dans la feuille",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 423,
+      "fichier": "16-click.png"
+    }
+  ]
+}

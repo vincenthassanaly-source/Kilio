@@ -1,0 +1,54 @@
+[
+  {
+    "sonde": "semaine-bande-sans-heure",
+    "scrollTop": 591,
+    "scrollLeft": 192,
+    "chipTop": -302.453125,
+    "chipLeft": 60,
+    "conteneurTop": 239.296875,
+    "chipVisible": false
+  },
+  {
+    "sonde": "jour-appui-long",
+    "dialogue": 1,
+    "heurePreremplie": "19:00"
+  },
+  {
+    "sonde": "jour-tap-simple",
+    "dialogue": 0
+  },
+  {
+    "sonde": "cibles<44px vue Jour",
+    "petits": [
+      "Marquer « Tâche e2e du jour » comme fait 22x22"
+    ]
+  },
+  {
+    "sonde": "cibles<44px vue Semaine",
+    "petits": []
+  },
+  {
+    "sonde": "cibles<44px vue Mois",
+    "petits": []
+  },
+  {
+    "sonde": "cibles<44px vue Liste",
+    "petits": [
+      "Marquer « Tâche e2e du jour » comme fait 22x22"
+    ]
+  },
+  {
+    "sonde": "fab-menu-focus",
+    "focusOuverture": "Événement",
+    "focusApresEchap": "Ajouter une tâche ou un événement"
+  },
+  {
+    "sonde": "mois-aria-25",
+    "label": "mercredi 25 novembre, 1 tâche, 1 événement"
+  },
+  {
+    "sonde": "raccourci-n",
+    "dialogue": 1,
+    "focus": "TEXTAREA#titre"
+  }
+]

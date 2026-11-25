@@ -1,0 +1,198 @@
+{
+  "nom": "03-cas-limites-saisie",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3110/taches",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3110/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3110/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3110/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2086,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter une tâche\" s]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 525,
+      "fichier": "02-click.png"
+    },
+    {
+      "n": 3,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter\" s]",
+      "note": "titre vide",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 434,
+      "fichier": "03-click.png"
+    },
+    {
+      "n": 4,
+      "action": "expect_text",
+      "texte": "Donne un titre à la tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 385,
+      "fichier": "04-expect_text.png"
+    },
+    {
+      "n": 5,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Titre\" s]",
+      "valeur": "   ",
+      "note": "espaces seuls",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 395,
+      "fichier": "05-fill.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name=\"Ajouter\" s]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 437,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "expect_text",
+      "texte": "Donne un titre à la tâche",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 370,
+      "fichier": "07-expect_text.png"
+    },
+    {
+      "n": 8,
+      "action": "fill",
+      "cible": "role=textbox[name=\"Titre\" s]",
+      "valeur": "Titre extrêmement long pour vérifier la coupure des lignes dans la carte de tâche et dans la feuille d'édition sans débordement horizontal ni texte tronqué de façon illisible Anticonstitutionnellementanticonstitutionnellement fin",
+      "note": "titre très long avec mot insécable",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 429,
+      "fichier": "08-fill.png"
+    },
+    {
+      "n": 9,
+      "action": "dblclick",
+      "cible": "role=button[name=\"Ajouter\" s]",
+      "note": "double clic sur Ajouter",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 432,
+      "fichier": "09-dblclick.png"
+    },
+    {
+      "n": 10,
+      "action": "wait",
+      "ms": 1859,
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [
+        {
+          "method": "POST",
+          "table": "taches",
+          "query": "?select=id",
+          "body": {
+            "titre": "Titre extrêmement long pour vérifier la coupure des lignes dans la carte de tâche et dans la feuille d'édition sans débordement horizontal ni texte tronqué de façon illisible Anticonstitutionnellementanticonstitutionnellement fin",
+            "echeance": "2026-11-25",
+            "heure": null,
+            "heure_fin": null,
+            "liste_id": "00000000-0000-4000-8000-000000000001",
+            "notes": null,
+            "priorite": "aucune",
+            "programme_jour": false,
+            "recurrence_frequence": null,
+            "recurrence_fin": null,
+            "toute_la_journee": false,
+            "rappel_minutes": null,
+            "ordre": 1
+          }
+        },
+        {
+          "method": "DELETE",
+          "table": "taches_tags",
+          "query": "?tache_id=eq.e01467f0-2384-4794-bd86-dcbd15cfd1f5",
+          "body": null
+        }
+      ],
+      "url": "http://localhost:3110/taches",
+      "fichier": "10-wait.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name=/^Tout/]",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 418,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "screenshot",
+      "note": "combien de copies ?",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/taches",
+      "ms": 365,
+      "fichier": "12-screenshot.png"
+    },
+    {
+      "n": 13,
+      "action": "back",
+      "note": "retour arrière depuis la liste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3110/",
+      "ms": 368,
+      "fichier": "13-back.png"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{ "nom": "04-sous-taches", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/taches" },
+  { "action": "click", "cible": "role=button[name=/^Tâche e2e du jour \\(modifier\\)/]", "note": "ouvrir la tâche" },
+  { "action": "fill", "cible": "role=textbox[name=\"Nouvelle sous-tâche\" s]", "valeur": "Lait" },
+  { "action": "press", "cible": "role=textbox[name=\"Nouvelle sous-tâche\" s]", "touche": "Enter", "note": "ajouter la sous-tâche" },
+  { "action": "expect_text", "texte": "Lait" },
+  { "action": "fill", "cible": "role=textbox[name=\"Nouvelle sous-tâche\" s]", "valeur": "Œufs" },
+  { "action": "press", "cible": "role=textbox[name=\"Nouvelle sous-tâche\" s]", "touche": "Enter" },
+  { "action": "click", "cible": "role=button[name=\"Annuler\" s]", "note": "refermer la tâche" },
+  { "action": "expect_text", "texte": "0/2", "note": "compteur sur la carte" },
+  { "action": "click", "cible": "role=button[name=/Sous-tâches : 0 sur 2/]", "note": "déplier" },
+  { "action": "click", "cible": "role=button[name=/Marquer « Lait »/]", "note": "cocher Lait" },
+  { "action": "expect_text", "texte": "1/2" },
+  { "action": "reload" },
+  { "action": "expect_text", "texte": "1/2", "note": "persistance" }
+] }

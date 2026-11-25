@@ -1,0 +1,15 @@
+{ "nom": "03-cas-limites-saisie", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/taches" },
+  { "action": "click", "cible": "role=button[name=\"Ajouter une tâche\" s]" },
+  { "action": "click", "cible": "role=button[name=\"Ajouter\" s]", "note": "titre vide" },
+  { "action": "expect_text", "texte": "Donne un titre à la tâche" },
+  { "action": "fill", "cible": "role=textbox[name=\"Titre\" s]", "valeur": "   ", "note": "espaces seuls" },
+  { "action": "click", "cible": "role=button[name=\"Ajouter\" s]" },
+  { "action": "expect_text", "texte": "Donne un titre à la tâche" },
+  { "action": "fill", "cible": "role=textbox[name=\"Titre\" s]", "valeur": "Titre extrêmement long pour vérifier la coupure des lignes dans la carte de tâche et dans la feuille d'édition sans débordement horizontal ni texte tronqué de façon illisible Anticonstitutionnellementanticonstitutionnellement fin", "note": "titre très long avec mot insécable" },
+  { "action": "dblclick", "cible": "role=button[name=\"Ajouter\" s]", "note": "double clic sur Ajouter" },
+  { "action": "wait", "ms": 1500 },
+  { "action": "click", "cible": "role=button[name=/^Tout/]" },
+  { "action": "screenshot", "note": "combien de copies ?" },
+  { "action": "back", "note": "retour arrière depuis la liste" }
+] }

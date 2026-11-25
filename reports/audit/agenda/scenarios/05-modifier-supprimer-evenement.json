@@ -1,0 +1,19 @@
+{ "nom": "05-modifier-supprimer-evenement", "theme": "clair", "etapes": [
+  { "action": "goto", "url": "/agenda" },
+  { "action": "click", "cible": "role=button[name='Liste']" },
+  { "action": "click", "cible": "role=button[name=/Événement Rendez-vous e2e/]", "note": "ouvrir l'événement depuis la Liste" },
+  { "action": "fill", "cible": "role=dialog >> role=textbox[name='Titre']", "valeur": "Rendez-vous modifié" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Enregistrer']" },
+  { "action": "expect_text", "texte": "Événement modifié" },
+  { "action": "expect_text", "texte": "Rendez-vous modifié" },
+  { "action": "click", "cible": "role=button[name=/Événement Rendez-vous modifié/]", "note": "rouvrir" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Supprimer']", "note": "supprimer" },
+  { "action": "expect_text", "texte": "supprimé" },
+  { "action": "click", "cible": "role=button[name=/Annuler la suppression/]", "note": "annuler la suppression" },
+  { "action": "expect_text", "texte": "Rendez-vous modifié" },
+  { "action": "click", "cible": "role=button[name=/Événement Rendez-vous modifié/]" },
+  { "action": "click", "cible": "role=dialog >> role=button[name='Supprimer']", "note": "supprimer pour de bon" },
+  { "action": "wait", "ms": 8000, "note": "laisser expirer le toast" },
+  { "action": "reload" },
+  { "action": "expect_absent", "texte": "Rendez-vous modifié" }
+] }

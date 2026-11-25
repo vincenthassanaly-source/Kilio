@@ -1,0 +1,192 @@
+{
+  "nom": "01-vues-clair",
+  "theme": "clair",
+  "etapes": [
+    {
+      "n": 1,
+      "action": "goto",
+      "url": "http://localhost:3100/agenda",
+      "note": "ouvrir l'agenda (vue Jour par défaut)",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "ms": 2553,
+      "fichier": "01-goto.png"
+    },
+    {
+      "n": 2,
+      "action": "expect_text",
+      "texte": "Tâche e2e du jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 363,
+      "fichier": "02-expect_text.png"
+    },
+    {
+      "n": 3,
+      "action": "scroll",
+      "pixels": 900,
+      "note": "voir le bas de la vue Jour (liste des tâches)",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 343,
+      "fichier": "03-scroll.png"
+    },
+    {
+      "n": 4,
+      "action": "click",
+      "cible": "role=button[name='Semaine']",
+      "note": "passer en vue Semaine",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 388,
+      "fichier": "04-click.png"
+    },
+    {
+      "n": 5,
+      "action": "click",
+      "cible": "role=button[name='Mois']",
+      "note": "passer en vue Mois",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 388,
+      "fichier": "05-click.png"
+    },
+    {
+      "n": 6,
+      "action": "click",
+      "cible": "role=button[name='Liste']",
+      "note": "passer en vue Liste",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 409,
+      "fichier": "06-click.png"
+    },
+    {
+      "n": 7,
+      "action": "expect_text",
+      "texte": "Rendez-vous e2e",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 351,
+      "fichier": "07-expect_text.png"
+    },
+    {
+      "n": 8,
+      "action": "reload",
+      "note": "recharger : la vue Liste doit être mémorisée",
+      "statut": "anomalie",
+      "erreur": null,
+      "anomalies": [
+        "requête échouée : POST http://localhost:3100/agenda (net::ERR_ABORTED)",
+        "HTTP 404 : GET http://localhost:3100/_vercel/speed-insights/script.js",
+        "console.error : Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "console.error : Refused to execute script from 'http://localhost:3100/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+        "requête échouée : GET http://localhost:3100/_vercel/speed-insights/script.js (net::ERR_ABORTED)"
+      ],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 3736,
+      "fichier": "08-reload.png"
+    },
+    {
+      "n": 9,
+      "action": "expect_text",
+      "texte": "Rendez-vous e2e",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 361,
+      "fichier": "09-expect_text.png"
+    },
+    {
+      "n": 10,
+      "action": "click",
+      "cible": "role=button[name='Jour']",
+      "note": "revenir en Jour",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 406,
+      "fichier": "10-click.png"
+    },
+    {
+      "n": 11,
+      "action": "click",
+      "cible": "role=button[name='Jour suivant']",
+      "note": "jour suivant",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 379,
+      "fichier": "11-click.png"
+    },
+    {
+      "n": 12,
+      "action": "expect_text",
+      "texte": "Jeudi 26 novembre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 335,
+      "fichier": "12-expect_text.png"
+    },
+    {
+      "n": 13,
+      "action": "click",
+      "cible": "role=button[name=\"Aujourd'hui\"] >> nth=-1",
+      "note": "retour à aujourd'hui via le lien",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 381,
+      "fichier": "13-click.png"
+    },
+    {
+      "n": 14,
+      "action": "expect_text",
+      "texte": "Mercredi 25 novembre",
+      "statut": "ok",
+      "erreur": null,
+      "anomalies": [],
+      "ecritures": [],
+      "url": "http://localhost:3100/agenda",
+      "ms": 336,
+      "fichier": "14-expect_text.png"
+    }
+  ]
+}
