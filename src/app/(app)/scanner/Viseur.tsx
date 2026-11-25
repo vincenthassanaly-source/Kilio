@@ -8,6 +8,7 @@ import type { Quad } from "@/lib/scanner/geometrie";
 import { ETAT_SUIVI_INITIAL, messageViseur, suivreCadre, type EtatSuivi, type MoteurDirect } from "@/lib/scanner/suivi";
 import { openCvEnEchec } from "@/lib/scanner/opencv";
 import { capturerPhoto, detecterDepuisVideo, prechargerOpenCv } from "@/lib/scanner/traitement";
+import { boutonImmersif, boutonImmersifPrincipal } from "./immersif";
 
 /** Pause entre deux détections en direct (après la fin de la précédente). */
 const PAUSE_ENTRE_DETECTIONS_MS = 120;
@@ -310,20 +311,14 @@ export function Viseur({
                   ? "Autorise la caméra dans les réglages du navigateur, ou importe une photo depuis ta galerie."
                   : "Importe une photo depuis ta galerie pour continuer."}
               </p>
-              <button
-                type="button"
-                onClick={reessayer}
-                className="rounded-2xl bg-white px-5 py-3 font-semibold text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-              >
-                Réessayer
-              </button>
-              <button
-                type="button"
-                onClick={onImporter}
-                className="rounded-2xl bg-white/15 px-5 py-3 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                Importer une photo
-              </button>
+              <div className="flex flex-col items-stretch gap-2">
+                <button type="button" onClick={reessayer} className={`${boutonImmersifPrincipal} px-5`}>
+                  Réessayer
+                </button>
+                <button type="button" onClick={onImporter} className={`${boutonImmersif} px-5`}>
+                  Importer une photo
+                </button>
+              </div>
             </div>
           )}
 
@@ -331,20 +326,17 @@ export function Viseur({
             type="button"
             onClick={onClose}
             aria-label="Fermer le viseur"
-            className="absolute right-4 top-[calc(env(safe-area-inset-top)+16px)] flex h-11 w-11 items-center justify-center rounded-full bg-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute right-4 top-[calc(env(safe-area-inset-top)+16px)] flex h-11 w-11 items-center justify-center rounded-full bg-black/50 transition-transform duration-150 ease-[var(--ease-out)] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>
         </div>
 
-        <div className="flex items-center justify-between gap-3 px-5 pb-[calc(env(safe-area-inset-bottom)+20px)] pt-4">
-          <button
-            type="button"
-            onClick={onImporter}
-            className="min-h-11 rounded-2xl bg-white/15 px-4 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
+        {/* Grille 1fr / auto / 1fr : le déclencheur reste centré quelle que soit la largeur des libellés voisins. */}
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 pb-[calc(env(safe-area-inset-bottom)+20px)] pt-4">
+          <button type="button" onClick={onImporter} className={`${boutonImmersif} justify-self-start whitespace-nowrap px-4`}>
             Importer
           </button>
           <button
@@ -353,15 +345,11 @@ export function Viseur({
             disabled={!pret || enCapture}
             aria-busy={enCapture}
             aria-label={enCapture ? "Prise de la photo en cours" : "Prendre la photo"}
-            className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-white transition-transform active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-white transition-[opacity,transform] duration-150 ease-[var(--ease-out)] active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             <span className="h-14 w-14 rounded-full bg-white" />
           </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="min-h-11 rounded-2xl bg-white/15 px-4 text-sm font-semibold tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
+          <button type="button" onClick={onClose} className={`${boutonImmersif} justify-self-end whitespace-nowrap px-4 tabular-nums`}>
             {remplacePage !== undefined ? "Annuler" : nombrePages > 0 ? `Terminer (${nombrePages})` : "Terminer"}
           </button>
         </div>

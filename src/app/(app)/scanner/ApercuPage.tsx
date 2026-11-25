@@ -16,6 +16,7 @@ import {
   type Taille,
   type Vue,
 } from "@/lib/scanner/zoom";
+import { boutonRondImmersif as boutonRond } from "./immersif";
 
 type Version = "resultat" | "original";
 
@@ -194,9 +195,6 @@ export function ApercuPage({
     e.preventDefault();
   }
 
-  const boutonRond =
-    "flex h-11 w-11 items-center justify-center rounded-full bg-white/15 transition-transform active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
-
   return (
     <Portal>
       <div
@@ -266,7 +264,7 @@ export function ApercuPage({
                   type="button"
                   aria-pressed={versionAffichee === valeur}
                   onClick={() => setVersion(valeur)}
-                  className={`min-h-11 rounded-xl px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                  className={`min-h-11 rounded-xl px-4 text-sm font-semibold transition-colors duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                     versionAffichee === valeur ? "bg-white text-black" : "text-white/80"
                   }`}
                 >

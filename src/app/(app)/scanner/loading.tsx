@@ -10,7 +10,8 @@ export default function ScannerLoading() {
         <Skeleton className="h-11 w-full rounded-2xl" />
         <Skeleton className="h-11 w-full rounded-2xl" />
       </div>
-      <Skeleton className="h-24 w-full rounded-card" />
+      {/* Hauteur de l’état vide (« Aucune page pour l’instant »), premier écran le plus fréquent. */}
+      <Skeleton className="h-40 w-full rounded-card" />
     </div>
   );
 }
