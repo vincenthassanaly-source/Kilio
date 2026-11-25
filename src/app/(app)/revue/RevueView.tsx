@@ -23,11 +23,14 @@ const NB_TERMINEES_VISIBLES = 5;
 
 function Chiffre({ valeur, libelle, alerte = false }: { valeur: number; libelle: string; alerte?: boolean }) {
   return (
-    <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl bg-surface-alt px-2 py-3">
-      <span className={`font-display text-heading font-semibold tabular-nums ${alerte && valeur > 0 ? "text-alert" : "text-ink"}`}>
+    // Même tuile que la synthèse santé (section 4) : alignée à gauche, chiffre puis libellé.
+    <div className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-xl bg-surface-alt px-3 py-3">
+      <span
+        className={`font-display text-heading font-semibold leading-tight tabular-nums ${alerte && valeur > 0 ? "text-alert" : "text-ink"}`}
+      >
         {valeur}
       </span>
-      <span className="text-center text-caption leading-tight text-ink-2">{libelle}</span>
+      <span className="text-caption leading-snug text-ink-2 text-pretty">{libelle}</span>
     </div>
   );
 }
@@ -68,7 +71,7 @@ export function RevueView({ today }: { today: string }) {
 
   if (tachesChargent) {
     return (
-      <div className="flex flex-col gap-4" aria-busy="true">
+      <div className="flex flex-col gap-5" aria-busy="true">
         <Skeleton className="h-[76px] w-full rounded-card" />
         <Skeleton className="h-60 w-full rounded-card" />
         <Skeleton className="h-48 w-full rounded-card" />
@@ -77,33 +80,38 @@ export function RevueView({ today }: { today: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-10">
+    <div className="flex flex-col gap-5 pb-10">
       {/* Gabarit unique des étapes : titre au-dessus, contenu en carte dessous. */}
       <section aria-labelledby="revue-bilan" className="flex flex-col gap-2">
         <h2 id="revue-bilan" className={sectionTitle}>
           1. Les 7 derniers jours
         </h2>
         <div className={`${card} flex flex-col gap-3`}>
-        <div className="flex gap-2">
-          <Chiffre valeur={bilan.terminees.length} libelle="tâches terminées" />
-          <Chiffre valeur={evenementsPasses.length} libelle="rendez-vous" />
-          <Chiffre valeur={bilan.nbEnRetard} libelle="en retard" alerte />
-        </div>
-        {bilan.terminees.length > 0 && (
-          <ul className="flex flex-col gap-1 text-label text-ink-2">
-            {bilan.terminees.slice(0, NB_TERMINEES_VISIBLES).map((t) => (
-              <li key={t.id} className="flex items-center gap-2">
-                <svg aria-hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-kcal)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                  <path d="m5 13 4 4L19 7" />
-                </svg>
-                <span className="truncate">{t.titre}</span>
-              </li>
-            ))}
-            {bilan.terminees.length > NB_TERMINEES_VISIBLES && (
-              <li className="text-ink-3">et {bilan.terminees.length - NB_TERMINEES_VISIBLES} autres</li>
-            )}
-          </ul>
-        )}
+          <div className="flex gap-2">
+            <Chiffre valeur={bilan.terminees.length} libelle="tâches terminées" />
+            <Chiffre valeur={evenementsPasses.length} libelle="rendez-vous" />
+            <Chiffre valeur={bilan.nbEnRetard} libelle="en retard" alerte />
+          </div>
+          {bilan.terminees.length > 0 && (
+            <ul className="flex flex-col gap-1 text-label text-ink-2">
+              {bilan.terminees.slice(0, NB_TERMINEES_VISIBLES).map((t) => (
+                <li key={t.id} className="flex items-center gap-2">
+                  <svg aria-hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-kcal)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <path d="m5 13 4 4L19 7" />
+                  </svg>
+                  <span className="truncate">{t.titre}</span>
+                </li>
+              ))}
+              {bilan.terminees.length > NB_TERMINEES_VISIBLES && (
+                // Aligné sur les titres, après la colonne des coches (14 px + gap 8 px).
+                <li className="pl-[22px] text-ink-3">
+                  {bilan.terminees.length - NB_TERMINEES_VISIBLES === 1
+                    ? "et 1 autre"
+                    : `et ${bilan.terminees.length - NB_TERMINEES_VISIBLES} autres`}
+                </li>
+              )}
+            </ul>
+          )}
         </div>
       </section>
 
@@ -136,7 +144,7 @@ export function RevueView({ today }: { today: string }) {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="min-w-0 flex-1 text-label font-semibold capitalize text-ink">
+                    <span className="min-w-0 flex-1 text-label font-semibold text-ink first-letter:uppercase">
                       {format(parseISODate(jour.date), "EEEE d MMM", { locale: fr })}
                     </span>
                     {jour.charge && (
@@ -147,7 +155,7 @@ export function RevueView({ today }: { today: string }) {
                     {!jour.charge && total > 0 && (
                       <span className="shrink-0 text-caption tabular-nums text-ink-3">{libelleDuree(total)}</span>
                     )}
-                    {vide && <span className="shrink-0 text-small text-ink-3">Libre</span>}
+                    {vide && <span className="shrink-0 text-caption text-ink-3">Libre</span>}
                     {/* Chevron : chaque jour s'ouvre dans l'Agenda. */}
                     <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="-mr-1 shrink-0 text-ink-3">
                       <path d="M9 5l7 7-7 7" />
