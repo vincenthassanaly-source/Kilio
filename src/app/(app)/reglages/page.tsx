@@ -50,7 +50,7 @@ export default async function ReglagesPage() {
               « Terminé ») : plus besoin de deviner l'appui long. */}
           <TransitionLink
             href={HREF_PLUS_EDITION}
-            className="-mx-2 block rounded-xl px-2 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
+            className="-mx-2 block rounded-xl px-2 py-3.5 transition-colors hover:bg-surface-alt active:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal"
           >
             <ReglageEntete
               icone={
