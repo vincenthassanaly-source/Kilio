@@ -278,6 +278,18 @@ function withRelations(table, rows, select) {
   });
 }
 
+// Fixtures d'audit (agents Opus, skill kilio-audit-module) : activées seulement avec
+// MOCK_SUPABASE_AUDIT=1, pour ne pas changer les données des tests e2e. Chaque fichier
+// e2e/audit-fixtures/<module>.mjs exporte par défaut { table: [lignes] } ; les tables
+// sont concaténées à celles ci-dessus (préfixer les ids pour éviter les collisions).
+if (process.env.MOCK_SUPABASE_AUDIT === "1") {
+  const dossier = new URL("./audit-fixtures/", import.meta.url);
+  const { readdirSync } = await import("node:fs");
+  for (const f of readdirSync(dossier).filter((n) => n.endsWith(".mjs")).sort()) {
+    const extra = (await import(new URL(f, dossier))).default ?? {};
+    for (const [table, rows] of Object.entries(extra)) fixtures[table] = [...(fixtures[table] ?? []), ...rows];
+  }
+}
 const initialFixtures = JSON.parse(JSON.stringify(fixtures));
 
 // « Aujourd'hui » à Paris, comme aujourdhuiParis() (src/lib/date/paris.ts) côté
@@ -393,11 +405,19 @@ function applyOrder(rows, params) {
   });
 }
 
+// Mode panne (audit de résilience) : GET /__panne?mode=down|lent|off[&ms=8000].
+// down = 503 immédiat ; lent = réponse après `ms` ; off = fonctionnement normal.
+const panne = { mode: "off", ms: 8000 };
+
 function send(res, status, body, headers = {}) {
+  if (panne.mode === "down") {
+    status = 503;
+    body = { message: "panne simulée (/__panne)" };
+  }
   setTimeout(() => {
     res.writeHead(status, { "content-type": "application/json", ...headers });
     res.end(body === undefined ? "" : JSON.stringify(body));
-  }, LATENCY_MS);
+  }, LATENCY_MS + (panne.mode === "lent" ? panne.ms : 0));
 }
 
 function readBody(req) {
@@ -425,7 +445,14 @@ const server = http.createServer(async (req, res) => {
     for (const key of Object.keys(fixtures)) delete fixtures[key];
     Object.assign(fixtures, JSON.parse(JSON.stringify(initialFixtures)));
     writes.length = 0;
+    panne.mode = "off";
     res.writeHead(204).end();
+    return;
+  }
+  if (url.pathname === "/__panne") {
+    panne.mode = url.searchParams.get("mode") ?? "off";
+    if (url.searchParams.get("ms")) panne.ms = Number(url.searchParams.get("ms"));
+    res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify(panne));
     return;
   }
   if (url.pathname === "/__writes") {
