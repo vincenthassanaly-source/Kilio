@@ -26,11 +26,15 @@ export function useSetNotificationsActives(): (actives: boolean) => void {
   return useContext(NotificationsContext).setActives;
 }
 
-/** Bandeau affiché sous la ligne « Notifications » quand elles sont éteintes. */
+/**
+ * Explication affichée sous la ligne « Notifications » quand elles sont
+ * éteintes : alignée sous son titre (même retrait que `ReglageDetail`) et sans
+ * filet, pour se lire comme le détail de cette ligne et non comme un réglage.
+ */
 export function BandeauNotificationsEteintes() {
   if (useNotificationsActives() !== false) return null;
   return (
-    <p role="status" className="border-t border-line py-3 text-small leading-snug text-ink-2">
+    <p role="status" className="-mt-1.5 pb-3.5 pl-[42px] text-small leading-snug text-ink-2">
       Active d&apos;abord les notifications : les rappels ci-dessous ne peuvent pas t&apos;être envoyés sans elles.
     </p>
   );
