@@ -10,11 +10,12 @@ import {
   synthetiserRevue,
 } from "@/app/actions/revue-assistant";
 import { Modal } from "@/components/Modal";
+import { Skeleton } from "@/components/skeletons/Skeleton";
 import { runAction } from "@/lib/actions/runAction";
 import { parseISODate } from "@/lib/date/iso";
 import type { AnalyseSemaine } from "@/lib/revue/analyse";
 import type { PropositionReplanification, SyntheseRevue } from "@/lib/revue/assistant";
-import { errorText, ghostButton, primaryButton, secondaryButton } from "@/lib/ui";
+import { errorText, primaryButton, secondaryButton } from "@/lib/ui";
 
 export type ModeAssistantRevue = "bilan" | "avenir" | "replanifier" | "semaine";
 
@@ -44,13 +45,13 @@ function Squelette() {
   return (
     <div className="flex flex-col gap-3" aria-hidden="true">
       <div className="flex flex-col gap-2">
-        <div className="h-3.5 w-full rounded bg-surface-alt motion-safe:animate-pulse" />
-        <div className="h-3.5 w-4/5 rounded bg-surface-alt motion-safe:animate-pulse" />
+        <Skeleton className="h-3.5 w-full rounded-full" />
+        <Skeleton className="h-3.5 w-4/5 rounded-full" />
       </div>
       <div className="flex flex-col gap-2 pt-1">
-        <div className="h-3 w-3/4 rounded bg-surface-alt motion-safe:animate-pulse" />
-        <div className="h-3 w-2/3 rounded bg-surface-alt motion-safe:animate-pulse" />
-        <div className="h-3 w-4/5 rounded bg-surface-alt motion-safe:animate-pulse" />
+        <Skeleton className="h-3 w-3/4 rounded-full" />
+        <Skeleton className="h-3 w-2/3 rounded-full" />
+        <Skeleton className="h-3 w-4/5 rounded-full" />
       </div>
     </div>
   );
@@ -84,7 +85,7 @@ function ListeReplanification({
             <li key={p.id}>
               <label
                 htmlFor={id}
-                className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-line bg-surface p-3 transition-colors has-[:checked]:border-kcal/40 has-[:checked]:bg-kcal-soft has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-kcal"
+                className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-line bg-surface p-3 transition-colors has-[:checked]:border-kcal/40 has-[:checked]:bg-kcal-soft has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-kcal has-[:disabled]:cursor-default"
               >
                 <input
                   id={id}
@@ -101,7 +102,7 @@ function ListeReplanification({
                   <span className="text-label tabular-nums text-ink-2">
                     <span className="line-through">{jourCourt(p.echeanceActuelle)}</span>
                     {" → "}
-                    <span className="font-semibold capitalize text-ink">{jourCourt(p.nouvelle)}</span>
+                    <span className="font-semibold text-ink">{jourCourt(p.nouvelle)}</span>
                   </span>
                   {p.raison && <span className="text-small text-ink-3">{p.raison}</span>}
                 </span>
@@ -110,6 +111,8 @@ function ListeReplanification({
           );
         })}
       </ul>
+      {/* Rappel juste au-dessus du seul bouton qui écrit. */}
+      <p className="text-caption text-ink-3">Proposé par l&apos;IA : rien n&apos;est modifié avant que tu appliques.</p>
       <button
         type="button"
         disabled={occupe || choisies.length === 0}
@@ -285,15 +288,13 @@ export function AssistantRevueModal({
             <button type="button" onClick={relancer} className={`${secondaryButton} flex-1`}>
               {etat.phase === "erreur" ? "Réessayer" : "Régénérer"}
             </button>
-            <button type="button" onClick={onClose} className={ghostButton}>
+            {/* Même gabarit que « Régénérer » : deux boutons de même hauteur et même graisse. */}
+            <button type="button" onClick={onClose} className={secondaryButton}>
               Fermer
             </button>
           </div>
         )}
 
-        {(etat.phase === "replanification" || etat.phase === "application") && (
-          <p className="text-caption text-ink-3">Proposé par l&apos;IA : rien n&apos;est modifié avant que tu appliques.</p>
-        )}
       </div>
     </Modal>
   );

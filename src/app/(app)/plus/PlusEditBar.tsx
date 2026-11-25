@@ -30,6 +30,11 @@ export function PlusEditBar() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
+          // Même retour au tap que les autres boutons (active:scale-[0.97]),
+          // porté par framer-motion : une classe CSS serait écrasée par le
+          // transform inline de l'animation d'entrée.
+          whileTap={{ scale: 0.97 }}
+          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
           className="relative rounded-full bg-kcal px-3.5 py-1.5 text-small font-semibold text-on-kcal after:absolute after:-inset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kcal focus-visible:ring-offset-2"
         >
           Terminé

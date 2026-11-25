@@ -5,7 +5,9 @@ import { screenTitle } from "@/lib/ui";
 export default function PlusPage() {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      {/* min-h-8 : hauteur du bouton « Terminé » (31,5 px) réservée d'avance,
+          pour que l'indice et la grille ne sautent pas à l'entrée en édition. */}
+      <div className="flex min-h-8 items-center justify-between gap-3">
         <h1 className={screenTitle}>Plus</h1>
         <PlusEditBar />
       </div>

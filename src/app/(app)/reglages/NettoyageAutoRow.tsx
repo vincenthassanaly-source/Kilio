@@ -7,6 +7,7 @@ import { Switch } from "@/components/Switch";
 import { useBackClose } from "@/hooks/useBackClose";
 import { runAction } from "@/lib/actions/runAction";
 import { errorText, input } from "@/lib/ui";
+import type { Tables } from "@/lib/supabase/types";
 import { Pastille, ReglageDetail, ReglageEntete } from "./ReglageUi";
 
 // Ce que la fonction planifiée supprime (supabase/functions/nettoyage-auto,
@@ -16,7 +17,6 @@ const ELEMENTS_NETTOYES = [
   "les articles de courses pris",
   "les items de notes cochés",
 ];
-import type { Tables } from "@/lib/supabase/types";
 
 function NettoyageIcon() {
   return (
