@@ -22,6 +22,7 @@ import { emptyState, inputAvecIcone, input, label, metaText, secondaryButton, se
 import { AfficheFilm } from "./AfficheFilm";
 import { BoutonListe } from "./BoutonListe";
 import { lireEtatFilms, memoriserEtatFilms } from "./etatFilms";
+import { HumeurFilms } from "./HumeurFilms";
 import { LigneDispo } from "./LigneDispo";
 import { SqueletteFilms } from "./SqueletteFilms";
 import { SuggestionsFilms } from "./SuggestionsFilms";
@@ -283,6 +284,8 @@ export function RechercheFilms() {
           </div>
         )}
       </div>
+
+      {!enRecherche && nbActifs === 0 && <HumeurFilms mesIds={mesIds} />}
 
       {montrerSuggestions && <SuggestionsFilms mesIds={mesIds} />}
 
