@@ -154,6 +154,14 @@ const OPINIONS_ICON = (c: string) =>
     createElement("path", { d: "M5 7.5 2.8 13a2.9 2.9 0 0 0 4.4 0zM19 7.5 16.8 13a2.9 2.9 0 0 0 4.4 0z" })
   );
 
+const FILMS_ICON = (c: string) =>
+  createElement(
+    "svg",
+    { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+    createElement("rect", { x: 3.5, y: 4.5, width: 17, height: 15, rx: 3 }),
+    createElement("path", { d: "M8 4.5v15M16 4.5v15M3.5 9.5H8M3.5 14.5H8M16 9.5h4.5M16 14.5h4.5" })
+  );
+
 const REVUE_ICON = (c: string) =>
   createElement(
     "svg",
@@ -250,6 +258,13 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Idées politiques, positions et profil",
     accentVar: "var(--accent-opinions)",
     icon: OPINIONS_ICON,
+  },
+  {
+    href: "/films",
+    label: "Films",
+    description: "Trouver un film et voir où le regarder",
+    accentVar: "var(--accent-films)",
+    icon: FILMS_ICON,
   },
   {
     href: "/journal",
