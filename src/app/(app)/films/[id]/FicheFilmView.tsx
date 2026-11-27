@@ -13,6 +13,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { card, emptyState, linkButton, metaText, pillTag, primaryButton, sectionTitle, textButton } from "@/lib/ui";
 import { AfficheFilm } from "../AfficheFilm";
 import { AttributionTmdb } from "../AttributionTmdb";
+import { SimilairesFilms } from "../SimilairesFilms";
 import { useActionsFilms } from "../useActionsFilms";
 
 function LogoFournisseur({ fournisseur }: { fournisseur: Fournisseur }) {
@@ -163,6 +164,8 @@ export function FicheFilmView({ id }: { id: number }) {
         <h2 className={sectionTitle}>Synopsis</h2>
         <p className="max-w-prose text-body text-ink-2 text-pretty">{film.resume || "Pas de synopsis en français pour ce film."}</p>
       </section>
+
+      <SimilairesFilms id={id} mesIds={mesIds} />
 
       <AttributionTmdb />
     </div>

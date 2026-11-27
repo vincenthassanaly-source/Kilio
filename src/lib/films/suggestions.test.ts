@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { composerSections, criteresSuggestion, debutSortiesRecentes } from "./suggestions";
+import { composerSections, composerSimilaires, criteresSuggestion, debutSortiesRecentes } from "./suggestions";
+
+describe("composerSimilaires", () => {
+  const film = (id: number) => ({ id });
+
+  it("retire le film de la fiche, les films vus et les doublons", () => {
+    const r = composerSimilaires([film(1), film(2), film(3), film(2), film(4)], 1, new Set([3]), 10);
+    expect(r.map((f) => f.id)).toEqual([2, 4]);
+  });
+
+  it("tronque au nombre demandé", () => {
+    expect(composerSimilaires([1, 2, 3, 4].map(film), 99, new Set(), 2).map((f) => f.id)).toEqual([1, 2]);
+  });
+});
 
 describe("debutSortiesRecentes", () => {
   it("remonte au premier jour du même mois, un an plus tôt", () => {

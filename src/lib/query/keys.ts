@@ -36,6 +36,7 @@ export const queryKeys = {
   filmsListe: ["films", "liste"] as const,
   filmsStatuts: ["films", "statuts"] as const,
   filmsSuggestions: ["films", "suggestions"] as const,
+  filmsSimilaires: (id: number) => ["films", "similaires", id] as const,
   filmsPlateformes: ["films", "plateformes"] as const,
   filmsFournisseurs: ["films", "fournisseurs"] as const,
   filmsGenres: ["films", "genres"] as const,
