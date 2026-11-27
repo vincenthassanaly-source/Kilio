@@ -410,6 +410,57 @@ export type Database = {
         }
         Relationships: []
       }
+      films_plateformes: {
+        Row: {
+          created_at: string
+          fournisseur_id: number
+          logo: string | null
+          nom: string
+        }
+        Insert: {
+          created_at?: string
+          fournisseur_id: number
+          logo?: string | null
+          nom: string
+        }
+        Update: {
+          created_at?: string
+          fournisseur_id?: number
+          logo?: string | null
+          nom?: string
+        }
+        Relationships: []
+      }
+      films_watchlist: {
+        Row: {
+          affiche: string | null
+          annee: number | null
+          created_at: string
+          statut: string
+          titre: string
+          tmdb_id: number
+          vu_le: string | null
+        }
+        Insert: {
+          affiche?: string | null
+          annee?: number | null
+          created_at?: string
+          statut?: string
+          titre: string
+          tmdb_id: number
+          vu_le?: string | null
+        }
+        Update: {
+          affiche?: string | null
+          annee?: number | null
+          created_at?: string
+          statut?: string
+          titre?: string
+          tmdb_id?: number
+          vu_le?: string | null
+        }
+        Relationships: []
+      }
       habitude_entries: {
         Row: {
           created_at: string

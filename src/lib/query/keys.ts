@@ -28,6 +28,16 @@ export const queryKeys = {
   // Sous la racine `opinions` : un tirer-pour-rafraîchir invalide aussi partis et priorités.
   opinionsPartis: ["opinions", "partis"] as const,
   opinionsPriorites: ["opinions", "priorites"] as const,
+  // Racine `films` : un tirer-pour-rafraîchir ou une écriture invalide aussi
+  // les statuts, la liste, les plateformes et les fiches.
+  films: ["films"] as const,
+  filmsRecherche: (filtres: unknown) => ["films", "recherche", filtres] as const,
+  filmsFiche: (id: number) => ["films", "fiche", id] as const,
+  filmsListe: ["films", "liste"] as const,
+  filmsStatuts: ["films", "statuts"] as const,
+  filmsPlateformes: ["films", "plateformes"] as const,
+  filmsFournisseurs: ["films", "fournisseurs"] as const,
+  filmsGenres: ["films", "genres"] as const,
   collections: ["collections"] as const,
   collection: (id: string) => ["collection", id] as const,
   // Sans mutation côté app (écrites uniquement hors Server Action, cf.

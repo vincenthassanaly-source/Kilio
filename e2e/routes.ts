@@ -36,6 +36,7 @@ export const ROUTES: RouteContract[] = [
   { path: "/revue", title: "Revue de la semaine" },
   { path: "/scanner", title: "Scanner" },
   { path: "/opinions", title: "Opinions" },
+  { path: "/films", title: "Films" },
   { path: "/musculation/historique", title: "Historique" },
   { path: "/musculation/stats", title: "Statistiques" },
   { path: "/documents/categories", title: "Catégories" },
