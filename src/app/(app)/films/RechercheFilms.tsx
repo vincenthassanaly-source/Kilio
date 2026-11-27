@@ -24,6 +24,7 @@ import { BoutonListe } from "./BoutonListe";
 import { lireEtatFilms, memoriserEtatFilms } from "./etatFilms";
 import { LigneDispo } from "./LigneDispo";
 import { SqueletteFilms } from "./SqueletteFilms";
+import { SuggestionsFilms } from "./SuggestionsFilms";
 import { useActionsFilms } from "./useActionsFilms";
 
 const DELAI_SAISIE_MS = 350;
@@ -150,7 +151,15 @@ export function RechercheFilms() {
   const nbActifs = nombreFiltresActifs(filtres);
   const platformesActives = filtres.mesPlateformes && nbPlateformes > 0;
   const enRecherche = filtres.requete !== "";
-  const titreListe = enRecherche ? "Résultats" : nbActifs > 0 || platformesActives ? "Films" : "Les plus populaires";
+  // Les suggestions n'ont de sens que sans recherche ni filtre : sinon l'utilisateur cherche quelque chose de précis.
+  const montrerSuggestions = !enRecherche && nbActifs === 0 && !filtres.mesPlateformes && nbPlateformes > 0;
+  const titreListe = enRecherche
+    ? "Résultats"
+    : nbActifs > 0 || platformesActives
+      ? "Films"
+      : montrerSuggestions
+        ? "Tout explorer"
+        : "Les plus populaires";
 
   return (
     <div className="flex flex-col gap-4">
@@ -274,6 +283,8 @@ export function RechercheFilms() {
           </div>
         )}
       </div>
+
+      {montrerSuggestions && <SuggestionsFilms mesIds={mesIds} />}
 
       <section aria-labelledby={`${idPanneau}-titre`} className="flex flex-col gap-3">
         <h2 id={`${idPanneau}-titre`} className={sectionTitle}>
