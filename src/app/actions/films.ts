@@ -2,6 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
+import { messageEchec } from "@/lib/gemini/analyse";
+import { appelerGemini } from "@/lib/gemini/appel";
+import { creerCacheCourt, empreinte } from "@/lib/gemini/cache-court";
+import {
+  SCHEMA_HUMEUR,
+  construirePromptHumeur,
+  criteresHumeur,
+  criteresVides,
+  libellesCompris,
+  lireReponseHumeur,
+  nettoyerEnvie,
+  type CriteresHumeur,
+} from "@/lib/films/humeur";
 import { ficheVersListe } from "@/lib/films/parse";
 import {
   ErreurTmdb,
@@ -235,6 +248,71 @@ export async function getSimilaires(id: number): Promise<ActionResult<FilmListe[
       .sort((a, b) => Number(surMesPlateformes(b.film.dispo, mesIds)) - Number(surMesPlateformes(a.film.dispo, mesIds)) || a.rang - b.rang)
       .map((x) => x.film);
     return ok(tries.slice(0, SIMILAIRES_MAX));
+  } catch (err) {
+    return fail(messageErreur(err));
+  }
+}
+
+// --- Recommandation par humeur ---
+
+export type ResultatHumeur = {
+  films: FilmListe[];
+  /** Ce qui a été compris de l'envie, en clair (genres, époque, durée…). */
+  compris: string[];
+  /** Le filtre « sur mes plateformes » a été appliqué (seulement si des plateformes sont choisies). */
+  plateformesAppliquees: boolean;
+};
+
+const GEMINI_HUMEUR_TIMEOUT_MS = 15_000;
+const HUMEUR_FILMS_MAX = 15;
+// Même envie, mêmes critères : on évite de rappeler Gemini (le quota gratuit est partagé avec le reste de l'app).
+const cacheHumeur = creerCacheCourt<CriteresHumeur>(30 * 60_000, 50);
+
+/** Gemini traduit l'envie en filtres (jamais en films) ; ces filtres sont validés puis confiés à TMDB, qui
+ * fournit les films réels. Les films déjà vus ne sont pas proposés. */
+export async function recommanderParHumeur(envieBrute: unknown, surMesPlateformes: boolean): Promise<ActionResult<ResultatHumeur>> {
+  const envie = nettoyerEnvie(envieBrute);
+  if (!envie) return fail("Décris ton envie en quelques mots.");
+
+  let genres: Genre[];
+  try {
+    genres = await genresEnCache();
+  } catch (err) {
+    return fail(messageErreur(err));
+  }
+
+  const cle = empreinte(envie.toLowerCase());
+  let criteres = cacheHumeur.lire(cle);
+  if (!criteres) {
+    const reponse = await appelerGemini({
+      prompt: construirePromptHumeur(envie, genres),
+      schema: SCHEMA_HUMEUR,
+      timeoutMs: GEMINI_HUMEUR_TIMEOUT_MS,
+      temperature: 0.2,
+      etiquette: "humeur-films",
+    });
+    if (!reponse.ok) return fail(messageEchec(reponse, "L'IA n'a pas compris ton envie"));
+    criteres = lireReponseHumeur(reponse.brut, new Set(genres.map((g) => g.id)));
+    if (!criteres || criteresVides(criteres)) {
+      return fail("Je n'ai pas su traduire cette envie en filtres. Précise un genre, une époque ou une durée.");
+    }
+    cacheHumeur.ecrire(cle, criteres);
+  }
+
+  const [plateformes, vus] = await Promise.all([
+    lirePlateformes(),
+    createAdminClient().from("films_watchlist").select("tmdb_id").eq("statut", "vu"),
+  ]);
+  if (!plateformes.ok) return fail(plateformes.error);
+  if (vus.error) return fail(messageBase(vus.error));
+  const ids = plateformes.data.map((p) => p.id);
+  const appliquer = surMesPlateformes && ids.length > 0;
+  const exclus = new Set(vus.data.map((l) => l.tmdb_id));
+
+  try {
+    const page = await decouvrirEnCache(criteresHumeur(criteres, appliquer ? ids : []), 1);
+    const candidats = page.films.filter((f) => !exclus.has(f.id)).slice(0, HUMEUR_FILMS_MAX);
+    return ok({ films: await enrichir(candidats), compris: libellesCompris(criteres, genres), plateformesAppliquees: appliquer });
   } catch (err) {
     return fail(messageErreur(err));
   }
