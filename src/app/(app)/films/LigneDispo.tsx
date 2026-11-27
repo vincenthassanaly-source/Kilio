@@ -11,13 +11,16 @@ export function LigneDispo({
   dispo,
   mesIds,
   className = "",
+  sansLogos = false,
 }: {
   dispo: Disponibilite | null;
   mesIds: ReadonlySet<number>;
   className?: string;
+  /** Texte seul, pour les emplacements étroits (tuiles de suggestions). */
+  sansLogos?: boolean;
 }) {
   const r = resumerDispo(dispo, mesIds);
-  const logos = r.fournisseurs.filter((f) => urlLogo(f.logo)).slice(0, LOGOS_MAX);
+  const logos = sansLogos ? [] : r.fournisseurs.filter((f) => urlLogo(f.logo)).slice(0, LOGOS_MAX);
   return (
     <div className={`flex min-w-0 items-center gap-2 ${className}`}>
       {logos.length > 0 && (

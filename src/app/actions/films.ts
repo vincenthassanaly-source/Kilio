@@ -26,6 +26,13 @@ import {
   type Genre,
   type StatutFilm,
 } from "@/lib/films/types";
+import {
+  TITRES_SECTIONS,
+  composerSections,
+  criteresSuggestion,
+  type IdSection,
+  type SectionSuggestion,
+} from "@/lib/films/suggestions";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const TITRE_MAX = 300;
@@ -156,6 +163,45 @@ export async function chercherFilms(filtresBruts: unknown, pageBrute: number): P
       }
     }
     return ok({ films, page: resultat.page, totalPages: resultat.totalPages, plateformesAppliquees: appliquer });
+  } catch (err) {
+    return fail(messageErreur(err));
+  }
+}
+
+// --- Suggestions du moment ---
+
+export type ResultatSuggestions = {
+  sections: SectionSuggestion[];
+  /** Faux tant qu'aucune plateforme n'est choisie : il n'y a alors rien à suggérer « sur tes plateformes ». */
+  plateformesChoisies: boolean;
+};
+
+const ORDRE_SECTIONS: readonly IdSection[] = ["populaires", "recents"];
+
+/** Films en abonnement sur les plateformes de l'utilisateur : les plus populaires, puis les sorties de
+ * l'année. Les films déjà vus ne sont jamais proposés, et un film n'apparaît que dans une seule rangée. */
+export async function getSuggestions(): Promise<ActionResult<ResultatSuggestions>> {
+  const plateformes = await lirePlateformes();
+  if (!plateformes.ok) return fail(plateformes.error);
+  const ids = plateformes.data.map((p) => p.id);
+  if (ids.length === 0) return ok({ sections: [], plateformesChoisies: false });
+
+  const vus = await createAdminClient().from("films_watchlist").select("tmdb_id").eq("statut", "vu");
+  if (vus.error) return fail(messageBase(vus.error));
+  const exclus = new Set(vus.data.map((l) => l.tmdb_id));
+
+  try {
+    const maintenant = new Date();
+    const pages = await Promise.all(ORDRE_SECTIONS.map((id) => decouvrirEnCache(criteresSuggestion(id, ids, maintenant), 1)));
+    const sections = composerSections(
+      ORDRE_SECTIONS.map((id, i) => ({ id, films: pages[i].films })),
+      exclus
+    );
+    // On n'enrichit (un appel TMDB en cache par film) qu'après le tri et la troncature.
+    const enrichies = await Promise.all(
+      sections.map(async (s) => ({ id: s.id, titre: TITRES_SECTIONS[s.id], films: await enrichir(s.films) }))
+    );
+    return ok({ sections: enrichies, plateformesChoisies: true });
   } catch (err) {
     return fail(messageErreur(err));
   }
