@@ -35,6 +35,25 @@ export function criteresSuggestion(id: IdSection, fournisseurIds: readonly numbe
   return p.toString();
 }
 
+/** Candidats « dans le même esprit » : sans le film de la fiche, sans les films exclus (vus), sans doublon,
+ * tronqués à `taille`. Le tri par disponibilité se fait ensuite, quand les plateformes sont connues. */
+export function composerSimilaires<T extends { id: number }>(
+  films: readonly T[],
+  idFilm: number,
+  exclus: ReadonlySet<number>,
+  taille: number
+): T[] {
+  const dejaVus = new Set<number>([idFilm]);
+  const resultat: T[] = [];
+  for (const film of films) {
+    if (resultat.length >= taille) break;
+    if (exclus.has(film.id) || dejaVus.has(film.id)) continue;
+    dejaVus.add(film.id);
+    resultat.push(film);
+  }
+  return resultat;
+}
+
 /** Retire les films déjà exclus (vus) et ceux déjà proposés dans une rangée précédente, tronque,
  * puis écarte les rangées devenues vides. L'ordre des rangées est conservé. */
 export function composerSections<T extends { id: number }>(

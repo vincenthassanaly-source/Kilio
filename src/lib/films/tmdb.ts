@@ -98,6 +98,18 @@ export async function rechercherEnCache(requete: string, page: number): Promise<
   return parsePageFilms(await tmdb("/search/movie", { query: requete, page, include_adult: "false" }));
 }
 
+/** Films que TMDB recommande à partir d'un film (page 1). Un film inconnu n'a simplement aucune recommandation. */
+export async function recommandationsEnCache(id: number): Promise<PageFilms> {
+  "use cache";
+  cacheLife({ stale: 300, revalidate: 12 * 3600, expire: 24 * 3600 });
+  try {
+    return parsePageFilms(await tmdb(`/movie/${id}/recommendations`, { page: 1 }));
+  } catch (err) {
+    if (err instanceof ErreurTmdb && err.code === "introuvable") return { films: [], page: 1, totalPages: 1 };
+    throw err;
+  }
+}
+
 /** Critères de `/discover/movie` sérialisés en chaîne : la clé de cache d'une fonction `"use cache"`. */
 export function criteresDecouverte(filtres: FiltresFilms, fournisseurIds: readonly number[]): string {
   const p = new URLSearchParams();

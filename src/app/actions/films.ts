@@ -11,6 +11,7 @@ import {
   ficheEnCache,
   fournisseursEnCache,
   genresEnCache,
+  recommandationsEnCache,
   rechercherEnCache,
 } from "@/lib/films/tmdb";
 import {
@@ -29,6 +30,7 @@ import {
 import {
   TITRES_SECTIONS,
   composerSections,
+  composerSimilaires,
   criteresSuggestion,
   type IdSection,
   type SectionSuggestion,
@@ -202,6 +204,37 @@ export async function getSuggestions(): Promise<ActionResult<ResultatSuggestions
       sections.map(async (s) => ({ id: s.id, titre: TITRES_SECTIONS[s.id], films: await enrichir(s.films) }))
     );
     return ok({ sections: enrichies, plateformesChoisies: true });
+  } catch (err) {
+    return fail(messageErreur(err));
+  }
+}
+
+// --- Films similaires ---
+
+const SIMILAIRES_CANDIDATS = 18;
+const SIMILAIRES_MAX = 12;
+
+/** « Dans le même esprit » : les recommandations TMDB d'un film, sans les films déjà vus, ceux qu'on peut
+ * regarder sur ses plateformes d'abord (l'ordre de TMDB sert de départage). */
+export async function getSimilaires(id: number): Promise<ActionResult<FilmListe[]>> {
+  if (!idValide(id)) return fail(MESSAGES_TMDB.introuvable);
+  const [vus, plateformes] = await Promise.all([
+    createAdminClient().from("films_watchlist").select("tmdb_id").eq("statut", "vu"),
+    lirePlateformes(),
+  ]);
+  if (vus.error) return fail(messageBase(vus.error));
+  if (!plateformes.ok) return fail(plateformes.error);
+
+  try {
+    const page = await recommandationsEnCache(id);
+    const candidats = composerSimilaires(page.films, id, new Set(vus.data.map((l) => l.tmdb_id)), SIMILAIRES_CANDIDATS);
+    const mesIds = new Set(plateformes.data.map((p) => p.id));
+    const enrichis = await enrichir(candidats);
+    const tries = enrichis
+      .map((film, rang) => ({ film, rang }))
+      .sort((a, b) => Number(surMesPlateformes(b.film.dispo, mesIds)) - Number(surMesPlateformes(a.film.dispo, mesIds)) || a.rang - b.rang)
+      .map((x) => x.film);
+    return ok(tries.slice(0, SIMILAIRES_MAX));
   } catch (err) {
     return fail(messageErreur(err));
   }
